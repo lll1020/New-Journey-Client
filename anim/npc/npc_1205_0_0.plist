@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plist version="1.0">
+  <dict>
+    <key>frames</key>
+    <dict>
+      <key>npc_1205_0_0_0_0000.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,0},{62,86}}</string>
+        <key>offset</key>
+        <string>{-5,65}</string>
+        <key>rotated</key>
+        <true />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{62,86}}</string>
+        <key>sourceSize</key>
+        <string>{62,86}</string>
+      </dict>
+      <key>npc_1205_0_0_0_0001.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,64},{63,85}}</string>
+        <key>offset</key>
+        <string>{-6,64}</string>
+        <key>rotated</key>
+        <true />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{63,85}}</string>
+        <key>sourceSize</key>
+        <string>{63,85}</string>
+      </dict>
+      <key>npc_1205_0_0_0_0002.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,129},{63,85}}</string>
+        <key>offset</key>
+        <string>{-6,64}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{63,85}}</string>
+        <key>sourceSize</key>
+        <string>{63,85}</string>
+      </dict>
+      <key>npc_1205_0_0_0_0003.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{65,129},{62,85}}</string>
+        <key>offset</key>
+        <string>{-5,64}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{62,85}}</string>
+        <key>sourceSize</key>
+        <string>{62,85}</string>
+      </dict>
+      <key>npc_1205_0_0_0_0004.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{87,64},{62,85}}</string>
+        <key>offset</key>
+        <string>{-5,64}</string>
+        <key>rotated</key>
+        <true />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{62,85}}</string>
+        <key>sourceSize</key>
+        <string>{62,85}</string>
+      </dict>
+      <key>npc_1205_0_0_0_0005.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{88,0},{62,85}}</string>
+        <key>offset</key>
+        <string>{-5,64}</string>
+        <key>rotated</key>
+        <true />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{62,85}}</string>
+        <key>sourceSize</key>
+        <string>{62,85}</string>
+      </dict>
+    </dict>
+    <key>metadata</key>
+    <dict>
+      <key>format</key>
+      <integer>2</integer>
+      <key>realTextureFileName</key>
+      <string>npc_1205_0_0.png</string>
+      <key>size</key>
+      <string>{256,256}</string>
+      <key>textureFileName</key>
+      <string>npc_1205_0_0.png</string>
+    </dict>
+  </dict>
+</plist>

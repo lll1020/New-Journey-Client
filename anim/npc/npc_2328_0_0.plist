@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plist version="1.0">
+  <dict>
+    <key>frames</key>
+    <dict>
+      <key>npc_2328_0_0_0_0000.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,0},{77,122}}</string>
+        <key>offset</key>
+        <string>{-15,92}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{77,122}}</string>
+        <key>sourceSize</key>
+        <string>{77,122}</string>
+      </dict>
+      <key>npc_2328_0_0_0_0001.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,124},{78,122}}</string>
+        <key>offset</key>
+        <string>{-15,92}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{78,122}}</string>
+        <key>sourceSize</key>
+        <string>{78,122}</string>
+      </dict>
+      <key>npc_2328_0_0_0_0002.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{79,0},{79,122}}</string>
+        <key>offset</key>
+        <string>{-15,92}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{79,122}}</string>
+        <key>sourceSize</key>
+        <string>{79,122}</string>
+      </dict>
+      <key>npc_2328_0_0_0_0003.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{80,124},{77,122}}</string>
+        <key>offset</key>
+        <string>{-14,92}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{77,122}}</string>
+        <key>sourceSize</key>
+        <string>{77,122}</string>
+      </dict>
+    </dict>
+    <key>metadata</key>
+    <dict>
+      <key>format</key>
+      <integer>2</integer>
+      <key>realTextureFileName</key>
+      <string>npc_2328_0_0.png</string>
+      <key>size</key>
+      <string>{256,256}</string>
+      <key>textureFileName</key>
+      <string>npc_2328_0_0.png</string>
+    </dict>
+  </dict>
+</plist>

@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plist version="1.0">
+  <dict>
+    <key>frames</key>
+    <dict>
+      <key>npc_2106_0_0_0_0000.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{508,0},{251,296}}</string>
+        <key>offset</key>
+        <string>{-124,223}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{251,296}}</string>
+        <key>sourceSize</key>
+        <string>{251,296}</string>
+      </dict>
+      <key>npc_2106_0_0_0_0001.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{255,0},{251,305}}</string>
+        <key>offset</key>
+        <string>{-124,230}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{251,305}}</string>
+        <key>sourceSize</key>
+        <string>{251,305}</string>
+      </dict>
+      <key>npc_2106_0_0_0_0002.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,0},{253,310}}</string>
+        <key>offset</key>
+        <string>{-124,234}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{253,310}}</string>
+        <key>sourceSize</key>
+        <string>{253,310}</string>
+      </dict>
+    </dict>
+    <key>metadata</key>
+    <dict>
+      <key>format</key>
+      <integer>2</integer>
+      <key>realTextureFileName</key>
+      <string>npc_2106_0_0.png</string>
+      <key>size</key>
+      <string>{1024,512}</string>
+      <key>textureFileName</key>
+      <string>npc_2106_0_0.png</string>
+    </dict>
+  </dict>
+</plist>

@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plist version="1.0">
+  <dict>
+    <key>frames</key>
+    <dict>
+      <key>npc_2304_0_0_0_0000.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,0},{70,122}}</string>
+        <key>offset</key>
+        <string>{-8,94}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{70,122}}</string>
+        <key>sourceSize</key>
+        <string>{70,122}</string>
+      </dict>
+      <key>npc_2304_0_0_0_0001.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,124},{69,122}}</string>
+        <key>offset</key>
+        <string>{-8,94}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{69,122}}</string>
+        <key>sourceSize</key>
+        <string>{69,122}</string>
+      </dict>
+      <key>npc_2304_0_0_0_0002.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{71,124},{70,122}}</string>
+        <key>offset</key>
+        <string>{-8,94}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{70,122}}</string>
+        <key>sourceSize</key>
+        <string>{70,122}</string>
+      </dict>
+      <key>npc_2304_0_0_0_0003.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{72,0},{71,122}}</string>
+        <key>offset</key>
+        <string>{-8,94}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{71,122}}</string>
+        <key>sourceSize</key>
+        <string>{71,122}</string>
+      </dict>
+    </dict>
+    <key>metadata</key>
+    <dict>
+      <key>format</key>
+      <integer>2</integer>
+      <key>realTextureFileName</key>
+      <string>npc_2304_0_0.png</string>
+      <key>size</key>
+      <string>{256,256}</string>
+      <key>textureFileName</key>
+      <string>npc_2304_0_0.png</string>
+    </dict>
+  </dict>
+</plist>
