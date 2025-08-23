@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plist version="1.0">
+  <dict>
+    <key>frames</key>
+    <dict>
+      <key>obj142_000000.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{200,85},{48,81}}</string>
+        <key>offset</key>
+        <string>{0,0}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{48,81}}</string>
+        <key>sourceSize</key>
+        <string>{48,81}</string>
+      </dict>
+      <key>obj142_000001.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{200,0},{48,83}}</string>
+        <key>offset</key>
+        <string>{0,0}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{48,83}}</string>
+        <key>sourceSize</key>
+        <string>{48,83}</string>
+      </dict>
+      <key>obj142_000002.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,0},{48,464}}</string>
+        <key>offset</key>
+        <string>{0,0}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{48,464}}</string>
+        <key>sourceSize</key>
+        <string>{48,464}</string>
+      </dict>
+      <key>obj142_000003.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{50,0},{48,464}}</string>
+        <key>offset</key>
+        <string>{0,0}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{48,464}}</string>
+        <key>sourceSize</key>
+        <string>{48,464}</string>
+      </dict>
+      <key>obj142_000004.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{100,0},{48,459}}</string>
+        <key>offset</key>
+        <string>{0,0}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{48,459}}</string>
+        <key>sourceSize</key>
+        <string>{48,459}</string>
+      </dict>
+      <key>obj142_000005.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{150,0},{48,458}}</string>
+        <key>offset</key>
+        <string>{0,0}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{48,458}}</string>
+        <key>sourceSize</key>
+        <string>{48,458}</string>
+      </dict>
+    </dict>
+    <key>metadata</key>
+    <dict>
+      <key>format</key>
+      <integer>2</integer>
+      <key>realTextureFileName</key>
+      <string>obj142_0.png</string>
+      <key>size</key>
+      <string>{256,512}</string>
+      <key>textureFileName</key>
+      <string>obj142_0.png</string>
+    </dict>
+  </dict>
+</plist>
