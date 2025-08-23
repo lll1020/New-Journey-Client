@@ -119,3 +119,9 @@ end)
 SL:RegisterLUAEvent(LUA_EVENT_MAINBUFFUPDATE, "主玩家buff刷新", function(data)
 
 end)
+
+SL:RegisterLUAEvent(LUA_EVENT_SERVER_VALUE_CHANGE, "服务端属性下发",  function(data)
+    --if data.key == "T14" then
+    --    cogin.sjtb.bbsq = SL:JsonDecode(data.value, false)
+    --end
+end)

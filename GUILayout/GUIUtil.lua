@@ -12,11 +12,10 @@ cogin.guaji = {}
 cogin.sjtb = {}
 cogin.iskf = false  --是否在跨服
 cogin.hs = SL:Require("GUILayout/Data/huishou.lua", true)
---cogin.teshudata = SL:Require("GUILayout/Data/teshudata.lua", true)
+cogin.teshudata = SL:Require("GUILayout/Data/teshudata.lua", true)
 
-
+---回收的数据初始化
 cogin.huishou_jc_list = {}
-
 for v,k in pairs(cogin.hs.zzhs)  do
     for vv,kk in pairs(k)  do
         for vvv,kkk in pairs(kk.l)  do
@@ -207,7 +206,6 @@ local bind_money = {
     ["灵符"] = {4,2},--灵符
     ["仙玉"] = {8,7}--仙玉
 }
-
 --检查 物品 货币 装备是否满足数量(数量不足返回不足物品的名字) --文型
 function checkItemNumByTable(t, multiple)
     local str = ""
