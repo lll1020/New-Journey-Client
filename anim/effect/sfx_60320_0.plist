@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plist version="1.0">
+  <dict>
+    <key>frames</key>
+    <dict>
+      <key>sfx_60320_0_0000.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{148,0},{73,130}}</string>
+        <key>offset</key>
+        <string>{96,-8}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{73,130}}</string>
+        <key>sourceSize</key>
+        <string>{73,130}</string>
+      </dict>
+      <key>sfx_60320_0_0001.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,135},{76,132}}</string>
+        <key>offset</key>
+        <string>{94,-6}</string>
+        <key>rotated</key>
+        <true />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{76,132}}</string>
+        <key>sourceSize</key>
+        <string>{76,132}</string>
+      </dict>
+      <key>sfx_60320_0_0002.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{69,0},{77,132}}</string>
+        <key>offset</key>
+        <string>{93,-6}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{77,132}}</string>
+        <key>sourceSize</key>
+        <string>{77,132}</string>
+      </dict>
+      <key>sfx_60320_0_0003.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{134,134},{78,129}}</string>
+        <key>offset</key>
+        <string>{93,-8}</string>
+        <key>rotated</key>
+        <true />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{78,129}}</string>
+        <key>sourceSize</key>
+        <string>{78,129}</string>
+      </dict>
+      <key>sfx_60320_0_0004.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{223,0},{73,129}}</string>
+        <key>offset</key>
+        <string>{96,-9}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{73,129}}</string>
+        <key>sourceSize</key>
+        <string>{73,129}</string>
+      </dict>
+      <key>sfx_60320_0_0005.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,0},{67,133}}</string>
+        <key>offset</key>
+        <string>{99,-5}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{67,133}}</string>
+        <key>sourceSize</key>
+        <string>{67,133}</string>
+      </dict>
+    </dict>
+    <key>metadata</key>
+    <dict>
+      <key>format</key>
+      <integer>2</integer>
+      <key>realTextureFileName</key>
+      <string>sfx_60320_0.png</string>
+      <key>size</key>
+      <string>{512,256}</string>
+      <key>textureFileName</key>
+      <string>sfx_60320_0.png</string>
+    </dict>
+  </dict>
+</plist>

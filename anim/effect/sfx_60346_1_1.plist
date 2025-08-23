@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plist version="1.0">
+  <dict>
+    <key>frames</key>
+    <dict>
+      <key>sfx_60346_7_0002.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,0},{556,451}}</string>
+        <key>offset</key>
+        <string>{-151,189}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{556,451}}</string>
+        <key>sourceSize</key>
+        <string>{556,451}</string>
+      </dict>
+    </dict>
+    <key>metadata</key>
+    <dict>
+      <key>format</key>
+      <integer>2</integer>
+      <key>realTextureFileName</key>
+      <string>sfx_60346_1_1.png</string>
+      <key>size</key>
+      <string>{1024,512}</string>
+      <key>textureFileName</key>
+      <string>sfx_60346_1_1.png</string>
+    </dict>
+  </dict>
+</plist>

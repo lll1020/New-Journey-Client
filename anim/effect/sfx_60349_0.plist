@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plist version="1.0">
+  <dict>
+    <key>frames</key>
+    <dict>
+      <key>sfx_60349_0_0000.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,1438},{486,735}}</string>
+        <key>offset</key>
+        <string>{-204,538}</string>
+        <key>rotated</key>
+        <true />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{486,735}}</string>
+        <key>sourceSize</key>
+        <string>{486,735}</string>
+      </dict>
+      <key>sfx_60349_0_0001.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{737,1438},{488,735}}</string>
+        <key>offset</key>
+        <string>{-200,538}</string>
+        <key>rotated</key>
+        <true />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{488,735}}</string>
+        <key>sourceSize</key>
+        <string>{488,735}</string>
+      </dict>
+      <key>sfx_60349_0_0002.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,961},{475,739}}</string>
+        <key>offset</key>
+        <string>{-200,542}</string>
+        <key>rotated</key>
+        <true />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{475,739}}</string>
+        <key>sourceSize</key>
+        <string>{475,739}</string>
+      </dict>
+      <key>sfx_60349_0_0003.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,485},{474,742}}</string>
+        <key>offset</key>
+        <string>{-201,545}</string>
+        <key>rotated</key>
+        <true />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{474,742}}</string>
+        <key>sourceSize</key>
+        <string>{474,742}</string>
+      </dict>
+      <key>sfx_60349_0_0004.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,0},{483,743}}</string>
+        <key>offset</key>
+        <string>{-202,546}</string>
+        <key>rotated</key>
+        <true />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{483,743}}</string>
+        <key>sourceSize</key>
+        <string>{483,743}</string>
+      </dict>
+    </dict>
+    <key>metadata</key>
+    <dict>
+      <key>format</key>
+      <integer>2</integer>
+      <key>realTextureFileName</key>
+      <string>sfx_60349_0.png</string>
+      <key>size</key>
+      <string>{2048,2048}</string>
+      <key>textureFileName</key>
+      <string>sfx_60349_0.png</string>
+    </dict>
+  </dict>
+</plist>
