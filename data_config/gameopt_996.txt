@@ -1,0 +1,1 @@
+{"isShowAttributeTips":true,"isSingleJob":true, "isSingleSex":"boy"}
