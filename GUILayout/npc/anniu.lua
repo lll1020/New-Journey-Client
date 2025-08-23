@@ -2,8 +2,8 @@ local npc = {}
 
 ---顶部图标显示
 npc.iconpx = {
-    {{7, "ttsq",509,1}, {3, "fldt",511,4}, {1, "yxgl",512,10},{8, "sclb", 501,6},{28, "ddh", 524,17}},
-    {{12, "zxcz", 502,9}, {2, "jyh",510,2},{21, "dgdb", 518,15}, {5, "yxhd",507,3},{24, "mrhy", 521,16}, {23, "wyzz", 503,13},{29, "zzxl", 525,20}}
+    {{7, "ttsq",509,1}, {3, "fldt",511,4}, {1, "yxgl",512,10}},
+    {{12, "zxcz", 502,9}, {2, "jyh",510,2}}
 }
 npc.LeftTop = GUI:Attach_LeftTop() -- 左上
 npc.RightTop = GUI:Attach_RightTop() -- 右上
