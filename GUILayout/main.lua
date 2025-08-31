@@ -105,6 +105,10 @@ SL:RegisterLuaNetMsg(105, function(msgID, p1, p2, p3, msgData)
     end
 end)
 
+SL:RegisterLuaNetMsg(6000, function(msgID, p1, p2, p3, msgData)
+    Npclib["GMbox"]:OpenUI(p1, p2, p3, msgData)
+end)
+
 
 SL:RegisterLUAEvent(LUA_EVENT_PLAYER_EQUIP_CHANGE, "角色装备数据操作", function(data)
 

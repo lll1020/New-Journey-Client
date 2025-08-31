@@ -11,8 +11,20 @@ cogin.guajikawei = {0,0}
 cogin.guaji = {}
 cogin.sjtb = {}
 cogin.iskf = false  --是否在跨服
+SL:Require("GUILayout/ssrgame/util/Player", true)                               --日志打印函数
+SL:Require("GUILayout/ssrgame/util/uiEx", true)                                 --ui扩展
+SL:Require("GUILayout/ssrgame/util/util", true)                                 --工具库
+
+
+
+
 cogin.hs = SL:Require("GUILayout/Data/huishou.lua", true)
 cogin.teshudata = SL:Require("GUILayout/Data/teshudata.lua", true)
+
+ssrConstCfg = SL:Require("GUILayout/ssrgame/cfg/ConstCfg", true)                --常量配置
+DescCfg = SL:Require("GUILayout/ssrgame/cfg/DescCfg", true)                --常量配置
+EventCfg = SL:Require("GUILayout/ssrgame/cfg/EventCfg", true)                --常量配置
+
 
 ---回收的数据初始化
 cogin.huishou_jc_list = {}
