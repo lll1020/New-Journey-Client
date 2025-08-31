@@ -23,8 +23,6 @@ SL:RegisterLuaNetMsg(100, function(msgID, p1, p2, p3, msgData)
         Npclib[cf_teshunpc[p1]].main(p1, p2, p3, msgData)
     elseif p1 > 200 and p1 < 400 then
         Npclib[1].main(p1, p2, p3, msgData)
-	elseif p1 > 1000 then
-		Npclib[701].main(p1, p2, p3, msgData)
     else
         Npclib[p1].main(p1, p2, p3, msgData)
 	end

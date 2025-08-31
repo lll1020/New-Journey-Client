@@ -74,35 +74,6 @@ cogin.zhuangbeiwei = {
     [5] = {"武器",1},
     [10] = {"衣服",0},
 }
-cogin.zs_zhuangbeiwei = {
-    [401] = 74,
-    [402] = 75,
-    [403] = 76,
-    [404] = 85,
-    [405] = 86,
-    [406] = 88,
-    [407] = 89,
-    [408] = 90,
-    [409] = 91,
-    [410] = 92,
-    [411] = 93,
-    [412] = 94,
-    [413] = 95,
-    [414] = 96,
-    [415] = 97,
-    [416] = 98,
-    [417] = 99,
-    [418] = 100,
-    [419] = 101,
-    [420] = 102,
-    [421] = 103,
-    [422] = 115,
-    [423] = 116,
-    [424] = 117,
-    [425] = 118,
-    [426] = 119,
-    [427] = 120,
-}
 cogin.zbzb = {
     [1] = {"普通级","#C6C6CE"},
     [2] = {"稀有级","#63C64A"},
@@ -110,44 +81,6 @@ cogin.zbzb = {
     [4] = {"传说级","#EF6B00"},
     [5] = {"神话级","#DE0000"},
     [6] = {"寂灭级","#FF00FF"},
-}
-cogin.wpsc = {
-    [48] = 1,
-    [28] = 3,
-    [51] = 4,
-    [306] = 5,
-    [307] = 5,
-    [308] = 5,
-    [309] = 5,
-    [310] = 5,
-    [311] = 5,
-    [312] = 5,
-    [313] = 5,
-    [65] = 7,
-    [314] = 8,
-    [305] = 10,
-    [53] = 11,
-    [78] = 12,
-    [75] = 12,
-    [80] = 12,
-    [82] = 12,
-    [84] = 12,
-    [86] = 12,
-    [100] = 9,
-    [101] = 9,
-    [102] = 9,
-    [103] = 9,
-    [104] = 9,
-    [105] = 9,
-    [106] = 9,
-    [107] = 9,
-    [108] = 9,
-    [109] = 9,
-    [110] = 9,
-    [111] = 9,
-    [315] = 9,
-    [42] = 2,
-    [31] = 2
 }
 
 cogin.texiaodaxiao = {
@@ -283,32 +216,6 @@ function ItemNumByTable_img(t, multiple,parent)
         local kuang = GUI:Image_Create(cllist, "kuang"..i, 0, 0, "res/wy/public/50-50_k.png")
         GUI:ItemShow_Create(kuang, "item", 9, 9, {index=idx,count = num,look= true})
     end
-    return Node
-end
-function ItemNumByTable_img_fz(t, multiple,parent)
-    local Node = GUI:Node_Create(parent, "Node_cl_show", 0.00, 0.00)
-    local cllist = GUI:ListView_Create(Node, "cllist", 0, 0, 999, 50, 2)
-    GUI:ListView_setClippingEnabled(cllist, false)
-    GUI:ListView_setItemsMargin(cllist, 5)
-    GUI:setTouchEnabled(cllist, false)
-    for v,k in pairs(t) do
-        if v == "wp" then
-            for i,item in ipairs(k) do
-                local idx,num = SL:GetMetaValue("ITEM_INDEX_BY_NAME",item[1]),item[2]
-                if multiple then num=num*multiple end
-                local kuang = GUI:Image_Create(cllist, "kuangwp_"..i, 0, 0, "res/wy/public/50-50_k.png")
-                GUI:ItemShow_Create(kuang, "item", 9, 9, {index=idx,count = num,look= true})
-            end
-        elseif v == "hb" then
-            for i,item in ipairs(k) do
-                local num = item[2]
-                if multiple then num=num*multiple end
-                local kuang = GUI:Image_Create(cllist, "kuanghb_"..i, 0, 0, "res/wy/public/50-50_k.png")
-                GUI:ItemShow_Create(kuang, "item", 9, 9, {index=item[1],count = num,look= true})
-            end
-        end
-    end
-
     return Node
 end
 function dl_sz(i)
