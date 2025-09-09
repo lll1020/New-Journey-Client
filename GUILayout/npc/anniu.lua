@@ -22,15 +22,17 @@ npc.rw = {
 }  --任务描述
 
 
+local zbz = {}
+if cogin.isWin32 then
+    zbz = {-700, -150, 200, -180, -60}
+else
+    zbz = {-700, -150, 200, -160, -60}
+end
+
+
 npc[0] = function(p2, p3, msgData) -- 任务处理
     if p2 == 1 then
         local zysj = SL:JsonDecode(msgData,false)
-        local zbz = {}
-        if cogin.isWin32 then
-            zbz = {-700, -150, 200, -200, -60}
-        else
-            zbz = {-670, -150, 200, -170, -60}
-        end
         if zysj.lx == 1 then
             if GUI:getFlippedX(npc.dbshousuo) then
                 GUI:setFlippedX(npc.dbshousuo, false)
@@ -156,9 +158,11 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
             if cogin.isWin32 then
                 guaji[1] = GUI:Button_Create(npc.RightBottom, "guaji", -80, 270, "res/wy/icon/base.png")
                 local dalucs = GUI:Button_Create(npc.RightBottom, "dalucs", -80, 200, "res/wy/icon/sjdt.png")
-                GUI:addOnClickEvent(dalucs, function() 
+                GUI:addOnClickEvent(dalucs, function()
                     Npclib["anniu"][4](0)
                 end)
+                GUI:setVisible(guaji[1],false)
+                GUI:setVisible(dalucs,false)
                 npc.an_cbl = GUI:Button_Create(npc.RightBottom, "an_cbl", -86, 340, "res/private/main/bottom/1900012580.png")
                 GUI:Button_loadTexturePressed(npc.an_cbl, "res/private/main/bottom/1900012580.png")
                 GUI:setAnchorPoint(GUI:Image_Create(npc.an_cbl, "ts", 86/2, 86/2, "res/private/main/bottom/1900012538.png")
@@ -349,12 +353,7 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
                     GUI:removeFromParent(guaji[3])
                 end
             end)
-            local zbz = {}
-            if cogin.isWin32 then
-                zbz = {-700, -150, 200, -180, -60}
-            else
-                zbz = {-670, -150, 200, -160, -60}
-            end
+
             npc.dbLayout = GUI:Layout_Create(npc.RightTop, "Layout1", zbz[1], zbz[2], 490, 160, false)
             npc.dbshousuo = GUI:Button_Create(npc.RightTop, "shousuo", zbz[4], zbz[5], "res/wy/icon/s.png")
             GUI:setAnchorPoint(npc.dbshousuo, 0.5, 0)
@@ -371,71 +370,6 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
         elseif p3 == 1 then
             ding_an(msgData)
         end
-    elseif p2 == 2 then
-        local Layout = GUI:Layout_Create(npc.LeftTop, "zcsxz", 0, -400, 0.00, 150.00, false)
-
-
-        local sq_jd_dt = GUI:Image_Create(npc.LeftTop, "sq_jd_dt", 0, -450, "res/wy/public/sq_jd_dt.png")
-        local jdt_k = GUI:Image_Create(sq_jd_dt, "jdt_k", 65,33, "res/wy/public/sq_jd_jdt_k.png")
-        GUI:setAnchorPoint(jdt_k, 0, 0.5)
-        GUI:LoadingBar_setPercent(GUI:LoadingBar_Create(jdt_k, "jdt", 0,0,"res/wy/public/sq_jd_jdt.png", 0)
-        , 0)
-        GUI:Button_Create(sq_jd_dt, "sq_jd_an", 0, 0, "res/wy/public/sq_jd_an.png")
-        GUI:setVisible(sq_jd_dt, false)
-
-
-        local t2 = GUI:Text_Create(Layout, "t2", 25.00, 41.00, 20, "#F7F7DE", "打怪爆率：")
-        local t3 = GUI:Text_Create(Layout, "t3", 25.00, 64.00, 20, "#FF0000", "对怪增伤：")
-        local t4 = GUI:Text_Create(Layout, "t4", 25.00, 87.00, 20, "#FF7700", "打怪切割：")
-        local t5 = GUI:Text_Create(Layout, "t5", 25.00, 110.00, 20, "#39B5EF", "复活状态：")
-        GUI:Text_setFontName(t2,"fonts/502.ttf")
-        GUI:Text_setFontName(t3,"fonts/502.ttf")
-        GUI:Text_setFontName(t4,"fonts/502.ttf")
-        GUI:Text_setFontName(t5,"fonts/502.ttf")
-        for i = 1,4 do
-            GUI:Image_Create(Layout, "tb"..i, 0.00, 113-(i-1)*23, "res/wy/icon/zct_"..i..".png")
-        end
-        local sx2 = GUI:Text_Create(t2, "txt", 95, 3, 16, "#00ff00", (SL:GetMetaValue("ATT_BY_TYPE", 242)/100).."%")
-        local sx3 = GUI:Text_Create(t3, "txt", 95, 3, 16, "#00ff00", (SL:GetMetaValue("ATT_BY_TYPE", 245)/100).."%")
-        local sx4 = GUI:Text_Create(t4, "txt", 95, 3, 16, "#00ff00", math.floor(SL:GetMetaValue("ATT_BY_TYPE", 244)*(1 + SL:GetMetaValue("ATT_BY_TYPE", 253)/10000)))
-        local fuhuo = GUI:Text_Create(t5, "fuhuo", 95, 3, 16, "#00ff00", "")
-        local function shuaxinshuxing(id)
-            local rwid = SL:GetMetaValue("MAIN_ACTOR_ID")
-            local hb16 = tonumber(SL:GetMetaValue("MONEY",16))
-            local hb15 = tonumber(SL:GetMetaValue("MONEY",15))
-
-            local buff = SL:GetMetaValue("ACTOR_BUFF_DATA_BY_ID",rwid,20078)
-            if buff then
-                GUI:removeAllChildren(fuhuo)
-                GUI:Text_COUNTDOWN(GUI:Text_Create(fuhuo, "djs", 30, 0, 14, "#00ff00", "")
-                ,buff.endTime - ssr.GetServerTime())
-            else
-                buff = SL:GetMetaValue("ACTOR_BUFF_DATA_BY_ID",rwid,20060)
-                if buff then
-                    GUI:removeAllChildren(fuhuo)
-                    GUI:Text_COUNTDOWN(GUI:Text_Create(fuhuo, "djs", 30, 0, 14, "#00ff00", "")
-                    ,buff.endTime - ssr.GetServerTime())
-                end
-            end
-            GUI:Text_setString(fuhuo, ((SL:GetMetaValue("ACTOR_BUFF_DATA_BY_ID",rwid,20060) and 0 or hb16) + hb15).." 次")
-        end
-        SL:RegisterLUAEvent(LUA_EVENT_MONEYCHANGE, "货币变化", function(data)
-            if data.id == 16 or data.id == 15 then
-                shuaxinshuxing(1)
-            end
-        end)
-        SL:RegisterLUAEvent(LUA_EVENT_MAINBUFFUPDATE, "主玩家buff刷新", function(data)
-            if data.buffID == 20060 or data.buffID == 20078 then
-                if data.type == 0 or data.type == 1 then
-                    shuaxinshuxing(1)
-                end
-            end
-        end)
-        SL:RegisterLUAEvent(LUA_EVENT_ROLE_PROPERTY_CHANGE, "玩家属性变化时", function()
-            GUI:Text_setString(sx2, (SL:GetMetaValue("ATT_BY_TYPE", 242)/100).."%")
-            GUI:Text_setString(sx3, (SL:GetMetaValue("ATT_BY_TYPE", 245)/100).."%")
-            GUI:Text_setString(sx4, math.floor(SL:GetMetaValue("ATT_BY_TYPE", 244)*(1 + SL:GetMetaValue("ATT_BY_TYPE", 253)/10000)))
-        end)
     elseif p2 == 10 then -- 红点
         if npc.db_anniu[""..p3] and not GUI:ui_delegate(npc.db_anniu[""..p3]).ists then
             local ists = GUI:Image_Create(npc.db_anniu[""..p3], "ists", 65, 65, "res/public/ists.png")

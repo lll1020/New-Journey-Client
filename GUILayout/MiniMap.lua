@@ -6,9 +6,9 @@ MiniMap._pointCache = {} -- 寻路点缓存
 MiniMap._released   = false
 MiniMap._Colors     = {[1] = "#00ff00", [2] = "#ff0000"}
 MiniMap.isPc        = SL:GetMetaValue("WINPLAYMODE")
-MiniMap._pointCache1 = {}
 
 function MiniMap.main()
+    MiniMap._isOpen = true
     MiniMap.reset()
 
     local parent = GUI:Attach_Parent()
@@ -22,15 +22,17 @@ function MiniMap.main()
     local screenW = SL:GetMetaValue("SCREEN_WIDTH")
     local screenH = SL:GetMetaValue("SCREEN_HEIGHT")
 
-    local function closeLayer()
-        SL:CloseMiniMap()
-    end
-
     if MiniMap.isPc then 
         GUI:setPosition(MiniMap._ui["Panel_1"], screenW / 2, SL:GetMetaValue("PC_POS_Y"))
-        GUI:Win_SetDrag(parent, MiniMap._ui["Panel_map"]) --拖拽
-        GUI:addOnClickEvent(MiniMap._ui.Button_close, closeLayer)
+        GUI:Win_SetDrag(parent, MiniMap._ui["Panel_minimap"]) --拖拽
+        GUI:Win_SetDrag(parent, MiniMap._ui["FrameBG"]) --拖拽
+        GUI:addOnClickEvent(MiniMap._ui["CloseButton"], function()
+            SL:CloseMiniMap()
+        end)
     else 
+        local function closeLayer()
+            SL:CloseMiniMap()
+        end
         GUI:setPosition(MiniMap._ui["Panel_1"], screenW / 2, screenH / 2)
         GUI:setContentSize(MiniMap._ui["CloseLayout"], screenW, screenH)
         GUI:addOnClickEvent(MiniMap._ui["CloseLayout"], closeLayer)
@@ -57,23 +59,11 @@ function MiniMap.main()
             SL:SendGMMsgToChat(msg)
         end
     end)
-    --GUI:addOnClickEvent(MiniMap._ui.Button4, function()
-    --    SL:OpenCommonTipsPop({str="请输入要探测的人物名字",btnType=2,showEdit=true,callback=function(atype, param)
-    --        if atype == 1 then
-    --            if param and param.editStr and string.len(param.editStr) > 0 then
-    --                SL:SendGMMsgToChat("Searching "..param.editStr)
-    --            end
-    --        end
-    --    end})
-    --end)
-
     MiniMap.RegisterEvent()
-
     MiniMap.InitMiniMap()
     MiniMap:InitPortals()
     MiniMap:InitTeamMember()
     MiniMap:InitMonsters()
-
     MiniMap:BlinkPlayer()
 end
 
@@ -85,6 +75,7 @@ end
 function MiniMap.close()
     MiniMap.reset()
     MiniMap.RemoveEvent()
+    MiniMap._isOpen = false
 end
 
 function MiniMap.InitMiniMap()
@@ -322,14 +313,14 @@ function MiniMap.UpdatePlayerPos()
     GUI:setPosition(MiniMap._imgPlayer, nodePos.x, nodePos.y)
 
     -- name
-    if not MiniMap.isPc then 
-        local mapName = SL:GetMetaValue("MAP_NAME")
-        GUI:Text_setString(MiniMap._ui["Text_mapName"], mapName)
-        local color1 = MiniMap._Colors and MiniMap._Colors[1] or "#00ff00"
-        local color2 = MiniMap._Colors and MiniMap._Colors[2] or "#ff0000"
-        local bSafeArea = SL:GetMetaValue("IN_SAFE_AREA")
-        GUI:Text_setTextColor(MiniMap._ui["Text_mapName"], bSafeArea and color1 or color2)
-    end 
+    --if not MiniMap.isPc then
+    local mapName = SL:GetMetaValue("MAP_NAME")
+    GUI:Text_setString(MiniMap._ui["Text_mapName"], mapName)
+    local color1 = MiniMap._Colors and MiniMap._Colors[1] or "#00ff00"
+    local color2 = MiniMap._Colors and MiniMap._Colors[2] or "#ff0000"
+    local bSafeArea = SL:GetMetaValue("IN_SAFE_AREA")
+    GUI:Text_setTextColor(MiniMap._ui["Text_mapName"], bSafeArea and color1 or color2)
+    --end
 end
 
 -- 绘制寻路路径
@@ -429,7 +420,6 @@ function MiniMap.UpdatDestPoint(minimapX, minimapY, mapX, mapY)
     GUI:setVisible(MiniMap._imgPoint, true)
     GUI:setPosition(MiniMap._imgPoint, minimapX, minimapY + 20)
     GUI:Text_setString(MiniMap._textPoint, string.format("(%s,%s)", mapX, mapY))
-    MiniMap._pointCache1 = {mapX, mapY}
 end
 
 -- 人物坐标动画
@@ -472,7 +462,7 @@ function MiniMap.UpdateMonsters()
             GUI:setIgnoreContentAdaptWithSize(nameBG, false)
             GUI:setAnchorPoint(nameBG, 0.5, 0.5)
 
-            local textName = GUI:Text_Create(node, "textName", 0, 20, 18, "#ffffff", "")
+            local textName = GUI:Text_Create(node, "textName", 0, 20, 14, "#ffffff", "")
             local monsterColor = v.color or "#ffffff"
             if v.color and tonumber(v.color) then
                 monsterColor = SL:GetHexColorByStyleId(tonumber(v.color))
@@ -540,7 +530,7 @@ function MiniMap.UpdateTeamMember(data)
                 GUI:setAnchorPoint(icon, 0.5, 0.5)
 
                 -- name
-                local textName = GUI:Text_Create(node, "textName", 0, 14, 16, "#ffffff", player.UserName)
+                local textName = GUI:Text_Create(node, "textName", 0, 14, 13, "#ffffff", player.UserName)
                 GUI:setAnchorPoint(textName, 0.5, 0.5)
                 local nameColor = SL:GetHexColorByStyleId(254)
                 GUI:Text_setTextColor(textName, nameColor)
@@ -561,7 +551,13 @@ function MiniMap.InitPortals()
         local mapX = tonumber(v.X) or 1
         local mapY = tonumber(v.Y) or 1
         local nodePos = MiniMap.CalcMiniMapPos({x = mapX, y = mapY})
-        if nodePos then 
+        local bShow = true 
+        local showName = string.gsub(v.sShowName, "%s+", "") 
+        if string.len(showName) == 0 then 
+            bShow = false 
+        end 
+
+        if nodePos and bShow then 
             local node = GUI:Node_Create(MiniMap._nodePortal, "node_portal"..i, nodePos.x, nodePos.y)
 
             -- icon
@@ -575,7 +571,7 @@ function MiniMap.InitPortals()
             GUI:setAnchorPoint(nameBG, 0.5, 0.5)
 
             -- name
-            local textName = GUI:Text_Create(node, "textName", 0, 12, 18, "#ffffff", v.sShowName or "")
+            local textName = GUI:Text_Create(node, "textName", 0, 12, 14, "#ffffff", v.sShowName or "")
             local portalColor = v.nColor or "#ffffff"
             if v.nColor and tonumber(v.nColor) then
                 portalColor = SL:GetHexColorByStyleId(tonumber(v.nColor)) 
