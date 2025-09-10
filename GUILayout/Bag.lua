@@ -94,7 +94,7 @@ function Bag.main(page)
     end)
         --屏蔽消息
     GUI:addOnClickEvent(Bag._ui["FuWuJieMian_PingBiXiaoXi"], function()
-        ssrMessage:sendmsg(ssrNetMsgCfg.FuWuBox_PingBiXiaoXi)
+        SL:SendLuaNetMsg(101, 2, 998, 0, "")
     end)
 
 
@@ -131,7 +131,7 @@ function Bag.main(page)
         data.showEdit = false
         data.callback = function(atype, param)
             if atype == 1 then
-                ssrMessage:sendmsg(ssrNetMsgCfg.FuWuBox_XiaoHuiWuPin,MakeIndex,0,0)
+                SL:SendLuaNetMsg(101, 2, 999, MakeIndex, "")
                 GUI:ItemBox_RemoveBoxData(widget, 1)
             end
         end

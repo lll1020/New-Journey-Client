@@ -39,24 +39,18 @@ function MiniMap.main()
         GUI:addOnClickEvent(MiniMap._ui["CloseButton"], closeLayer)
     end 
 
-    GUI:addOnClickEvent(MiniMap._ui.Button1, function()
-        if SL:GetMetaValue("ITEM_COUNT", 10000) > 0 then
-            SL:UseItemByIndex(10000)
-        else
-            SL:ShowSystemTips("<font color='#FF0000'>你没有回城石...</font>")
-        end
-    end)
-    GUI:addOnClickEvent(MiniMap._ui.Button2, function()
+    GUI:addOnClickEvent(MiniMap._ui.zdy_Button1, function()
         if SL:GetMetaValue("ITEM_COUNT", 10001) > 0 then
             SL:UseItemByIndex(10001)
         else
             SL:ShowSystemTips("<font color='#FF0000'>你没有随机石...</font>")
         end
     end)
-    GUI:addOnClickEvent(MiniMap._ui.Button3, function()
-        if #MiniMap._pointCache1 == 2 then
-            local msg = string.format("move %s %s", MiniMap._pointCache1[1], MiniMap._pointCache1[2])
-            SL:SendGMMsgToChat(msg)
+    GUI:addOnClickEvent(MiniMap._ui.zdy_Button2, function()
+        if SL:GetMetaValue("ITEM_COUNT", 10000) > 0 then
+            SL:UseItemByIndex(10000)
+        else
+            SL:ShowSystemTips("<font color='#FF0000'>你没有回城石...</font>")
         end
     end)
     MiniMap.RegisterEvent()

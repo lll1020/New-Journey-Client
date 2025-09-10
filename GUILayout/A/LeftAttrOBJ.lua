@@ -2,11 +2,11 @@ LeftAttrOBJ = {}
 LeftAttrOBJ.__cname = "LeftAttrOBJ"
 LeftAttrOBJ.scheduleID = nil
 if ssrConstCfg.isPc then
-    LeftAttrOBJ.left_position_hide = { x = -200, y = -36 }
-    LeftAttrOBJ.left_position_show = { x = 0, y = -36 }
+    LeftAttrOBJ.left_position_hide = { x = -200, y = -36 - 40 }
+    LeftAttrOBJ.left_position_show = { x = 0, y = -36 - 40 }
 else
-    LeftAttrOBJ.left_position_hide = { x = -200, y = -96 }
-    LeftAttrOBJ.left_position_show = { x = 0, y = -96 }
+    LeftAttrOBJ.left_position_hide = { x = -200, y = -96 - 40 }
+    LeftAttrOBJ.left_position_show = { x = 0, y = -96 - 40 }
 end
 -------------------------------↓↓↓ UI操作 ↓↓↓---------------------------------------
 function LeftAttrOBJ:main()
