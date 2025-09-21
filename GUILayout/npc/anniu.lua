@@ -187,6 +187,7 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
                     GUI:setAnchorPoint(bjt, 0.5, 0.5)
                     GUI:setContentSize(bjt, cogin.w + 100, cogin.h + 100)
                     GUI:setTouchEnabled(bjt, true)
+                    ---侧边栏ui
                     local cbl = GUI:Image_Create(parent,"bj",cogin.w,0,"res/wy/public/main_cbl_bj.png")
                     GUI:setAnchorPoint(cbl, 1, 0)
                     GUI:setTouchEnabled(cbl, true)
@@ -1054,9 +1055,6 @@ npc[3] = function(p2, p3, msgData) -- 兑换
         GUI:addOnClickEvent(Button4, function()
             SL:SendLuaNetMsg(101, 1, 4, 0, "")
         end)
-
-
-
     elseif p2 == 1 then
         local sj = SL:JsonDecode(msgData,false)
         GUI:Text_setString(GUI:ui_delegate(npc.bg)["hbdh"..p3], (10-sj["hbdh"..p3]).."次")
@@ -1090,36 +1088,6 @@ npc[4] = function(p2, p3, msgData) -- 世界地图
             GUI:Win_Close(x_parent)
         end
     end)
-
-
-    local effwu = GUI:Frames_Create(parent, "effwu", 0, 0, "res/wy/eff/city/2_", ".png", 1, 15,
-            { speed = 50, count = 15, loop = 1, finishhide = false })
-    GUI:setContentSize(effwu, cogin.w, cogin.h)
-    GUI:setAnchorPoint(effwu, 0.5, 0.5)
-    GUI:setScale(effwu,1.5)
-
-    npc.sjdta_idx = npc.sjdta_idx or 1
-
-    local un_list = GUI:ListView_Create(npc.bg, "un_list", 0, 0, cogin.w, 80, 2)
-    for v,k in pairs(cogin.teshudata.sjjt_x) do
-        if dl_sz(v) then
-            local btn = GUI:Button_Create(un_list, 'btn_'..v, 0, 0, "res/wy/public/anniu_4_un_l_"..v..".png")
-            --GUI:setAnchorPoint(btn, 0.5, 0.5)
-            GUI:addOnClickEvent(btn, function()
-                SL:SendLuaNetMsg(100, k[1], 1, 0, "")
-                GUI:Win_Close(parent)
-            end)
-        end
-    end
-
-    GUI:setContentSize(GUI:Image_Create(npc.bg, "yun", 0, 0, "res/wy/public/anniu_4_yun.png")
-    , cogin.w, cogin.h)
-
-
-
-
-
-
 end
 ---伏妖录任务
 npc.xyl = {
@@ -2044,25 +2012,7 @@ npc[11] = function(p2, p3, Data) -- 异闻录
         npc.zj = npc.zj or 1 npc.ywl_an = {}
         npc.l_an = {}
         npc.node = GUI:Node_Create(npc.bg, "node", 0, 0)
-        --[[for i = 1, 4, 1 do
-            npc.ywl_an[i] = GUI:Button_Create(npc.bg, "ywl_an_"..i, 175, 100, 'res/wy/public/ywl/ywl_lb_n.png')
-            --动画
-            GUI:Timeline_MoveTo(npc.ywl_an[i], {x = 175.00 + (i - 1) * 140, y = 100}, i/3)
-            GUI:Image_Create(npc.ywl_an[i], "wz", 0, 0, 'res/wy/public/ywl/ywl_lb_wz_n_'..i..'.png')
-            GUI:addOnClickEvent(npc.ywl_an[i], function()
-                npc.jm = i
-                GUI:Button_loadTextureNormal(npc.ywl_an[i], 'res/wy/public/ywl/ywl_lb_l.png')
-                GUI:Image_loadTexture(GUI:ui_delegate(npc.ywl_an[i]).wz, 'res/wy/public/ywl/ywl_lb_wz_l_'..npc.jm..'.png')
-                for j = 1, 4, 1 do
-                    if npc.jm ~= j then
-                        GUI:setVisible(npc.ywl_an[j], false)
-                    end
-                    GUI:setTouchEnabled(npc.ywl_an[j], false)
-                end
-                GUI:Timeline_MoveTo(npc.ywl_an[i], {x = 100.00, y = 100}, 0.5)
-                new_ziyemian(npc.ywl_an[i])
-            end)
-        end]]
+
         npc.ywl_list = GUI:ListView_Create(npc.bg, "List", 110, 70, 200.00, 520.00, 1,false)
         GUI:ListView_setItemsMargin(npc.ywl_list, 80)
         GUI:Node_Create(npc.ywl_list, "l_node_0", 0, 0)
@@ -2072,11 +2022,6 @@ npc[11] = function(p2, p3, Data) -- 异闻录
             --
             local ywl_an = GUI:Layout_Create(npc.ywl_an[i],"ywl_an_"..i,25,0,200,78,false)
             GUI:setTouchEnabled(ywl_an, true)
-
-
-            --GUI:setScale(GUI:Image_Create(ywl_an, "ywl_an", 70, 5, 'res/wy/public/ywl/anniu_23_l_'..i..'.png')
-            --, 0.6)
-            --GUI:Text_Create(npc.ywl_an[i], "wz", 0, 0, 10, "#F7F7DE", "——————————————————————————————")
 
             GUI:Image_Create(ywl_an, "tt", -15, 15, 'res/wy/public/dl_'..i..'.png')
             GUI:addOnClickEvent(ywl_an, function()
@@ -2272,111 +2217,7 @@ npc[13] = function(p2, p3, msgData) -- 记录石
 end
 ---实力提升
 npc[17] = function(p2, p3, Data)  --实力提升
-    if p2 == 0 then
-        npc.data = SL:JsonDecode(Data,false)
-        local parent = GUI:GetWindow(nil, "npc_slts")
-        if parent then
-            GUI:Win_Close(parent)
-            return
-        else
-            parent = GUI:Win_Create("npc_slts", 0, 0, 0, 0, false, false, true, true, true, 0, 1)
-        end
 
-        local pos = GUI:getWorldPosition(GUI:ui_delegate(GUI:ui_delegate(MainAssist._ui["Panel_hide"]).xyl).slts)
-        npc.bg = GUI:Image_Create(parent, "bj", pos.x + 100, pos.y + 70, "res/private/item_tips/bg_tipszy_05.png")
-        GUI:Timeline_Window2(npc.bg)
-        GUI:setContentSize(npc.bg, 243, 519)
-        GUI:setAnchorPoint(npc.bg, 0, 1)
-        GUI:setTouchEnabled(npc.bg, true)
-
-
-        local close = GUI:Button_Create(npc.bg, 'close', 243, 519, 'res/public/1900000511.png')
-        GUI:setAnchorPoint(close, 0, 1)
-        GUI:addOnClickEvent(close, function()
-            GUI:Win_Close(parent)
-        end)
-
-        npc.sltsan = {}
-        npc.sltsxz = nil
-
-        npc.sltsxz = 1
-        npc.sltsxz_l = npc.sltsxz_l or 1
-        npc.slts_hd = {}
-        for idx = 1, #cogin.slts.l do
-            for v,k in ipairs(cogin.slts.l[idx]) do
-                npc.slts_hd[idx.."_"..v] = slts_jz(idx, v)
-                if npc.slts_hd[idx.."_"..v] == 2 then
-                    npc.slts_hd["dl_"..idx] = 1
-                end
-            end
-        end
-
-        local live = GUI:ListView_Create(npc.bg, "ListView", 3, 7, 236.00, 505.00, 1)
-        GUI:ListView_setGravity(live, 2)
-        GUI:ListView_setItemsMargin(live, 10)
-        function slts_l_updata()
-            GUI:removeAllChildren(live)
-            for idx = 1, #cogin.slts.l do
-                if dl_sz(idx) then
-                    npc.sltsan["dl_"..idx] = GUI:Button_Create(live, "slts_dl_"..idx, 0.00, 0,
-                            npc.sltsxz_l == idx and "res/wy/public/slts_dl_"..idx..".png" or "res/wy/public/slts_dln_"..idx..".png"
-                    )
-                    GUI:Button_loadTexturePressed(npc.sltsan["dl_"..idx], "res/wy/public/slts_dl_"..idx..".png")
-                    GUI:Image_Create(npc.sltsan["dl_"..idx], "xia1", 160, 4,
-                            npc.sltsxz_l == idx and 'res/wy/public/xyl_an_2.png' or 'res/wy/public/xyl_an_1.png'
-                    )
-                    GUI:addOnClickEvent(npc.sltsan["dl_"..idx], function()
-                        if npc.sltsxz_l ~= idx then
-                            npc.sltsxz_l = idx
-                            npc.sltsxz = 1
-                            slts_l_updata()
-                        else
-                            npc.sltsxz_l = 0
-                            slts_l_updata()
-                        end
-                    end)
-                    if npc.slts_hd["dl_"..idx] and npc.slts_hd["dl_"..idx] == 1 then
-                        GUI:Image_Create(npc.sltsan["dl_"..idx], "ists", 195, 24, "res/public/ists.png")
-                    end
-                    for v,k in ipairs(cogin.slts.l[idx]) do
-                        if idx == npc.sltsxz_l then
-                            if npc.slts_hd[idx.."_"..v] and npc.slts_hd[idx.."_"..v] >= 1 then
-                                if v ~= 1 then
-                                    GUI:Image_Create(live, "fgx"..idx.."_"..v, 0, 0, "res/wy/public/yxgl_fgx.png")
-                                end
-                                npc.sltsan[idx.."_"..v] = GUI:Text_Create(live, "wz"..idx.."_"..v, 0, 0, 30, (npc.sltsxz == v and "#FFFF00" or "#44DDFF"), k.name)
-                                GUI:Text_setFontName(npc.sltsan[idx.."_"..v],"fonts/502.ttf")
-
-                                if not (npc.slts_hd[idx.."_"..v] == 3) then
-                                    GUI:setTouchEnabled(npc.sltsan[idx.."_"..v], true)
-                                    GUI:addOnClickEvent( npc.sltsan[idx.."_"..v], function()
-                                        local net = cogin.slts.l[idx][v].net
-                                        SL:SendLuaNetMsg(net[1],net[2],net[3], 0, "")
-                                        GUI:Win_Close(parent)
-                                    end)
-                                end
-                                if npc.slts_hd[idx.."_"..v] == 2 then
-                                    GUI:setAnchorPoint(GUI:Image_Create(npc.sltsan[idx.."_"..v], "ists", GUI:getContentSize(npc.sltsan[idx.."_"..v]).width, GUI:getContentSize(npc.sltsan[idx.."_"..v]).height/2, "res/wy/public/upup.png")
-                                    , 0, 0.5)
-                                elseif npc.slts_hd[idx.."_"..v] == 3 then
-                                    local wz =GUI:Text_Create(npc.sltsan[idx.."_"..v], "wz", GUI:getContentSize(npc.sltsan[idx.."_"..v]).width, GUI:getContentSize(npc.sltsan[idx.."_"..v]).height/2, 20, "#FFFF00", "[满]")
-                                    GUI:setAnchorPoint(wz, 0, 0.5)
-                                    GUI:Text_enableOutline(wz, "#150800", 2)
-                                end
-                            end
-
-                        end
-                    end
-                end
-            end
-            if npc.sltsxz_l > 0 then
-                GUI:ListView_jumpToItem(live, #cogin.slts.l[npc.sltsxz_l] + npc.sltsxz_l)
-            end
-        end
-        slts_l_updata()
-    elseif p2 == 1 then
-
-    end
 end
 ---天人之战面板
 npc[498] = function(p2, p3, Data) -- 天人之战
@@ -2498,196 +2339,6 @@ npc[502] = function(p2, p3, Data) -- 在线充值
 		GUI:addOnClickEvent(close, function()
 			GUI:Win_Close(parent)
 		end)
-
-		 local lieeq = GUI:ListView_Create(npc.bg, "lieeq", 75, 93, 222 * 4 + 20, 200 * 2, 1)
-		 GUI:ListView_setGravity(lieeq, 5)
-		 GUI:setTouchEnabled(lieeq, true)
-
-		local Input = GUI:TextInput_Create(npc.bg, "Input",180.00, 35.00, 100.00, 25.00, 18)
-		GUI:TextInput_setPlaceHolder(Input, "输入(最少10)")
-		GUI:setTouchEnabled(Input, true)
-
-        local lbText = GUI:Text_Create(npc.bg, "lbText", 180.00, 63, 18, "#FFAA99", SL:GetMetaValue("MONEY", 22))
-        GUI:Text_enableOutline(lbText, "#000000", 1)
-        --npc.tsg_sj
-        local ljcz = GUI:Button_Create(npc.bg, 'ljcz', 200, 540, 'res/wy/public/ljcz_btn.png')
-        for i = 1,#cogin.teshudata[516][2] do
-            if not (npc.tsg_sj and npc.tsg_sj["2_"..i] and npc.tsg_sj["2_"..i] == 1) and (tonumber(SL:GetMetaValue("MONEY", 20)) >= cogin.teshudata[516][2][i][1]) then
-                GUI:setAnchorPoint(GUI:Image_Create(ljcz, "ists", 130, 40, "res/public/ists.png")
-                , 0.5, 0.5)
-                break
-            end
-        end
-        GUI:addOnClickEvent(ljcz, function()
-            local x_parent = GUI:GetWindow(nil, "npc_ljcz_bj")
-            if x_parent then
-                GUI:removeAllChildren(x_parent)
-                GUI:setPosition(x_parent, cogin.w / 2, cogin.h / 2)
-            else
-                x_parent = GUI:Win_Create("npc_ljcz_bj", cogin.w / 2, cogin.h / 2, 0, 0, false, false, true, false, true, 0, 1)
-            end
-            local x_bjt = GUI:Image_Create(x_parent, "bjt", 0, 0, "res/public/1900000651_1.png")
-            GUI:setAnchorPoint(x_bjt, 0.5, 0.5)
-            GUI:setContentSize(x_bjt, cogin.w + 100, cogin.h + 100)
-            GUI:setTouchEnabled(x_bjt, true)
-            GUI:addOnClickEvent(x_bjt, function()
-                GUI:Win_Close(x_parent)
-            end)
-            GUI:addMouseOverTips(x_bjt, "", {x = 0, y = 0}, {x = 0, y = 0})
-
-
-            local x_bg = GUI:Image_Create(x_parent, "img_bj", 0.00, 0.00, 'res/wy/public/ljcz_bj.png')
-            GUI:setAnchorPoint(x_bg, 0.5, 0.5)
-            GUI:setTouchEnabled(x_bg, true)
-            GUI:Timeline_Window3(x_bg)
-            npc.ljcz_node = GUI:Node_Create(x_bg, "ljcz_node", 0, 0)
-            npc.ljcz_l = 1
-            function ljcz_update()
-                GUI:removeAllChildren(npc.ljcz_node)
-                local v = cogin.teshudata[516][2][npc.ljcz_l]
-                local wz =GUI:Text_Create(npc.ljcz_node, "wz", 818/2 + 18, 25 + 325, 30, "#FFFF00", string.format("累计充值%s元",v[1]))
-                GUI:setAnchorPoint(wz, 0.5, 0.5)
-                GUI:Text_setFontName(wz, "fonts/500.ttf")
-                GUI:Text_enableOutline(wz, "#150800", 3)
-
-                for kk,vv in ipairs(v[2]) do
-                    local k = GUI:Image_Create(npc.ljcz_node, "itme"..kk, 272 + (kk-1)*80, 210, "res/wy/public/70_70_k.png")
-
-                    GUI:setAnchorPoint(GUI:ItemShow_Create(k, "item", 35, 35, {index=SL:GetMetaValue("ITEM_INDEX_BY_NAME",vv[1]),count = vv[2],look= true})
-                    , 0.5, 0.5)
-
-                end
-
-                if npc.tsg_sj["2_"..npc.ljcz_l] and npc.tsg_sj["2_"..npc.ljcz_l] == 1 then
-                    GUI:Image_Create(npc.ljcz_node, "ljl", 560.00 - 182, 13 + 90, "res/wy/public/7_2.png")
-                else
-                    local Button = GUI:Button_Create(npc.ljcz_node, "Button",818/2 + 18, 100, "res/wy/public/ljcz_an.png")
-                    GUI:setAnchorPoint(Button, 0.5, 0.5)
-                    GUI:addOnClickEvent(Button, function()
-                        SL:SendLuaNetMsg(101, 502, npc.ljcz_l, 5,"")
-                    end)
-
-                    GUI:Image_Create(npc.ljcz_node, "ljcz_wz", 150, 130, "res/wy/public/ljcz_wz.png")
-                    GUI:Text_Create(npc.ljcz_node, "num", 150 + 90, 137, 20, "#FFFF00", cogin.teshudata[516][2][npc.ljcz_l][1] - SL:GetMetaValue("ITEM_COUNT", 20))
-
-                    local x_Button = GUI:Button_Create(npc.ljcz_node, "ljcz_close",650, 100, "res/wy/public/ljcz_close.png")
-                    GUI:setAnchorPoint(x_Button, 0.5, 0.5)
-                    GUI:addOnClickEvent(x_Button, function()
-                        SL:SendLuaNetMsg(101, 502, 0, 3, cogin.teshudata[516][2][npc.ljcz_l][1] - SL:GetMetaValue("ITEM_COUNT", 20))
-                    end)
-                    if SL:GetMetaValue("ITEM_COUNT", 20) >= cogin.teshudata[516][2][npc.ljcz_l][1] then
-                        GUI:setAnchorPoint(GUI:Image_Create(Button, "ists", 140, 40, "res/public/ists.png")
-                        , 0.5, 0.5)
-                    end
-                end
-            end
-            for i = 1,#cogin.teshudata[516][2] do
-                if not (npc.tsg_sj["2_"..i] and npc.tsg_sj["2_"..i] == 1) then
-                    npc.ljcz_l = i
-                    break
-                end
-            end
-
-            local ljcz_y = GUI:Button_Create(x_bg, 'ljcz_y', 760, 200, 'res/wy/public/ljcz_y.png')
-            GUI:addOnClickEvent(ljcz_y, function()
-                if (tonumber(SL:GetMetaValue("MONEY", 20)) >= cogin.teshudata[516][2][npc.ljcz_l][1]) or (cogin.teshudata[516][2][npc.ljcz_l][1] <= 1288) or (cogin.teshudata[516][2][npc.ljcz_l - 1] and (tonumber(SL:GetMetaValue("MONEY", 20)) >= cogin.teshudata[516][2][npc.ljcz_l - 1][1]))
-                then
-                    npc.ljcz_l = npc.ljcz_l + 1
-                end
-                ljcz_update()
-            end)
-            local ljcz_z = GUI:Button_Create(x_bg, 'ljcz_z', -40, 200, 'res/wy/public/ljcz_z.png')
-            GUI:addOnClickEvent(ljcz_z, function()
-                npc.ljcz_l = npc.ljcz_l - 1
-                if npc.ljcz_l < 1 then
-                    npc.ljcz_l = 1
-                end
-                ljcz_update()
-            end)
-
-
-            ljcz_update()
-            local x_close = GUI:Button_Create(x_bg, 'close', 707, 355, 'res/wy/public/close.png')
-            GUI:addOnClickEvent(x_close, function()
-                GUI:Win_Close(x_parent)
-            end)
-        end)
-
-		local cz_an = GUI:Button_Create(npc.bg, "cz_an", 300, 38, "res/wy/public/czjm_an.png")
-		GUI:addOnClickEvent(cz_an, function()
-			local msg = tonumber(GUI:TextInput_getString(Input))
-			if msg then
-				SL:SendLuaNetMsg(101, 502, 0, 3, msg)
-			end
-		end)
-
-		local Layout, Button, cs, rq,lfje = {}, {}, 1, 1,{}
-		Layout[1] = GUI:Layout_Create(lieeq, "Layout_1", 0, 45.00, 222 * 4 + 20, 200.00, false)
-		for i, v in ipairs(npc.cz_data.fj) do
-			if cs == 5 then
-				cs = 1
-				rq = rq + 1
-				Layout[rq] = GUI:Layout_Create(lieeq, "Layout_" .. rq, 0.00, 0.00, 222 * 4 + 20, 200.00, false)
-			end
-            if i == 7 and not (npc.data["cz6"] and npc.data["cz1"] and npc.data["cz2"] and npc.data["cz3"] and npc.data["cz4"] and npc.data["cz5"]) then
-                local lcjl = GUI:Image_Create(Layout[rq], "czjmlf", (cs-1)*(222 + 5), 3, "res/wy/public/czjmlf.png")
-                GUI:setAnchorPoint(GUI:ItemShow_Create(lcjl, "item1", 129, 85, {index=SL:GetMetaValue("ITEM_INDEX_BY_NAME",teshudata[502].lcjl[1][1]),count=1,look= true}), 0.5, 0.5)
-                GUI:setAnchorPoint(GUI:ItemShow_Create(lcjl, "item2", 322, 85, {index=SL:GetMetaValue("ITEM_INDEX_BY_NAME",teshudata[502].lcjl[1][2]),count=100,look= true}), 0.5, 0.5)
-                break
-            end
-
-			Button[i] = GUI:Image_Create(Layout[rq], "img_lf"..i,  (cs-1)*(222 + 5), 3, "res/wy/public/czjmlf_"..i..".png")
-
-            GUI:setAnchorPoint(GUI:Image_Create(Button[i], "wz",  112, 140, "res/wy/public/czjmlf_wz_"..i..".png")
-            , 0.5, 0.5)
-            GUI:setTouchEnabled(Button[i], true)
-            GUI:addOnClickEvent(Button[i], function()
-                SL:SendLuaNetMsg(101, 502, 0, 2, npc.cz_data.fj[i])
-            end)
-
-            local richText = GUI:RichTextFCOLOR_Create(Button[i], "rich0", 110, 80, "<非绑仙玉/FCOLOR=250><*"..(npc.cz_data.fj[i] * 100).."/FCOLOR=149>   <绑定仙玉/FCOLOR=250><*"..(npc.cz_data.fj[i] * 100).."/FCOLOR=149>", 400, 13, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-            GUI:setAnchorPoint(richText, 0.5, 1)
-
-
-            if not npc.data["cz"..i] then
-                local jl = ItemNumByTable_img(teshudata[502].jl[i],nil,Button[i])
-                GUI:setPosition(jl, 6, 10)
-            else
-                GUI:Image_Create(Button[i], "img_ylq", 50, 0, "res/wy/public/13.png")
-            end
-
-
-            if i == 10 then
-                cs = cs + 1
-                local lcjl = GUI:Image_Create(Layout[rq], "czjmlf", (cs-1)*(222 + 5), 3, "res/wy/public/czjmlf.png")
-                GUI:setAnchorPoint(GUI:ItemShow_Create(lcjl, "item1", 129, 85, {index=SL:GetMetaValue("ITEM_INDEX_BY_NAME",teshudata[502].lcjl[2][1]),count=1,look= true}), 0.5, 0.5)
-                GUI:setAnchorPoint(GUI:ItemShow_Create(lcjl, "item2", 322, 85, {index=SL:GetMetaValue("ITEM_INDEX_BY_NAME",teshudata[502].lcjl[2][2]),count=1,look= true}), 0.5, 0.5)
-
-                if npc.data["cz7"] and npc.data["cz8"] and npc.data["cz9"] and npc.data["cz10"] then
-                    GUI:Image_Create(lcjl, "wc1",129-40, 85-20, "res/wy/public/9.png")
-                    GUI:Image_Create(lcjl, "wc2",322-40, 85-20, "res/wy/public/9.png")
-                end
-                break
-            end
-			cs = cs + 1
-		end
-        if npc.data["cz6"] and npc.data["cz1"] and npc.data["cz2"] and npc.data["cz3"] and npc.data["cz4"] and npc.data["cz5"] then
-            GUI:ListView_jumpToItem(lieeq, 2)
-        else
-            GUI:Image_Create(npc.bg, "tip", 455.00, 38.00, "res/wy/public/czjm_tip.png")
-        end
-        if p3 == 1 then
-            GUI:ListView_doLayout(lieeq)
-            local ksyd  = SL:StartGuide({dir = 1 ,guideWidget = Button[1] ,guideParent=npc.bg,guideDesc="点击按钮" ,isForce = false })
-            if ksyd then
-                SL:ScheduleOnce(function ()
-                    SL:CloseGuide(ksyd)
-                end, 3)
-            end
-        end
-    elseif p2 == 2 then
-        npc.ljcz_l = npc.ljcz_l + 1
-        ljcz_update()
 	end
 end
 ---小充值面板
