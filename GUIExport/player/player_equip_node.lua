@@ -583,37 +583,6 @@ function ui.init(parent)
 	GUI:setTouchEnabled(Image_box, false)
 	GUI:setTag(Image_box, 74)
 
-	-- Create Best_ShouShiBox
-	local Best_ShouShiBox = GUI:Layout_Create(Panel_1, "Best_ShouShiBox", 276.00, 411.00, 80.00, 60.00, false)
-	GUI:setChineseName(Best_ShouShiBox, "玩家装备_珍宝盒组合")
-	GUI:setTouchEnabled(Best_ShouShiBox, true)
-	GUI:setTag(Best_ShouShiBox, 75)
-
-	-- Create Image_box
-	local Image_box = GUI:Image_Create(Best_ShouShiBox, "Image_box", 40.00, 30.00, "res/private/player_best_rings_ui/player_best_rings_ui_mobile/btn_shoushi_1_0.png")
-	GUI:setChineseName(Image_box, "玩家装备_首饰盒")
-	GUI:setAnchorPoint(Image_box, 0.50, 0.50)
-	GUI:setTouchEnabled(Image_box, false)
-	GUI:setTag(Image_box, 74)
-
-	-- Create Best_HunZhuangBox
-	local Best_HunZhuangBox = GUI:Layout_Create(Panel_1, "Best_HunZhuangBox", 143.00, 97.00, 66.00, 56.00, false)
-	GUI:setChineseName(Best_HunZhuangBox, "玩家装备_魂装组合")
-	GUI:setTouchEnabled(Best_HunZhuangBox, true)
-	GUI:setTag(Best_HunZhuangBox, 184)
-	GUI:setVisible(Best_HunZhuangBox, false)
-
-	-- Create Effect_HunZhang
-	local Effect_HunZhang = GUI:Effect_Create(Best_HunZhuangBox, "Effect_HunZhang", 30.00, 25.00, 0, 63107, 0, 0, 0, 1)
-	GUI:setTag(Effect_HunZhang, 0)
-
-	-- Create Image_box
-	local Image_box = GUI:Image_Create(Best_HunZhuangBox, "Image_box", 32.00, 24.00, "res/private/player_best_rings_ui/player_best_rings_ui_win32/btn_hunzhuang_1_0.png")
-	GUI:setChineseName(Image_box, "玩家装备_首饰盒")
-	GUI:setAnchorPoint(Image_box, 0.50, 0.50)
-	GUI:setTouchEnabled(Image_box, false)
-	GUI:setTag(Image_box, 185)
-
 	-- Create EquipShow
 	local EquipShow = GUI:EquipShow_Create(Panel_1, "EquipShow", 2.00, 281.00, 1, false, {bgVisible = false, lookPlayer = false, movable = true, starLv = true, look = true, doubleTakeOff = true})
 	GUI:setTag(EquipShow, -1)

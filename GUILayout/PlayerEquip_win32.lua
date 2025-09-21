@@ -57,29 +57,7 @@ function PlayerEquip.main(data)
 
         GUI:delayTouchEnabled(PlayerEquip._ui.Best_ringBox, 0.3)
     end)
-        -- 首饰盒
-    GUI:addOnClickEvent(PlayerEquip._ui.Best_ShouShiBox,function()
-        ssrUIManager:OPEN(ssrObjCfg.ShouShiHe,nil,true)
-    end)
 
-    -- 魂装按钮
-    GUI:addOnClickEvent(PlayerEquip._ui.Best_HunZhuangBox,function()
-        ssrUIManager:OPEN(ssrObjCfg.HunZhuangJieMian,nil,true)
-    end)
-
-    --首饰盒
-    GUI:addMouseMoveEvent(PlayerEquip._ui.Best_ShouShiBox,
-        {
-            onEnterFunc = function()
-                local worldPos = GUI:getWorldPosition(PlayerEquip._ui.Best_ShouShiBox)
-                worldPos.x = GUI:getContentSize(PlayerEquip._ui.Best_ShouShiBox).width/2 + worldPos.x
-                GUI:ShowWorldTips("点击打开首饰盒", worldPos, GUI:p(0.5, 1))
-            end,
-            onLeaveFunc = function()
-                GUI:HideWorldTips()
-            end
-        }
-    )
     --刷新首饰盒状态
     PlayerEquip.RefreshPlayerBestRingsOpenState()
     PlayerEquip.RefreshBestRingBox()

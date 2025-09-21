@@ -58,15 +58,6 @@ function PlayerEquip.main(data)
 
         GUI:delayTouchEnabled(PlayerEquip._ui.Best_ringBox, 0.3)
     end)
-    -- 首饰盒
-    GUI:addOnClickEvent(PlayerEquip._ui.Best_ShouShiBox,function()
-            ssrUIManager:OPEN(ssrObjCfg.ShouShiHe,nil,true)
-    end)
-
-    -- 魂装按钮
-    GUI:addOnClickEvent(PlayerEquip._ui.Best_HunZhuangBox,function()
-        ssrUIManager:OPEN(ssrObjCfg.HunZhuangJieMian,nil,true)
-    end)
     
     --刷新首饰盒状态
     PlayerEquip.RefreshPlayerBestRingsOpenState()

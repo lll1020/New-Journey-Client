@@ -71,16 +71,6 @@ function PlayerEquip_Look.main(data)
     PlayerEquip_Look.RefreshPlayerBestRingsOpenState()
     PlayerEquip_Look.RefreshBestRingBox()
 
-    --珍宝盒界面
-    GUI:addOnClickEvent(PlayerEquip_Look._ui.Best_ShouShiBox, function()
-        ssrUIManager:OPEN(ssrObjCfg.TaRenShouShiHe)
-    end)
-
-    --混装界面
-    GUI:addOnClickEvent(PlayerEquip_Look._ui.Best_HunZhuangBox, function()
-        ssrUIManager:OPEN(ssrObjCfg.TaRenHunZhuang)
-    end)
-
     ----------------------
     --刷新行会信息
     PlayerEquip_Look.RefreshGuildInfo()

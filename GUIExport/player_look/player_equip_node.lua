@@ -576,19 +576,6 @@ function ui.init(parent)
 	GUI:setTouchEnabled(Image_box, false)
 	GUI:setTag(Image_box, 74)
 
-	-- Create Best_ShouShiBox
-	local Best_ShouShiBox = GUI:Layout_Create(Panel_1, "Best_ShouShiBox", 280.00, 408.00, 66.00, 66.00, false)
-	GUI:setChineseName(Best_ShouShiBox, "玩家装备_首饰盒组合")
-	GUI:setTouchEnabled(Best_ShouShiBox, true)
-	GUI:setTag(Best_ShouShiBox, 0)
-
-	-- Create Image_box
-	local Image_box = GUI:Image_Create(Best_ShouShiBox, "Image_box", 32.00, 24.00, "res/private/player_best_rings_ui/player_best_rings_ui_win32/btn_shoushi_1_0.png")
-	GUI:setChineseName(Image_box, "玩家装备_首饰盒")
-	GUI:setAnchorPoint(Image_box, 0.50, 0.50)
-	GUI:setTouchEnabled(Image_box, false)
-	GUI:setTag(Image_box, 0)
-
 	-- Create EquipShow_0
 	local EquipShow_0 = GUI:EquipShow_Create(Panel_1, "EquipShow_0", 2.00, 217.00, 0, false, {movable = false, look = true, lookPlayer = true, bgVisible = false, doubleTakeOff = false, starLv = false})
 	GUI:setTag(EquipShow_0, -1)

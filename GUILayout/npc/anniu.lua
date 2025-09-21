@@ -161,8 +161,17 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
                 GUI:addOnClickEvent(dalucs, function()
                     Npclib["anniu"][4](0)
                 end)
+
+                ---暂时隐藏一下
                 GUI:setVisible(guaji[1],false)
                 GUI:setVisible(dalucs,false)
+
+                ---测试使用
+                local Button_1 = GUI:Button_Create(npc.RightBottom, "Button_1", -86, 340 + 100, "res/private/player_main_layer_ui/player_main_layer_ui_win32/1900015011.png")
+                GUI:Button_setTitleText(Button_1, "测试")
+                GUI:addOnClickEvent(Button_1, function()
+                    SL:SendLuaNetMsg(105, 665, 665, 0, "")
+                end)
                 npc.an_cbl = GUI:Button_Create(npc.RightBottom, "an_cbl", -86, 340, "res/private/main/bottom/1900012580.png")
                 GUI:Button_loadTexturePressed(npc.an_cbl, "res/private/main/bottom/1900012580.png")
                 GUI:setAnchorPoint(GUI:Image_Create(npc.an_cbl, "ts", 86/2, 86/2, "res/private/main/bottom/1900012538.png")
