@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plist version="1.0">
+  <dict>
+    <key>frames</key>
+    <dict>
+      <key>monster_0904_0_0_0_0000.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{382,0},{82,152}}</string>
+        <key>offset</key>
+        <string>{4,82}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{82,152}}</string>
+        <key>sourceSize</key>
+        <string>{82,152}</string>
+      </dict>
+      <key>monster_0904_0_0_0_0001.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{298,0},{82,152}}</string>
+        <key>offset</key>
+        <string>{4,82}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{82,152}}</string>
+        <key>sourceSize</key>
+        <string>{82,152}</string>
+      </dict>
+      <key>monster_0904_0_0_0_0002.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{214,0},{82,152}}</string>
+        <key>offset</key>
+        <string>{4,82}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{82,152}}</string>
+        <key>sourceSize</key>
+        <string>{82,152}</string>
+      </dict>
+      <key>monster_0904_0_0_0_0003.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{115,0},{97,152}}</string>
+        <key>offset</key>
+        <string>{-11,82}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{97,152}}</string>
+        <key>sourceSize</key>
+        <string>{97,152}</string>
+      </dict>
+      <key>monster_0904_0_0_0_0004.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,0},{113,152}}</string>
+        <key>offset</key>
+        <string>{-27,82}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{113,152}}</string>
+        <key>sourceSize</key>
+        <string>{113,152}</string>
+      </dict>
+    </dict>
+    <key>metadata</key>
+    <dict>
+      <key>format</key>
+      <integer>2</integer>
+      <key>realTextureFileName</key>
+      <string>monster_0904_0_0.png</string>
+      <key>size</key>
+      <string>{464,152}</string>
+      <key>smartupdate</key>
+      <string>$TexturePacker:SmartUpdate:04f1009117cb9756889ce6b8fa8cb9ed:f5e3cac1e347c43a9c4d34b1c46b7f48:99b123d872d99e7c7c015dc7d10f06a1$</string>
+      <key>textureFileName</key>
+      <string>monster_0904_0_0.png</string>
+    </dict>
+  </dict>
+</plist>
