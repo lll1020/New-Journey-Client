@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plist version="1.0">
+  <dict>
+    <key>frames</key>
+    <dict>
+      <key>monster_16519_0_4_0_0008.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,0},{560,489}}</string>
+        <key>offset</key>
+        <string>{-285,241}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{560,489}}</string>
+        <key>sourceSize</key>
+        <string>{560,489}</string>
+      </dict>
+      <key>monster_16519_0_4_4_0008.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,491},{537,510}}</string>
+        <key>offset</key>
+        <string>{-239,268}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{537,510}}</string>
+        <key>sourceSize</key>
+        <string>{537,510}</string>
+      </dict>
+    </dict>
+    <key>metadata</key>
+    <dict>
+      <key>format</key>
+      <integer>2</integer>
+      <key>realTextureFileName</key>
+      <string>monster_16519_0_4_2.png</string>
+      <key>size</key>
+      <string>{1024,1024}</string>
+      <key>textureFileName</key>
+      <string>monster_16519_0_4_2.png</string>
+    </dict>
+  </dict>
+</plist>

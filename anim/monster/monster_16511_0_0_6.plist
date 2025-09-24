@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plist version="1.0">
+  <dict>
+    <key>frames</key>
+    <dict>
+      <key>monster_16511_0_0_6_0000.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{274,0},{93,192}}</string>
+        <key>offset</key>
+        <string>{-9,119}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{93,192}}</string>
+        <key>sourceSize</key>
+        <string>{93,192}</string>
+      </dict>
+      <key>monster_16511_0_0_6_0001.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{88,0},{92,196}}</string>
+        <key>offset</key>
+        <string>{-10,120}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{92,196}}</string>
+        <key>sourceSize</key>
+        <string>{92,196}</string>
+      </dict>
+      <key>monster_16511_0_0_6_0002.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,0},{86,197}}</string>
+        <key>offset</key>
+        <string>{-10,121}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{86,197}}</string>
+        <key>sourceSize</key>
+        <string>{86,197}</string>
+      </dict>
+      <key>monster_16511_0_0_6_0003.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{182,0},{90,193}}</string>
+        <key>offset</key>
+        <string>{-10,120}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{90,193}}</string>
+        <key>sourceSize</key>
+        <string>{90,193}</string>
+      </dict>
+    </dict>
+    <key>metadata</key>
+    <dict>
+      <key>format</key>
+      <integer>2</integer>
+      <key>realTextureFileName</key>
+      <string>monster_16511_0_0_6.png</string>
+      <key>size</key>
+      <string>{374,388}</string>
+      <key>textureFileName</key>
+      <string>monster_16511_0_0_6.png</string>
+    </dict>
+  </dict>
+</plist>
