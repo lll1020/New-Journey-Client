@@ -3133,6 +3133,9 @@ npc[1004] = function(p2, p3, msgData) -- 查看他人
     cogin.onther_zdl = cogin.onther_shuju.zdl
     SL:RequestLookPlayer(""..cogin.onther_shuju.userid, true)
 end
+npc[1005] = function(p2, p3, msgData) -- 查看他人
+    UiTools.playSucAnimation(msgData)
+end
 npc[9999] = function(p2, p3, msgData) -- 通用关闭
     local parent = GUI:GetWindow(nil, msgData)
     if parent then

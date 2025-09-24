@@ -127,3 +127,35 @@ SL:RegisterLUAEvent(LUA_EVENT_SERVER_VALUE_CHANGE, "服务端属性下发",  fun
     --    cogin.sjtb.bbsq = SL:JsonDecode(data.value, false)
     --end
 end)
+
+
+
+---飞剑相关
+--命中目标发送消息给服务端进行扣血操作
+function SL:SubmitForm(msgName,...)
+    local content = {}
+
+    if msgName == nil then
+        return false
+    end
+
+    content.script = msgName
+    content.paramList = {}
+    local arg = {...}
+    for i=1, #arg do
+        content.paramList[i] = arg[i]
+    end
+
+    SL:SendLuaNetMsg(666, 0, 0, 0, SL:JsonEncode(content,false))
+end
+
+--加载相关lua文件
+SL:Require("GUILayout/lib/ease",true)
+SL:Require("GUILayout/ldUtil/init",true)
+SL:Require("GUILayout/logic/SkillEffectLogic",true)
+
+--接收服务端消息初始化飞剑
+SL:RegisterLuaNetMsg(999, function(msgID, p1, p2, p3, msgData)
+    SL:onLUAEvent(LUA_EVENT_PASSIVE_SKILL_DATA, { type = p1 })
+end)
+---飞剑相关--end

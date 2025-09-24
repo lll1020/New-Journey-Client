@@ -2,31 +2,38 @@
 --npc功能：
 local npc = {}
 
-npc._config = teshudata["npc_1"]
+npc._config = {}
 
 function npc.main(npcid, p2, p3, msgData)
 
     local function UI_updata(node) --界面渲染
         GUI:removeAllChildren(node)
 
-        GUI:RichText_Create(node, "desc", 200, 430,
-                "<font color='#00FF00' size='20' >最多洗练5次，当前洗练："..(npc.data.cs or 0).."</font>"
-        , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
 
-        for i = 1, 5 do
-            GUI:RichText_Create(node, "text_name" .. i, 200, 200 + (i - 1) * 30,
-                    "<font color='#00FF00' size='16' >"..npc._config.config[i].name.."</font>"..
-                            "<font color='#0000FF' size='18' >"..npc._config.config[i].attr_desc.." + </font>"..
-                            SetCompletionProgress((npc.data.data[""..i] or 0), npc._config.config[i].range[2])
-            , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-        end
+
+
+        GUI:setAnchorPoint(
+                GUI:RichText_Create(node, "desc", 200, 430,
+                        "<font color='#00FF00' size='20' >领取任务 共计击杀5只怪物，当前击杀："..(npc.data.sg_data.npc2 or 0).."</font>"
+                , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+        , 0, 1)
+
 
         local Button= GUI:Button_Create(node, "Button", 750, 100.00, "res/public/1900000660.png")
-        GUI:Button_setTitleText(Button, "刷新灵根")
+        GUI:Button_setTitleText(Button, "领取任务")
         GUI:Button_setTitleFontSize(Button, 14)
 
         GUI:addOnClickEvent(Button, function()
             SL:SendLuaNetMsg(100, npcid, 1, 0, "")
+        end)
+
+
+        Button= GUI:Button_Create(node, "Button2", 750, 150.00, "res/public/1900000660.png")
+        GUI:Button_setTitleText(Button, "完成任务")
+        GUI:Button_setTitleFontSize(Button, 14)
+
+        GUI:addOnClickEvent(Button, function()
+            SL:SendLuaNetMsg(100, npcid, 2, 0, "")
         end)
     end
 
