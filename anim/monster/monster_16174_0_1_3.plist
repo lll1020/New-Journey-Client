@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plist version="1.0">
+  <dict>
+    <key>frames</key>
+    <dict>
+      <key>monster_16174_0_1_3_0003.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{371,0},{409,439}}</string>
+        <key>offset</key>
+        <string>{-279,403}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{409,439}}</string>
+        <key>sourceSize</key>
+        <string>{409,439}</string>
+      </dict>
+      <key>monster_16174_0_1_3_0006.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,442},{364,439}}</string>
+        <key>offset</key>
+        <string>{-253,406}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{364,439}}</string>
+        <key>sourceSize</key>
+        <string>{364,439}</string>
+      </dict>
+      <key>monster_16174_0_1_3_0007.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,0},{369,440}}</string>
+        <key>offset</key>
+        <string>{-259,411}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{369,440}}</string>
+        <key>sourceSize</key>
+        <string>{369,440}</string>
+      </dict>
+    </dict>
+    <key>metadata</key>
+    <dict>
+      <key>format</key>
+      <integer>2</integer>
+      <key>realTextureFileName</key>
+      <string>monster_16174_0_1_3.png</string>
+      <key>size</key>
+      <string>{1024,1024}</string>
+      <key>textureFileName</key>
+      <string>monster_16174_0_1_3.png</string>
+    </dict>
+  </dict>
+</plist>
