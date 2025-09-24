@@ -67,8 +67,6 @@ function npc.main(npcid, p2, p3, msgData)
         npc.node = GUI:Node_Create(npc.bg, "node", 0, 0)
         UI_updata(npc.node)
     elseif p2 == 1 then
-        npc.data.data = SL:JsonDecode(msgData,false)
-        npc.data.cs = (npc.data.cs or 0) + 1
         UI_updata(npc.node)
     end
 end

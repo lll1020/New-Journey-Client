@@ -142,6 +142,10 @@ if not result then
 end
 
 local function pressedCB()
+
+    cogin.teshudata = SL:Require("GUILayout/Data/teshudata.lua", true)
+
+
     for k, _ in pairs(package.loaded) do
         if string.find(k, "^ssr/ssrgame/") or string.find(k, "^GUILayout") or string.find(k, "^GUIExport") then
             package.loaded[k] = nil
