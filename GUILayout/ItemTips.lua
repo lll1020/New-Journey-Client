@@ -3102,7 +3102,10 @@ function ItemTips.CreateEquipPanel(data, itemData, isWear, panelInsertIndex)
     end
 
     -- 内观预览
-    ItemTips.GetModelPanel(itemData)
+    --SL:dump(itemData)
+    if tonumber(itemData.Index) > 50000 then
+        ItemTips.GetModelPanel(itemData)
+    end
 
     -- 调整位置
     ItemTips.RefreshItemPosition(ListBg, scrollView, tipsSz)
