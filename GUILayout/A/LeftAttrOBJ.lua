@@ -68,12 +68,12 @@ end
 
 function LeftAttrOBJ:onAttrChange()
     self:reloadInit()
-    local qieGe = SL:GetMetaValue("ATT_BY_TYPE", 200)
-    local baoLv = SL:GetMetaValue("ATT_BY_TYPE", 204)
-    local gongSu = SL:GetMetaValue("ATT_BY_TYPE", 228)
+    local qieGe = math.floor(SL:GetMetaValue("ATT_BY_TYPE", 244)*(1 + SL:GetMetaValue("ATT_BY_TYPE", 253)/10000))
+    local baoLv = SL:GetMetaValue("ATT_BY_TYPE", 242)/100
+    local gongSu = SL:GetMetaValue("ATT_BY_TYPE", 200)/100
     GUI:Text_setString(self.ui.qieGe, qieGe)
     GUI:Text_setString(self.ui.baoLv, baoLv .. "%")
-    GUI:Text_setString(self.ui.gongSu, gongSu + 100 .. "%")
+    GUI:Text_setString(self.ui.gongSu, gongSu .. "%")
 end
 
 --重载初始化

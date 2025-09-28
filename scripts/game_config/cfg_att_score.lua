@@ -1109,6 +1109,7 @@ local config = {
 		isshow = 0,
 		scolor = 250,
 		sort = 999,
+		noshowtips = 1,
 	},
 	[281] = { 
 		Idx = 281,
@@ -1117,6 +1118,7 @@ local config = {
 		isshow = 0,
 		scolor = 250,
 		sort = 999,
+		noshowtips = 1,
 	},
 	[282] = { 
 		Idx = 282,
@@ -1125,6 +1127,7 @@ local config = {
 		isshow = 0,
 		scolor = 250,
 		sort = 999,
+		noshowtips = 1,
 	},
 	[283] = { 
 		Idx = 283,
@@ -1133,6 +1136,7 @@ local config = {
 		isshow = 0,
 		scolor = 250,
 		sort = 999,
+		noshowtips = 1,
 	},
 	[284] = { 
 		Idx = 284,
@@ -1141,6 +1145,7 @@ local config = {
 		isshow = 0,
 		scolor = 250,
 		sort = 999,
+		noshowtips = 1,
 	},
 	[285] = { 
 		Idx = 285,
@@ -1149,6 +1154,7 @@ local config = {
 		isshow = 0,
 		scolor = 250,
 		sort = 999,
+		noshowtips = 1,
 	},
 	[286] = { 
 		Idx = 286,
@@ -1157,6 +1163,7 @@ local config = {
 		isshow = 0,
 		scolor = 250,
 		sort = 999,
+		noshowtips = 1,
 	},
 	[287] = { 
 		Idx = 287,
@@ -1165,6 +1172,7 @@ local config = {
 		isshow = 0,
 		scolor = 250,
 		sort = 999,
+		noshowtips = 1,
 	},
 	[288] = { 
 		Idx = 288,
@@ -1173,6 +1181,7 @@ local config = {
 		isshow = 0,
 		scolor = 250,
 		sort = 999,
+		noshowtips = 1,
 	},
 	[289] = { 
 		Idx = 289,
@@ -1181,6 +1190,7 @@ local config = {
 		isshow = 0,
 		scolor = 250,
 		sort = 999,
+		noshowtips = 1,
 	},
 	[290] = { 
 		Idx = 290,
@@ -1189,6 +1199,7 @@ local config = {
 		isshow = 0,
 		scolor = 250,
 		sort = 999,
+		noshowtips = 1,
 	},
 	[291] = { 
 		Idx = 291,
@@ -1197,6 +1208,7 @@ local config = {
 		isshow = 0,
 		scolor = 250,
 		sort = 999,
+		noshowtips = 1,
 	},
 	[300] = { 
 		Idx = 300,
