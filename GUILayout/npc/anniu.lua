@@ -2,8 +2,12 @@ local npc = {}
 
 ---顶部图标显示
 npc.iconpx = {
-    {{7, "ttsq",509,1}, {3, "fldt",511,4}, {1, "yxgl",512,10}},
-    {{12, "zxcz", 502,9}, {2, "jyh",510,2}}
+    {
+        {7, "天天省钱",509,1}, {3, "福利大厅",511,2}, {1, "游戏攻略",512,3},{5, "活动大厅",507,4},{8, "首充礼包",501,5},{4, "仙途奇缘",510,15}
+    },
+    {
+        {12, "在线充值", 502,11}, {2, "交易行",510,12},{4, "解绑特权",504,13},{4, "狂暴之力",510,14},{4, "世界地图",510,15}
+    }
 }
 npc.LeftTop = GUI:Attach_LeftTop() -- 左上
 npc.RightTop = GUI:Attach_RightTop() -- 右上
@@ -114,41 +118,25 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
             npc.dbrqx = GUI:Layout_Create(npc.dbLayout, "Layout_x", 0.00, -10.00, 490.00, 80.00, false)
             local zbjs = 1
             for i, v in ipairs(npc.iconpx[1]) do
-                --if false then
-                if (v[2] == "xthl" and not (cogin.sjtb.hqcs and cogin.sjtb.hqcs < 1 and not SL:GetMetaValue("TITLE_DATA_BY_ID", SL:GetMetaValue("ITEM_INDEX_BY_NAME","新服助力")))) or (v[2] == "sclb" and cogin.sjtb.sczt and cogin.sjtb.sczt == 1) or v[2] == sy or
-                (v[2] == "mrhy" and not dl_sz(3)) or (v[2] == "tsqb" and ((cogin.sjtb.kqfz and cogin.sjtb.kqfz >= 60) or (cogin.sjtb.sczt and cogin.sjtb.sczt == 1))) or (v[2] == "txzr" and (cogin.sjtb.kqfz and cogin.sjtb.kqfz >= 90)) or (v[2] == "wyzz" and SL:GetMetaValue("TITLE_DATA_BY_ID",SL:GetMetaValue("ITEM_INDEX_BY_NAME","钻石赞助"))) or (v[2] == "kryb" and SL:GetMetaValue("TITLE_DATA_BY_ID",SL:GetMetaValue("ITEM_INDEX_BY_NAME","快人一步")))
-                then
-
+                if false then
                 else
                     npc.db_anniu[""..v[4]] = GUI:Button_Create(npc.dbrqs, "anniu_1" .. i, 498 - 80 * zbjs, 0, "res/wy/icon/" .. v[1] .. ".png")
+                    GUI:Text_Create(npc.db_anniu[""..v[4]], "tt", 0, 14, 14, "#ffffff", v[2])
                     GUI:addOnClickEvent(npc.db_anniu[""..v[4]], function()
                         SL:SendLuaNetMsg(101, v[3], 0, 0, "")
-                        if GUI:ui_delegate(npc.db_anniu[""..v[4]]).ists then
-                            GUI:removeFromParent(GUI:ui_delegate(npc.db_anniu[""..v[4]]).ists)
-                        end
                     end)
                     zbjs = zbjs + 1
                 end
             end
             zbjs = 1
             for i, v in ipairs(npc.iconpx[2]) do
-                --if false then
-                if (v[2] == "xthl" and not (cogin.sjtb.hqcs and cogin.sjtb.hqcs < 1 and not SL:GetMetaValue("TITLE_DATA_BY_ID", SL:GetMetaValue("ITEM_INDEX_BY_NAME","新服助力")))) or (v[2] == "sclb" and cogin.sjtb.sczt and cogin.sjtb.sczt == 1) or v[2] == sy or
-                        (v[2] == "zzxl" and not dl_sz(3)) or (v[2] == "mrhy" and not dl_sz(3)) or (v[2] == "tsqb" and ((cogin.sjtb.kqfz and cogin.sjtb.kqfz >= 60) or (cogin.sjtb.sczt and cogin.sjtb.sczt == 1))) or (v[2] == "txzr" and (cogin.sjtb.kqfz and cogin.sjtb.kqfz >= 90)) or (v[2] == "wyzz" and SL:GetMetaValue("TITLE_DATA_BY_ID",SL:GetMetaValue("ITEM_INDEX_BY_NAME","钻石赞助"))) or (v[2] == "kryb" and SL:GetMetaValue("TITLE_DATA_BY_ID",SL:GetMetaValue("ITEM_INDEX_BY_NAME","快人一步")))
-                then
+                if false then
                 else
                     npc.db_anniu[""..v[4]] = GUI:Button_Create(npc.dbrqx, "anniu_2" .. i, 498 - 80 * zbjs, 0, "res/wy/icon/" .. v[1] .. ".png")
+                    GUI:Text_Create(npc.db_anniu[""..v[4]], "tt", 0, 14, 14, "#ffffff", v[2])
                     GUI:addOnClickEvent(npc.db_anniu[""..v[4]], function()
                         SL:SendLuaNetMsg(101, v[3], 0, 0, "")
-                        if GUI:ui_delegate(npc.db_anniu[""..v[4]]).ists then
-                            GUI:removeFromParent(GUI:ui_delegate(npc.db_anniu[""..v[4]]).ists)
-                        end
                     end)
-                    if v[2] == "tsqb" then
-                        local time = GUI:Text_Create(npc.db_anniu[""..v[4]], "time", 65/2, -7, 14, "#4AE74A", [[]])
-                        GUI:setAnchorPoint(time, 0.5, 0.5)
-                        GUI:Text_COUNTDOWN(time, (60 - cogin.sjtb.kqfz)*60)
-                    end
                     zbjs = zbjs +1
                 end
             end
