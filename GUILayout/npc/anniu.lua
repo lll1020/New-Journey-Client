@@ -2657,84 +2657,312 @@ end
 ---福利大厅
 npc[511] = function(p2, p3, Data) -- 福利大厅
 
+
+    local function sort_by_state(grss)
+        table.sort(grss, function(a, b)
+            -- 自定义 state 优先级
+            local order = { [1] = 1, [0] = 2, [2] = 3 }
+
+            local a_order = order[a.state] or 99
+            local b_order = order[b.state] or 99
+
+            if a_order == b_order then
+                return a.idx < b.idx  -- state 优先级相同，按 idx 排
+            else
+                return a_order < b_order  -- 按 state 优先级排序
+            end
+        end)
+    end
+
+    local state_info = {
+        [1] = {
+            color = "#FF0000", -- 红色
+            text = "可领取"
+        },
+        [0] = {
+            color = "#FFFF00", -- 黄色
+            text = "未达成"
+        },
+        [2] = {
+            color = "#00FF00", -- 绿色
+            text = "已领取"
+        }
+    }
+
+
+    local function GUI_createLabel(Label_node,idx)
+        GUI:removeAllChildren(Label_node)
+        if idx == 1 then
+            local Label_list = GUI:ListView_Create(Label_node, "Label_list", 85 + 200, 50, 700, 500, 1)
+            GUI:ListView_setItemsMargin(Label_list, 10)
+
+            for v,k in ipairs(teshudata["fldt"]["7rqd"]) do
+                local l = GUI:Image_Create(Label_list, "img_bj_l_"..v, 0, 0, 'res/wy/public/500-200.png')
+                GUI:setContentSize(l, 500, 70)
+
+                GUI:Text_Create(l, "wz",10,30, 20, "#FF0000", string.format("第%d天登录奖励",v))
+
+
+                local give = ItemNumByTable_img(k.jl, nil,GUI:Node_Create(l, "give", 0, 0))
+                GUI:setPosition(give, 200, 10)
+
+                local Button= GUI:Button_Create(l, "Button", 400, 20, "res/public/1900000660.png")
+                GUI:Button_setTitleText(Button, "领取")
+                GUI:Button_setTitleFontSize(Button, 14)
+
+                GUI:addOnClickEvent(Button, function()
+                    SL:SendLuaNetMsg(101, 511, 1, 1, '{"7rqd":'..v..'}')
+                end)
+            end
+        elseif idx == 2 then
+            local Label_list = GUI:ListView_Create(Label_node, "Label_list", 85 + 200, 50, 700, 500, 1)
+            GUI:ListView_setItemsMargin(Label_list, 10)
+
+            for v,k in ipairs(teshudata["fldt"]["zxjl"]) do
+                local l = GUI:Image_Create(Label_list, "img_bj_l_"..v, 0, 0, 'res/wy/public/500-200.png')
+                GUI:setContentSize(l, 500, 70)
+
+                GUI:Text_Create(l, "wz",10,30, 20, "#FF0000", string.format("在线时间%d分钟",k.time))
+
+
+                local give = ItemNumByTable_img(k.jl, nil,GUI:Node_Create(l, "give", 0, 0))
+                GUI:setPosition(give, 200, 10)
+
+                local Button= GUI:Button_Create(l, "Button", 400, 20, "res/public/1900000660.png")
+                GUI:Button_setTitleText(Button, "领取")
+                GUI:Button_setTitleFontSize(Button, 14)
+
+                GUI:addOnClickEvent(Button, function()
+                    SL:SendLuaNetMsg(101, 511, 1, 2, '{"zxjl":'..v..'}')
+                end)
+            end
+        elseif idx == 3 then
+            local Label_list = GUI:ListView_Create(Label_node, "Label_list", 85 + 200, 50, 700, 500, 1)
+            GUI:ListView_setItemsMargin(Label_list, 10)
+
+            for v,k in ipairs(teshudata["fldt"]["sgjl"]) do
+                local l = GUI:Image_Create(Label_list, "img_bj_l_"..v, 0, 0, 'res/wy/public/500-200.png')
+                GUI:setContentSize(l, 500, 70)
+
+                GUI:Text_Create(l, "wz",10,30, 20, "#FF0000", string.format("杀怪数量%d",k.num))
+
+
+                local give = ItemNumByTable_img(k.jl, nil,GUI:Node_Create(l, "give", 0, 0))
+                GUI:setPosition(give, 200, 10)
+
+                local Button= GUI:Button_Create(l, "Button", 400, 20, "res/public/1900000660.png")
+                GUI:Button_setTitleText(Button, "领取")
+                GUI:Button_setTitleFontSize(Button, 14)
+
+                GUI:addOnClickEvent(Button, function()
+                    SL:SendLuaNetMsg(101, 511, 1, 2, '{"sgjl":'..v..'}')
+                end)
+            end
+        elseif idx == 4 then
+            local Label_list = GUI:ListView_Create(Label_node, "Label_list", 85 + 200, 50, 700, 500, 1)
+            GUI:ListView_setItemsMargin(Label_list, 2)
+            local grss = {}
+
+            for v,k in pairs(teshudata["fldt"]["grss"]) do
+                if npc.ts_data[""..v] == nil then
+                    table.insert(grss, {idx = v, state = 0,name = k.name})
+                else
+                    table.insert(grss, {idx = v, state = npc.ts_data[""..v],name = teshudata["fldt"]["grss"][tonumber(v)].name})
+                end
+            end
+
+
+
+
+            sort_by_state(grss)
+
+
+            for i = (npc.sign-1)*10 + 1, (npc.sign-1)*10 + 10 do
+                if not grss[i] then break end
+                local v = grss[i]
+                local l = GUI:Image_Create(Label_list, "img_bj_l_"..i, 0, 0, 'res/wy/public/500-200.png')
+                GUI:setContentSize(l, 500, 40)
+
+                GUI:Text_Create(l, "wz",10,5, 20, "#FF0000", v.name)
+
+                GUI:Text_Create(l, "state",300,5, 20, state_info[v.state].color, state_info[v.state].text)
+
+                local Button= GUI:Button_Create(l, "Button", 400, 0, "res/public/1900000660.png")
+                GUI:Button_setTitleText(Button, "领取")
+                GUI:Button_setTitleFontSize(Button, 14)
+
+                GUI:addOnClickEvent(Button, function()
+                    SL:SendLuaNetMsg(101, 511, 1, 4, '{"grss":"'..(v.idx)..'"}')
+                end)
+            end
+
+            local Button= GUI:Button_Create(Label_node, "next", 800, 50, "res/public/1900000660.png")
+            GUI:setAnchorPoint(Button, 0.5, 0)
+            GUI:Button_setTitleText(Button, "下一页")
+            GUI:Button_setTitleFontSize(Button, 14)
+            GUI:addOnClickEvent(Button, function()
+                if npc.sign == math.ceil(#grss/10) then
+                    SL:ShowSystemTips("已经是最后一页了！！！")
+                    return
+                end
+                npc.sign = npc.sign + 1
+                GUI_createLabel(npc.Label,npc.titles_sign)
+            end)
+            Button= GUI:Button_Create(Label_node, "shangyiy", 600, 50, "res/public/1900000660.png")
+            GUI:setAnchorPoint(Button, 0.5, 0)
+            GUI:Button_setTitleText(Button, "上一页")
+            GUI:Button_setTitleFontSize(Button, 14)
+            GUI:addOnClickEvent(Button, function()
+                if npc.sign == 1 then
+                    SL:ShowSystemTips("已经是第一页了！！！")
+                    return
+                end
+                npc.sign = npc.sign - 1
+                GUI_createLabel(npc.Label,npc.titles_sign)
+            end)
+            GUI:setAnchorPoint(
+                    GUI:Text_Create(Label_node, "state",700,50, 20, "#ffffff", string.format("第%d页/共%d页",npc.sign,math.ceil(#grss/10)))
+            , 0.5, 0)
+
+
+        elseif idx == 5 then
+            local Label_list = GUI:ListView_Create(Label_node, "Label_list", 85 + 200, 50, 700, 500, 1)
+            GUI:ListView_setItemsMargin(Label_list, 2)
+            local grsb = {}
+
+            for v,k in pairs(teshudata["fldt"]["grsb"]) do
+                if npc.ts_data[""..v] == nil then
+                    table.insert(grsb, {idx = v, state = 0,name = k.name})
+                else
+                    table.insert(grsb, {idx = v, state = npc.ts_data[""..v],name = teshudata["fldt"]["grsb"][tonumber(v)].name})
+                end
+            end
+
+
+
+
+            sort_by_state(grsb)
+
+
+            for i = (npc.sign-1)*10 + 1, (npc.sign-1)*10 + 10 do
+                if not grsb[i] then break end
+                local v = grsb[i]
+                local l = GUI:Image_Create(Label_list, "img_bj_l_"..i, 0, 0, 'res/wy/public/500-200.png')
+                GUI:setContentSize(l, 500, 40)
+
+                GUI:Text_Create(l, "wz",10,5, 20, "#FF0000", v.name)
+
+                GUI:Text_Create(l, "state",300,5, 20, state_info[v.state].color, state_info[v.state].text)
+
+                local Button= GUI:Button_Create(l, "Button", 400, 0, "res/public/1900000660.png")
+                GUI:Button_setTitleText(Button, "领取")
+                GUI:Button_setTitleFontSize(Button, 14)
+
+                GUI:addOnClickEvent(Button, function()
+                    SL:SendLuaNetMsg(101, 511, 1, 5, '{"grsb":"'..(v.idx)..'"}')
+                end)
+            end
+
+            local Button= GUI:Button_Create(Label_node, "next", 800, 50, "res/public/1900000660.png")
+            GUI:setAnchorPoint(Button, 0.5, 0)
+            GUI:Button_setTitleText(Button, "下一页")
+            GUI:Button_setTitleFontSize(Button, 14)
+            GUI:addOnClickEvent(Button, function()
+                if npc.sign == math.ceil(#grsb/10) then
+                    SL:ShowSystemTips("已经是最后一页了！！！")
+                    return
+                end
+                npc.sign = npc.sign + 1
+                GUI_createLabel(npc.Label,npc.titles_sign)
+            end)
+            Button= GUI:Button_Create(Label_node, "shangyiy", 600, 50, "res/public/1900000660.png")
+            GUI:setAnchorPoint(Button, 0.5, 0)
+            GUI:Button_setTitleText(Button, "上一页")
+            GUI:Button_setTitleFontSize(Button, 14)
+            GUI:addOnClickEvent(Button, function()
+                if npc.sign == 1 then
+                    SL:ShowSystemTips("已经是第一页了！！！")
+                    return
+                end
+                npc.sign = npc.sign - 1
+                GUI_createLabel(npc.Label,npc.titles_sign)
+            end)
+            GUI:setAnchorPoint(
+                    GUI:Text_Create(Label_node, "state",700,50, 20, "#ffffff", string.format("第%d页/共%d页",npc.sign,math.ceil(#grsb/10)))
+            , 0.5, 0)
+        elseif idx == 6 then
+            local Label_list = GUI:ListView_Create(Label_node, "Label_list", 85 + 200, 50, 700, 500, 1)
+            GUI:ListView_setItemsMargin(Label_list, 2)
+            local qqsb = {}
+
+            for v,k in pairs(teshudata["fldt"]["qqsb"]) do
+                if npc.ts_data[""..v] == nil then
+                    table.insert(qqsb, {idx = v, state = 0,name = k.name})
+                else
+                    table.insert(qqsb, {idx = v, state = npc.ts_data[""..v],name = teshudata["fldt"]["qqsb"][tonumber(v)].name})
+                end
+            end
+
+
+
+
+            sort_by_state(qqsb)
+
+
+            for i = (npc.sign-1)*10 + 1, (npc.sign-1)*10 + 10 do
+                if not qqsb[i] then break end
+                local v = qqsb[i]
+                local l = GUI:Image_Create(Label_list, "img_bj_l_"..i, 0, 0, 'res/wy/public/500-200.png')
+                GUI:setContentSize(l, 500, 40)
+
+                GUI:Text_Create(l, "wz",10,5, 20, "#FF0000", v.name)
+
+                GUI:Text_Create(l, "state",300,5, 20, state_info[v.state].color, state_info[v.state].text)
+
+                local Button= GUI:Button_Create(l, "Button", 400, 0, "res/public/1900000660.png")
+                GUI:Button_setTitleText(Button, "领取")
+                GUI:Button_setTitleFontSize(Button, 14)
+
+                GUI:addOnClickEvent(Button, function()
+                    SL:SendLuaNetMsg(101, 511, 1, 6, '{"qqsb":"'..(v.idx)..'"}')
+                end)
+            end
+
+            local Button= GUI:Button_Create(Label_node, "next", 800, 50, "res/public/1900000660.png")
+            GUI:setAnchorPoint(Button, 0.5, 0)
+            GUI:Button_setTitleText(Button, "下一页")
+            GUI:Button_setTitleFontSize(Button, 14)
+            GUI:addOnClickEvent(Button, function()
+                if npc.sign == math.ceil(#qqsb/10) then
+                    SL:ShowSystemTips("已经是最后一页了！！！")
+                    return
+                end
+                npc.sign = npc.sign + 1
+                GUI_createLabel(npc.Label,npc.titles_sign)
+            end)
+            Button= GUI:Button_Create(Label_node, "shangyiy", 600, 50, "res/public/1900000660.png")
+            GUI:setAnchorPoint(Button, 0.5, 0)
+            GUI:Button_setTitleText(Button, "上一页")
+            GUI:Button_setTitleFontSize(Button, 14)
+            GUI:addOnClickEvent(Button, function()
+                if npc.sign == 1 then
+                    SL:ShowSystemTips("已经是第一页了！！！")
+                    return
+                end
+                npc.sign = npc.sign - 1
+                GUI_createLabel(npc.Label,npc.titles_sign)
+            end)
+            GUI:setAnchorPoint(
+                    GUI:Text_Create(Label_node, "state",700,50, 20, "#ffffff", string.format("第%d页/共%d页",npc.sign,math.ceil(#qqsb/10)))
+            , 0.5, 0)
+
+        end
+    end
+
     local function UI_updata(node) --界面渲染
         GUI:removeAllChildren(node)
 
-        local function GUI_createLabel(Label_node,idx)
-            GUI:removeAllChildren(Label_node)
-            if idx == 1 then
-                local Label_list = GUI:ListView_Create(Label_node, "Label_list", 85 + 200, 50, 700, 500, 1)
-                GUI:ListView_setItemsMargin(Label_list, 10)
 
-                for v,k in ipairs(teshudata["fldt"]["7rqd"]) do
-                    local l = GUI:Image_Create(Label_list, "img_bj_l_"..v, 0, 0, 'res/wy/public/500-200.png')
-                    GUI:setContentSize(l, 500, 70)
-
-                    GUI:Text_Create(l, "wz",10,30, 20, "#FF0000", string.format("第%d天登录奖励",v))
-
-
-                    local give = ItemNumByTable_img(k.jl, nil,GUI:Node_Create(l, "give", 0, 0))
-                    GUI:setPosition(give, 200, 10)
-
-                    local Button= GUI:Button_Create(l, "Button", 400, 20, "res/public/1900000660.png")
-                    GUI:Button_setTitleText(Button, "领取")
-                    GUI:Button_setTitleFontSize(Button, 14)
-
-                    GUI:addOnClickEvent(Button, function()
-                        SL:SendLuaNetMsg(101, 511, 1, 1, '{"7rqd":'..v..'}')
-                    end)
-                end
-            elseif idx == 2 then
-                local Label_list = GUI:ListView_Create(Label_node, "Label_list", 85 + 200, 50, 700, 500, 1)
-                GUI:ListView_setItemsMargin(Label_list, 10)
-
-                for v,k in ipairs(teshudata["fldt"]["zxjl"]) do
-                    local l = GUI:Image_Create(Label_list, "img_bj_l_"..v, 0, 0, 'res/wy/public/500-200.png')
-                    GUI:setContentSize(l, 500, 70)
-
-                    GUI:Text_Create(l, "wz",10,30, 20, "#FF0000", string.format("在线时间%d分钟",k.time))
-
-
-                    local give = ItemNumByTable_img(k.jl, nil,GUI:Node_Create(l, "give", 0, 0))
-                    GUI:setPosition(give, 200, 10)
-
-                    local Button= GUI:Button_Create(l, "Button", 400, 20, "res/public/1900000660.png")
-                    GUI:Button_setTitleText(Button, "领取")
-                    GUI:Button_setTitleFontSize(Button, 14)
-
-                    GUI:addOnClickEvent(Button, function()
-                        SL:SendLuaNetMsg(101, 511, 1, 2, '{"zxjl":'..v..'}')
-                    end)
-                end
-            elseif idx == 3 then
-                local Label_list = GUI:ListView_Create(Label_node, "Label_list", 85 + 200, 50, 700, 500, 1)
-                GUI:ListView_setItemsMargin(Label_list, 10)
-
-                for v,k in ipairs(teshudata["fldt"]["sgjl"]) do
-                    local l = GUI:Image_Create(Label_list, "img_bj_l_"..v, 0, 0, 'res/wy/public/500-200.png')
-                    GUI:setContentSize(l, 500, 70)
-
-                    GUI:Text_Create(l, "wz",10,30, 20, "#FF0000", string.format("杀怪数量%d",k.num))
-
-
-                    local give = ItemNumByTable_img(k.jl, nil,GUI:Node_Create(l, "give", 0, 0))
-                    GUI:setPosition(give, 200, 10)
-
-                    local Button= GUI:Button_Create(l, "Button", 400, 20, "res/public/1900000660.png")
-                    GUI:Button_setTitleText(Button, "领取")
-                    GUI:Button_setTitleFontSize(Button, 14)
-
-                    GUI:addOnClickEvent(Button, function()
-                        SL:SendLuaNetMsg(101, 511, 1, 2, '{"sgjl":'..v..'}')
-                    end)
-                end
-            elseif idx == 4 then
-            elseif idx == 5 then
-            elseif idx == 6 then
-
-            end
-
-        end
 
         npc.cbl_list = GUI:ListView_Create(node, "cbl_list", 85, 50, 150, 500, 1)
         GUI:ListView_setGravity(npc.cbl_list, 2)
@@ -2742,12 +2970,19 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
         npc.Label = GUI:Node_Create(node, "Label", 0, 0)
 
         local titles = {"七日登录", "在线奖励", "杀怪奖励", "怪物首杀", "个人首爆", "全区首爆"}
+        npc.titles_sign = 1
         for i = 1, #titles do
             local cbl_item = GUI:Button_Create(npc.cbl_list, "item" .. i, 0, 0, "res/public/1900000660.png")
             GUI:Button_setTitleText(cbl_item, titles[i])
             GUI:Button_setTitleFontSize(cbl_item, 14)
             GUI:addOnClickEvent(cbl_item, function()
-                GUI_createLabel(npc.Label,i)
+                if i >= 4 then
+                    SL:SendLuaNetMsg(101, 511, 2, i, "")
+                    npc.sign = 1
+                else
+                    npc.titles_sign = i
+                    GUI_createLabel(npc.Label,i)
+                end
             end)
 
         end
@@ -2783,6 +3018,10 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
             GUI:Win_Close(parent)
         end)
         UI_updata(npc.node)
+    elseif p2 == 2 then
+        npc.ts_data = not Data and {} or SL:JsonDecode(Data, false)
+        npc.titles_sign = p3
+        GUI_createLabel(npc.Label,p3)
     end
 
 end
