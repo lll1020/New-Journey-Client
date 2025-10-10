@@ -6,54 +6,54 @@
       <key>npc_2118_0_0_0_0000.png</key>
       <dict>
         <key>frame</key>
-        <string>{{102,132},{93,120}}</string>
+        <string>{{144,133},{137,138}}</string>
         <key>offset</key>
-        <string>{-15,78}</string>
+        <string>{-59,108}</string>
         <key>rotated</key>
-        <false />
+        <true />
         <key>sourceColorRect</key>
-        <string>{{0,0},{93,120}}</string>
+        <string>{{0,0},{137,138}}</string>
         <key>sourceSize</key>
-        <string>{93,120}</string>
+        <string>{137,138}</string>
       </dict>
       <key>npc_2118_0_0_0_0001.png</key>
       <dict>
         <key>frame</key>
-        <string>{{0,0},{101,130}}</string>
+        <string>{{0,0},{124,142}}</string>
         <key>offset</key>
-        <string>{-17,88}</string>
+        <string>{-55,112}</string>
         <key>rotated</key>
-        <false />
+        <true />
         <key>sourceColorRect</key>
-        <string>{{0,0},{101,130}}</string>
+        <string>{{0,0},{124,142}}</string>
         <key>sourceSize</key>
-        <string>{101,130}</string>
+        <string>{124,142}</string>
       </dict>
       <key>npc_2118_0_0_0_0002.png</key>
       <dict>
         <key>frame</key>
-        <string>{{103,0},{101,130}}</string>
+        <string>{{144,0},{131,142}}</string>
         <key>offset</key>
-        <string>{-20,88}</string>
+        <string>{-58,112}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
-        <string>{{0,0},{101,130}}</string>
+        <string>{{0,0},{131,142}}</string>
         <key>sourceSize</key>
-        <string>{101,130}</string>
+        <string>{131,142}</string>
       </dict>
       <key>npc_2118_0_0_0_0003.png</key>
       <dict>
         <key>frame</key>
-        <string>{{0,132},{100,121}}</string>
+        <string>{{0,126},{134,142}}</string>
         <key>offset</key>
-        <string>{-19,79}</string>
+        <string>{-59,112}</string>
         <key>rotated</key>
-        <false />
+        <true />
         <key>sourceColorRect</key>
-        <string>{{0,0},{100,121}}</string>
+        <string>{{0,0},{134,142}}</string>
         <key>sourceSize</key>
-        <string>{100,121}</string>
+        <string>{134,142}</string>
       </dict>
     </dict>
     <key>metadata</key>
@@ -63,7 +63,7 @@
       <key>realTextureFileName</key>
       <string>npc_2118_0_0.png</string>
       <key>size</key>
-      <string>{256,256}</string>
+      <string>{384,512}</string>
       <key>textureFileName</key>
       <string>npc_2118_0_0.png</string>
     </dict>

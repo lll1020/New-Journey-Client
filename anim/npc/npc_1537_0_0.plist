@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plist version="1.0">
+  <dict>
+    <key>frames</key>
+    <dict>
+      <key>npc_1537_0_0_0_0000.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{400,0},{202,306}}</string>
+        <key>offset</key>
+        <string>{-78,216}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{202,306}}</string>
+        <key>sourceSize</key>
+        <string>{202,306}</string>
+      </dict>
+      <key>npc_1537_0_0_0_0001.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,0},{200,336}}</string>
+        <key>offset</key>
+        <string>{-77,246}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{200,336}}</string>
+        <key>sourceSize</key>
+        <string>{200,336}</string>
+      </dict>
+      <key>npc_1537_0_0_0_0002.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{400,308},{198,301}}</string>
+        <key>offset</key>
+        <string>{-75,211}</string>
+        <key>rotated</key>
+        <true />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{198,301}}</string>
+        <key>sourceSize</key>
+        <string>{198,301}</string>
+      </dict>
+      <key>npc_1537_0_0_0_0003.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{202,0},{196,319}}</string>
+        <key>offset</key>
+        <string>{-74,229}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{196,319}}</string>
+        <key>sourceSize</key>
+        <string>{196,319}</string>
+      </dict>
+    </dict>
+    <key>metadata</key>
+    <dict>
+      <key>format</key>
+      <integer>2</integer>
+      <key>realTextureFileName</key>
+      <string>npc_1537_0_0.png</string>
+      <key>size</key>
+      <string>{811,515}</string>
+      <key>textureFileName</key>
+      <string>npc_1537_0_0.png</string>
+    </dict>
+  </dict>
+</plist>

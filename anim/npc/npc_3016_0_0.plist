@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<plist version="1.0">
+  <dict>
+    <key>frames</key>
+    <dict>
+      <key>npc_3016_0_0_0_0000.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,0},{223,230}}</string>
+        <key>offset</key>
+        <string>{-71,183}</string>
+        <key>rotated</key>
+        <true />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{223,230}}</string>
+        <key>sourceSize</key>
+        <string>{223,230}</string>
+      </dict>
+      <key>npc_3016_0_0_0_0001.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{232,225},{223,229}}</string>
+        <key>offset</key>
+        <string>{-71,182}</string>
+        <key>rotated</key>
+        <true />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{223,229}}</string>
+        <key>sourceSize</key>
+        <string>{223,229}</string>
+      </dict>
+      <key>npc_3016_0_0_0_0002.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,225},{223,229}}</string>
+        <key>offset</key>
+        <string>{-71,182}</string>
+        <key>rotated</key>
+        <true />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{223,229}}</string>
+        <key>sourceSize</key>
+        <string>{223,229}</string>
+      </dict>
+      <key>npc_3016_0_0_0_0003.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{464,0},{223,229}}</string>
+        <key>offset</key>
+        <string>{-71,182}</string>
+        <key>rotated</key>
+        <true />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{223,229}}</string>
+        <key>sourceSize</key>
+        <string>{223,229}</string>
+      </dict>
+      <key>npc_3016_0_0_0_0004.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{464,225},{223,229}}</string>
+        <key>offset</key>
+        <string>{-71,182}</string>
+        <key>rotated</key>
+        <true />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{223,229}}</string>
+        <key>sourceSize</key>
+        <string>{223,229}</string>
+      </dict>
+      <key>npc_3016_0_0_0_0005.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{232,0},{223,230}}</string>
+        <key>offset</key>
+        <string>{-71,183}</string>
+        <key>rotated</key>
+        <true />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{223,230}}</string>
+        <key>sourceSize</key>
+        <string>{223,230}</string>
+      </dict>
+    </dict>
+    <key>metadata</key>
+    <dict>
+      <key>format</key>
+      <integer>2</integer>
+      <key>realTextureFileName</key>
+      <string>npc_3016_0_0.png</string>
+      <key>size</key>
+      <string>{735,640}</string>
+      <key>textureFileName</key>
+      <string>npc_3016_0_0.png</string>
+    </dict>
+  </dict>
+</plist>

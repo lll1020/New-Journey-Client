@@ -6,106 +6,132 @@
       <key>npc_1040_0_0_0_0000.png</key>
       <dict>
         <key>frame</key>
-        <string>{{313,0},{159,175}}</string>
+        <string>{{248,0},{119,150}}</string>
         <key>offset</key>
-        <string>{-61,134}</string>
+        <string>{-14,110}</string>
         <key>rotated</key>
-        <true />
+        <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{159,175}}</string>
+        <string>{{0,0},{119,150}}</string>
         <key>sourceSize</key>
-        <string>{159,175}</string>
+        <string>{119,150}</string>
       </dict>
       <key>npc_1040_0_0_0_0001.png</key>
       <dict>
         <key>frame</key>
-        <string>{{313,161},{158,175}}</string>
+        <string>{{247,154},{118,151}}</string>
         <key>offset</key>
-        <string>{-61,134}</string>
+        <string>{-14,109}</string>
         <key>rotated</key>
-        <true />
+        <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{158,175}}</string>
+        <string>{{0,0},{118,151}}</string>
         <key>sourceSize</key>
-        <string>{158,175}</string>
+        <string>{118,151}</string>
       </dict>
       <key>npc_1040_0_0_0_0002.png</key>
       <dict>
         <key>frame</key>
-        <string>{{310,321},{155,175}}</string>
+        <string>{{125,158},{120,152}}</string>
         <key>offset</key>
-        <string>{-60,134}</string>
+        <string>{-15,109}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{155,175}}</string>
+        <string>{{0,0},{120,152}}</string>
         <key>sourceSize</key>
-        <string>{155,175}</string>
+        <string>{120,152}</string>
       </dict>
       <key>npc_1040_0_0_0_0003.png</key>
       <dict>
         <key>frame</key>
-        <string>{{467,321},{151,175}}</string>
+        <string>{{0,315},{122,154}}</string>
         <key>offset</key>
-        <string>{-59,134}</string>
+        <string>{-15,109}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{151,175}}</string>
+        <string>{{0,0},{122,154}}</string>
         <key>sourceSize</key>
-        <string>{151,175}</string>
+        <string>{122,154}</string>
       </dict>
-      <key>npc_1040_0_0_1_0000.png</key>
+      <key>npc_1040_0_0_0_0004.png</key>
       <dict>
         <key>frame</key>
-        <string>{{158,195},{150,177}}</string>
+        <string>{{0,158},{123,155}}</string>
         <key>offset</key>
-        <string>{-58,136}</string>
+        <string>{-15,109}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{150,177}}</string>
+        <string>{{0,0},{123,155}}</string>
         <key>sourceSize</key>
-        <string>{150,177}</string>
+        <string>{123,155}</string>
       </dict>
-      <key>npc_1040_0_0_1_0001.png</key>
+      <key>npc_1040_0_0_0_0005.png</key>
       <dict>
         <key>frame</key>
-        <string>{{159,0},{152,177}}</string>
+        <string>{{0,0},{124,156}}</string>
         <key>offset</key>
-        <string>{-58,136}</string>
+        <string>{-15,110}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{152,177}}</string>
+        <string>{{0,0},{124,156}}</string>
         <key>sourceSize</key>
-        <string>{152,177}</string>
+        <string>{124,156}</string>
       </dict>
-      <key>npc_1040_0_0_1_0002.png</key>
+      <key>npc_1040_0_0_0_0006.png</key>
       <dict>
         <key>frame</key>
-        <string>{{0,195},{156,178}}</string>
+        <string>{{124,315},{123,154}}</string>
         <key>offset</key>
-        <string>{-60,137}</string>
+        <string>{-15,110}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{156,178}}</string>
+        <string>{{0,0},{123,154}}</string>
         <key>sourceSize</key>
-        <string>{156,178}</string>
+        <string>{123,154}</string>
       </dict>
-      <key>npc_1040_0_0_1_0003.png</key>
+      <key>npc_1040_0_0_0_0007.png</key>
       <dict>
         <key>frame</key>
-        <string>{{0,0},{157,193}}</string>
+        <string>{{126,0},{120,152}}</string>
         <key>offset</key>
-        <string>{-60,136}</string>
+        <string>{-15,110}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{157,193}}</string>
+        <string>{{0,0},{120,152}}</string>
         <key>sourceSize</key>
-        <string>{157,193}</string>
+        <string>{120,152}</string>
+      </dict>
+      <key>npc_1040_0_0_0_0008.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{369,0},{118,150}}</string>
+        <key>offset</key>
+        <string>{-14,110}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{118,150}}</string>
+        <key>sourceSize</key>
+        <string>{118,150}</string>
+      </dict>
+      <key>npc_1040_0_0_0_0009.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{369,152},{118,149}}</string>
+        <key>offset</key>
+        <string>{-14,110}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{118,149}}</string>
+        <key>sourceSize</key>
+        <string>{118,149}</string>
       </dict>
     </dict>
     <key>metadata</key>
@@ -115,7 +141,7 @@
       <key>realTextureFileName</key>
       <string>npc_1040_0_0.png</string>
       <key>size</key>
-      <string>{1024,512}</string>
+      <string>{512,512}</string>
       <key>textureFileName</key>
       <string>npc_1040_0_0.png</string>
     </dict>

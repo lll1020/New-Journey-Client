@@ -15,10 +15,7 @@ npc.RightBottom = GUI:Attach_RightBottom() -- 右下
 npc.qiehuan = GUI:Win_FindParent(109)--手机端切换
 npc.xinjn = GUI:Win_FindParent(1104)--主界面最顶右下
 npc.xinjn32 = GUI:Win_FindParent(1003)--主界面最顶右下
----充值档位
-npc.cz_data = {
-    fj = {18,38,68,128,288,588,888,1188,1588,1888},
-}
+
 npc.db_anniu = {} --按钮
 ---特殊任务描述
 npc.rw = {
@@ -2251,7 +2248,13 @@ end
 npc[501] = function(p2, p3, Data) -- 首冲礼包
     local function UI_updata(node) --界面渲染
         GUI:removeAllChildren(node)
+        local Button= GUI:Button_Create(node, "Button", 750, 100.00, "res/public/1900000660.png")
+        GUI:Button_setTitleText(Button, "领取")
+        GUI:Button_setTitleFontSize(Button, 14)
 
+        GUI:addOnClickEvent(Button, function()
+            SL:SendLuaNetMsg(101, 501, 1, 0, "")
+        end)
     end
 
     if p2 == 0 then
@@ -2285,33 +2288,74 @@ npc[501] = function(p2, p3, Data) -- 首冲礼包
 end
 ---在线充值
 npc[502] = function(p2, p3, Data) -- 在线充值
-	if p2 == 0 then
-		local parent = GUI:GetWindow(nil, "npc_zxcz")
-        npc.data = SL:JsonDecode(Data, false)
-		if parent then
-			GUI:removeAllChildren(parent)
-			GUI:setPosition(parent, cogin.w / 2, cogin.h / 2)
-		else
-			parent = GUI:Win_Create("npc_zxcz", cogin.w / 2, cogin.h / 2, 0, 0, false, false, true, true, true, 0, 1)
-		end
-		local bjt = GUI:Image_Create(parent, "bjt", 0, 0, "res/public/1900000651_1.png")
-		GUI:setAnchorPoint(bjt, 0.5, 0.5)
-		GUI:setContentSize(bjt, cogin.w + 100, cogin.h + 100)
-		GUI:setTouchEnabled(bjt, true)
-		GUI:addOnClickEvent(bjt, function()
-			GUI:Win_Close(parent)
-		end)
+    local function UI_updata(node) --界面渲染
+        GUI:removeAllChildren(node)
 
-		npc.bg = GUI:Image_Create(parent, "img_bj", 0.00, 0.00, "res/wy/public/jiaozhu_0.png")
-		GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
-		GUI:setTouchEnabled(npc.bg, true)
-		GUI:Timeline_Window3(npc.bg)
 
-        local close = GUI:Button_Create(npc.bg, 'close', 950, 490, 'res/wy/public/close.png')
-		GUI:addOnClickEvent(close, function()
-			GUI:Win_Close(parent)
-		end)
-	end
+        local Input = GUI:TextInput_Create(node, "Input",180.00, 50.00, 100.00, 25.00, 18)
+        GUI:TextInput_setPlaceHolder(Input, "输入(最少10)")
+        GUI:setTouchEnabled(Input, true)
+
+        local cz_an = GUI:Button_Create(node, "cz_an", 300, 38, "res/public/1900000660.png")
+        GUI:Button_setTitleText(cz_an, "充值")
+        GUI:addOnClickEvent(cz_an, function()
+            local msg = tonumber(GUI:TextInput_getString(Input))
+            if msg then
+                SL:SendLuaNetMsg(101, 502, 0, 3, msg)
+            end
+        end)
+
+
+
+        for i=1,6 do
+            --
+            local Button = GUI:Image_Create(node, "img_lf"..i,  100 + (i < 4 and i or i-3) * 200, 100 + (i > 3 and 0 or 150), "res/wy/public/500-300.png")
+            GUI:setTouchEnabled(Button, true)
+            GUI:setContentSize(Button, 200, 150)
+
+            GUI:Text_Create(Button, "wz",30,100, 20, "#FF0000", teshudata["anniu_502"].fj[i].."元")
+
+            local richText = GUI:RichTextFCOLOR_Create(Button, "rich0", 10, 10, "<非绑仙玉/FCOLOR=250><*"..(teshudata["anniu_502"].fj[i] * 100).."/FCOLOR=149>   <绑定仙玉/FCOLOR=250><*"..(teshudata["anniu_502"].fj[i] * 100).."/FCOLOR=149>", 400, 13, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+            --GUI:setAnchorPoint(richText, 0.5, 1)
+            GUI:addOnClickEvent(Button, function()
+                SL:SendLuaNetMsg(101, 502, 0, 2, teshudata["anniu_502"].fj[i])
+            end)
+
+
+
+
+        end
+
+    end
+
+    if p2 == 0 then
+        local parent = GUI:GetWindow(nil, "npc_zxcz")
+        npc.fldtpz = not Data and {} or SL:JsonDecode(Data, false)
+        if parent then
+            GUI:removeAllChildren(parent)
+            GUI:setPosition(parent, cogin.w / 2, cogin.h / 2)
+        else
+            parent = GUI:Win_Create("npc_zxcz", cogin.w / 2, cogin.h / 2, 0, 0, false, false, true, true, true, 0, 1)
+        end
+        local bjt = GUI:Image_Create(parent, "bjt", 0, 0, "res/public/1900000651_1.png")
+        GUI:setAnchorPoint(bjt, 0.5, 0.5)
+        GUI:setContentSize(bjt, cogin.w + 100, cogin.h + 100)
+        GUI:setTouchEnabled(bjt, true)
+        GUI:addOnClickEvent(bjt, function()
+            GUI:Win_Close(parent)
+        end)
+        npc.bg = GUI:Image_Create(parent, "img_bj", 0, 0, 'res/wy/public/jiaozhu_0.png')
+        GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
+        GUI:setTouchEnabled(npc.bg, true)
+        GUI:Timeline_Window1(npc.bg)
+
+        local close = GUI:Button_Create(npc.bg, 'close', 930, 480, 'res/wy/public/close.png')
+        GUI:addOnClickEvent(close, function()
+            GUI:Win_Close(parent)
+        end)
+        npc.node = GUI:Node_Create(npc.bg, "node", 0, 0)
+        UI_updata(npc.node)
+    end
 end
 ---小充值面板
 npc[999] = function(p2, p3, Data) -- 小充值面板
@@ -2424,10 +2468,28 @@ end
 --	end
 --end
 
----首冲礼包
+---解绑特权
 npc[504] = function(p2, p3, Data) -- 解绑特权
     local function UI_updata(node) --界面渲染
         GUI:removeAllChildren(node)
+
+
+        local give = deepCopy(teshudata["anniu_504"].give)
+
+        table.insert(give, {teshudata["anniu_504"].ch .."[称号]",1})
+
+        local give_show = ItemNumByTable_img(give, nil,GUI:Node_Create(node, "give", 0, 0))
+        GUI:setPosition(give_show, 200, 300)
+
+
+
+        local Button= GUI:Button_Create(node, "Button", 750, 100.00, "res/public/1900000660.png")
+        GUI:Button_setTitleText(Button, "开通")
+        GUI:Button_setTitleFontSize(Button, 14)
+
+        GUI:addOnClickEvent(Button, function()
+            SL:SendLuaNetMsg(101, 504, 1, 0, "")
+        end)
 
     end
 

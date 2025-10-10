@@ -262,6 +262,31 @@ function checkItemNum(t, multiple)
 end
 
 
+-- 深拷贝函数
+function deepCopy(orig, copies)
+    copies = copies or {}  -- 防止循环引用
+    if type(orig) ~= "table" then
+        return orig
+    elseif copies[orig] then
+        return copies[orig]
+    end
+
+    local copy = {}
+    copies[orig] = copy
+    for k, v in pairs(orig) do
+        copy[deepCopy(k, copies)] = deepCopy(v, copies)
+    end
+
+    -- 如果想复制元表
+    local mt = getmetatable(orig)
+    if mt then
+        setmetatable(copy, deepCopy(mt, copies))
+    end
+
+    return copy
+end
+
+
 -- 小地图怪物数据刷新
 SL:RegisterLUAEvent(LUA_EVENT_MINIMAP_MONSTER, "GUIUtil", function ()
     local parent = GUI:GetWindow(GUI:Attach_SceneB(), "bossInfo")

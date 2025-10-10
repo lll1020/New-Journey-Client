@@ -6,106 +6,67 @@
       <key>npc_1176_0_0_0_0000.png</key>
       <dict>
         <key>frame</key>
-        <string>{{0,0},{116,122}}</string>
+        <string>{{0,0},{75,93}}</string>
         <key>offset</key>
-        <string>{-19,96}</string>
+        <string>{-1,72}</string>
         <key>rotated</key>
-        <true />
+        <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{116,122}}</string>
+        <string>{{0,0},{75,93}}</string>
         <key>sourceSize</key>
-        <string>{116,122}</string>
+        <string>{75,93}</string>
       </dict>
       <key>npc_1176_0_0_0_0001.png</key>
       <dict>
         <key>frame</key>
-        <string>{{124,0},{116,122}}</string>
+        <string>{{0,95},{75,93}}</string>
         <key>offset</key>
-        <string>{-19,96}</string>
+        <string>{-1,72}</string>
         <key>rotated</key>
-        <true />
+        <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{116,122}}</string>
+        <string>{{0,0},{75,93}}</string>
         <key>sourceSize</key>
-        <string>{116,122}</string>
+        <string>{75,93}</string>
       </dict>
       <key>npc_1176_0_0_0_0002.png</key>
       <dict>
         <key>frame</key>
-        <string>{{124,118},{115,122}}</string>
+        <string>{{154,0},{74,92}}</string>
         <key>offset</key>
-        <string>{-18,96}</string>
+        <string>{-1,71}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
-        <string>{{0,0},{115,122}}</string>
+        <string>{{0,0},{74,92}}</string>
         <key>sourceSize</key>
-        <string>{115,122}</string>
+        <string>{74,92}</string>
       </dict>
       <key>npc_1176_0_0_0_0003.png</key>
       <dict>
         <key>frame</key>
-        <string>{{0,118},{114,122}}</string>
+        <string>{{77,95},{74,93}}</string>
         <key>offset</key>
-        <string>{-17,96}</string>
+        <string>{-1,72}</string>
         <key>rotated</key>
-        <true />
+        <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{114,122}}</string>
+        <string>{{0,0},{74,93}}</string>
         <key>sourceSize</key>
-        <string>{114,122}</string>
+        <string>{74,93}</string>
       </dict>
       <key>npc_1176_0_0_0_0004.png</key>
       <dict>
         <key>frame</key>
-        <string>{{0,234},{113,122}}</string>
+        <string>{{77,0},{75,93}}</string>
         <key>offset</key>
-        <string>{-16,96}</string>
+        <string>{-1,72}</string>
         <key>rotated</key>
-        <true />
+        <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{113,122}}</string>
+        <string>{{0,0},{75,93}}</string>
         <key>sourceSize</key>
-        <string>{113,122}</string>
-      </dict>
-      <key>npc_1176_0_0_0_0005.png</key>
-      <dict>
-        <key>frame</key>
-        <string>{{124,235},{114,122}}</string>
-        <key>offset</key>
-        <string>{-16,96}</string>
-        <key>rotated</key>
-        <true />
-        <key>sourceColorRect</key>
-        <string>{{0,0},{114,122}}</string>
-        <key>sourceSize</key>
-        <string>{114,122}</string>
-      </dict>
-      <key>npc_1176_0_0_0_0006.png</key>
-      <dict>
-        <key>frame</key>
-        <string>{{0,349},{114,122}}</string>
-        <key>offset</key>
-        <string>{-16,96}</string>
-        <key>rotated</key>
-        <true />
-        <key>sourceColorRect</key>
-        <string>{{0,0},{114,122}}</string>
-        <key>sourceSize</key>
-        <string>{114,122}</string>
-      </dict>
-      <key>npc_1176_0_0_0_0007.png</key>
-      <dict>
-        <key>frame</key>
-        <string>{{124,351},{114,122}}</string>
-        <key>offset</key>
-        <string>{-16,96}</string>
-        <key>rotated</key>
-        <true />
-        <key>sourceColorRect</key>
-        <string>{{0,0},{114,122}}</string>
-        <key>sourceSize</key>
-        <string>{114,122}</string>
+        <string>{75,93}</string>
       </dict>
     </dict>
     <key>metadata</key>
@@ -115,7 +76,7 @@
       <key>realTextureFileName</key>
       <string>npc_1176_0_0.png</string>
       <key>size</key>
-      <string>{256,512}</string>
+      <string>{256,256}</string>
       <key>textureFileName</key>
       <string>npc_1176_0_0.png</string>
     </dict>
