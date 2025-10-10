@@ -57,7 +57,7 @@ function Bag.main(page)
      end)
     --打开回收
     GUI:addOnClickEvent(Bag._ui["HuiShouButton"], function()
-        Bag.itemBoxClose()
+        SL:SendLuaNetMsg(101, 2, 0, 0, "")
     end)
 
     --服务按钮  打开服务界面

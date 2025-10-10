@@ -141,14 +141,14 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
         if p3 == 0 then
             local guaji = {}
             if cogin.isWin32 then
-                guaji[1] = GUI:Button_Create(npc.RightBottom, "guaji", -80, 270, "res/wy/icon/base.png")
+                guaji[1] = GUI:Button_Create(npc.RightBottom, "guaji", -80, 500, "res/wy/icon/base.png")
                 local dalucs = GUI:Button_Create(npc.RightBottom, "dalucs", -80, 200, "res/wy/icon/sjdt.png")
                 GUI:addOnClickEvent(dalucs, function()
                     Npclib["anniu"][4](0)
                 end)
 
                 ---暂时隐藏一下
-                GUI:setVisible(guaji[1],false)
+                --GUI:setVisible(guaji[1],false)
                 GUI:setVisible(dalucs,false)
 
                 ---测试使用
@@ -513,7 +513,7 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                         GUI:setTouchEnabled(s_s_list, false)
                         GUI:ListView_setItemsMargin(s_s_list, 10)
                         for vv,kk in pairs(k)  do
-                            local s_s_btn = GUI:Image_Create(s_s_list, "s_s_btn"..vv, 0, 0, "res/wy/public/huishou/new_kuang.png")
+                            local s_s_btn = GUI:Image_Create(s_s_list, "s_s_btn"..vv, 0, 0, "res/wy/public/new_kuang.png")
                             local s_s_CheckBox = GUI:CheckBox_Create(s_s_btn, "CheckBox",GUI:getContentSize(s_s_btn).width - 40, 3, "res/wy/public/new_check_0.png", "res/wy/public/new_check_1.png")
                             GUI:CheckBox_setSelected(s_s_CheckBox, (shuju.xz[npc.s.."_"..v] and shuju.xz[npc.s.."_"..v] == 1) or (shuju.xz[npc.s.."_"..v.."_"..vv] and shuju.xz[npc.s.."_"..v.."_"..vv] == 1))
                             GUI:CheckBox_addOnEvent(s_s_CheckBox, function(self)
@@ -527,7 +527,7 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                             local s_s_wz = GUI:Text_Create(s_s_btn, "wz", 70, 17, 17, "#44DDFF", kk.name)
                             GUI:setAnchorPoint(s_s_wz, 0.5, 0.5)
                             GUI:Text_enableOutline(s_s_wz, "#150800", 2)
-                            if vv == 2 then
+                            if vv == 1 then
                                 GUI:Text_enableUnderline(s_s_wz)
                                 if SL:GetMetaValue("WINPLAYMODE") and false then
                                     GUI:addMouseMoveEvent(s_s_btn, {onEnterFunc = function()
@@ -552,7 +552,7 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                                         GUI:ListView_setGravity(s_s_s_list, 2)
                                         GUI:ListView_setItemsMargin(s_s_s_list, 10)
                                         for vvv,kkk in pairs(kk.l)  do
-                                            local s_s_s_btn = GUI:Image_Create(s_s_s_list, "s_s_s_btn"..vvv, 0, 0, "res/wy/public/huishou/new_kuang.png")
+                                            local s_s_s_btn = GUI:Image_Create(s_s_s_list, "s_s_s_btn"..vvv, 0, 0, "res/wy/public/new_kuang.png")
                                             local s_s_s_CheckBox = GUI:CheckBox_Create(s_s_s_btn, "CheckBox",GUI:getContentSize(s_s_s_btn).width - 40, 3, "res/wy/public/new_check_0.png", "res/wy/public/new_check_1.png")
                                             GUI:CheckBox_setSelected(s_s_s_CheckBox, (shuju.xz[npc.s.."_"..v] and shuju.xz[npc.s.."_"..v] == 1) or (shuju.xz[npc.s.."_"..v.."_"..vv] and shuju.xz[npc.s.."_"..v.."_"..vv] == 1) or (shuju.xz[""..vvv] and shuju.xz[""..vvv] == 1))
                                             GUI:CheckBox_addOnEvent(s_s_s_CheckBox, function(self)
@@ -599,7 +599,7 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                                         GUI:ListView_setGravity(s_s_s_list, 2)
                                         GUI:ListView_setItemsMargin(s_s_s_list, 10)
                                         for vvv,kkk in pairs(kk.l)  do
-                                            local s_s_s_btn = GUI:Image_Create(s_s_s_list, "s_s_s_btn"..vvv, 0, 0, "res/wy/public/huishou/new_kuang.png")
+                                            local s_s_s_btn = GUI:Image_Create(s_s_s_list, "s_s_s_btn"..vvv, 0, 0, "res/wy/public/new_kuang.png")
                                             local s_s_s_CheckBox = GUI:CheckBox_Create(s_s_s_btn, "CheckBox",GUI:getContentSize(s_s_s_btn).width - 40, 3, "res/wy/public/new_check_0.png", "res/wy/public/new_check_1.png")
                                             GUI:CheckBox_setSelected(s_s_s_CheckBox, (shuju.xz[npc.s.."_"..v] and shuju.xz[npc.s.."_"..v] == 1) or (shuju.xz[npc.s.."_"..v.."_"..vv] and shuju.xz[npc.s.."_"..v.."_"..vv] == 1) or (shuju.xz[""..vvv] and shuju.xz[""..vvv] == 1))
                                             GUI:CheckBox_addOnEvent(s_s_s_CheckBox, function(self)
@@ -658,7 +658,7 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                 for v,k in pairs(cogin.hs.zsfj)  do
                     if v == 1 and false then
                     elseif dl_sz(v) or k.name then
-                        local btn = GUI:Button_Create(s_list, "wz"..v, 0, 0, "res/wy/public/huishou/new_kuang.png")
+                        local btn = GUI:Button_Create(s_list, "wz"..v, 0, 0, "res/wy/public/new_kuang.png")
                         GUI:addOnClickEvent(btn, function()
                             npc.s_s = v
                             new_hs_update()
@@ -687,7 +687,7 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
 
                             for vv,kk in pairs(k.l)  do
                                 if not cogin.zskg.zb[kk[3]] then
-                                    local s_s_btn = GUI:Image_Create(s_s_list, "s_s_s_btn"..vv, 0, 0, "res/wy/public/huishou/new_kuang.png")
+                                    local s_s_btn = GUI:Image_Create(s_s_list, "s_s_s_btn"..vv, 0, 0, "res/wy/public/new_kuang.png")
                                     if SL:GetMetaValue("ITEM_COUNT", vv) > 0 then
                                         GUI:Image_Create(s_s_btn, "star", 0, 0, "res/wy/public/new_star.png")
                                         if not GUI:ui_delegate(btn).star then GUI:Image_Create(btn, "star", 0, 0, "res/wy/public/new_star.png") end
@@ -710,7 +710,7 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                             end
                             for vv,kk in pairs(k.l)  do
                                 if cogin.zskg.zb[kk[3]] then
-                                    local s_s_btn = GUI:Image_Create(s_s_list, "s_s_s_btn"..vv, 0, 0, "res/wy/public/huishou/new_kuang.png")
+                                    local s_s_btn = GUI:Image_Create(s_s_list, "s_s_s_btn"..vv, 0, 0, "res/wy/public/new_kuang.png")
                                     if SL:GetMetaValue("ITEM_COUNT", vv) > 0 then
                                         GUI:Image_Create(s_s_btn, "star", 0, 0, "res/wy/public/new_star.png")
                                         if not GUI:ui_delegate(btn).star then GUI:Image_Create(btn, "star", 0, 0, "res/wy/public/new_star.png") end
@@ -755,7 +755,7 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                 for v,k in pairs(cogin.hs.clfj)  do
                     if v == 1 and false then
                     elseif dl_sz(v) then
-                        local btn = GUI:Button_Create(s_list, "wz"..v, 0, 0, "res/wy/public/huishou/new_kuang.png")
+                        local btn = GUI:Button_Create(s_list, "wz"..v, 0, 0, "res/wy/public/new_kuang.png")
                         GUI:addOnClickEvent(btn, function()
                             npc.s_s = v
                             new_hs_update()
@@ -778,7 +778,7 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                             local s_s_list = GUI:Layout_Create(s_list, "s_s_list"..v, 0, 0, 650, math.floor(#k.l/3) *  45.00, false)
 
                             for vv,kk in pairs(k.l)  do
-                                local s_s_btn = GUI:Image_Create(s_s_list, "s_s_s_btn"..vv, 0, 0, "res/wy/public/huishou/new_kuang.png")
+                                local s_s_btn = GUI:Image_Create(s_s_list, "s_s_s_btn"..vv, 0, 0, "res/wy/public/new_kuang.png")
                                 if SL:GetMetaValue("ITEM_COUNT", vv) > 0 then
                                     GUI:Image_Create(s_s_btn, "star", 0, 0, "res/wy/public/new_star.png")
                                     if not GUI:ui_delegate(btn).star then GUI:Image_Create(btn, "star", 0, 0, "res/wy/public/new_star.png") end
@@ -818,7 +818,7 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                 local s_list = GUI:ListView_Create(jm_node, "s_list", 225.00, 128.00, 250.00, 340.00, 1)
                 GUI:ListView_setItemsMargin(s_list, 10)
                 for v,k in pairs(cogin.hs.fzfj)  do
-                    local btn = GUI:Button_Create(s_list, "wz"..v, 0, 0, "res/wy/public/huishou/new_kuang.png")
+                    local btn = GUI:Button_Create(s_list, "wz"..v, 0, 0, "res/wy/public/new_kuang.png")
                     GUI:addOnClickEvent(btn, function()
                         npc.s_s = v
                         new_hs_update()
@@ -842,7 +842,7 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                         local s_s_list = GUI:ListView_Create(jm_node, "s_s_list", 225.00 + 200, 128.00, 250.00, 340.00, 1)
                         GUI:ListView_setItemsMargin(s_s_list, 10)
                         for vv,kk in pairs(k)  do
-                            local s_s_btn = GUI:Button_Create(s_s_list, "s_s_btn"..vv, 0, 0, "res/wy/public/huishou/new_kuang.png")
+                            local s_s_btn = GUI:Button_Create(s_s_list, "s_s_btn"..vv, 0, 0, "res/wy/public/new_kuang.png")
                             GUI:addOnClickEvent(s_s_btn, function()
                                 npc.s_s_s = vv
                                 new_hs_update()
@@ -866,7 +866,7 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                                 local s_s_s_list = GUI:ListView_Create(jm_node, "s_s_s_list", 225.00 + 200 + 200, 128.00, 250.00, 340.00, 1)
                                 GUI:ListView_setItemsMargin(s_s_s_list, 10)
                                 for vvv,kkk in pairs(kk.l)  do
-                                    local s_s_s_btn = GUI:Image_Create(s_s_s_list, "s_s_s_btn"..vvv, 0, 0, "res/wy/public/huishou/new_kuang.png")
+                                    local s_s_s_btn = GUI:Image_Create(s_s_s_list, "s_s_s_btn"..vvv, 0, 0, "res/wy/public/new_kuang.png")
                                     if SL:GetMetaValue("ITEM_COUNT", vvv) > 0 then
                                         GUI:Image_Create(s_s_s_btn, "star", 0, 0, "res/wy/public/new_star.png")
                                         if not GUI:ui_delegate(s_s_btn).star then GUI:Image_Create(s_s_btn, "", 0, 0, "res/wy/public/new_star.png") end
@@ -963,10 +963,6 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                 if #hs > 0 then
                     SL:SendLuaNetMsg(101, 2, 5, 1, SL:JsonEncode(hs,false))
                     SL:ShowSystemTips("<font color='#00ff00'>一键回收执行完成</font>")
-                    if cogin.sjtb.rwid == 4 then
-                        SL:CloseBagUI()
-                        GUI:Win_Close(parent)
-                    end
                 else
                     SL:ShowSystemTips("<font color='#ff0000'>未发现可分解物品</font>")
                 end
