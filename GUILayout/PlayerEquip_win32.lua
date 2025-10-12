@@ -66,6 +66,15 @@ function PlayerEquip.main(data)
     PlayerEquip.RefreshGuildInfo()
     ----------------------
     PlayerEquip.RegisterEvent()
+
+
+    local EquipShow_90 = GUI:EquipShow_Create(
+            GUI:Image_Create(PlayerEquip._ui.Panel_1, "duihuan_wz1", 135.00, 80.00, "res/wy/public/70_70_k.png")
+    , "EquipShow_90", 35, 35, 90, false, {look = true, movable = true, bgVisible = false, doubleTakeOff = true})
+    GUI:EquipShow_setAutoUpdate(EquipShow_90)
+    GUI:setAnchorPoint(EquipShow_90, 0.5, 0.5)
+
+
 end
 
 function PlayerEquip.InitHideNodePos()
