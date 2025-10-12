@@ -6,7 +6,7 @@ npc.iconpx = {
         {7, "天天省钱",509,1}, {3, "福利大厅",511,2}, {1, "游戏攻略",512,3},{5, "活动大厅",507,4},{8, "首充礼包",501,5},{4, "仙途奇缘",510,15}
     },
     {
-        {12, "在线充值", 502,11}, {2, "交易行",510,12},{4, "解绑特权",504,13},{4, "狂暴之力",513,14},{4, "世界地图",510,15}
+        {12, "在线充值", 502,11}, {2, "交易行",510,12},{4, "解绑特权",504,13},{4, "狂暴之力",513,14},{4, "世界地图",514,15}
     }
 }
 npc.LeftTop = GUI:Attach_LeftTop() -- 左上
@@ -3098,6 +3098,53 @@ npc[512] = function(p2, p3, Data) -- 游戏攻略
             GUI:setPosition(parent, cogin.w / 2, cogin.h / 2)
         else
             parent = GUI:Win_Create("npc_yxgl", cogin.w / 2, cogin.h / 2, 0, 0, false, false, true, true, true, 0, 1)
+        end
+        local bjt = GUI:Image_Create(parent, "bjt", 0, 0, "res/public/1900000651_1.png")
+        GUI:setAnchorPoint(bjt, 0.5, 0.5)
+        GUI:setContentSize(bjt, cogin.w + 100, cogin.h + 100)
+        GUI:setTouchEnabled(bjt, true)
+        GUI:addOnClickEvent(bjt, function()
+            GUI:Win_Close(parent)
+        end)
+        npc.bg = GUI:Image_Create(parent, "img_bj", 0, 0, 'res/wy/public/jiaozhu_0.png')
+        GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
+        GUI:setTouchEnabled(npc.bg, true)
+        GUI:Timeline_Window1(npc.bg)
+
+        local close = GUI:Button_Create(npc.bg, 'close', 930, 480, 'res/wy/public/close.png')
+        GUI:addOnClickEvent(close, function()
+            GUI:Win_Close(parent)
+        end)
+        npc.node = GUI:Node_Create(npc.bg, "node", 0, 0)
+        UI_updata(npc.node)
+    end
+end
+---世界地图
+npc[514] = function(p2, p3, Data) -- 世界地图
+    local function UI_updata(node) --界面渲染
+        GUI:removeAllChildren(node)
+        local dbLayout = GUI:Layout_Create(node, "dbLayout", 100, 0, 500, 500)
+        for i = 1, 9 do
+            local btn = GUI:Button_Create(dbLayout, 'btn' .. i, 0, 0, 'res/public/1900000660.png')
+            GUI:Button_setTitleText(btn, teshudata["sjdt"][500+i][1])
+            GUI:Button_setTitleFontSize(btn, 14)
+
+            GUI:addOnClickEvent(btn, function()
+                SL:SendLuaNetMsg(100, 500+i, 1, 0, "")
+            end)
+        end
+        GUI:UserUILayout(dbLayout, {dir=3,addDir=1,gap = {x=5, y=5}})
+
+
+    end
+
+    if p2 == 0 then
+        local parent = GUI:GetWindow(nil, "npc_sjdt")
+        if parent then
+            GUI:removeAllChildren(parent)
+            GUI:setPosition(parent, cogin.w / 2, cogin.h / 2)
+        else
+            parent = GUI:Win_Create("npc_sjdt", cogin.w / 2, cogin.h / 2, 0, 0, false, false, true, true, true, 0, 1)
         end
         local bjt = GUI:Image_Create(parent, "bjt", 0, 0, "res/public/1900000651_1.png")
         GUI:setAnchorPoint(bjt, 0.5, 0.5)

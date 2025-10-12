@@ -43,7 +43,6 @@ for v,k in pairs(cogin.hs.zzhs)  do
         end
     end
 end
-SL:dump(cogin.huishou_jc_list)
 for v,k in pairs(cogin.hs.zsfj)  do
     for vv,kk in pairs(k.l)  do
         cogin.huishou_jc_list[vv] = kk
