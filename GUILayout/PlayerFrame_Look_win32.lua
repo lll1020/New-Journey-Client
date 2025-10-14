@@ -63,7 +63,6 @@ function PlayerFrame_Look.main(data)
             SL:PrivateChatWithTarget(targetId, targetName)
         end
     )
-
     
     -- 初始化页签
     PlayerFrame_Look.InitPageChangeBtn()
@@ -80,9 +79,7 @@ function PlayerFrame_Look.InitPageChangeBtn()
         local btnName = "Button_" .. pageId
         local panelBtn = GUI:getChildByName(btnList, btnName)
         if panelBtn then
-            --local textName = GUI:getChildByName(panelBtn, "Text_name")
-            local nameImage = GUI:getChildByName(panelBtn, "Image_name")
-            GUI:Image_setGrey(nameImage, true)
+            local textName = GUI:getChildByName(panelBtn, "Text_name")
             GUI:setLocalZOrder(panelBtn, PlayerFrame_Look._pageid == pageId and 1 or 0)
             GUI:addOnClickEvent(
                 panelBtn,

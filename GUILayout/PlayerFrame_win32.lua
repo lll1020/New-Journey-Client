@@ -2,20 +2,7 @@
 PlayerFrame = {}
 PlayerFrame._ui = nil
 
--- 内部UI的映射关系
-PlayerFrame._uiMap = {
-    [1] = 3,
-    [11] = 3,
-    [2] = 1,
-    [3] = 1,
-    [4] = 1,
-    [5] = 1,
-    [6] = 1
 
-}
--- 页签数组
-PlayerFrame._pageIDarr = {}
-PlayerFrame._lastPageidarr = {}
 -- 页签ID
 PlayerFrame._pageIDs = {
     SLDefine.PlayerPage.MAIN_PLAYER_LAYER_EQUIP,
@@ -54,8 +41,6 @@ PlayerFrame.OpenType = {
 PlayerFrame._showType = 1    -- 1 基础 2 内功
 
 function PlayerFrame.main(data)
-    PlayerFrame._pageIDarr = {}
-    PlayerFrame._lastPageidarr = {}
     local parent = GUI:Attach_Parent()
     PlayerFrame._NGShow = tonumber(SL:GetMetaValue("GAME_DATA", "OpenNGUI")) == 1
     if PlayerFrame._NGShow then
@@ -69,6 +54,7 @@ function PlayerFrame.main(data)
     PlayerFrame._isFast = data and data.isFast or false -- 快捷键打开
     PlayerFrame._lastPageid = SLDefine.PlayerPage.MAIN_PLAYER_LAYER_EQUIP
     PlayerFrame._showType = data and data.type or 1
+    PlayerFrame._typeCapture = data and data.typeCapture or nil
     if not PlayerFrame._ui then
         return false
     end
@@ -99,8 +85,7 @@ function PlayerFrame.main(data)
             SL:CloseMyPlayerUI()
         end)
     end
-    --检测引导
-    PlayerFrame.StartGuide()
+
     -- 注册事件
     PlayerFrame.RegisterEvent()
 
@@ -118,22 +103,9 @@ function PlayerFrame.main(data)
 
     -- 初始化页签
     PlayerFrame.InitPageChangeBtn()
-
-    --先打开映射的页面
-    local id = PlayerFrame._uiMap[PlayerFrame._pageid]
-    PlayerFrame._pageIDarr[1] = id
-    PlayerFrame.OpenPage(id, {init = true, pageId = id})
-
-    --打开正常的页面
-    PlayerFrame._pageid = data and data.extent or SLDefine.PlayerPage.MAIN_PLAYER_LAYER_EQUIP
-    PlayerFrame._pageIDarr[2] = PlayerFrame._pageid
     PlayerFrame.OpenPage(PlayerFrame._pageid, {init = true, pageId = PlayerFrame._pageid})
 end
 
-function PlayerFrame.StartGuide()
-end
-
----内功页使用
 function PlayerFrame.InitTopTypePanel()
     local keyList = {"base_btn", "ng_btn"}
     for i, name in ipairs(keyList) do
@@ -162,10 +134,8 @@ function PlayerFrame.RefreshTopTypePanel()
 end
 
 function PlayerFrame.InitPageChangeBtn()
-    --按钮列表
     local btnList = PlayerFrame._ui.Panel_btnList
-    --如果是内功
-    if PlayerFrame._NGShow then
+    if PlayerFrame._NGShow then 
         btnList = PlayerFrame._showType == 1 and PlayerFrame._ui.Panel_btnList or PlayerFrame._ui.Panel_btnList_ng
         GUI:setVisible(PlayerFrame._ui.Panel_btnList, PlayerFrame._showType == 1)
         GUI:setVisible(PlayerFrame._ui.Panel_btnList_ng, PlayerFrame._showType == 2)
@@ -173,10 +143,8 @@ function PlayerFrame.InitPageChangeBtn()
             GUI:setVisible(PlayerFrame._ui.Panel_btnList_left, PlayerFrame._showType == 1)
         end
     end
-
     local menu_groupID = PlayerFrame._showType == 1 and 1 or 7
     local pageIDList = PlayerFrame._showType == 1 and PlayerFrame._pageIDs or PlayerFrame._pageNGIDs
-
     if not PlayerFrame._initBtn[PlayerFrame._showType] then
         for i, pageId in ipairs(pageIDList) do
             local configId = pageId + (100 * menu_groupID)
@@ -196,16 +164,11 @@ function PlayerFrame.InitPageChangeBtn()
                     function()
                         if not SL:CheckMenuLayerConditionByID(configId) then
                             SL:ShowSystemTips("条件不满足!")
-                            return
+                            return 
                         end
                         if PlayerFrame._pageid == pageId then
                             return
                         end
-                        --点击切换
-                        --打开映射的
-                        local id = PlayerFrame._uiMap[pageId]
-                        PlayerFrame.OpenPage(id, {pageId = id})
-                        --打开正常的
                         PlayerFrame.OpenPage(pageId, {pageId = pageId})
                     end
                 )
@@ -240,7 +203,7 @@ end
 
 function PlayerFrame.RefreshBtnState()
     local btnList = PlayerFrame._ui.Panel_btnList
-    if PlayerFrame._NGShow then
+    if PlayerFrame._NGShow then 
         btnList = PlayerFrame._showType == 1 and PlayerFrame._ui.Panel_btnList or PlayerFrame._ui.Panel_btnList_ng
     end
     local childs = GUI:getChildren(btnList)
@@ -261,74 +224,38 @@ end
 
 -- 切页
 function PlayerFrame.ChangePage(data)
-    PlayerFrame._lastPageidarr = SL:CopyData(PlayerFrame._pageIDarr)
-    PlayerFrame.addAndKeepTwo(PlayerFrame._pageIDarr, data.index)
+    PlayerFrame._lastPageid = PlayerFrame._pageid
     PlayerFrame._pageid = data.index or SLDefine.PlayerPage.MAIN_PLAYER_LAYER_EQUIP
 
     PlayerFrame.RefreshBtnState()
-    local function findUniqueElement(tbl1, tbl2)
-        local isInTbl2 = {}  -- 用于标记 tbl2 中的元素
-        for _, v in ipairs(tbl2) do
-            isInTbl2[v] = true
-        end
 
-        for _, v in ipairs(tbl1) do
-            if not isInTbl2[v] then
-                return v  -- 返回不同的元素
-            end
-        end
-
-        return nil
-    end
-    local delID = findUniqueElement(PlayerFrame._lastPageidarr, PlayerFrame._pageIDarr)
     if PlayerFrame._lastType == 1 then
-        if delID then
-            SL:CloseMyPlayerPageUI(delID)
-        end
+        SL:CloseMyPlayerPageUI(PlayerFrame._lastPageid)
         PlayerFrame._lastType = false
     elseif PlayerFrame._lastType == 2 then
-        if delID then
-            --SL:release_print(delID)
-            SL:CloseMyPlayerInternalPageUI(delID)
-        end
+        SL:CloseMyPlayerInternalPageUI(PlayerFrame._lastPageid)
         PlayerFrame._lastType = false
     elseif not data.init then
         if data.isInternal then
-            if delID then
-                SL:CloseMyPlayerInternalPageUI(delID)
-            end
+            SL:CloseMyPlayerInternalPageUI(PlayerFrame._lastPageid)
         else
-            if delID then
-                --SL:release_print(delID)
-                SL:CloseMyPlayerPageUI(delID)
-            end
+            SL:CloseMyPlayerPageUI(PlayerFrame._lastPageid)
         end
     end
 
-    PlayerFrame.CreateLayerPanelChild(data)
+    PlayerFrame.CreateLayerPanelChild(data.child)
 end
 
-
 -- 添加子页面到外框
-function PlayerFrame.CreateLayerPanelChild(data)
-    local panel = data.child
-    local widgetObj
-    if PlayerFrame.ShowPosition(data.index) == 1 then
-        widgetObj = PlayerFrame._ui.Node_panel
-    else
-        widgetObj = PlayerFrame._ui.Node_attr
-    end
+function PlayerFrame.CreateLayerPanelChild(panel)
     if panel then
-        GUI:addChild(widgetObj, panel)
+        GUI:addChild(PlayerFrame._ui.Node_panel, panel)
     end
 end
 
 -- 切换子页面
 function PlayerFrame.ChangeOpenedPage(id, data)
-    --SL:dump("快捷键才执行")
-    local map = PlayerFrame._uiMap[id]
-    PlayerFrame.OpenPage(map)
-    PlayerFrame.OpenPage(id)
+    PlayerFrame.OpenPage(id, data)
 end
 
 -- 关闭外框
@@ -336,16 +263,18 @@ function PlayerFrame.OnCloseMainLayer()
     PlayerFrame.UnRegisterEvent()
     --关闭子页
     if PlayerFrame._showType == 1 then
-        SL:CloseMyPlayerPageUI(PlayerFrame._pageIDarr[1])
-        SL:CloseMyPlayerPageUI(PlayerFrame._pageIDarr[2])
+        SL:CloseMyPlayerPageUI(PlayerFrame._pageid)
     else
-        SL:CloseMyPlayerInternalPageUI(PlayerFrame._pageIDarr[1])
-        SL:CloseMyPlayerInternalPageUI(PlayerFrame._pageIDarr[2])
+        SL:CloseMyPlayerInternalPageUI(PlayerFrame._pageid)
     end
 end
 
 -- 打开子页签
 function PlayerFrame.OpenPage(id, data)
+    if not data then
+        data = {}
+    end
+    data.typeCapture = PlayerFrame._typeCapture
     local openFunc = PlayerFrame._showType == 1 and PlayerFrame.OpenFunc[id] or PlayerFrame.OpenNGFunc[id]
     local openType = PlayerFrame.OpenType.Self
     if openFunc then
@@ -361,27 +290,6 @@ function PlayerFrame.OnChangeTopShow()
         else
             GUI:setVisible(PlayerFrame._ui["topLayout"], false)
         end
-    end
-end
-
---判断显示位置
-function PlayerFrame.ShowPosition(index)
-    if index == 1 then
-        return 1
-    elseif index == 11 then
-        return 1
-    else
-        return 2
-    end
-end
-
-function PlayerFrame.addAndKeepTwo(tbl, newItem)
-    if tbl[#tbl] == newItem then
-        return
-    end
-    table.insert(tbl, newItem)
-    while #tbl > 2 do
-        table.remove(tbl, 1)
     end
 end
 
