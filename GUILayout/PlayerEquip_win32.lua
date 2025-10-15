@@ -74,6 +74,15 @@ function PlayerEquip.main(data)
     GUI:EquipShow_setAutoUpdate(EquipShow_90)
     GUI:setAnchorPoint(EquipShow_90, 0.5, 0.5)
 
+    local Button= GUI:Button_Create(PlayerEquip._ui.Panel_1, "Button", 400, 50.00, "res/public/1900000660.png")
+    GUI:Button_setTitleText(Button, "境界提升")
+    GUI:Button_setTitleFontSize(Button, 14)
+
+    GUI:addOnClickEvent(Button, function()
+        SL:SendLuaNetMsg(105, 21, 21, 0, "")
+    end)
+
+
 
 end
 
