@@ -2244,8 +2244,20 @@ end
 npc[501] = function(p2, p3, Data) -- 首冲礼包
     local function UI_updata(node) --界面渲染
         GUI:removeAllChildren(node)
+
+        GUI:setAnchorPoint(
+                GUI:RichText_Create(node, "desc", 200, 430,
+                        "<font color='#00FF00' size='20' >当前开服天数："..npc.data_501.time_data.."</font>\n"..
+                                "<font color='#00FF00' size='20' >第一天奖励："..((npc.data_501.T_data.lb1 and npc.data_501.T_data.lb1 == 1) and "已领取" or "未领取").."</font>\n"..
+                                "<font color='#00FF00' size='20' >第二天奖励："..((npc.data_501.T_data.lb2 and npc.data_501.T_data.lb2 == 1) and "已领取" or "未领取").."</font>\n"..
+                                "<font color='#00FF00' size='20' >第三天奖励："..((npc.data_501.T_data.lb3 and npc.data_501.T_data.lb3 == 1) and "已领取" or "未领取").."</font>\n"..
+                                "<font color='#00FF00' size='20' >三天之后购买的奖励："..((npc.data_501.T_data.lb4 and npc.data_501.T_data.lb4 == 1) and "已领取" or "未领取").."</font>\n"
+                , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+        , 0, 1)
+
+
         local Button= GUI:Button_Create(node, "Button", 750, 100.00, "res/public/1900000660.png")
-        GUI:Button_setTitleText(Button, "领取")
+        GUI:Button_setTitleText(Button, "领取奖励")
         GUI:Button_setTitleFontSize(Button, 14)
 
         GUI:addOnClickEvent(Button, function()
@@ -2255,7 +2267,7 @@ npc[501] = function(p2, p3, Data) -- 首冲礼包
 
     if p2 == 0 then
         local parent = GUI:GetWindow(nil, "npc_sclb")
-        npc.fldtpz = not Data and {} or SL:JsonDecode(Data, false)
+        npc.data_501 = not Data and {} or SL:JsonDecode(Data, false)
         if parent then
             GUI:removeAllChildren(parent)
             GUI:setPosition(parent, cogin.w / 2, cogin.h / 2)
@@ -2326,7 +2338,7 @@ npc[502] = function(p2, p3, Data) -- 在线充值
 
     if p2 == 0 then
         local parent = GUI:GetWindow(nil, "npc_zxcz")
-        npc.fldtpz = not Data and {} or SL:JsonDecode(Data, false)
+        npc.data_502 = not Data and {} or SL:JsonDecode(Data, false)
         if parent then
             GUI:removeAllChildren(parent)
             GUI:setPosition(parent, cogin.w / 2, cogin.h / 2)
@@ -2491,7 +2503,7 @@ npc[504] = function(p2, p3, Data) -- 解绑特权
 
     if p2 == 0 then
         local parent = GUI:GetWindow(nil, "npc_jbtq")
-        npc.fldtpz = not Data and {} or SL:JsonDecode(Data, false)
+        npc.data_504 = not Data and {} or SL:JsonDecode(Data, false)
         if parent then
             GUI:removeAllChildren(parent)
             GUI:setPosition(parent, cogin.w / 2, cogin.h / 2)
@@ -2685,7 +2697,7 @@ npc[507] = function(p2, p3, Data) -- 游戏活动
 
     if p2 == 0 then
         local parent = GUI:GetWindow(nil, "npc_hd")
-        npc.fldtpz = not Data and {} or SL:JsonDecode(Data, false)
+        npc.data_507 = not Data and {} or SL:JsonDecode(Data, false)
         if parent then
             GUI:removeAllChildren(parent)
             GUI:setPosition(parent, cogin.w / 2, cogin.h / 2)
@@ -3092,7 +3104,7 @@ npc[512] = function(p2, p3, Data) -- 游戏攻略
 
     if p2 == 0 then
         local parent = GUI:GetWindow(nil, "npc_yxgl")
-        npc.fldtpz = not Data and {} or SL:JsonDecode(Data, false)
+        npc.data_512 = not Data and {} or SL:JsonDecode(Data, false)
         if parent then
             GUI:removeAllChildren(parent)
             GUI:setPosition(parent, cogin.w / 2, cogin.h / 2)
@@ -3174,7 +3186,7 @@ local xlxl = {
 }
 npc[998] = function(p2, p3, Data)
     local parent = GUI:GetWindow(nil, "npc_hhhh")
-    npc.fldtpz = not Data and {} or SL:JsonDecode(Data, false)
+    npc.data_998 = not Data and {} or SL:JsonDecode(Data, false)
 	if parent then
 		GUI:removeAllChildren(parent)
 		GUI:setPosition(parent, cogin.w / 2, cogin.h / 2)
