@@ -2248,10 +2248,10 @@ npc[501] = function(p2, p3, Data) -- 首冲礼包
         GUI:setAnchorPoint(
                 GUI:RichText_Create(node, "desc", 200, 430,
                         "<font color='#00FF00' size='20' >当前开服天数："..npc.data_501.time_data.."</font>\n"..
-                                "<font color='#00FF00' size='20' >第一天奖励："..((npc.data_501.T_data.othen_lb and npc.data_501.T_data.othen_lb >= 1) and "已领取" or "未领取").."</font>\n"..
-                                "<font color='#00FF00' size='20' >第二天奖励："..((npc.data_501.T_data.othen_lb and npc.data_501.T_data.othen_lb >= 2) and "已领取" or "未领取").."</font>\n"..
-                                "<font color='#00FF00' size='20' >第三天奖励："..((npc.data_501.T_data.othen_lb and npc.data_501.T_data.othen_lb >= 3) and "已领取" or "未领取").."</font>\n"..
-                                "<font color='#00FF00' size='20' >三天之后购买的奖励："..((npc.data_501["补充"] and npc.data_501["补充"] == 1 and npc.data_501.T_data.othen_lb and npc.data_501.T_data.othen_lb == 1) and "已领取" or "未领取").."</font>\n"
+                                "<font color='#00FF00' size='20' >第一天奖励："..((npc.data_501.T_data["首充"] and npc.data_501.T_data["首充"] == 1 and npc.data_501.T_data.othen_lb and npc.data_501.T_data.othen_lb >= 1) and "已领取" or "未领取").."</font>\n"..
+                                "<font color='#00FF00' size='20' >第二天奖励："..((npc.data_501.T_data["首充"] and npc.data_501.T_data["首充"] == 1 and npc.data_501.T_data.othen_lb and npc.data_501.T_data.othen_lb >= 2) and "已领取" or "未领取").."</font>\n"..
+                                "<font color='#00FF00' size='20' >第三天奖励："..((npc.data_501.T_data["首充"] and npc.data_501.T_data["首充"] == 1 and npc.data_501.T_data.othen_lb and npc.data_501.T_data.othen_lb >= 3) and "已领取" or "未领取").."</font>\n"..
+                                "<font color='#00FF00' size='20' >三天之后购买的奖励："..((npc.data_501.T_data["补充"] and npc.data_501.T_data["补充"] == 1 and npc.data_501.T_data.othen_lb and npc.data_501.T_data.othen_lb == 1) and "已领取" or "未领取").."</font>\n"
                 , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
         , 0, 1)
 
