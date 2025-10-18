@@ -82,6 +82,32 @@ function PlayerEquip.main(data)
         SL:SendLuaNetMsg(105, 21, 21, 0, "")
     end)
 
+    local T_41_data = Player:getServerVar("T41")
+    local U_28_data = Player:getServerVar("U28")
+    if T_41_data == "" then
+        T_41_data = {}
+    else
+        T_41_data = SL:JsonDecode(T_41_data,false)
+    end
+    U_28_data = tonumber(U_28_data)
+
+    if U_28_data > 0 then
+        GUI:Text_Create(PlayerEquip._ui.Panel_1, "U_28_data", 400, 50.00 + 100, 20, "#ffffff", teshudata["npc_21"].details[U_28_data].title)
+    end
+    if T_41_data.main then
+        GUI:Text_Create(PlayerEquip._ui.Panel_1, "T_41_data_main", 400, 50.00 + 200, 20, "#ffffff", teshudata["npc_22"].main_r[T_41_data.main])
+    else
+        GUI:Text_Create(PlayerEquip._ui.Panel_1, "T_41_data_main", 400, 50.00 + 200, 20, "#ffffff", "暂无主灵根")
+    end
+
+    if T_41_data.other then
+        GUI:Text_Create(PlayerEquip._ui.Panel_1, "T_41_data_other", 400, 50.00 + 300, 20, "#ffffff", teshudata["npc_22"].other_r[T_41_data.other])
+    else
+        GUI:Text_Create(PlayerEquip._ui.Panel_1, "T_41_data_other", 400, 50.00 + 300, 20, "#ffffff", "暂无副灵根")
+    end
+
+
+
 
 
 end
