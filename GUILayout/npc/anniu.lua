@@ -3,7 +3,7 @@ local npc = {}
 ---顶部图标显示
 npc.iconpx = {
     {
-        {7, "天天省钱",509,1}, {3, "福利大厅",511,2}, {1, "游戏攻略",512,3},{5, "活动大厅",507,4},{8, "首充礼包",501,5},{4, "仙途奇缘",510,15}
+        {7, "天天省钱",509,1}, {3, "福利大厅",511,2}, {1, "游戏攻略",512,3},{5, "活动大厅",507,4},{8, "首充礼包",501,5},{4, "仙途奇缘",515,15}
     },
     {
         {12, "在线充值", 502,11}, {2, "交易行",510,12},{4, "解绑特权",504,13},{4, "狂暴之力",513,14},{4, "世界地图",514,15}
@@ -3178,6 +3178,62 @@ npc[514] = function(p2, p3, Data) -- 世界地图
         UI_updata(npc.node)
     end
 end
+
+---仙途奇缘（成就）
+npc[515] = function(p2, p3, Data) -- 世界地图
+    local function UI_updata(node) --界面渲染
+        GUI:removeAllChildren(node)
+
+        local dbLayout = GUI:Layout_Create(node, "dbLayout", 100,50, 500, 400)
+        for k,v in ipairs(teshudata["anniu_515"].details) do
+            local Button= GUI:Button_Create(dbLayout, "Button"..k, 0, 0.00, "res/public/1900000660.png")
+            GUI:Button_setTitleText(Button, v.tt)
+            GUI:Button_setTitleFontSize(Button, 14)
+            GUI:Button_setTitleColor(Button, npc.data_515.T_data[""..k] and "#00FF00" or "#FF0000")
+            GUI:addOnClickEvent(Button, function()
+                GUI:removeChildByName(node,"desc")
+                local desc = GUI:RichText_Create(node, "desc", 600, 430,
+                        "<font color='#00FF00' size='20' >奇遇名称："..v.tt.."</font>\n"..
+                                "<font color='#00FF00' size='20' >奇遇条件："..v.wz.."</font>\n"..
+                                "<font color='#00FF00' size='20' >奇遇文字："..v.tip.."</font>\n"
+                , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+                GUI:setAnchorPoint(desc, 0, 1)
+            end)
+        end
+        GUI:UserUILayout(dbLayout, {dir=3,addDir=1,gap = {x=5, y=5}})
+    end
+
+    if p2 == 0 then
+        npc.data_515 = not Data and {} or SL:JsonDecode(Data, false)
+        local parent = GUI:GetWindow(nil, "npc_qy")
+        if parent then
+            GUI:removeAllChildren(parent)
+            GUI:setPosition(parent, cogin.w / 2, cogin.h / 2)
+        else
+            parent = GUI:Win_Create("npc_qy", cogin.w / 2, cogin.h / 2, 0, 0, false, false, true, true, true, 0, 1)
+        end
+        local bjt = GUI:Image_Create(parent, "bjt", 0, 0, "res/public/1900000651_1.png")
+        GUI:setAnchorPoint(bjt, 0.5, 0.5)
+        GUI:setContentSize(bjt, cogin.w + 100, cogin.h + 100)
+        GUI:setTouchEnabled(bjt, true)
+        GUI:addOnClickEvent(bjt, function()
+            GUI:Win_Close(parent)
+        end)
+        npc.bg = GUI:Image_Create(parent, "img_bj", 0, 0, 'res/wy/public/jiaozhu_0.png')
+        GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
+        GUI:setTouchEnabled(npc.bg, true)
+        GUI:Timeline_Window1(npc.bg)
+
+        local close = GUI:Button_Create(npc.bg, 'close', 930, 480, 'res/wy/public/close.png')
+        GUI:addOnClickEvent(close, function()
+            GUI:Win_Close(parent)
+        end)
+        npc.node = GUI:Node_Create(npc.bg, "node", 0, 0)
+        UI_updata(npc.node)
+    end
+end
+
+
 local xlxl = {
     {"元宝","灵符","绑定元宝","绑定灵符","仙玉","绑定仙玉","累计充值","礼包积分","一合充值","二合充值","三合后充值"},
     {"充值18","充值38","充值68","充值128","充值288","充值588","充值888","充值1188","充值1588","充值1888"},
