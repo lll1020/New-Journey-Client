@@ -2856,6 +2856,8 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                 GUI:Text_Create(l, "wz",10,5, 20, "#FF0000", v.name)
 
                 GUI:Text_Create(l, "state",300,5, 20, state_info[v.state].color, state_info[v.state].text)
+                GUI:RichText_Create(l, "jl", 150, 5,  ItemNumByTable(teshudata["fldt"]["grss"][v.idx].give), 500, 18, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+
 
                 local Button= GUI:Button_Create(l, "Button", 400, 0, "res/public/1900000660.png")
                 GUI:Button_setTitleText(Button, "领取")
@@ -2923,6 +2925,7 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                 GUI:Text_Create(l, "wz",10,5, 20, "#FF0000", v.name)
 
                 GUI:Text_Create(l, "state",300,5, 20, state_info[v.state].color, state_info[v.state].text)
+                GUI:RichText_Create(l, "jl", 150, 5,  ItemNumByTable(teshudata["fldt"]["grsb"][v.idx].give), 500, 18, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
 
                 local Button= GUI:Button_Create(l, "Button", 400, 0, "res/public/1900000660.png")
                 GUI:Button_setTitleText(Button, "领取")
@@ -2988,6 +2991,7 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                 GUI:Text_Create(l, "wz",10,5, 20, "#FF0000", v.name)
 
                 GUI:Text_Create(l, "state",300,5, 20, state_info[v.state].color, state_info[v.state].text)
+                GUI:RichText_Create(l, "jl", 150, 5,  ItemNumByTable(teshudata["fldt"]["qqsb"][v.idx].give), 500, 18, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
 
                 local Button= GUI:Button_Create(l, "Button", 400, 0, "res/public/1900000660.png")
                 GUI:Button_setTitleText(Button, "领取")
