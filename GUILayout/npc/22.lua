@@ -6,7 +6,7 @@ npc._config = teshudata["npc_22"]
 function npc.main(npcid, p2, p3, msgData)
 
     local function UI_updata(node) --界面渲染
-        local titles = {"仙法", "强化", "天赋", "觉醒", "往事"}
+        local titles = {"主灵根", "副灵根",}
         GUI:removeAllChildren(node)
 
 
@@ -15,7 +15,21 @@ function npc.main(npcid, p2, p3, msgData)
             local tt = GUI:Text_Create(Label_node, "tt", 1000/2, 500, 30, "#00FF00", titles[idx])
             GUI:setAnchorPoint(tt, 0.5, 0.5)
             if idx == 1 then
+                local Button= GUI:Button_Create(Label_node, "Button1", 750, 150.00, "res/public/1900000660.png")
+                GUI:Button_setTitleText(Button, "抽取主灵根")
+                GUI:Button_setTitleFontSize(Button, 14)
 
+                GUI:addOnClickEvent(Button, function()
+                    SL:SendLuaNetMsg(100, npcid, 1, 0, '')
+                end)
+
+                Button= GUI:Button_Create(Label_node, "Button2", 750, 250.00, "res/public/1900000660.png")
+                GUI:Button_setTitleText(Button, "抽取副灵根")
+                GUI:Button_setTitleFontSize(Button, 14)
+
+                GUI:addOnClickEvent(Button, function()
+                    SL:SendLuaNetMsg(100, npcid, 2, 0, '')
+                end)
 
             end
 

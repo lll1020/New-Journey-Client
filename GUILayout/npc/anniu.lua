@@ -2147,6 +2147,49 @@ end
 npc[17] = function(p2, p3, Data)  --实力提升
 
 end
+---新手礼包
+npc[18] = function(p2, p3, Data)  --新手礼包
+    local function UI_updata(node) --界面渲染
+        GUI:removeAllChildren(node)
+
+        local Button= GUI:Button_Create(node, "Button", 750, 100.00, "res/public/1900000660.png")
+        GUI:Button_setTitleText(Button, "领取新手礼包")
+        GUI:Button_setTitleFontSize(Button, 14)
+
+        GUI:addOnClickEvent(Button, function()
+            SL:SendLuaNetMsg(101, 18, 1, 0, "")
+        end)
+    end
+
+    if p2 == 0 then
+        local parent = GUI:GetWindow(nil, "npc_xslb")
+        npc.data_18 = not Data and {} or SL:JsonDecode(Data, false)
+        if parent then
+            GUI:removeAllChildren(parent)
+            GUI:setPosition(parent, cogin.w / 2, cogin.h / 2)
+        else
+            parent = GUI:Win_Create("npc_sclb", cogin.w / 2, cogin.h / 2, 0, 0, false, false, true, true, true, 0, 1)
+        end
+        local bjt = GUI:Image_Create(parent, "bjt", 0, 0, "res/public/1900000651_1.png")
+        GUI:setAnchorPoint(bjt, 0.5, 0.5)
+        GUI:setContentSize(bjt, cogin.w + 100, cogin.h + 100)
+        GUI:setTouchEnabled(bjt, true)
+        GUI:addOnClickEvent(bjt, function()
+            GUI:Win_Close(parent)
+        end)
+        npc.bg = GUI:Image_Create(parent, "img_bj", 0, 0, 'res/wy/public/jiaozhu_0.png')
+        GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
+        GUI:setTouchEnabled(npc.bg, true)
+        GUI:Timeline_Window1(npc.bg)
+
+        local close = GUI:Button_Create(npc.bg, 'close', 930, 480, 'res/wy/public/close.png')
+        GUI:addOnClickEvent(close, function()
+            GUI:Win_Close(parent)
+        end)
+        npc.node = GUI:Node_Create(npc.bg, "node", 0, 0)
+        UI_updata(npc.node)
+    end
+end
 ---天人之战面板
 npc[498] = function(p2, p3, Data) -- 天人之战
     if p2 == 0 then
