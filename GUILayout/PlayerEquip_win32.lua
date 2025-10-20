@@ -95,13 +95,13 @@ function PlayerEquip.main(data)
         GUI:Text_Create(PlayerEquip._ui.Panel_1, "U_28_data", 400, 50.00 + 100, 20, "#ffffff", teshudata["npc_21"].details[U_28_data].title)
     end
     if T_41_data.main then
-        GUI:Text_Create(PlayerEquip._ui.Panel_1, "T_41_data_main", 400, 50.00 + 200, 20, "#ffffff", teshudata["npc_22"].main_r[T_41_data.main])
+        GUI:Text_Create(PlayerEquip._ui.Panel_1, "T_41_data_main", 400, 50.00 + 200, 20, "#ffffff", teshudata["npc_22"].main_r[T_41_data.main].name)
     else
         GUI:Text_Create(PlayerEquip._ui.Panel_1, "T_41_data_main", 400, 50.00 + 200, 20, "#ffffff", "暂无主灵根")
     end
 
     if T_41_data.other then
-        GUI:Text_Create(PlayerEquip._ui.Panel_1, "T_41_data_other", 400, 50.00 + 300, 20, "#ffffff", teshudata["npc_22"].other_r[T_41_data.other])
+        GUI:Text_Create(PlayerEquip._ui.Panel_1, "T_41_data_other", 400, 50.00 + 300, 20, "#ffffff", teshudata["npc_22"].other_r[T_41_data.other].name)
     else
         GUI:Text_Create(PlayerEquip._ui.Panel_1, "T_41_data_other", 400, 50.00 + 300, 20, "#ffffff", "暂无副灵根")
     end
