@@ -232,10 +232,6 @@ end
 function dl_sz(i)
     if i == 0 then
         return true
-    elseif i == 1 and cogin.sjtb.dljq and cogin.sjtb.rwid >= 8 then
-        return true
-    else
-        return false
     end
     return true
 end
