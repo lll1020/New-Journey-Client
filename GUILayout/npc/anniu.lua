@@ -6,7 +6,7 @@ npc.iconpx = {
         {7, "天天省钱",509,1}, {3, "福利大厅",511,2}, {1, "游戏攻略",512,3},{5, "活动大厅",507,4},{8, "首充礼包",501,5},{4, "仙途奇缘",515,15}
     },
     {
-        {12, "在线充值", 502,11}, {2, "交易行",510,12},{4, "解绑特权",504,13},{4, "狂暴之力",513,14},{4, "世界地图",514,15}
+        {12, "在线充值", 502,11}, {2, "交易行",510,12},{4, "解绑特权",504,13},{4, "狂暴之力",513,14},{4, "世界地图",514,15},{4, "免费赞助",516,15}
     }
 }
 npc.LeftTop = GUI:Attach_LeftTop() -- 左上
@@ -2052,76 +2052,6 @@ npc[999] = function(p2, p3, Data) -- 小充值面板
         end)
     end
 end
------赞助礼包
---npc[503] = function(p2, p3, Data) -- 赞助礼包
---	if p2 == 0 then
---        npc.data = SL:JsonDecode(Data, false)
---		local parent = GUI:GetWindow(nil, "npc_zzlb")
---		if parent then
---			GUI:removeAllChildren(parent)
---			GUI:setPosition(parent, cogin.w / 2, cogin.h / 2)
---		else
---			parent = GUI:Win_Create("npc_zzlb", cogin.w / 2, cogin.h / 2, 0, 0, false, false, true, true, true, 0, 1)
---		end
---        local bjt = GUI:Image_Create(parent, "bjt", 0, 0, "res/public/1900000651_1.png")
---        GUI:setAnchorPoint(bjt, 0.5, 0.5)
---        GUI:setContentSize(bjt, cogin.w + 100, cogin.h + 100)
---        GUI:setTouchEnabled(bjt, true)
---        GUI:addOnClickEvent(bjt, function()
---            GUI:Win_Close(parent)
---        end)
---        --npc.bg = GUI:Image_Create(parent, "bj", 0, 0, 'res/wy/public/anniu_503_bj.png')
---        npc.bg = GUI:Frames_Create(parent, "bj", 0, 0, "res/wy/eff/city/anniu_503_bj_", ".png", 1, 41, {speed = 50, count = 41, loop = -1})
---        GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
---        GUI:setTouchEnabled(npc.bg, true)
---        GUI:Timeline_Window3(npc.bg)
---
---		local close = GUI:Button_Create(npc.bg, 'close', 820, 430, 'res/wy/public/close.png')
---		GUI:addOnClickEvent(close, function()
---			GUI:Win_Close(parent)
---		end)
---        npc.btn = {}
---        npc.ists = false
---        local zzch = {"黄金赞助","铂金赞助","钻石赞助"}
---        for i = 1, 3, 1 do
---            GUI:Image_Create(npc.bg, "bjt"..i, 234 + (i-1)*250 - 115, 337 - 279, "res/wy/public/anniu_503_l_"..i..".png")
---            GUI:ItemShow_Create(npc.bg, "item"..i, 234 + (i-1)*250, 337, {index=SL:GetMetaValue("ITEM_INDEX_BY_NAME",zzch[i].."[称号]"),look=true})
---            if i ~= 1 then
---                GUI:setAnchorPoint(GUI:Image_Create(npc.bg, "tj"..i, 251 + (i-1)*252, 160, "res/wy/public/npc_503_l"..i..".png")
---                , 0.5, 1)
---            end
---
---            if npc.data["zzlb"..i] and npc.data["zzlb"..i] > 0 then
---                GUI:Image_Create(npc.bg, "lingqu"..i, 252 + (i-1)*252, 105, "res/wy/public/9.png")
---            else
---                npc.btn[i] = GUI:Button_Create(npc.bg, "Button"..i, 251 + (i-1)*252, 100, "res/wy/public/npc_503_an.png")
---                GUI:setAnchorPoint(npc.btn[i], 0.5, 1)
---                GUI:addOnClickEvent(npc.btn[i], function()
---                    SL:SendLuaNetMsg(101, 503, 1, i, "")
---                end)
---                if p3 >= 50 * (i-1) then
---                    GUI:setAnchorPoint(GUI:Image_Create(npc.btn[i], "ists", 213 - 36, 37, "res/public/ists.png")
---                    , 0.5, 0.5)
---                    if not npc.ists and i == 1 then
---                        SL:StartGuide({dir = 1 ,guideWidget = npc.btn[i] ,guideParent=npc.bg,guideDesc="领取奖励",isForce = false})
---                        npc.ists = true
---                    end
---                end
---            end
---        end
---    elseif p2 == 1 then
---        if npc.btn[p3] then
---            GUI:removeFromParent(npc.btn[p3])
---            GUI:Image_Create(npc.bg, "lingqu"..p3, 252 + (p3-1)*252, 105, "res/wy/public/9.png")
---        end
---    elseif p2 == 2 then
---        local parent = GUI:GetWindow(nil, "npc_zzlb")
---        if parent then
---            GUI:Win_Close(parent)
---        end
---	end
---end
-
 ---解绑特权
 npc[504] = function(p2, p3, Data) -- 解绑特权
     local function UI_updata(node) --界面渲染
@@ -2861,6 +2791,62 @@ npc[515] = function(p2, p3, Data) -- 世界地图
             GUI:setPosition(parent, cogin.w / 2, cogin.h / 2)
         else
             parent = GUI:Win_Create("npc_qy", cogin.w / 2, cogin.h / 2, 0, 0, false, false, true, true, true, 0, 1)
+        end
+        local bjt = GUI:Image_Create(parent, "bjt", 0, 0, "res/public/1900000651_1.png")
+        GUI:setAnchorPoint(bjt, 0.5, 0.5)
+        GUI:setContentSize(bjt, cogin.w + 100, cogin.h + 100)
+        GUI:setTouchEnabled(bjt, true)
+        GUI:addOnClickEvent(bjt, function()
+            GUI:Win_Close(parent)
+        end)
+        npc.bg = GUI:Image_Create(parent, "img_bj", 0, 0, 'res/wy/public/jiaozhu_0.png')
+        GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
+        GUI:setTouchEnabled(npc.bg, true)
+        GUI:Timeline_Window1(npc.bg)
+
+        local close = GUI:Button_Create(npc.bg, 'close', 930, 480, 'res/wy/public/close.png')
+        GUI:addOnClickEvent(close, function()
+            GUI:Win_Close(parent)
+        end)
+        npc.node = GUI:Node_Create(npc.bg, "node", 0, 0)
+        UI_updata(npc.node)
+    end
+end
+--免费赞助
+npc[516] = function(p2, p3, Data)
+    local function UI_updata(node) --界面渲染
+        GUI:removeAllChildren(node)
+        local  list = GUI:ListView_Create( node, "list", 100,50, 800, 400,2)
+        GUI:ListView_setItemsMargin(list,5)
+        for k,v in ipairs(teshudata["anniu_516"].details) do
+            local item = GUI:Image_Create(list, "item"..k, 0, 0, 'res/wy/public/500-200.png')
+            GUI:setContentSize(item,200,500)
+
+            GUI:Text_Create(item, "wz",10,400, 20, "#FF0000", v.ch)
+            GUI:Text_Create(item, "sgsl",10,300, 20, "#FF0000", "需要击杀数量："..v.sgsl)
+
+
+            local Button= GUI:Button_Create(item, "Button", 10, 100.00, "res/public/1900000660.png")
+            GUI:Button_setTitleText(Button, "领取")
+            GUI:Button_setTitleFontSize(Button, 14)
+
+            GUI:addOnClickEvent(Button, function()
+                SL:SendLuaNetMsg(101, 516, 1, k, "")
+            end)
+
+        end
+
+
+    end
+
+    if p2 == 0 then
+        npc.data_516 = not Data and {} or SL:JsonDecode(Data, false)
+        local parent = GUI:GetWindow(nil, "npc_anniu_516")
+        if parent then
+            GUI:removeAllChildren(parent)
+            GUI:setPosition(parent, cogin.w / 2, cogin.h / 2)
+        else
+            parent = GUI:Win_Create("npc_anniu_516", cogin.w / 2, cogin.h / 2, 0, 0, false, false, true, true, true, 0, 1)
         end
         local bjt = GUI:Image_Create(parent, "bjt", 0, 0, "res/public/1900000651_1.png")
         GUI:setAnchorPoint(bjt, 0.5, 0.5)
