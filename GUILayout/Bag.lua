@@ -336,6 +336,7 @@ function Bag.OnUpdateGold(data)
         GUI:Text_setString(Bag._ui["Text_Money3"],SL:GetThousandSepString(SL:GetMetaValue("TMONEY", "灵符")))
         GUI:Text_setString(Bag._ui["Text_Money4"],SL:GetThousandSepString(SL:GetMetaValue("TMONEY", "绑定灵符")))
         GUI:Text_setString(Bag._ui["Text_Money5"],SL:GetThousandSepString(SL:GetMetaValue("TMONEY", "仙玉")))
+        GUI:Text_setString(Bag._ui["Text_Money6"],SL:GetThousandSepString(SL:GetMetaValue("TMONEY", "绑定仙玉")))
         --货币显示end
     end
 end

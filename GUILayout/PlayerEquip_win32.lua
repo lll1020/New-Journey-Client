@@ -101,7 +101,7 @@ function PlayerEquip.main(data)
     end
 
     if T_41_data.other then
-        GUI:Text_Create(PlayerEquip._ui.Panel_1, "T_41_data_other", 400, 50.00 + 300, 20, "#ffffff", teshudata["npc_22"].other_r[T_41_data.other].name)
+        GUI:Text_Create(PlayerEquip._ui.Panel_1, "T_41_data_other", 400, 50.00 + 300, 20, "#ffffff", teshudata["npc_22"].main_r[T_41_data.other].name)
     else
         GUI:Text_Create(PlayerEquip._ui.Panel_1, "T_41_data_other", 400, 50.00 + 300, 20, "#ffffff", "暂无副灵根")
     end

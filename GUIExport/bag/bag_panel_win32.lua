@@ -55,6 +55,12 @@ function ui.init(parent)
 	GUI:setTag(Text_Money5, -1)
 	GUI:Text_enableOutline(Text_Money5, "#000000", 1)
 
+	-- Create Text_Money6
+	local Text_Money6 = GUI:Text_Create(Image_bg, "Text_Money6", 203.00, 24.00, 14, "#ffffff", [[文本]])
+	GUI:setTouchEnabled(Text_Money6, false)
+	GUI:setTag(Text_Money6, -1)
+	GUI:Text_enableOutline(Text_Money6, "#000000", 1)
+
 	-- Create ZongHeButton
 	local ZongHeButton = GUI:Button_Create(Image_bg, "ZongHeButton", 316.00, 83.00, "res/custom/bag/btn_win32_1.png")
 	GUI:Button_setTitleText(ZongHeButton, "")
