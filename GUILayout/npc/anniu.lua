@@ -6,7 +6,7 @@ npc.iconpx = {
         {7, "天天省钱",509,1}, {3, "福利大厅",511,2}, {1, "游戏攻略",512,3},{5, "活动大厅",507,4},{8, "首充礼包",501,5},{4, "仙途奇缘",515,15}
     },
     {
-        {12, "在线充值", 502,11}, {2, "交易行",510,12},{4, "解绑特权",504,13},{4, "狂暴之力",513,14},{4, "世界地图",514,15},{4, "免费赞助",516,16}
+        {12, "在线充值", 502,11}, {2, "交易行",510,12},{4, "解绑特权",504,13},{4, "狂暴之力",513,14},{4, "世界地图",514,15},{4, "免费赞助",516,16},{4, "聚宝盆",517,17}
     }
 }
 npc.LeftTop = GUI:Attach_LeftTop() -- 左上
@@ -2865,6 +2865,79 @@ npc[516] = function(p2, p3, Data)
             GUI:Win_Close(parent)
         end)
         npc.node = GUI:Node_Create(npc.bg, "node", 0, 0)
+        UI_updata(npc.node)
+    end
+end
+
+--聚宝盆
+npc[517] = function(p2, p3, Data)
+    local function UI_updata(node) --界面渲染
+        GUI:removeAllChildren(node)
+
+        local config = teshudata["anniu_517"].details[npc.data_517.T_data.level]
+
+
+        GUI:Text_Create(node, "wz1",200,400, 20, "#FF0000", "当前聚宝盆等级："..(npc.data_517.T_data.level or 0).."级")
+        GUI:Text_Create(node, "wz2",200,400 - 30, 20, "#FF0000", "领取次数："..(npc.data_517.cs or 0).."/"..config.maxcs)
+        GUI:Text_Create(node, "wz3",200,400 - 60, 20, "#FF0000", "当前积分："..(npc.data_517.jf or 0))
+        GUI:Text_Create(node, "wz4",200,400 - 90, 20, "#FF0000", "当前领取所需积分"..(config.jf or 0))
+
+
+        GUI:Text_Create(node, "wz5",200,400 - 120, 20, "#FF0000", "奖励:")
+        local give_show = ItemNumByTable_img(config.give, nil,GUI:Node_Create(node, "give", 0, 0))
+        GUI:setPosition(give_show, 200, 200)
+
+
+        local Button= GUI:Button_Create(node, "Button1", 750, 300.00, "res/public/1900000660.png")
+        GUI:Button_setTitleText(Button, "升级当前聚宝盆")
+        GUI:Button_setTitleFontSize(Button, 14)
+
+        GUI:addOnClickEvent(Button, function()
+            SL:SendLuaNetMsg(101, 517, 1, 0, '')
+        end)
+
+        Button= GUI:Button_Create(node, "Button2", 750, 150.00, "res/public/1900000660.png")
+        GUI:Button_setTitleText(Button, "领取奖励")
+        GUI:Button_setTitleFontSize(Button, 14)
+
+        GUI:addOnClickEvent(Button, function()
+            SL:SendLuaNetMsg(101, 517, 2, 0, '')
+        end)
+
+
+    end
+
+    if p2 == 0 then
+        npc.data_517 = not Data and {} or SL:JsonDecode(Data, false)
+        local parent = GUI:GetWindow(nil, "npc_anniu_517")
+        if parent then
+            GUI:removeAllChildren(parent)
+            GUI:setPosition(parent, cogin.w / 2, cogin.h / 2)
+        else
+            parent = GUI:Win_Create("npc_anniu_517", cogin.w / 2, cogin.h / 2, 0, 0, false, false, true, true, true, 0, 1)
+        end
+        local bjt = GUI:Image_Create(parent, "bjt", 0, 0, "res/public/1900000651_1.png")
+        GUI:setAnchorPoint(bjt, 0.5, 0.5)
+        GUI:setContentSize(bjt, cogin.w + 100, cogin.h + 100)
+        GUI:setTouchEnabled(bjt, true)
+        GUI:addOnClickEvent(bjt, function()
+            GUI:Win_Close(parent)
+        end)
+        npc.bg = GUI:Image_Create(parent, "img_bj", 0, 0, 'res/wy/public/jiaozhu_0.png')
+        GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
+        GUI:setTouchEnabled(npc.bg, true)
+        GUI:Timeline_Window1(npc.bg)
+
+        local close = GUI:Button_Create(npc.bg, 'close', 930, 480, 'res/wy/public/close.png')
+        GUI:addOnClickEvent(close, function()
+            GUI:Win_Close(parent)
+        end)
+        npc.node = GUI:Node_Create(npc.bg, "node", 0, 0)
+        UI_updata(npc.node)
+    elseif p2 == 1 then
+        npc.data_517.T_data.level = npc.data_517.T_data.level + 1
+        UI_updata(npc.node)
+    elseif p2 == 2 then
         UI_updata(npc.node)
     end
 end

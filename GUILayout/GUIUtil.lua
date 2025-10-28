@@ -219,7 +219,7 @@ function ItemNumByTable_img(t, multiple,parent)
     local Node = GUI:Node_Create(parent, "Node_cl_show", 0.00, 0.00)
     local cllist = GUI:ListView_Create(Node, "cllist", 0, 0, 999, 50, 2)
     GUI:ListView_setClippingEnabled(cllist, false)
-    GUI:ListView_setItemsMargin(cllist, 5)
+    GUI:ListView_setItemsMargin(cllist, 10)
     GUI:setTouchEnabled(cllist, false)
     for i,item in ipairs(t) do
         local idx,num = SL:GetMetaValue("ITEM_INDEX_BY_NAME",item[1]),item[2]

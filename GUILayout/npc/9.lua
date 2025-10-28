@@ -29,6 +29,10 @@ function npc.main(npcid, p2, p3, msgData)
                 if equipLevel < npc._config.max_level then
                     kuang = GUI:Image_Create(main_node, "kuang2", 400, 250, "res/wy/public/70_70_k.png")
                     UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",config.give)))
+
+                    GUI:Text_Create(node, "wz5",200,200, 20, "#FF0000", "消耗:")
+                    local cost_show = ItemNumByTable_img(config.cost, nil,GUI:Node_Create(node, "cost_show", 0, 0))
+                    GUI:setPosition(cost_show, 200, 130)
                 end
             end
             local Button= GUI:Button_Create(main_node, "Button", 750, 100.00, "res/public/1900000660.png")

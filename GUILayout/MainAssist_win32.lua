@@ -92,7 +92,7 @@ end
 
 function MainAssist.onMissionItemAdd(data)
 
-    if data.taskid == 16 then
+    if data.taskid == 22 then
         local bjt = GUI:Image_Create(GUI:ui_delegate(MainAssist._ui["Panel_assist"]).Panel_content, "img", 0, 0, "res/wy/public/main_cbl_lbg.png")
         GUI:setTouchEnabled(bjt, true)
         GUI:setPosition(bjt, GUI:getPosition( GUI:ui_delegate(GUI:ui_delegate(MainAssist._ui["Panel_assist"]).Panel_content).Image_25))
