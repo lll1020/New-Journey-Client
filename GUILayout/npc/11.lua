@@ -42,6 +42,12 @@ function npc.main(npcid, p2, p3, msgData)
         UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.title.."[称号]")))
 
 
+        local cost_show = ItemNumByTable_img(npc._config.cost, nil,GUI:Node_Create(node, "cost_show", 0, 0))
+        GUI:setPosition(cost_show, 750, 350)
+
+        cost_show = ItemNumByTable_img(npc._config.max_cost, nil,GUI:Node_Create(node, "cost_show2", 0, 0))
+        GUI:setPosition(cost_show, 750, 175)
+
         local Button= GUI:Button_Create(node, "Button", 750, 100.00, "res/public/1900000660.png")
         GUI:Button_setTitleText(Button, "一键全满")
         GUI:Button_setTitleFontSize(Button, 14)

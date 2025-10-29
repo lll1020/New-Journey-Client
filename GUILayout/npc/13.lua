@@ -22,6 +22,12 @@ function npc.main(npcid, p2, p3, msgData)
             local kuang = GUI:Image_Create(node, "kuang2", 750, 250, "res/wy/public/70_70_k.png")
             local showItem = UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",config.cost[1][1])))
             GUI:ItemShow_OnRunFunc(showItem, "SetCount", config.cost[1][2])
+
+
+            if npc.data.dj_num == 4 then
+                kuang = GUI:Image_Create(node, "kuang10", 400, 250, "res/wy/public/70_70_k.png")
+                UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.half_give)))
+            end
         end
 
 

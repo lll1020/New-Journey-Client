@@ -78,6 +78,7 @@ function Bag.main(page)
 
         --货币兑换
     GUI:addOnClickEvent(Bag._ui["FuWuJieMian_HuoBiDuiHuan"], function()
+        SL:SendLuaNetMsg(105, 17, 17, 0, "")
         SL:CloseBagUI()
     end)
 

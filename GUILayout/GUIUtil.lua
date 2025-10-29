@@ -44,9 +44,11 @@ for v,k in pairs(cogin.hs.zzhs)  do
     end
 end
 for v,k in pairs(cogin.hs.zsfj)  do
-    for vv,kk in pairs(k.l)  do
-        cogin.huishou_jc_list[vv] = kk
-        cogin.huishou_jc_list[vv].gl = 2
+    for vv,kk in pairs(k)  do
+        for vvv,kkk in pairs(kk.l)  do
+            cogin.huishou_jc_list[vvv] = kkk
+            cogin.huishou_jc_list[vvv].gl = 2
+        end
     end
 end
 for v,k in pairs(cogin.hs.clfj)  do
