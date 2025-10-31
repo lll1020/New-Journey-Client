@@ -58,7 +58,7 @@ function npc.main(npcid, p2, p3, msgData)
 
                     local showItem = GUI:Text_Create(moveWidget, "item"..v, 35, 35, 20, "#FFFFFF", k.name)
                     GUI:setAnchorPoint(showItem, 0.5, 0.5)
-                    GUI:Text_Create(kuang, "level"..v, 0, 0, 20, "#FF00FF", npc.data.T_data.level[""..v] and (npc.data.T_data.level[""..v].."级") or "未激活")
+                    GUI:Text_Create(kuang, "level"..v, 0, 0, 20, "#FF00FF", (npc.data.T_data.level and npc.data.T_data.level[""..v]) and (npc.data.T_data.level[""..v].."级") or "未激活")
                 end
 
                 --主灵根
@@ -118,7 +118,7 @@ function npc.main(npcid, p2, p3, msgData)
                     local kuang = GUI:Image_Create(Label_node, "kuang"..v, 150 + (v-1)%5*120, 300 - math.floor((v-1)/5)*120, "res/wy/public/70_70_k.png")
                     local showItem = GUI:Text_Create(kuang, "item"..v, 35, 35, 20, "#FFFFFF", k.name)
                     GUI:setAnchorPoint(showItem, 0.5, 0.5)
-                    GUI:Text_Create(kuang, "level"..v, 0, 0, 20, "#FF00FF", npc.data.T_data.level[""..v] and (npc.data.T_data.level[""..v].."级") or "未激活")
+                    GUI:Text_Create(kuang, "level"..v, 0, 0, 20, "#FF00FF", (npc.data.T_data.level and npc.data.T_data.level[""..v]) and (npc.data.T_data.level[""..v].."级") or "未激活")
 
                     GUI:setTouchEnabled(kuang, true)
                     GUI:addOnClickEvent(kuang, function()
