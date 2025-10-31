@@ -15,11 +15,11 @@ local feiId = 10
 local hitEffId = 133
 ---飞剑配置信息
 local allSwordInfo = {
-    [10] = { id = 1, color = 'd08400' },
-    --[11] = { id = 2, color = '1db100' },
-    --[12] = { id = 3, color = '0092cf' },
-    --[13] = { id = 4, color = 'd61200' },
-    --[14] = { id = 99, color = 'd61200' },
+    [1] = { id = 1, color = 'd08400' },
+    [2] = { id = 2, color = '1db100' },
+    [3] = { id = 3, color = '0092cf' },
+    [4] = { id = 4, color = 'd61200' },
+    --[5] = { id = 99, color = 'd61200' },
 }
 
 local rootB = global.sceneGraphCtl:GetSceneNode(global.MMO.NODE_SKILL_BEHIND)
@@ -87,6 +87,7 @@ function FlyingSword:ctor(swordInfo, player, radiusX, radiusY, speed, userPassiv
 
     self:startIdle()
     self:setNextAttackTime(userPassiveSkillData.cd)
+    self:setCD(userPassiveSkillData.cd)
     self:setAnchorPoint(0.5, 0.5)
 end
 
@@ -98,8 +99,7 @@ end
 ---获取下次可攻击时间
 function FlyingSword:setNextAttackTime(time)
     time = time + 0.5
-    self.nextAttack = time
-    --SL:release_print("设置冷却时间:", time)
+    self.nextAttack = time + Time.utcTime()
     if self.state == FeiJianSKill.SwordState.Idle or self.state == FeiJianSKill.SwordState.AttackCd2 then
         local now = Time.utcTime()
         if now < time then
@@ -108,6 +108,12 @@ function FlyingSword:setNextAttackTime(time)
             self.left = 0
         end
     end
+end
+
+---获取下次可攻击时间
+function FlyingSword:setCD(time)
+    SL:release_print("设置冷却时间:", time)
+    self.cd = time
 end
 
 ---索敌
@@ -230,17 +236,18 @@ function FlyingSword:stateEnd()
         --返回模式，到达了玩家身边，开始进入待机模式
         self:startIdle()
         --刷新下下次索敌时间
-        self:setNextAttackTime(self.nextAttack)
+        self:setNextAttackTime(self.cd)
     elseif self.state == FeiJianSKill.SwordState.AttackCd1 then
         --攻击冷却1结束，进入攻击模式下的巡航状态，判断攻击冷却
         local now = Time.utcTime()
-        --SL:release_print("攻击冷却1结束，当前时间", now, "下次攻击时间", self.nextAttack, "剩余时间", self.left)
+        SL:release_print("攻击冷却1结束，当前时间", now, "下次攻击时间", self.nextAttack, "剩余时间", self.left)
         if now >= self.nextAttack then
             --可以攻击了,查找可攻击目标，先清除一下预存储对象
             self.target = nil
             local monster = self:seekEnemy()
             if monster then
                 self:startAttackEnemy(monster)
+                self:setNextAttackTime(self.cd)
             else
                 self:startBack()
             end
@@ -254,6 +261,7 @@ function FlyingSword:stateEnd()
         local monster = self:seekEnemy()
         if monster then
             self:startAttackEnemy(monster)
+            self:setNextAttackTime(self.cd)
         else
             --索敌失败，返回
             self:startBack()
@@ -459,38 +467,38 @@ local function tryRemoveSwordNode(swordName)
     end
 end
 
-function FeiJianSKill.addSword(actorId, swordInfo, skillId)
-    if swordInfo.id == 99 then
-        --GM版本
-        local count = 4
-        if swordInfo.node then
-            for i, v in ipairs(swordInfo.node) do
-                v:removeFromParent()
-            end
-        end
-        swordInfo.node = {}
-        for i = 1, count do
-            local nodeName = string.format("Sword_%d_%d", swordInfo.id, i)
-            tryRemoveSwordNode(nodeName)
-            --local psData = PassiveSkillManager.getUserSkillData(skillId)
-            local psData = {cd=1}
-            if psData then
-                --创建飞剑
-                local sword = FlyingSword.new(swordInfo, actorId, 80, 40, math.pi / 1.5, psData)
-                sword:setInitAngle(math.pi * 20 / i)
-                sword:setName(nodeName)
-                sword:setNextAttackTime(psData.cd)
-                --手动执行一次update逻辑
-                sword:update(0)
-                table.insert(swordInfo.node, sword)
-            end
-        end
-        return
-    end
+function FeiJianSKill.addSword(actorId, swordInfo, skillId,psData)
+    --if swordInfo.id == 99 then
+    --    --GM版本
+    --    local count = 4
+    --    if swordInfo.node then
+    --        for i, v in ipairs(swordInfo.node) do
+    --            v:removeFromParent()
+    --        end
+    --    end
+    --    swordInfo.node = {}
+    --    for i = 1, count do
+    --        local nodeName = string.format("Sword_%d_%d", swordInfo.id, i)
+    --        tryRemoveSwordNode(nodeName)
+    --        --local psData = PassiveSkillManager.getUserSkillData(skillId)
+    --        psData = psData or { cd=20 }
+    --        if psData then
+    --            --创建飞剑
+    --            local sword = FlyingSword.new(swordInfo, actorId, 80, 40, math.pi / 1.5, psData)
+    --            sword:setInitAngle(math.pi * 20 / i)
+    --            sword:setName(nodeName)
+    --            sword:setNextAttackTime(psData.cd)
+    --            --手动执行一次update逻辑
+    --            sword:update(0)
+    --            table.insert(swordInfo.node, sword)
+    --        end
+    --    end
+    --    return
+    --end
     local nodeName = "Sword_" .. swordInfo.id
     tryRemoveSwordNode(nodeName)
     --local psData = PassiveSkillManager.getUserSkillData(skillId)
-    local psData = { cd=2 }
+    psData = psData or { cd=20 }
     if psData then
         --创建飞剑
         local sword = FlyingSword.new(swordInfo, actorId, 80, 40, math.pi / 1.5, psData)
@@ -498,6 +506,7 @@ function FeiJianSKill.addSword(actorId, swordInfo, skillId)
         sword:setInitAngle(math.pi * swordInfo.id / 2)
         sword:setName(nodeName)
         sword:setNextAttackTime(psData.cd)
+        sword:setCD(psData.cd)
         --手动执行一次update逻辑
         sword:setPosition(maptools.getActor(actorId):getPosition())
         sword:update(0)
@@ -525,42 +534,44 @@ function FeiJianSKill.tick(dt)
 end
 
 ---初始化主玩家的飞剑状态
-function FeiJianSKill.initMainActor()
+function FeiJianSKill.initMainActor(count,psData)
     --先删除所有飞剑
     local actor = SL:GetMetaValue("MAIN_ACTOR_ID")
-    for skillId, v in pairs(allSwordInfo) do
-        if skillId < 14 then
-            FeiJianSKill.addSword(actor, v, skillId)
+    for skillId, v in ipairs(allSwordInfo) do
+        if skillId < 5 and count > 0 then
+            count = count - 1
+            FeiJianSKill.addSword(actor, v, skillId,psData)
         else
         end
     end
 end
 
 function FeiJianSKill.removeAll()
-    local data = {skillId = 10}
-    local swordInfo = allSwordInfo[data.skillId]
-    if swordInfo then
-        if swordInfo.id == 99 then
-            if swordInfo.node then
-                for i, v in ipairs(swordInfo.node) do
-                    if v and not tolua.isnull(v) then
-                        v:removeFromParent()
+    for skillId, swordInfo in pairs(allSwordInfo) do
+        if swordInfo then
+            if swordInfo.id == 99 then
+                if swordInfo.node then
+                    for i, v in ipairs(swordInfo.node) do
+                        if v and not tolua.isnull(v) then
+                            v:removeFromParent()
+                        end
                     end
                 end
+                swordInfo.node = nil
+            else
+                local nodeName = "Sword_" .. swordInfo.id
+                tryRemoveSwordNode(nodeName)
+                swordInfo.node = nil
             end
-            swordInfo.node = nil
-        else
-            local nodeName = "Sword_" .. swordInfo.id
-            tryRemoveSwordNode(nodeName)
-            swordInfo.node = nil
         end
     end
+
 end
 
 local function onPassiveSkillData(data)
     if data.type == 0 then
         --初始化
-        FeiJianSKill.initMainActor()
+        FeiJianSKill.initMainActor(data.count,data.psData)
     elseif data.type == 1 then
         --移除
         FeiJianSKill.removeAll()
@@ -570,12 +581,6 @@ local function onPassiveSkillData(data)
         if swordInfo then
             FeiJianSKill.addSword(SL:GetMetaValue("MAIN_ACTOR_ID"), swordInfo, data.skillId)
         end
-    --else  -- 多飞剑再开
-    --    --更新
-    --    local swordInfo = allSwordInfo[data.skillId]
-    --    if swordInfo and swordInfo.id ~= 99 and swordInfo.node then
-    --        swordInfo.node:setNextAttackTime(data.userData.cd)
-    --    end
     end
 end
 
@@ -632,15 +637,7 @@ if taskNode == nil then
     end)
 end
 
---SL:UnRegisterLUAEvent(LUA_EVENT_PASSIVE_SKILL_DATA, 'feiJian')
 SL:RegisterLUAEvent(LUA_EVENT_PASSIVE_SKILL_DATA, 'feiJian', function(data)
-    --UiTools.tips("ceshi58")
-    --taskNode:runAction(cc.Sequence:create({
-    --    cc.DelayTime:create(2),
-    --    cc.CallFunc:create(function()
-    --        onPassiveSkillData(data)
-    --    end)
-    --}))
     onPassiveSkillData(data)
 end)
 
