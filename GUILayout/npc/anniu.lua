@@ -1844,15 +1844,61 @@ npc[18] = function(p2, p3, Data)  --新手礼包
 end
 ---飞剑
 npc[19] = function(p2, p3, Data)  --飞剑
+
+    local state_info = {
+        [1] = {
+            color = "#FF0000", -- 红色
+            text = "未激活"
+        },
+        [2] = {
+            color = "#00FF00", -- 绿色
+            text = "已激活"
+        }
+    }
+
     local function UI_updata(node) --界面渲染
         GUI:removeAllChildren(node)
 
-        local Button= GUI:Button_Create(node, "Button", 750, 100.00, "res/public/1900000660.png")
-        GUI:Button_setTitleText(Button, "飞剑激活-取消")
+        for v,k in pairs(cogin.teshudata["anniu_19"].details) do
+            local kuang = GUI:Image_Create(node, "kuang"..v, 100 + (v-1) * 100, 250, "res/wy/public/70_70_k.png")
+            local contentSize = kuang:getContentSize()
+            local itemShow = GUI:ItemShow_Create(kuang, "item", contentSize.width / 2, contentSize.height / 2, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME",k.name), look = true, bgVisible = false })
+            itemShow:setAnchorPoint(cc.p(0.5, 0.5))
+            GUI:Text_Create(kuang, "name",30,50, 20, "#FF0000", k.name)
+            local jh = 1
+            if v == 1 then
+                if SL:GetMetaValue("RELEVEL") >= 1 then
+                    jh = 2
+                end
+            elseif v == 2 then
+                if npc.data_19.T_data.ratio then
+                    jh = 2
+                end
+            elseif v == 3 then
+                if npc.data_19.T_data.cd then
+                    jh = 2
+                end
+            elseif v == 4 then
+
+            end
+            GUI:Text_Create(kuang, "jh",30,0, 20, state_info[jh].color, state_info[jh].text)
+
+
+        end
+
+        local Button= GUI:Button_Create(node, "Button1", 750, 200.00, "res/public/1900000660.png")
+        GUI:Button_setTitleText(Button, "飞剑激活")
         GUI:Button_setTitleFontSize(Button, 14)
 
         GUI:addOnClickEvent(Button, function()
             SL:SendLuaNetMsg(101, 19, 1, 0, "")
+        end)
+        Button= GUI:Button_Create(node, "Button2", 750, 100.00, "res/public/1900000660.png")
+        GUI:Button_setTitleText(Button, "飞剑取消")
+        GUI:Button_setTitleFontSize(Button, 14)
+
+        GUI:addOnClickEvent(Button, function()
+            SL:SendLuaNetMsg(101, 19, 3, 0, "")
         end)
     end
 

@@ -498,7 +498,7 @@ function FeiJianSKill.addSword(actorId, swordInfo, skillId,psData)
     local nodeName = "Sword_" .. swordInfo.id
     tryRemoveSwordNode(nodeName)
     --local psData = PassiveSkillManager.getUserSkillData(skillId)
-    psData = psData or { cd=20 }
+    psData = psData or { cd=5 }
     if psData then
         --创建飞剑
         local sword = FlyingSword.new(swordInfo, actorId, 80, 40, math.pi / 1.5, psData)

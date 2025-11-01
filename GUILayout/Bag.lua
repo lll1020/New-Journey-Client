@@ -82,6 +82,12 @@ function Bag.main(page)
         SL:CloseBagUI()
     end)
 
+    --货币兑换
+    GUI:addOnClickEvent(Bag._ui["FuWuJieMian_feijian"], function()
+        SL:SendLuaNetMsg(101, 19, 0, 0, "")
+        SL:CloseBagUI()
+    end)
+
         --物品销毁
     GUI:addOnClickEvent(Bag._ui["FuWuJieMian_WuPinXiaoHui"], function()
         local isShow = GUI:getVisible(Bag._ui["ImageXiaoHui"])

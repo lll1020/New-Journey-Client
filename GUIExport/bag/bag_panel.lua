@@ -471,6 +471,9 @@ function ui.init(parent)
 	GUI:setTouchEnabled(FuWuJieMian_HuoBiDuiHuan, true)
 	GUI:setTag(FuWuJieMian_HuoBiDuiHuan, -1)
 
+	local FuWuJieMian_feijian = GUI:Button_Create(FuWuJieMian, "FuWuJieMian_feijian", 200.00, 141.00, "res/custom/bag/btn_huobiduihuan.png")
+
+
 	-- Create FuWuJieMian_WuPinXiaoHui
 	local FuWuJieMian_WuPinXiaoHui = GUI:Button_Create(FuWuJieMian, "FuWuJieMian_WuPinXiaoHui", 14.00, 80.00, "res/custom/bag/btn_wupinxiaohyui.png")
 	GUI:Button_setTitleText(FuWuJieMian_WuPinXiaoHui, "")
