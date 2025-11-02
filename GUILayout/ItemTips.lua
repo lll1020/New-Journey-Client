@@ -508,7 +508,7 @@ function ItemTips.GetSwordOfSoul(parent, soulData, swordSoulIndex)
     nameStr = isShowJinDuStr and string.gsub(nameStr, "%%r", percentStr .. "%") or nameStr
 
     local tipsPanel = GUI:Layout_Create(parent, "s_Panel_" .. swordSoulIndex, 0, 0, 0, 0)
-    local swordSoulName = GUI:Text_Create(tipsPanel, "swordSoulName", 0, 0, _setFontSize or 10, newColor or SL:ConvertColorFromHexString("#FFFFFF"), nameStr) 
+    local swordSoulName = GUI:Text_Create(tipsPanel, "swordSoulName", 0, 0, _setFontSize or 15, newColor or SL:ConvertColorFromHexString("#FFFFFF"), nameStr)
     GUI:Text_enableOutline(swordSoulName, "#000000", 1)
     GUI:setAnchorPoint(swordSoulName, 0, 0)
     GUI:Text_setFontName(swordSoulName, fontPath)

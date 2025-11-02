@@ -7,19 +7,58 @@ npc._config = teshudata["npc_24"]
 function npc.main(npcid, p2, p3, msgData)
 
     local function UI_updata(node) --界面渲染
-        local titles = {"仙法", "强化", "天赋", "觉醒", "往事"}
+        local titles = {"强化", "仙法", "往事"}
         GUI:removeAllChildren(node)
 
 
-        local function GUI_createLabel(Label_node,idx) --主界面渲染
+        function GUI_createLabel(Label_node,idx) --主界面渲染
             GUI:removeAllChildren(Label_node)
             local tt = GUI:Text_Create(Label_node, "tt", 1000/2, 500, 30, "#00FF00", titles[idx])
             GUI:setAnchorPoint(tt, 0.5, 0.5)
             if idx == 1 then
+                GUI:setAnchorPoint(
+                        GUI:RichText_Create(Label_node, "desc", 200, 430,
+                                "<font color='#00FF00' size='20' >当前天书等级："..(npc.data.T_data.level or 0).."</font>"
+                        , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+                , 0, 1)
+                local item = SL:GetMetaValue("EQUIP_DATA", npc._config.where)
+                if item then
+                    local kuang = GUI:Image_Create(Label_node, "kuang", 200, 250, "res/wy/public/70_70_k.png")
+                    UiTools.showItemData(kuang, item)
 
+                    local Button= GUI:Button_Create(Label_node, "Button", 750, 100.00, "res/public/1900000660.png")
+                    GUI:Button_setTitleText(Button, "升级")
+                    GUI:Button_setTitleFontSize(Button, 14)
 
+                    GUI:addOnClickEvent(Button, function()
+                        SL:SendLuaNetMsg(100, npcid, 1, 0, "")
+                    end)
+
+                end
+            elseif idx == 2 then
+                local GUI_list = GUI:ListView_Create(Label_node, "GUI_list", 200, 100, 700, 270, 2)
+                for i = 1, 10 do
+                    local kuang = GUI:Image_Create(GUI_list, "kuang"..i, 0, 0, "res/wy/public/anniu_999_bj.png")
+                    GUI:setContentSize(kuang, 150, 270)
+                    npc.data.T_data.caowei = npc.data.T_data.caowei or {}
+                    if npc.data.T_data.caowei[""..i] then
+                        GUI:setAnchorPoint(GUI:Text_Create(kuang, "wz5",150/2,230, 20, "#FF0000", npc._config.details[2].details[npc.data.T_data.caowei[""..i][1]][npc.data.T_data.caowei[""..i][2]].name)
+                        , 0.5, 0.5)
+                    else
+                        GUI:setAnchorPoint(GUI:Text_Create(kuang, "wz5",150/2,230, 20, "#FF0000", "暂未解锁")
+                        , 0.5, 0.5)
+                    end
+                    local Button= GUI:Button_Create(kuang, "Button", 150/2, 50, "res/public/1900000660.png")
+                    GUI:setAnchorPoint(Button, 0.5, 0.5)
+                    GUI:Button_setTitleText(Button, "洗练")
+                    GUI:Button_setTitleFontSize(Button, 14)
+
+                    GUI:addOnClickEvent(Button, function()
+                        SL:SendLuaNetMsg(100, npcid, 2, 0, SL:JsonEncode({caowei = i}))
+                    end)
+
+                end
             end
-
         end
 
 
@@ -70,8 +109,10 @@ function npc.main(npcid, p2, p3, msgData)
         npc.node = GUI:Node_Create(npc.bg, "node", 0, 0)
         UI_updata(npc.node)
     elseif p2 == 1 then
-        npc.data = SL:JsonDecode(msgData,false)
         UI_updata(npc.node)
+    elseif p2 == 2 then
+        npc.data = SL:JsonDecode(msgData,false)
+        GUI_createLabel(npc.Label,npc.titles_sign)
     end
 end
 
