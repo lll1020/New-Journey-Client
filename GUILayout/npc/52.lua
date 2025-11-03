@@ -65,7 +65,6 @@ function npc.main(npcid, p2, p3, msgData)
         npc.node = GUI:Node_Create(npc.bg, "node", 0, 0)
         UI_updata(npc.node)
     elseif p2 == 1 then
-        npc.data.level = npc.data.level + 1
         UI_updata(npc.node)
     end
 end

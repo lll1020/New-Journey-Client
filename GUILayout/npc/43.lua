@@ -2,7 +2,7 @@
 --npc功能：
 local npc = {}
 
-npc._config = teshudata["npc_41"]
+npc._config = teshudata["npc_43"]
 
 function npc.main(npcid, p2, p3, msgData)
 
@@ -10,18 +10,18 @@ function npc.main(npcid, p2, p3, msgData)
 
         GUI:removeAllChildren(node)
 
-        local item = SL:GetMetaValue("EQUIP_DATA", npc._config.where)
-        if item then
 
 
-            local kuang = GUI:Image_Create(node, "kuang2", 400, 250, "res/wy/public/70_70_k.png")
-            UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.give)))
 
-            GUI:Text_Create(node, "wz5",200,200, 20, "#FF0000", "消耗:")
-            local cost_show = ItemNumByTable_img(npc._config.cost, nil,GUI:Node_Create(node, "cost_show", 0, 0))
-            GUI:setPosition(cost_show, 200, 130)
+        GUI:setAnchorPoint(
+                GUI:RichText_Create(node, "desc", 200, 430,
+                        "<font color='#00FF00' size='20' >当前称号："..(npc.data.dj_num > 0 and npc._config.ch[npc.data.dj_num] or "无称号").."</font>"
+                , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+        , 0, 1)
 
-        end
+        local cost_show = ItemNumByTable_img(npc._config.cost[npc.data.dj_num + 1], nil,GUI:Node_Create(node, "cost_show", 0, 0))
+        GUI:setPosition(cost_show, 200, 130)
+
         local Button= GUI:Button_Create(node, "Button", 750, 100.00, "res/public/1900000660.png")
         GUI:Button_setTitleText(Button, "升级")
         GUI:Button_setTitleFontSize(Button, 14)
@@ -29,7 +29,6 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:addOnClickEvent(Button, function()
             SL:SendLuaNetMsg(100, npcid, 1, 0, "")
         end)
-
 
     end
 
@@ -65,6 +64,7 @@ function npc.main(npcid, p2, p3, msgData)
         npc.node = GUI:Node_Create(npc.bg, "node", 0, 0)
         UI_updata(npc.node)
     elseif p2 == 1 then
+        npc.data.dj_num = npc.data.dj_num + 1
         UI_updata(npc.node)
     end
 end
