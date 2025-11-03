@@ -2,7 +2,7 @@
 --npc功能：
 local npc = {}
 
-npc._config = teshudata["npc_51"]
+npc._config = teshudata["npc_52"]
 
 function npc.main(npcid, p2, p3, msgData)
 
