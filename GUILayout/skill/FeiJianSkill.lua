@@ -240,7 +240,7 @@ function FlyingSword:stateEnd()
     elseif self.state == FeiJianSKill.SwordState.AttackCd1 then
         --攻击冷却1结束，进入攻击模式下的巡航状态，判断攻击冷却
         local now = Time.utcTime()
-        SL:release_print("攻击冷却1结束，当前时间", now, "下次攻击时间", self.nextAttack, "剩余时间", self.left)
+        --SL:release_print("攻击冷却1结束，当前时间", now, "下次攻击时间", self.nextAttack, "剩余时间", self.left)
         if now >= self.nextAttack then
             --可以攻击了,查找可攻击目标，先清除一下预存储对象
             self.target = nil

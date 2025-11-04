@@ -164,7 +164,7 @@ function npc.main(npcid, p2, p3, msgData)
 
 
 
-                    if npc.data.T_data.level[""..npc.current_idx] and npc.data.T_data.level[""..npc.current_idx] >= 0 then
+                    if npc.data.T_data.level and npc.data.T_data.level[""..npc.current_idx] and npc.data.T_data.level[""..npc.current_idx] >= 0 then
                         GUI:setAnchorPoint(GUI:Text_Create(current_kuang, "up_wz", 250/2, 100, 20, "#FFFFFF", "强化")
                         , 0.5, 0.5)
                         GUI:setAnchorPoint(GUI:Text_Create(current_kuang, "up_num", 250/2, 80, 20, "#FFFFFF", npc.data.T_data.level[""..npc.current_idx].."/"..npc._config.main_updata.max_level)

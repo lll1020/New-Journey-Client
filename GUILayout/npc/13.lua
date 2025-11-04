@@ -24,7 +24,7 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:ItemShow_OnRunFunc(showItem, "SetCount", config.cost[1][2])
 
 
-            if npc.data.dj_num == 4 then
+            if npc.data.dj_num == 0 then
                 kuang = GUI:Image_Create(node, "kuang10", 400, 250, "res/wy/public/70_70_k.png")
                 UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.half_give)))
             end
