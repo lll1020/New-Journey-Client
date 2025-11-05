@@ -42,14 +42,6 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 1, npc.dq_idx, "")
             end)
-
-            Button= GUI:Button_Create(main_node, "Button2", 750, 150.00, "res/public/1900000660.png")
-            GUI:Button_setTitleText(Button, "领取初级戒指")
-            GUI:Button_setTitleFontSize(Button, 14)
-
-            GUI:addOnClickEvent(Button, function()
-                SL:SendLuaNetMsg(100, npcid, 2, npc.dq_idx, "")
-            end)
         end
 
         npc.dq_idx = npc.dq_idx or 1

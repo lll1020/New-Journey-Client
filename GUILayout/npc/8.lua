@@ -47,14 +47,6 @@ function npc.main(npcid, p2, p3, msgData)
             SL:SendLuaNetMsg(100, npcid, 1, 0, "")
         end)
 
-        Button= GUI:Button_Create(node, "Button2", 750, 150.00, "res/public/1900000660.png")
-        GUI:Button_setTitleText(Button, "领取lv1")
-        GUI:Button_setTitleFontSize(Button, 14)
-
-        GUI:addOnClickEvent(Button, function()
-            SL:SendLuaNetMsg(100, npcid, 2, 0, "")
-        end)
-
     end
 
 
