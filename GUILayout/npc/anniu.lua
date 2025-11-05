@@ -2372,7 +2372,7 @@ npc[506] = function(p2, p3, Data) -- 天选之人
             GUI:setAnchorPoint(djs, 0.50, 0.50)
             GUI:Text_COUNTDOWN(djs,((data.G_txzz_2 + 1) * 20 - data.kqsj) * 60)
             for i = 1, 10, 1 do
-                GUI:setAnchorPoint(GUI:RichText_Create(Node, "jl"..i, 440, 360-(i-1)*22,  ItemNumByTable({{cogin.teshudata[506][i],1}}), 500, 14, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+                GUI:setAnchorPoint(GUI:RichText_Create(Node, "jl"..i, 440, 360-(i-1)*22,  ItemNumByTable({{cogin.teshudata["anniu_506"][i],1}}), 500, 14, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
                 , 0.50, 0.50)
 
                 local Text = GUI:Text_Create(Node, "Text1"..i, 440 + 160, 360-(i-1)*22, 14, "#E317B3",
@@ -2412,7 +2412,17 @@ end
 npc[507] = function(p2, p3, Data) -- 游戏活动
     local function UI_updata(node) --界面渲染
         GUI:removeAllChildren(node)
+        local titles = {"天选之人", "土城跑酷","随机夺宝","武林盟主"}
 
+
+        for i = 1, #titles do
+            local cbl_item = GUI:Button_Create(node, "item" .. i, 100+(i-1)*120, 50, "res/public/1900000660.png")
+            GUI:Button_setTitleText(cbl_item, titles[i])
+            GUI:Button_setTitleFontSize(cbl_item, 14)
+            GUI:addOnClickEvent(cbl_item, function()
+                SL:SendLuaNetMsg(101, 507, 1, i, "")
+            end)
+        end
     end
 
     if p2 == 0 then
