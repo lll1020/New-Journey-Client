@@ -3,10 +3,10 @@ local npc = {}
 
 npc._config = {
     --{"地图名",x,y,限制fun,提示文字,所属大陆}
-    [201] = {"山庄",100,100,nil,nil,1},
-    [202] = {"幽谷",100,100,nil,nil,1},
-    [203] = {"洞穴",100,100,nil,nil,1},
-    [204] = {"古殿",100,100,nil,nil,1},
+    [201] = {"山庄",0,0,nil,nil,1},
+    [202] = {"幽谷",0,0,nil,nil,1},
+    [203] = {"洞穴",0,0,nil,nil,1},
+    [204] = {"古殿",0,0,nil,nil,1},
 
     [205] = {"隐藏地图二",100,100,nil,nil,2},
     [206] = {"野火帮",100,100,nil,nil,2},
@@ -31,12 +31,21 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:removeAllChildren(node)
 
         local Button= GUI:Button_Create(node, "Button", 750, 100.00, "res/public/1900000660.png")
-        GUI:Button_setTitleText(Button, "进入")
+        GUI:Button_setTitleText(Button, "进入地图")
         GUI:Button_setTitleFontSize(Button, 14)
 
         GUI:addOnClickEvent(Button, function()
             SL:SendLuaNetMsg(100, npcid, 1, 0, "")
         end)
+        if npcid == 201 or npcid == 202 or npcid == 203 or npcid == 204 then
+            Button= GUI:Button_Create(node, "Button1", 750, 200.00, "res/public/1900000660.png")
+            GUI:Button_setTitleText(Button, "进入地图深处")
+            GUI:Button_setTitleFontSize(Button, 14)
+
+            GUI:addOnClickEvent(Button, function()
+                SL:SendLuaNetMsg(100, npcid, 1, 1, "")
+            end)
+        end
     end
 
 
