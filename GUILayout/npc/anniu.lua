@@ -1879,7 +1879,10 @@ npc[19] = function(p2, p3, Data)  --飞剑
                     jh = 2
                 end
             elseif v == 4 then
-
+                if npc.data_19.T_data.num and npc.data_19.T_data.num >= cogin.teshudata["anniu_19"].num then
+                    jh = 2
+                end
+                GUI:Text_Create(kuang, "jd",100,0, 20, "#FF0000", (npc.data_19.T_data.num or 0)..'/'..cogin.teshudata["anniu_19"].num)
             end
             GUI:Text_Create(kuang, "jh",30,0, 20, state_info[jh].color, state_info[jh].text)
 

@@ -537,12 +537,9 @@ end
 function FeiJianSKill.initMainActor(count,psData)
     --先删除所有飞剑
     local actor = SL:GetMetaValue("MAIN_ACTOR_ID")
-    for skillId, v in ipairs(allSwordInfo) do
-        if skillId < 5 and count > 0 then
-            count = count - 1
-            FeiJianSKill.addSword(actor, v, skillId,psData)
-        else
-        end
+    for skillId, v in pairs(count) do
+        SL:release_print("添加飞剑:", skillId)
+        FeiJianSKill.addSword(actor, allSwordInfo[tonumber(skillId)], tonumber(skillId),psData)
     end
 end
 
