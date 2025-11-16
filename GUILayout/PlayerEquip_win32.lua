@@ -82,6 +82,14 @@ function PlayerEquip.main(data)
         SL:SendLuaNetMsg(105, 21, 21, 0, "")
     end)
 
+    Button = GUI:Button_Create(PlayerEquip._ui.Panel_1, "Button_1", 400 + 120, 50.00, "res/public/1900000660.png")
+    GUI:Button_setTitleText(Button, "神石")
+    GUI:Button_setTitleFontSize(Button, 14)
+
+    GUI:addOnClickEvent(Button, function()
+        Npclib["anniu"][20](0,0,"")     --神石
+    end)
+
     local T_41_data = Player:getServerVar("T41")
     local U_28_data = Player:getServerVar("U28")
     if T_41_data == "" then

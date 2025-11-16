@@ -1564,6 +1564,54 @@ npc[19] = function(p2, p3, Data)  --飞剑
         SL:onLUAEvent(LUA_EVENT_PASSIVE_SKILL_DATA, { type = p3 ,count = npc.data_19_tmp.count ,psData = npc.data_19_tmp.psData})
     end
 end
+---神石
+npc[20] = function(p2, p3, Data)  --神石
+
+   
+    local function UI_updata(node) --界面渲染
+        GUI:removeAllChildren(node)
+        local dbLayout = GUI:Layout_Create(node, "dbLayout", 100, 0, 500, 500)
+        for i = 1, 8 do
+            local kuang = GUI:Image_Create(dbLayout, "kuang"..i, 0, 0, "res/wy/public/70_70_k.png")
+            local EquipShow = GUI:EquipShow_Create(kuang, "EquipShow", 35,35, 102 + i, false, {look = true, movable = true, bgVisible = false, doubleTakeOff = true})
+            GUI:setAnchorPoint(EquipShow, 0.5, 0.5)
+            GUI:setTag(EquipShow, -1)
+            GUI:EquipShow_setAutoUpdate(EquipShow)
+        end
+        GUI:UserUILayout(dbLayout, {dir=3,addDir=1,gap = {x=5, y=5}})
+
+
+    end
+
+    if p2 == 0 then
+        local parent = GUI:GetWindow(nil, "npc_20")
+        if parent then
+            GUI:removeAllChildren(parent)
+            GUI:setPosition(parent, cogin.w / 2, cogin.h / 2)
+        else
+            parent = GUI:Win_Create("npc_20", cogin.w / 2, cogin.h / 2, 0, 0, false, false, true, true, true, 0, 1)
+        end
+        local bjt = GUI:Image_Create(parent, "bjt", 0, 0, "res/public/1900000651_1.png")
+        GUI:setAnchorPoint(bjt, 0.5, 0.5)
+        GUI:setContentSize(bjt, cogin.w + 100, cogin.h + 100)
+        GUI:setTouchEnabled(bjt, true)
+        GUI:addOnClickEvent(bjt, function()
+            GUI:Win_Close(parent)
+        end)
+        npc.bg = GUI:Image_Create(parent, "img_bj", 0, 0, 'res/wy/public/jiaozhu_0.png')
+        GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
+        GUI:setTouchEnabled(npc.bg, true)
+        GUI:Timeline_Window1(npc.bg)
+
+        local close = GUI:Button_Create(npc.bg, 'close', 930, 480, 'res/wy/public/close.png')
+        GUI:addOnClickEvent(close, function()
+            GUI:Win_Close(parent)
+        end)
+        npc.node = GUI:Node_Create(npc.bg, "node", 0, 0)
+        UI_updata(npc.node)
+
+    end
+end
 ---天人之战面板
 npc[498] = function(p2, p3, Data) -- 天人之战
     if p2 == 0 then
