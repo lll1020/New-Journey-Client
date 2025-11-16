@@ -9,23 +9,6 @@ function npc.main(npcid, p2, p3, msgData)
     local function UI_updata(node) --界面渲染
 
         GUI:removeAllChildren(node)
-        --{"level":0,"exp":0}
-
-        --local config = npc._config.details[npc.data.level + 1]
-        --
-        --
-        --if config then
-        --    local cost = ItemNumByTable_img(config.cost, nil,GUI:Node_Create(node, "cost", 0, 0))
-        --    GUI:setPosition(cost, 200, 200)
-        --
-        --    GUI:setAnchorPoint(
-        --            GUI:RichText_Create(node, "desc", 200, 430,
-        --                    "<font color='#00FF00' size='20' >当前幸运等级："..npc.data.level.."</font>\n"..
-        --                    "<font color='#00FF00' size='20' >强化成功率："..config.fake_gl.."</font>\n"
-        --            , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-        --    , 0, 1)
-        --
-        --end
         for v,k in ipairs(npc._config.details) do
             local kuang = GUI:Image_Create(node, "kuang"..v, 200 + (v-1)*100, 250, "res/wy/public/70_70_k.png")
             UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",k)))
