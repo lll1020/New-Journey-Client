@@ -1076,8 +1076,20 @@ npc.xyl = {
             jq = {
                 { "扫荡野火帮（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
                 { "剿灭恶徒（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "天书强化",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "初识仙法",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
+                { "天书强化",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) 
+                    local T_data = Player.getJsonTableByVar(play, VarCfg["T_天书"])
+                    return (T_data.level or 0) >= 1 and true or false
+                end ,khdjy = function() 
+                    local T_data = Player:JsonToTbl(Player:getServerVar("T42"))
+                    return (T_data.level or 0) >= 1 and true or false
+                end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
+                { "初识仙法",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) 
+                    local T_data = Player.getJsonTableByVar(play, VarCfg["T_天书"])
+                    return T_data["tj"] and true or false
+                end ,khdjy = function() 
+                    local T_data = Player:JsonToTbl(Player:getServerVar("T42"))
+                    return T_data["tj"] and true or false
+                end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
             },
             --需求
             jqd = 0,
@@ -1110,7 +1122,6 @@ npc.xyl = {
             jl = {{"绑定元宝",1000000},{"绑定灵符",100000}}
         },
     },
-
 }
 npc[11] = function(p2, p3, Data) -- 异闻录
 	if p2 == 0 then
@@ -1195,10 +1206,8 @@ npc[11] = function(p2, p3, Data) -- 异闻录
                     else
                         local enable = false
                         if k.id == 999 then
-                            if k.fwdjy() then
-                                enable = true
-                            end
-                
+                            enable = k.khdjy()
+
                             -- 统一按钮创建与点击事件
                             local btn = GUI:Button_Create(bj, "btn_", 200/2, 30,
                                     enable and 'res/custom/ywl/anniu_23_zj_cs_lq.png' or 'res/custom/ywl/anniu_23_zj_cs_an.png')

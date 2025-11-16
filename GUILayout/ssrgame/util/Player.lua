@@ -170,6 +170,22 @@ end
 function Player:getServerVar(varName)
     return SL:GetMetaValue("SERVER_VALUE", varName)
 end
+--将服务器下发的json字符串转换为表
+---*  str : json字符串
+---@param str string
+function Player:JsonToTbl(str)
+    if not str or str == "" then
+        return {}
+    end
+    local ok, ret = pcall(function()
+        return SL:JsonDecode(str, false)
+    end)
+    if not ok or type(ret) ~= "table" then
+        return {}
+    end
+    return ret
+end
+
 
 
 return Player
