@@ -1,4 +1,5 @@
 local ui = {}
+
 function ui.init(parent)
 	-- Create Node
 	local Node = GUI:Node_Create(parent, "Node", -57.00, 0.00)
@@ -12,14 +13,24 @@ function ui.init(parent)
 	GUI:setTouchEnabled(Panel_1, false)
 	GUI:setTag(Panel_1, 137)
 
+	-- Create Image_20
+	local Image_20 = GUI:Image_Create(Panel_1, "Image_20", -33.00, 0.00, "res/private/player_main_layer_ui/player_main_layer_ui_win32/1900015001_1.png")
+	GUI:setChineseName(Image_20, "玩家面板_背景图")
+	GUI:setTouchEnabled(Image_20, false)
+	GUI:setTag(Image_20, 132)
+
+	-- Create kuang_layer
+	local kuang_layer = GUI:Node_Create(Panel_1, "kuang_layer", 0.00, 0.00)
+	GUI:setTag(kuang_layer, -1)
+
 	-- Create Node_playerModel
-	local Node_playerModel = GUI:Node_Create(Panel_1, "Node_playerModel", 192.00, 213.00)
+	local Node_playerModel = GUI:Node_Create(Panel_1, "Node_playerModel", 195.00, 271.00)
 	GUI:setChineseName(Node_playerModel, "玩家时装_裸模位置")
 	GUI:setAnchorPoint(Node_playerModel, 0.50, 0.50)
 	GUI:setTag(Node_playerModel, 139)
 
 	-- Create Panel_pos17
-	local Panel_pos17 = GUI:Layout_Create(Panel_1, "Panel_pos17", 188.00, 195.00, 103.50, 144.00, false)
+	local Panel_pos17 = GUI:Layout_Create(Panel_1, "Panel_pos17", 198.00, 268.00, 103.50, 144.00, false)
 	GUI:setChineseName(Panel_pos17, "玩家时装_衣服位置")
 	GUI:setAnchorPoint(Panel_pos17, 0.50, 0.50)
 	GUI:setTouchEnabled(Panel_pos17, true)
@@ -40,11 +51,12 @@ function ui.init(parent)
 	GUI:setTag(Panel_pos45, 142)
 
 	-- Create Panel_pos21
-	local Panel_pos21 = GUI:Layout_Create(Panel_1, "Panel_pos21", 191.00, 294.00, 33.00, 30.00, false)
+	local Panel_pos21 = GUI:Layout_Create(Panel_1, "Panel_pos21", 310.00, 330.00, 42.00, 42.00, false)
 	GUI:setChineseName(Panel_pos21, "玩家时装_头盔位置")
 	GUI:setAnchorPoint(Panel_pos21, 0.50, 0.50)
 	GUI:setTouchEnabled(Panel_pos21, true)
 	GUI:setTag(Panel_pos21, 143)
+	GUI:setVisible(Panel_pos21, false)
 
 	-- Create Text_guildinfo
 	local Text_guildinfo = GUI:Text_Create(Panel_1, "Text_guildinfo", 188.00, 407.00, 18, "#ffe400", [[]])
@@ -77,7 +89,7 @@ function ui.init(parent)
 	GUI:setTag(Image_icon, 146)
 
 	-- Create Panel_pos1021
-	local Panel_pos1021 = GUI:Layout_Create(Panel_1, "Panel_pos1021", 185.00, 279.00, 42.00, 42.00, false)
+	local Panel_pos1021 = GUI:Layout_Create(Panel_1, "Panel_pos1021", 318.00, 330.00, 42.00, 42.00, false)
 	GUI:setChineseName(Panel_pos1021, "玩家时装_头盔组合")
 	GUI:setAnchorPoint(Panel_pos1021, 0.50, 0.50)
 	GUI:setTouchEnabled(Panel_pos1021, true)
@@ -143,7 +155,7 @@ function ui.init(parent)
 	GUI:setTag(Image_icon, 146)
 
 	-- Create Panel_pos23
-	local Panel_pos23 = GUI:Layout_Create(Panel_1, "Panel_pos23", 47.00, 178.00, 42.00, 42.00, false)
+	local Panel_pos23 = GUI:Layout_Create(Panel_1, "Panel_pos23", 68.00, 230.00, 42.00, 42.00, false)
 	GUI:setChineseName(Panel_pos23, "玩家时装_右手镯组合")
 	GUI:setAnchorPoint(Panel_pos23, 0.50, 0.50)
 	GUI:setTouchEnabled(Panel_pos23, true)
@@ -165,7 +177,7 @@ function ui.init(parent)
 	GUI:setTag(Image_icon, 146)
 
 	-- Create Panel_pos25
-	local Panel_pos25 = GUI:Layout_Create(Panel_1, "Panel_pos25", 47.00, 115.00, 42.00, 42.00, false)
+	local Panel_pos25 = GUI:Layout_Create(Panel_1, "Panel_pos25", 68.00, 180.00, 42.00, 42.00, false)
 	GUI:setChineseName(Panel_pos25, "玩家时装_右戒指组合")
 	GUI:setAnchorPoint(Panel_pos25, 0.50, 0.50)
 	GUI:setTouchEnabled(Panel_pos25, true)
@@ -187,7 +199,7 @@ function ui.init(parent)
 	GUI:setTag(Image_icon, 150)
 
 	-- Create Panel_pos24
-	local Panel_pos24 = GUI:Layout_Create(Panel_1, "Panel_pos24", 328.00, 115.00, 42.00, 42.00, false)
+	local Panel_pos24 = GUI:Layout_Create(Panel_1, "Panel_pos24", 318.00, 180.00, 42.00, 42.00, false)
 	GUI:setChineseName(Panel_pos24, "玩家时装_左戒指_组合")
 	GUI:setAnchorPoint(Panel_pos24, 0.50, 0.50)
 	GUI:setTouchEnabled(Panel_pos24, true)
@@ -209,7 +221,7 @@ function ui.init(parent)
 	GUI:setTag(Image_icon, 154)
 
 	-- Create Panel_pos22
-	local Panel_pos22 = GUI:Layout_Create(Panel_1, "Panel_pos22", 328.00, 178.00, 42.00, 42.00, false)
+	local Panel_pos22 = GUI:Layout_Create(Panel_1, "Panel_pos22", 318.00, 230.00, 42.00, 42.00, false)
 	GUI:setChineseName(Panel_pos22, "玩家时装_左手镯_组合")
 	GUI:setAnchorPoint(Panel_pos22, 0.50, 0.50)
 	GUI:setTouchEnabled(Panel_pos22, true)
@@ -231,7 +243,7 @@ function ui.init(parent)
 	GUI:setTag(Image_icon, 158)
 
 	-- Create Panel_pos26
-	local Panel_pos26 = GUI:Layout_Create(Panel_1, "Panel_pos26", 328.00, 51.00, 42.00, 42.00, false)
+	local Panel_pos26 = GUI:Layout_Create(Panel_1, "Panel_pos26", 318.00, 330.00, 42.00, 42.00, false)
 	GUI:setChineseName(Panel_pos26, "玩家时装_勋章_组合")
 	GUI:setAnchorPoint(Panel_pos26, 0.50, 0.50)
 	GUI:setTouchEnabled(Panel_pos26, true)
@@ -253,7 +265,7 @@ function ui.init(parent)
 	GUI:setTag(Image_icon, 162)
 
 	-- Create Panel_pos20
-	local Panel_pos20 = GUI:Layout_Create(Panel_1, "Panel_pos20", 328.00, 240.00, 42.00, 42.00, false)
+	local Panel_pos20 = GUI:Layout_Create(Panel_1, "Panel_pos20", 318.00, 280.00, 42.00, 42.00, false)
 	GUI:setChineseName(Panel_pos20, "玩家时装_项链_组合")
 	GUI:setAnchorPoint(Panel_pos20, 0.50, 0.50)
 	GUI:setTouchEnabled(Panel_pos20, true)
@@ -269,6 +281,8 @@ function ui.init(parent)
 
 	-- Create Image_icon
 	local Image_icon = GUI:Image_Create(Panel_pos20, "Image_icon", 21.00, 21.00, "res/private/player_main_layer_ui/player_main_layer_ui_win32/1900015032.png")
+	GUI:setContentSize(Image_icon, 42, 42)
+	GUI:setIgnoreContentAdaptWithSize(Image_icon, false)
 	GUI:setChineseName(Image_icon, "玩家时装_项链_图标")
 	GUI:setAnchorPoint(Image_icon, 0.50, 0.50)
 	GUI:setTouchEnabled(Image_icon, false)
@@ -342,7 +356,7 @@ function ui.init(parent)
 	GUI:setTag(Image_icon, 170)
 
 	-- Create Panel_pos28
-	local Panel_pos28 = GUI:Layout_Create(Panel_1, "Panel_pos28", 262.00, 52.00, 42.00, 42.00, false)
+	local Panel_pos28 = GUI:Layout_Create(Panel_1, "Panel_pos28", 268.00, 130.00, 42.00, 42.00, false)
 	GUI:setChineseName(Panel_pos28, "玩家时装_靴子_组合")
 	GUI:setAnchorPoint(Panel_pos28, 0.50, 0.50)
 	GUI:setTouchEnabled(Panel_pos28, true)
@@ -364,7 +378,7 @@ function ui.init(parent)
 	GUI:setTag(Image_icon, 174)
 
 	-- Create Panel_pos27
-	local Panel_pos27 = GUI:Layout_Create(Panel_1, "Panel_pos27", 113.00, 52.00, 42.00, 42.00, false)
+	local Panel_pos27 = GUI:Layout_Create(Panel_1, "Panel_pos27", 118.00, 130.00, 42.00, 42.00, false)
 	GUI:setChineseName(Panel_pos27, "玩家时装_腰带_组合")
 	GUI:setAnchorPoint(Panel_pos27, 0.50, 0.50)
 	GUI:setTouchEnabled(Panel_pos27, true)
@@ -415,11 +429,10 @@ function ui.init(parent)
 	GUI:setVisible(Node_1019, false)
 
 	-- Create Node_1021
-	local Node_1021 = GUI:Node_Create(Panel_1, "Node_1021", 299.00, 250.00)
+	local Node_1021 = GUI:Node_Create(Panel_1, "Node_1021", 318.00, 330.00)
 	GUI:setChineseName(Node_1021, "玩家时装_头盔_位置")
 	GUI:setAnchorPoint(Node_1021, 0.50, 0.50)
 	GUI:setTag(Node_1021, 147)
-	GUI:setVisible(Node_1021, false)
 
 	-- Create Node_1018
 	local Node_1018 = GUI:Node_Create(Panel_1, "Node_1018", 75.00, 205.00)
@@ -436,37 +449,37 @@ function ui.init(parent)
 	GUI:setVisible(Node_1017, false)
 
 	-- Create Node_23
-	local Node_23 = GUI:Node_Create(Panel_1, "Node_23", 47.00, 178.00)
+	local Node_23 = GUI:Node_Create(Panel_1, "Node_23", 68.00, 230.00)
 	GUI:setChineseName(Node_23, "玩家时装_右手镯_位置")
 	GUI:setAnchorPoint(Node_23, 0.50, 0.50)
 	GUI:setTag(Node_23, 147)
 
 	-- Create Node_25
-	local Node_25 = GUI:Node_Create(Panel_1, "Node_25", 47.00, 115.00)
+	local Node_25 = GUI:Node_Create(Panel_1, "Node_25", 68.00, 180.00)
 	GUI:setChineseName(Node_25, "玩家时装_右戒指_位置")
 	GUI:setAnchorPoint(Node_25, 0.50, 0.50)
 	GUI:setTag(Node_25, 151)
 
 	-- Create Node_24
-	local Node_24 = GUI:Node_Create(Panel_1, "Node_24", 328.00, 115.00)
+	local Node_24 = GUI:Node_Create(Panel_1, "Node_24", 318.00, 180.00)
 	GUI:setChineseName(Node_24, "玩家时装_左戒指_位置")
 	GUI:setAnchorPoint(Node_24, 0.50, 0.50)
 	GUI:setTag(Node_24, 155)
 
 	-- Create Node_22
-	local Node_22 = GUI:Node_Create(Panel_1, "Node_22", 328.00, 178.00)
+	local Node_22 = GUI:Node_Create(Panel_1, "Node_22", 318.00, 230.00)
 	GUI:setChineseName(Node_22, "玩家时装_左手镯_位置")
 	GUI:setAnchorPoint(Node_22, 0.50, 0.50)
 	GUI:setTag(Node_22, 159)
 
 	-- Create Node_26
-	local Node_26 = GUI:Node_Create(Panel_1, "Node_26", 328.00, 51.00)
+	local Node_26 = GUI:Node_Create(Panel_1, "Node_26", 318.00, 330.00)
 	GUI:setChineseName(Node_26, "玩家时装_勋章_位置")
 	GUI:setAnchorPoint(Node_26, 0.50, 0.50)
 	GUI:setTag(Node_26, 163)
 
 	-- Create Node_20
-	local Node_20 = GUI:Node_Create(Panel_1, "Node_20", 328.00, 240.00)
+	local Node_20 = GUI:Node_Create(Panel_1, "Node_20", 318.00, 280.00)
 	GUI:setChineseName(Node_20, "玩家时装_项链_位置")
 	GUI:setAnchorPoint(Node_20, 0.50, 0.50)
 	GUI:setTag(Node_20, 167)
@@ -479,7 +492,7 @@ function ui.init(parent)
 	GUI:setVisible(Node_44, false)
 
 	-- Create Node_42
-	local Node_42 = GUI:Node_Create(Panel_1, "Node_42", 328.00, 303.00)
+	local Node_42 = GUI:Node_Create(Panel_1, "Node_42", 260.00, 48.00)
 	GUI:setChineseName(Node_42, "玩家时装_坐骑_位置")
 	GUI:setAnchorPoint(Node_42, 0.50, 0.50)
 	GUI:setTag(Node_42, 208)
@@ -491,13 +504,13 @@ function ui.init(parent)
 	GUI:setTag(Node_29, 171)
 
 	-- Create Node_28
-	local Node_28 = GUI:Node_Create(Panel_1, "Node_28", 262.00, 52.00)
+	local Node_28 = GUI:Node_Create(Panel_1, "Node_28", 268.00, 130.00)
 	GUI:setChineseName(Node_28, "玩家时装_靴子_位置")
 	GUI:setAnchorPoint(Node_28, 0.50, 0.50)
 	GUI:setTag(Node_28, 175)
 
 	-- Create Node_27
-	local Node_27 = GUI:Node_Create(Panel_1, "Node_27", 113.00, 52.00)
+	local Node_27 = GUI:Node_Create(Panel_1, "Node_27", 118.00, 130.00)
 	GUI:setChineseName(Node_27, "玩家时装_腰带_位置")
 	GUI:setAnchorPoint(Node_27, 0.50, 0.50)
 	GUI:setTag(Node_27, 179)
@@ -525,8 +538,9 @@ function ui.init(parent)
 	GUI:setTag(CheckBox_shizhuang, 350)
 
 	-- Create EquipShow
-	local EquipShow = GUI:EquipShow_Create(Panel_1, "EquipShow", 296.00, 335.00, 21, false, {doubleTakeOff = true, look = true, movable = true, starLv = true, bgVisible = false})
+	local EquipShow = GUI:EquipShow_Create(Panel_1, "EquipShow", 296.00, 335.00, 21, false, {starLv = true, look = true, movable = true, doubleTakeOff = true, bgVisible = false})
 	GUI:setTag(EquipShow, -1)
 	GUI:EquipShow_setAutoUpdate(EquipShow)
 end
+
 return ui

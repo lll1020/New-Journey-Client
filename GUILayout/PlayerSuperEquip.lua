@@ -14,6 +14,8 @@ PlayerSuperEquip.fictionalUIPos = {
     -- [1019] = GUIDefine.EquipPosUI.Equip_Type_Super_Cap,
     -- [1021] = GUIDefine.EquipPosUI.Equip_Type_Super_Helmet, 
 }
+local equipFramePosList = {20, 26, 22, 23, 24, 25, 27, 28, --1017, 1018, 1019, 1021
+}
 
 function PlayerSuperEquip.main(data)
     -- 如果有分离装备 需添加
@@ -43,6 +45,7 @@ function PlayerSuperEquip.main(data)
     PlayerSuperEquip.InitEquipSetting()
     --刷新行会信息
     PlayerSuperEquip.RefreshGuildInfo()
+    PlayerSuperEquip.InitEquipFramekuang()
     return true
 end
 
@@ -56,6 +59,34 @@ function PlayerSuperEquip.InitHideNodePos()
                     PlayerSuperEquip._hideNodePos[i] = true
                 end
             end
+        end
+    end
+end
+
+function PlayerSuperEquip.InitEquipFramekuang()
+    if not PlayerSuperEquip._ui or not PlayerSuperEquip._ui.Panel_1 then
+        return
+    end
+    local kuangLayerParent = GUI:ui_delegate(PlayerSuperEquip._ui.Panel_1)
+    if not kuangLayerParent or not kuangLayerParent.kuang_layer then
+        return
+    end
+    for _, posIndex in ipairs(equipFramePosList) do
+        local panel = PlayerSuperEquip._ui[string.format("Panel_pos%s", posIndex)]
+        local node = PlayerSuperEquip._ui[string.format("Node_%s", posIndex)]
+        if panel and node and GUI:getVisible(node) then
+            local panelPos = GUI:getPosition(panel)
+            GUI:setAnchorPoint(
+                GUI:Image_Create(
+                    kuangLayerParent.kuang_layer,
+                    string.format("pos%s_kuang", posIndex),
+                    panelPos.x,
+                    panelPos.y,
+                    "res/private/player_main_layer_ui/player_main_layer_ui_win32/1900015031.png"
+                ),
+                0.5,
+                0.5
+            )
         end
     end
 end

@@ -1,1 +1,1 @@
-{"#Node#Panel_1#Panel_map":{"visible":1,"width":676,"height":508,"offsetx":-95,"offsety":-27},"#Node#Panel_1#Panel_map#Panel_minimap#Text_mouse_pos":{"visible":1,"width":24,"height":16,"offsetx":0,"offsety":0}}
+{"#Node#Panel_1#Panel_map#Panel_minimap#Text_mouse_pos":{"offsetx":0,"width":24,"height":16,"visible":1,"offsety":0},"#Node#Panel_1#Panel_map":{"offsetx":-95,"width":676,"height":508,"visible":1,"offsety":-27}}

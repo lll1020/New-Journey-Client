@@ -23,9 +23,12 @@ PlayerEquip.fictionalUIPos = {
     [1001] = GUIDefine.EquipPosUI.Equip_Type_Weapon, 
 }
 
+local posList = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 14, 16, 1000, 1001}
+
+
 function PlayerEquip.main(data)
     PlayerEquip.posSetting = {
-        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 16, --1000, 1001 如有分离装备 需要添加
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 16, 1000, 1001 --如有分离装备 需要添加
     }
     local parent = GUI:Attach_Parent()
     GUI:LoadExport(parent, "player/player_equip_node")
@@ -67,6 +70,7 @@ function PlayerEquip.main(data)
     PlayerEquip.RefreshGuildInfo()
     ----------------------
     PlayerEquip.RegisterEvent()
+    PlayerEquip.InitEquipFramekuang()
 end
 
 function PlayerEquip.InitHideNodePos()
@@ -276,6 +280,31 @@ function PlayerEquip.InitEquipUI()
     end
 end
 
+
+--给装备一个初始的框
+function PlayerEquip.InitEquipFramekuang()
+    for _, i in ipairs(posList) do
+        local pos = GUI:getPosition(PlayerEquip._ui[string.format("Panel_pos%s", i)])
+        if PlayerEquip._ui[string.format("Node_%s", i)] then
+            local visible = GUI:getVisible(PlayerEquip._ui[string.format("Node_%s", i)])
+            if visible then
+                GUI:setAnchorPoint(
+                GUI:Image_Create(
+                GUI:ui_delegate(PlayerEquip._ui.Panel_1).kuang_layer,
+                string.format("pos%s_kuang", i),
+                pos.x,
+                pos.y,
+                "res/private/player_main_layer_ui/player_main_layer_ui_win32/1900015031.png"
+            ),
+                0.5,
+                0.5
+            )
+            end
+        end
+    end
+end
+
+
 function PlayerEquip.CreateEquipItem(parent, data, uiPos)
     -- 剑甲分离装备框不显示内观特效
     local function checkPos(uiPos)
@@ -356,7 +385,7 @@ function PlayerEquip.RefreshPlayerBestRingsOpenState(data)
         if activeState then
             SL:OpenBestRingBoxUI(PlayerEquip.RoleType.Self, { param = {} })
         else
-            local bestRingsName = "珍宝盒"
+            local bestRingsName = "神器"
             local worldPos = GUI:getTouchEndPosition(PlayerEquip._ui.Best_ringBox)
             -- 提示
             GUI:ShowWorldTips(string.format("%s未开启", bestRingsName), worldPos, GUI:p(0, 1))

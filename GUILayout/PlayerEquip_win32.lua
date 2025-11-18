@@ -23,9 +23,12 @@ PlayerEquip.fictionalUIPos = {
     [1001] = GUIDefine.EquipPosUI.Equip_Type_Weapon, 
 }
 
+local posList = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 14, 16, 1000, 1001}
+
+
 function PlayerEquip.main(data)
     PlayerEquip.posSetting = {
-        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 16, --1000, 1001 如有分离装备 需要添加
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 16, 1000, 1001, -- 如有分离装备 需要添加
     }
     local parent = GUI:Attach_Parent()
     GUI:LoadExport(parent, "player/player_equip_node_win32")
@@ -66,6 +69,8 @@ function PlayerEquip.main(data)
     PlayerEquip.RefreshGuildInfo()
     ----------------------
     PlayerEquip.RegisterEvent()
+
+    PlayerEquip.InitEquipFramekuang()
 
 
     local EquipShow_90 = GUI:EquipShow_Create(
@@ -108,26 +113,39 @@ function PlayerEquip.main(data)
         GUI:Text_Create(PlayerEquip._ui.Panel_1, "T_41_data_main", 400, 50.00 + 200, 20, "#ffffff", "暂无主灵根")
     end
 
-    if T_41_data.other then
-        GUI:Text_Create(PlayerEquip._ui.Panel_1, "T_41_data_other", 400, 50.00 + 300, 20, "#ffffff", teshudata["npc_22"].main_r[T_41_data.other].name)
-    else
-        GUI:Text_Create(PlayerEquip._ui.Panel_1, "T_41_data_other", 400, 50.00 + 300, 20, "#ffffff", "暂无副灵根")
-    end
-
-
-
-
-
 end
 
 function PlayerEquip.InitHideNodePos()
     PlayerEquip._hideNodePos = {}
-    local posList = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 55}
+    local posList = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
     for _, i in ipairs(posList) do
         if PlayerEquip._ui[string.format("Node_%s", i)] then
             local visible = GUI:getVisible(PlayerEquip._ui[string.format("Node_%s", i)])
             if not visible then
                 PlayerEquip._hideNodePos[i] = true
+            end
+        end
+    end
+end
+
+--给装备一个初始的框
+function PlayerEquip.InitEquipFramekuang()
+    for _, i in ipairs(posList) do
+        local pos = GUI:getPosition(PlayerEquip._ui[string.format("Panel_pos%s", i)])
+        if PlayerEquip._ui[string.format("Node_%s", i)] then
+            local visible = GUI:getVisible(PlayerEquip._ui[string.format("Node_%s", i)])
+            if visible then
+                GUI:setAnchorPoint(
+                GUI:Image_Create(
+                GUI:ui_delegate(PlayerEquip._ui.Panel_1).kuang_layer,
+                string.format("pos%s_kuang", i),
+                pos.x,
+                pos.y,
+                "res/private/player_main_layer_ui/player_main_layer_ui_win32/1900015031.png"
+            ),
+                0.5,
+                0.5
+            )
             end
         end
     end
@@ -426,7 +444,7 @@ function PlayerEquip.RefreshPlayerBestRingsOpenState(data)
         if not GUI:getVisible(PlayerEquip._ui.Best_ringBox) then 
             return
         end
-        local bestRingsName = "珍宝盒"
+        local bestRingsName = "神器"
         if SL:CheckNodeCanCallBack(PlayerEquip._ui.Best_ringBox, touchPos) and bestRingsName ~= "" then
             local tips = nil
             local activeState = SL:GetMetaValue("BEST_RING_OPENSTATE", PlayerEquip.RoleType.Self)

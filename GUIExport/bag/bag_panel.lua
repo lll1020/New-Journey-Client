@@ -15,7 +15,7 @@ function ui.init(parent)
 	GUI:setTag(Panel_1, 2)
 
 	-- Create Image_bg
-	local Image_bg = GUI:Image_Create(Panel_1, "Image_bg", 301.00, 235.00, "res/private/bag_ui/bag_ui_mobile/bg_beibao_01.png")
+	local Image_bg = GUI:Image_Create(Panel_1, "Image_bg", 270.00, 235.00, "res/private/bag_ui/bag_ui_mobile/bg_beibao_01.png")
 	GUI:setChineseName(Image_bg, "背包_背景_图片1")
 	GUI:setAnchorPoint(Image_bg, 0.50, 0.50)
 	GUI:setTouchEnabled(Image_bg, true)
@@ -312,7 +312,7 @@ function ui.init(parent)
 	GUI:setTag(TouchSize, -1)
 
 	-- Create Button_close
-	local Button_close = GUI:Button_Create(Panel_1, "Button_close", 596.00, 366.00, "res/public/1900000510.png")
+	local Button_close = GUI:Button_Create(Panel_1, "Button_close", 536.00, 366.00, "res/public/1900000510.png")
 	GUI:Button_loadTexturePressed(Button_close, "res/public/1900000511.png")
 	GUI:Button_setScale9Slice(Button_close, 9, 8, 14, 14)
 	GUI:setContentSize(Button_close, 26, 42)
@@ -352,15 +352,15 @@ function ui.init(parent)
 	GUI:setVisible(Button_store_hero_bag, false)
 
 	-- Create ScrollView_items
-	local ScrollView_items = GUI:ScrollView_Create(Panel_1, "ScrollView_items", 16.00, 451.00, 498.00, 312.00, 1)
-	GUI:ScrollView_setInnerContainerSize(ScrollView_items, 510.00, 320.00)
+	local ScrollView_items = GUI:ScrollView_Create(Panel_1, "ScrollView_items", 12.00, 435.00, 519.00, 294.00, 1)
+	GUI:ScrollView_setInnerContainerSize(ScrollView_items, 519.00, 320.00)
 	GUI:setChineseName(ScrollView_items, "背包_物品列表")
 	GUI:setAnchorPoint(ScrollView_items, 0.00, 1.00)
 	GUI:setTouchEnabled(ScrollView_items, true)
 	GUI:setTag(ScrollView_items, -1)
 
 	-- Create Panel_addItems
-	local Panel_addItems = GUI:Layout_Create(Panel_1, "Panel_addItems", 17.00, 451.00, 498.00, 312.00, false)
+	local Panel_addItems = GUI:Layout_Create(Panel_1, "Panel_addItems", 12.00, 412.00, 519.00, 294.00, false)
 	GUI:setChineseName(Panel_addItems, "背包_添加物品层")
 	GUI:setAnchorPoint(Panel_addItems, 0.00, 1.00)
 	GUI:setTouchEnabled(Panel_addItems, true)

@@ -19,6 +19,10 @@ PlayerEquip_Look.fictionalUIPos = {
     [1000] = GUIDefine.EquipPosUI.Equip_Type_Dress,
     [1001] = GUIDefine.EquipPosUI.Equip_Type_Weapon, 
 }
+
+local posList = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 14, 16, 1000, 1001}
+
+
 function PlayerEquip_Look.main(data)
     PlayerEquip_Look.posSetting = {
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 16, --1000, 1001 如有分离装备 需要添加
@@ -69,7 +73,34 @@ function PlayerEquip_Look.main(data)
     PlayerEquip_Look.RefreshGuildInfo()
     ----------------------
     PlayerEquip_Look.RegisterEvent()
+    PlayerEquip_Look.InitEquipFramekuang()
 end
+
+
+
+--给装备一个初始的框
+function PlayerEquip_Look.InitEquipFramekuang()
+    for _, i in ipairs(posList) do
+        local pos = GUI:getPosition(PlayerEquip_Look._ui[string.format("Panel_pos%s", i)])
+        if PlayerEquip_Look._ui[string.format("Node_%s", i)] then
+            local visible = GUI:getVisible(PlayerEquip_Look._ui[string.format("Node_%s", i)])
+            if visible then
+                GUI:setAnchorPoint(
+                GUI:Image_Create(
+                GUI:ui_delegate(PlayerEquip_Look._ui.Panel_1).kuang_layer,
+                string.format("pos%s_kuang", i),
+                pos.x,
+                pos.y,
+                "res/private/player_main_layer_ui/player_main_layer_ui_win32/1900015031.png"
+            ),
+                0.5,
+                0.5
+            )
+            end
+        end
+    end
+end
+
 
 function PlayerEquip_Look.InitHideNodePos()
     PlayerEquip_Look._hideNodePos = {}
