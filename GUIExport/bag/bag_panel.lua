@@ -370,6 +370,7 @@ function ui.init(parent)
 	local ImageXiaoHui = GUI:Image_Create(Panel_1, "ImageXiaoHui", 582.00, 212.00, "res/custom/bag/xiaohui.png")
 	GUI:setTouchEnabled(ImageXiaoHui, true)
 	GUI:setTag(ImageXiaoHui, -1)
+	GUI:setVisible(ImageXiaoHui, false)
 
 	-- Create Button_XiaoHui
 	local Button_XiaoHui = GUI:Button_Create(ImageXiaoHui, "Button_XiaoHui", 35.00, 13.00, "res/custom/bag/xiaohui_btn.png")
@@ -386,6 +387,7 @@ function ui.init(parent)
 	GUI:setChineseName(FuWuJieMian, "服务按钮界面")
 	GUI:setTouchEnabled(FuWuJieMian, false)
 	GUI:setTag(FuWuJieMian, -1)
+	GUI:setVisible(FuWuJieMian, false)
 
 	-- Create FuWuJieMian_feijian
 	local FuWuJieMian_feijian = GUI:Button_Create(FuWuJieMian, "FuWuJieMian_feijian", 8.00, 70.00, "res/custom/bag/btn_feijiankaiguan.png")

@@ -1,5 +1,8 @@
--- 通用NPC窗口工具模块（兼容旧版界面）
--- 采用懒加载方式，所有NPC脚本共享统一布局工具
+﻿-- 通用 NPC 窗口工具模块（兼容旧版界面）
+-- 功能概述：
+--   * 统一处理 Win_Create / 遮罩层 / 背景面板 / 关闭按钮等模板代码
+--   * 支持通过 WINDOW_STYLE + ensureWindow 快速复用窗口
+--   * 采用懒加载（NPC_UI_HELPER 全局单例），避免重复 require
 local existingHelper = rawget(_G, "NPC_UI_HELPER")
 if existingHelper then
     return existingHelper
@@ -7,16 +10,21 @@ end
 
 local UIHelper = {}
 
-local DEFAULT_OVERLAY = 'res/public/1900000651_1.png'
-local DEFAULT_BG = 'res/wy/public/01.png'
-local DEFAULT_CLOSE = 'res/wy/public/close.png'
-local DEFAULT_BUTTON = 'res/public/1900000660.png'
+-- ===== 默认素材配置 =====
+local DEFAULT_OVERLAY = 'res/public/1900000651_1.png'  -- 全屏遮罩：点击关闭窗口
+local DEFAULT_BG = 'res/wy/public/01.png'              -- 背景面板：承载 UI 内容
+local DEFAULT_CLOSE = 'res/wy/public/close.png'        -- 默认关闭按钮
+local DEFAULT_BUTTON = 'res/public/1900000660.png'     -- 默认主按钮皮肤
 local DEFAULT_OUTLINE = SL and SL:ConvertColorFromHexString('#100808') or '#100808'
 
--- 占位回调，避免频繁创建临时函数
+-- ===== 基础工具函数 =====
+-- 空函数：用于 overlay / closeBtn 的默认 onClick，避免频繁创建匿名函数
 local function noop() end
 
--- 归一化描边配置，支持 nil/false/表 参数
+-- 规范化描边配置：
+--   opts = false -> 不启用描边
+--   opts = nil   -> 使用默认描边
+--   opts = table -> {outlineSize, outlineColor}
 local function ensureOutline(opts)
     if opts == false then
         return nil
@@ -25,7 +33,7 @@ local function ensureOutline(opts)
     return { outlineSize = opts.outlineSize or 2, outlineColor = opts.outlineColor or DEFAULT_OUTLINE }
 end
 
--- 统一绑定遮罩点击关闭
+-- 为遮罩或关闭按钮注册点击事件（若未传 handler，回落到 noop）
 local function addCloseHandler(widget, handler)
     if not widget then
         return
@@ -33,14 +41,21 @@ local function addCloseHandler(widget, handler)
     GUI:addOnClickEvent(widget, handler or noop)
 end
 
--- 各NPC脚本调用的入口，用于创建或复用弹窗
+-- ===== 核心方法：窗口创建/复用 =====
+-- cache  : windowCache[name]，复用时传入旧引用
+-- npcid  : 当前 NPC ID，仅用于默认 windowName
+-- opts   : 窗口配置
+--          - windowName / position / zOrder
+--          - overlay / background / closeButton（传 false 可关闭某一层）
+--          - node（内容节点）
+--          - titleText / subTitle / titleOptions（自动绘制标题）
 function UIHelper.ensureWindow(cache, npcid, opts)
     cache = cache or {}
     opts = opts or {}
     local pos = opts.position or {}
     local overlayCfg = opts.overlay or {}
     local bgCfg = opts.background or {}
-    local closeCfg = opts.closeButton or {}
+    local closeCfg = opts.closeButton
     local nodeCfg = opts.node or {}
 
     local name = opts.windowName or string.format('npc_%s', npcid or 'unknown')
@@ -69,12 +84,21 @@ function UIHelper.ensureWindow(cache, npcid, opts)
         GUI:Timeline_Window1(bg)
     end
 
-    local closeBtn = GUI:Button_Create(bg, closeCfg.name or 'close', closeCfg.x or 930, closeCfg.y or 480, closeCfg.skin or DEFAULT_CLOSE)
-    addCloseHandler(closeBtn, closeCfg.onClick or function()
-        GUI:Win_Close(parent)
-    end)
+    
 
     local node = GUI:Node_Create(bg, nodeCfg.name or 'node', nodeCfg.x or 0, nodeCfg.y or 0)
+
+    local closeBtn = nil
+    if closeCfg ~= false then
+        closeCfg = closeCfg or {}
+        closeBtn = GUI:Button_Create(bg, closeCfg.name or 'close', closeCfg.x or 930, closeCfg.y or 480, closeCfg.skin or DEFAULT_CLOSE)
+        GUI:setTouchEnabled(closeBtn, true)
+        GUI:setLocalZOrder(closeBtn, 100)
+        addCloseHandler(closeBtn, closeCfg.onClick or function()
+            GUI:Win_Close(parent)
+        end)
+    end
+
 
     cache.parent = parent
     cache.overlay = overlay
@@ -89,7 +113,8 @@ function UIHelper.ensureWindow(cache, npcid, opts)
     return cache
 end
 
--- 构建带描边的主/副标题节点
+-- ===== UI 构建工具 =====
+-- 标题生成：支持主/副标题 + 描边效果
 function UIHelper.createTitle(parent, text, subtitle, opts)
     if not parent or not text then
         return nil
@@ -109,7 +134,7 @@ function UIHelper.createTitle(parent, text, subtitle, opts)
     return label
 end
 
--- 富文本（RichText_Create）包装，提供通用默认值
+-- 富文本封装：通过 opts 控制宽高 / 颜色 / 对齐 / 描边 / 锚点
 function UIHelper.createRichText(parent, name, x, y, content, opts)
     opts = opts or {}
     local widget = GUI:RichText_Create(parent, name, x or 0, y or 0, content or '', opts.width or 500, opts.height or 40, opts.color or '#f7f7de', opts.align or 3, nil, nil, ensureOutline(opts.outline))
@@ -119,7 +144,9 @@ function UIHelper.createRichText(parent, name, x, y, content, opts)
     return widget
 end
 
--- 主操作按钮工厂，支持可选音效与回调
+-- 主操作按钮：
+--   * text 为空且 opts.icon=true 时只显示图片
+--   * opts.sound=false 可禁用点击音效
 function UIHelper.createPrimaryButton(parent, name, x, y, text, callback, opts)
     opts = opts or {}
     local btn = GUI:Button_Create(parent, name or 'btn', x or 0, y or 0, opts.skin or DEFAULT_BUTTON)
@@ -139,7 +166,7 @@ function UIHelper.createPrimaryButton(parent, name, x, y, text, callback, opts)
     return btn
 end
 
--- 水平分割线（可自定义材质与透明度
+-- 分割线：常用于窗口内部分隔区块
 function UIHelper.createDivider(parent, name, x, y, width, height, opts)
     opts = opts or {}
     local divider = GUI:Image_Create(parent, name or 'divider', x or 0, y or 0, opts.skin or 'res/wy/public/fgx.png')
@@ -151,7 +178,7 @@ function UIHelper.createDivider(parent, name, x, y, width, height, opts)
     return divider
 end
 
--- 生成形如 "NPC 9 (名称)" 的标题文本
+-- 格式化 NPC 标题，例如：NPC 17 (兑换使者)
 function UIHelper.formatNpcTitle(npcid, config)
     local parts = { 'NPC', tostring(npcid or '?') }
     if config and config.name then
