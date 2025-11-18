@@ -1,10 +1,16 @@
-﻿-- 神石合成
+﻿-- 第53号合成面板（npc_53），复用 ui_helper.lua 布局策略
 local npc = {}
 
 npc._config = teshudata["npc_53"]
+
+local WINDOW_OPTS = {
+    background = {skin = 'res/wy/public/jiaozhu_0.png'},
+    node = {x = 500, y = 300},
+}
+
 local NEED_ITEM_NUM = npc._config and npc._config.needitemnum or 10
 
--- layoutCfg：所有 UI 坐标/尺寸集中管理，方便整体调节布局
+-- 布局配置表：统一管理所有 UI 坐标与尺寸，方便整体调整
 local layoutCfg = {
     bag = {x = -200, y = -90, width = 320, height = 320},            -- 左侧材料列表位置及滚动区域大小
     selection = {x = 0, y = -50, cols = 5, colGap = 86, rowGap = 94}, -- 右侧已选槽位的起点、列数与间距
@@ -166,9 +172,9 @@ local function updateRewardPreview()
             local itemNode = GUI:ItemShow_Create(bg, "reward_item_" .. idx, 35, 35, {itemData = itemData, count = 1, look = true, bgVisible = false})
             GUI:setAnchorPoint(itemNode, 0.5, 0.5)
         else
-            -- GUI:Text_Create(bg, "reward_name_" .. idx, 35, 35, 16, "#ffeeaa", name)
+            -- 备用：GUI:Text_Create(bg, "reward_name_" .. idx, 35, 35, 16, "#ffeeaa", name)
         end
-        -- GUI:Text_Create(bg, "reward_label_" .. idx, 35, -10, 16, "#8fd6ff", name)
+        -- 备用：GUI:Text_Create(bg, "reward_label_" .. idx, 35, -10, 16, "#8fd6ff", name)
     end
     updateProbabilityText()
 end
@@ -230,7 +236,7 @@ local function updateSelectionSlots()
             
             GUI:setAnchorPoint(GUI:ItemShow_Create(slotNode, "sel_item_" .. idx, 35, 35, {itemData = entry.itemData, count = 1, look = true, bgVisible = false})
             , 0.5, 0.5)
-            -- GUI:Text_Create(slotNode, "sel_name_" .. idx, 35, -10, 16, "#c0faff", entry.name or "")
+            -- 备用：GUI:Text_Create(slotNode, "sel_name_" .. idx, 35, -10, 16, "#c0faff", entry.name or "")
             GUI:setTouchEnabled(slotNode, true)
         else
             GUI:setAnchorPoint(GUI:Text_Create(slotNode, "sel_hint_" .. idx, 35, 35, 18, "#666666", "+"), 0.5, 0.5)
@@ -297,7 +303,7 @@ local function refreshBagList()
     for idx, entry in ipairs(npc._bagList) do
         local rowWidth = layoutCfg.bag.width - 10
         local layout = GUI:Layout_Create(npc._ui.bagList, "npc53_item_" .. idx, 0, 0, rowWidth, 80, false)
-        -- GUI:ListView_pushBackCustomItem(npc._ui.bagList, layout)
+        -- 备用：GUI:ListView_pushBackCustomItem(npc._ui.bagList, layout)
         local bg = GUI:Image_Create(layout, "row_bg_" .. idx, 0, 0, "res/wy/public/500-300.png")
         GUI:setAnchorPoint(bg, 0, 0)
         GUI:setContentSize(bg, rowWidth - 4, 80 - 4)
@@ -379,7 +385,7 @@ local function buildSelectionArea(parent)
             "res/wy/public/70_70_k.png"
         )
         GUI:setAnchorPoint(slot, 0, 1)
-        -- GUI:addOnClickEvent(slot, function()
+        -- 备用：GUI:addOnClickEvent(slot, function())
         --     ensureState()
         --     if npc._state.selectedList[i] then
         --         -- 退回材料：恢复堆叠剩余数并重新渲染
@@ -388,10 +394,10 @@ local function buildSelectionArea(parent)
         --         table.remove(npc._state.selectedList, i)
         --         updateSelectionSlots()
         --     end
-        -- end)
+        -- 备用：end)
         npc._ui.selectionSlots[i] = slot
     end
-    -- GUI:Text_Create(parent, "slot_tip", layoutCfg.slotTip.x, layoutCfg.slotTip.y, 16, "#7fe5ff", "点击已选材料可以移除")
+    -- 备用：GUI:Text_Create(parent, "slot_tip", layoutCfg.slotTip.x, layoutCfg.slotTip.y, 16, "#7fe5ff", "点击已选材料可以移除")
 end
 
 -- 构建背包列表容器与空状态提示
@@ -407,9 +413,26 @@ local function buildBagPanel(parent)
     GUI:setVisible(npc._ui.emptyBagTip, false)
 end
 
+
 function npc.main(npcid, p2, p3, msgData)
+    local function ensureWindow(npcid)
+        local opts = {}
+        for k, v in pairs(WINDOW_OPTS) do
+            opts[k] = v
+        end
+        opts.titleText = NPC_UI_HELPER.formatNpcTitle(npcid, npc._config)
+        opts.subTitle = npc._config and npc._config.title
+        npc._window = NPC_UI_HELPER.ensureWindow(npc._window, npcid, opts)
+        npc.bg = npc._window.bg
+        npc.node = npc._window.node
+        return npc.node
+    end
+
     -- 统一的界面刷新函数，便于首开与后续刷新复用
     local function UI_updata(node)
+        if not node then
+            return
+        end
         ensureState()
         GUI:removeAllChildren(node)
         npc._ui = {root = node}

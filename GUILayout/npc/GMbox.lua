@@ -9,7 +9,7 @@ local function selectListSplit(str)
         local value = SL:Split(v, "#")
         local index = value[1]
         selectList[tonumber(index)] = { select = SL:Split(value[2], "^"), show = SL:Split(value[3], "^") }
-        -- SL:dump(value,"-拆分1-")
+        -- 调试：SL:dump(value,"-拆分1-")
     end
     return selectList
 end
@@ -21,7 +21,7 @@ local function defaultSplit(str)
         local value = SL:Split(v, "#")
         local index = tonumber(value[1]) or 0
         default[index] = value
-        -- SL:dump(default,"-拆分2-")
+        -- 调试：SL:dump(default,"-拆分2-")
     end
     return default
 end
@@ -185,9 +185,9 @@ function GMBoxOBJ:main()
             GUI:Win_Close(self._parent)
             self.cfg[1].title = nil
 
-            -- SL:SetLocalString(self.__cname,  SL:JsonEncode({}))              --清空收藏命令
+            -- 备用：SL:SetLocalString(self.__cname,  SL:JsonEncode({}))              --清空收藏命令
             SL:SetLocalString(self.__cname, SL:JsonEncode(self.cfg[1]))        --更新收藏命令
-            -- SL:SetLocalString(varName,  SL:JsonEncode({}))              --清空收藏命令
+            -- 备用：SL:SetLocalString(varName,  SL:JsonEncode({}))              --清空收藏命令
             SL:SetLocalString(varName, SL:JsonEncode(self.cmdList))       --更新缓存命令
         end)
 

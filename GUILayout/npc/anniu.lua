@@ -391,14 +391,14 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
         local parent = ensureWindow("npc_huishou", function()
             return GUI:Win_Create("npc_huishou",cogin.w/2, cogin.h/2,0,0,false,false,false,true,true,0,1)
         end)
-        -- local bjt = GUI:Image_Create(parent, "bjt", 0, 0, "res/public/1900000651_1.png")
-        -- GUI:setAnchorPoint(bjt, 0.5, 0.5)
-        -- GUI:setContentSize(bjt, cogin.w + 100, cogin.h + 100)
-        -- GUI:setTouchEnabled(bjt, true)
-        -- GUI:addOnClickEvent(bjt, function()
+        -- 备用：local bjt = GUI:Image_Create(parent, "bjt", 0, 0, "res/public/1900000651_1.png")
+        -- 备用：GUI:setAnchorPoint(bjt, 0.5, 0.5)
+        -- 备用：GUI:setContentSize(bjt, cogin.w + 100, cogin.h + 100)
+        -- 备用：GUI:setTouchEnabled(bjt, true)
+        -- 备用：GUI:addOnClickEvent(bjt, function()
         --     GUI:Win_Close(parent)
-        -- end)
-        -- GUI:addMouseOverTips(bjt, "", {x = 0, y = 0}, {x = 0, y = 0})
+        -- 备用：end)
+        -- 备用：GUI:addMouseOverTips(bjt, "", {x = 0, y = 0}, {x = 0, y = 0})
 
        
 
@@ -2146,7 +2146,7 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
             local b_order = order[b.state] or 99
 
             if a_order == b_order then
-                return a.idx < b.idx  -- state 优先级相同，按 idx 排
+                return a.idx < b.idx  -- 状态比较：state 优先级相同，按 idx 排
             else
                 return a_order < b_order  -- 按 state 优先级排序
             end

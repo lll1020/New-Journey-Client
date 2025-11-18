@@ -14,8 +14,7 @@ cogin.iskf = false  --是否在跨服
 Player = SL:Require("GUILayout/ssrgame/util/Player", true)                               --日志打印函数
 SL:Require("GUILayout/ssrgame/util/uiEx", true)                                 --ui扩展
 SL:Require("GUILayout/ssrgame/util/util", true)                                 --工具库
-
-
+SL:Require("GUILayout/npc/ui_helper", true)                                 --npc通用ui辅助
 
 
 
