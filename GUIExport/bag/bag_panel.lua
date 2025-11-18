@@ -1,4 +1,5 @@
 local ui = {}
+
 function ui.init(parent)
 	-- Create Scene
 	local Scene = GUI:Node_Create(parent, "Scene", -41.00, 0.00)
@@ -20,90 +21,153 @@ function ui.init(parent)
 	GUI:setTouchEnabled(Image_bg, true)
 	GUI:setTag(Image_bg, 3)
 
+	-- Create hb_1
+	local hb_1 = GUI:Image_Create(Image_bg, "hb_1", 15.00, 70.00, "res/custom/bag/hb_1.png")
+	GUI:setTouchEnabled(hb_1, false)
+	GUI:setTag(hb_1, -1)
+
+	-- Create hb_1_s
+	local hb_1_s = GUI:Image_Create(Image_bg, "hb_1_s", 130.00, 70.00, "res/custom/bag/hb_1_s.png")
+	GUI:setTouchEnabled(hb_1_s, false)
+	GUI:setTag(hb_1_s, -1)
+
+	-- Create hb_2
+	local hb_2 = GUI:Image_Create(Image_bg, "hb_2", 15.00, 40.00, "res/custom/bag/hb_2.png")
+	GUI:setTouchEnabled(hb_2, false)
+	GUI:setTag(hb_2, -1)
+
+	-- Create hb_2_s
+	local hb_2_s = GUI:Image_Create(Image_bg, "hb_2_s", 130.00, 40.00, "res/custom/bag/hb_2_s.png")
+	GUI:setTouchEnabled(hb_2_s, false)
+	GUI:setTag(hb_2_s, -1)
+
+	-- Create hb_3
+	local hb_3 = GUI:Image_Create(Image_bg, "hb_3", 15.00, 10.00, "res/custom/bag/hb_3.png")
+	GUI:setTouchEnabled(hb_3, false)
+	GUI:setTag(hb_3, -1)
+
+	-- Create hb_3_s
+	local hb_3_s = GUI:Image_Create(Image_bg, "hb_3_s", 130.00, 10.00, "res/custom/bag/hb_3_s.png")
+	GUI:setTouchEnabled(hb_3_s, false)
+	GUI:setTag(hb_3_s, -1)
+
 	-- Create Text_Money1
-	local Text_Money1 = GUI:Text_Create(Image_bg, "Text_Money1", 58.00, 98.00, 14, "#ffffff", [[文本]])
+	local Text_Money1 = GUI:Text_Create(Image_bg, "Text_Money1", 50.00, 75.00, 12, "#ffffff", [[文本]])
+	GUI:setChineseName(Text_Money1, "金币")
 	GUI:setTouchEnabled(Text_Money1, false)
 	GUI:setTag(Text_Money1, -1)
 	GUI:Text_enableOutline(Text_Money1, "#000000", 1)
 
 	-- Create Text_Money2
-	local Text_Money2 = GUI:Text_Create(Image_bg, "Text_Money2", 204.00, 99.00, 14, "#ffffff", [[文本]])
+	local Text_Money2 = GUI:Text_Create(Image_bg, "Text_Money2", 165.00, 75.00, 12, "#ffffff", [[文本]])
+	GUI:setChineseName(Text_Money2, "绑定金币")
 	GUI:setTouchEnabled(Text_Money2, false)
 	GUI:setTag(Text_Money2, -1)
 	GUI:Text_enableOutline(Text_Money2, "#000000", 1)
 
 	-- Create Text_Money3
-	local Text_Money3 = GUI:Text_Create(Image_bg, "Text_Money3", 58.00, 60.00, 14, "#ffffff", [[文本]])
+	local Text_Money3 = GUI:Text_Create(Image_bg, "Text_Money3", 50.00, 45.00, 12, "#ffffff", [[文本]])
+	GUI:setChineseName(Text_Money3, "元宝")
 	GUI:setTouchEnabled(Text_Money3, false)
 	GUI:setTag(Text_Money3, -1)
 	GUI:Text_enableOutline(Text_Money3, "#000000", 1)
 
 	-- Create Text_Money4
-	local Text_Money4 = GUI:Text_Create(Image_bg, "Text_Money4", 203.00, 60.00, 14, "#ffffff", [[文本]])
+	local Text_Money4 = GUI:Text_Create(Image_bg, "Text_Money4", 165.00, 45.00, 12, "#ffffff", [[文本]])
+	GUI:setChineseName(Text_Money4, "绑定元宝")
 	GUI:setTouchEnabled(Text_Money4, false)
 	GUI:setTag(Text_Money4, -1)
 	GUI:Text_enableOutline(Text_Money4, "#000000", 1)
 
 	-- Create Text_Money5
-	local Text_Money5 = GUI:Text_Create(Image_bg, "Text_Money5", 58.00, 22.00, 14, "#ffffff", [[文本]])
+	local Text_Money5 = GUI:Text_Create(Image_bg, "Text_Money5", 50.00, 15.00, 12, "#ffffff", [[文本]])
+	GUI:setChineseName(Text_Money5, "灵石")
 	GUI:setTouchEnabled(Text_Money5, false)
 	GUI:setTag(Text_Money5, -1)
 	GUI:Text_enableOutline(Text_Money5, "#000000", 1)
 
 	-- Create Text_Money6
-	local Text_Money6 = GUI:Text_Create(Image_bg, "Text_Money6", 203.00, 22.00, 14, "#ffffff", [[文本]])
+	local Text_Money6 = GUI:Text_Create(Image_bg, "Text_Money6", 165.00, 15.00, 12, "#ffffff", [[文本]])
+	GUI:setChineseName(Text_Money6, "绑定灵石")
 	GUI:setTouchEnabled(Text_Money6, false)
 	GUI:setTag(Text_Money6, -1)
 	GUI:Text_enableOutline(Text_Money6, "#000000", 1)
 
 	-- Create ZongHeButton
-	local ZongHeButton = GUI:Button_Create(Image_bg, "ZongHeButton", 307.00, 81.00, "res/custom/bag/btn_1.png")
+	local ZongHeButton = GUI:Button_Create(Image_bg, "ZongHeButton", 348.00, 58.00, "res/custom/bag/btn_1.png")
 	GUI:Button_setTitleText(ZongHeButton, "")
 	GUI:Button_setTitleColor(ZongHeButton, "#ffffff")
 	GUI:Button_setTitleFontSize(ZongHeButton, 10)
 	GUI:Button_titleEnableOutline(ZongHeButton, "#000000", 1)
-	GUI:setChineseName(ZongHeButton, "背包_货币兑换")
+	GUI:Win_SetParam(ZongHeButton, {grey = 1}, "Button")
+	GUI:setChineseName(ZongHeButton, "背包_仓库")
 	GUI:setTouchEnabled(ZongHeButton, true)
 	GUI:setTag(ZongHeButton, -1)
 
 	-- Create FuWuButton
-	local FuWuButton = GUI:Button_Create(Image_bg, "FuWuButton", 415.00, 81.00, "res/custom/bag/fuwu_btn.png")
+	local FuWuButton = GUI:Button_Create(Image_bg, "FuWuButton", 443.00, 58.00, "res/custom/bag/fuwu_btn.png")
 	GUI:Button_setTitleText(FuWuButton, "")
 	GUI:Button_setTitleColor(FuWuButton, "#ffffff")
 	GUI:Button_setTitleFontSize(FuWuButton, 10)
 	GUI:Button_titleEnableOutline(FuWuButton, "#000000", 1)
+	GUI:Win_SetParam(FuWuButton, {grey = 1}, "Button")
 	GUI:setChineseName(FuWuButton, "背包_服务")
 	GUI:setTouchEnabled(FuWuButton, true)
 	GUI:setTag(FuWuButton, -1)
 
 	-- Create HuiShouButton
-	local HuiShouButton = GUI:Button_Create(Image_bg, "HuiShouButton", 308.00, 26.00, "res/custom/bag/btn_3.png")
+	local HuiShouButton = GUI:Button_Create(Image_bg, "HuiShouButton", 348.00, 15.00, "res/custom/bag/btn_3.png")
 	GUI:Button_setTitleText(HuiShouButton, "")
 	GUI:Button_setTitleColor(HuiShouButton, "#ffffff")
 	GUI:Button_setTitleFontSize(HuiShouButton, 10)
 	GUI:Button_titleEnableOutline(HuiShouButton, "#000000", 1)
-	GUI:setChineseName(HuiShouButton, "背包_在线回收")
+	GUI:Win_SetParam(HuiShouButton, {grey = 1}, "Button")
+	GUI:setChineseName(HuiShouButton, "背包_回收")
 	GUI:setTouchEnabled(HuiShouButton, true)
 	GUI:setTag(HuiShouButton, -1)
 
 	-- Create ZhengLiButton
-	local ZhengLiButton = GUI:Button_Create(Image_bg, "ZhengLiButton", 415.00, 26.00, "res/custom/bag/btn_4.png")
+	local ZhengLiButton = GUI:Button_Create(Image_bg, "ZhengLiButton", 443.00, 15.00, "res/custom/bag/btn_4.png")
 	GUI:Button_setTitleText(ZhengLiButton, "")
 	GUI:Button_setTitleColor(ZhengLiButton, "#ffffff")
 	GUI:Button_setTitleFontSize(ZhengLiButton, 10)
 	GUI:Button_titleEnableOutline(ZhengLiButton, "#000000", 1)
+	GUI:Win_SetParam(ZhengLiButton, {grey = 1}, "Button")
 	GUI:setChineseName(ZhengLiButton, "背包_整理")
 	GUI:setTouchEnabled(ZhengLiButton, true)
 	GUI:setTag(ZhengLiButton, -1)
 
+	-- Create bbsqbtn
+	local bbsqbtn = GUI:Button_Create(Image_bg, "bbsqbtn", 260.00, 60.00, "res/custom/bag/bbsq_btn.png")
+	GUI:Button_setTitleText(bbsqbtn, "")
+	GUI:Button_setTitleColor(bbsqbtn, "#ffffff")
+	GUI:Button_setTitleFontSize(bbsqbtn, 10)
+	GUI:Button_titleEnableOutline(bbsqbtn, "#000000", 1)
+	GUI:Win_SetParam(bbsqbtn, {grey = 1}, "Button")
+	GUI:setChineseName(bbsqbtn, "背包_背包神器")
+	GUI:setTouchEnabled(bbsqbtn, true)
+	GUI:setTag(bbsqbtn, -1)
+
+	-- Create duihuanbtn
+	local duihuanbtn = GUI:Button_Create(Image_bg, "duihuanbtn", 260.00, 17.00, "res/custom/bag/duihuan_btn.png")
+	GUI:Button_setTitleText(duihuanbtn, "")
+	GUI:Button_setTitleColor(duihuanbtn, "#ffffff")
+	GUI:Button_setTitleFontSize(duihuanbtn, 10)
+	GUI:Button_titleEnableOutline(duihuanbtn, "#000000", 1)
+	GUI:Win_SetParam(duihuanbtn, {grey = 1}, "Button")
+	GUI:setChineseName(duihuanbtn, "背包_兑换")
+	GUI:setTouchEnabled(duihuanbtn, true)
+	GUI:setTag(duihuanbtn, -1)
+
 	-- Create Button_page1
-	local Button_page1 = GUI:Button_Create(Panel_1, "Button_page1", -21.00, 395.00, "res/custom/bag/mobile_right_group1_2.png")
+	local Button_page1 = GUI:Button_Create(Panel_1, "Button_page1", -15.00, 345.00, "res/custom/bag/mobile_right_group1_2.png")
 	GUI:Button_loadTexturePressed(Button_page1, "res/custom/bag/mobile_right_group1_1.png")
 	GUI:Button_loadTextureDisabled(Button_page1, "res/custom/bag/mobile_right_group1_1.png")
 	GUI:Button_setTitleText(Button_page1, "")
 	GUI:Button_setTitleColor(Button_page1, "#ffffff")
 	GUI:Button_setTitleFontSize(Button_page1, 14)
 	GUI:Button_titleEnableOutline(Button_page1, "#000000", 1)
+	GUI:Win_SetParam(Button_page1, {grey = 1}, "Button")
 	GUI:setChineseName(Button_page1, "背包_第一页_组合框")
 	GUI:setAnchorPoint(Button_page1, 0.50, 0.50)
 	GUI:setTouchEnabled(Button_page1, false)
@@ -126,13 +190,14 @@ function ui.init(parent)
 	GUI:setTag(TouchSize, -1)
 
 	-- Create Button_page2
-	local Button_page2 = GUI:Button_Create(Panel_1, "Button_page2", -21.00, 301.00, "res/custom/bag/mobile_right_group2_2.png")
+	local Button_page2 = GUI:Button_Create(Panel_1, "Button_page2", -15.00, 245.00, "res/custom/bag/mobile_right_group2_2.png")
 	GUI:Button_loadTexturePressed(Button_page2, "res/custom/bag/mobile_right_group2_1.png")
 	GUI:Button_loadTextureDisabled(Button_page2, "res/custom/bag/mobile_right_group2_1.png")
 	GUI:Button_setTitleText(Button_page2, "")
 	GUI:Button_setTitleColor(Button_page2, "#ffffff")
 	GUI:Button_setTitleFontSize(Button_page2, 14)
 	GUI:Button_titleEnableOutline(Button_page2, "#000000", 1)
+	GUI:Win_SetParam(Button_page2, {grey = 1}, "Button")
 	GUI:setChineseName(Button_page2, "背包_第二页_组合框")
 	GUI:setAnchorPoint(Button_page2, 0.50, 0.50)
 	GUI:setTouchEnabled(Button_page2, false)
@@ -155,13 +220,14 @@ function ui.init(parent)
 	GUI:setTag(TouchSize, -1)
 
 	-- Create Button_page3
-	local Button_page3 = GUI:Button_Create(Panel_1, "Button_page3", -21.00, 206.00, "res/custom/bag/mobile_right_group3_2.png")
+	local Button_page3 = GUI:Button_Create(Panel_1, "Button_page3", -15.00, 145.00, "res/custom/bag/mobile_right_group3_2.png")
 	GUI:Button_loadTexturePressed(Button_page3, "res/custom/bag/mobile_right_group3_1.png")
 	GUI:Button_loadTextureDisabled(Button_page3, "res/custom/bag/mobile_right_group3_1.png")
 	GUI:Button_setTitleText(Button_page3, "")
 	GUI:Button_setTitleColor(Button_page3, "#ffffff")
 	GUI:Button_setTitleFontSize(Button_page3, 14)
 	GUI:Button_titleEnableOutline(Button_page3, "#000000", 1)
+	GUI:Win_SetParam(Button_page3, {grey = 1}, "Button")
 	GUI:setChineseName(Button_page3, "背包_第三页_组合框")
 	GUI:setAnchorPoint(Button_page3, 0.50, 0.50)
 	GUI:setTouchEnabled(Button_page3, false)
@@ -184,17 +250,19 @@ function ui.init(parent)
 	GUI:setTag(TouchSize, -1)
 
 	-- Create Button_page4
-	local Button_page4 = GUI:Button_Create(Panel_1, "Button_page4", -21.00, 110.00, "res/custom/bag/mobile_right_group3_2.png")
+	local Button_page4 = GUI:Button_Create(Panel_1, "Button_page4", -15.00, 45.00, "res/custom/bag/mobile_right_group3_2.png")
 	GUI:Button_loadTexturePressed(Button_page4, "res/custom/bag/mobile_right_group3_1.png")
 	GUI:Button_loadTextureDisabled(Button_page4, "res/custom/bag/mobile_right_group3_1.png")
 	GUI:Button_setTitleText(Button_page4, "")
 	GUI:Button_setTitleColor(Button_page4, "#ffffff")
 	GUI:Button_setTitleFontSize(Button_page4, 14)
 	GUI:Button_titleEnableOutline(Button_page4, "#000000", 1)
+	GUI:Win_SetParam(Button_page4, {grey = 1}, "Button")
 	GUI:setChineseName(Button_page4, "背包_第四页_组合框")
 	GUI:setAnchorPoint(Button_page4, 0.50, 0.50)
 	GUI:setTouchEnabled(Button_page4, false)
 	GUI:setTag(Button_page4, -1)
+	GUI:setVisible(Button_page4, false)
 
 	-- Create PageText
 	local PageText = GUI:Text_Create(Button_page4, "PageText", 20.00, 60.00, 18, "#ffffff", [[四]])
@@ -213,17 +281,19 @@ function ui.init(parent)
 	GUI:setTag(TouchSize, -1)
 
 	-- Create Button_page5
-	local Button_page5 = GUI:Button_Create(Panel_1, "Button_page5", -21.00, 33.00, "res/public/1900000641_1.png")
+	local Button_page5 = GUI:Button_Create(Panel_1, "Button_page5", -25.00, -43.00, "res/public/1900000641_1.png")
 	GUI:Button_loadTexturePressed(Button_page5, "res/public/1900000640_1.png")
 	GUI:Button_loadTextureDisabled(Button_page5, "res/public/1900000640_1.png")
 	GUI:Button_setTitleText(Button_page5, "")
 	GUI:Button_setTitleColor(Button_page5, "#ffffff")
 	GUI:Button_setTitleFontSize(Button_page5, 14)
 	GUI:Button_titleEnableOutline(Button_page5, "#000000", 1)
+	GUI:Win_SetParam(Button_page5, {grey = 1}, "Button")
 	GUI:setChineseName(Button_page5, "背包_第五页_组合框")
 	GUI:setAnchorPoint(Button_page5, 0.50, 0.50)
 	GUI:setTouchEnabled(Button_page5, false)
 	GUI:setTag(Button_page5, -1)
+	GUI:setVisible(Button_page5, false)
 
 	-- Create PageText
 	local PageText = GUI:Text_Create(Button_page5, "PageText", 20.00, 60.00, 18, "#ffffff", [[五]])
@@ -235,14 +305,14 @@ function ui.init(parent)
 	GUI:Text_enableOutline(PageText, "#000000", 1)
 
 	-- Create TouchSize
-	local TouchSize = GUI:Layout_Create(Button_page5, "TouchSize", 0.00, 92.00, 33.00, 75.00, false)
+	local TouchSize = GUI:Layout_Create(Button_page5, "TouchSize", 4.00, 28.00, 33.00, 75.00, false)
 	GUI:setChineseName(TouchSize, "背包_第五页_触摸区域")
 	GUI:setAnchorPoint(TouchSize, 0.00, 1.00)
 	GUI:setTouchEnabled(TouchSize, true)
 	GUI:setTag(TouchSize, -1)
 
 	-- Create Button_close
-	local Button_close = GUI:Button_Create(Panel_1, "Button_close", 603.00, 427.00, "res/public/1900000510.png")
+	local Button_close = GUI:Button_Create(Panel_1, "Button_close", 596.00, 366.00, "res/public/1900000510.png")
 	GUI:Button_loadTexturePressed(Button_close, "res/public/1900000511.png")
 	GUI:Button_setScale9Slice(Button_close, 9, 8, 14, 14)
 	GUI:setContentSize(Button_close, 26, 42)
@@ -251,6 +321,7 @@ function ui.init(parent)
 	GUI:Button_setTitleColor(Button_close, "#414146")
 	GUI:Button_setTitleFontSize(Button_close, 14)
 	GUI:Button_titleDisableOutLine(Button_close)
+	GUI:Win_SetParam(Button_close, {grey = 1}, "Button")
 	GUI:setChineseName(Button_close, "背包_关闭按钮")
 	GUI:setTouchEnabled(Button_close, true)
 	GUI:setTag(Button_close, 8)
@@ -273,6 +344,7 @@ function ui.init(parent)
 	GUI:Button_setTitleColor(Button_store_hero_bag, "#ffffff")
 	GUI:Button_setTitleFontSize(Button_store_hero_bag, 18)
 	GUI:Button_titleEnableOutline(Button_store_hero_bag, "#000000", 1)
+	GUI:Win_SetParam(Button_store_hero_bag, {grey = 1}, "Button")
 	GUI:setChineseName(Button_store_hero_bag, "背包_存入英雄背包_按钮")
 	GUI:setAnchorPoint(Button_store_hero_bag, 0.50, 0.50)
 	GUI:setTouchEnabled(Button_store_hero_bag, false)
@@ -295,203 +367,59 @@ function ui.init(parent)
 	GUI:setTag(Panel_addItems, 10)
 
 	-- Create ImageXiaoHui
-	local ImageXiaoHui = GUI:Image_Create(Panel_1, "ImageXiaoHui", 606.00, 239.00, "res/custom/bag/xiaohui.png")
+	local ImageXiaoHui = GUI:Image_Create(Panel_1, "ImageXiaoHui", 640.00, 221.00, "res/custom/bag/xiaohui.png")
 	GUI:setTouchEnabled(ImageXiaoHui, true)
 	GUI:setTag(ImageXiaoHui, -1)
 	GUI:setVisible(ImageXiaoHui, false)
 
 	-- Create Button_XiaoHui
-	local Button_XiaoHui = GUI:Button_Create(ImageXiaoHui, "Button_XiaoHui", 41.00, 15.00, "res/custom/bag/xiaohui_btn.png")
+	local Button_XiaoHui = GUI:Button_Create(ImageXiaoHui, "Button_XiaoHui", 35.00, 13.00, "res/custom/bag/xiaohui_btn.png")
 	GUI:Button_setTitleText(Button_XiaoHui, "")
 	GUI:Button_setTitleColor(Button_XiaoHui, "#ffffff")
 	GUI:Button_setTitleFontSize(Button_XiaoHui, 14)
 	GUI:Button_titleEnableOutline(Button_XiaoHui, "#000000", 1)
+	GUI:Win_SetParam(Button_XiaoHui, {grey = 1}, "Button")
 	GUI:setTouchEnabled(Button_XiaoHui, true)
 	GUI:setTag(Button_XiaoHui, -1)
 
-	-- Create Button_XiaoHuiClose
-	local Button_XiaoHuiClose = GUI:Button_Create(ImageXiaoHui, "Button_XiaoHuiClose", 190.00, 178.00, "res/public/1900000510.png")
-	GUI:Button_loadTexturePressed(Button_XiaoHuiClose, "res/public/1900000511.png")
-	GUI:Button_setScale9Slice(Button_XiaoHuiClose, 9, 8, 14, 14)
-	GUI:setContentSize(Button_XiaoHuiClose, 26, 42)
-	GUI:setIgnoreContentAdaptWithSize(Button_XiaoHuiClose, false)
-	GUI:Button_setTitleText(Button_XiaoHuiClose, "")
-	GUI:Button_setTitleColor(Button_XiaoHuiClose, "#414146")
-	GUI:Button_setTitleFontSize(Button_XiaoHuiClose, 14)
-	GUI:Button_titleEnableOutline(Button_XiaoHuiClose, "#000000", 1)
-	GUI:setChineseName(Button_XiaoHuiClose, "背包_关闭按钮")
-	GUI:setTouchEnabled(Button_XiaoHuiClose, true)
-	GUI:setTag(Button_XiaoHuiClose, 8)
-	GUI:setVisible(Button_XiaoHuiClose, false)
-
-	-- Create ListView_Equip
-	local ListView_Equip = GUI:ListView_Create(Panel_1, "ListView_Equip", 527.00, 25.00, 66.00, 420.00, 1)
-	GUI:ListView_setBounceEnabled(ListView_Equip, true)
-	GUI:ListView_setGravity(ListView_Equip, 5)
-	GUI:ListView_setItemsMargin(ListView_Equip, 2)
-	GUI:setChineseName(ListView_Equip, "背包神器")
-	GUI:setTouchEnabled(ListView_Equip, true)
-	GUI:setTag(ListView_Equip, -1)
-
-	-- Create ImageView_77
-	local ImageView_77 = GUI:Image_Create(ListView_Equip, "ImageView_77", 0.00, 748.00, "res/custom/bag/equipbackground_mobile.png")
-	GUI:setTouchEnabled(ImageView_77, false)
-	GUI:setTag(ImageView_77, -1)
-
-	-- Create EquipShow_77
-	local EquipShow_77 = GUI:EquipShow_Create(ImageView_77, "EquipShow_77", 1.00, 0.00, 77, false, {look = true, movable = true, bgVisible = false, doubleTakeOff = true})
-	GUI:setTag(EquipShow_77, -1)
-	GUI:EquipShow_setAutoUpdate(EquipShow_77)
-
-	-- Create ImageView_78
-	local ImageView_78 = GUI:Image_Create(ListView_Equip, "ImageView_78", 0.00, 680.00, "res/custom/bag/equipbackground_mobile.png")
-	GUI:setTouchEnabled(ImageView_78, false)
-	GUI:setTag(ImageView_78, -1)
-
-	-- Create EquipShow_78
-	local EquipShow_78 = GUI:EquipShow_Create(ImageView_78, "EquipShow_78", 1.00, 0.00, 78, false, {look = true, movable = true, bgVisible = false, doubleTakeOff = true})
-	GUI:setTag(EquipShow_78, -1)
-	GUI:EquipShow_setAutoUpdate(EquipShow_78)
-
-	-- Create ImageView_79
-	local ImageView_79 = GUI:Image_Create(ListView_Equip, "ImageView_79", 0.00, 612.00, "res/custom/bag/equipbackground_mobile.png")
-	GUI:setTouchEnabled(ImageView_79, false)
-	GUI:setTag(ImageView_79, -1)
-
-	-- Create EquipShow_79
-	local EquipShow_79 = GUI:EquipShow_Create(ImageView_79, "EquipShow_79", 1.00, 0.00, 79, false, {look = true, movable = true, bgVisible = false, doubleTakeOff = true})
-	GUI:setTag(EquipShow_79, -1)
-	GUI:EquipShow_setAutoUpdate(EquipShow_79)
-
-	-- Create ImageView_80
-	local ImageView_80 = GUI:Image_Create(ListView_Equip, "ImageView_80", 0.00, 544.00, "res/custom/bag/equipbackground_mobile.png")
-	GUI:setTouchEnabled(ImageView_80, false)
-	GUI:setTag(ImageView_80, -1)
-
-	-- Create EquipShow_80
-	local EquipShow_80 = GUI:EquipShow_Create(ImageView_80, "EquipShow_80", 1.00, 0.00, 80, false, {look = true, movable = true, bgVisible = false, doubleTakeOff = true})
-	GUI:setTag(EquipShow_80, -1)
-	GUI:EquipShow_setAutoUpdate(EquipShow_80)
-
-	-- Create ImageView_81
-	local ImageView_81 = GUI:Image_Create(ListView_Equip, "ImageView_81", 0.00, 476.00, "res/custom/bag/equipbackground_mobile.png")
-	GUI:setTouchEnabled(ImageView_81, false)
-	GUI:setTag(ImageView_81, -1)
-
-	-- Create EquipShow_81
-	local EquipShow_81 = GUI:EquipShow_Create(ImageView_81, "EquipShow_81", 1.00, 0.00, 81, false, {look = true, movable = true, bgVisible = false, doubleTakeOff = true})
-	GUI:setTag(EquipShow_81, -1)
-	GUI:EquipShow_setAutoUpdate(EquipShow_81)
-
-	-- Create ImageView_82
-	local ImageView_82 = GUI:Image_Create(ListView_Equip, "ImageView_82", 0.00, 408.00, "res/custom/bag/equipbackground_mobile.png")
-	GUI:setTouchEnabled(ImageView_82, false)
-	GUI:setTag(ImageView_82, -1)
-
-	-- Create EquipShow_82
-	local EquipShow_82 = GUI:EquipShow_Create(ImageView_82, "EquipShow_82", 1.00, 0.00, 82, false, {look = true, movable = true, bgVisible = false, doubleTakeOff = true})
-	GUI:setTag(EquipShow_82, -1)
-	GUI:EquipShow_setAutoUpdate(EquipShow_82)
-
-	-- Create ImageView_83
-	local ImageView_83 = GUI:Image_Create(ListView_Equip, "ImageView_83", 0.00, 340.00, "res/custom/bag/equipbackground_mobile.png")
-	GUI:setTouchEnabled(ImageView_83, false)
-	GUI:setTag(ImageView_83, -1)
-
-	-- Create EquipShow_83
-	local EquipShow_83 = GUI:EquipShow_Create(ImageView_83, "EquipShow_83", 1.00, 0.00, 83, false, {look = true, movable = true, bgVisible = false, doubleTakeOff = true})
-	GUI:setTag(EquipShow_83, -1)
-	GUI:EquipShow_setAutoUpdate(EquipShow_83)
-
-	-- Create ImageView_84
-	local ImageView_84 = GUI:Image_Create(ListView_Equip, "ImageView_84", 0.00, 272.00, "res/custom/bag/equipbackground_mobile.png")
-	GUI:setTouchEnabled(ImageView_84, false)
-	GUI:setTag(ImageView_84, -1)
-
-	-- Create EquipShow_84
-	local EquipShow_84 = GUI:EquipShow_Create(ImageView_84, "EquipShow_84", 1.00, 0.00, 84, false, {look = true, movable = true, bgVisible = false, doubleTakeOff = true})
-	GUI:setTag(EquipShow_84, -1)
-	GUI:EquipShow_setAutoUpdate(EquipShow_84)
-
-	-- Create ImageView_85
-	local ImageView_85 = GUI:Image_Create(ListView_Equip, "ImageView_85", 0.00, 204.00, "res/custom/bag/equipbackground_mobile.png")
-	GUI:setTouchEnabled(ImageView_85, false)
-	GUI:setTag(ImageView_85, -1)
-
-	-- Create EquipShow_85
-	local EquipShow_85 = GUI:EquipShow_Create(ImageView_85, "EquipShow_85", 1.00, 0.00, 85, false, {look = true, movable = true, bgVisible = false, doubleTakeOff = true})
-	GUI:setTag(EquipShow_85, -1)
-	GUI:EquipShow_setAutoUpdate(EquipShow_85)
-
-	-- Create ImageView_86
-	local ImageView_86 = GUI:Image_Create(ListView_Equip, "ImageView_86", 0.00, 136.00, "res/custom/bag/equipbackground_mobile.png")
-	GUI:setTouchEnabled(ImageView_86, false)
-	GUI:setTag(ImageView_86, -1)
-
-	-- Create EquipShow_86
-	local EquipShow_86 = GUI:EquipShow_Create(ImageView_86, "EquipShow_86", 1.00, 0.00, 86, false, {look = true, movable = true, bgVisible = false, doubleTakeOff = true})
-	GUI:setTag(EquipShow_86, -1)
-	GUI:EquipShow_setAutoUpdate(EquipShow_86)
-
-	-- Create ImageView_87
-	local ImageView_87 = GUI:Image_Create(ListView_Equip, "ImageView_87", 0.00, 68.00, "res/custom/bag/equipbackground_mobile.png")
-	GUI:setTouchEnabled(ImageView_87, false)
-	GUI:setTag(ImageView_87, -1)
-
-	-- Create EquipShow_87
-	local EquipShow_87 = GUI:EquipShow_Create(ImageView_87, "EquipShow_87", 1.00, 0.00, 87, false, {look = true, movable = true, bgVisible = false, doubleTakeOff = true})
-	GUI:setTag(EquipShow_87, -1)
-	GUI:EquipShow_setAutoUpdate(EquipShow_87)
-
-	-- Create ImageView_88
-	local ImageView_88 = GUI:Image_Create(ListView_Equip, "ImageView_88", 0.00, 0.00, "res/custom/bag/equipbackground_mobile.png")
-	GUI:setTouchEnabled(ImageView_88, false)
-	GUI:setTag(ImageView_88, -1)
-
-	-- Create EquipShow_88
-	local EquipShow_88 = GUI:EquipShow_Create(ImageView_88, "EquipShow_88", 1.00, 0.00, 88, false, {look = true, movable = true, bgVisible = false, doubleTakeOff = true})
-	GUI:setTag(EquipShow_88, -1)
-	GUI:EquipShow_setAutoUpdate(EquipShow_88)
-
 	-- Create FuWuJieMian
-	local FuWuJieMian = GUI:Image_Create(Panel_1, "FuWuJieMian", 604.00, 120.00, "res/custom/bag/fuwubg.png")
+	local FuWuJieMian = GUI:Image_Create(Panel_1, "FuWuJieMian", 596.00, 30.00, "res/custom/bag/fuwubg.png")
 	GUI:setChineseName(FuWuJieMian, "服务按钮界面")
-	GUI:setAnchorPoint(FuWuJieMian, 0.00, 0.50)
 	GUI:setTouchEnabled(FuWuJieMian, false)
 	GUI:setTag(FuWuJieMian, -1)
 	GUI:setVisible(FuWuJieMian, false)
 
-	-- Create FuWuJieMian_HuoBiDuiHuan
-	local FuWuJieMian_HuoBiDuiHuan = GUI:Button_Create(FuWuJieMian, "FuWuJieMian_HuoBiDuiHuan", 14.00, 141.00, "res/custom/bag/btn_huobiduihuan.png")
-	GUI:Button_setTitleText(FuWuJieMian_HuoBiDuiHuan, "")
-	GUI:Button_setTitleColor(FuWuJieMian_HuoBiDuiHuan, "#ffffff")
-	GUI:Button_setTitleFontSize(FuWuJieMian_HuoBiDuiHuan, 14)
-	GUI:Button_titleEnableOutline(FuWuJieMian_HuoBiDuiHuan, "#000000", 1)
-	GUI:setChineseName(FuWuJieMian_HuoBiDuiHuan, "货币兑换")
-	GUI:setTouchEnabled(FuWuJieMian_HuoBiDuiHuan, true)
-	GUI:setTag(FuWuJieMian_HuoBiDuiHuan, -1)
-
-	local FuWuJieMian_feijian = GUI:Button_Create(FuWuJieMian, "FuWuJieMian_feijian", 200.00, 141.00, "res/custom/bag/btn_huobiduihuan.png")
-
+	-- Create FuWuJieMian_feijian
+	local FuWuJieMian_feijian = GUI:Button_Create(FuWuJieMian, "FuWuJieMian_feijian", 8.00, 70.00, "res/custom/bag/btn_feijiankaiguan.png")
+	GUI:Button_setTitleText(FuWuJieMian_feijian, "")
+	GUI:Button_setTitleColor(FuWuJieMian_feijian, "#ffffff")
+	GUI:Button_setTitleFontSize(FuWuJieMian_feijian, 10)
+	GUI:Button_titleEnableOutline(FuWuJieMian_feijian, "#000000", 1)
+	GUI:Win_SetParam(FuWuJieMian_feijian, {grey = 1}, "Button")
+	GUI:setTouchEnabled(FuWuJieMian_feijian, true)
+	GUI:setTag(FuWuJieMian_feijian, -1)
 
 	-- Create FuWuJieMian_WuPinXiaoHui
-	local FuWuJieMian_WuPinXiaoHui = GUI:Button_Create(FuWuJieMian, "FuWuJieMian_WuPinXiaoHui", 14.00, 80.00, "res/custom/bag/btn_wupinxiaohyui.png")
+	local FuWuJieMian_WuPinXiaoHui = GUI:Button_Create(FuWuJieMian, "FuWuJieMian_WuPinXiaoHui", 8.00, 120.00, "res/custom/bag/btn_wupinxiaohyui.png")
 	GUI:Button_setTitleText(FuWuJieMian_WuPinXiaoHui, "")
 	GUI:Button_setTitleColor(FuWuJieMian_WuPinXiaoHui, "#ffffff")
 	GUI:Button_setTitleFontSize(FuWuJieMian_WuPinXiaoHui, 14)
 	GUI:Button_titleEnableOutline(FuWuJieMian_WuPinXiaoHui, "#000000", 1)
+	GUI:Win_SetParam(FuWuJieMian_WuPinXiaoHui, {grey = 1}, "Button")
 	GUI:setChineseName(FuWuJieMian_WuPinXiaoHui, "物品销毁")
 	GUI:setTouchEnabled(FuWuJieMian_WuPinXiaoHui, true)
 	GUI:setTag(FuWuJieMian_WuPinXiaoHui, -1)
 
 	-- Create FuWuJieMian_PingBiXiaoXi
-	local FuWuJieMian_PingBiXiaoXi = GUI:Button_Create(FuWuJieMian, "FuWuJieMian_PingBiXiaoXi", 14.00, 19.00, "res/custom/bag/btn_pingbixiaoxi.png")
+	local FuWuJieMian_PingBiXiaoXi = GUI:Button_Create(FuWuJieMian, "FuWuJieMian_PingBiXiaoXi", 8.00, 20.00, "res/custom/bag/btn_pingbixiaoxi.png")
 	GUI:Button_setTitleText(FuWuJieMian_PingBiXiaoXi, "")
 	GUI:Button_setTitleColor(FuWuJieMian_PingBiXiaoXi, "#ffffff")
 	GUI:Button_setTitleFontSize(FuWuJieMian_PingBiXiaoXi, 14)
 	GUI:Button_titleEnableOutline(FuWuJieMian_PingBiXiaoXi, "#000000", 1)
+	GUI:Win_SetParam(FuWuJieMian_PingBiXiaoXi, {grey = 1}, "Button")
 	GUI:setChineseName(FuWuJieMian_PingBiXiaoXi, "屏蔽消息")
 	GUI:setTouchEnabled(FuWuJieMian_PingBiXiaoXi, true)
 	GUI:setTag(FuWuJieMian_PingBiXiaoXi, -1)
 end
+
 return ui

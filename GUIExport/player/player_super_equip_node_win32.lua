@@ -12,13 +12,6 @@ function ui.init(parent)
 	GUI:setTouchEnabled(Panel_1, false)
 	GUI:setTag(Panel_1, 137)
 
-	-- Create Image_equippanel
-	local Image_equippanel = GUI:Image_Create(Panel_1, "Image_equippanel", 187.00, 196.00, "res/private/player_main_layer_ui/player_main_layer_ui_win32/1900015001_2.png")
-	GUI:setChineseName(Image_equippanel, "玩家时装_背景图")
-	GUI:setAnchorPoint(Image_equippanel, 0.50, 0.50)
-	GUI:setTouchEnabled(Image_equippanel, false)
-	GUI:setTag(Image_equippanel, 62)
-
 	-- Create Node_playerModel
 	local Node_playerModel = GUI:Node_Create(Panel_1, "Node_playerModel", 192.00, 213.00)
 	GUI:setChineseName(Node_playerModel, "玩家时装_裸模位置")

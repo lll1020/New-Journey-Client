@@ -16,13 +16,6 @@ function ui.init(parent)
 	GUI:setTag(EquipShow_89, -1)
 	GUI:EquipShow_setAutoUpdate(EquipShow_89)
 
-	-- Create Image_20
-	local Image_20 = GUI:Image_Create(Panel_1, "Image_20", 175.00, 238.00, "res/private/player_main_layer_ui/player_main_layer_ui_mobile/bg_juese_03.png")
-	GUI:setChineseName(Image_20, "玩家装备_背景图")
-	GUI:setAnchorPoint(Image_20, 0.50, 0.50)
-	GUI:setTouchEnabled(Image_20, false)
-	GUI:setTag(Image_20, 213)
-
 	-- Create Node_playerModel
 	local Node_playerModel = GUI:Node_Create(Panel_1, "Node_playerModel", 175.00, 258.00)
 	GUI:setChineseName(Node_playerModel, "玩家装备_裸模")

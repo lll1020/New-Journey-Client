@@ -39,11 +39,13 @@ function Bag.main(page)
     -- 适配
     GUI:setPositionY(Bag._ui["Panel_1"], isWin32 and SL:GetMetaValue("PC_POS_Y") or SL:GetMetaValue("SCREEN_HEIGHT") / 2)
 
-    -- 界面拖动
+    -- -- 界面拖动
     GUI:Win_SetDrag(parent, Bag._ui["Image_bg"])
 
     -- 界面浮起
     GUI:Win_SetZPanel(parent, Bag._ui["Image_bg"])
+    GUI:Win_SetZPanel(parent, Bag._ui["Button_close"])
+    GUI:setLocalZOrder(Bag._ui["Button_close"], 99)
 
     GUI:Win_SetZPanel(parent, Bag._ui["ImageXiaoHui"])
 
@@ -77,12 +79,12 @@ function Bag.main(page)
     end)
 
         --货币兑换
-    GUI:addOnClickEvent(Bag._ui["FuWuJieMian_HuoBiDuiHuan"], function()
+    GUI:addOnClickEvent(Bag._ui["duihuanbtn"], function()
         SL:SendLuaNetMsg(105, 17, 17, 0, "")
         SL:CloseBagUI()
     end)
 
-    --货币兑换
+    --飞剑服务界面
     GUI:addOnClickEvent(Bag._ui["FuWuJieMian_feijian"], function()
         SL:SendLuaNetMsg(101, 19, 0, 0, "")
         SL:CloseBagUI()
@@ -115,10 +117,6 @@ function Bag.main(page)
             GUI:removeChildByName(Bag._ui["ImageXiaoHui"], "itemBox")
         end
         GUI:setVisible(Bag._ui["ImageXiaoHui"], not isShow)
-    end)
-    --销毁关闭
-    GUI:addOnClickEvent(Bag._ui["Button_XiaoHuiClose"], function()
-        Bag.itemBoxClose()
     end)
     --
     --
@@ -164,8 +162,6 @@ function Bag.main(page)
         GUI:Button_setGrey(Button_store_hero_bag, changeStoreMode)
     end)
     GUI:setVisible(Button_store_hero_bag, SL:GetMetaValue("USEHERO"))
-    --加载新加的背包神器
-    Bag.NewShenQi()
     -- 初始化左侧背包页签
     Bag.InitPage()
 
@@ -176,35 +172,6 @@ function Bag.main(page)
     Bag.RegisterEvent()
 end
 
---加载新加的背包神器
-Bag.shenQiPos = {90,91,92,93,94,95,96,97,98,99}
-function Bag.NewShenQi()
-    local num = 0
-    local imgBgPath = ""
-    local EquipShowPosition = {
-
-    }
-    if ssrConstCfg.isPc then
-        imgBgPath = "res/custom/bag/equipbackground_kuo.png"
-        EquipShowPosition.x = -9
-        EquipShowPosition.y = -9
-    else
-        imgBgPath = "res/custom/bag/equipbackground_kuo_mobile.png"
-        EquipShowPosition.x = 0
-        EquipShowPosition.y = 0
-    end
-    for i = 1, num do
-        local where = Bag.shenQiPos[i]
-        local ImageView = GUI:Image_Create(Bag._ui["ListView_Equip"], "ImageView_"..where, 0.00, 506.00, imgBgPath)
-        GUI:setTouchEnabled(ImageView, false)
-        GUI:setTag(ImageView, -1)
-
-        local EquipShow = GUI:EquipShow_Create(ImageView, "EquipShow_"..where, EquipShowPosition.x, EquipShowPosition.x, where, false, {look = true, movable = true, bgVisible = false, doubleTakeOff = true})
-        GUI:setTag(EquipShow, -1)
-        GUI:EquipShow_setAutoUpdate(EquipShow)
-    end
-
-end
 
 function Bag.itemBoxClose()
     local isShow = GUI:getVisible(Bag._ui["ImageXiaoHui"])

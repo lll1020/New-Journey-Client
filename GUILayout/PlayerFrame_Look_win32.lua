@@ -119,22 +119,12 @@ function PlayerFrame_Look.ChangePage(data)
     GUI:setLocalZOrder(btnLastPage, 0)
     GUI:setTouchEnabled(btnLastPage, true)
     GUI:Button_setBright(btnLastPage, true)
-    --local textLastName = GUI:getChildByName(btnLastPage, "Text_name")
-    --GUI:Text_setTextColor(textLastName, "#807256")
-    local nameImage = GUI:getChildByName(btnLastPage, "Image_name")
-    GUI:Image_setGrey(nameImage, true)
-
-
 
 
     local btnNowPage = GUI:getChildByName(btnList, "Button_" .. PlayerFrame_Look._pageid)
     GUI:setLocalZOrder(btnNowPage, 1)
     GUI:setTouchEnabled(btnNowPage, false)
     GUI:Button_setBright(btnNowPage, false)
-    --local textNowName = GUI:getChildByName(btnNowPage, "Text_name")
-    --GUI:Text_setTextColor(textNowName, "#e6e7a7")
-    local nameImage = GUI:getChildByName(btnNowPage, "Image_name")
-    GUI:Image_setGrey(nameImage, false)
 
     if not data.init then
         SL:CloseOtherPlayerPageUI(PlayerFrame_Look._lastPageid)

@@ -2,7 +2,9 @@
 --npc功能：
 local npc = {}
 
-npc._config = {}
+npc._config = {
+     rwjl = {{"仙草种子",9},{"元宝",200000}},
+}
 
 function npc.main(npcid, p2, p3, msgData)
 
@@ -17,6 +19,9 @@ function npc.main(npcid, p2, p3, msgData)
                         "<font color='#00FF00' size='20' >领取任务 共计击杀200只怪物，当前击杀："..(npc.data.sg_data.npc55 or 0).."</font>"
                 , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
         , 0, 1)
+        --显示奖励
+        local rwjl_show = ItemNumByTable_img(npc._config.rwjl, nil,GUI:Node_Create(node, "rwjl", 0, 0))
+        GUI:setPosition(rwjl_show, 750, 350)
 
 
         local Button= GUI:Button_Create(node, "Button", 750, 100.00, "res/public/1900000660.png")

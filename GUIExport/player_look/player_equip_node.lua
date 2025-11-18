@@ -11,12 +11,6 @@ function ui.init(parent)
 	GUI:setTouchEnabled(Panel_1, false)
 	GUI:setTag(Panel_1, 31)
 
-	-- Create Image_20
-	local Image_20 = GUI:Image_Create(Panel_1, "Image_20", 175.00, 238.00, "res/private/player_main_layer_ui/player_main_layer_ui_mobile/bg_juese_03.png")
-	GUI:setChineseName(Image_20, "玩家装备_背景图")
-	GUI:setAnchorPoint(Image_20, 0.50, 0.50)
-	GUI:setTouchEnabled(Image_20, false)
-	GUI:setTag(Image_20, 213)
 
 	-- Create Node_playerModel
 	local Node_playerModel = GUI:Node_Create(Panel_1, "Node_playerModel", 174.00, 252.00)

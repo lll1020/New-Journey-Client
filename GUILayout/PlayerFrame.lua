@@ -214,8 +214,6 @@ function PlayerFrame.RefreshBtnState()
         GUI:setLocalZOrder(child, isSelected and 1 or 0)
         GUI:setTouchEnabled(child, not isSelected)
         GUI:Button_setBright(child, not isSelected)
-        local Image_name = GUI:getChildByName(child, "Image_name")
-        GUI:Image_setGrey(Image_name, not isSelected)
     end
 end
 

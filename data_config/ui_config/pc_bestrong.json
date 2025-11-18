@@ -1,1 +1,1 @@
-{"#Node#Button_up":{"visible":1,"offsetx":-41,"offsety":-185,"height":59,"width":59},"#Node#Panel_bg":{"visible":0,"offsetx":-38,"offsety":-186,"height":207,"width":130}}
+{"#Node#Panel_bg":{"visible":0,"width":130,"height":207,"offsetx":-38,"offsety":-186},"#Node#Button_up":{"visible":1,"width":59,"height":59,"offsetx":-41,"offsety":-185}}

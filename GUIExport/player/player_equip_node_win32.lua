@@ -16,13 +16,6 @@ function ui.init(parent)
 	GUI:setTag(EquipShow_89, -1)
 	GUI:EquipShow_setAutoUpdate(EquipShow_89)
 
-	-- Create Image_equippanel
-	local Image_equippanel = GUI:Image_Create(Panel_1, "Image_equippanel", 170.00, 173.00, "res/private/player_main_layer_ui/player_main_layer_ui_win32/1900015001_1.png")
-	GUI:setChineseName(Image_equippanel, "玩家装备_背景图")
-	GUI:setAnchorPoint(Image_equippanel, 0.50, 0.50)
-	GUI:setTouchEnabled(Image_equippanel, false)
-	GUI:setTag(Image_equippanel, 62)
-
 	-- Create Node_playerModel
 	local Node_playerModel = GUI:Node_Create(Panel_1, "Node_playerModel", 175.00, 213.00)
 	GUI:setChineseName(Node_playerModel, "玩家装备_裸模")

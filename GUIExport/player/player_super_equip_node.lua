@@ -11,14 +11,7 @@ function ui.init(parent)
 	GUI:setChineseName(Panel_1, "玩家时装_组合")
 	GUI:setTouchEnabled(Panel_1, false)
 	GUI:setTag(Panel_1, 31)
-
-	-- Create Image_20
-	local Image_20 = GUI:Image_Create(Panel_1, "Image_20", 174.00, 239.00, "res/private/player_main_layer_ui/player_main_layer_ui_mobile/bg_juese_03_1.png")
-	GUI:setChineseName(Image_20, "玩家时装_背景图")
-	GUI:setAnchorPoint(Image_20, 0.50, 0.50)
-	GUI:setTouchEnabled(Image_20, false)
-	GUI:setTag(Image_20, 213)
-
+	
 	-- Create Panel_pos17
 	local Panel_pos17 = GUI:Layout_Create(Panel_1, "Panel_pos17", 175.00, 236.00, 180.00, 240.00, false)
 	GUI:setChineseName(Panel_pos17, "玩家时装_衣服位置")
