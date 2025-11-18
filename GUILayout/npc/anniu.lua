@@ -376,12 +376,21 @@ end
 npc[2] = function(p2, p3, msgData) -- 回收面板
     if p2 == 2 then
         local shuju = SL:JsonDecode(msgData,false)
-        local parent = GUI:GetWindow(nil, "npc_huishou")
-        if parent then
-            GUI:removeAllChildren(parent)
-        else
-            parent = GUI:Win_Create("npc_huishou",cogin.w/2, cogin.h/2,0,0,false,false,false,true,true,0,1)
+        shuju.xz = shuju.xz or {}
+
+        -- 工具：重用/创建指定窗口，避免重复的 Win_Create
+        local function ensureWindow(name, createFn)
+            local win = GUI:GetWindow(nil, name)
+            if win then
+                GUI:removeAllChildren(win)
+                return win
+            end
+            return createFn()
         end
+
+        local parent = ensureWindow("npc_huishou", function()
+            return GUI:Win_Create("npc_huishou",cogin.w/2, cogin.h/2,0,0,false,false,false,true,true,0,1)
+        end)
         -- local bjt = GUI:Image_Create(parent, "bjt", 0, 0, "res/public/1900000651_1.png")
         -- GUI:setAnchorPoint(bjt, 0.5, 0.5)
         -- GUI:setContentSize(bjt, cogin.w + 100, cogin.h + 100)
@@ -404,93 +413,104 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
             GUI:Win_Close(parent)
         end)
 
-        function xiaohui_update()
-            GUI:removeAllChildren(npc.bbzs)
-            local bbitme = {}
-            local item = SL:GetMetaValue("BAG_DATA")
-            npc.hs = {}
-            local h = 0
-            local i = 1
-            local ii = 1
-            local inRecycle = {}  -- 用于记录物品是否在回收列表中
-            local huishou_jc_list = cogin.huishou_jc_list
+        -- 工具：同步勾选状态到服务器并记录本地表
+        local function syncSelection(key, isSelected)
+            shuju.xz[key] = isSelected and 1 or nil
+            SL:SendLuaNetMsg(101, 2, 2, 0, key)
+        end
 
-            for k, v in pairs(item) do
-                if i > 12*h then
-                    h = h + 1
-                    bbitme["h"..h] = GUI:Layout_Create(npc.bbzs, "h"..h, 0, 0, 500, 41 ,false)
-                end
-                if huishou_jc_list[v.Index] then
-                    -- 闭包函数捕获当前的索引 i
-                    local currentI = k
-                    bbitme["kuang"..i] = GUI:Image_Create(bbitme["h"..h], "kuang"..i, ((((i-1)%12))*41)+4, 0, "res/wy/public/40-40.png")
-                    bbitme["l"..currentI] = GUI:ItemShow_Create(bbitme["kuang"..i], "item"..i, 20, 20, {itemData = v, count = v.Count, look = true, bgVisible = false})
-                    if cogin.isWin32 then
-                    else
-                        GUI:setScale(bbitme["l"..currentI], 0.7)
-                    end
-                    GUI:setAnchorPoint(bbitme["l"..currentI], 0.5, 0.5)
-                    GUI:setTouchEnabled(bbitme["kuang"..i], true)
-                    GUI:addOnClickEvent(bbitme["kuang"..i], function()
-                        if inRecycle[currentI] then
-                            -- 在回收列表里,移除
-                            GUI:ItemShow_setItemShowChooseState(bbitme["l"..currentI], false)
-                            -- 从回收表中移除当前索引
-                            for idx = #npc.hs, 1, -1 do
-                                if npc.hs[idx] == currentI then
-                                    table.remove(npc.hs, idx)
-                                    break
-                                end
-                            end
-                            inRecycle[currentI] = false  -- 更新标记为不在回收列表中
-                        else
-                            -- 不在回收列表里,添加
-                            GUI:ItemShow_setItemShowChooseState(bbitme["l"..currentI], true)
-                            table.insert(npc.hs, currentI)
-                            ii = ii + 1
-                            inRecycle[currentI] = true  -- 更新标记为在回收列表中
-                        end
-                    end)
-                    GUI:ItemShow_addReplaceClickEvent(bbitme["l"..currentI], function(self)
-                        if inRecycle[currentI] then
-                            -- 在回收列表里,移除
-                            GUI:ItemShow_setItemShowChooseState(bbitme["l"..currentI], false)
-                            -- 从回收表中移除当前索引
-                            for idx = #npc.hs, 1, -1 do
-                                if npc.hs[idx] == currentI then
-                                    table.remove(npc.hs, idx)
-                                    break
-                                end
-                            end
-                            inRecycle[currentI] = false  -- 更新标记为不在回收列表中
-                        else
-                            -- 不在回收列表里,添加
-                            GUI:ItemShow_setItemShowChooseState(bbitme["l"..currentI], true)
-                            table.insert(npc.hs, currentI)
-                            ii = ii + 1
-                            inRecycle[currentI] = true  -- 更新标记为在回收列表中
-                        end
-                    end)
-                    -- 初始化时根据条件判断是否在回收列表中
-                    if (huishou_jc_list[v.Index].gl and huishou_jc_list[v.Index].gl == 1 and
-                            (shuju.xz["1_"..huishou_jc_list[v.Index][1]] or shuju.xz["1_"..huishou_jc_list[v.Index][1].."_"..huishou_jc_list[v.Index][2]])) or
-                            (huishou_jc_list[v.Index].gl and huishou_jc_list[v.Index].gl == 2 and shuju.xz["2_"..huishou_jc_list[v.Index][1]]) or
-                            (huishou_jc_list[v.Index].gl and huishou_jc_list[v.Index].gl == 3 and shuju.xz["3_"..huishou_jc_list[v.Index][1]]) or
-                            (huishou_jc_list[v.Index].gl and huishou_jc_list[v.Index].gl == 4 and
-                                    (shuju.xz["4_"..huishou_jc_list[v.Index][1]] or shuju.xz["4_"..huishou_jc_list[v.Index][1].."_"..huishou_jc_list[v.Index][2]])) or
-                            (shuju.xz[""..v.Index]) then
-
-                        inRecycle[k] = true  -- 将索引 i 标记为在回收列表中
-                        table.insert(npc.hs, k)
-                        GUI:ItemShow_setItemShowChooseState(bbitme["l"..currentI], true)  -- 设置选中状态
-                    else
-                        inRecycle[k] = false  -- 将索引 i 标记为不在回收列表中
-                    end
-                    i = i + 1
-                end
+        -- 工具：如果父级/分组处于选中，则清除并通知服务器
+        local function clearSelectionIfNeeded(key)
+            if key and shuju.xz[key] and shuju.xz[key] == 1 then
+                syncSelection(key, false)
             end
         end
 
+
+        -- 列表刷新：根据背包数据生成回收选择槽
+        function xiaohui_update()
+            GUI:removeAllChildren(npc.bbzs)
+            local rowLayouts = {}
+            local bagItems = SL:GetMetaValue("BAG_DATA")
+            npc.hs = {}
+            local rowIndex = 0
+            local slotIndex = 1
+            local inRecycle = {}
+            local itemWidgets = {}
+            local huishou_jc_list = cogin.huishou_jc_list
+
+            -- 移除指定道具索引，保持 npc.hs 与 UI 状态一致
+            local function removeFromRecycleList(index)
+                for idx = #npc.hs, 1, -1 do
+                    if npc.hs[idx] == index then
+                        table.remove(npc.hs, idx)
+                        break
+                    end
+                end
+            end
+
+            -- 设置道具选中/取消状态，同时驱动高亮
+            local function setRecycleSelection(index, shouldSelect)
+                local widget = itemWidgets[index]
+                if not widget then
+                    return
+                end
+                GUI:ItemShow_setItemShowChooseState(widget, shouldSelect)
+                if shouldSelect then
+                    if not inRecycle[index] then
+                        table.insert(npc.hs, index)
+                    end
+                    inRecycle[index] = true
+                else
+                    if inRecycle[index] then
+                        removeFromRecycleList(index)
+                    end
+                    inRecycle[index] = false
+                end
+            end
+
+            local function toggleRecycleSelection(index)
+                setRecycleSelection(index, not inRecycle[index])
+            end
+
+            for bagIndex, bagItem in pairs(bagItems) do
+                if slotIndex > 12 * rowIndex then
+                    rowIndex = rowIndex + 1
+                    rowLayouts[rowIndex] = GUI:Layout_Create(npc.bbzs, "h" .. rowIndex, 0, 0, 500, 41 ,false)
+                end
+                local config = huishou_jc_list[bagItem.Index]
+                if config then
+                    local slot = GUI:Image_Create(rowLayouts[rowIndex], "kuang" .. slotIndex, ((((slotIndex - 1) % 12)) * 41) + 4, 0, "res/wy/public/40-40.png")
+                    local itemShow = GUI:ItemShow_Create(slot, "item" .. slotIndex, 20, 20, {itemData = bagItem, count = bagItem.Count, look = true, bgVisible = false})
+                    if not cogin.isWin32 then
+                        GUI:setScale(itemShow, 0.7)
+                    end
+                    GUI:setAnchorPoint(itemShow, 0.5, 0.5)
+                    GUI:setTouchEnabled(slot, true)
+
+                    itemWidgets[bagIndex] = itemShow
+                    inRecycle[bagIndex] = false
+
+                    GUI:addOnClickEvent(slot, function()
+                        toggleRecycleSelection(bagIndex)
+                    end)
+                    GUI:ItemShow_addReplaceClickEvent(itemShow, function()
+                        toggleRecycleSelection(bagIndex)
+                    end)
+
+                    local shouldSelect = (config.gl == 1 and (shuju.xz["1_" .. config[1]] or shuju.xz["1_" .. config[1] .. "_" .. config[2]]))
+                        or (config.gl == 2 and shuju.xz["2_" .. config[1]])
+                        or (config.gl == 3 and shuju.xz["3_" .. config[1]])
+                        or (config.gl == 4 and (shuju.xz["4_" .. config[1]] or shuju.xz["4_" .. config[1] .. "_" .. config[2]]))
+                        or shuju.xz["" .. bagItem.Index]
+
+                    if shouldSelect then
+                        setRecycleSelection(bagIndex, true)
+                    end
+                    slotIndex = slotIndex + 1
+                end
+            end
+        end
 
         local jm_node = GUI:Node_Create(npc.bg, 'node',0,0)
 
@@ -499,6 +519,7 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
         GUI:ListView_setGravity(l_list, 2)
 
 
+        -- 刷新分类区域（左侧标签 + 右侧选项）并重置悬浮窗口
         local function new_hs_update()
             GUI:removeAllChildren(jm_node)
             local xjm_parent = GUI:GetWindow(nil, "hs_xjm")
@@ -519,11 +540,10 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                             local s_s_CheckBox = GUI:CheckBox_Create(s_s_btn, "CheckBox",GUI:getContentSize(s_s_btn).width - 40, 3, "res/wy/public/new_check_0.png", "res/wy/public/new_check_1.png")
                             GUI:CheckBox_setSelected(s_s_CheckBox, (shuju.xz[npc.s.."_"..v] and shuju.xz[npc.s.."_"..v] == 1) or (shuju.xz[npc.s.."_"..v.."_"..vv] and shuju.xz[npc.s.."_"..v.."_"..vv] == 1))
                             GUI:CheckBox_addOnEvent(s_s_CheckBox, function(self)
-                                shuju.xz[npc.s.."_"..v.."_"..vv] = GUI:CheckBox_isSelected(self) and 1 or nil
-                                SL:SendLuaNetMsg(101, 2, 2, 0, npc.s.."_"..v.."_"..vv)
-                                if shuju.xz[npc.s.."_"..v] and shuju.xz[npc.s.."_"..v] == 1 then
-                                    shuju.xz[npc.s.."_"..v] = nil
-                                    SL:SendLuaNetMsg(101, 2, 2, 0, npc.s.."_"..v)
+                                local selected = GUI:CheckBox_isSelected(self)
+                                syncSelection(npc.s.."_"..v.."_"..vv, selected)
+                                if selected then
+                                    clearSelectionIfNeeded(npc.s.."_"..v)
                                 end
                             end)
                             local s_s_wz = GUI:Text_Create(s_s_btn, "wz", 70, 17, 17, "#44DDFF", kk.name)
@@ -558,16 +578,9 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                                             local s_s_s_CheckBox = GUI:CheckBox_Create(s_s_s_btn, "CheckBox",GUI:getContentSize(s_s_s_btn).width - 40, 3, "res/wy/public/new_check_0.png", "res/wy/public/new_check_1.png")
                                             GUI:CheckBox_setSelected(s_s_s_CheckBox, (shuju.xz[npc.s.."_"..v] and shuju.xz[npc.s.."_"..v] == 1) or (shuju.xz[npc.s.."_"..v.."_"..vv] and shuju.xz[npc.s.."_"..v.."_"..vv] == 1) or (shuju.xz[""..vvv] and shuju.xz[""..vvv] == 1))
                                             GUI:CheckBox_addOnEvent(s_s_s_CheckBox, function(self)
-                                                shuju.xz[""..vvv] = GUI:CheckBox_isSelected(self) and 1 or nil
-                                                SL:SendLuaNetMsg(101, 2, 2, 0, vvv)
-                                                if shuju.xz[npc.s.."_"..v] and shuju.xz[npc.s.."_"..v] == 1 then
-                                                    shuju.xz[npc.s.."_"..v] = nil
-                                                    SL:SendLuaNetMsg(101, 2, 2, 0, npc.s.."_"..v)
-                                                end
-                                                if shuju.xz[npc.s.."_"..v.."_"..vv] and shuju.xz[npc.s.."_"..v.."_"..vv] == 1 then
-                                                    shuju.xz[npc.s.."_"..v.."_"..vv] = nil
-                                                    SL:SendLuaNetMsg(101, 2, 2, 0, npc.s.."_"..v.."_"..vv)
-                                                end
+                                                syncSelection(""..vvv, GUI:CheckBox_isSelected(self))
+                                                clearSelectionIfNeeded(npc.s.."_"..v)
+                                                clearSelectionIfNeeded(npc.s.."_"..v.."_"..vv)
                                             end)
                                             local s_s_s_wz = GUI:RichText_Create(s_s_s_btn, "s_s_s_wz", 77, 17,  "<a href='jump#item_tips#"..vvv.."'>"..kkk[3].."</a>", 500, 17, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
                                             GUI:setAnchorPoint(s_s_s_wz, 0.5, 0.5)
@@ -605,16 +618,9 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                                             local s_s_s_CheckBox = GUI:CheckBox_Create(s_s_s_btn, "CheckBox",GUI:getContentSize(s_s_s_btn).width - 40, 3, "res/wy/public/new_check_0.png", "res/wy/public/new_check_1.png")
                                             GUI:CheckBox_setSelected(s_s_s_CheckBox, (shuju.xz[npc.s.."_"..v] and shuju.xz[npc.s.."_"..v] == 1) or (shuju.xz[npc.s.."_"..v.."_"..vv] and shuju.xz[npc.s.."_"..v.."_"..vv] == 1) or (shuju.xz[""..vvv] and shuju.xz[""..vvv] == 1))
                                             GUI:CheckBox_addOnEvent(s_s_s_CheckBox, function(self)
-                                                shuju.xz[""..vvv] = GUI:CheckBox_isSelected(self) and 1 or nil
-                                                SL:SendLuaNetMsg(101, 2, 2, 0, vvv)
-                                                if shuju.xz[npc.s.."_"..v] and shuju.xz[npc.s.."_"..v] == 1 then
-                                                    shuju.xz[npc.s.."_"..v] = nil
-                                                    SL:SendLuaNetMsg(101, 2, 2, 0, npc.s.."_"..v)
-                                                end
-                                                if shuju.xz[npc.s.."_"..v.."_"..vv] and shuju.xz[npc.s.."_"..v.."_"..vv] == 1 then
-                                                    shuju.xz[npc.s.."_"..v.."_"..vv] = nil
-                                                    SL:SendLuaNetMsg(101, 2, 2, 0, npc.s.."_"..v.."_"..vv)
-                                                end
+                                                syncSelection(""..vvv, GUI:CheckBox_isSelected(self))
+                                                clearSelectionIfNeeded(npc.s.."_"..v)
+                                                clearSelectionIfNeeded(npc.s.."_"..v.."_"..vv)
                                             end)
                                             local s_s_s_wz = GUI:RichText_Create(s_s_s_btn, "s_s_s_wz", 77, 17,  "<a href='jump#item_tips#"..vvv.."'>"..kkk[3].."</a>", 500, 17, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
                                             GUI:setAnchorPoint(s_s_s_wz, 0.5, 0.5)
@@ -645,12 +651,8 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                             local s_s_CheckBox = GUI:CheckBox_Create(s_s_btn, "CheckBox",GUI:getContentSize(s_s_btn).width - 40, 3, "res/wy/public/new_check_0.png", "res/wy/public/new_check_1.png")
                             GUI:CheckBox_setSelected(s_s_CheckBox, (shuju.xz[npc.s.."_"..v] and shuju.xz[npc.s.."_"..v] == 1) or (shuju.xz[npc.s.."_"..v.."_"..vv] and shuju.xz[npc.s.."_"..v.."_"..vv] == 1))
                             GUI:CheckBox_addOnEvent(s_s_CheckBox, function(self)
-                                shuju.xz[npc.s.."_"..v.."_"..vv] = GUI:CheckBox_isSelected(self) and 1 or nil
-                                SL:SendLuaNetMsg(101, 2, 2, 0, npc.s.."_"..v.."_"..vv)
-                                if shuju.xz[npc.s.."_"..v] and shuju.xz[npc.s.."_"..v] == 1 then
-                                    shuju.xz[npc.s.."_"..v] = nil
-                                    SL:SendLuaNetMsg(101, 2, 2, 0, npc.s.."_"..v)
-                                end
+                                syncSelection(npc.s.."_"..v.."_"..vv, GUI:CheckBox_isSelected(self))
+                                clearSelectionIfNeeded(npc.s.."_"..v)
                             end)
                             local s_s_wz = GUI:Text_Create(s_s_btn, "wz", 70, 17, 17, "#44DDFF", kk.name)
                             GUI:setAnchorPoint(s_s_wz, 0.5, 0.5)
@@ -684,16 +686,9 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                                             local s_s_s_CheckBox = GUI:CheckBox_Create(s_s_s_btn, "CheckBox",GUI:getContentSize(s_s_s_btn).width - 40, 3, "res/wy/public/new_check_0.png", "res/wy/public/new_check_1.png")
                                             GUI:CheckBox_setSelected(s_s_s_CheckBox, (shuju.xz[npc.s.."_"..v] and shuju.xz[npc.s.."_"..v] == 1) or (shuju.xz[npc.s.."_"..v.."_"..vv] and shuju.xz[npc.s.."_"..v.."_"..vv] == 1) or (shuju.xz[""..vvv] and shuju.xz[""..vvv] == 1))
                                             GUI:CheckBox_addOnEvent(s_s_s_CheckBox, function(self)
-                                                shuju.xz[""..vvv] = GUI:CheckBox_isSelected(self) and 1 or nil
-                                                SL:SendLuaNetMsg(101, 2, 2, 0, vvv)
-                                                if shuju.xz[npc.s.."_"..v] and shuju.xz[npc.s.."_"..v] == 1 then
-                                                    shuju.xz[npc.s.."_"..v] = nil
-                                                    SL:SendLuaNetMsg(101, 2, 2, 0, npc.s.."_"..v)
-                                                end
-                                                if shuju.xz[npc.s.."_"..v.."_"..vv] and shuju.xz[npc.s.."_"..v.."_"..vv] == 1 then
-                                                    shuju.xz[npc.s.."_"..v.."_"..vv] = nil
-                                                    SL:SendLuaNetMsg(101, 2, 2, 0, npc.s.."_"..v.."_"..vv)
-                                                end
+                                                syncSelection(""..vvv, GUI:CheckBox_isSelected(self))
+                                                clearSelectionIfNeeded(npc.s.."_"..v)
+                                                clearSelectionIfNeeded(npc.s.."_"..v.."_"..vv)
                                             end)
                                             local s_s_s_wz = GUI:RichText_Create(s_s_s_btn, "s_s_s_wz", 77, 17,  "<a href='jump#item_tips#"..vvv.."'>"..kkk[3].."</a>", 500, 17, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
                                             GUI:setAnchorPoint(s_s_s_wz, 0.5, 0.5)
@@ -731,16 +726,9 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                                             local s_s_s_CheckBox = GUI:CheckBox_Create(s_s_s_btn, "CheckBox",GUI:getContentSize(s_s_s_btn).width - 40, 3, "res/wy/public/new_check_0.png", "res/wy/public/new_check_1.png")
                                             GUI:CheckBox_setSelected(s_s_s_CheckBox, (shuju.xz[npc.s.."_"..v] and shuju.xz[npc.s.."_"..v] == 1) or (shuju.xz[npc.s.."_"..v.."_"..vv] and shuju.xz[npc.s.."_"..v.."_"..vv] == 1) or (shuju.xz[""..vvv] and shuju.xz[""..vvv] == 1))
                                             GUI:CheckBox_addOnEvent(s_s_s_CheckBox, function(self)
-                                                shuju.xz[""..vvv] = GUI:CheckBox_isSelected(self) and 1 or nil
-                                                SL:SendLuaNetMsg(101, 2, 2, 0, vvv)
-                                                if shuju.xz[npc.s.."_"..v] and shuju.xz[npc.s.."_"..v] == 1 then
-                                                    shuju.xz[npc.s.."_"..v] = nil
-                                                    SL:SendLuaNetMsg(101, 2, 2, 0, npc.s.."_"..v)
-                                                end
-                                                if shuju.xz[npc.s.."_"..v.."_"..vv] and shuju.xz[npc.s.."_"..v.."_"..vv] == 1 then
-                                                    shuju.xz[npc.s.."_"..v.."_"..vv] = nil
-                                                    SL:SendLuaNetMsg(101, 2, 2, 0, npc.s.."_"..v.."_"..vv)
-                                                end
+                                                syncSelection(""..vvv, GUI:CheckBox_isSelected(self))
+                                                clearSelectionIfNeeded(npc.s.."_"..v)
+                                                clearSelectionIfNeeded(npc.s.."_"..v.."_"..vv)
                                             end)
                                             local s_s_s_wz = GUI:RichText_Create(s_s_s_btn, "s_s_s_wz", 77, 17,  "<a href='jump#item_tips#"..vvv.."'>"..kkk[3].."</a>", 500, 17, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
                                             GUI:setAnchorPoint(s_s_s_wz, 0.5, 0.5)
@@ -772,12 +760,7 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                         local CheckBox = GUI:CheckBox_Create(btn, "CheckBox",GUI:getContentSize(btn).width - 40, 3, "res/wy/public/new_check_0.png", "res/wy/public/new_check_1.png")
                         GUI:CheckBox_setSelected(CheckBox, shuju.xz[npc.s.."_"..v] and shuju.xz[npc.s.."_"..v] == 1)
                         GUI:CheckBox_addOnEvent(CheckBox, function(self)
-                            if shuju.xz[npc.s.."_"..v] and shuju.xz[npc.s.."_"..v] == 1 then
-                                shuju.xz[npc.s.."_"..v] = nil
-                            else
-                                shuju.xz[npc.s.."_"..v] = 1
-                            end
-                            SL:SendLuaNetMsg(101, 2, 2, 0, npc.s.."_"..v)
+                            syncSelection(npc.s.."_"..v, GUI:CheckBox_isSelected(self))
                             new_hs_update()
                         end)
                         if npc.s_s == v or true then
@@ -792,12 +775,8 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                                 local s_s_CheckBox = GUI:CheckBox_Create(s_s_btn, "CheckBox",GUI:getContentSize(btn).width - 40, 3, "res/wy/public/new_check_0.png", "res/wy/public/new_check_1.png")
                                 GUI:CheckBox_setSelected(s_s_CheckBox, (shuju.xz[npc.s.."_"..v] and shuju.xz[npc.s.."_"..v] == 1) or (shuju.xz[""..vv] and shuju.xz[""..vv] == 1))
                                 GUI:CheckBox_addOnEvent(s_s_CheckBox, function(self)
-                                    shuju.xz[""..vv] = GUI:CheckBox_isSelected(self) and 1 or nil
-                                    SL:SendLuaNetMsg(101, 2, 2, 0, vv)
-                                    if shuju.xz[npc.s.."_"..v] and shuju.xz[npc.s.."_"..v] == 1 then
-                                        shuju.xz[npc.s.."_"..v] = nil
-                                        SL:SendLuaNetMsg(101, 2, 2, 0, npc.s.."_"..v)
-                                    end
+                                    syncSelection(""..vv, GUI:CheckBox_isSelected(self))
+                                    clearSelectionIfNeeded(npc.s.."_"..v)
                                 end)
                                 local s_s_wz = GUI:RichText_Create(s_s_btn, "s_s_s_wz", 77, 17,  "<a href='jump#item_tips#"..vv.."'>"..kk[3].."</a>", 500, 17, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
                                 GUI:setAnchorPoint(s_s_wz, 0.5, 0.5)
@@ -825,12 +804,7 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                     local CheckBox = GUI:CheckBox_Create(btn, "CheckBox",GUI:getContentSize(btn).width - 40, 3, "res/wy/public/new_check_0.png", "res/wy/public/new_check_1.png")
                     GUI:CheckBox_setSelected(CheckBox, shuju.xz[npc.s.."_"..v] and shuju.xz[npc.s.."_"..v] == 1)
                     GUI:CheckBox_addOnEvent(CheckBox, function(self)
-                        if shuju.xz[npc.s.."_"..v] and shuju.xz[npc.s.."_"..v] == 1 then
-                            shuju.xz[npc.s.."_"..v] = nil
-                        else
-                            shuju.xz[npc.s.."_"..v] = 1
-                        end
-                        SL:SendLuaNetMsg(101, 2, 2, 0, npc.s.."_"..v)
+                        syncSelection(npc.s.."_"..v, GUI:CheckBox_isSelected(self))
                         new_hs_update()
                     end)
                     local wz = GUI:Text_Create(btn, "wz", 77, 17, 17, "#FFFF00", cogin.hs.fzfj_bj[v])
@@ -849,12 +823,8 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                             local s_s_CheckBox = GUI:CheckBox_Create(s_s_btn, "CheckBox",GUI:getContentSize(btn).width - 40, 3, "res/wy/public/new_check_0.png", "res/wy/public/new_check_1.png")
                             GUI:CheckBox_setSelected(s_s_CheckBox, (shuju.xz[npc.s.."_"..v] and shuju.xz[npc.s.."_"..v] == 1) or (shuju.xz[npc.s.."_"..v.."_"..vv] and shuju.xz[npc.s.."_"..v.."_"..vv] == 1))
                             GUI:CheckBox_addOnEvent(s_s_CheckBox, function(self)
-                                shuju.xz[npc.s.."_"..v.."_"..vv] = GUI:CheckBox_isSelected(self) and 1 or nil
-                                SL:SendLuaNetMsg(101, 2, 2, 0, npc.s.."_"..v.."_"..vv)
-                                if shuju.xz[npc.s.."_"..v] and shuju.xz[npc.s.."_"..v] == 1 then
-                                    shuju.xz[npc.s.."_"..v] = nil
-                                    SL:SendLuaNetMsg(101, 2, 2, 0, npc.s.."_"..v)
-                                end
+                                syncSelection(npc.s.."_"..v.."_"..vv, GUI:CheckBox_isSelected(self))
+                                clearSelectionIfNeeded(npc.s.."_"..v)
                                 new_hs_update()
                             end)
                             local s_s_wz = GUI:Text_Create(s_s_btn, "wz", 77, 17, 17, "#FFFF00", kk.name)
@@ -874,16 +844,9 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                                     local s_s_s_CheckBox = GUI:CheckBox_Create(s_s_s_btn, "CheckBox",GUI:getContentSize(btn).width - 40, 3, "res/wy/public/new_check_0.png", "res/wy/public/new_check_1.png")
                                     GUI:CheckBox_setSelected(s_s_s_CheckBox, (shuju.xz[npc.s.."_"..v] and shuju.xz[npc.s.."_"..v] == 1) or (shuju.xz[npc.s.."_"..v.."_"..vv] and shuju.xz[npc.s.."_"..v.."_"..vv] == 1) or (shuju.xz[""..vvv] and shuju.xz[""..vvv] == 1))
                                     GUI:CheckBox_addOnEvent(s_s_s_CheckBox, function(self)
-                                        shuju.xz[""..vvv] = GUI:CheckBox_isSelected(self) and 1 or nil
-                                        SL:SendLuaNetMsg(101, 2, 2, 0, vvv)
-                                        if shuju.xz[npc.s.."_"..v] and shuju.xz[npc.s.."_"..v] == 1 then
-                                            shuju.xz[npc.s.."_"..v] = nil
-                                            SL:SendLuaNetMsg(101, 2, 2, 0, npc.s.."_"..v)
-                                        end
-                                        if shuju.xz[npc.s.."_"..v.."_"..vv] and shuju.xz[npc.s.."_"..v.."_"..vv] == 1 then
-                                            shuju.xz[npc.s.."_"..v.."_"..vv] = nil
-                                            SL:SendLuaNetMsg(101, 2, 2, 0, npc.s.."_"..v.."_"..vv)
-                                        end
+                                        syncSelection(""..vvv, GUI:CheckBox_isSelected(self))
+                                        clearSelectionIfNeeded(npc.s.."_"..v)
+                                        clearSelectionIfNeeded(npc.s.."_"..v.."_"..vv)
                                         new_hs_update()
                                     end)
                                     local s_s_s_wz = GUI:RichText_Create(s_s_s_btn, "s_s_s_wz", 77, 17,  "<a href='jump#item_tips#"..vvv.."'>"..kkk[3].."</a>", 500, 17, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
