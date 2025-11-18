@@ -74,27 +74,41 @@ function PlayerEquip.main(data)
 
 
     local EquipShow_90 = GUI:EquipShow_Create(
-            GUI:Image_Create(PlayerEquip._ui.Panel_1, "duihuan_wz1", 135.00, 80.00, "res/wy/public/70_70_k.png")
+            GUI:Image_Create(PlayerEquip._ui.Panel_1, "duihuan_wz1", 140.00, 100.00, "res/wy/public/70_70_k.png")
     , "EquipShow_90", 35, 35, 90, false, {look = true, movable = true, bgVisible = false, doubleTakeOff = true})
     GUI:EquipShow_setAutoUpdate(EquipShow_90)
     GUI:setAnchorPoint(EquipShow_90, 0.5, 0.5)
 
-    local Button= GUI:Button_Create(PlayerEquip._ui.Panel_1, "Button", 400, 50.00, "res/public/1900000660.png")
-    GUI:Button_setTitleText(Button, "境界提升")
-    GUI:Button_setTitleFontSize(Button, 14)
+    local Button= GUI:Button_Create(PlayerEquip._ui.Panel_1, "Button1", 40, 10.00, "res/private/player_main_layer_ui/btn_1.png")
+    GUI:addOnClickEvent(Button, function()
+        SL:SendLuaNetMsg(105, 24, 24, 0, "")
+    end)
 
+    Button= GUI:Button_Create(PlayerEquip._ui.Panel_1, "Button2", 110, 10.00, "res/private/player_main_layer_ui/btn_2.png")
     GUI:addOnClickEvent(Button, function()
         SL:SendLuaNetMsg(105, 21, 21, 0, "")
     end)
-
-    Button = GUI:Button_Create(PlayerEquip._ui.Panel_1, "Button_1", 400 + 120, 50.00, "res/public/1900000660.png")
-    GUI:Button_setTitleText(Button, "神石")
-    GUI:Button_setTitleFontSize(Button, 14)
-
+    Button= GUI:Button_Create(PlayerEquip._ui.Panel_1, "Button3", 180, 10.00, "res/private/player_main_layer_ui/btn_3.png")
     GUI:addOnClickEvent(Button, function()
-        Npclib["anniu"][20](0,0,"")     --神石
+        SL:SendLuaNetMsg(105, 22, 22, 0, "")
+    end)
+    Button= GUI:Button_Create(PlayerEquip._ui.Panel_1, "Button4", 250, 10.00, "res/private/player_main_layer_ui/btn_4.png")
+    GUI:addOnClickEvent(Button, function()
+        SL:SendLuaNetMsg(105, 44, 44, 0, "")
     end)
 
+    -- Button = GUI:Button_Create(PlayerEquip._ui.Panel_1, "Button_1", 400 + 120, 50.00, "res/private/player_main_layer_ui/btn_2.png")
+    -- GUI:addOnClickEvent(Button, function()
+    --     Npclib["anniu"][20](0,0,"")     --神石
+    -- end)
+
+
+    Button = GUI:Button_Create(PlayerEquip._ui.Panel_1, "Button11", 400 + 120 - 253, 50+363, "res/private/player_main_layer_ui/btn_11.png")
+    GUI:addOnClickEvent(Button, function()
+       
+    end)
+
+    
     local T_41_data = Player:getServerVar("T41")
     local U_28_data = Player:getServerVar("U28")
     if T_41_data == "" then

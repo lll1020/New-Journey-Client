@@ -304,7 +304,7 @@ function ui.init(parent)
 	GUI:setTag(Image_icon, 203)
 
 	-- Create Panel_pos15
-	local Panel_pos15 = GUI:Layout_Create(Panel_1, "Panel_pos15", 250.00, 180.00, 42.00, 42.00, false)
+	local Panel_pos15 = GUI:Layout_Create(Panel_1, "Panel_pos15", 250.00, 130.00, 42.00, 42.00, false)
 	GUI:setChineseName(Panel_pos15, "玩家装备_坐骑_组合")
 	GUI:setAnchorPoint(Panel_pos15, 0.50, 0.50)
 	GUI:setTouchEnabled(Panel_pos15, true)
@@ -348,7 +348,7 @@ function ui.init(parent)
 	GUI:setTag(Image_icon, 170)
 
 	-- Create Panel_pos11
-	local Panel_pos11 = GUI:Layout_Create(Panel_1, "Panel_pos11", 250.00, 130.00, 42.00, 42.00, false)
+	local Panel_pos11 = GUI:Layout_Create(Panel_1, "Panel_pos11", 250.00, 180.00, 42.00, 42.00, false)
 	GUI:setChineseName(Panel_pos11, "玩家装备_靴子_组合")
 	GUI:setAnchorPoint(Panel_pos11, 0.50, 0.50)
 	GUI:setTouchEnabled(Panel_pos11, true)
@@ -370,7 +370,7 @@ function ui.init(parent)
 	GUI:setTag(Image_icon, 174)
 
 	-- Create Panel_pos10
-	local Panel_pos10 = GUI:Layout_Create(Panel_1, "Panel_pos10", 100.00, 130.00, 42.00, 42.00, false)
+	local Panel_pos10 = GUI:Layout_Create(Panel_1, "Panel_pos10", 100.00, 180.00, 42.00, 42.00, false)
 	GUI:setChineseName(Panel_pos10, "玩家装备_腰带_组合")
 	GUI:setAnchorPoint(Panel_pos10, 0.50, 0.50)
 	GUI:setTouchEnabled(Panel_pos10, true)
@@ -392,7 +392,7 @@ function ui.init(parent)
 	GUI:setTag(Image_icon, 178)
 
 	-- Create Panel_pos9
-	local Panel_pos9 = GUI:Layout_Create(Panel_1, "Panel_pos9", 100.00, 180.00, 42.00, 42.00, false)
+	local Panel_pos9 = GUI:Layout_Create(Panel_1, "Panel_pos9", 100.00, 130.00, 42.00, 42.00, false)
 	GUI:setChineseName(Panel_pos9, "玩家装备_护身符_组合")
 	GUI:setAnchorPoint(Panel_pos9, 0.50, 0.50)
 	GUI:setTouchEnabled(Panel_pos9, true)
@@ -475,7 +475,7 @@ function ui.init(parent)
 	GUI:setTag(Node_14, 204)
 
 	-- Create Node_15
-	local Node_15 = GUI:Node_Create(Panel_1, "Node_15", 250.00, 180.00)
+	local Node_15 = GUI:Node_Create(Panel_1, "Node_15", 250.00, 130.00)
 	GUI:setChineseName(Node_15, "玩家装备_坐骑_位置")
 	GUI:setTag(Node_15, 208)
 
@@ -485,17 +485,17 @@ function ui.init(parent)
 	GUI:setTag(Node_12, 171)
 
 	-- Create Node_11
-	local Node_11 = GUI:Node_Create(Panel_1, "Node_11", 250.00, 130.00)
+	local Node_11 = GUI:Node_Create(Panel_1, "Node_11", 250.00, 180.00)
 	GUI:setChineseName(Node_11, "玩家装备_靴子_位置")
 	GUI:setTag(Node_11, 175)
 
 	-- Create Node_10
-	local Node_10 = GUI:Node_Create(Panel_1, "Node_10", 100.00, 130.00)
+	local Node_10 = GUI:Node_Create(Panel_1, "Node_10", 100.00, 180.00)
 	GUI:setChineseName(Node_10, "玩家装备_腰带_位置")
 	GUI:setTag(Node_10, 179)
 
 	-- Create Node_9
-	local Node_9 = GUI:Node_Create(Panel_1, "Node_9", 100.00, 180.00)
+	local Node_9 = GUI:Node_Create(Panel_1, "Node_9", 100.00, 130.00)
 	GUI:setChineseName(Node_9, "玩家装备_护身符_位置")
 	GUI:setTag(Node_9, 183)
 
