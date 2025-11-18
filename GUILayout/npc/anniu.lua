@@ -382,26 +382,29 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
         else
             parent = GUI:Win_Create("npc_huishou",cogin.w/2, cogin.h/2,0,0,false,false,false,true,true,0,1)
         end
-        local bjt = GUI:Image_Create(parent, "bjt", 0, 0, "res/public/1900000651_1.png")
-        GUI:setAnchorPoint(bjt, 0.5, 0.5)
-        GUI:setContentSize(bjt, cogin.w + 100, cogin.h + 100)
-        GUI:setTouchEnabled(bjt, true)
-        GUI:addOnClickEvent(bjt, function()
-            GUI:Win_Close(parent)
-        end)
-        GUI:addMouseOverTips(bjt, "", {x = 0, y = 0}, {x = 0, y = 0})
+        -- local bjt = GUI:Image_Create(parent, "bjt", 0, 0, "res/public/1900000651_1.png")
+        -- GUI:setAnchorPoint(bjt, 0.5, 0.5)
+        -- GUI:setContentSize(bjt, cogin.w + 100, cogin.h + 100)
+        -- GUI:setTouchEnabled(bjt, true)
+        -- GUI:addOnClickEvent(bjt, function()
+        --     GUI:Win_Close(parent)
+        -- end)
+        -- GUI:addMouseOverTips(bjt, "", {x = 0, y = 0}, {x = 0, y = 0})
 
+       
 
         npc.bg = GUI:Image_Create(parent, "img_bj", 0.00, 0.00, "res/wy/public/hs_bj.png")
         GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
         GUI:setTouchEnabled(npc.bg, true)
-        GUI:Timeline_Window3(npc.bg)
-        local close = GUI:Button_Create(npc.bg, 'close', 840, 482, "res/wy/public/npc_39_close.png")
+        GUI:Win_SetDrag(parent, npc.bg)
+        GUI:Win_SetZPanel(parent, npc.bg)
+
+        local close = GUI:Button_Create(npc.bg, 'close', 840 - 293, 490 - 150, "res/wy/public/red_close.png")
         GUI:addOnClickEvent(close, function()
             GUI:Win_Close(parent)
         end)
 
-         function xiaohui_update()
+        function xiaohui_update()
             GUI:removeAllChildren(npc.bbzs)
             local bbitme = {}
             local item = SL:GetMetaValue("BAG_DATA")
@@ -491,8 +494,8 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
 
         local jm_node = GUI:Node_Create(npc.bg, 'node',0,0)
 
-        local l_list = GUI:ListView_Create(npc.bg, "ListView", 25.00, 30.00, 190.00, 450.00, 1)
-        GUI:ListView_setItemsMargin(l_list, 25)
+        local l_list = GUI:ListView_Create(npc.bg, "ListView", 15.00, 15.00, 120.00, 325.00, 1)
+        GUI:ListView_setItemsMargin(l_list, 8)
         GUI:ListView_setGravity(l_list, 2)
 
 
@@ -502,10 +505,9 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
             if xjm_parent then
                 GUI:Win_Close(xjm_parent)
             end
-            GUI:Frames_Create(jm_node, "tip", 220, 480, "res/wy/eff/city/huishou_tip_", ".png", 1, 15, {count=15,speed=100,loop=-1})
-            GUI:Frames_Create(jm_node, "tip2", 30, 50, "res/wy/eff/city/huishou_tip2_", ".png", 1, 15, {count=15,speed=100,loop=-1})
+        
             if npc.s == 1 then
-                local s_list = GUI:ListView_Create(jm_node, "s_list", 225.00, 128.00, 650.00, 340.00, 1)
+                local s_list = GUI:ListView_Create(jm_node, "s_list", 140.00, 108.00, 456.00, 230.00, 1)
                 GUI:ListView_setItemsMargin(s_list, 10)
                 for v,k in pairs(cogin.hs.zzhs)  do
                     if npc.s_s == v or true then
@@ -630,30 +632,8 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                         end
                     end
                 end
-                local hs_zdhs = GUI:Image_Create(jm_node, 'hs_zdhs', 450, 60, 'res/wy/public/huishou/hs_zdhs.png')
-                local CheckBox_zdhs = GUI:CheckBox_Create(hs_zdhs, "CheckBox_zdhs",GUI:getContentSize(hs_zdhs).width + 2, -2, "res/wy/public/xz0.png", "res/wy/public/xz1.png")
-                GUI:setAnchorPoint(CheckBox_zdhs, 1, 0)
-                GUI:CheckBox_setSelected(CheckBox_zdhs, shuju.kg[4] == 1)
-                GUI:CheckBox_addOnEvent(CheckBox_zdhs, function(self)
-                    SL:SendLuaNetMsg(101, 2, 4, 4, GUI:CheckBox_isSelected(self) and 1 or 0)
-                end)
-
-
-                local zidong2 = GUI:Image_Create(jm_node, 'zidong2', 250, 80, 'res/wy/public/hsan_122.png')
-                local zidong3 = GUI:Image_Create(jm_node, 'zidong3', 250, 40, 'res/wy/public/hsan_123.png')
-
-                local CheckBox2 = GUI:CheckBox_Create(zidong2, "kaiguan2",107, 0, "res/wy/public/xz0.png", "res/wy/public/xz1.png")
-                GUI:CheckBox_setSelected(CheckBox2, shuju.kg[1] == 1)
-                GUI:CheckBox_addOnEvent(CheckBox2, function(self)
-                    SL:SendLuaNetMsg(101, 2, 4, 1, GUI:CheckBox_isSelected(self) and 1 or 0)
-                end)
-                local CheckBox3 = GUI:CheckBox_Create(zidong3, "kaiguan3",107, 0, "res/wy/public/xz0.png", "res/wy/public/xz1.png")
-                GUI:CheckBox_setSelected(CheckBox3, shuju.kg[2] == 1)
-                GUI:CheckBox_addOnEvent(CheckBox3, function(self)
-                    SL:SendLuaNetMsg(101, 2, 4, 2, GUI:CheckBox_isSelected(self) and 1 or 0)
-                end)
             elseif npc.s == 2 then
-                local s_list = GUI:ListView_Create(jm_node, "s_list", 225.00, 128.00, 650.00, 340.00, 1)
+                local s_list = GUI:ListView_Create(jm_node, "s_list", 140.00, 108.00, 456.00, 230.00, 1)
                 GUI:ListView_setItemsMargin(s_list, 10)
                 for v,k in pairs(cogin.hs.zsfj)  do
                     if npc.s_s == v or true then
@@ -778,30 +758,8 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                         end
                     end
                 end
-                local hs_zdhs = GUI:Image_Create(jm_node, 'hs_zdhs', 450, 60, 'res/wy/public/huishou/hs_zdhs.png')
-                local CheckBox_zdhs = GUI:CheckBox_Create(hs_zdhs, "CheckBox_zdhs",GUI:getContentSize(hs_zdhs).width + 2, -2, "res/wy/public/xz0.png", "res/wy/public/xz1.png")
-                GUI:setAnchorPoint(CheckBox_zdhs, 1, 0)
-                GUI:CheckBox_setSelected(CheckBox_zdhs, shuju.kg[4] == 1)
-                GUI:CheckBox_addOnEvent(CheckBox_zdhs, function(self)
-                    SL:SendLuaNetMsg(101, 2, 4, 4, GUI:CheckBox_isSelected(self) and 1 or 0)
-                end)
-
-
-                local zidong2 = GUI:Image_Create(jm_node, 'zidong2', 250, 80, 'res/wy/public/hsan_122.png')
-                local zidong3 = GUI:Image_Create(jm_node, 'zidong3', 250, 40, 'res/wy/public/hsan_123.png')
-
-                local CheckBox2 = GUI:CheckBox_Create(zidong2, "kaiguan2",107, 0, "res/wy/public/xz0.png", "res/wy/public/xz1.png")
-                GUI:CheckBox_setSelected(CheckBox2, shuju.kg[1] == 1)
-                GUI:CheckBox_addOnEvent(CheckBox2, function(self)
-                    SL:SendLuaNetMsg(101, 2, 4, 1, GUI:CheckBox_isSelected(self) and 1 or 0)
-                end)
-                local CheckBox3 = GUI:CheckBox_Create(zidong3, "kaiguan3",107, 0, "res/wy/public/xz0.png", "res/wy/public/xz1.png")
-                GUI:CheckBox_setSelected(CheckBox3, shuju.kg[2] == 1)
-                GUI:CheckBox_addOnEvent(CheckBox3, function(self)
-                    SL:SendLuaNetMsg(101, 2, 4, 2, GUI:CheckBox_isSelected(self) and 1 or 0)
-                end)
             elseif npc.s == 3 then
-                local s_list = GUI:ListView_Create(jm_node, "s_list", 225.00, 128.00, 650.00, 340.00, 1)
+                local s_list = GUI:ListView_Create(jm_node, "s_list", 140.00, 108.00, 456.00, 230.00, 1)
                 GUI:ListView_setItemsMargin(s_list, 10)
                 for v,k in pairs(cogin.hs.clfj)  do
                     if v == 1 and false then
@@ -822,9 +780,6 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                             SL:SendLuaNetMsg(101, 2, 2, 0, npc.s.."_"..v)
                             new_hs_update()
                         end)
-                        local wz = GUI:Text_Create(btn, "wz", 77, 17, 17, "#FFFF00", teshudata.sjjt_x[v][4])
-                        GUI:setAnchorPoint(wz, 0.5, 0.5)
-                        GUI:Text_enableOutline(wz, "#150800", 2)
                         if npc.s_s == v or true then
                             local s_s_list = GUI:Layout_Create(s_list, "s_s_list"..v, 0, 0, 650, math.floor(#k.l/3) *  45.00, false)
 
@@ -858,15 +813,8 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                         end
                     end
                 end
-                local hs_zdhs = GUI:Image_Create(jm_node, 'hs_zdhs', 450, 60, 'res/wy/public/huishou/hs_zdhs.png')
-                local CheckBox_zdhs = GUI:CheckBox_Create(hs_zdhs, "CheckBox_zdhs",GUI:getContentSize(hs_zdhs).width + 2, -2, "res/wy/public/xz0.png", "res/wy/public/xz1.png")
-                GUI:setAnchorPoint(CheckBox_zdhs, 1, 0)
-                GUI:CheckBox_setSelected(CheckBox_zdhs, shuju.kg[4] == 1)
-                GUI:CheckBox_addOnEvent(CheckBox_zdhs, function(self)
-                    SL:SendLuaNetMsg(101, 2, 4, 4, GUI:CheckBox_isSelected(self) and 1 or 0)
-                end)
             elseif npc.s == 4 then
-                local s_list = GUI:ListView_Create(jm_node, "s_list", 225.00, 128.00, 250.00, 340.00, 1)
+                local s_list = GUI:ListView_Create(jm_node, "s_list", 140.00, 108.00, 456.00, 230.00, 1)
                 GUI:ListView_setItemsMargin(s_list, 10)
                 for v,k in pairs(cogin.hs.fzfj)  do
                     local btn = GUI:Button_Create(s_list, "wz"..v, 0, 0, "res/wy/public/new_kuang.png")
@@ -960,13 +908,6 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                         end
                     end
                 end
-                local hs_zdhs = GUI:Image_Create(jm_node, 'hs_zdhs', 450, 60, 'res/wy/public/huishou/hs_zdhs.png')
-                local CheckBox_zdhs = GUI:CheckBox_Create(hs_zdhs, "CheckBox_zdhs",GUI:getContentSize(hs_zdhs).width + 2, -2, "res/wy/public/xz0.png", "res/wy/public/xz1.png")
-                GUI:setAnchorPoint(CheckBox_zdhs, 1, 0)
-                GUI:CheckBox_setSelected(CheckBox_zdhs, shuju.kg[4] == 1)
-                GUI:CheckBox_addOnEvent(CheckBox_zdhs, function(self)
-                    SL:SendLuaNetMsg(101, 2, 4, 4, GUI:CheckBox_isSelected(self) and 1 or 0)
-                end)
             elseif npc.s == 5 then
                 npc.bbzs = GUI:ListView_Create(jm_node, "bbzs", 15 + 272, -350  + 113+ 400, 500, 300, 1)
                 GUI:ListView_setBackGroundImage(npc.bbzs, 'res/wy/public/500-300.png')
@@ -978,22 +919,45 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
         npc.s_s = 1
         npc.s_s_s = 1
         npc.hs_btn = {}
-        for ii = 1, 5 do
+        for ii = 1,7 do
+            GUI:Image_Create(l_list, "fgx"..ii, 0, 0, "res/wy/public/huishou/hsan_fgx.png")
             npc.hs_btn["s_"..ii] = GUI:Button_Create(l_list, "san"..ii, 0, 0, "res/wy/public/huishou/hsan_nsan_"..ii..".png")
             GUI:addOnClickEvent(npc.hs_btn["s_"..ii], function()
                 GUI:Button_loadTextureNormal(npc.hs_btn["s_"..npc.s], "res/wy/public/huishou/hsan_nsan_"..npc.s..".png")
+                 GUI:removeChildByName(GUI:ui_delegate(l_list)["fgx"..npc.s], "kuang")
                 npc.s = ii
                 npc.s_s = 1
                 npc.s_s_s = 1
                 GUI:Button_loadTextureNormal(npc.hs_btn["s_"..npc.s], "res/wy/public/huishou/hsan_lsan_"..npc.s..".png")
+                GUI:Image_Create(GUI:ui_delegate(l_list)["fgx"..npc.s], "kuang", -5, -43, "res/wy/public/huishou/hsan_kuang.png")
                 new_hs_update()
             end)
+
         end
         GUI:Button_loadTextureNormal(npc.hs_btn["s_"..npc.s], "res/wy/public/huishou/hsan_lsan_"..npc.s..".png")
+        GUI:Image_Create(GUI:ui_delegate(l_list)["fgx"..npc.s], "kuang", -5, -43, "res/wy/public/huishou/hsan_kuang.png")
+
         new_hs_update()
 
-        npc.yjcz = GUI:Button_Create(npc.bg, 'yjcz', 700, 30, 'res/wy/public/hsan_11.png')
+        local CheckBox_zdhs = GUI:CheckBox_Create(npc.bg, "kaiguan1",380, 30, "res/wy/public/xz0.png", "res/wy/public/xz1.png")
+        GUI:CheckBox_setSelected(CheckBox_zdhs, shuju.kg[4] == 1)
+        GUI:CheckBox_addOnEvent(CheckBox_zdhs, function(self)
+            SL:SendLuaNetMsg(101, 2, 4, 4, GUI:CheckBox_isSelected(self) and 1 or 0)
+        end)
 
+        local CheckBox2 = GUI:CheckBox_Create(npc.bg, "kaiguan2",250, 30, "res/wy/public/xz0.png", "res/wy/public/xz1.png")
+        GUI:CheckBox_setSelected(CheckBox2, shuju.kg[3] == 1)
+        GUI:CheckBox_addOnEvent(CheckBox2, function(self)
+            SL:SendLuaNetMsg(101, 2, 4, 3, GUI:CheckBox_isSelected(self) and 1 or 0)
+        end)
+        local CheckBox3 = GUI:CheckBox_Create(npc.bg, "kaiguan3",250, 65, "res/wy/public/xz0.png", "res/wy/public/xz1.png")
+        GUI:CheckBox_setSelected(CheckBox3, shuju.kg[2] == 1)
+        GUI:CheckBox_addOnEvent(CheckBox3, function(self)
+            SL:SendLuaNetMsg(101, 2, 4, 1, GUI:CheckBox_isSelected(self) and 1 or 0)
+            SL:SendLuaNetMsg(101, 2, 4, 2, GUI:CheckBox_isSelected(self) and 1 or 0)
+        end)
+
+        npc.yjcz = GUI:Button_Create(npc.bg, 'yjcz', 430, 20, 'res/wy/public/hsan_11.png')
         GUI:addOnClickEvent(npc.yjcz, function()
             if npc.s == 1 or  npc.s == 2 or npc.s == 3 or npc.s == 4 then
                 local item = SL:GetMetaValue("BAG_DATA")
