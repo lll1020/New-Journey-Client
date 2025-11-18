@@ -1165,179 +1165,123 @@ npc.xyl = {
         },
     },
 }
-npc[11] = function(p2, p3, Data) -- 异闻录
-	if p2 == 0 then
-        --错的 要改为er  接受数据集
-		npc.data = SL:JsonDecode(Data, false)
-		local parent = GUI:GetWindow(nil, "npc_ywl")
-		if parent then
-			GUI:removeAllChildren(parent)
-			GUI:setPosition(parent, cogin.w / 2, cogin.h / 2)
-		else
-			parent = GUI:Win_Create("npc_ywl", cogin.w / 2, cogin.h / 2, 0, 0, false, false, true, true, true, 0, 1)
-		end
-		local bjt = GUI:Image_Create(parent, "bjt", 0, 0, "res/public/1900000651_1.png")
-		GUI:setAnchorPoint(bjt, 0.5, 0.5)
-		GUI:setContentSize(bjt, cogin.w + 100, cogin.h + 100)
-		GUI:setTouchEnabled(bjt, true)
-		GUI:addOnClickEvent(bjt, function()
-			GUI:Win_Close(parent)
-		end)
+---异闻录：章节任务界面（UIHelper 统一窗口）
+npc[11] = function(p2, p3, Data)
+    if p2 == 0 then
+        npc.data = Data and SL:JsonDecode(Data, false) or {}
+        npc.l = npc.l or 1  -- 当前大章节
+        npc.zj = npc.zj or 1 -- 当前小节
 
-        npc.bg = GUI:Image_Create(parent, "bj", 0, 0, 'res/custom/ywl/ywl_bj.png')
-        GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
-        GUI:setTouchEnabled(npc.bg, true)
-        GUI:Image_Create(npc.bg, "lbj", 120, 70, 'res/custom/ywl/ywl_lbj.png')
+        local win = ensureWindow("storyLog", 11, { titleText = "异闻录" })
+        npc.bg = win.bg
+        local node = win.node
 
-        local close = GUI:Button_Create(npc.bg, 'close', 960, 560, 'res/wy/public/close.png')
-        GUI:addOnClickEvent(close, function()
-            GUI:Win_Close(parent)
-        end)
+        -- 左侧章节列表
+        local chapterList = GUI:ListView_Create(npc.bg, "chapter_list", 110, 70, 200, 520, 1, false)
+        GUI:ListView_setGravity(chapterList, 2)
+        npc.ywl_list = chapterList
 
-        local tt = GUI:Frames_Create(npc.bg, "tt", -20, 0, "res/custom/ywl/ywl_tt_", ".png", 1, 54, {speed = 50,count = 54,loop = -1,finishhide = false})
-        npc.scdk = true
+        -- 渲染右侧任务/奖励卡片
+        local function renderTasks()
+            GUI:removeAllChildren(node)
+            GUI:Image_Create(node, "header_top", 308, 70, 'res/custom/ywl/anniu_23_img_2.png')
+            GUI:Image_Create(node, "header_bottom", 308, 550, 'res/custom/ywl/anniu_23_img_4.png')
 
+            local lCfg = npc.xyl[npc.l]
+            if not lCfg then return end
+            npc.zj = math.min(npc.zj, #lCfg)
+            local zjCfg = lCfg[npc.zj]
+            if not zjCfg then return end
+            local tasks = zjCfg.jq or zjCfg
+            local taskCount = #tasks
 
-		function main_ru()
-            function new_ziyemian(id)
-                GUI:removeAllChildren(npc.node)
-                GUI:Image_Create(npc.node, "anniu_23_img_2", 308, 70, 'res/custom/ywl/anniu_23_img_'.. 2 ..'.png')
-                GUI:Image_Create(npc.node, "anniu_23_img_4", 308, 550, 'res/custom/ywl/anniu_23_img_'.. 4 ..'.png')
+            local scroll = GUI:ScrollView_Create(node, "task_scroll", 310, 143, 647, 300, 2)
+            GUI:ScrollView_setInnerContainerSize(scroll, taskCount * 210, 300)
+            local layout = GUI:Layout_Create(scroll, "task_layout", 0, 0, taskCount * 200, 300, false)
 
-                GUI:Text_Create(npc.node, "TMONEY", 730 - 383, 580 - 100, 26, "#F7F7DE", "当前剧情点："..SL:GetMetaValue("TMONEY", "剧情点").."点")
+            for idx, task in ipairs(tasks) do
+                local card = GUI:Image_Create(layout, "card" .. idx, 0, 0, 'res/custom/ywl/anniu_23_zj_rw_n_3.png')
+                GUI:setContentSize(card, 200, 300)
+                GUI:Text_Create(card, "title", 100, 200, 22, "#F7F7DE", task[1] or task.title or "任务")
+                GUI:setAnchorPoint(GUI:RichText_Create(card, "desc", 100, 180, "任务描述:" .. (task.desc or "可在任务界面查看"), 150, 16, "#00FFFF", 1, nil, nil, { outlineSize = 2, outlineColor = SL:ConvertColorFromHexString("#100808") }), 0.5, 1)
 
-                -- 当前章节配置，兼容新的 npc.xyl 结构（支持 jq 字段）
-                local l  = npc.l or 1
-                local zj = npc.zj or 1
-
-                local lCfg  = npc.xyl[l]
-                local zjCfg = lCfg and lCfg[zj]
-                if not zjCfg then
-                    return
+                if task.jl then
+                    local jlNode = ItemNumByTable_img(task.jl, nil, card)
+                    GUI:setPosition(jlNode, 40, 55)
                 end
 
-                local tasks = zjCfg.jq or zjCfg
-                local taskCount = #tasks
-                local _wc_num = 0
-
-                local ScrollView_content = GUI:ScrollView_Create(npc.node, "ScrollView_content", 310,143, 647.00, 300, 2)
-                GUI:ScrollView_setInnerContainerSize(ScrollView_content, taskCount * 210, 300)
-
-                local Layout1 = GUI:Layout_Create(ScrollView_content, "Layout1", 0,0, taskCount * 200, 300, false)
-                for v,k in ipairs(tasks) do
-                    local bj = GUI:Image_Create(Layout1, "bj"..v, 0, 0, 'res/custom/ywl/anniu_23_zj_rw_n_3.png')
-                    GUI:setContentSize(bj, 200, 300)
-
-                    local rwtt = GUI:Text_Create(bj, "rwtt", 200/2, 200, 26, "#F7F7DE", k[1])
-                    GUI:Text_setFontName(rwtt,"fonts/502.ttf")
-                    GUI:setAnchorPoint(rwtt, 0.5, 0)
-
-                    GUI:setAnchorPoint(GUI:RichTextFCOLOR_Create(bj, "desc", 200/2, 180, "任务描述:".. (k.desc or "可在任务界面查看"), 150, 16, "#00FFFF", 1,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-                    , 0.5, 1)
-
-                    if k.jl then
-                        local jl_node =  ItemNumByTable_img(k.jl, nil,bj)
-                        GUI:setPosition(jl_node, 40, 55)
-                    end
-
-                    if (npc.data.ywl["jl_"..npc.l.."_"..npc.zj] and npc.data.ywl["jl_"..npc.l.."_"..npc.zj] == 1) or
-                            (npc.data.ywl["jl_"..npc.l.."_"..npc.zj.."_"..v] and npc.data.ywl["jl_"..npc.l.."_"..npc.zj.."_"..v] == 1) then
-                        GUI:Image_Create(bj, "wc", 200/2, 40, 'res/wy/public/4.png')
-                        GUI:Image_loadTexture(bj, 'res/wy/public/ywl/anniu_23_zj_rw_l_'..v..'.png')
-                        _wc_num = _wc_num + 1
-                    else
-                        local enable = false
-                        if k.id == 999 then
-                            enable = k.khdjy()
-
-                            -- 统一按钮创建与点击事件
-                            local btn = GUI:Button_Create(bj, "btn_", 200/2, 30,
-                                    enable and 'res/custom/ywl/anniu_23_zj_cs_lq.png' or 'res/custom/ywl/anniu_23_zj_cs_an.png')
-                            GUI:setAnchorPoint(btn, 0.5, 0.5)
-                            GUI:addOnClickEvent(btn, function()
-                                SL:SendLuaNetMsg(101, 11, enable and 3 or 1, 0,
-                                        '{"i":' .. (npc.l or 1) .. ',"j":' .. (npc.zj or 1) .. ',"k":0,"z":' .. v .. '}')
-                            end)
-                        end
-                    end
+                local enable = false
+                if task.id == 999 and task.khdjy then
+                    enable = task.khdjy()
                 end
-                GUI:UserUILayout(Layout1, {dir=2,addDir=1,gap = {x=10}})
-
-                if zjCfg.jl then
-                    GUI:setPosition(ItemNumByTable_img(zjCfg.jl, nil,npc.node), 450, 80)
-                end
-
-                if npc.data.ywl["jl_"..npc.l.."_"..npc.zj] and npc.data.ywl["jl_"..npc.l.."_"..npc.zj] == 1 then
-                    GUI:Image_Create(npc.node, "wc", 730, 60, 'res/wy/public/7_1.png')
-                else
-                    npc.jl = GUI:Button_Create(npc.node, "an", 730, 55, 'res/wy/public/an_lqjl.png')
-                    GUI:addOnClickEvent(npc.jl, function()
-                        SL:SendLuaNetMsg(101, 11, 2, 0,
-                                '{"i":' .. (npc.l or 1) .. ',"j":' .. (npc.zj or 1) .. ',"k":0}')
-                    end)
-                end
+                local btnSkin = enable and 'res/custom/ywl/anniu_23_zj_cs_lq.png' or 'res/custom/ywl/anniu_23_zj_cs_an.png'
+                local goBtn = GUI:Button_Create(card, "go" .. idx, 100, 30, btnSkin)
+                GUI:addOnClickEvent(goBtn, function()
+                    SL:SendLuaNetMsg(101, 11, enable and 3 or 1, 0,
+                        string.format('{"i":%d,"j":%d,"k":0,"z":%d}', npc.l, npc.zj, idx))
+                end)
             end
-		end
-        main_ru()
-        npc.l = (npc.l and npc.l < 10) and npc.l or 1
-        npc.zj = npc.zj or 1 
-        npc.ywl_an = {}
-        npc.l_an = {}
-        npc.node = GUI:Node_Create(npc.bg, "node", 0, 0)
+            GUI:UserUILayout(layout, { dir = 2, addDir = 1, gap = { x = 10 } })
 
-        npc.ywl_list = GUI:ListView_Create(npc.bg, "List", 110, 70, 200.00, 520.00, 1,false)
-        GUI:ListView_setGravity(npc.ywl_list, 2)
+            if zjCfg.jl then
+                GUI:setPosition(ItemNumByTable_img(zjCfg.jl, nil, node), 450, 80)
+            end
 
-        local function UI_l_updata() --界面渲染
-            GUI:removeAllChildren(npc.ywl_list)
-            for i = 1, #npc.xyl, 1 do
-                npc.ywl_an[i] = GUI:Layout_Create(npc.ywl_list, "l_node_"..i, 0, 520 - (i) * 80, 200, 78, false)
-                local ywl_an = GUI:Layout_Create(npc.ywl_an[i],"ywl_an_"..i,25,0,200,78,false)
-                GUI:setTouchEnabled(ywl_an, true)
-                GUI:Image_Create(ywl_an, "tt", -15, 15, 'res/wy/public/dl_'..i..'.png')
-                GUI:addOnClickEvent(ywl_an, function()
-                    if not dl_sz(i) then
-                        SL:ShowSystemTips("<font color='#FF0000'>还未解锁该大陆...</font>")
+            if npc.data and npc.data.ywl and npc.data.ywl["jl_" .. npc.l .. "_" .. npc.zj] == 1 then
+                GUI:Image_Create(node, "done", 730, 60, 'res/wy/public/7_1.png')
+            else
+                npc.jl = GUI:Button_Create(node, "btn_reward", 730, 55, 'res/wy/public/an_lqjl.png')
+                GUI:addOnClickEvent(npc.jl, function()
+                    SL:SendLuaNetMsg(101, 11, 2, 0, string.format('{"i":%d,"j":%d,"k":0}', npc.l, npc.zj))
+                end)
+            end
+        end
+
+        -- 渲染章节列表
+        local function renderChapterList()
+            GUI:removeAllChildren(chapterList)
+            for i = 1, #npc.xyl do
+                local item = GUI:Layout_Create(chapterList, "chap_" .. i, 0, 0, 200, 78, false)
+                local btn = GUI:Layout_Create(item, "btn" .. i, 25, 0, 200, 78, false)
+                GUI:setTouchEnabled(btn, true)
+                GUI:Image_Create(btn, "tt", -15, 15, 'res/wy/public/dl_' .. i .. '.png')
+                GUI:addOnClickEvent(btn, function()
+                    if dl_sz and not dl_sz(i) then
+                        SL:ShowSystemTips("<font color='#FF0000'>还未解锁该大章节</font>")
                         return
                     end
+                    npc.l = i
+                    npc.zj = 1
+                    renderChapterList()
+                    renderTasks()
                 end)
                 if i == npc.l then
-                    GUI:setLocalZOrder(GUI:Image_Create(npc.ywl_an[npc.l], "kuang", 0, 0, 'res/custom/ywl/anniu_23_l_kuang.png')
-                    , -1)
-    
-                    for i = 1 , #npc.xyl[npc.l], 1 do
-                        local Button= GUI:Button_Create(npc.ywl_list, "Button"..i, 0, 0, "res/public/1900000660.png")
-                        GUI:Button_setTitleText(Button, "第"..i.."章")
-                        GUI:Button_setTitleFontSize(Button, 14)
-
-                        GUI:addOnClickEvent(Button, function()
-                            npc.zj = i
-                            UI_l_updata()
-                            new_ziyemian()
-                        end)
-                    end
+                    GUI:setLocalZOrder(GUI:Image_Create(item, "selected", 0, 0, 'res/custom/ywl/anniu_23_l_kuang.png'), -1)
                 end
             end
         end
-        UI_l_updata()
-        new_ziyemian(0)
 
-		SL:RegisterLUAEvent(LUA_EVENT_CLOSEWIN, "关闭界面", function(self)
-			if self == "npc_ywl" then
-				SL:UnRegisterLUAEvent(LUA_EVENT_CLOSEWIN, "关闭界面")
-			end
-		end)
-	elseif p2 == 2 then
-        npc.data.ywl["jl_"..p3] = 1
-        GUI:Image_Create(GUI:getParent(npc.jl), 'wc', 515, 5, 'res/wy/public/7_1.png')
-        GUI:removeFromParent(npc.jl)
+        renderChapterList()
+        renderTasks()
+
+        SL:RegisterLUAEvent(LUA_EVENT_CLOSEWIN, "关闭界面", function(self)
+            if self == "npc_ywl" then
+                SL:UnRegisterLUAEvent(LUA_EVENT_CLOSEWIN, "关闭界面")
+            end
+        end)
+
+    elseif p2 == 2 then
+        if npc.data and npc.data.ywl then
+            npc.data.ywl["jl_" .. p3] = 1
+        end
+        if npc.jl then
+            GUI:Image_Create(GUI:getParent(npc.jl), 'wc', 515, 5, 'res/wy/public/7_1.png')
+            GUI:removeFromParent(npc.jl)
+        end
     elseif p2 == 3 then
         npc.data = SL:JsonDecode(Data, false)
-        npc.scdk = true
-        new_ziyemian(0)
-    elseif p2 == 100 then
-
-	end
+        npc[11](0, 0, Data)
+    end
 end
 ---活动提示
 npc[12] = function(p2, p3, Data) -- 活动提示
@@ -1393,72 +1337,70 @@ npc[12] = function(p2, p3, Data) -- 活动提示
         end
     end
 end
----记忆传送
-npc[13] = function(p2, p3, msgData) -- 记录石
+---记忆传送：记录石（使用 UIHelper 标准窗口）
+npc[13] = function(p2, p3, msgData)
     if p2 == 0 then
         SL:SendLuaNetMsg(101, 13, 0, 0, "")
-    elseif p2 == 1 then
-        npc.jls = SL:JsonDecode(msgData, false)
-        local parent = GUI:GetWindow(nil, "npc_jilushi")
-        if parent then
-            GUI:removeAllChildren(parent)
-        else
-            parent = GUI:Win_Create("npc_jilushi",cogin.w/2, cogin.h/2,0,0,false,false,false,true,true,0,1)
-        end
-        local bjt = GUI:Image_Create(parent, "bjt", 0, 0, "res/public/1900000651_1.png")
-        GUI:setAnchorPoint(bjt, 0.5, 0.5)
-        GUI:setContentSize(bjt, cogin.w + 100, cogin.h + 100)
-        GUI:setTouchEnabled(bjt, true)
-        GUI:addOnClickEvent(bjt, function()
-            GUI:Win_Close(parent)
-        end)
-        npc.bg = GUI:Image_Create(parent, "img_bj", 0.00, 0.00, "res/wy/public/jys_bj.png")
-        GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
-        GUI:setTouchEnabled(npc.bg, true)
-        GUI:Timeline_Window3(npc.bg)
-        local close = GUI:Button_Create(npc.bg, 'close', 467, 449, 'res/wy/public/close.png')
-        GUI:addOnClickEvent(close, function()
-            GUI:Win_Close(parent)
-        end)
-        local ScrollView_content = GUI:ScrollView_Create(npc.bg, "ScrollView_content", 6.00, 57.00, 458.00, 341.00, 1)
-        GUI:ScrollView_setInnerContainerSize(ScrollView_content, 458, 495)
-        local bj = GUI:Image_Create(ScrollView_content, "bj", 0.00, 0.50, "res/wy/public/jys_wz.png")
-        local butt_jl,butt_cs = {},{}
-        npc.jlswb = {}
-        for i = 1, 10, 1 do
-            local xsmc = ""
-            if npc.jls and npc.jls["dtm"..i] then
-                xsmc = npc.jls["dtm"..i][2].."("..npc.jls["dtm"..i][3]..","..npc.jls["dtm"..i][4]..")"
-            else
-                xsmc = "暂未记录"
-            end
-            npc.jlswb[i] = GUI:Text_Create(bj, "Text_"..i, 164.00, 524-i*50, 16, "#ffffff",xsmc)
-            GUI:setAnchorPoint(npc.jlswb[i], 0.50, 0.50)
-            GUI:Text_enableOutline(npc.jlswb[i], "#000000", 1)
-            local xhtxt = GUI:Text_Create(bj, "xhtxt"..i, 40.00, 524-i*50, 16, "#ffffff",i)
-            GUI:setAnchorPoint(xhtxt, 0.50, 0.50)
-            GUI:Text_enableOutline(xhtxt, "#000000", 1)
-            butt_jl[i] = GUI:Button_Create(bj, 'butt_jl_'..i, 271.00, 504-i*50, "res/wy/public/jys_jl.png")
-            GUI:addOnClickEvent(butt_jl[i], function()
-                SL:OpenCommonTipsPop({str="是否要记录该地图点位？会替换原有记录！",btnType=2,callback=function(atype,param)
-                    if atype == 1 then
-                        SL:SendLuaNetMsg(101, 13, 1, i, "")
+        return
+    end
+
+    local function renderRecordStone(records)
+        local win = ensureWindow("recordStone", 13, { titleText = "记录石" })
+        local node = win.node
+        GUI:removeAllChildren(node)
+
+        npc.recordStoneLabels = {}
+        local scroll = GUI:ScrollView_Create(node, "scroll", 6, 57, 458, 341, 1)
+        GUI:ScrollView_setInnerContainerSize(scroll, 458, 495)
+        local content = GUI:Image_Create(scroll, "content", 0, 0.5, "res/wy/public/jys_wz.png")
+
+        for i = 1, 10 do
+            local slot = records and records["dtm" .. i]
+            local text = slot and (slot[2] .. "(" .. slot[3] .. "," .. slot[4] .. ")") or "暂未记录"
+            npc.recordStoneLabels[i] = GUI:Text_Create(content, "pos_" .. i, 164, 524 - i * 50, 16, "#ffffff", text)
+            GUI:setAnchorPoint(npc.recordStoneLabels[i], 0.5, 0.5)
+            GUI:Text_enableOutline(npc.recordStoneLabels[i], "#000000", 1)
+
+            local idxLabel = GUI:Text_Create(content, "idx_" .. i, 40, 524 - i * 50, 16, "#ffffff", i)
+            GUI:setAnchorPoint(idxLabel, 0.5, 0.5)
+            GUI:Text_enableOutline(idxLabel, "#000000", 1)
+
+            local saveBtn = GUI:Button_Create(content, "btn_save_" .. i, 271, 504 - i * 50, "res/wy/public/jys_jl.png")
+            GUI:addOnClickEvent(saveBtn, function()
+                SL:OpenCommonTipsPop({
+                    str = "是否记录该地图点位？将覆盖原有记录。",
+                    btnType = 2,
+                    callback = function(atype)
+                        if atype == 1 then
+                            SL:SendLuaNetMsg(101, 13, 1, i, "")
+                        end
                     end
-                end})
+                })
             end)
-            butt_cs[i] = GUI:Button_Create(bj, 'butt_cs'..i, 369.00, 504-i*50, "res/wy/public/jys_cs.png")
-            GUI:addOnClickEvent(butt_cs[i], function()
-                if npc.jls["dtm"..i] then
+
+            local gotoBtn = GUI:Button_Create(content, "btn_goto_" .. i, 369, 504 - i * 50, "res/wy/public/jys_cs.png")
+            GUI:addOnClickEvent(gotoBtn, function()
+                if records and records["dtm" .. i] then
                     SL:SendLuaNetMsg(101, 13, 2, i, "")
                 else
-                    SL:ShowSystemTips("<font color='#ff0000'>未进行记录无法传送...</font>")
+                    SL:ShowSystemTips("<font color='#ff0000'>未记录该位置，无法传送！</font>")
                 end
             end)
         end
+    end
+
+    if p2 == 1 then
+        npc.jls = SL:JsonDecode(msgData, false)
+        renderRecordStone(npc.jls)
     elseif p2 == 2 then
-        if p3 > 0 and p3 < 8 then
+        if p3 and p3 > 0 and p3 <= 10 then
             npc.jls = SL:JsonDecode(msgData, false)
-            GUI:Text_setString(npc.jlswb[p3],npc.jls["dtm"..p3][2].."("..npc.jls["dtm"..p3][3]..","..npc.jls["dtm"..p3][4]..")")
+            if npc.recordStoneLabels and npc.jls["dtm" .. p3] then
+                GUI:Text_setString(
+                    npc.recordStoneLabels[p3],
+                    npc.jls["dtm" .. p3][2] .. "(" .. npc.jls["dtm" .. p3][3] .. "," .. npc.jls["dtm" .. p3][4] .. ")"
+                )
+            end
         end
     elseif p2 == 3 then
         GUI:Win_CloseByID("npc_jilushi")
@@ -1469,46 +1411,23 @@ npc[17] = function(p2, p3, Data)  --实力提升
 
 end
 ---新手礼包
-npc[18] = function(p2, p3, Data)  --新手礼包
-    local function UI_updata(node) --界面渲染
+---新手礼包
+npc[18] = function(p2, p3, Data)
+    local function renderNewbieGift(node)
         GUI:removeAllChildren(node)
-
-        local Button= GUI:Button_Create(node, "Button", 750, 100.00, "res/public/1900000660.png")
-        GUI:Button_setTitleText(Button, "领取新手礼包")
-        GUI:Button_setTitleFontSize(Button, 14)
-
-        GUI:addOnClickEvent(Button, function()
+        -- 主按钮：申请领取新手礼包
+        local btn = GUI:Button_Create(node, "btn_get_gift", 420, 100, "res/public/1900000660.png")
+        GUI:Button_setTitleText(btn, "领取新手礼包")
+        GUI:Button_setTitleFontSize(btn, 16)
+        GUI:addOnClickEvent(btn, function()
             SL:SendLuaNetMsg(101, 18, 1, 0, "")
         end)
     end
 
     if p2 == 0 then
-        local parent = GUI:GetWindow(nil, "npc_xslb")
-        npc.data_18 = not Data and {} or SL:JsonDecode(Data, false)
-        if parent then
-            GUI:removeAllChildren(parent)
-            GUI:setPosition(parent, cogin.w / 2, cogin.h / 2)
-        else
-            parent = GUI:Win_Create("npc_sclb", cogin.w / 2, cogin.h / 2, 0, 0, false, false, true, true, true, 0, 1)
-        end
-        local bjt = GUI:Image_Create(parent, "bjt", 0, 0, "res/public/1900000651_1.png")
-        GUI:setAnchorPoint(bjt, 0.5, 0.5)
-        GUI:setContentSize(bjt, cogin.w + 100, cogin.h + 100)
-        GUI:setTouchEnabled(bjt, true)
-        GUI:addOnClickEvent(bjt, function()
-            GUI:Win_Close(parent)
-        end)
-        npc.bg = GUI:Image_Create(parent, "img_bj", 0, 0, 'res/wy/public/jiaozhu_0.png')
-        GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
-        GUI:setTouchEnabled(npc.bg, true)
-        GUI:Timeline_Window1(npc.bg)
-
-        local close = GUI:Button_Create(npc.bg, 'close', 930, 480, 'res/wy/public/close.png')
-        GUI:addOnClickEvent(close, function()
-            GUI:Win_Close(parent)
-        end)
-        npc.node = GUI:Node_Create(npc.bg, "node", 0, 0)
-        UI_updata(npc.node)
+        npc.data_18 = Data and SL:JsonDecode(Data, false) or {}
+        local win = ensureWindow("newbieGift", 18, { titleText = "新手礼包" })
+        renderNewbieGift(win.node)
     end
 end
 ---飞剑
