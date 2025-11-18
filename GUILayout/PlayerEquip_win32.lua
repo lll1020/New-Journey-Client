@@ -79,6 +79,9 @@ function PlayerEquip.main(data)
     GUI:EquipShow_setAutoUpdate(EquipShow_90)
     GUI:setAnchorPoint(EquipShow_90, 0.5, 0.5)
 
+    PlayerEquip.gzd = GUI:Node_Create(PlayerEquip._ui.Panel_1, "gzd", 0, 250)
+    GUI:setLocalZOrder(PlayerEquip.gzd, 0)
+
     local Button= GUI:Button_Create(PlayerEquip._ui.Panel_1, "Button1", 40, 10.00, "res/private/player_main_layer_ui/btn_1.png")
     GUI:addOnClickEvent(Button, function()
         SL:SendLuaNetMsg(105, 24, 24, 0, "")
@@ -97,30 +100,25 @@ function PlayerEquip.main(data)
         SL:SendLuaNetMsg(105, 44, 44, 0, "")
     end)
 
-    -- Button = GUI:Button_Create(PlayerEquip._ui.Panel_1, "Button_1", 400 + 120, 50.00, "res/private/player_main_layer_ui/btn_2.png")
-    -- GUI:addOnClickEvent(Button, function()
-    --     Npclib["anniu"][20](0,0,"")     --神石
-    -- end)
-
 
     Button = GUI:Button_Create(PlayerEquip._ui.Panel_1, "Button11", 400 + 120 - 253, 50+363, "res/private/player_main_layer_ui/btn_11.png")
     GUI:addOnClickEvent(Button, function()
-       
+       Npclib["anniu"][22](0,0,"")     --法宝
     end)
 
     
     local T_41_data = Player:getServerVar("T41")
-    local U_28_data = Player:getServerVar("U28")
+    -- local U_28_data = Player:getServerVar("U28")
     if T_41_data == "" then
         T_41_data = {}
     else
         T_41_data = SL:JsonDecode(T_41_data,false)
     end
-    U_28_data = tonumber(U_28_data)
+    -- U_28_data = tonumber(U_28_data)
 
-    if U_28_data > 0 then
-        GUI:Text_Create(PlayerEquip._ui.Panel_1, "U_28_data", 400, 50.00 + 100, 20, "#ffffff", teshudata["npc_21"].details[U_28_data].title)
-    end
+    -- if U_28_data > 0 then
+    --     GUI:Text_Create(PlayerEquip._ui.Panel_1, "U_28_data", 400, 50.00 + 100, 20, "#ffffff", teshudata["npc_21"].details[U_28_data].title)
+    -- end
     if T_41_data.main then
         GUI:Text_Create(PlayerEquip._ui.Panel_1, "T_41_data_main", 400, 50.00 + 200, 20, "#ffffff", teshudata["npc_22"].main_r[T_41_data.main].name)
     else

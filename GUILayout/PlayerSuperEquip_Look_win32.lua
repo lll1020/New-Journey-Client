@@ -43,6 +43,19 @@ function PlayerSuperEquip_Look.main(data)
     --初始化是否显示时装开关
     PlayerSuperEquip_Look.InitEquipSetting()
     PlayerSuperEquip_Look.InitEquipFramekuang()
+
+    PlayerSuperEquip_Look.gzd = GUI:Node_Create(PlayerSuperEquip_Look._ui.Panel_1, "gzd", 0, 260)
+    GUI:setLocalZOrder(PlayerSuperEquip_Look.gzd, 0)
+
+    Button = GUI:Button_Create(PlayerSuperEquip_Look._ui.Panel_1, "Button12", 400 + 120 - 253 + 18, 50+363, "res/private/player_main_layer_ui/btn_12.png")
+    GUI:addOnClickEvent(Button, function()
+        Npclib["anniu"][21](0,1,"")     --古玩
+    end)
+
+    Button = GUI:Button_Create(PlayerSuperEquip_Look._ui.Panel_1, "Button13", 400 + 120 - 253 + 18, 50+363 - 54, "res/private/player_main_layer_ui/btn_13.png")
+    GUI:addOnClickEvent(Button, function()
+       Npclib["anniu"][20](0,1,"")     --神石
+    end)
     return true
 
 end

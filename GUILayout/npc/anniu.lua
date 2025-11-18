@@ -1568,50 +1568,127 @@ end
 npc[20] = function(p2, p3, Data)  --神石
 
    
+    local function UI_updata(node,idx) --界面渲染
+        GUI:removeAllChildren(node)
+        local dbLayout = GUI:Layout_Create(node, "dbLayout", 23, 13, 300, 150)
+        for i = 1, 8 do
+            if idx == 0 then
+                local EquipShow = GUI:EquipShow_Create(dbLayout, "EquipShow"..i, 0,0, 102 + i, false, {look = true, movable = true, bgVisible = false, doubleTakeOff = true})
+                GUI:EquipShow_setAutoUpdate(EquipShow)
+            elseif idx == 1 then
+                GUI:ItemShow_Create(dbLayout, "EquipShow"..i, 0,0, {itemData = SL:GetMetaValue("EQUIP_DATA", 102 + i),look=true})
+            end
+        end
+        if idx == 0 then
+            GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 4,gap = {x=11, y=5}})
+        elseif idx == 1 then
+            GUI:setPosition(dbLayout, 40, 0)
+            GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 4,gap = {x=42, y=42}})
+        end
+
+    end
+
+    if p2 == 0 then
+        local logg
+        if p3 == 0 then
+            logg = PlayerSuperEquip.gzd
+        elseif p3 == 1 then
+            logg = PlayerSuperEquip_Look.gzd
+        end
+        if not logg then
+            SL:ShowSystemTips("<font color='#FF0000'>神石数据异常，请稍后再试...</font>")
+            return
+        end
+        --如果有就关闭
+        if GUI:getChildByName(logg, "img_bj") then
+            GUI:removeChildByName(logg, "img_bj")
+            return
+        end
+
+        npc.bg = GUI:Image_Create(logg, "img_bj", 0, 0, 'res/wy/public/bg_shenshi.png')
+        GUI:setTouchEnabled(npc.bg, true)
+        GUI:setOpacity(npc.bg, 0)
+        GUI:runAction(npc.bg, GUI:ActionSpawn(GUI:ActionMoveTo(0.3, -300, 0), GUI:ActionFadeIn(0.3)))
+        npc.node = GUI:Node_Create(npc.bg, "node", 0, 0)
+        UI_updata(npc.node, p3)
+
+    end
+end
+
+---古玩
+npc[21] = function(p2, p3, Data)  --古玩
+
+   
     local function UI_updata(node) --界面渲染
         GUI:removeAllChildren(node)
-        local dbLayout = GUI:Layout_Create(node, "dbLayout", 100, 0, 500, 500)
-        for i = 1, 8 do
-            local kuang = GUI:Image_Create(dbLayout, "kuang"..i, 0, 0, "res/wy/public/70_70_k.png")
-            local EquipShow = GUI:EquipShow_Create(kuang, "EquipShow", 35,35, 102 + i, false, {look = true, movable = true, bgVisible = false, doubleTakeOff = true})
-            GUI:setAnchorPoint(EquipShow, 0.5, 0.5)
-            GUI:setTag(EquipShow, -1)
-            GUI:EquipShow_setAutoUpdate(EquipShow)
-        end
-        GUI:UserUILayout(dbLayout, {dir=3,addDir=1,gap = {x=5, y=5}})
 
 
     end
 
     if p2 == 0 then
-        local parent = GUI:GetWindow(nil, "npc_20")
-        if parent then
-            GUI:removeAllChildren(parent)
-            GUI:setPosition(parent, cogin.w / 2, cogin.h / 2)
-        else
-            parent = GUI:Win_Create("npc_20", cogin.w / 2, cogin.h / 2, 0, 0, false, false, true, true, true, 0, 1)
+        local logg
+        if p3 == 0 then
+            logg = PlayerSuperEquip.gzd
+        elseif p3 == 1 then
+            logg = PlayerSuperEquip_Look.gzd
         end
-        local bjt = GUI:Image_Create(parent, "bjt", 0, 0, "res/public/1900000651_1.png")
-        GUI:setAnchorPoint(bjt, 0.5, 0.5)
-        GUI:setContentSize(bjt, cogin.w + 100, cogin.h + 100)
-        GUI:setTouchEnabled(bjt, true)
-        GUI:addOnClickEvent(bjt, function()
-            GUI:Win_Close(parent)
-        end)
-        npc.bg = GUI:Image_Create(parent, "img_bj", 0, 0, 'res/wy/public/jiaozhu_0.png')
-        GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
-        GUI:setTouchEnabled(npc.bg, true)
-        GUI:Timeline_Window1(npc.bg)
+        if not logg then
+            SL:ShowSystemTips("<font color='#FF0000'>古玩数据异常，请稍后再试...</font>")
+            return
+        end
+        --如果有就关闭
+        if GUI:getChildByName(logg, "img_bj") then
+            GUI:removeChildByName(logg, "img_bj")
+            return
+        end
 
-        local close = GUI:Button_Create(npc.bg, 'close', 930, 480, 'res/wy/public/close.png')
-        GUI:addOnClickEvent(close, function()
-            GUI:Win_Close(parent)
-        end)
+        npc.bg = GUI:Image_Create(logg, "img_bj", 0, 0, 'res/wy/public/bg_guwan.png')
+        GUI:setTouchEnabled(npc.bg, true)
+        GUI:setOpacity(npc.bg, 0)
+        GUI:runAction(npc.bg, GUI:ActionSpawn(GUI:ActionMoveTo(0.3, -270, 0), GUI:ActionFadeIn(0.3)))
         npc.node = GUI:Node_Create(npc.bg, "node", 0, 0)
         UI_updata(npc.node)
 
     end
 end
+
+---法宝
+npc[22] = function(p2, p3, Data)  --法宝
+
+   
+    local function UI_updata(node) --界面渲染
+        GUI:removeAllChildren(node)
+
+    end
+
+    if p2 == 0 then
+        local logg
+        if p3 == 0 then
+            logg = PlayerEquip.gzd
+        elseif p3 == 1 then
+            logg = PlayerEquip_Look.gzd
+        end
+        if not logg then
+            SL:ShowSystemTips("<font color='#FF0000'>法宝数据异常，请稍后再试...</font>") 
+            return
+        end
+        --如果有就关闭
+        if GUI:getChildByName(logg, "img_bj") then
+            GUI:removeChildByName(logg, "img_bj")
+            return
+        end
+
+        npc.bg = GUI:Image_Create(logg, "img_bj", 0, 0, 'res/wy/public/bg_fabao.png')
+        GUI:setTouchEnabled(npc.bg, true)
+        GUI:setOpacity(npc.bg, 0)
+        GUI:runAction(npc.bg, GUI:ActionSpawn(GUI:ActionMoveTo(0.3, -340, 0), GUI:ActionFadeIn(0.3)))
+        npc.node = GUI:Node_Create(npc.bg, "node", 0, 0)
+        UI_updata(npc.node)
+
+    end
+end
+
+
 ---天人之战面板
 npc[498] = function(p2, p3, Data) -- 天人之战
     if p2 == 0 then
