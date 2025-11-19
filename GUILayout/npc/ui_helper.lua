@@ -12,7 +12,7 @@ local UIHelper = {}
 
 -- ===== 默认素材配置 =====
 local DEFAULT_OVERLAY = 'res/public/1900000651_1.png'  -- 全屏遮罩：点击关闭窗口
-local DEFAULT_BG = 'res/wy/public/01.png'              -- 背景面板：承载 UI 内容
+local DEFAULT_BG = 'res/wy/public/tongyong_0.png'              -- 背景面板：承载 UI 内容
 local DEFAULT_CLOSE = 'res/wy/public/close.png'        -- 默认关闭按钮
 local DEFAULT_BUTTON = 'res/public/1900000660.png'     -- 默认主按钮皮肤
 local DEFAULT_OUTLINE = SL and SL:ConvertColorFromHexString('#100808') or '#100808'
@@ -83,6 +83,9 @@ function UIHelper.ensureWindow(cache, npcid, opts)
     if bgCfg.timeline ~= false then
         GUI:Timeline_Window1(bg)
     end
+    --放置透传
+    GUI:addMouseOverTips(overlay, "", {x = 0, y = 0}, {x = 0, y = 0})
+
 
     
 
@@ -91,7 +94,7 @@ function UIHelper.ensureWindow(cache, npcid, opts)
     local closeBtn = nil
     if closeCfg ~= false then
         closeCfg = closeCfg or {}
-        closeBtn = GUI:Button_Create(bg, closeCfg.name or 'close', closeCfg.x or 930, closeCfg.y or 480, closeCfg.skin or DEFAULT_CLOSE)
+        closeBtn = GUI:Button_Create(bg, closeCfg.name or 'close', closeCfg.x or 740, closeCfg.y or 460, closeCfg.skin or DEFAULT_CLOSE)
         GUI:setTouchEnabled(closeBtn, true)
         GUI:setLocalZOrder(closeBtn, 100)
         addCloseHandler(closeBtn, closeCfg.onClick or function()

@@ -40,38 +40,38 @@ local WINDOW_STYLE = {
     welfare = {      -- 福利大厅
         windowName = "npc_fldt",
         overlay = {skin = "res/public/1900000651_1.png"},
-        background = {skin = "res/wy/public/jiaozhu_0.png"},
-        closeButton = {x = 930, y = 480, skin = "res/wy/public/close.png"},
+        background = {skin = "res/wy/public/tongyong_0.png"},
+        closeButton = {x = 740, y = 460, skin = "res/wy/public/close.png"},
     },
     strategy = {     -- 游戏攻略
         windowName = "npc_yxgl",
         overlay = {skin = "res/public/1900000651_1.png"},
-        background = {skin = "res/wy/public/jiaozhu_0.png"},
-        closeButton = {x = 930, y = 480, skin = "res/wy/public/close.png"},
+        background = {skin = "res/wy/public/tongyong_0.png"},
+        closeButton = {x = 740, y = 460, skin = "res/wy/public/close.png"},
     },
     firstCharge = {  -- 首充礼包
         windowName = "npc_sclb",
         overlay = {skin = "res/public/1900000651_1.png"},
-        background = {skin = "res/wy/public/jiaozhu_0.png"},
-        closeButton = {x = 930, y = 480, skin = "res/wy/public/close.png"},
+        background = {skin = "res/wy/public/tongyong_0.png"},
+        closeButton = {x = 740, y = 460, skin = "res/wy/public/close.png"},
     },
     onlineRecharge = { -- 在线充值
         windowName = "npc_zxcz",
         overlay = {skin = "res/public/1900000651_1.png"},
-        background = {skin = "res/wy/public/jiaozhu_0.png"},
-        closeButton = {x = 930, y = 480, skin = "res/wy/public/close.png"},
+        background = {skin = "res/wy/public/tongyong_0.png"},
+        closeButton = {x = 740, y = 460, skin = "res/wy/public/close.png"},
     },
     unbind = {       -- 解绑特权
         windowName = "npc_jbtq",
         overlay = {skin = "res/public/1900000651_1.png"},
-        background = {skin = "res/wy/public/jiaozhu_0.png"},
-        closeButton = {x = 930, y = 480, skin = "res/wy/public/close.png"},
+        background = {skin = "res/wy/public/tongyong_0.png"},
+        closeButton = {x = 740, y = 460, skin = "res/wy/public/close.png"},
     },
     patrol = {       -- 巡航挂机
         windowName = "npc_mrtq",
         overlay = {skin = "res/public/1900000651_1.png"},
-        background = {skin = "res/wy/public/jiaozhu_0.png"},
-        closeButton = {x = 930, y = 480, skin = "res/wy/public/close.png"},
+        background = {skin = "res/wy/public/tongyong_0.png"},
+        closeButton = {x = 740, y = 460, skin = "res/wy/public/close.png"},
     },
     chosen = {       -- 天选之人
         windowName = "npc_txzz",
@@ -82,8 +82,8 @@ local WINDOW_STYLE = {
     activity = {     -- 游戏活动
         windowName = "npc_hd",
         overlay = {skin = "res/public/1900000651_1.png"},
-        background = {skin = "res/wy/public/jiaozhu_0.png"},
-        closeButton = {x = 930, y = 480, skin = "res/wy/public/close.png"},
+        background = {skin = "res/wy/public/tongyong_0.png"},
+        closeButton = {x = 740, y = 460, skin = "res/wy/public/close.png"},
     },
     recordStone = {  -- 记录石
         windowName = "npc_jilushi",
@@ -100,8 +100,8 @@ local WINDOW_STYLE = {
     newbieGift = {   -- 新手礼包
         windowName = "npc_xslb",
         overlay = {skin = "res/public/1900000651_1.png"},
-        background = {skin = "res/wy/public/jiaozhu_0.png"},
-        closeButton = {x = 930, y = 480, skin = "res/wy/public/close.png"},
+        background = {skin = "res/wy/public/tongyong_0.png"},
+        closeButton = {x = 740, y = 460, skin = "res/wy/public/close.png"},
     },
 }
 
@@ -1509,12 +1509,12 @@ npc[19] = function(p2, p3, Data)  --飞剑
         GUI:addOnClickEvent(bjt, function()
             GUI:Win_Close(parent)
         end)
-        npc.bg = GUI:Image_Create(parent, "img_bj", 0, 0, 'res/wy/public/jiaozhu_0.png')
+        npc.bg = GUI:Image_Create(parent, "img_bj", 0, 0, 'res/wy/public/tongyong_0.png')
         GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
         GUI:setTouchEnabled(npc.bg, true)
         GUI:Timeline_Window1(npc.bg)
 
-        local close = GUI:Button_Create(npc.bg, 'close', 930, 480, 'res/wy/public/close.png')
+        local close = GUI:Button_Create(npc.bg, 'close', 740, 460, 'res/wy/public/close.png')
         GUI:addOnClickEvent(close, function()
             GUI:Win_Close(parent)
         end)
@@ -2335,7 +2335,7 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                 end)
             end
 
-            local Button_all = GUI:Button_Create(Label_node, "grss_all", 480, 50, "res/public/1900000660.png")
+            local Button_all = GUI:Button_Create(Label_node, "grss_all", 460, 50, "res/public/1900000660.png")
             GUI:setAnchorPoint(Button_all, 0.5, 0)
             GUI:Button_setTitleText(Button_all, "一键领取")
             GUI:Button_setTitleFontSize(Button_all, 14)
@@ -2411,7 +2411,7 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                 end)
             end
 
-            local Button_all = GUI:Button_Create(Label_node, "grsb_all", 480, 50, "res/public/1900000660.png")
+            local Button_all = GUI:Button_Create(Label_node, "grsb_all", 460, 50, "res/public/1900000660.png")
             GUI:setAnchorPoint(Button_all, 0.5, 0)
             GUI:Button_setTitleText(Button_all, "一键领取")
             GUI:Button_setTitleFontSize(Button_all, 14)
@@ -2485,7 +2485,7 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                 end)
             end
 
-            local Button_all = GUI:Button_Create(Label_node, "qqsb_all", 480, 50, "res/public/1900000660.png")
+            local Button_all = GUI:Button_Create(Label_node, "qqsb_all", 460, 50, "res/public/1900000660.png")
             GUI:setAnchorPoint(Button_all, 0.5, 0)
             GUI:Button_setTitleText(Button_all, "一键领取")
             GUI:Button_setTitleFontSize(Button_all, 14)
@@ -2629,12 +2629,12 @@ npc[514] = function(p2, p3, Data) -- 世界地图
         GUI:addOnClickEvent(bjt, function()
             GUI:Win_Close(parent)
         end)
-        npc.bg = GUI:Image_Create(parent, "img_bj", 0, 0, 'res/wy/public/jiaozhu_0.png')
+        npc.bg = GUI:Image_Create(parent, "img_bj", 0, 0, 'res/wy/public/tongyong_0.png')
         GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
         GUI:setTouchEnabled(npc.bg, true)
         GUI:Timeline_Window1(npc.bg)
 
-        local close = GUI:Button_Create(npc.bg, 'close', 930, 480, 'res/wy/public/close.png')
+        local close = GUI:Button_Create(npc.bg, 'close', 740, 460, 'res/wy/public/close.png')
         GUI:addOnClickEvent(close, function()
             GUI:Win_Close(parent)
         end)
@@ -2683,12 +2683,12 @@ npc[515] = function(p2, p3, Data) -- 仙途奇缘
         GUI:addOnClickEvent(bjt, function()
             GUI:Win_Close(parent)
         end)
-        npc.bg = GUI:Image_Create(parent, "img_bj", 0, 0, 'res/wy/public/jiaozhu_0.png')
+        npc.bg = GUI:Image_Create(parent, "img_bj", 0, 0, 'res/wy/public/tongyong_0.png')
         GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
         GUI:setTouchEnabled(npc.bg, true)
         GUI:Timeline_Window1(npc.bg)
 
-        local close = GUI:Button_Create(npc.bg, 'close', 930, 480, 'res/wy/public/close.png')
+        local close = GUI:Button_Create(npc.bg, 'close', 740, 460, 'res/wy/public/close.png')
         GUI:addOnClickEvent(close, function()
             GUI:Win_Close(parent)
         end)
@@ -2739,12 +2739,12 @@ npc[516] = function(p2, p3, Data)
         GUI:addOnClickEvent(bjt, function()
             GUI:Win_Close(parent)
         end)
-        npc.bg = GUI:Image_Create(parent, "img_bj", 0, 0, 'res/wy/public/jiaozhu_0.png')
+        npc.bg = GUI:Image_Create(parent, "img_bj", 0, 0, 'res/wy/public/tongyong_0.png')
         GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
         GUI:setTouchEnabled(npc.bg, true)
         GUI:Timeline_Window1(npc.bg)
 
-        local close = GUI:Button_Create(npc.bg, 'close', 930, 480, 'res/wy/public/close.png')
+        local close = GUI:Button_Create(npc.bg, 'close', 740, 460, 'res/wy/public/close.png')
         GUI:addOnClickEvent(close, function()
             GUI:Win_Close(parent)
         end)
@@ -2807,12 +2807,12 @@ npc[517] = function(p2, p3, Data)
         GUI:addOnClickEvent(bjt, function()
             GUI:Win_Close(parent)
         end)
-        npc.bg = GUI:Image_Create(parent, "img_bj", 0, 0, 'res/wy/public/jiaozhu_0.png')
+        npc.bg = GUI:Image_Create(parent, "img_bj", 0, 0, 'res/wy/public/tongyong_0.png')
         GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
         GUI:setTouchEnabled(npc.bg, true)
         GUI:Timeline_Window1(npc.bg)
 
-        local close = GUI:Button_Create(npc.bg, 'close', 930, 480, 'res/wy/public/close.png')
+        local close = GUI:Button_Create(npc.bg, 'close', 740, 460, 'res/wy/public/close.png')
         GUI:addOnClickEvent(close, function()
             GUI:Win_Close(parent)
         end)

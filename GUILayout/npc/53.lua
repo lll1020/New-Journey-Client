@@ -4,7 +4,7 @@ local npc = {}
 npc._config = teshudata["npc_53"]
 
 local WINDOW_OPTS = {
-    background = {skin = 'res/wy/public/jiaozhu_0.png'},
+    background = {skin = 'res/wy/public/tongyong_0.png'},
     node = {x = 500, y = 300},
 }
 
@@ -520,7 +520,7 @@ function npc.main(npcid, p2, p3, msgData)
         end)
         GUI:addMouseOverTips(bjt, "", {x = 0, y = 0}, {x = 0, y = 0})
 
-        npc.bg = GUI:Image_Create(parent, "img_bj", 0, 0, 'res/wy/public/jiaozhu_0.png')
+        npc.bg = GUI:Image_Create(parent, "img_bj", 0, 0, 'res/wy/public/tongyong_0.png')
         GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
         GUI:setTouchEnabled(npc.bg, true)
         GUI:Timeline_Window1(npc.bg)
