@@ -215,7 +215,7 @@ function ui.init(parent)
 	GUI:setTag(Image_icon, 154)
 
 	-- Create Panel_pos5
-	local Panel_pos5 = GUI:Layout_Create(Panel_1, "Panel_pos5", 300.00, 280.00, 42.00, 42.00, false)
+	local Panel_pos5 = GUI:Layout_Create(Panel_1, "Panel_pos5", 300.00, 230.00, 42.00, 42.00, false)
 	GUI:setChineseName(Panel_pos5, "玩家装备_右手镯_组合")
 	GUI:setAnchorPoint(Panel_pos5, 0.50, 0.50)
 	GUI:setTouchEnabled(Panel_pos5, true)
@@ -260,7 +260,7 @@ function ui.init(parent)
 	GUI:setTag(Image_icon, 162)
 
 	-- Create Panel_pos3
-	local Panel_pos3 = GUI:Layout_Create(Panel_1, "Panel_pos3", 300.00, 230.00, 42.00, 42.00, false)
+	local Panel_pos3 = GUI:Layout_Create(Panel_1, "Panel_pos3", 300.00, 280.00, 42.00, 42.00, false)
 	GUI:setChineseName(Panel_pos3, "玩家装备_项链_组合")
 	GUI:setAnchorPoint(Panel_pos3, 0.50, 0.50)
 	GUI:setTouchEnabled(Panel_pos3, true)

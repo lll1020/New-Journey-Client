@@ -13,7 +13,7 @@ local UIHelper = {}
 -- ===== 默认素材配置 =====
 local DEFAULT_OVERLAY = 'res/public/1900000651_1.png'  -- 全屏遮罩：点击关闭窗口
 local DEFAULT_BG = 'res/wy/public/tongyong_0.png'              -- 背景面板：承载 UI 内容
-local DEFAULT_CLOSE = 'res/wy/public/close.png'        -- 默认关闭按钮
+local DEFAULT_CLOSE = 'res/wy/public/close_red_big.png'        -- 默认关闭按钮
 local DEFAULT_BUTTON = 'res/public/1900000660.png'     -- 默认主按钮皮肤
 local DEFAULT_OUTLINE = SL and SL:ConvertColorFromHexString('#100808') or '#100808'
 

@@ -313,7 +313,6 @@ function ui.init(parent)
 
 	-- Create Button_close
 	local Button_close = GUI:Button_Create(Panel_1, "Button_close", 536.00, 366.00, "res/public/1900000510.png")
-	GUI:Button_loadTexturePressed(Button_close, "res/public/1900000511.png")
 	GUI:Button_setScale9Slice(Button_close, 9, 8, 14, 14)
 	GUI:setContentSize(Button_close, 26, 42)
 	GUI:setIgnoreContentAdaptWithSize(Button_close, false)

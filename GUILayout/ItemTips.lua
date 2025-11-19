@@ -3387,7 +3387,7 @@ function ItemTips.CreateItemPanel(data, itemData)
     maxWidth = math.max(maxWidth, sz.width)
     GUI:ScrollView_setInnerContainerSize(scrollView, maxWidth, sz.height)
     local listH = math.min(innerH, _TipsMaxH)
-    GUI:setContentSize(scrollView, maxWidth, listH)
+    GUI:setContentSize(scrollView, maxWidth, listH + 25)
 
     GUI:setContentSize(ListBg, maxWidth, listH)
     local tipsSz = GUI:getContentSize(ListBg)

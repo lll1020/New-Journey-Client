@@ -41,67 +41,67 @@ local WINDOW_STYLE = {
         windowName = "npc_fldt",
         overlay = {skin = "res/public/1900000651_1.png"},
         background = {skin = "res/wy/public/tongyong_0.png"},
-        closeButton = {x = 740, y = 460, skin = "res/wy/public/close.png"},
+        closeButton = {x = 740, y = 460, skin = "res/wy/public/close_red_big.png"},
     },
     strategy = {     -- 游戏攻略
         windowName = "npc_yxgl",
         overlay = {skin = "res/public/1900000651_1.png"},
         background = {skin = "res/wy/public/tongyong_0.png"},
-        closeButton = {x = 740, y = 460, skin = "res/wy/public/close.png"},
+        closeButton = {x = 740, y = 460, skin = "res/wy/public/close_red_big.png"},
     },
     firstCharge = {  -- 首充礼包
         windowName = "npc_sclb",
         overlay = {skin = "res/public/1900000651_1.png"},
         background = {skin = "res/wy/public/tongyong_0.png"},
-        closeButton = {x = 740, y = 460, skin = "res/wy/public/close.png"},
+        closeButton = {x = 740, y = 460, skin = "res/wy/public/close_red_big.png"},
     },
     onlineRecharge = { -- 在线充值
         windowName = "npc_zxcz",
         overlay = {skin = "res/public/1900000651_1.png"},
         background = {skin = "res/wy/public/tongyong_0.png"},
-        closeButton = {x = 740, y = 460, skin = "res/wy/public/close.png"},
+        closeButton = {x = 740, y = 460, skin = "res/wy/public/close_red_big.png"},
     },
     unbind = {       -- 解绑特权
         windowName = "npc_jbtq",
         overlay = {skin = "res/public/1900000651_1.png"},
         background = {skin = "res/wy/public/tongyong_0.png"},
-        closeButton = {x = 740, y = 460, skin = "res/wy/public/close.png"},
+        closeButton = {x = 740, y = 460, skin = "res/wy/public/close_red_big.png"},
     },
     patrol = {       -- 巡航挂机
         windowName = "npc_mrtq",
         overlay = {skin = "res/public/1900000651_1.png"},
         background = {skin = "res/wy/public/tongyong_0.png"},
-        closeButton = {x = 740, y = 460, skin = "res/wy/public/close.png"},
+        closeButton = {x = 740, y = 460, skin = "res/wy/public/close_red_big.png"},
     },
     chosen = {       -- 天选之人
         windowName = "npc_txzz",
         overlay = {skin = "res/public/1900000651_1.png"},
         background = {skin = "res/wy/public/anniu_506_bj.png"},
-        closeButton = {x = 800, y = 400, skin = "res/wy/public/close.png"},
+        closeButton = {x = 800, y = 400, skin = "res/wy/public/close_red_big.png"},
     },
     activity = {     -- 游戏活动
         windowName = "npc_hd",
         overlay = {skin = "res/public/1900000651_1.png"},
         background = {skin = "res/wy/public/tongyong_0.png"},
-        closeButton = {x = 740, y = 460, skin = "res/wy/public/close.png"},
+        closeButton = {x = 740, y = 460, skin = "res/wy/public/close_red_big.png"},
     },
     recordStone = {  -- 记录石
         windowName = "npc_jilushi",
         overlay = {skin = "res/public/1900000651_1.png"},
         background = {skin = "res/wy/public/jys_bj.png"},
-        closeButton = {x = 467, y = 449, skin = "res/wy/public/close.png"},
+        closeButton = {x = 467, y = 449, skin = "res/wy/public/close_red_big.png"},
     },
     storyLog = {     -- 异闻录
         windowName = "npc_ywl",
         overlay = {skin = "res/public/1900000651_1.png"},
         background = {skin = "res/custom/ywl/ywl_bj.png"},
-        closeButton = {x = 960, y = 560, skin = "res/wy/public/close.png"},
+        closeButton = {x = 960, y = 560, skin = "res/wy/public/close_red_big.png"},
     },
     newbieGift = {   -- 新手礼包
         windowName = "npc_xslb",
         overlay = {skin = "res/public/1900000651_1.png"},
         background = {skin = "res/wy/public/tongyong_0.png"},
-        closeButton = {x = 740, y = 460, skin = "res/wy/public/close.png"},
+        closeButton = {x = 740, y = 460, skin = "res/wy/public/close_red_big.png"},
     },
 }
 
@@ -422,18 +422,13 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
                     end
                 end)
             else
-                npc.sjbeibao = GUI:Button_Create(npc.RightTop, "beibao", -240, -230, "res/private/main/bottom/bag.png")
-                npc.jueshe = GUI:Button_Create(npc.RightTop, "jueshe", -320, -230, "res/private/main/bottom/js.png")
+                npc.sjbeibao = GUI:Button_Create(npc.RightTop, "beibao", -160, -230, "res/private/main/bottom/bag.png")
+                npc.jueshe = GUI:Button_Create(npc.RightTop, "jueshe", -240, -230, "res/private/main/bottom/js.png")
                 GUI:addOnClickEvent(npc.sjbeibao, function()
                     SL:OpenBagUI()
                 end)
                 GUI:addOnClickEvent(npc.jueshe, function()
                     SL:OpenMyPlayerUI()
-                end)
-
-                local dalucs = GUI:Button_Create(npc.RightTop, "dalucs", -160, -230, "res/wy/icon/sjdt.png")
-                GUI:addOnClickEvent(dalucs, function() 
-                    Npclib["anniu"][4](0)
                 end)
                 guaji[1] = GUI:Button_Create(npc.RightTop, "guaji", -80, -230, "res/wy/icon/base.png")
 
@@ -1080,35 +1075,6 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
         end
     end)
 end
----世界地图
-npc[4] = function(p2, p3, msgData) -- 世界地图
-    local parent = GUI:GetWindow(nil, "npc_sjdt")
-    if parent then
-        GUI:removeAllChildren(parent)
-    else
-        parent = GUI:Win_Create("npc_sjdt",cogin.w/2, cogin.h/2,0,0,false,false,false,true,true,0,1)
-    end
-    local bjt = GUI:Image_Create(parent, "bjt", 0, 0, "res/public/1900000651_1.png")
-	GUI:setAnchorPoint(bjt, 0.5, 0.5)
-	GUI:setContentSize(bjt, cogin.w + 100, cogin.h + 100)
-    GUI:addMouseOverTips(bjt, "", {x = 0, y = 0}, {x = 0, y = 0})
-
-    npc.bg = GUI:Image_Create(parent, "bg", 0, 0, "res/wy/public/anniu_4_blue_bj.png")
-    GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
-    GUI:setContentSize(npc.bg, cogin.w, cogin.h)
-    GUI:setTouchEnabled(npc.bg, true)
-    GUI:Timeline_Window3(npc.bg)
-
-    local close1 = GUI:Button_Create(npc.bg, "close", cogin.w - 160, cogin.h - 170, "res/wy/public/anniu_4_close.png")
-    GUI:setLocalZOrder(close1, 99)
-    GUI:addOnClickEvent(close1, function()
-        GUI:Win_Close(parent)
-        local x_parent = GUI:GetWindow(nil, "npc_x_sjdt")
-        if x_parent then
-            GUI:Win_Close(x_parent)
-        end
-    end)
-end
 ---伏妖录任务
 ----任务名,npcid,任务类型（1为主线任务,2为支线任务）,任务检测（1数字型,2数组型,3称号型）,任务结束标志和进度标志,任务传送地点,任务传送限制（{1,10}等级,{2,10}转生,{3,”称号“}所需称号）
 npc.xyl = {
@@ -1514,7 +1480,7 @@ npc[19] = function(p2, p3, Data)  --飞剑
         GUI:setTouchEnabled(npc.bg, true)
         GUI:Timeline_Window1(npc.bg)
 
-        local close = GUI:Button_Create(npc.bg, 'close', 740, 460, 'res/wy/public/close.png')
+        local close = GUI:Button_Create(npc.bg, 'close', 740, 460, 'res/wy/public/close_red_big.png')
         GUI:addOnClickEvent(close, function()
             GUI:Win_Close(parent)
         end)
@@ -2634,7 +2600,7 @@ npc[514] = function(p2, p3, Data) -- 世界地图
         GUI:setTouchEnabled(npc.bg, true)
         GUI:Timeline_Window1(npc.bg)
 
-        local close = GUI:Button_Create(npc.bg, 'close', 740, 460, 'res/wy/public/close.png')
+        local close = GUI:Button_Create(npc.bg, 'close', 740, 460, 'res/wy/public/close_red_big.png')
         GUI:addOnClickEvent(close, function()
             GUI:Win_Close(parent)
         end)
@@ -2688,7 +2654,7 @@ npc[515] = function(p2, p3, Data) -- 仙途奇缘
         GUI:setTouchEnabled(npc.bg, true)
         GUI:Timeline_Window1(npc.bg)
 
-        local close = GUI:Button_Create(npc.bg, 'close', 740, 460, 'res/wy/public/close.png')
+        local close = GUI:Button_Create(npc.bg, 'close', 740, 460, 'res/wy/public/close_red_big.png')
         GUI:addOnClickEvent(close, function()
             GUI:Win_Close(parent)
         end)
@@ -2744,7 +2710,7 @@ npc[516] = function(p2, p3, Data)
         GUI:setTouchEnabled(npc.bg, true)
         GUI:Timeline_Window1(npc.bg)
 
-        local close = GUI:Button_Create(npc.bg, 'close', 740, 460, 'res/wy/public/close.png')
+        local close = GUI:Button_Create(npc.bg, 'close', 740, 460, 'res/wy/public/close_red_big.png')
         GUI:addOnClickEvent(close, function()
             GUI:Win_Close(parent)
         end)
@@ -2812,7 +2778,7 @@ npc[517] = function(p2, p3, Data)
         GUI:setTouchEnabled(npc.bg, true)
         GUI:Timeline_Window1(npc.bg)
 
-        local close = GUI:Button_Create(npc.bg, 'close', 740, 460, 'res/wy/public/close.png')
+        local close = GUI:Button_Create(npc.bg, 'close', 740, 460, 'res/wy/public/close_red_big.png')
         GUI:addOnClickEvent(close, function()
             GUI:Win_Close(parent)
         end)
@@ -2847,7 +2813,7 @@ npc[998] = function(p2, p3, Data)
 	GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
 	GUI:setTouchEnabled(npc.bg, true)
 	GUI:Timeline_Window3(npc.bg)
-    local close = GUI:Button_Create(npc.bg, 'close', 970, 550, 'res/wy/public/close.png')
+    local close = GUI:Button_Create(npc.bg, 'close', 970, 550, 'res/wy/public/close_red_big.png')
     GUI:addOnClickEvent(close, function()
         GUI:Win_Close(parent)
     end)

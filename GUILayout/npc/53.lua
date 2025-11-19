@@ -525,7 +525,7 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:setTouchEnabled(npc.bg, true)
         GUI:Timeline_Window1(npc.bg)
 
-        local close = GUI:Button_Create(npc.bg, 'close', 930, 480, 'res/wy/public/close.png')
+        local close = GUI:Button_Create(npc.bg, 'close', 930, 480, 'res/wy/public/close_red_big.png')
         GUI:addOnClickEvent(close, function()
             GUI:Win_Close(parent)
         end)

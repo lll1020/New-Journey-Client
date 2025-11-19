@@ -305,7 +305,6 @@ function ui.init(parent)
 
 	-- Create Button_close
 	local Button_close = GUI:Button_Create(Panel_1, "Button_close", 553.00, 508.00, "res/public/1900000510.png")
-	GUI:Button_loadTexturePressed(Button_close, "res/public/1900000511.png")
 	GUI:Button_setTitleText(Button_close, "")
 	GUI:Button_setTitleColor(Button_close, "#414146")
 	GUI:Button_setTitleFontSize(Button_close, 14)
