@@ -2335,6 +2335,14 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                 end)
             end
 
+            local Button_all = GUI:Button_Create(Label_node, "grss_all", 480, 50, "res/public/1900000660.png")
+            GUI:setAnchorPoint(Button_all, 0.5, 0)
+            GUI:Button_setTitleText(Button_all, "一键领取")
+            GUI:Button_setTitleFontSize(Button_all, 14)
+            GUI:addOnClickEvent(Button_all, function()
+                SL:SendLuaNetMsg(101, 511, 1, 4, '{"isall":1}')
+            end)
+
             local Button= GUI:Button_Create(Label_node, "next", 800, 50, "res/public/1900000660.png")
             GUI:setAnchorPoint(Button, 0.5, 0)
             GUI:Button_setTitleText(Button, "下一页")
@@ -2403,6 +2411,14 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                 end)
             end
 
+            local Button_all = GUI:Button_Create(Label_node, "grsb_all", 480, 50, "res/public/1900000660.png")
+            GUI:setAnchorPoint(Button_all, 0.5, 0)
+            GUI:Button_setTitleText(Button_all, "一键领取")
+            GUI:Button_setTitleFontSize(Button_all, 14)
+            GUI:addOnClickEvent(Button_all, function()
+                SL:SendLuaNetMsg(101, 511, 1, 5, '{"isall":1}')
+            end)
+
             local Button= GUI:Button_Create(Label_node, "next", 800, 50, "res/public/1900000660.png")
             GUI:setAnchorPoint(Button, 0.5, 0)
             GUI:Button_setTitleText(Button, "下一页")
@@ -2468,6 +2484,14 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                     SL:SendLuaNetMsg(101, 511, 1, 6, '{"qqsb":"'..(v.idx)..'"}')
                 end)
             end
+
+            local Button_all = GUI:Button_Create(Label_node, "qqsb_all", 480, 50, "res/public/1900000660.png")
+            GUI:setAnchorPoint(Button_all, 0.5, 0)
+            GUI:Button_setTitleText(Button_all, "一键领取")
+            GUI:Button_setTitleFontSize(Button_all, 14)
+            GUI:addOnClickEvent(Button_all, function()
+                SL:SendLuaNetMsg(101, 511, 1, 6, '{"isall":1}')
+            end)
 
             local Button= GUI:Button_Create(Label_node, "next", 800, 50, "res/public/1900000660.png")
             GUI:setAnchorPoint(Button, 0.5, 0)
