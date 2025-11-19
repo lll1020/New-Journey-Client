@@ -153,10 +153,12 @@ end
 function UIHelper.createPrimaryButton(parent, name, x, y, text, callback, opts)
     opts = opts or {}
     local btn = GUI:Button_Create(parent, name or 'btn', x or 0, y or 0, opts.skin or DEFAULT_BUTTON)
-    GUI:Button_setTitleText(btn, text or (opts.icon and '' or '确定'))
-    GUI:Button_setTitleFontSize(btn, opts.fontSize or 18)
-    if opts.color then
-        GUI:Button_setTitleColor(btn, opts.color)
+    if text then
+        GUI:Button_setTitleText(btn, text or (opts.icon and '' or '确定'))
+        GUI:Button_setTitleFontSize(btn, opts.fontSize or 18)
+        if opts.color then
+            GUI:Button_setTitleColor(btn, opts.color)
+        end
     end
     GUI:addOnClickEvent(btn, function(widget)
         if opts.sound ~= false and SL and SL.PlaySound then
