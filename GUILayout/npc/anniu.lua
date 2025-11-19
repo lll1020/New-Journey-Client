@@ -528,6 +528,7 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
         GUI:setTouchEnabled(npc.bg, true)
         GUI:Win_SetDrag(parent, npc.bg)
         GUI:Win_SetZPanel(parent, npc.bg)
+        GUI:removeChildByName(parent, "bjt")
 
         -- 工具：同步勾选状态到服务器并记录本地表
         local function syncSelection(key, isSelected)
@@ -1411,7 +1412,6 @@ npc[17] = function(p2, p3, Data)  --实力提升
 
 end
 ---新手礼包
----新手礼包
 npc[18] = function(p2, p3, Data)
     local function renderNewbieGift(node)
         GUI:removeAllChildren(node)
@@ -2011,7 +2011,60 @@ end
 
 ---福利大厅
 npc[511] = function(p2, p3, Data) -- 福利大厅
+    local fldt_data_cfg = teshudata["fldt"] or {}
+    local fldt_cfg_table = fldt_data_cfg["fldt_cfg"]
+    local fldt_seven_cfg = (fldt_cfg_table and fldt_cfg_table.seven_login) or {}
+    local fldt_online_limit = fldt_seven_cfg.online_limit or 10
 
+    local function fldt_decode_json(raw)
+        if type(raw) == "table" then
+            return raw
+        end
+        if not raw or raw == "" then
+            return {}
+        end
+        return SL:JsonDecode(raw, false) or {}
+    end
+
+    local function fldt_get_state()
+        npc.fldt_data = npc.fldt_data or {}
+        npc.ts_data = npc.ts_data or {}
+        npc.sign = npc.sign or 1
+        npc.fldt_data.T_qrbq = npc.fldt_data.T_qrbq or {}
+        return npc.fldt_data.T_qrbq
+    end
+
+    local function fldt_get_flip_digits()
+        local fp = fldt_get_state()["7rqd_fp"]
+        if type(fp) ~= "table" then
+            fp = {}
+        end
+        return fp
+    end
+
+    local function fldt_calc_flip_value(fp)
+        local total = 0
+        if type(fp) ~= "table" then
+            return total
+        end
+        for i = 1, 7 do
+            local value = fp[i]
+            if value == nil then
+                value = fp[tostring(i)]
+            end
+            total = total + (tonumber(value) or 0) * (10 ^ (i - 1))
+        end
+        return total
+    end
+
+    local function fldt_format_digits(fp)
+        local seq = {}
+        for i = 7, 1, -1 do
+            local v = fp[i] or fp[tostring(i)]
+            seq[#seq + 1] = v ~= nil and tostring(v) or "?"
+        end
+        return table.concat(seq, " ")
+    end
 
     local function sort_by_state(grss)
         table.sort(grss, function(a, b)
@@ -2047,71 +2100,200 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
 
     local function GUI_createLabel(Label_node,idx)
         GUI:removeAllChildren(Label_node)
+        npc.fldt_data = npc.fldt_data or {}
         if idx == 1 then
-            local Label_list = GUI:ListView_Create(Label_node, "Label_list", 85 + 200, 50, 700, 500, 1)
-            GUI:ListView_setItemsMargin(Label_list, 10)
+            local base = npc.fldt_data
+            base.T_qrbq = base.T_qrbq or {}
+            local tqrbq = base.T_qrbq
+            local loginDays = tonumber(base.U_dlts) or 0
+            local onlineMinutes = tonumber(base.J_zxsj) or 0
+            local claimed = tonumber(tqrbq["7rqd"]) or 0
+            local flipDigits = fldt_get_flip_digits()
+            local digitDisplay = fldt_format_digits(flipDigits)
+            local finalSum = tonumber(tqrbq["7rqd_final_yb"]) or fldt_calc_flip_value(flipDigits)
+            local finalMultiple = tonumber(tqrbq["7rqd_final_mul"]) or 1
+            local finalAward = tonumber(tqrbq["7rqd_final_award"]) or 0
 
-            for v,k in ipairs(teshudata["fldt"]["7rqd"]) do
-                local l = GUI:Image_Create(Label_list, "img_bj_l_"..v, 0, 0, 'res/wy/public/500-200.png')
-                GUI:setContentSize(l, 500, 70)
+            GUI:Text_Create(Label_node, "seven_login_days", 260 + 365, 440 - 290, 20, "#FFD56F",
+                string.format("累计登录：%d天   已领取：%d/7天", loginDays, math.min(claimed, 7)))
+            GUI:Text_Create(Label_node, "seven_online_minutes", 260 + 365, 415 - 290, 18, "#FFD56F",
+                string.format("当前在线：%d分钟 / 每日领取需满%d分钟", onlineMinutes, fldt_online_limit))
+            GUI:Text_Create(Label_node, "seven_digits", 260 + 365, 390 - 290, 18, "#00E4FF", "幸运号码：" .. digitDisplay)
 
-                GUI:Text_Create(l, "wz",10,30, 20, "#FF0000", string.format("第%d天登录奖励",v))
-
-
-                local give = ItemNumByTable_img(k.jl, nil,GUI:Node_Create(l, "give", 0, 0))
-                GUI:setPosition(give, 200, 10)
-
-                local Button= GUI:Button_Create(l, "Button", 400, 20, "res/public/1900000660.png")
-                GUI:Button_setTitleText(Button, "领取")
-                GUI:Button_setTitleFontSize(Button, 14)
-
-                GUI:addOnClickEvent(Button, function()
-                    SL:SendLuaNetMsg(101, 511, 1, 1, '{"7rqd":'..v..'}')
-                end)
+            local finalText
+            if claimed >= 7 then
+                if finalAward > 0 then
+                    finalText = string.format("翻牌合计：%d  倍率：x%d  已发绑定元宝：%d", finalSum, finalMultiple, finalAward)
+                else
+                    finalText = string.format("翻牌合计：%d  倍率：x%d  奖励发放中", finalSum, finalMultiple)
+                end
+            else
+                finalText = string.format("翻牌合计：%d  倍率：x%d  完成七日自动发放", finalSum, finalMultiple)
             end
+            GUI:Text_Create(Label_node, "seven_final", 260 + 365, 365 - 290, 18, "#FFFFFF", finalText)
+            GUI:Text_Create(Label_node, "seven_tip", 260 + 365, 340 - 290, 16, "#FFA043", "提示：需要按顺序领取并满足在线时间才可翻牌。")
+
+            local dayLayout = GUI:Layout_Create(Label_node, "seven_day_layout", 250, 80, 620, 360)
+            local sevenRewards = fldt_data_cfg["7rqd"] or {}
+            for day, cfg in ipairs(sevenRewards) do
+                local card = GUI:Image_Create(dayLayout, "seven_card_" .. day, 0, 0, 'res/wy/public/500-200.png')
+                GUI:setContentSize(card, 280, 95)
+                GUI:Text_Create(card, "day_title", 10, 60, 20, "#FFE076", string.format("第%d天", day))
+
+                local rewardNode = GUI:Node_Create(card, "give" .. day, 0, 0)
+                GUI:setPosition(rewardNode, 10, 10)
+                ItemNumByTable_img(cfg.jl, nil, rewardNode)
+
+                local digitValue = flipDigits[day] or flipDigits[tostring(day)]
+                local digitText = digitValue ~= nil and tostring(digitValue) or "?"
+                GUI:Text_Create(card, "digit" .. day, 180, 60, 22, "#00F0FF", "翻牌：" .. digitText)
+
+                local stateDesc = "未解锁"
+                local stateColor = "#FFFF66"
+                local btnText = "未解锁"
+                local enable = false
+
+                if day <= claimed then
+                    stateDesc = "已领取"
+                    stateColor = "#00FF7F"
+                    btnText = "已领取"
+                elseif day == claimed + 1 then
+                    if loginDays < day then
+                        stateDesc = "登录天数不足"
+                        btnText = "待登录"
+                    elseif onlineMinutes < fldt_online_limit then
+                        stateDesc = string.format("需在线%d分钟", fldt_online_limit)
+                        btnText = "待在线"
+                    else
+                        stateDesc = "可领取"
+                        stateColor = "#00FF7F"
+                        btnText = "领取"
+                        enable = true
+                    end
+                else
+                    stateDesc = "请按顺序领取"
+                    btnText = "待解锁"
+                end
+
+                GUI:Text_Create(card, "state" .. day, 10 + 55, 60, 18, stateColor, stateDesc)
+                local Button = GUI:Button_Create(card, "Button_" .. day, 250, 15, "res/public/1900000660.png")
+                GUI:Button_setTitleText(Button, btnText)
+                GUI:Button_setTitleFontSize(Button, 16)
+                --TODO：正式时候要改回enable
+                if enable or true then 
+                    GUI:addOnClickEvent(Button, function()
+                        SL:SendLuaNetMsg(101, 511, 1, 1, string.format('{"7rqd":%d}', day))
+                    end)
+                end
+            end
+            GUI:UserUILayout(dayLayout, {dir = 3, addDir = 1, gap = {x = 90, y = 15}})
         elseif idx == 2 then
-            local Label_list = GUI:ListView_Create(Label_node, "Label_list", 85 + 200, 50, 700, 500, 1)
-            GUI:ListView_setItemsMargin(Label_list, 10)
+            local Label_list = GUI:ListView_Create(Label_node, "Label_list", 85 + 200, 90, 700, 460, 1)
+            GUI:ListView_setItemsMargin(Label_list, 12)
+            local tqrbq = fldt_get_state()
+            local claimed = tonumber(tqrbq["zxjl"]) or 0
+            local onlineMinutes = tonumber(npc.fldt_data and npc.fldt_data.J_zxsj) or 0
 
-            for v,k in ipairs(teshudata["fldt"]["zxjl"]) do
-                local l = GUI:Image_Create(Label_list, "img_bj_l_"..v, 0, 0, 'res/wy/public/500-200.png')
-                GUI:setContentSize(l, 500, 70)
+            GUI:Text_Create(Label_node, "online_desc", 260, 50, 18, "#FFD56F",
+                string.format("当前在线：%d分钟", onlineMinutes))
 
-                GUI:Text_Create(l, "wz",10,30, 20, "#FF0000", string.format("在线时间%d分钟",k.time))
+            local onlineRewards = fldt_data_cfg["zxjl"] or {}
+            for v, k in ipairs(onlineRewards) do
+                local l = GUI:Image_Create(Label_list, "img_bj_l_" .. v, 0, 0, 'res/wy/public/500-200.png')
+                GUI:setContentSize(l, 500, 80)
 
+                GUI:Text_Create(l, "wz", 100, 40, 20, "#FFEE8A", string.format("在线满%d分钟", k.time))
 
-                local give = ItemNumByTable_img(k.jl, nil,GUI:Node_Create(l, "give", 0, 0))
-                GUI:setPosition(give, 200, 10)
+                local give = ItemNumByTable_img(k.jl, nil, GUI:Node_Create(l, "give", 0, 0))
+                GUI:setPosition(give, 10, 5)
 
-                local Button= GUI:Button_Create(l, "Button", 400, 20, "res/public/1900000660.png")
-                GUI:Button_setTitleText(Button, "领取")
+                local stateDesc = "未解锁"
+                local btnText = "待解锁"
+                local stateColor = "#FFFF66"
+                local enable = false
+
+                if v <= claimed then
+                    stateDesc = "已领取"
+                    btnText = "已领取"
+                    stateColor = "#00FF7F"
+                elseif v == claimed + 1 then
+                    if onlineMinutes >= (k.time or 0) then
+                        stateDesc = "可领取"
+                        btnText = "领取"
+                        stateColor = "#00FF7F"
+                        enable = true
+                    else
+                        stateDesc = string.format("%d/%d分钟", onlineMinutes, k.time or 0)
+                        btnText = stateDesc
+                    end
+                end
+
+                GUI:Text_Create(l, "state", 260, 40, 18, stateColor, stateDesc)
+
+                local Button = GUI:Button_Create(l, "Button", 400, 20, "res/public/1900000660.png")
+                GUI:Button_setTitleText(Button, btnText)
                 GUI:Button_setTitleFontSize(Button, 14)
-
-                GUI:addOnClickEvent(Button, function()
-                    SL:SendLuaNetMsg(101, 511, 1, 2, '{"zxjl":'..v..'}')
-                end)
+                --TODO：正式时候要改回enable
+                if enable or true then 
+                    GUI:addOnClickEvent(Button, function()
+                        SL:SendLuaNetMsg(101, 511, 1, 2, '{"zxjl":' .. v .. '}')
+                    end)
+                end
             end
         elseif idx == 3 then
-            local Label_list = GUI:ListView_Create(Label_node, "Label_list", 85 + 200, 50, 700, 500, 1)
-            GUI:ListView_setItemsMargin(Label_list, 10)
+            local Label_list = GUI:ListView_Create(Label_node, "Label_list", 85 + 200, 90, 700, 460, 1)
+            GUI:ListView_setItemsMargin(Label_list, 12)
+            local tqrbq = fldt_get_state()
+            local claimed = tonumber(tqrbq["sgjl"]) or 0
+            local killCount = tonumber(npc.fldt_data and npc.fldt_data.U_sgsl) or 0
 
-            for v,k in ipairs(teshudata["fldt"]["sgjl"]) do
-                local l = GUI:Image_Create(Label_list, "img_bj_l_"..v, 0, 0, 'res/wy/public/500-200.png')
-                GUI:setContentSize(l, 500, 70)
+            GUI:Text_Create(Label_node, "kill_desc", 260, 50, 18, "#FFD56F",
+                string.format("今日已击杀：%d只", killCount))
 
-                GUI:Text_Create(l, "wz",10,30, 20, "#FF0000", string.format("杀怪数量%d",k.num))
+            local killRewards = fldt_data_cfg["sgjl"] or {}
+            for v, k in ipairs(killRewards) do
+                local l = GUI:Image_Create(Label_list, "img_bj_l_" .. v, 0, 0, 'res/wy/public/500-200.png')
+                GUI:setContentSize(l, 500, 80)
 
+                GUI:Text_Create(l, "wz", 100, 40, 20, "#FFEE8A", string.format("击杀%d只怪物", k.num))
 
-                local give = ItemNumByTable_img(k.jl, nil,GUI:Node_Create(l, "give", 0, 0))
-                GUI:setPosition(give, 200, 10)
+                local give = ItemNumByTable_img(k.jl, nil, GUI:Node_Create(l, "give", 0, 0))
+                GUI:setPosition(give, 10, 5)
 
-                local Button= GUI:Button_Create(l, "Button", 400, 20, "res/public/1900000660.png")
-                GUI:Button_setTitleText(Button, "领取")
+                local stateDesc = "未解锁"
+                local btnText = "待解锁"
+                local stateColor = "#FFFF66"
+                local enable = false
+
+                if v <= claimed then
+                    stateDesc = "已领取"
+                    btnText = "已领取"
+                    stateColor = "#00FF7F"
+                elseif v == claimed + 1 then
+                    if killCount >= (k.num or 0) then
+                        stateDesc = "可领取"
+                        btnText = "领取"
+                        stateColor = "#00FF7F"
+                        enable = true
+                    else
+                        stateDesc = string.format("%d/%d只", killCount, k.num or 0)
+                        btnText = stateDesc
+                    end
+                else
+                    stateDesc = "请按顺序领取"
+                end
+
+                GUI:Text_Create(l, "state", 260, 40, 18, stateColor, stateDesc)
+
+                local Button = GUI:Button_Create(l, "Button", 400, 20, "res/public/1900000660.png")
+                GUI:Button_setTitleText(Button, btnText)
                 GUI:Button_setTitleFontSize(Button, 14)
-
-                GUI:addOnClickEvent(Button, function()
-                    SL:SendLuaNetMsg(101, 511, 1, 2, '{"sgjl":'..v..'}')
-                end)
+               --TODO：正式时候要改回enable
+                if enable or true then 
+                    GUI:addOnClickEvent(Button, function()
+                        SL:SendLuaNetMsg(101, 511, 1, 3, '{"sgjl":' .. v .. '}')
+                    end)
+                end
             end
         elseif idx == 4 then
             local Label_list = GUI:ListView_Create(Label_node, "Label_list", 85 + 200, 50, 700, 500, 1)
@@ -2349,14 +2531,25 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
     end
 
     if p2 == 0 then
-        npc.fldt_data = not Data and {} or SL:JsonDecode(Data, false)
+        npc.fldt_data = fldt_decode_json(Data)
+        npc.fldt_data.T_qrbq = npc.fldt_data.T_qrbq or {}
+        npc.ts_data = npc.ts_data or {}
         local welfareWindow = ensureWindow("welfare", 511, {titleText = "福利大厅"})
         npc.bg = welfareWindow.bg
         npc.node = welfareWindow.node
         GUI:removeAllChildren(npc.node)
         UI_updata(npc.node)
+        GUI_createLabel(npc.Label, npc.titles_sign or 1)
+    elseif p2 == 1 then
+        if p3 == 1 then
+            npc.fldt_data = npc.fldt_data or {}
+            npc.fldt_data.T_qrbq = fldt_decode_json(Data)
+            if npc.Label and (npc.titles_sign or 1) <= 3 then
+                GUI_createLabel(npc.Label, npc.titles_sign or 1)
+            end
+        end
     elseif p2 == 2 then
-        npc.ts_data = not Data and {} or SL:JsonDecode(Data, false)
+        npc.ts_data = fldt_decode_json(Data)
         npc.titles_sign = p3
         GUI_createLabel(npc.Label,p3)
     end
