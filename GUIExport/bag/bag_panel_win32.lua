@@ -387,6 +387,20 @@ function ui.init(parent)
 	GUI:setTouchEnabled(Button_XiaoHui, true)
 	GUI:setTag(Button_XiaoHui, -1)
 
+	-- Create Button_XiaoHuiClose
+	local Button_XiaoHuiClose = GUI:Button_Create(ImageXiaoHui, "Button_XiaoHuiClose", 203.00, 199.00, "res/public/1900000510.png")
+	GUI:Button_loadTexturePressed(Button_XiaoHuiClose, "res/public/1900000511.png")
+	GUI:Button_setTitleText(Button_XiaoHuiClose, "")
+	GUI:Button_setTitleColor(Button_XiaoHuiClose, "#414146")
+	GUI:Button_setTitleFontSize(Button_XiaoHuiClose, 14)
+	GUI:Button_titleEnableOutline(Button_XiaoHuiClose, "#000000", 1)
+	GUI:Win_SetParam(Button_XiaoHuiClose, {grey = 1}, "Button")
+	GUI:setChineseName(Button_XiaoHuiClose, "背包_关闭按钮")
+	GUI:setAnchorPoint(Button_XiaoHuiClose, 0.50, 0.50)
+	GUI:setTouchEnabled(Button_XiaoHuiClose, true)
+	GUI:setTag(Button_XiaoHuiClose, 19)
+	GUI:setVisible(Button_XiaoHuiClose, false)
+
 	-- Create FuWuJieMian
 	local FuWuJieMian = GUI:Image_Create(Panel_1, "FuWuJieMian", 539.00, 34.00, "res/custom/bag/fuwubg.png")
 	GUI:setChineseName(FuWuJieMian, "服务按钮界面")
@@ -425,6 +439,136 @@ function ui.init(parent)
 	GUI:setChineseName(FuWuJieMian_PingBiXiaoXi, "屏蔽消息")
 	GUI:setTouchEnabled(FuWuJieMian_PingBiXiaoXi, true)
 	GUI:setTag(FuWuJieMian_PingBiXiaoXi, -1)
+
+	-- Create ListView_Equip
+	local ListView_Equip = GUI:ListView_Create(Panel_1, "ListView_Equip", -2.00, -45.00, 552.00, 48.00, 2)
+	GUI:ListView_setBounceEnabled(ListView_Equip, false)
+	GUI:ListView_setGravity(ListView_Equip, 3)
+	GUI:setChineseName(ListView_Equip, "背包神器")
+	GUI:setTouchEnabled(ListView_Equip, false)
+	GUI:setTag(ListView_Equip, -1)
+	GUI:setVisible(ListView_Equip, false)
+
+
+	-- Create ImageView_77
+	local ImageView_77 = GUI:Image_Create(ListView_Equip, "ImageView_77", 0.00, 2.00, "res/custom/bag/equipbackground.png")
+	GUI:setTouchEnabled(ImageView_77, false)
+	GUI:setTag(ImageView_77, -1)
+
+	-- Create EquipShow_77
+	local EquipShow_77 = GUI:EquipShow_Create(ImageView_77, "EquipShow_77", -9.00, -9.00, 77, false, {doubleTakeOff = true, look = true, movable = true, bgVisible = false})
+	GUI:setTag(EquipShow_77, -1)
+	GUI:EquipShow_setAutoUpdate(EquipShow_77)
+
+	-- Create ImageView_78
+	local ImageView_78 = GUI:Image_Create(ListView_Equip, "ImageView_78", 46.00, 2.00, "res/custom/bag/equipbackground.png")
+	GUI:setTouchEnabled(ImageView_78, false)
+	GUI:setTag(ImageView_78, -1)
+
+	-- Create EquipShow_78
+	local EquipShow_78 = GUI:EquipShow_Create(ImageView_78, "EquipShow_78", -9.00, -9.00, 78, false, {doubleTakeOff = true, look = true, movable = true, bgVisible = false})
+	GUI:setTag(EquipShow_78, -1)
+	GUI:EquipShow_setAutoUpdate(EquipShow_78)
+
+	-- Create ImageView_79
+	local ImageView_79 = GUI:Image_Create(ListView_Equip, "ImageView_79", 92.00, 2.00, "res/custom/bag/equipbackground.png")
+	GUI:setTouchEnabled(ImageView_79, false)
+	GUI:setTag(ImageView_79, -1)
+
+	-- Create EquipShow_79
+	local EquipShow_79 = GUI:EquipShow_Create(ImageView_79, "EquipShow_79", -9.00, -9.00, 79, false, {doubleTakeOff = true, look = true, movable = true, bgVisible = false})
+	GUI:setTag(EquipShow_79, -1)
+	GUI:EquipShow_setAutoUpdate(EquipShow_79)
+
+	-- Create ImageView_80
+	local ImageView_80 = GUI:Image_Create(ListView_Equip, "ImageView_80", 138.00, 2.00, "res/custom/bag/equipbackground.png")
+	GUI:setTouchEnabled(ImageView_80, false)
+	GUI:setTag(ImageView_80, -1)
+
+	-- Create EquipShow_80
+	local EquipShow_80 = GUI:EquipShow_Create(ImageView_80, "EquipShow_80", -9.00, -9.00, 80, false, {doubleTakeOff = true, look = true, movable = true, bgVisible = false})
+	GUI:setTag(EquipShow_80, -1)
+	GUI:EquipShow_setAutoUpdate(EquipShow_80)
+
+	-- Create ImageView_81
+	local ImageView_81 = GUI:Image_Create(ListView_Equip, "ImageView_81", 184.00, 2.00, "res/custom/bag/equipbackground.png")
+	GUI:setTouchEnabled(ImageView_81, false)
+	GUI:setTag(ImageView_81, -1)
+
+	-- Create EquipShow_81
+	local EquipShow_81 = GUI:EquipShow_Create(ImageView_81, "EquipShow_81", -9.00, -9.00, 81, false, {doubleTakeOff = true, look = true, movable = true, bgVisible = false})
+	GUI:setTag(EquipShow_81, -1)
+	GUI:EquipShow_setAutoUpdate(EquipShow_81)
+
+	-- Create ImageView_82
+	local ImageView_82 = GUI:Image_Create(ListView_Equip, "ImageView_82", 230.00, 2.00, "res/custom/bag/equipbackground.png")
+	GUI:setTouchEnabled(ImageView_82, false)
+	GUI:setTag(ImageView_82, -1)
+
+	-- Create EquipShow_82
+	local EquipShow_82 = GUI:EquipShow_Create(ImageView_82, "EquipShow_82", -9.00, -9.00, 82, false, {doubleTakeOff = true, look = true, movable = true, bgVisible = false})
+	GUI:setTag(EquipShow_82, -1)
+	GUI:EquipShow_setAutoUpdate(EquipShow_82)
+
+	-- Create ImageView_83
+	local ImageView_83 = GUI:Image_Create(ListView_Equip, "ImageView_83", 276.00, 2.00, "res/custom/bag/equipbackground.png")
+	GUI:setTouchEnabled(ImageView_83, false)
+	GUI:setTag(ImageView_83, -1)
+
+	-- Create EquipShow_83
+	local EquipShow_83 = GUI:EquipShow_Create(ImageView_83, "EquipShow_83", -9.00, -9.00, 83, false, {doubleTakeOff = true, look = true, movable = true, bgVisible = false})
+	GUI:setTag(EquipShow_83, -1)
+	GUI:EquipShow_setAutoUpdate(EquipShow_83)
+
+	-- Create ImageView_84
+	local ImageView_84 = GUI:Image_Create(ListView_Equip, "ImageView_84", 322.00, 2.00, "res/custom/bag/equipbackground.png")
+	GUI:setTouchEnabled(ImageView_84, false)
+	GUI:setTag(ImageView_84, -1)
+
+	-- Create EquipShow_84
+	local EquipShow_84 = GUI:EquipShow_Create(ImageView_84, "EquipShow_84", -9.00, -9.00, 84, false, {doubleTakeOff = true, look = true, movable = true, bgVisible = false})
+	GUI:setTag(EquipShow_84, -1)
+	GUI:EquipShow_setAutoUpdate(EquipShow_84)
+
+	-- Create ImageView_85
+	local ImageView_85 = GUI:Image_Create(ListView_Equip, "ImageView_85", 368.00, 2.00, "res/custom/bag/equipbackground.png")
+	GUI:setTouchEnabled(ImageView_85, false)
+	GUI:setTag(ImageView_85, -1)
+
+	-- Create EquipShow_85
+	local EquipShow_85 = GUI:EquipShow_Create(ImageView_85, "EquipShow_85", -9.00, -9.00, 85, false, {doubleTakeOff = true, look = true, movable = true, bgVisible = false})
+	GUI:setTag(EquipShow_85, -1)
+	GUI:EquipShow_setAutoUpdate(EquipShow_85)
+
+	-- Create ImageView_86
+	local ImageView_86 = GUI:Image_Create(ListView_Equip, "ImageView_86", 414.00, 2.00, "res/custom/bag/equipbackground.png")
+	GUI:setTouchEnabled(ImageView_86, false)
+	GUI:setTag(ImageView_86, -1)
+
+	-- Create EquipShow_86
+	local EquipShow_86 = GUI:EquipShow_Create(ImageView_86, "EquipShow_86", -9.00, -9.00, 86, false, {doubleTakeOff = true, look = true, movable = true, bgVisible = false})
+	GUI:setTag(EquipShow_86, -1)
+	GUI:EquipShow_setAutoUpdate(EquipShow_86)
+
+	-- Create ImageView_87
+	local ImageView_87 = GUI:Image_Create(ListView_Equip, "ImageView_87", 460.00, 2.00, "res/custom/bag/equipbackground.png")
+	GUI:setTouchEnabled(ImageView_87, false)
+	GUI:setTag(ImageView_87, -1)
+
+	-- Create EquipShow_87
+	local EquipShow_87 = GUI:EquipShow_Create(ImageView_87, "EquipShow_87", -9.00, -9.00, 87, false, {doubleTakeOff = true, look = true, movable = true, bgVisible = false})
+	GUI:setTag(EquipShow_87, -1)
+	GUI:EquipShow_setAutoUpdate(EquipShow_87)
+
+	-- Create ImageView_88
+	local ImageView_88 = GUI:Image_Create(ListView_Equip, "ImageView_88", 506.00, 2.00, "res/custom/bag/equipbackground.png")
+	GUI:setTouchEnabled(ImageView_88, false)
+	GUI:setTag(ImageView_88, -1)
+
+	-- Create EquipShow_88
+	local EquipShow_88 = GUI:EquipShow_Create(ImageView_88, "EquipShow_88", -9.00, -9.00, 88, false, {doubleTakeOff = true, look = true, movable = true, bgVisible = false})
+	GUI:setTag(EquipShow_88, -1)
+	GUI:EquipShow_setAutoUpdate(EquipShow_88)
 end
 
 return ui
