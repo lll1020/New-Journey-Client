@@ -277,6 +277,12 @@ function npc.main(npcid, p2, p3, msgData)
         npc._window = NPC_UI_HELPER.ensureWindow(npc._window, id, opts)
         npc.bg = npc._window.bg
         npc.node = npc._window.node
+            GUI:setContentSize(GUI:Frames_Create(npc.bg, "eff1", 0, 0, "res/wy/eff/city/tongyong_0_dx_1_", ".png", 1, 45,
+        { speed = 75, count = 45, loop = -1}), GUI:getContentSize(npc.bg))
+            GUI:setContentSize( GUI:Frames_Create(npc.bg, "eff2", 0, 0, "res/wy/eff/city/tongyong_0_dx_2_", ".png", 1, 45,
+        { speed = 75, count = 45, loop = -1}), GUI:getContentSize(npc.bg))
+        
+
         return npc.node
     end
 

@@ -57,6 +57,7 @@ function UIHelper.ensureWindow(cache, npcid, opts)
     local bgCfg = opts.background or {}
     local closeCfg = opts.closeButton
     local nodeCfg = opts.node or {}
+    local title = opts.title or {}
 
     local name = opts.windowName or string.format('npc_%s', npcid or 'unknown')
     local x = pos.x or cogin.w / 2
@@ -80,6 +81,18 @@ function UIHelper.ensureWindow(cache, npcid, opts)
     local bg = GUI:Image_Create(parent, bgCfg.name or 'img_bj', bgCfg.x or 0, bgCfg.y or 0, bgCfg.skin or DEFAULT_BG)
     GUI:setAnchorPoint(bg, bgCfg.anchorX or 0.5, bgCfg.anchorY or 0.5)
     GUI:setTouchEnabled(bg, true)
+    if not opts.background or (bgCfg.skin == DEFAULT_BG) then
+        GUI:Frames_Create(bg, "eff1", 0, 0, "res/wy/eff/city/tongyong_0_dx_1_", ".png", 1, 45,
+            { speed = 75, count = 45, loop = -1})
+        GUI:Frames_Create(bg, "eff2", 0, 0, "res/wy/eff/city/tongyong_0_dx_2_", ".png", 1, 45,
+            { speed = 75, count = 45, loop = -1})
+    end
+
+    if opts.title then
+        cache.title = GUI:Image_Create(bg, title.name or 'title', title.x or 56, title.y or 464, title.skin)
+        GUI:setAnchorPoint(cache.title, title.anchorX or 0, title.anchorY or 0)
+    end
+
     if bgCfg.timeline ~= false then
         GUI:Timeline_Window1(bg)
     end

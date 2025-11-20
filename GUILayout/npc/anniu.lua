@@ -42,6 +42,7 @@ local WINDOW_STYLE = {
         overlay = {skin = "res/public/1900000651_1.png"},
         background = {skin = "res/wy/public/tongyong_0.png"},
         closeButton = {x = 740, y = 460, skin = "res/wy/public/close_red_big.png"},
+        title = {x = 56, y = 464, skin = "res/custom/fulitating/title.png"},
     },
     strategy = {     -- 游戏攻略
         windowName = "npc_yxgl",
@@ -103,6 +104,30 @@ local WINDOW_STYLE = {
         background = {skin = "res/custom/xinshoulibao/bg.png"},
         closeButton = {x = 740, y = 300, skin = "res/wy/public/close_red_big.png"},
     },
+    worldMap = {     -- 世界地图
+        windowName = "npc_sjdt",
+        overlay = {skin = "res/public/1900000651_1.png"},
+        background = {skin = "res/wy/public/tongyong_0.png"},
+        closeButton = {x = 740, y = 460, skin = "res/wy/public/close_red_big.png"},
+    },
+    fairyFate = {    -- 仙途奇缘
+        windowName = "npc_qy",
+        overlay = {skin = "res/public/1900000651_1.png"},
+        background = {skin = "res/wy/public/tongyong_0.png"},
+        closeButton = {x = 740, y = 460, skin = "res/wy/public/close_red_big.png"},
+    },
+    freeSponsor = {  -- 免费赞助
+        windowName = "npc_anniu_516",
+        overlay = {skin = "res/public/1900000651_1.png"},
+        background = {skin = "res/wy/public/tongyong_0.png"},
+        closeButton = {x = 740, y = 460, skin = "res/wy/public/close_red_big.png"},
+    },
+    treasureBasin = { -- 聚宝盆
+        windowName = "npc_anniu_517",
+        overlay = {skin = "res/public/1900000651_1.png"},
+        background = {skin = "res/wy/public/tongyong_0.png"},
+        closeButton = {x = 740, y = 460, skin = "res/wy/public/close_red_big.png"},
+    }
 }
 
 -- windowCache[name]：保存 UIHelper 返回引用，避免重复创建
@@ -2579,53 +2604,27 @@ npc[512] = function(p2, p3, Data) -- 游戏攻略
     end
 end
 ---世界地图
-npc[514] = function(p2, p3, Data) -- 世界地图
-    local function UI_updata(node) --界面渲染
+---世界地图
+npc[514] = function(p2, p3, Data)
+    local function renderWorldMap(node)
         GUI:removeAllChildren(node)
-        local dbLayout = GUI:Layout_Create(node, "dbLayout", 100, 0, 500, 500)
+        local layout = GUI:Layout_Create(node, "dbLayout", 100, 0, 500, 500)
         for i = 1, 9 do
-            local btn = GUI:Button_Create(dbLayout, 'btn' .. i, 0, 0, 'res/public/1900000660.png')
-            GUI:Button_setTitleText(btn, teshudata["sjdt"][500+i][1])
+            local btn = GUI:Button_Create(layout, 'btn' .. i, 0, 0, 'res/public/1900000660.png')
+            GUI:Button_setTitleText(btn, teshudata["sjdt"][500 + i][1])
             GUI:Button_setTitleFontSize(btn, 14)
-
             GUI:addOnClickEvent(btn, function()
-                SL:SendLuaNetMsg(100, 500+i, 1, 0, "")
+                SL:SendLuaNetMsg(100, 500 + i, 1, 0, "")
             end)
         end
-        GUI:UserUILayout(dbLayout, {dir=3,addDir=1,gap = {x=5, y=5}})
-
-
+        GUI:UserUILayout(layout, {dir = 3, addDir = 1, gap = {x = 5, y = 5}})
     end
 
     if p2 == 0 then
-        local parent = GUI:GetWindow(nil, "npc_sjdt")
-        if parent then
-            GUI:removeAllChildren(parent)
-            GUI:setPosition(parent, cogin.w / 2, cogin.h / 2)
-        else
-            parent = GUI:Win_Create("npc_sjdt", cogin.w / 2, cogin.h / 2, 0, 0, false, false, true, true, true, 0, 1)
-        end
-        local bjt = GUI:Image_Create(parent, "bjt", 0, 0, "res/public/1900000651_1.png")
-        GUI:setAnchorPoint(bjt, 0.5, 0.5)
-        GUI:setContentSize(bjt, cogin.w + 100, cogin.h + 100)
-        GUI:setTouchEnabled(bjt, true)
-        GUI:addOnClickEvent(bjt, function()
-            GUI:Win_Close(parent)
-        end)
-        npc.bg = GUI:Image_Create(parent, "img_bj", 0, 0, 'res/wy/public/tongyong_0.png')
-        GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
-        GUI:setTouchEnabled(npc.bg, true)
-        GUI:Timeline_Window1(npc.bg)
-
-        local close = GUI:Button_Create(npc.bg, 'close', 740, 460, 'res/wy/public/close_red_big.png')
-        GUI:addOnClickEvent(close, function()
-            GUI:Win_Close(parent)
-        end)
-        npc.node = GUI:Node_Create(npc.bg, "node", 0, 0)
-        UI_updata(npc.node)
+        local win = ensureWindow("worldMap", 514, {titleText = "世界地图"})
+        renderWorldMap(win.node)
     end
 end
-
 ---仙途奇缘（成就）
 npc[515] = function(p2, p3, Data) -- 仙途奇缘
     local function UI_updata(node) --界面渲染
@@ -2652,31 +2651,8 @@ npc[515] = function(p2, p3, Data) -- 仙途奇缘
 
     if p2 == 0 then
         npc.data_515 = not Data and {} or SL:JsonDecode(Data, false)
-        local parent = GUI:GetWindow(nil, "npc_qy")
-        if parent then
-            GUI:removeAllChildren(parent)
-            GUI:setPosition(parent, cogin.w / 2, cogin.h / 2)
-        else
-            parent = GUI:Win_Create("npc_qy", cogin.w / 2, cogin.h / 2, 0, 0, false, false, true, true, true, 0, 1)
-        end
-        local bjt = GUI:Image_Create(parent, "bjt", 0, 0, "res/public/1900000651_1.png")
-        GUI:setAnchorPoint(bjt, 0.5, 0.5)
-        GUI:setContentSize(bjt, cogin.w + 100, cogin.h + 100)
-        GUI:setTouchEnabled(bjt, true)
-        GUI:addOnClickEvent(bjt, function()
-            GUI:Win_Close(parent)
-        end)
-        npc.bg = GUI:Image_Create(parent, "img_bj", 0, 0, 'res/wy/public/tongyong_0.png')
-        GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
-        GUI:setTouchEnabled(npc.bg, true)
-        GUI:Timeline_Window1(npc.bg)
-
-        local close = GUI:Button_Create(npc.bg, 'close', 740, 460, 'res/wy/public/close_red_big.png')
-        GUI:addOnClickEvent(close, function()
-            GUI:Win_Close(parent)
-        end)
-        npc.node = GUI:Node_Create(npc.bg, "node", 0, 0)
-        UI_updata(npc.node)
+        local win = ensureWindow("worldMap", 515, {titleText = "仙途奇缘"})
+        UI_updata(win.node)
     end
 end
 --免费赞助
@@ -2708,31 +2684,8 @@ npc[516] = function(p2, p3, Data)
 
     if p2 == 0 then
         npc.data_516 = not Data and {} or SL:JsonDecode(Data, false)
-        local parent = GUI:GetWindow(nil, "npc_anniu_516")
-        if parent then
-            GUI:removeAllChildren(parent)
-            GUI:setPosition(parent, cogin.w / 2, cogin.h / 2)
-        else
-            parent = GUI:Win_Create("npc_anniu_516", cogin.w / 2, cogin.h / 2, 0, 0, false, false, true, true, true, 0, 1)
-        end
-        local bjt = GUI:Image_Create(parent, "bjt", 0, 0, "res/public/1900000651_1.png")
-        GUI:setAnchorPoint(bjt, 0.5, 0.5)
-        GUI:setContentSize(bjt, cogin.w + 100, cogin.h + 100)
-        GUI:setTouchEnabled(bjt, true)
-        GUI:addOnClickEvent(bjt, function()
-            GUI:Win_Close(parent)
-        end)
-        npc.bg = GUI:Image_Create(parent, "img_bj", 0, 0, 'res/wy/public/tongyong_0.png')
-        GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
-        GUI:setTouchEnabled(npc.bg, true)
-        GUI:Timeline_Window1(npc.bg)
-
-        local close = GUI:Button_Create(npc.bg, 'close', 740, 460, 'res/wy/public/close_red_big.png')
-        GUI:addOnClickEvent(close, function()
-            GUI:Win_Close(parent)
-        end)
-        npc.node = GUI:Node_Create(npc.bg, "node", 0, 0)
-        UI_updata(npc.node)
+        local win = ensureWindow("worldMap", 516, {titleText = "免费赞助"})
+        UI_updata(win.node)
     end
 end
 
@@ -2776,31 +2729,8 @@ npc[517] = function(p2, p3, Data)
 
     if p2 == 0 then
         npc.data_517 = not Data and {} or SL:JsonDecode(Data, false)
-        local parent = GUI:GetWindow(nil, "npc_anniu_517")
-        if parent then
-            GUI:removeAllChildren(parent)
-            GUI:setPosition(parent, cogin.w / 2, cogin.h / 2)
-        else
-            parent = GUI:Win_Create("npc_anniu_517", cogin.w / 2, cogin.h / 2, 0, 0, false, false, true, true, true, 0, 1)
-        end
-        local bjt = GUI:Image_Create(parent, "bjt", 0, 0, "res/public/1900000651_1.png")
-        GUI:setAnchorPoint(bjt, 0.5, 0.5)
-        GUI:setContentSize(bjt, cogin.w + 100, cogin.h + 100)
-        GUI:setTouchEnabled(bjt, true)
-        GUI:addOnClickEvent(bjt, function()
-            GUI:Win_Close(parent)
-        end)
-        npc.bg = GUI:Image_Create(parent, "img_bj", 0, 0, 'res/wy/public/tongyong_0.png')
-        GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
-        GUI:setTouchEnabled(npc.bg, true)
-        GUI:Timeline_Window1(npc.bg)
-
-        local close = GUI:Button_Create(npc.bg, 'close', 740, 460, 'res/wy/public/close_red_big.png')
-        GUI:addOnClickEvent(close, function()
-            GUI:Win_Close(parent)
-        end)
-        npc.node = GUI:Node_Create(npc.bg, "node", 0, 0)
-        UI_updata(npc.node)
+        local win = ensureWindow("worldMap", 517, {titleText = "聚宝盆"})
+        UI_updata(win.node)
     elseif p2 == 1 then
         npc.data_517.T_data.level = npc.data_517.T_data.level + 1
         UI_updata(npc.node)
@@ -3337,3 +3267,7 @@ npc[9999] = function(p2, p3, msgData) -- 通用关闭
     end
 end
 return npc
+
+
+
+
