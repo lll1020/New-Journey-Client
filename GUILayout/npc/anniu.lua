@@ -100,8 +100,8 @@ local WINDOW_STYLE = {
     newbieGift = {   -- 新手礼包
         windowName = "npc_xslb",
         overlay = {skin = "res/public/1900000651_1.png"},
-        background = {skin = "res/wy/public/tongyong_0.png"},
-        closeButton = {x = 740, y = 460, skin = "res/wy/public/close_red_big.png"},
+        background = {skin = "res/custom/xinshoulibao/bg.png"},
+        closeButton = {x = 740, y = 300, skin = "res/wy/public/close_red_big.png"},
     },
 }
 
@@ -1381,10 +1381,27 @@ end
 npc[18] = function(p2, p3, Data)
     local function renderNewbieGift(node)
         GUI:removeAllChildren(node)
+
+        local Layout1 = GUI:Layout_Create(node, "Layout1", 429, 186, 100, 60.00, false)
+        for i = 1,4 do
+            GUI:setContentSize(GUI:Image_Create(Layout1, "skill"..i, 0.00, 0.00, "res/custom/xinshoulibao/skill_"..i..".png")
+            , 42, 42)
+
+        end
+        GUI:UserUILayout(Layout1, {dir=2,addDir=1,gap = {x=23}})
+
+        local jl_itme = {{"复活戒指",1},{"麻痹戒指",1},{"斗笠[lv1]",1},{"攻速[lv1]",1}, {"切割[lv1]",1}}
+        Layout1 = GUI:Layout_Create(node, "Layout2", 400, 100, 100, 60.00, false)
+        for i = 1,5 do
+            GUI:ItemShow_Create(Layout1, "itme"..i, 0, 0, {index=SL:GetMetaValue("ITEM_INDEX_BY_NAME", jl_itme[i][1]),look=true})
+        end
+        GUI:UserUILayout(Layout1, {dir=2,addDir=1,gap = {x = 23 + 10}})
+
+
+
         -- 主按钮：申请领取新手礼包
-        local btn = GUI:Button_Create(node, "btn_get_gift", 420, 100, "res/public/1900000660.png")
-        GUI:Button_setTitleText(btn, "领取新手礼包")
-        GUI:Button_setTitleFontSize(btn, 16)
+        
+        local btn = GUI:Button_Create(node, "btn_get_gift", 420, 0, "res/custom/xinshoulibao/btn.png")
         GUI:addOnClickEvent(btn, function()
             SL:SendLuaNetMsg(101, 18, 1, 0, "")
         end)
