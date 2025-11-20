@@ -109,9 +109,9 @@ function UIHelper.ensureWindow(cache, npcid, opts)
     cache.close = closeBtn
     cache.node = node
 
-    if opts.titleText then
-        cache.title = UIHelper.createTitle(bg, opts.titleText, opts.subTitle, opts.titleOptions)
-    end
+    -- if opts.titleText then
+    --     cache.title = UIHelper.createTitle(bg, opts.titleText, opts.subTitle, opts.titleOptions)
+    -- end
 
     return cache
 end
@@ -140,7 +140,7 @@ end
 -- 富文本封装：通过 opts 控制宽高 / 颜色 / 对齐 / 描边 / 锚点
 function UIHelper.createRichText(parent, name, x, y, content, opts)
     opts = opts or {}
-    local widget = GUI:RichText_Create(parent, name, x or 0, y or 0, content or '', opts.width or 500, opts.height or 40, opts.color or '#f7f7de', opts.align or 3, nil, nil, ensureOutline(opts.outline))
+    local widget = GUI:RichText_Create(parent, name, x or 0, y or 0, content or '', opts.width or 500, opts.size or 20, opts.color or '#f7f7de', opts.align or 3, nil, nil, ensureOutline(opts.outline))
     if opts.anchor then
         GUI:setAnchorPoint(widget, opts.anchor.x or opts.anchor[1], opts.anchor.y or opts.anchor[2])
     end
