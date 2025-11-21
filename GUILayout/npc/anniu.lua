@@ -1,4 +1,4 @@
-﻿local npc = {}
+local npc = {}
 
 ---顶部图标显示
 npc.iconpx = {
@@ -2049,7 +2049,7 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
         end
         return fp
     end
-
+    
     local function fldt_calc_flip_value(fp)
         local total = 0
         if type(fp) ~= "table" then
@@ -2108,6 +2108,7 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
 
     local function GUI_createLabel(Label_node,idx)
         GUI:removeAllChildren(Label_node)
+        GUI:Image_Create(Label_node, "bg", 0, 0, "res/custom/fulitating/bg_"..idx..".png")
         npc.fldt_data = npc.fldt_data or {}
         if idx == 1 then
             local base = npc.fldt_data
@@ -2122,98 +2123,93 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
             local finalMultiple = tonumber(tqrbq["7rqd_final_mul"]) or 1
             local finalAward = tonumber(tqrbq["7rqd_final_award"]) or 0
 
-            GUI:Text_Create(Label_node, "seven_login_days", 260 + 365, 440 - 290, 20, "#FFD56F",
-                string.format("累计登录：%d天   已领取：%d/7天", loginDays, math.min(claimed, 7)))
-            GUI:Text_Create(Label_node, "seven_online_minutes", 260 + 365, 415 - 290, 18, "#FFD56F",
-                string.format("当前在线：%d分钟 / 每日领取需满%d分钟", onlineMinutes, fldt_online_limit))
-            GUI:Text_Create(Label_node, "seven_digits", 260 + 365, 390 - 290, 18, "#00E4FF", "幸运号码：" .. digitDisplay)
+            -- GUI:Text_Create(Label_node, "seven_login_days", 260 + 365, 440 - 290, 20, "#FFD56F",
+            --     string.format("累计登录：%d天   已领取：%d/7天", loginDays, math.min(claimed, 7)))
+            -- GUI:Text_Create(Label_node, "seven_online_minutes", 260 + 365, 415 - 290, 18, "#FFD56F",
+            --     string.format("当前在线：%d分钟 / 每日领取需满%d分钟", onlineMinutes, fldt_online_limit))
+            -- GUI:Text_Create(Label_node, "seven_digits", 260 + 365, 390 - 290, 18, "#00E4FF", "幸运号码：" .. digitDisplay)
 
-            local finalText
-            if claimed >= 7 then
-                if finalAward > 0 then
-                    finalText = string.format("翻牌合计：%d  倍率：x%d  已发绑定元宝：%d", finalSum, finalMultiple, finalAward)
+            for i = 7, 1, -1 do
+                local v = flipDigits[i] or flipDigits[tostring(i)]
+                -- seq[#seq + 1] = v ~= nil and tostring(v) or "?"
+                if v ~= nil then
+                    GUI:setAnchorPoint(GUI:Image_Create(Label_node, "img_bj_l_" .. i, 47 - (i-7) * 82, 308, "res/custom/fulitating/num/"..v..".png")
+                        , 0.5, 0.5)
+                    local effwu = GUI:Frames_Create(Label_node, "effwu"..i, 47 - (i-7) * 82, 328, "res/custom/fulitating/eff/"..i.."/y_", ".png", 1, 15,
+                        { speed = 75, count = 15, loop = 1, finishhide = false })
+                    GUI:setAnchorPoint(effwu, 0.5, 0.5)
                 else
-                    finalText = string.format("翻牌合计：%d  倍率：x%d  奖励发放中", finalSum, finalMultiple)
+                    GUI:setAnchorPoint(GUI:Image_Create(Label_node, "img_bj_l_" .. i, 47 - (i-7) * 82, 328, "res/custom/fulitating/eff/"..i.."/y_1.png")
+                        , 0.5, 0.5)
                 end
-            else
-                finalText = string.format("翻牌合计：%d  倍率：x%d  完成七日自动发放", finalSum, finalMultiple)
+                    
+                
             end
-            GUI:Text_Create(Label_node, "seven_final", 260 + 365, 365 - 290, 18, "#FFFFFF", finalText)
-            GUI:Text_Create(Label_node, "seven_tip", 260 + 365, 340 - 290, 16, "#FFA043", "提示：需要按顺序领取并满足在线时间才可翻牌。")
 
-            local dayLayout = GUI:Layout_Create(Label_node, "seven_day_layout", 250, 80, 620, 360)
+            -- local finalText
+            -- if claimed >= 7 then
+            --     if finalAward > 0 then
+            --         finalText = string.format("翻牌合计：%d  倍率：x%d  已发绑定元宝：%d", finalSum, finalMultiple, finalAward)
+            --     else
+            --         finalText = string.format("翻牌合计：%d  倍率：x%d  奖励发放中", finalSum, finalMultiple)
+            --     end
+            -- else
+            --     finalText = string.format("翻牌合计：%d  倍率：x%d  完成七日自动发放", finalSum, finalMultiple)
+            -- end
+            -- GUI:Text_Create(Label_node, "seven_final", 260 + 365, 365 - 290, 18, "#FFFFFF", finalText)
+            -- GUI:Text_Create(Label_node, "seven_tip", 260 + 365, 340 - 290, 16, "#FFA043", "提示：需要按顺序领取并满足在线时间才可翻牌。")
             local sevenRewards = fldt_data_cfg["7rqd"] or {}
-            for day, cfg in ipairs(sevenRewards) do
-                local card = GUI:Image_Create(dayLayout, "seven_card_" .. day, 0, 0, 'res/wy/public/500-200.png')
-                GUI:setContentSize(card, 280, 95)
-                GUI:Text_Create(card, "day_title", 10, 60, 20, "#FFE076", string.format("第%d天", day))
+            local totalDays = #sevenRewards
+            local todayIdx = claimed + 1
+            local todayCfg = sevenRewards[math.min(todayIdx, totalDays)]
+            local canShow = todayCfg ~= nil
+            local canClaimToday = canShow and loginDays >= todayIdx and todayIdx <= totalDays
 
-                local rewardNode = GUI:Node_Create(card, "give" .. day, 0, 0)
-                GUI:setPosition(rewardNode, 10, 10)
-                ItemNumByTable_img(cfg.jl, nil, rewardNode)
-
-                local digitValue = flipDigits[day] or flipDigits[tostring(day)]
-                local digitText = digitValue ~= nil and tostring(digitValue) or "?"
-                GUI:Text_Create(card, "digit" .. day, 180, 60, 22, "#00F0FF", "翻牌：" .. digitText)
-
-                local stateDesc = "未解锁"
-                local stateColor = "#FFFF66"
-                local btnText = "未解锁"
-                local enable = false
-
-                if day <= claimed then
-                    stateDesc = "已领取"
-                    stateColor = "#00FF7F"
-                    btnText = "已领取"
-                elseif day == claimed + 1 then
-                    if loginDays < day then
-                        stateDesc = "登录天数不足"
-                        btnText = "待登录"
-                    elseif onlineMinutes < fldt_online_limit then
-                        stateDesc = string.format("需在线%d分钟", fldt_online_limit)
-                        btnText = "待在线"
-                    else
-                        stateDesc = "可领取"
-                        stateColor = "#00FF7F"
-                        btnText = "领取"
-                        enable = true
-                    end
+            local dayLayout = GUI:Layout_Create(Label_node, "seven_day_layout", 150, 0, 620, 200)
+            local card = GUI:Node_Create(dayLayout, "seven_card_today", 0, 0)
+            -- GUI:Text_Create(card, "day_title", 10, 60, 20, "#FFE076", string.format("第%d天", todayIdx))
+            -- local digitValue = flipDigits[todayIdx] or flipDigits[tostring(todayIdx)]
+            -- local digitText = digitValue ~= nil and tostring(digitValue) or "?"
+            -- GUI:Text_Create(card, "digit_today", 180, 60, 22, "#00F0FF", "翻牌号：" .. digitText)
+            -- GUI:Text_Create(card, "state_today", 65, 60, 18, "#00FF7F", "状态：可领取")
+            local rewardNode = GUI:Node_Create(card, "give_today", 0, 0)
+            ItemNumByTable_img(todayCfg.jl, nil, rewardNode)
+            GUI:setPosition(rewardNode, 10, 10)
+            if canClaimToday then
+                local claimButton = GUI:Button_Create(card, "Button_today", 240, -10, "res/custom/fulitating/btn_2.png")
+                GUI:addOnClickEvent(claimButton, function()
+                    SL:SendLuaNetMsg(101, 511, 1, 1, string.format('{"7rqd":%d}', todayIdx))
+                end)
+            else
+                local tipText
+                if not canShow or todayIdx > totalDays then
+                    tipText = "七日登录奖励已全部领取"
+                elseif loginDays < todayIdx then
+                    tipText = string.format("今日奖励已经领取完毕，达到第%d天可继续领取", todayIdx)
+                elseif onlineMinutes < fldt_online_limit then
+                    tipText = string.format("今日在线满%d分钟后可领取奖励", fldt_online_limit)
                 else
-                    stateDesc = "请按顺序领取"
-                    btnText = "待解锁"
+                    tipText = "今日暂无可领取奖励"
                 end
-
-                GUI:Text_Create(card, "state" .. day, 10 + 55, 60, 18, stateColor, stateDesc)
-                local Button = GUI:Button_Create(card, "Button_" .. day, 250, 15, "res/public/1900000660.png")
-                GUI:Button_setTitleText(Button, btnText)
-                GUI:Button_setTitleFontSize(Button, 16)
-                --TODO：正式时候要改回enable
-                if enable or true then 
-                    GUI:addOnClickEvent(Button, function()
-                        SL:SendLuaNetMsg(101, 511, 1, 1, string.format('{"7rqd":%d}', day))
-                    end)
-                end
+                GUI:Text_Create(Label_node, "seven_state_tip", 200, 63, 18, "#FFA043", tipText)
             end
-            GUI:UserUILayout(dayLayout, {dir = 3, addDir = 1, gap = {x = 90, y = 15}})
         elseif idx == 2 then
-            local Label_list = GUI:ListView_Create(Label_node, "Label_list", 85 + 200, 90, 700, 460, 1)
-            GUI:ListView_setItemsMargin(Label_list, 12)
+            local Label_list = GUI:ListView_Create(Label_node, "Label_list", 0, 0, 600, 330, 1)
             local tqrbq = fldt_get_state()
             local claimed = tonumber(tqrbq["zxjl"]) or 0
             local onlineMinutes = tonumber(npc.fldt_data and npc.fldt_data.J_zxsj) or 0
 
-            GUI:Text_Create(Label_node, "online_desc", 260, 50, 18, "#FFD56F",
+            GUI:Text_Create(Label_node, "online_desc", 260, 50 + 400, 18, "#FFD56F",
                 string.format("当前在线：%d分钟", onlineMinutes))
 
             local onlineRewards = fldt_data_cfg["zxjl"] or {}
             for v, k in ipairs(onlineRewards) do
-                local l = GUI:Image_Create(Label_list, "img_bj_l_" .. v, 0, 0, 'res/wy/public/500-200.png')
-                GUI:setContentSize(l, 500, 80)
+                local l = GUI:Image_Create(Label_list, "img_bj_l_" .. v, 0, 0, 'res/custom/fulitating/list_fgx_'..(v%2 == 1 and 1 or 2)..'.png')
 
-                GUI:Text_Create(l, "wz", 100, 40, 20, "#FFEE8A", string.format("在线满%d分钟", k.time))
+                GUI:Text_Create(l, "wz", 30, 20, 20, "#FFEE8A", string.format("在线满%d分钟", k.time))
 
                 local give = ItemNumByTable_img(k.jl, nil, GUI:Node_Create(l, "give", 0, 0))
-                GUI:setPosition(give, 10, 5)
+                GUI:setPosition(give, 260, 5)
 
                 local stateDesc = "未解锁"
                 local btnText = "待解锁"
@@ -2224,7 +2220,7 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                     stateDesc = "已领取"
                     btnText = "已领取"
                     stateColor = "#00FF7F"
-                elseif v == claimed + 1 then
+                elseif v == claimed then
                     if onlineMinutes >= (k.time or 0) then
                         stateDesc = "可领取"
                         btnText = "领取"
@@ -2234,39 +2230,40 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                         stateDesc = string.format("%d/%d分钟", onlineMinutes, k.time or 0)
                         btnText = stateDesc
                     end
+                else
+                    enable = true
                 end
 
-                GUI:Text_Create(l, "state", 260, 40, 18, stateColor, stateDesc)
+                -- GUI:Text_Create(l, "state", 260, 40, 18, stateColor, stateDesc)
 
-                local Button = GUI:Button_Create(l, "Button", 400, 20, "res/public/1900000660.png")
-                GUI:Button_setTitleText(Button, btnText)
-                GUI:Button_setTitleFontSize(Button, 14)
+                -- GUI:Button_setTitleText(Button, btnText)
+                -- GUI:Button_setTitleFontSize(Button, 14)
                 --TODO：正式时候要改回enable
-                if enable or true then 
+                if enable then 
+                    local Button = GUI:Button_Create(l, "Button", 440, 10, "res/custom/fulitating/btn_1.png")
                     GUI:addOnClickEvent(Button, function()
                         SL:SendLuaNetMsg(101, 511, 1, 2, '{"zxjl":' .. v .. '}')
                     end)
+                else
+                    GUI:Image_Create(l, "ylq", 440, 10, 'res/wy/public/4.png')
                 end
             end
         elseif idx == 3 then
-            local Label_list = GUI:ListView_Create(Label_node, "Label_list", 85 + 200, 90, 700, 460, 1)
-            GUI:ListView_setItemsMargin(Label_list, 12)
+            local Label_list = GUI:ListView_Create(Label_node, "Label_list", 0, 0, 600, 330, 1)
             local tqrbq = fldt_get_state()
             local claimed = tonumber(tqrbq["sgjl"]) or 0
             local killCount = tonumber(npc.fldt_data and npc.fldt_data.U_sgsl) or 0
 
-            GUI:Text_Create(Label_node, "kill_desc", 260, 50, 18, "#FFD56F",
-                string.format("今日已击杀：%d只", killCount))
-
+            GUI:Text_Create(Label_node, "online_desc", 260, 50 + 400, 18, "#FFD56F",
+            string.format("今日已击杀：%d只", killCount))
             local killRewards = fldt_data_cfg["sgjl"] or {}
             for v, k in ipairs(killRewards) do
-                local l = GUI:Image_Create(Label_list, "img_bj_l_" .. v, 0, 0, 'res/wy/public/500-200.png')
-                GUI:setContentSize(l, 500, 80)
+                local l = GUI:Image_Create(Label_list, "img_bj_l_" .. v, 0, 0, 'res/custom/fulitating/list_fgx_'..(v%2 == 1 and 1 or 2)..'.png')
 
-                GUI:Text_Create(l, "wz", 100, 40, 20, "#FFEE8A", string.format("击杀%d只怪物", k.num))
+                GUI:Text_Create(l, "wz", 30, 20, 20, "#FFEE8A", string.format("击杀%d只怪物", k.num))
 
                 local give = ItemNumByTable_img(k.jl, nil, GUI:Node_Create(l, "give", 0, 0))
-                GUI:setPosition(give, 10, 5)
+                GUI:setPosition(give, 260, 5)
 
                 local stateDesc = "未解锁"
                 local btnText = "待解锁"
@@ -2277,7 +2274,7 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                     stateDesc = "已领取"
                     btnText = "已领取"
                     stateColor = "#00FF7F"
-                elseif v == claimed + 1 then
+                elseif v == claimed then
                     if killCount >= (k.num or 0) then
                         stateDesc = "可领取"
                         btnText = "领取"
@@ -2288,24 +2285,22 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                         btnText = stateDesc
                     end
                 else
-                    stateDesc = "请按顺序领取"
+                    enable = true
                 end
 
-                GUI:Text_Create(l, "state", 260, 40, 18, stateColor, stateDesc)
+                -- GUI:Text_Create(l, "state", 260, 40, 18, stateColor, stateDesc)
 
-                local Button = GUI:Button_Create(l, "Button", 400, 20, "res/public/1900000660.png")
-                GUI:Button_setTitleText(Button, btnText)
-                GUI:Button_setTitleFontSize(Button, 14)
-               --TODO：正式时候要改回enable
-                if enable or true then 
+                if enable then 
+                    local Button = GUI:Button_Create(l, "Button", 440, 10, "res/custom/fulitating/btn_1.png")
                     GUI:addOnClickEvent(Button, function()
-                        SL:SendLuaNetMsg(101, 511, 1, 3, '{"sgjl":' .. v .. '}')
-                    end)
+                        SL:SendLuaNetMsg(101, 511, 1, 3, '{"sgjl":' .. v .. '}')                    
+                        end)
+                else
+                    GUI:Image_Create(l, "ylq", 440, 10, 'res/wy/public/4.png')
                 end
             end
         elseif idx == 4 then
-            local Label_list = GUI:ListView_Create(Label_node, "Label_list", 85 + 200, 50, 700, 500, 1)
-            GUI:ListView_setItemsMargin(Label_list, 2)
+            local Label_list = GUI:ListView_Create(Label_node, "Label_list", 0, 55, 600, 280, 1)
             local grss = {}
 
             for v,k in pairs(teshudata["fldt"]["grss"]) do
@@ -2316,26 +2311,24 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                 end
             end
 
-
-
-
             sort_by_state(grss)
 
 
-            for i = (npc.sign-1)*10 + 1, (npc.sign-1)*10 + 10 do
+            for i = (npc.sign-1)*7 + 1, (npc.sign-1)*7 + 7 do
                 if not grss[i] then break end
                 local v = grss[i]
-                local l = GUI:Image_Create(Label_list, "img_bj_l_"..i, 0, 0, 'res/wy/public/500-200.png')
+                local l = GUI:Image_Create(Label_list, "img_bj_l_"..i, 0, 0, 'res/custom/fulitating/list_fgx_'..(v.idx%2 == 1 and 1 or 2)..'.png')
                 GUI:setContentSize(l, 500, 40)
 
-                GUI:Text_Create(l, "wz",10,5, 20, "#FF0000", v.name)
+                GUI:Text_Create(l, "wz",35,5, 20, "#FF0000", v.name)
 
-                GUI:Text_Create(l, "state",300,5, 20, state_info[v.state].color, state_info[v.state].text)
-                GUI:RichText_Create(l, "jl", 150, 5,  ItemNumByTable(teshudata["fldt"]["grss"][v.idx].give), 500, 18, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+                -- GUI:Text_Create(l, "state",300,5, 20, state_info[v.state].color, state_info[v.state].text)
+                GUI:RichText_Create(l, "jl", 220, 5,  ItemNumByTable(teshudata["fldt"]["grss"][v.idx].give), 500, 18, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
 
 
-                local Button= GUI:Button_Create(l, "Button", 400, 0, "res/public/1900000660.png")
-                GUI:Button_setTitleText(Button, "领取")
+                local Button= GUI:Button_Create(l, "Button", 436, -2, "res/public/1900000660.png")
+                GUI:Button_setTitleText(Button, state_info[v.state].text)
+                GUI:Button_setTitleColor(Button, state_info[v.state].color)
                 GUI:Button_setTitleFontSize(Button, 14)
 
                 GUI:addOnClickEvent(Button, function()
@@ -2343,7 +2336,7 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                 end)
             end
 
-            local Button_all = GUI:Button_Create(Label_node, "grss_all", 460, 50, "res/public/1900000660.png")
+            local Button_all = GUI:Button_Create(Label_node, "grss_all", 500, 0, "res/public/1900000660.png")
             GUI:setAnchorPoint(Button_all, 0.5, 0)
             GUI:Button_setTitleText(Button_all, "一键领取")
             GUI:Button_setTitleFontSize(Button_all, 14)
@@ -2351,7 +2344,7 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                 SL:SendLuaNetMsg(101, 511, 1, 4, '{"isall":1}')
             end)
 
-            local Button= GUI:Button_Create(Label_node, "next", 800, 50, "res/public/1900000660.png")
+            local Button= GUI:Button_Create(Label_node, "next", 100, 0, "res/public/1900000660.png")
             GUI:setAnchorPoint(Button, 0.5, 0)
             GUI:Button_setTitleText(Button, "下一页")
             GUI:Button_setTitleFontSize(Button, 14)
@@ -2363,7 +2356,7 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                 npc.sign = npc.sign + 1
                 GUI_createLabel(npc.Label,npc.titles_sign)
             end)
-            Button= GUI:Button_Create(Label_node, "shangyiy", 600, 50, "res/public/1900000660.png")
+            Button= GUI:Button_Create(Label_node, "shangyiy", 350, 0, "res/public/1900000660.png")
             GUI:setAnchorPoint(Button, 0.5, 0)
             GUI:Button_setTitleText(Button, "上一页")
             GUI:Button_setTitleFontSize(Button, 14)
@@ -2376,13 +2369,12 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                 GUI_createLabel(npc.Label,npc.titles_sign)
             end)
             GUI:setAnchorPoint(
-                    GUI:Text_Create(Label_node, "state",700,50, 20, "#ffffff", string.format("第%d页/共%d页",npc.sign,math.ceil(#grss/10)))
-            , 0.5, 0)
+                    GUI:Text_Create(Label_node, "state",225,20, 18, "#ffffff", string.format("第%d页/共%d页",npc.sign,math.ceil(#grss/10)))
+            , 0.5, 0.5)
 
 
         elseif idx == 5 then
-            local Label_list = GUI:ListView_Create(Label_node, "Label_list", 85 + 200, 50, 700, 500, 1)
-            GUI:ListView_setItemsMargin(Label_list, 2)
+            local Label_list = GUI:ListView_Create(Label_node, "Label_list", 0, 55, 600, 280, 1)
             local grsb = {}
 
             for v,k in pairs(teshudata["fldt"]["grsb"]) do
@@ -2393,25 +2385,21 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                 end
             end
 
-
-
-
             sort_by_state(grsb)
+            local totalPage = math.max(1, math.ceil(#grsb/7))
 
-
-            for i = (npc.sign-1)*10 + 1, (npc.sign-1)*10 + 10 do
+            for i = (npc.sign-1)*7 + 1, (npc.sign-1)*7 + 7 do
                 if not grsb[i] then break end
                 local v = grsb[i]
-                local l = GUI:Image_Create(Label_list, "img_bj_l_"..i, 0, 0, 'res/wy/public/500-200.png')
+                local l = GUI:Image_Create(Label_list, "img_bj_l_"..i, 0, 0, 'res/custom/fulitating/list_fgx_'..(v.idx%2 == 1 and 1 or 2)..'.png')
                 GUI:setContentSize(l, 500, 40)
 
-                GUI:Text_Create(l, "wz",10,5, 20, "#FF0000", v.name)
+                GUI:Text_Create(l, "wz",35,5, 20, "#FF0000", v.name)
+                GUI:RichText_Create(l, "jl", 220, 5,  ItemNumByTable(teshudata["fldt"]["grsb"][v.idx].give), 500, 18, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
 
-                GUI:Text_Create(l, "state",300,5, 20, state_info[v.state].color, state_info[v.state].text)
-                GUI:RichText_Create(l, "jl", 150, 5,  ItemNumByTable(teshudata["fldt"]["grsb"][v.idx].give), 500, 18, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-
-                local Button= GUI:Button_Create(l, "Button", 400, 0, "res/public/1900000660.png")
-                GUI:Button_setTitleText(Button, "领取")
+                local Button= GUI:Button_Create(l, "Button", 436, -2, "res/public/1900000660.png")
+                GUI:Button_setTitleText(Button, state_info[v.state].text)
+                GUI:Button_setTitleColor(Button, state_info[v.state].color)
                 GUI:Button_setTitleFontSize(Button, 14)
 
                 GUI:addOnClickEvent(Button, function()
@@ -2419,7 +2407,7 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                 end)
             end
 
-            local Button_all = GUI:Button_Create(Label_node, "grsb_all", 460, 50, "res/public/1900000660.png")
+            local Button_all = GUI:Button_Create(Label_node, "grsb_all", 500, 0, "res/public/1900000660.png")
             GUI:setAnchorPoint(Button_all, 0.5, 0)
             GUI:Button_setTitleText(Button_all, "一键领取")
             GUI:Button_setTitleFontSize(Button_all, 14)
@@ -2427,19 +2415,19 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                 SL:SendLuaNetMsg(101, 511, 1, 5, '{"isall":1}')
             end)
 
-            local Button= GUI:Button_Create(Label_node, "next", 800, 50, "res/public/1900000660.png")
+            local Button= GUI:Button_Create(Label_node, "next", 100, 0, "res/public/1900000660.png")
             GUI:setAnchorPoint(Button, 0.5, 0)
             GUI:Button_setTitleText(Button, "下一页")
             GUI:Button_setTitleFontSize(Button, 14)
             GUI:addOnClickEvent(Button, function()
-                if npc.sign == math.ceil(#grsb/10) then
+                if npc.sign == totalPage then
                     SL:ShowSystemTips("已经是最后一页了！！！")
                     return
                 end
                 npc.sign = npc.sign + 1
                 GUI_createLabel(npc.Label,npc.titles_sign)
             end)
-            Button= GUI:Button_Create(Label_node, "shangyiy", 600, 50, "res/public/1900000660.png")
+            Button= GUI:Button_Create(Label_node, "shangyiy", 350, 0, "res/public/1900000660.png")
             GUI:setAnchorPoint(Button, 0.5, 0)
             GUI:Button_setTitleText(Button, "上一页")
             GUI:Button_setTitleFontSize(Button, 14)
@@ -2452,11 +2440,10 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                 GUI_createLabel(npc.Label,npc.titles_sign)
             end)
             GUI:setAnchorPoint(
-                    GUI:Text_Create(Label_node, "state",700,50, 20, "#ffffff", string.format("第%d页/共%d页",npc.sign,math.ceil(#grsb/10)))
-            , 0.5, 0)
+                    GUI:Text_Create(Label_node, "state",225,20, 18, "#ffffff", string.format("第%d页/共%d页",npc.sign,totalPage))
+            , 0.5, 0.5)
         elseif idx == 6 then
-            local Label_list = GUI:ListView_Create(Label_node, "Label_list", 85 + 200, 50, 700, 500, 1)
-            GUI:ListView_setItemsMargin(Label_list, 2)
+            local Label_list = GUI:ListView_Create(Label_node, "Label_list", 0, 55, 600, 280, 1)
             local qqsb = {}
 
             for v,k in pairs(teshudata["fldt"]["qqsb"]) do
@@ -2467,25 +2454,21 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                 end
             end
 
-
-
-
             sort_by_state(qqsb)
+            local totalPage = math.max(1, math.ceil(#qqsb/7))
 
-
-            for i = (npc.sign-1)*10 + 1, (npc.sign-1)*10 + 10 do
+            for i = (npc.sign-1)*7 + 1, (npc.sign-1)*7 + 7 do
                 if not qqsb[i] then break end
                 local v = qqsb[i]
-                local l = GUI:Image_Create(Label_list, "img_bj_l_"..i, 0, 0, 'res/wy/public/500-200.png')
+                local l = GUI:Image_Create(Label_list, "img_bj_l_"..i, 0, 0, 'res/custom/fulitating/list_fgx_'..(v.idx%2 == 1 and 1 or 2)..'.png')
                 GUI:setContentSize(l, 500, 40)
 
-                GUI:Text_Create(l, "wz",10,5, 20, "#FF0000", v.name)
+                GUI:Text_Create(l, "wz",35,5, 20, "#FF0000", v.name)
+                GUI:RichText_Create(l, "jl", 220, 5,  ItemNumByTable(teshudata["fldt"]["qqsb"][v.idx].give), 500, 18, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
 
-                GUI:Text_Create(l, "state",300,5, 20, state_info[v.state].color, state_info[v.state].text)
-                GUI:RichText_Create(l, "jl", 150, 5,  ItemNumByTable(teshudata["fldt"]["qqsb"][v.idx].give), 500, 18, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-
-                local Button= GUI:Button_Create(l, "Button", 400, 0, "res/public/1900000660.png")
-                GUI:Button_setTitleText(Button, "领取")
+                local Button= GUI:Button_Create(l, "Button", 436, -2, "res/public/1900000660.png")
+                GUI:Button_setTitleText(Button, state_info[v.state].text)
+                GUI:Button_setTitleColor(Button, state_info[v.state].color)
                 GUI:Button_setTitleFontSize(Button, 14)
 
                 GUI:addOnClickEvent(Button, function()
@@ -2493,7 +2476,7 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                 end)
             end
 
-            local Button_all = GUI:Button_Create(Label_node, "qqsb_all", 460, 50, "res/public/1900000660.png")
+            local Button_all = GUI:Button_Create(Label_node, "qqsb_all", 500, 0, "res/public/1900000660.png")
             GUI:setAnchorPoint(Button_all, 0.5, 0)
             GUI:Button_setTitleText(Button_all, "一键领取")
             GUI:Button_setTitleFontSize(Button_all, 14)
@@ -2501,19 +2484,19 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                 SL:SendLuaNetMsg(101, 511, 1, 6, '{"isall":1}')
             end)
 
-            local Button= GUI:Button_Create(Label_node, "next", 800, 50, "res/public/1900000660.png")
+            local Button= GUI:Button_Create(Label_node, "next", 100, 0, "res/public/1900000660.png")
             GUI:setAnchorPoint(Button, 0.5, 0)
             GUI:Button_setTitleText(Button, "下一页")
             GUI:Button_setTitleFontSize(Button, 14)
             GUI:addOnClickEvent(Button, function()
-                if npc.sign == math.ceil(#qqsb/10) then
+                if npc.sign == totalPage then
                     SL:ShowSystemTips("已经是最后一页了！！！")
                     return
                 end
                 npc.sign = npc.sign + 1
                 GUI_createLabel(npc.Label,npc.titles_sign)
             end)
-            Button= GUI:Button_Create(Label_node, "shangyiy", 600, 50, "res/public/1900000660.png")
+            Button= GUI:Button_Create(Label_node, "shangyiy", 350, 0, "res/public/1900000660.png")
             GUI:setAnchorPoint(Button, 0.5, 0)
             GUI:Button_setTitleText(Button, "上一页")
             GUI:Button_setTitleFontSize(Button, 14)
@@ -2526,8 +2509,8 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                 GUI_createLabel(npc.Label,npc.titles_sign)
             end)
             GUI:setAnchorPoint(
-                    GUI:Text_Create(Label_node, "state",700,50, 20, "#ffffff", string.format("第%d页/共%d页",npc.sign,math.ceil(#qqsb/10)))
-            , 0.5, 0)
+                    GUI:Text_Create(Label_node, "state",225,20, 18, "#ffffff", string.format("第%d页/共%d页",npc.sign,totalPage))
+            , 0.5, 0.5)
 
         end
     end
@@ -2537,28 +2520,32 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
 
 
 
-        npc.cbl_list = GUI:ListView_Create(node, "cbl_list", 85, 50, 150, 500, 1)
-        GUI:ListView_setGravity(npc.cbl_list, 2)
-        GUI:ListView_setItemsMargin(npc.cbl_list, 4)
-        npc.Label = GUI:Node_Create(node, "Label", 0, 0)
+        npc.cbl_list = GUI:ListView_Create(node, "cbl_list", -5, 10, 170, 440, 1)
+        GUI:ListView_setGravity(npc.cbl_list, 1)
+        GUI:ListView_setItemsMargin(npc.cbl_list, 10)
+        npc.Label = GUI:Node_Create(node, "Label", 170, 15)
 
         local titles = {"七日登录", "在线奖励", "杀怪奖励", "怪物首杀", "个人首爆", "全区首爆"}
         npc.titles_sign = 1
         for i = 1, #titles do
-            local cbl_item = GUI:Button_Create(npc.cbl_list, "item" .. i, 0, 0, "res/public/1900000660.png")
-            GUI:Button_setTitleText(cbl_item, titles[i])
-            GUI:Button_setTitleFontSize(cbl_item, 14)
+            local cbl_item = GUI:Button_Create(npc.cbl_list, "item" .. i, 0, 0, "res/custom/fulitating/list/"..(npc.titles_sign == i and "l" or "n").."/"..i..".png")
+            -- GUI:Button_setTitleText(cbl_item, titles[i])
+            -- GUI:Button_setTitleFontSize(cbl_item, 14)
+            GUI:Image_Create(npc.cbl_list, "fgx"..i, 0, 0, "res/custom/fulitating/list/fgx.png")
             GUI:addOnClickEvent(cbl_item, function()
+                GUI:Button_loadTextureNormal(GUI:ui_delegate(npc.cbl_list)["item" .. npc.titles_sign], "res/custom/fulitating/list/n/"..npc.titles_sign..".png")
+                npc.titles_sign = i
                 if i >= 4 then
                     SL:SendLuaNetMsg(101, 511, 2, i, "")
                     npc.sign = 1
                 else
-                    npc.titles_sign = i
                     GUI_createLabel(npc.Label,i)
                 end
+                GUI:Button_loadTextureNormal(GUI:ui_delegate(npc.cbl_list)["item" .. npc.titles_sign], "res/custom/fulitating/list/l/"..npc.titles_sign..".png")
             end)
-
         end
+        
+        GUI:Image_Create(node, "bg_fgx", 0, 0, "res/custom/fulitating/bg_fgx.png")
 
     end
 

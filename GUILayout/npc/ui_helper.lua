@@ -93,7 +93,7 @@ function UIHelper.ensureWindow(cache, npcid, opts)
         GUI:setAnchorPoint(cache.title, title.anchorX or 0, title.anchorY or 0)
     end
 
-    if bgCfg.timeline ~= false then
+    if bgCfg.timeline == true then
         GUI:Timeline_Window1(bg)
     end
     --放置透传
