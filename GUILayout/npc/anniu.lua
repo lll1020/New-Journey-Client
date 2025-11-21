@@ -47,8 +47,10 @@ local WINDOW_STYLE = {
     strategy = {     -- 游戏攻略
         windowName = "npc_yxgl",
         overlay = {skin = "res/public/1900000651_1.png"},
-        background = {skin = "res/wy/public/tongyong_0.png"},
+        background = {skin = "res/custom/strategy/bg_0.png"},
         closeButton = {x = 740, y = 460, skin = "res/wy/public/close_red_big.png"},
+        title = {x = 56, y = 464, skin = "res/custom/strategy/title.png"},
+
     },
     firstCharge = {  -- 首充礼包
         windowName = "npc_sclb",
@@ -2576,8 +2578,35 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
 end
 ---游戏攻略
 npc[512] = function(p2, p3, Data) -- 游戏攻略
+    local function GUI_createLabel(Label_node,idx)
+        GUI:removeAllChildren(Label_node)
+        if idx == 1 then
+        end
+    end
     local function UI_updata(node) --界面渲染
         GUI:removeAllChildren(node)
+
+
+
+        npc.cbl_list = GUI:ListView_Create(node, "cbl_list", -5, 10, 170, 440, 1)
+        GUI:ListView_setGravity(npc.cbl_list, 1)
+        GUI:ListView_setItemsMargin(npc.cbl_list, 10)
+        npc.Label = GUI:Node_Create(node, "Label", 170, 15)
+
+        npc.titles_sign = 1
+        for i = 1, 6 do
+            local cbl_item = GUI:Button_Create(npc.cbl_list, "item" .. i, 0, 0, "res/custom/strategy/list/"..(npc.titles_sign == i and "l" or "n").."/"..i..".png")
+            -- GUI:Button_setTitleText(cbl_item, titles[i])
+            -- GUI:Button_setTitleFontSize(cbl_item, 14)
+            GUI:Image_Create(npc.cbl_list, "fgx"..i, 0, 0, "res/custom/strategy/list/fgx.png")
+            GUI:addOnClickEvent(cbl_item, function()
+                GUI:Button_loadTextureNormal(GUI:ui_delegate(npc.cbl_list)["item" .. npc.titles_sign], "res/custom/strategy/list/n/"..npc.titles_sign..".png")
+                npc.titles_sign = i
+                GUI_createLabel(npc.Label,i)
+                GUI:Button_loadTextureNormal(GUI:ui_delegate(npc.cbl_list)["item" .. npc.titles_sign], "res/custom/strategy/list/l/"..npc.titles_sign..".png")
+            end)
+        end
+        
 
     end
 
@@ -2588,6 +2617,7 @@ npc[512] = function(p2, p3, Data) -- 游戏攻略
         npc.node = strategyWindow.node
         GUI:removeAllChildren(npc.node)
         UI_updata(npc.node)
+        GUI_createLabel(npc.Label, npc.titles_sign or 1)
     end
 end
 ---世界地图
