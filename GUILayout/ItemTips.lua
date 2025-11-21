@@ -721,17 +721,17 @@ function ItemTips.GetAttStr(itemData, diff)
         end
     )
 
-    if basicAttrShow and next(basicAttrShow) then
-        local titleName = ItemTips._showTitleList[1] and ItemTips._showTitleList[1].name or "[基础属性]："
-        local titleColor = ItemTips._showTitleList[1] and ItemTips._showTitleList[1].color or 154
-        local titleStr = string.format("<font color='%s'>%s</font>", SL:GetHexColorByStyleId(titleColor), titleName)
-        table.insert(
-            str,
-            {
-                str = titleStr
-            }
-        )
-    end
+    -- if basicAttrShow and next(basicAttrShow) then
+    --     local titleName = ItemTips._showTitleList[1] and ItemTips._showTitleList[1].name or "[基础属性]："
+    --     local titleColor = ItemTips._showTitleList[1] and ItemTips._showTitleList[1].color or 154
+    --     local titleStr = string.format("<font color='%s'>%s</font>", SL:GetHexColorByStyleId(titleColor), titleName)
+    --     table.insert(
+    --         str,
+    --         {
+    --             str = titleStr
+    --         }
+    --     )
+    -- end
 
     for _, v in pairs(basicAttrShow) do
         local name = string.gsub(v.name, " ", "")
@@ -766,43 +766,43 @@ function ItemTips.GetAttStr(itemData, diff)
         )
     end
 
-    --强度
-    if itemData.StdMode ~= 16 and itemData.Source and itemData.Source > 0 then
-        local oneStr = string.format("强度：+%s", itemData.Source)
-        oneStr = string.format("<font color='%s'>%s</font>", "#28EF01", oneStr)
-        table.insert(
-            str,
-            {
-                str = oneStr
-            }
-        )
-    end
+    -- --强度
+    -- if itemData.StdMode ~= 16 and itemData.Source and itemData.Source > 0 then
+    --     local oneStr = string.format("强度：+%s", itemData.Source)
+    --     oneStr = string.format("<font color='%s'>%s</font>", "#28EF01", oneStr)
+    --     table.insert(
+    --         str,
+    --         {
+    --             str = oneStr
+    --         }
+    --     )
+    -- end
 
-    --负重
-    if (itemData.StdMode == 52 or itemData.StdMode == 62 or itemData.StdMode == 54 or itemData.StdMode == 64 
-        or itemData.StdMode == 84 or itemData.StdMode == 85 or itemData.StdMode == 86 or itemData.StdMode == 87) 
-        and itemData.AniCount and itemData.AniCount > 0 then
-        local oneStr = string.format("负重：+%s", itemData.AniCount)
-        oneStr = string.format("<font color='%s'>%s</font>", "#28EF01", oneStr)
-        table.insert(
-            str,
-            {
-                str = oneStr
-            }
-        )
-    end
+    -- --负重
+    -- if (itemData.StdMode == 52 or itemData.StdMode == 62 or itemData.StdMode == 54 or itemData.StdMode == 64 
+    --     or itemData.StdMode == 84 or itemData.StdMode == 85 or itemData.StdMode == 86 or itemData.StdMode == 87) 
+    --     and itemData.AniCount and itemData.AniCount > 0 then
+    --     local oneStr = string.format("负重：+%s", itemData.AniCount)
+    --     oneStr = string.format("<font color='%s'>%s</font>", "#28EF01", oneStr)
+    --     table.insert(
+    --         str,
+    --         {
+    --             str = oneStr
+    --         }
+    --     )
+    -- end
 
     local str2 = {}
     if yuansuAttrShow and next(yuansuAttrShow) then
-        local titleName = ItemTips._showTitleList[2] and ItemTips._showTitleList[2].name or "[元素属性]："
-        local titleColor = ItemTips._showTitleList[2] and ItemTips._showTitleList[2].color or 154
-        local yuansuTitle = string.format("<font color='%s'>%s</font>", SL:GetHexColorByStyleId(titleColor), titleName)
-        table.insert(
-            str2,
-            {
-                str = yuansuTitle
-            }
-        )
+        -- local titleName = ItemTips._showTitleList[2] and ItemTips._showTitleList[2].name or "[元素属性]："
+        -- local titleColor = ItemTips._showTitleList[2] and ItemTips._showTitleList[2].color or 154
+        -- local yuansuTitle = string.format("<font color='%s'>%s</font>", SL:GetHexColorByStyleId(titleColor), titleName)
+        -- table.insert(
+        --     str2,
+        --     {
+        --         str = yuansuTitle
+        --     }
+        -- )
         for _, v in pairs(yuansuAttrShow) do
             local name = string.gsub(v.name, " ", "")
             name = string.gsub(name, "　", "")
@@ -874,14 +874,14 @@ function ItemTips.ParseExAddAttr(attr, needAttrList)
     end)
 
     local strList = {}
-    if attrShow and next(attrShow) then
-        local titleName = ItemTips._showTitleList[3] and ItemTips._showTitleList[3].name or "[附加属性]："
-        local titleColor = ItemTips._showTitleList[3] and ItemTips._showTitleList[3].color or 154
-        local titleStr = string.format("<font color='%s'>%s</font>", SL:GetHexColorByStyleId(titleColor), titleName)
-        table.insert(strList, {
-            str = titleStr
-        })
-    end
+    -- if attrShow and next(attrShow) then
+    --     local titleName = ItemTips._showTitleList[3] and ItemTips._showTitleList[3].name or "[附加属性]："
+    --     local titleColor = ItemTips._showTitleList[3] and ItemTips._showTitleList[3].color or 154
+    --     local titleStr = string.format("<font color='%s'>%s</font>", SL:GetHexColorByStyleId(titleColor), titleName)
+    --     table.insert(strList, {
+    --         str = titleStr
+    --     })
+    -- end
 
     for _,v in pairs(attrShow) do
         local name = string.gsub(v.name, " ", "")
@@ -2788,23 +2788,23 @@ function ItemTips.CreateEquipPanel(data, itemData, isWear, panelInsertIndex)
         ItemTips.PushItem(contentPanel, ItemTips.CreateIntervalPanel(contentPanel, _DefaultSpace, true))
     end
 
-    -- 绑定
-    if itemData.BindInfo and string.len(itemData.BindInfo) > 0 then
-        local rich_bind = GUI:RichText_Create(contentPanel, "rich_bind", 0, 0, string.format("已绑定[%s]", itemData.BindInfo), richWidth, _setFontSize or _DefaultFSize, SL:GetHexColorByStyleId(color), vspace, nil, fontPath)
-        ItemTips.PushItem(contentPanel, rich_bind)
-    end
+    -- -- 绑定
+    -- if itemData.BindInfo and string.len(itemData.BindInfo) > 0 then
+    --     local rich_bind = GUI:RichText_Create(contentPanel, "rich_bind", 0, 0, string.format("已绑定[%s]", itemData.BindInfo), richWidth, _setFontSize or _DefaultFSize, SL:GetHexColorByStyleId(color), vspace, nil, fontPath)
+    --     ItemTips.PushItem(contentPanel, rich_bind)
+    -- end
 
     maxWidth = math.max(maxWidth, GUI:getContentSize(r_name).width)
 
     -- icon
-    local res = SL:GetMetaValue("WINPLAYMODE") and _PathRes .. "1900025000.png" or _PathRes .. "1900025001.png"
+    local res = _PathRes .. "68_68.png"
     local icon_bg = GUI:Image_Create(contentPanel, "icon_bg", 0, 0, res)
     local size = GUI:getContentSize(icon_bg)
     icon_bg._itemWid = size.width
     local item = GUI:ItemShow_Create(icon_bg, "item_", size.width / 2, size.height / 2, {itemData = itemData, index = itemData.Index, disShowCount = true, notShowEquipRedMask = true})
     GUI:setAnchorPoint(item, 0.5, 0.5)
     ItemTips.PushItem(contentPanel, icon_bg)
-    ItemTips.PushItem(contentPanel, ItemTips.CreateIntervalPanel(contentPanel, _DefaultSpace, true))
+    -- ItemTips.PushItem(contentPanel, ItemTips.CreateIntervalPanel(contentPanel, _DefaultSpace, true))
 
     -- 投保
     if SL:GetMetaValue("SERVER_OPTIONS", SW_KEY_ITEMTIPS_TOUBAO_SHOW) == 1 then
@@ -2826,38 +2826,47 @@ function ItemTips.CreateEquipPanel(data, itemData, isWear, panelInsertIndex)
     end
 
     local iconMoveY = SL:GetMetaValue("WINPLAYMODE") and -6 or 0
-    -- 绑定
-    if itemData.Bind and string.len(itemData.Bind) > 0 and SL:GetMetaValue("ITEM_IS_BIND", itemData) then
-        local rich_bind = GUI:RichText_Create(GUI:ItemShow_GetLayoutExtra(item), "rich_bind", size.width + 10, size.height + iconMoveY, "已绑定", richWidth, _setFontSize or _DefaultFSize, SL:GetHexColorByStyleId(color), vspace, nil, fontPath)
-        GUI:setAnchorPoint(rich_bind, 0, 1)
-        -- 特殊需要单独设置
-        GUI:RefPosByParent(rich_bind)
-        local bindSize = GUI:getContentSize(rich_bind)
-        maxWidth = math.max(maxWidth, bindSize.width + size.width + 20)
-        icon_bg._itemWid = bindSize.width + size.width + 20
-    end
+    -- -- 绑定
+    -- if itemData.Bind and string.len(itemData.Bind) > 0 and SL:GetMetaValue("ITEM_IS_BIND", itemData) then
+    --     local rich_bind = GUI:RichText_Create(GUI:ItemShow_GetLayoutExtra(item), "rich_bind", size.width + 10, size.height + iconMoveY, "已绑定", richWidth, _setFontSize or _DefaultFSize, SL:GetHexColorByStyleId(color), vspace, nil, fontPath)
+    --     GUI:setAnchorPoint(rich_bind, 0, 1)
+    --     -- 特殊需要单独设置
+    --     GUI:RefPosByParent(rich_bind)
+    --     local bindSize = GUI:getContentSize(rich_bind)
+    --     maxWidth = math.max(maxWidth, bindSize.width + size.width + 20)
+    --     icon_bg._itemWid = bindSize.width + size.width + 20
+    -- end
 
-    -- 重量
-    if itemData.Weight and itemData.Weight > 0 then
-        local str = string.format("重量：%s", itemData.Weight)
-        local rich_weight = GUI:RichText_Create(GUI:ItemShow_GetLayoutExtra(item), "rich_weight", size.width + 10, size.height / 2 + iconMoveY, str, richWidth, _setFontSize or _DefaultFSize, "#FFFFFF", vspace, nil, fontPath)
-        GUI:setAnchorPoint(rich_weight, 0, 0.5)
-        GUI:RefPosByParent(rich_weight)
-        local weightSize = GUI:getContentSize(rich_weight)
-        maxWidth = math.max(maxWidth, weightSize.width + size.width + 20)
-        icon_bg._itemWid = math.max(icon_bg._itemWid, weightSize.width + size.width + 20)
-    end
+    -- -- 重量
+    -- if itemData.Weight and itemData.Weight > 0 then
+    --     local str = string.format("重量：%s", itemData.Weight)
+    --     local rich_weight = GUI:RichText_Create(GUI:ItemShow_GetLayoutExtra(item), "rich_weight", size.width + 10, size.height / 2 + iconMoveY, str, richWidth, _setFontSize or _DefaultFSize, "#FFFFFF", vspace, nil, fontPath)
+    --     GUI:setAnchorPoint(rich_weight, 0, 0.5)
+    --     GUI:RefPosByParent(rich_weight)
+    --     local weightSize = GUI:getContentSize(rich_weight)
+    --     maxWidth = math.max(maxWidth, weightSize.width + size.width + 20)
+    --     icon_bg._itemWid = math.max(icon_bg._itemWid, weightSize.width + size.width + 20)
+    -- end
 
     -- Mode
-    local modeStr = ItemTips.GetModeStr(itemData)
-    if modeStr then
-        local rich_mode = GUI:RichText_Create(GUI:ItemShow_GetLayoutExtra(item), "rich_mode", size.width + 10, iconMoveY, modeStr, richWidth, _setFontSize or _DefaultFSize, "#FFFFFF", vspace, nil, fontPath)
-        GUI:setAnchorPoint(rich_mode, 0, 0)
-        GUI:RefPosByParent(rich_mode)
-        local modeSize = GUI:getContentSize(rich_mode)
-        maxWidth = math.max(maxWidth, modeSize.width + size.width + 20)
-        icon_bg._itemWid = math.max(icon_bg._itemWid, modeSize.width + size.width + 20)
+    -- local modeStr = ItemTips.GetModeStr(itemData)
+    -- if modeStr then
+    --     local rich_mode = GUI:RichText_Create(GUI:ItemShow_GetLayoutExtra(item), "rich_mode", size.width + 10, iconMoveY, modeStr, richWidth, _setFontSize or _DefaultFSize, "#FFFFFF", vspace, nil, fontPath)
+    --     GUI:setAnchorPoint(rich_mode, 0, 0)
+    --     GUI:RefPosByParent(rich_mode)
+    --     local modeSize = GUI:getContentSize(rich_mode)
+    --     maxWidth = math.max(maxWidth, modeSize.width + size.width + 20)
+    --     icon_bg._itemWid = math.max(icon_bg._itemWid, modeSize.width + size.width + 20)
+    -- end
+    local mode_img = GUI:Image_Create(GUI:ItemShow_GetLayoutExtra(item), "mode_img", size.width - 50, iconMoveY - 15, "res/private/item_tips/mode/mode_"..(Player:getEquipFieldByIndex(itemData.Index, 2) ~= "" and Player:getEquipFieldByIndex(itemData.Index, 2) or 9)..".png")
+    GUI:RefPosByParent(mode_img)
+    local modeSize = GUI:getContentSize(mode_img)
+    maxWidth = math.max(maxWidth, modeSize.width + size.width - 80)
+    icon_bg._itemWid = math.max(icon_bg._itemWid, modeSize.width + size.width - 80)
+    if Player:getEquipFieldByIndex(itemData.Index, 2) == "11" then
+        GUI:Image_Create(mode_img, "level", 105, 60, "res/private/item_tips/level/"..Player:getEquipFieldByIndex(itemData.Index, 1)..".png")
     end
+
 
     -- 刀魂
     local extend = itemData.ExtendInfo
@@ -2894,6 +2903,10 @@ function ItemTips.CreateEquipPanel(data, itemData, isWear, panelInsertIndex)
     end
 
     if showAttr and attStr and #attStr > 0 then
+        local jcsx_eff = GUI:Frames_Create(contentPanel, "jcsx_eff", 0, 0, "res/private/item_tips/eff/jcsx/eff_", ".png", 1, 15,
+        { speed = 75, count = 15, loop = -1})
+        ItemTips.PushItem(contentPanel, jcsx_eff)
+        maxWidth = math.max(maxWidth, GUI:getContentSize(jcsx_eff).width)
         for i, v in ipairs(attStr) do
             local rich_att_base = nil
             if v.str then
@@ -2907,7 +2920,7 @@ function ItemTips.CreateEquipPanel(data, itemData, isWear, panelInsertIndex)
                 table.insert(upAttrRichs, rich_att_base)
             end
         end
-        ItemTips.PushItem(contentPanel, ItemTips.CreateIntervalPanel(contentPanel, _DefaultSpace, true))
+        -- ItemTips.PushItem(contentPanel, ItemTips.CreateIntervalPanel(contentPanel, _DefaultSpace, true))
     end
 
     -- 条件限制
@@ -2921,6 +2934,10 @@ function ItemTips.CreateEquipPanel(data, itemData, isWear, panelInsertIndex)
 
     -- 元素属性
     if attStr2 and #attStr2 > 0 then
+        local tsxg_eff = GUI:Frames_Create(contentPanel, "tsxg_eff", 0, 0, "res/private/item_tips/eff/tsxg/eff_", ".png", 1, 15,
+        { speed = 75, count = 15, loop = -1})
+        ItemTips.PushItem(contentPanel, tsxg_eff)
+        maxWidth = math.max(maxWidth, GUI:getContentSize(tsxg_eff).width)
         for i, v in ipairs(attStr2) do
             local rich_att_ys = nil
             if v.str then
@@ -2942,6 +2959,10 @@ function ItemTips.CreateEquipPanel(data, itemData, isWear, panelInsertIndex)
     local abilexStr = itemData.ExAbil and itemData.ExAbil.abilex
     local exAttrStr = not needCombineEx and ItemTips.ParseExAddAttr(abilexStr) or nil
     if exAttrStr and next(exAttrStr) then
+        local fjsx_eff = GUI:Frames_Create(contentPanel, "fjsx_eff", 0, 0, "res/private/item_tips/eff/tsxg/eff_", ".png", 1, 15,
+        { speed = 75, count = 15, loop = -1})
+        ItemTips.PushItem(contentPanel, fjsx_eff)
+        maxWidth = math.max(maxWidth, GUI:getContentSize(fjsx_eff).width)
         for i, v in ipairs(exAttrStr) do
             local rich_att_ex = nil
             if v.str then
@@ -3187,57 +3208,64 @@ function ItemTips.CreateItemPanel(data, itemData)
     local item = nil
     local size = {width = 0, height = 0}
     if isShowIcon then
-        local res = SL:GetMetaValue("WINPLAYMODE") and (_PathRes .. "1900025000.png") or (_PathRes .. "1900025001.png")
+        local res = _PathRes .. "68_68.png"
         local icon_bg = GUI:Image_Create(contentPanel, "icon_bg", 0, 0, res)
         size = GUI:getContentSize(icon_bg)
         icon_bg._itemWid = size.width
         item = GUI:ItemShow_Create(icon_bg, "item_", size.width / 2, size.height / 2, {itemData = itemData, index = itemData.Index, disShowCount = true, notShowEquipRedMask = true})
         GUI:setAnchorPoint(item, 0.5, 0.5)
         ItemTips.PushItem(contentPanel, icon_bg)
-        ItemTips.PushItem(contentPanel, ItemTips.CreateIntervalPanel(contentPanel, _DefaultSpace, true))
+        -- ItemTips.PushItem(contentPanel, ItemTips.CreateIntervalPanel(contentPanel, _DefaultSpace, true))
     end
 
     local iconMoveY = SL:GetMetaValue("WINPLAYMODE") and -6 or 0
-    -- 类型
-    local typeStr = ItemTips.GetTypeStr(itemData, true)
-    if isShowIcon and typeStr and string.len(typeStr) > 0 then
-        local rich_type = GUI:RichText_Create(GUI:ItemShow_GetLayoutExtra(item), "rich_type", size.width + 10, size.height / 2 + iconMoveY, typeStr, width, _setFontSize or _DefaultFSize, "#ffffff", vspace, nil, fontPath)
-        GUI:setAnchorPoint(rich_type, 0, 0.5)
-        GUI:RefPosByParent(rich_type)
-        maxWidth = math.max(maxWidth, GUI:getContentSize(rich_type).width + size.width + 20)
-        local icon_bg = GUI:getChildByName(contentPanel, "icon_bg")
-        icon_bg._itemWid = math.max(icon_bg._itemWid, GUI:getContentSize(rich_type).width + size.width + 20)
-    end
+    -- -- 类型
+    -- local typeStr = ItemTips.GetTypeStr(itemData, true)
+    -- if isShowIcon and typeStr and string.len(typeStr) > 0 then
+    --     local rich_type = GUI:RichText_Create(GUI:ItemShow_GetLayoutExtra(item), "rich_type", size.width + 10, size.height / 2 + iconMoveY, typeStr, width, _setFontSize or _DefaultFSize, "#ffffff", vspace, nil, fontPath)
+    --     GUI:setAnchorPoint(rich_type, 0, 0.5)
+    --     GUI:RefPosByParent(rich_type)
+    --     maxWidth = math.max(maxWidth, GUI:getContentSize(rich_type).width + size.width + 20)
+    --     local icon_bg = GUI:getChildByName(contentPanel, "icon_bg")
+    --     icon_bg._itemWid = math.max(icon_bg._itemWid, GUI:getContentSize(rich_type).width + size.width + 20)
+    -- end
 
-    -- 条件限制
-    local needStr = ItemTips.GetNeedStr(itemData, true)
-    if isShowIcon and needStr and itemData.StdMode ~= 4 then
-        local rich_need = GUI:RichText_Create(GUI:ItemShow_GetLayoutExtra(item), "rich_need", size.width + 10, iconMoveY, needStr, width,  _setFontSize or _DefaultFSize, "#ffffff", vspace, nil, fontPath) 
-        GUI:setAnchorPoint(rich_need, 0, 0)
-        GUI:RefPosByParent(rich_need)
-        maxWidth = math.max(maxWidth, GUI:getContentSize(rich_need).width + size.width + 20)
-        local icon_bg = GUI:getChildByName(contentPanel, "icon_bg")
-        icon_bg._itemWid = math.max(icon_bg._itemWid, GUI:getContentSize(rich_need).width + size.width + 20)
-    end
+    -- -- 条件限制
+    -- local needStr = ItemTips.GetNeedStr(itemData, true)
+    -- if isShowIcon and needStr and itemData.StdMode ~= 4 then
+    --     local rich_need = GUI:RichText_Create(GUI:ItemShow_GetLayoutExtra(item), "rich_need", size.width + 10, iconMoveY, needStr, width,  _setFontSize or _DefaultFSize, "#ffffff", vspace, nil, fontPath) 
+    --     GUI:setAnchorPoint(rich_need, 0, 0)
+    --     GUI:RefPosByParent(rich_need)
+    --     maxWidth = math.max(maxWidth, GUI:getContentSize(rich_need).width + size.width + 20)
+    --     local icon_bg = GUI:getChildByName(contentPanel, "icon_bg")
+    --     icon_bg._itemWid = math.max(icon_bg._itemWid, GUI:getContentSize(rich_need).width + size.width + 20)
+    -- end
 
-    -- 绑定
-    local isAddLink = false
-    if itemData.BindInfo and string.len(itemData.BindInfo) > 0 then
-        local rich_bind = GUI:RichText_Create(contentPanel, "rich_bind", 0, 0, string.format("已绑定[%s]", itemData.BindInfo), width, _setFontSize or _DefaultFSize, SL:GetColorByStyleId(color), vspace, nil, fontPath)
-        ItemTips.PushItem(contentPanel, rich_bind)
-        isAddLink = true
-    end
+    -- -- 绑定
+    -- local isAddLink = false
+    -- if itemData.BindInfo and string.len(itemData.BindInfo) > 0 then
+    --     local rich_bind = GUI:RichText_Create(contentPanel, "rich_bind", 0, 0, string.format("已绑定[%s]", itemData.BindInfo), width, _setFontSize or _DefaultFSize, SL:GetColorByStyleId(color), vspace, nil, fontPath)
+    --     ItemTips.PushItem(contentPanel, rich_bind)
+    --     isAddLink = true
+    -- end
 
-    if isShowIcon and itemData.Bind and string.len(itemData.Bind) > 0 and SL:GetMetaValue("ITEM_IS_BIND", itemData) then
-        -- ！Pos
-        local rich_bind = GUI:RichText_Create(GUI:ItemShow_GetLayoutExtra(item), "rich_bind", size.width + 10, size.height + iconMoveY, "已绑定", width, _setFontSize or _DefaultFSize, SL:GetColorByStyleId(color), vspace, nil, fontPath)
-        GUI:setAnchorPoint(rich_bind, 0, 1)
-        GUI:RefPosByParent(rich_bind)
-        local bindSize = GUI:getContentSize(rich_bind)
-        maxWidth = math.max(maxWidth, bindSize.width + size.width + 20)
-        local icon_bg = GUI:getChildByName(contentPanel, "icon_bg")
-        icon_bg._itemWid = math.max(icon_bg._itemWid, bindSize.width + size.width + 20)
-    end
+    -- if isShowIcon and itemData.Bind and string.len(itemData.Bind) > 0 and SL:GetMetaValue("ITEM_IS_BIND", itemData) then
+    --     -- ！Pos
+    --     local rich_bind = GUI:RichText_Create(GUI:ItemShow_GetLayoutExtra(item), "rich_bind", size.width + 10, size.height + iconMoveY, "已绑定", width, _setFontSize or _DefaultFSize, SL:GetColorByStyleId(color), vspace, nil, fontPath)
+    --     GUI:setAnchorPoint(rich_bind, 0, 1)
+    --     GUI:RefPosByParent(rich_bind)
+    --     local bindSize = GUI:getContentSize(rich_bind)
+    --     maxWidth = math.max(maxWidth, bindSize.width + size.width + 20)
+    --     local icon_bg = GUI:getChildByName(contentPanel, "icon_bg")
+    --     icon_bg._itemWid = math.max(icon_bg._itemWid, bindSize.width + size.width + 20)
+    -- end
+
+    local mode_img = GUI:Image_Create(GUI:ItemShow_GetLayoutExtra(item), "mode_img", size.width - 50, iconMoveY - 15, "res/private/item_tips/mode/mode_"..(Player:getEquipFieldByIndex(itemData.Index, 2) ~= "" and Player:getEquipFieldByIndex(itemData.Index, 2) or 12)..".png")
+    GUI:RefPosByParent(mode_img)
+    local modeSize = GUI:getContentSize(mode_img)
+    maxWidth = math.max(maxWidth, modeSize.width + size.width - 60)
+    local icon_bg = GUI:getChildByName(contentPanel, "icon_bg")
+    icon_bg._itemWid = math.max(icon_bg._itemWid, modeSize.width + size.width - 60)
 
     -- 药品
     local str = ItemTips.GetHP_MP_Str(itemData)
@@ -3387,7 +3415,7 @@ function ItemTips.CreateItemPanel(data, itemData)
     maxWidth = math.max(maxWidth, sz.width)
     GUI:ScrollView_setInnerContainerSize(scrollView, maxWidth, sz.height)
     local listH = math.min(innerH, _TipsMaxH)
-    GUI:setContentSize(scrollView, maxWidth, listH + 25)
+    GUI:setContentSize(scrollView, maxWidth, listH)
 
     GUI:setContentSize(ListBg, maxWidth, listH)
     local tipsSz = GUI:getContentSize(ListBg)
