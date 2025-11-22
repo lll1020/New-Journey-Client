@@ -81,7 +81,7 @@ function UIHelper.ensureWindow(cache, npcid, opts)
     local bg = GUI:Image_Create(parent, bgCfg.name or 'img_bj', bgCfg.x or 0, bgCfg.y or 0, bgCfg.skin or DEFAULT_BG)
     GUI:setAnchorPoint(bg, bgCfg.anchorX or 0.5, bgCfg.anchorY or 0.5)
     GUI:setTouchEnabled(bg, true)
-    if not opts.background or (bgCfg.skin == DEFAULT_BG) then
+    if not opts.background or (bgCfg.skin == DEFAULT_BG) or bgCfg.eff then
         GUI:Frames_Create(bg, "eff1", 0, 0, "res/wy/eff/city/tongyong_0_dx_1_", ".png", 1, 45,
             { speed = 75, count = 45, loop = -1})
         GUI:Frames_Create(bg, "eff2", 0, 0, "res/wy/eff/city/tongyong_0_dx_2_", ".png", 1, 45,

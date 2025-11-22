@@ -115,8 +115,10 @@ local WINDOW_STYLE = {
     fairyFate = {    -- 仙途奇缘
         windowName = "npc_qy",
         overlay = {skin = "res/public/1900000651_1.png"},
-        background = {skin = "res/wy/public/tongyong_0.png"},
+        background = {skin = "res/custom/fairyFate/bg.png", eff = true},
         closeButton = {x = 740, y = 460, skin = "res/wy/public/close_red_big.png"},
+        title = {x = 56, y = 464, skin = "res/custom/fairyFate/title.png"},
+
     },
     freeSponsor = {  -- 免费赞助
         windowName = "npc_anniu_516",
@@ -2638,24 +2640,35 @@ end
 npc[515] = function(p2, p3, Data) -- 仙途奇缘
     local function UI_updata(node) --界面渲染
         GUI:removeAllChildren(node)
-
-        local dbLayout = GUI:Layout_Create(node, "dbLayout", 100,50, 500, 400)
+        local ScrollView = GUI:ScrollView_Create(node, "ScrollView", 30, 12, 670, 370, 1)
+        GUI:ScrollView_setInnerContainerSize(ScrollView, 670, (146 * math.ceil(#teshudata["anniu_515"].details/4)))
+        GUI:Image_Create(node, "sx_wz", 700, 20.00, "res/custom/fairyFate/sx_wz.png")
+        GUI:Image_Create(node, "tip_wz", 20, 370.00, "res/custom/fairyFate/tip_wz.png")
+        local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 0,0, 670, (146 * math.ceil(#teshudata["anniu_515"].details/4)))
         for k,v in ipairs(teshudata["anniu_515"].details) do
-            local Button= GUI:Button_Create(dbLayout, "Button"..k, 0, 0.00, "res/public/1900000660.png")
-            GUI:Button_setTitleText(Button, v.tt)
-            GUI:Button_setTitleFontSize(Button, 14)
-            GUI:Button_setTitleColor(Button, npc.data_515.T_data[""..k] and "#00FF00" or "#FF0000")
-            GUI:addOnClickEvent(Button, function()
-                GUI:removeChildByName(node,"desc")
-                local desc = GUI:RichText_Create(node, "desc", 600, 430,
-                        "<font color='#00FF00' size='20' >奇遇名称："..v.tt.."</font>\n"..
-                                "<font color='#00FF00' size='20' >奇遇条件："..v.wz.."</font>\n"..
-                                "<font color='#00FF00' size='20' >奇遇文字："..v.tip.."</font>\n"
-                , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-                GUI:setAnchorPoint(desc, 0, 1)
-            end)
+            local Button= GUI:Image_Create(dbLayout, "Button"..k, 0, 0.00, "res/custom/fairyFate/kuang.png")
+            local wz5 = GUI:Text_Create(Button, "wz5",166/2, 116, 18, "#FF0000", v.tt)
+            GUI:setAnchorPoint(wz5, 0.5, 0.5)
+            GUI:Text_setTextColor(wz5, npc.data_515.T_data[""..k] and "#00FF00" or "#FF0000")
+            local desc = GUI:RichText_Create(Button, "desc", 166/2, 90,
+                            "<font color='#00FF00' size='20' >"..v.tip.."</font>\n"
+            , 130, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+            GUI:setAnchorPoint(desc, 0.5, 1)
+
+
+            -- GUI:Button_setTitleFontSize(Button, 14)
+            -- GUI:Button_setTitleColor(Button, npc.data_515.T_data[""..k] and "#00FF00" or "#FF0000")
+            -- GUI:addOnClickEvent(Button, function()
+            --     GUI:removeChildByName(node,"desc")
+            --     local desc = GUI:RichText_Create(node, "desc", 600, 430,
+            --             "<font color='#00FF00' size='20' >奇遇名称："..v.tt.."</font>\n"..
+            --                     "<font color='#00FF00' size='20' >奇遇条件："..v.wz.."</font>\n"..
+            --                     "<font color='#00FF00' size='20' >奇遇文字："..v.tip.."</font>\n"
+            --     , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+            --     GUI:setAnchorPoint(desc, 0, 1)
+            -- end)
         end
-        GUI:UserUILayout(dbLayout, {dir=3,addDir=1,gap = {x=5, y=5}})
+        GUI:UserUILayout(dbLayout, {dir=3,addDir=1,gap = {x=0, y=0}})
     end
 
     if p2 == 0 then
