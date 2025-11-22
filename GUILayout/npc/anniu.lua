@@ -85,8 +85,10 @@ local WINDOW_STYLE = {
     activity = {     -- 游戏活动
         windowName = "npc_hd",
         overlay = {skin = "res/public/1900000651_1.png"},
-        background = {skin = "res/wy/public/tongyong_0.png"},
-        closeButton = {x = 740, y = 460, skin = "res/wy/public/close_red_big.png"},
+        background = {skin = "res/custom/activity/bg.png"},
+        closeButton = {x = 780, y = 460, skin = "res/wy/public/close_red_big.png"},
+        title = {x = 56, y = 464, skin = "res/custom/activity/title.png"},
+
     },
     recordStone = {  -- 记录石
         windowName = "npc_jilushi",
@@ -1986,15 +1988,56 @@ end
 
 ---游戏活动
 npc[507] = function(p2, p3, Data)
+    local function GUI_createLabel_507(label,i)
+        GUI:removeAllChildren(label)
+        GUI:Image_Create(label, "img_bj", 0, 350, "res/custom/activity/img/img_"..i..".png")
+
+        local btn = GUI:Button_Create(label, "btn", 350, 20, "res/custom/activity/btn.png")
+        GUI:addOnClickEvent(btn, function()
+            SL:SendLuaNetMsg(101, 507, 1, i, "")
+        end)
+        local cfg = {
+            title = "活动名称",
+            map = "活动地图",
+            jl = {{"元宝",1},{"天工之锤",1} ,{"元宝",1},{"天工之锤",1} },
+            time = "活动时间",
+            tip = "活动具体规则说明",
+        }
+
+        local desc = GUI:RichText_Create(label, "time", 60, 180,
+                            "<font color='#00FF00' size='20' >"..cfg.time.."</font>\n"
+            , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+            GUI:setAnchorPoint(desc, 0.5, 1)
+
+        local tip = GUI:RichText_Create(label, "tip", 60, 260,
+                            "<font color='#00FF00' size='20' >"..cfg.tip.."</font>\n"
+            , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+            GUI:setAnchorPoint(desc, 0, 1)
+
+        local jl = ItemNumByTable_img(cfg.jl, nil,GUI:Node_Create(label, "jl", 0, 0))
+            GUI:setPosition(jl, 90, 30)
+    
+    end
     local titles = {"天选之人", "土城跑酷","随机夺宝","武林盟主"}
     local function renderActivity(node)
         GUI:removeAllChildren(node)
-        for i = 1, #titles do
-            local item = GUI:Button_Create(node, "activity" .. i, 100 + (i-1) * 120, 50, "res/public/1900000660.png")
-            GUI:Button_setTitleText(item, titles[i])
-            GUI:Button_setTitleFontSize(item, 14)
-            GUI:addOnClickEvent(item, function()
-                SL:SendLuaNetMsg(101, 507, 1, i, "")
+
+
+
+        npc.cbl_list = GUI:ListView_Create(node, "cbl_list", 55, 50, 190, 420, 1)
+        GUI:ListView_setGravity(npc.cbl_list, 2)
+        npc.Label = GUI:Node_Create(node, "Label", 250, 15)
+
+        npc.titles_sign = 1
+        for i = 1, 14 do
+            local cbl_item = GUI:Button_Create(npc.cbl_list, "item" .. i, 0, 0, "res/custom/activity/list/"..(npc.titles_sign == i and "l" or "n").."/"..(npc.titles_sign == i and "l_" or "n_")..i..".png")
+            GUI:setContentSize(cbl_item, GUI:getContentSize(cbl_item).width * 0.6, GUI:getContentSize(cbl_item).height * 0.6)
+            GUI:addOnClickEvent(cbl_item, function()
+                GUI:Button_loadTextureNormal(GUI:ui_delegate(npc.cbl_list)["item" .. npc.titles_sign], "res/custom/activity/list/n/n_"..npc.titles_sign..".png")
+                npc.titles_sign = i
+                GUI_createLabel_507(npc.Label,i)
+
+                GUI:Button_loadTextureNormal(GUI:ui_delegate(npc.cbl_list)["item" .. npc.titles_sign], "res/custom/activity/list/l/l_"..npc.titles_sign..".png")
             end)
         end
     end
@@ -2004,7 +2047,11 @@ npc[507] = function(p2, p3, Data)
         local win = ensureWindow("activity", 507, {titleText = "游戏活动"})
         npc.bg = win.bg
         npc.node = win.node
+        npc.title = win.title
+        GUI:setLocalZOrder(npc.title, 99)
+        
         renderActivity(npc.node)
+        GUI_createLabel_507(npc.Label,1)
     end
 end
 

@@ -121,6 +121,7 @@ function UIHelper.ensureWindow(cache, npcid, opts)
     cache.bg = bg
     cache.close = closeBtn
     cache.node = node
+    cache.title = opts.title
 
     -- if opts.titleText then
     --     cache.title = UIHelper.createTitle(bg, opts.titleText, opts.subTitle, opts.titleOptions)
