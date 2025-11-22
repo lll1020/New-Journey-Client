@@ -129,6 +129,12 @@ local WINDOW_STYLE = {
         overlay = {skin = "res/public/1900000651_1.png"},
         background = {skin = "res/wy/public/tongyong_0.png"},
         closeButton = {x = 740, y = 460, skin = "res/wy/public/close_red_big.png"},
+    },
+    flyingSword = { -- 飞剑
+        windowName = "npc_19",
+        overlay = {skin = "res/public/1900000651_1.png"},
+        background = {skin = "res/custom/feijian/bg.png", timeline = true},
+        closeButton = {x = 950, y = 470, skin = "res/wy/public/close_red_big.png"},
     }
 }
 
@@ -1458,11 +1464,11 @@ npc[19] = function(p2, p3, Data)  --飞剑
         GUI:removeAllChildren(node)
 
         for v,k in pairs(cogin.teshudata["anniu_19"].details) do
-            local kuang = GUI:Image_Create(node, "kuang"..v, 100 + (v-1) * 100, 250, "res/wy/public/70_70_k.png")
-            local contentSize = kuang:getContentSize()
-            local itemShow = GUI:ItemShow_Create(kuang, "item", contentSize.width / 2, contentSize.height / 2, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME",k.name), look = true, bgVisible = false })
-            itemShow:setAnchorPoint(cc.p(0.5, 0.5))
-            GUI:Text_Create(kuang, "name",30,50, 20, "#FF0000", k.name)
+            local kuang = GUI:Image_Create(node, "kuang"..v, 100 + (v-1) * 216, 50, "res/custom/feijian/itme_"..v.."_0.png")
+            -- local contentSize = kuang:getContentSize()
+            -- local itemShow = GUI:ItemShow_Create(kuang, "item", contentSize.width / 2, contentSize.height / 2, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME",k.name), look = true, bgVisible = false })
+            -- itemShow:setAnchorPoint(cc.p(0.5, 0.5))
+            -- GUI:Text_Create(kuang, "name",30,50, 20, "#FF0000", k.name)
             local jh = 1
             if v == 1 then
                 if SL:GetMetaValue("RELEVEL") >= 1 then
@@ -1480,55 +1486,36 @@ npc[19] = function(p2, p3, Data)  --飞剑
                 if npc.data_19.T_data.num and npc.data_19.T_data.num >= cogin.teshudata["anniu_19"].num then
                     jh = 2
                 end
-                GUI:Text_Create(kuang, "jd",100,0, 20, "#FF0000", (npc.data_19.T_data.num or 0)..'/'..cogin.teshudata["anniu_19"].num)
-            end
-            GUI:Text_Create(kuang, "jh",30,0, 20, state_info[jh].color, state_info[jh].text)
+                -- GUI:Text_Create(kuang, "jd",100,0, 20, "#FF0000", (npc.data_19.T_data.num or 0)..'/'..cogin.teshudata["anniu_19"].num)
 
+            end
+            local jian = GUI:Image_Create(kuang, "jian"..v, 0, 0, "res/custom/feijian/itme_"..v.."_1.png")
+            GUI:setGrey(jian,jh == 2 and false or true)
+            GUI:Text_Create(kuang, "jh",150,130, 18, state_info[jh].color, state_info[jh].text)
 
         end
 
-        local Button= GUI:Button_Create(node, "Button1", 750, 200.00, "res/public/1900000660.png")
-        GUI:Button_setTitleText(Button, "飞剑激活")
-        GUI:Button_setTitleFontSize(Button, 14)
+        -- local Button= GUI:Button_Create(node, "Button1", 750, 200.00, "res/public/1900000660.png")
+        -- GUI:Button_setTitleText(Button, "飞剑激活")
+        -- GUI:Button_setTitleFontSize(Button, 14)
 
-        GUI:addOnClickEvent(Button, function()
-            SL:SendLuaNetMsg(101, 19, 1, 0, "")
-        end)
-        Button= GUI:Button_Create(node, "Button2", 750, 100.00, "res/public/1900000660.png")
-        GUI:Button_setTitleText(Button, "飞剑取消")
-        GUI:Button_setTitleFontSize(Button, 14)
+        -- GUI:addOnClickEvent(Button, function()
+        --     SL:SendLuaNetMsg(101, 19, 1, 0, "")
+        -- end)
+        -- Button= GUI:Button_Create(node, "Button2", 750, 100.00, "res/public/1900000660.png")
+        -- GUI:Button_setTitleText(Button, "飞剑取消")
+        -- GUI:Button_setTitleFontSize(Button, 14)
 
-        GUI:addOnClickEvent(Button, function()
-            SL:SendLuaNetMsg(101, 19, 3, 0, "")
-        end)
+        -- GUI:addOnClickEvent(Button, function()
+        --     SL:SendLuaNetMsg(101, 19, 3, 0, "")
+        -- end)
     end
 
     if p2 == 0 then
-        local parent = GUI:GetWindow(nil, "npc_19")
         npc.data_19 = not Data and {} or SL:JsonDecode(Data, false)
-        if parent then
-            GUI:removeAllChildren(parent)
-            GUI:setPosition(parent, cogin.w / 2, cogin.h / 2)
-        else
-            parent = GUI:Win_Create("npc_19", cogin.w / 2, cogin.h / 2, 0, 0, false, false, true, true, true, 0, 1)
-        end
-        local bjt = GUI:Image_Create(parent, "bjt", 0, 0, "res/public/1900000651_1.png")
-        GUI:setAnchorPoint(bjt, 0.5, 0.5)
-        GUI:setContentSize(bjt, cogin.w + 100, cogin.h + 100)
-        GUI:setTouchEnabled(bjt, true)
-        GUI:addOnClickEvent(bjt, function()
-            GUI:Win_Close(parent)
-        end)
-        npc.bg = GUI:Image_Create(parent, "img_bj", 0, 0, 'res/wy/public/tongyong_0.png')
-        GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
-        GUI:setTouchEnabled(npc.bg, true)
-        GUI:Timeline_Window1(npc.bg)
-
-        local close = GUI:Button_Create(npc.bg, 'close', 740, 460, 'res/wy/public/close_red_big.png')
-        GUI:addOnClickEvent(close, function()
-            GUI:Win_Close(parent)
-        end)
-        npc.node = GUI:Node_Create(npc.bg, "node", 0, 0)
+        local win = ensureWindow("flyingSword", 19, {titleText = "飞剑"})
+        npc.bg = win.bg
+        npc.node = win.node
         UI_updata(npc.node)
     elseif p2 == 1 then
         npc.data_19_tmp = not Data and {} or SL:JsonDecode(Data, false)
@@ -2673,7 +2660,7 @@ npc[515] = function(p2, p3, Data) -- 仙途奇缘
 
     if p2 == 0 then
         npc.data_515 = not Data and {} or SL:JsonDecode(Data, false)
-        local win = ensureWindow("worldMap", 515, {titleText = "仙途奇缘"})
+        local win = ensureWindow("fairyFate", 515, {titleText = "仙途奇缘"})
         UI_updata(win.node)
     end
 end
@@ -2706,7 +2693,7 @@ npc[516] = function(p2, p3, Data)
 
     if p2 == 0 then
         npc.data_516 = not Data and {} or SL:JsonDecode(Data, false)
-        local win = ensureWindow("worldMap", 516, {titleText = "免费赞助"})
+        local win = ensureWindow("freeSponsor", 516, {titleText = "免费赞助"})
         UI_updata(win.node)
     end
 end
@@ -2751,7 +2738,7 @@ npc[517] = function(p2, p3, Data)
 
     if p2 == 0 then
         npc.data_517 = not Data and {} or SL:JsonDecode(Data, false)
-        local win = ensureWindow("worldMap", 517, {titleText = "聚宝盆"})
+        local win = ensureWindow("treasureBasin", 517, {titleText = "聚宝盆"})
         UI_updata(win.node)
     elseif p2 == 1 then
         npc.data_517.T_data.level = npc.data_517.T_data.level + 1

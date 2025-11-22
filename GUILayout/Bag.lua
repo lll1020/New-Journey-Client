@@ -90,13 +90,11 @@ function Bag.main(page)
         --货币兑换
     GUI:addOnClickEvent(Bag._ui["duihuanbtn"], function()
         SL:SendLuaNetMsg(105, 17, 17, 0, "")
-        SL:CloseBagUI()
     end)
 
     --飞剑服务界面
     GUI:addOnClickEvent(Bag._ui["FuWuJieMian_feijian"], function()
-        SL:SendLuaNetMsg(101, 19, 0, 0, "")
-        SL:CloseBagUI()
+        SL:SendLuaNetMsg(101, 19, 4, 0, "")
     end)
 
         --物品销毁
