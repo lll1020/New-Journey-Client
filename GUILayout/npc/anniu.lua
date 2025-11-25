@@ -1496,6 +1496,7 @@ npc[19] = function(p2, p3, Data)  --飞剑
             local jian = GUI:Image_Create(kuang, "jian"..v, 0, 0, "res/custom/feijian/itme_"..v.."_1.png")
             GUI:setGrey(jian,jh == 2 and false or true)
             GUI:Text_Create(kuang, "jh",150,130, 18, state_info[jh].color, state_info[jh].text)
+            GUI:Image_Create(kuang, "jian_Wz"..v, 0, 0, "res/custom/feijian/itme_"..v.."_2.png")
 
         end
 

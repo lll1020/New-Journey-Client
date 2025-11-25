@@ -4,11 +4,12 @@ npc._config = teshudata["npc_6"]
 
 
 
-local WINDOW_OPTS = {}
+local WINDOW_OPTS = {
+    background = {skin = "res/custom/one_city/6_bg.png", eff = true},
+    title = {x = 56, y = 464, skin = "res/custom/one_city/6_title.png"},
+}
 
 function npc.main(npcid, p2, p3, msgData)
-
-
     local function ensureWindow(npcid)
         local opts = {}
         for k, v in pairs(WINDOW_OPTS) do
@@ -27,49 +28,49 @@ function npc.main(npcid, p2, p3, msgData)
             return
         end
         GUI:removeAllChildren(node)
-
-        GUI:setAnchorPoint(
-                GUI:RichText_Create(node, "desc", 200, 430,
-                        "<font color='#00FF00' size='20' >除了每次升级带来的基础属性  还有相对应的全属性</font>"
-                , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-        , 0, 1)
-
-
-
-        local kuang = GUI:Image_Create(node, "title", 750, 250, "res/wy/public/70_70_k.png")
-        UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.title.."[称号]")))
-
-
         local item = SL:GetMetaValue("EQUIP_DATA", npc._config.where)
+
+        GUI:Text_setFontName(GUI:Text_Create(node, "tip",50,40, 25, "#FF0000", "满级后获得称号:")
+        , "fonts/500.ttf")
+        local ch_kuang = GUI:Image_Create(node, "ch_kuang", 240, 20, "res/wy/public/70_70_k.png")
+        UiTools.showItemData(ch_kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.title.."[称号]")))
+
+
+        
+       
         if item then
+
+             GUI:setAnchorPoint(GUI:RichText_Create(node, "attr_desc", 370, 320,  Player:showEquipBaseAttr(item), 200, 17, "#f7f7de", 3,nil,nil)
+            , 0, 1)
 
             local equipLevel = Player:getEquipFieldByIndex(item.Index, 1)
             equipLevel = tonumber(equipLevel)
 
-            local kuang = GUI:Image_Create(node, "kuang", 200, 250, "res/wy/public/70_70_k.png")
+            local kuang = GUI:Image_Create(node, "kuang", 404, 353, "res/wy/public/70_70_k.png")
             UiTools.showItemData(kuang, item)
 
             local config = npc._config.config[equipLevel]
             if equipLevel < npc._config.max_level then
-                kuang = GUI:Image_Create(node, "kuang2", 400, 250, "res/wy/public/70_70_k.png")
+
+                kuang = GUI:Image_Create(node, "kuang2", 404 + 209, 353, "res/wy/public/70_70_k.png")
                 UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",config.give)))
-
-                GUI:Text_Create(node, "wz5",200,200, 20, "#FF0000", "消耗:")
+                
                 local cost_show = ItemNumByTable_img(config.cost, nil,GUI:Node_Create(node, "cost_show", 0, 0))
-                GUI:setPosition(cost_show, 200, 130)
+                GUI:setPosition(cost_show, 480, 100)
 
+                GUI:setAnchorPoint(GUI:RichText_Create(node, "attr_desc_next", 370 + 350, 320,  Player:showEquipBaseAttr(SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",config.give))), 200, 17, "#f7f7de", 3,nil,nil)
+                , 1, 1)
 
+                local Button= GUI:Button_Create(node, "Button", 450, 10.00, "res/custom/one_city/btn_1.png")
+                GUI:addOnClickEvent(Button, function()
+                    SL:SendLuaNetMsg(100, npcid, 1, 0, "")
+                end)
+            else
+                GUI:Text_setFontName(GUI:Text_Create(node, "tip_max",450,100, 30, "#FF0000", "已达最高等级")
+                , "fonts/500.ttf")
             end
-
-
         end
-        local Button= GUI:Button_Create(node, "Button", 750, 100.00, "res/public/1900000660.png")
-        GUI:Button_setTitleText(Button, "升级")
-        GUI:Button_setTitleFontSize(Button, 14)
-
-        GUI:addOnClickEvent(Button, function()
-            SL:SendLuaNetMsg(100, npcid, 1, 0, "")
-        end)
+        
 
     end
 
