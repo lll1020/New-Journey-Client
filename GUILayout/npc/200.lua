@@ -18,7 +18,7 @@ local RAW_MAP_CONFIG = {
 
     [211] = {"隐藏地图三", 100, 100, nil, nil, 3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
     [212] = {"灰界", 100, 100, nil, nil, 3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
-    [213] = {"群星海", 100, 100, nil, nil, 3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [213] = {"藏星海", 100, 100, nil, nil, 3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
     [214] = {"红尘城", 100, 100, nil, nil, 3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
     [215] = {"无主深渊", 100, 100, nil, nil, 3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
     [216] = {"草药谷", 100, 100, nil, nil, 3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
