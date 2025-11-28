@@ -1139,7 +1139,7 @@ npc.xyl = {
             },
             --需求
             jqd = 0,
-            jl = {{"绑定元宝",1000000},{"绑定灵符",100000}}
+            jl = {{"绑定金币",1000000},{"绑定元宝",100000}}
         },
         --第二章
         {
@@ -1150,7 +1150,7 @@ npc.xyl = {
                 { "喂养灵根",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
             },
             jqd = 400,
-            jl = {{"绑定元宝",1000000},{"绑定灵符",100000}}
+            jl = {{"绑定金币",1000000},{"绑定元宝",100000}}
         },
         --第三章
         {
@@ -1165,7 +1165,7 @@ npc.xyl = {
 
             },
             jqd = 800,
-            jl = {{"绑定元宝",1000000},{"绑定灵符",100000}}
+            jl = {{"绑定金币",1000000},{"绑定元宝",100000}}
         },
     },
 }
@@ -1782,7 +1782,7 @@ npc[502] = function(p2, p3, Data) -- 在线充值
 
             GUI:Text_Create(Button, "wz",30,100, 20, "#FF0000", teshudata["anniu_502"].fj[i].."元")
 
-            local richText = GUI:RichTextFCOLOR_Create(Button, "rich0", 10, 10, "<非绑仙玉/FCOLOR=250><*"..(teshudata["anniu_502"].fj[i] * 100).."/FCOLOR=149>   <绑定仙玉/FCOLOR=250><*"..(teshudata["anniu_502"].fj[i] * 100).."/FCOLOR=149>", 400, 13, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+            local richText = GUI:RichTextFCOLOR_Create(Button, "rich0", 10, 10, "<非绑灵石/FCOLOR=250><*"..(teshudata["anniu_502"].fj[i] * 100).."/FCOLOR=149>   <绑定灵石/FCOLOR=250><*"..(teshudata["anniu_502"].fj[i] * 100).."/FCOLOR=149>", 400, 13, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
             --GUI:setAnchorPoint(richText, 0.5, 1)
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(101, 502, 0, 2, teshudata["anniu_502"].fj[i])
@@ -2000,7 +2000,7 @@ npc[507] = function(p2, p3, Data)
         local cfg = {
             title = "活动名称",
             map = "活动地图",
-            jl = {{"元宝",1},{"天工之锤",1} ,{"元宝",1},{"天工之锤",1} },
+            jl = {{"金币",1},{"天工之锤",1} ,{"金币",1},{"天工之锤",1} },
             time = "活动时间",
             tip = "活动具体规则说明",
         }
@@ -2188,7 +2188,7 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
             -- local finalText
             -- if claimed >= 7 then
             --     if finalAward > 0 then
-            --         finalText = string.format("翻牌合计：%d  倍率：x%d  已发绑定元宝：%d", finalSum, finalMultiple, finalAward)
+            --         finalText = string.format("翻牌合计：%d  倍率：x%d  已发绑定金币：%d", finalSum, finalMultiple, finalAward)
             --     else
             --         finalText = string.format("翻牌合计：%d  倍率：x%d  奖励发放中", finalSum, finalMultiple)
             --     end
@@ -2843,7 +2843,7 @@ end
 
 -- GM 面板配置：货币/礼包/变量/首充说明表
 local xlxl = {
-    {"元宝","灵符","绑定元宝","绑定灵符","仙玉","绑定仙玉","累计充值","礼包积分","一合充值","二合充值","三合后充值"},
+    {"金币","元宝","绑定金币","绑定元宝","灵石","绑定灵石","累计充值","礼包积分","一合充值","二合充值","三合后充值"},
     {"充值8","充值8","充值8","充值28","充值88","充值88","充值88","充值188","充值588","充值888"},
     {{"个人变量",105,178},{"个人标识",225,178},{"个人Buff",105,144},{"全局变量",225,144}},
     {"快人一步","前三天首充","三天后首充"},

@@ -47,7 +47,7 @@ end
 
         -- GUI:setAnchorPoint(
         --         GUI:RichText_Create(node, "desc", 200, 430,
-        --                 "<font color='#00FF00' size='20' >1000仙玉(非绑)</font>"
+        --                 "<font color='#00FF00' size='20' >1000灵石(非绑)</font>"
         --         , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
         -- , 0, 1)
 
