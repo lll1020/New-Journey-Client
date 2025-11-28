@@ -4,7 +4,10 @@ npc._config = teshudata["npc_20"]
 
 
 
-local WINDOW_OPTS = {}
+local WINDOW_OPTS = {
+    background = {skin = "res/custom/one_city/20_bg.png", eff = true},
+    title = {x = 56, y = 464, skin = "res/custom/one_city/20_title.png"},
+}
 
 function npc.main(npcid, p2, p3, msgData)
 
@@ -29,17 +32,17 @@ function npc.main(npcid, p2, p3, msgData)
 
         GUI:removeAllChildren(node)
 
-        local kuang = GUI:Image_Create(node, "kuang2", 750, 250, "res/wy/public/70_70_k.png")
-        local showItem = UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.ch.."[称号]")))
+        -- local kuang = GUI:Image_Create(node, "kuang2", 750, 250, "res/wy/public/70_70_k.png")
+        -- local showItem = UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.ch.."[称号]")))
 
 
-        local Button= GUI:Button_Create(node, "Button2", 750, 150.00, "res/public/1900000660.png")
-        GUI:Button_setTitleText(Button, "领取冠名")
-        GUI:Button_setTitleFontSize(Button, 14)
+        -- local Button= GUI:Button_Create(node, "Button2", 750, 150.00, "res/public/1900000660.png")
+        -- GUI:Button_setTitleText(Button, "领取冠名")
+        -- GUI:Button_setTitleFontSize(Button, 14)
 
-        GUI:addOnClickEvent(Button, function()
-            SL:SendLuaNetMsg(100, npcid, 1, 0, '')
-        end)
+        -- GUI:addOnClickEvent(Button, function()
+        --     SL:SendLuaNetMsg(100, npcid, 1, 0, '')
+        -- end)
 
     end
 

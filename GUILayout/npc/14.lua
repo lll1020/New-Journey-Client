@@ -4,7 +4,12 @@ npc._config = teshudata["npc_14"]
 
 
 
-local WINDOW_OPTS = {}
+local WINDOW_OPTS = {
+    background = {skin = "res/custom/one_city/14_bg.png"},
+    closeButton = {x = 920, y = 460},
+
+}
+
 
 function npc.main(npcid, p2, p3, msgData)
 
@@ -29,22 +34,26 @@ end
 
         GUI:removeAllChildren(node)
 
-        local cllist = GUI:ListView_Create(node, "cllist", 200, 70, 500, 300, 1)
+        local cllist = GUI:ListView_Create(node, "cllist", 280, 70,645, 380, 2)
         GUI:ListView_setItemsMargin(cllist, 3)
         for v,k in ipairs(npc._config.config) do
-            local l = GUI:Image_Create(cllist, "img_bj_l_"..v, 0, 0, 'res/wy/public/jdtk_1.png')
-            GUI:setContentSize(l, 500, 50)
-            GUI:RichText_Create(l, "text_name", 20, 20,
-                    "<font color='#00FF00' size='16' >"..k.cost[1][1].."</font>"..
-                            "<font color='#0000FF' size='18' >"..k.attr_desc.." + "..(npc.data.dj_data[""..v] or 0).."</font>"..
+            local l = GUI:Image_Create(cllist, "img_bj_l_"..v, 0, 0, 'res/custom/one_city/14_itme_'..v..'.png')
+           
+            GUI:setAnchorPoint(GUI:RichText_Create(l, "text_attr", 106, 160,
+                            "<font color='#FF00FF' size='18' >"..k.attr_desc.." + "..(npc.data.dj_data[""..v] or 0).."</font>"
+            , 500, 30, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+            , 0.5, 0.5)
+            
+            GUI:setAnchorPoint(GUI:RichText_Create(l, "text_cs", 106, 20 + 68,
                             SetCompletionProgress((npc.data.dj_data[""..v] or 0), k.max_level)
-            , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+            , 500, 30, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+            , 0.5, 0.5)
 
+            local itemShow = GUI:ItemShow_Create(l, "item", 106, 270, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME",k.cost[1][1]), look = true, bgVisible = false })
+            itemShow:setAnchorPoint(cc.p(0.5, 0.5))
 
-            local Button= GUI:Button_Create(l, "Button", 350, 5, "res/public/1900000660.png")
-            GUI:Button_setTitleText(Button, "食用")
-            GUI:Button_setTitleFontSize(Button, 14)
-
+            local Button= GUI:Button_Create(l, "Button", 106, 40, 'res/custom/one_city/btn_2.png')
+             GUI:setAnchorPoint(Button, 0.5, 0.5)
             GUI:addOnTouchEvent(Button, function(sender, type)
                 -- 触发控件（sender）：控件本身
                 -- 事件类型（type）：触摸阶段 0-3
@@ -73,7 +82,7 @@ end
             end)
         end
 
-        local kuang = GUI:Image_Create(node, "kuang2", 750, 250, "res/wy/public/70_70_k.png")
+        local kuang = GUI:Image_Create(node, "kuang2", 720, 0, "res/wy/public/70_70_k.png")
         UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.title.."[称号]")))
     end
 

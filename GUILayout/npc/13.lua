@@ -4,7 +4,10 @@ npc._config = teshudata["npc_13"]
 
 
 
-local WINDOW_OPTS = {}
+
+local WINDOW_OPTS = {
+    background = {skin = "res/custom/one_city/13_bg.png", eff = true},
+}
 
 function npc.main(npcid, p2, p3, msgData)
 
@@ -28,35 +31,43 @@ end
         end
 
         GUI:removeAllChildren(node)
-
         if npc.data.dj_num < npc._config.max_level then
             local config = npc._config.config[npc.data.dj_num + 1]
-            GUI:setAnchorPoint(
-                    GUI:RichText_Create(node, "desc", 200, 430,
-                            "<font color='#00FF00' size='20' >当前好感度："..npc.data.dj_num.."</font>\n"..
-                                    "<font color='#00FF00' size='20' >当前切割+"..npc._config.config[npc.data.dj_num].ratio.."</font>\n"..
-                                    "<font color='#00FF00' size='20' >下一级切割+"..npc._config.config[npc.data.dj_num + 1].ratio.."</font>"
-                    , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-            , 0, 1)
-            local kuang = GUI:Image_Create(node, "kuang2", 750, 250, "res/wy/public/70_70_k.png")
+            GUI:Text_setFontName(GUI:Text_Create(node, "desc1",490,353, 25, "#ffffff", npc.data.dj_num)
+            , "fonts/500.ttf")
+
+            GUI:Text_setFontName(GUI:Text_Create(node, "desc2",490,305, 25, "#ffffff", "人物切割："..npc._config.config[npc.data.dj_num].ratio.."→"..npc._config.config[npc.data.dj_num + 1].ratio)
+            , "fonts/500.ttf")
+
+            local kuang = GUI:Image_Create(node, "kuang2", 750 - 240, 250 - 140, "res/wy/public/70_70_k.png")
             local showItem = UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",config.cost[1][1])))
             GUI:ItemShow_OnRunFunc(showItem, "SetCount", config.cost[1][2])
 
-
             if npc.data.dj_num == 0 then
-                kuang = GUI:Image_Create(node, "kuang10", 400, 250, "res/wy/public/70_70_k.png")
+                kuang = GUI:Image_Create(node, "kuang10", 750 - 240, 220, "res/wy/public/70_70_k.png")
                 UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.half_give)))
             end
+
+             local Button= GUI:Button_Create(node, "Button2", 450, 20.00, "res/custom/one_city/btn_3.png")
+            GUI:addOnClickEvent(Button, function()
+                SL:SendLuaNetMsg(100, npcid, 1, 0, '')
+            end)
+        else
+
+            GUI:Text_setFontName(GUI:Text_Create(node, "desc1",490,353, 25, "#ffffff", "10")
+            , "fonts/500.ttf")
+
+            GUI:Text_setFontName(GUI:Text_Create(node, "desc2",490,305, 25, "#ffffff", "人物切割："..npc._config.config[npc.data.dj_num].ratio)
+            , "fonts/500.ttf")
+
+
+            GUI:Text_setFontName(GUI:Text_Create(node, "tip_max",400,250, 30, "#FF0000", "好感度已达最高等级")
+            , "fonts/500.ttf")
+    
         end
 
 
-        local Button= GUI:Button_Create(node, "Button2", 750, 150.00, "res/public/1900000660.png")
-        GUI:Button_setTitleText(Button, "提交")
-        GUI:Button_setTitleFontSize(Button, 14)
-
-        GUI:addOnClickEvent(Button, function()
-            SL:SendLuaNetMsg(100, npcid, 1, 0, '')
-        end)
+       
 
     end
 
