@@ -2835,6 +2835,7 @@ npc[517] = function(p2, p3, Data)
         UI_updata(npc.node)
     elseif p2 == 2 then
         npc.data_517.jf = 0
+        npc.data_517.cs = (npc.data_517.cs or 0) + 1
         UI_updata(npc.node)
     end
 end
