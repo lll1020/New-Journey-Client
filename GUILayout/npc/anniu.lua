@@ -2383,7 +2383,7 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                 SL:SendLuaNetMsg(101, 511, 1, 4, '{"isall":1}')
             end)
 
-            local Button= GUI:Button_Create(Label_node, "next", 100, 0, "res/public/1900000660.png")
+            local Button= GUI:Button_Create(Label_node, "next", 350, 0, "res/public/1900000660.png")
             GUI:setAnchorPoint(Button, 0.5, 0)
             GUI:Button_setTitleText(Button, "下一页")
             GUI:Button_setTitleFontSize(Button, 14)
@@ -2395,7 +2395,7 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                 npc.sign = npc.sign + 1
                 GUI_createLabel(npc.Label,npc.titles_sign)
             end)
-            Button= GUI:Button_Create(Label_node, "shangyiy", 350, 0, "res/public/1900000660.png")
+            Button= GUI:Button_Create(Label_node, "shangyiy", 100, 0, "res/public/1900000660.png")
             GUI:setAnchorPoint(Button, 0.5, 0)
             GUI:Button_setTitleText(Button, "上一页")
             GUI:Button_setTitleFontSize(Button, 14)
@@ -2454,7 +2454,7 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                 SL:SendLuaNetMsg(101, 511, 1, 5, '{"isall":1}')
             end)
 
-            local Button= GUI:Button_Create(Label_node, "next", 100, 0, "res/public/1900000660.png")
+            local Button= GUI:Button_Create(Label_node, "next", 350, 0, "res/public/1900000660.png")
             GUI:setAnchorPoint(Button, 0.5, 0)
             GUI:Button_setTitleText(Button, "下一页")
             GUI:Button_setTitleFontSize(Button, 14)
@@ -2466,7 +2466,7 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                 npc.sign = npc.sign + 1
                 GUI_createLabel(npc.Label,npc.titles_sign)
             end)
-            Button= GUI:Button_Create(Label_node, "shangyiy", 350, 0, "res/public/1900000660.png")
+            Button= GUI:Button_Create(Label_node, "shangyiy", 100, 0, "res/public/1900000660.png")
             GUI:setAnchorPoint(Button, 0.5, 0)
             GUI:Button_setTitleText(Button, "上一页")
             GUI:Button_setTitleFontSize(Button, 14)
@@ -2523,7 +2523,7 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                 SL:SendLuaNetMsg(101, 511, 1, 6, '{"isall":1}')
             end)
 
-            local Button= GUI:Button_Create(Label_node, "next", 100, 0, "res/public/1900000660.png")
+            local Button= GUI:Button_Create(Label_node, "next", 350, 0, "res/public/1900000660.png")
             GUI:setAnchorPoint(Button, 0.5, 0)
             GUI:Button_setTitleText(Button, "下一页")
             GUI:Button_setTitleFontSize(Button, 14)
@@ -2535,7 +2535,7 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                 npc.sign = npc.sign + 1
                 GUI_createLabel(npc.Label,npc.titles_sign)
             end)
-            Button= GUI:Button_Create(Label_node, "shangyiy", 350, 0, "res/public/1900000660.png")
+            Button= GUI:Button_Create(Label_node, "shangyiy", 100, 0, "res/public/1900000660.png")
             GUI:setAnchorPoint(Button, 0.5, 0)
             GUI:Button_setTitleText(Button, "上一页")
             GUI:Button_setTitleFontSize(Button, 14)
