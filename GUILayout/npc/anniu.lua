@@ -1427,7 +1427,7 @@ npc[18] = function(p2, p3, Data)
         end
         GUI:UserUILayout(Layout1, {dir=2,addDir=1,gap = {x=23}})
 
-        local jl_itme = {{"复活戒指",1},{"麻痹戒指",1},{"斗笠[lv1]",1},{"攻速[lv1]",1}, {"切割[lv1]",1}}
+        local jl_itme = {{"复活戒指",1},{"麻痹戒指",1},{"斗笠",1},{"攻速之镰[lv1]",1}, {"切割之斧[lv1]",1}}
         Layout1 = GUI:Layout_Create(node, "Layout2", 400, 100, 100, 60.00, false)
         for i = 1,5 do
             GUI:ItemShow_Create(Layout1, "itme"..i, 0, 0, {index=SL:GetMetaValue("ITEM_INDEX_BY_NAME", jl_itme[i][1]),look=true})
