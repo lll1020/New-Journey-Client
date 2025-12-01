@@ -216,5 +216,32 @@ function Player:showEquipBaseAttr(item)
 end
 
 
+function Player:showEquipAttr(item)
+    local attList = GUIFunction:ParseItemBaseAtt(item.attribute)
+    local attr_desc = ""
+    for id, v in pairs(attList) do
+        local originId = v.id
+        local attConfig = SL:GetMetaValue("ATTR_CONFIG", originId)
+        local name = string.gsub(attConfig.name, " ", "")
+            name = string.gsub(name, "　", "")
+            local value = v.value
+            if (attConfig and attConfig.type == 2) then --万分比除100
+                value = string.format("%.1d", value / 100) .. "%"
+            end
+                if (attConfig and attConfig.type == 3) then --百分比
+                value = string.format("%.1d", value) .. "%"
+            end
+            local oneStr = name ..":".. value
+            local color = attConfig.color or 255
+            
+            if color and color > 0 then
+                -- SL:release_print(string.format("<font color='%s'>%s</font>", SL:GetHexColorByStyleId(color), oneStr))
+                attr_desc = attr_desc .. string.format("<font color='%s'>%s</font>\n", SL:GetHexColorByStyleId(color), oneStr)
+            end
+        end
+    return attr_desc
+end
+
+
 
 return Player

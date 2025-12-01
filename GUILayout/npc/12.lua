@@ -4,7 +4,10 @@ npc._config = teshudata["npc_12"]
 
 
 
-local WINDOW_OPTS = {}
+local WINDOW_OPTS = {
+    background = {skin = "res/custom/one_city/clyz/bg.png", eff = true},
+    title = {x = 56, y = 464, skin = "res/custom/one_city/clyz/title.png"},
+}
 
 function npc.main(npcid, p2, p3, msgData)
 
@@ -29,31 +32,44 @@ end
 
         GUI:removeAllChildren(node)
 
-        GUI:setAnchorPoint(
-                GUI:RichText_Create(node, "desc", 200, 430,
-                        "<font color='#00FF00' size='20' >每日兑换次数："..npc._config.xg_day.."，当前兑换次数："..(npc.data.dh_num or 0).."</font>"
-                , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-        , 0, 1)
+        -- GUI:setAnchorPoint(
+        --         GUI:RichText_Create(node, "desc", 200, 430,
+        --                 "<font color='#00FF00' size='20' >每日兑换次数："..npc._config.xg_day.."，当前兑换次数："..(npc.data.dh_num or 0).."</font>"
+        --         , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+        -- , 0, 1)
 
-        local cllist = GUI:ListView_Create(node, "cllist", 200, 70, 500, 300, 1)
-        GUI:ListView_setItemsMargin(cllist, 10)
+       
+       
+        GUI:setAnchorPoint(GUI:Image_Create(node, "tip_1", 778/2, 40, "res/custom/one_city/clyz/tip_1.png")
+        , 0.5, 0.5)
+
+        GUI:setAnchorPoint(GUI:Image_Create(node, "tip_wz", 450, 360, "res/custom/one_city/clyz/tip_wz.png")
+        , 0.5, 0.5)
+
+        GUI:RichText_Create(node, "desc", 510, 348,
+                "<font color='#00FF00' size='20' >"..npc._config.xg_day - (npc.data.dh_num or 0).."</font>"
+        , 500, 30, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+        
+
+
+        local cllist = GUI:ListView_Create(node, "cllist", 30, 70, 720, 300, 2)
+        GUI:ListView_setItemsMargin(cllist, 3)
         for v,k in ipairs(npc._config.sd) do
-            local l = GUI:Image_Create(cllist, "img_bj_l_"..v, 0, 0, 'res/wy/public/500-200.png')
-            GUI:setContentSize(l, 500, 70)
+            local l = GUI:Image_Create(cllist, "img_bj_l_"..v, 0, 0, "res/custom/one_city/clyz/kuang.png")
 
-            local cost = ItemNumByTable_img(k.cost, nil,GUI:Node_Create(l, "cost", 0, 0))
-            GUI:setPosition(cost, 10, 10)
+            local cost = GUI:RichText_Create(l, "cost", 90, 20,  checkItemNumByTable(k.cost), 500, 18, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+            GUI:setAnchorPoint(cost, 0.5, 0.5)
 
-            GUI:Text_Create(l, "wz",200,30, 20, "#FF0000", "兑换为")
 
 
             local give = ItemNumByTable_img({{k.give,1}}, nil,GUI:Node_Create(l, "give", 0, 0))
-            GUI:setPosition(give, 300, 10)
+            GUI:setPosition(give, 65, 60)
+            local name = GUI:Text_Create(l, "name",90,190, 25, "#FF0000", k.give)
+            GUI:Text_setFontName(name, "fonts/500.ttf")
+            GUI:setAnchorPoint(name, 0.5, 0.5)
 
-            local Button= GUI:Button_Create(l, "Button", 400, 20, "res/public/1900000660.png")
-            GUI:Button_setTitleText(Button, "兑换")
-            GUI:Button_setTitleFontSize(Button, 14)
-
+            local Button= GUI:Button_Create(l, "Button", 90, -30, "res/custom/one_city/clyz/btn.png")
+            GUI:setAnchorPoint(Button, 0.5, 0.5)
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 1, v, "")
             end)

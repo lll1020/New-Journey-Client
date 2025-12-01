@@ -125,8 +125,8 @@ local WINDOW_STYLE = {
     freeSponsor = {  -- 免费赞助
         windowName = "npc_anniu_516",
         overlay = {skin = "res/public/1900000651_1.png"},
-        background = {skin = "res/wy/public/tongyong_0.png"},
-        closeButton = {x = 740, y = 460, skin = "res/wy/public/close_red_big.png"},
+        background = {skin = "res/custom/mfzz/bg.png"},
+        closeButton = {x = 740 + 176, y = 440, skin = "res/wy/public/close_red_big.png"},
     },
     treasureBasin = { -- 聚宝盆
         windowName = "npc_anniu_517",
@@ -2729,20 +2729,21 @@ end
 npc[516] = function(p2, p3, Data)
     local function UI_updata(node) --界面渲染
         GUI:removeAllChildren(node)
-        local  list = GUI:ListView_Create( node, "list", 100,50, 800, 400,2)
+        local  list = GUI:ListView_Create( node, "list", 80,30, 800, 400,2)
         GUI:ListView_setItemsMargin(list,5)
         for k,v in ipairs(teshudata["anniu_516"].details) do
-            local item = GUI:Image_Create(list, "item"..k, 0, 0, 'res/wy/public/500-200.png')
-            GUI:setContentSize(item,200,500)
+            local item = GUI:Image_Create(list, "item"..k, 0, 0, 'res/custom/mfzz/itme_'..k..'.png')
 
-            GUI:Text_Create(item, "wz",10,400, 20, "#FF0000", v.ch)
-            GUI:Text_Create(item, "sgsl",10,300, 20, "#FF0000", "需要击杀数量："..v.sgsl)
+            -- GUI:Text_Create(item, "wz",10,400, 20, "#FF0000", v.ch)
 
+            GUI:setAnchorPoint(GUI:RichText_Create(item, "attr_desc_next", 50,320,  Player:showEquipAttr(SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",v.ch))), 200, 18, "#f7f7de", 3,nil,nil)
+            , 0, 1)
+            
 
-            local Button= GUI:Button_Create(item, "Button", 10, 100.00, "res/public/1900000660.png")
-            GUI:Button_setTitleText(Button, "领取")
-            GUI:Button_setTitleFontSize(Button, 14)
-
+            GUI:setAnchorPoint(GUI:Text_Create(item, "sgsl",228/2,130, 20, "#FF0000", "击杀怪物："..v.sgsl)
+            , 0.5, 0.5)
+            local Button= GUI:Button_Create(item, "Button", 228/2, 80, 'res/custom/mfzz/btn.png')
+            GUI:setAnchorPoint(Button, 0.5, 0.5)
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(101, 516, 1, k, "")
             end)
@@ -2761,6 +2762,36 @@ end
 
 --聚宝盆
 npc[517] = function(p2, p3, Data)
+    local function xjm_UI_updata(node) --界面渲染
+        GUI:removeAllChildren(node)
+        local no = GUI:Image_Create(node, "no", 20, 20, "res/custom/treasureBasin/itme_1.png")
+        local config = teshudata["anniu_517"].details[npc.data_517.T_data.level]
+       
+        GUI:setAnchorPoint(GUI:RichText_Create(no, "jl", 205/2, 215,  ItemNumByTable(config.give), 500, 18, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+        , 0.5, 0.5)
+        GUI:setAnchorPoint(GUI:RichText_Create(no, "tiaojian", 205/2, 127,  config.tiaojian, 500, 25, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+        , 0.5, 0.5)
+        if npc.data_517.T_data.level >= #teshudata["anniu_517"].details then
+            GUI:Text_Create(no, "wz1",200,400, 20, "#FF0000", "聚宝盆已满级")
+            return
+        end
+        GUI:setAnchorPoint(GUI:Image_Create(node, "jt", 600/2, 398/2, "res/custom/treasureBasin/jt.png"), 0.5, 0.5)
+        config = teshudata["anniu_517"].details[npc.data_517.T_data.level + 1]
+
+        local nj = GUI:Image_Create(node, "nj", 375, 20, "res/custom/treasureBasin/itme_2.png")
+        GUI:setAnchorPoint(GUI:RichText_Create(nj, "jl", 205/2, 215,  ItemNumByTable(config.give), 500, 18, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+        , 0.5, 0.5)
+         GUI:setAnchorPoint(GUI:RichText_Create(nj, "tiaojian", 205/2, 127,  config.tiaojian, 500, 25, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+        , 0.5, 0.5)
+        local Button= GUI:Button_Create(node, "Button1", 600/2, 80, "res/custom/treasureBasin/bnt_2.png")
+        GUI:setAnchorPoint(Button, 0.5, 0.5)
+
+        GUI:addOnClickEvent(Button, function()
+            SL:SendLuaNetMsg(101, 517, 1, 0, '')
+        end)
+       
+    end
+
     local function UI_updata(node) --界面渲染
         GUI:removeAllChildren(node)
 
@@ -2778,7 +2809,7 @@ npc[517] = function(p2, p3, Data)
         -- GUI:setPosition(give_show, 200, 200)
 
         GUI:setAnchorPoint(GUI:Image_Create(node, "wz_1", -350, 0, "res/custom/treasureBasin/wz_1.png"), 0.5, 0.5)
-        GUI:setAnchorPoint(GUI:Image_Create(node, "wz_2", 350, 0, "res/custom/treasureBasin/wz_2.png"), 0.5, 0.5)
+        -- GUI:setAnchorPoint(GUI:Image_Create(node, "wz_2", 350, 0, "res/custom/treasureBasin/wz_2.png"), 0.5, 0.5)
         GUI:setAnchorPoint(GUI:Image_Create(node, "wz_3", -350, -100, "res/custom/treasureBasin/wz_3.png"), 0.5, 0.5)
         GUI:setAnchorPoint(GUI:Image_Create(node, "wz_4", 0, -200, "res/custom/treasureBasin/wz_4.png"), 0.5, 0.5)
 
@@ -2788,11 +2819,11 @@ npc[517] = function(p2, p3, Data)
         , "fonts/500.ttf")
 
         GUI:RichText_Create(node, "jl", -350 - 69, 0 - 38,  ItemNumByTable(config.give), 500, 18, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-        if teshudata["anniu_517"].details[npc.data_517.T_data.level + 1] then
-            GUI:RichText_Create(node, "jl_next", 350 - 69, 0 - 38,  ItemNumByTable(teshudata["anniu_517"].details[npc.data_517.T_data.level + 1].give), 500, 18, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-        else
-            GUI:Text_Create(node, "jl_next_wz", 220, 30, 18, "#FF0000", "已满级")
-        end 
+        -- if teshudata["anniu_517"].details[npc.data_517.T_data.level + 1] then
+        --     GUI:RichText_Create(node, "jl_next", 350 - 69, 0 - 38,  ItemNumByTable(teshudata["anniu_517"].details[npc.data_517.T_data.level + 1].give), 500, 18, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+        -- else
+        --     GUI:Text_Create(node, "jl_next_wz", 220, 30, 18, "#FF0000", "已满级")
+        -- end 
 
 
         local jdt_k = GUI:Image_Create(node, "jdt_k", 0,-230, "res/custom/treasureBasin/jdt_k.png")
@@ -2804,7 +2835,15 @@ npc[517] = function(p2, p3, Data)
         , 0.5, 0.5)
         local Button= GUI:Button_Create(node, "Button1", 330, -280.00, "res/custom/treasureBasin/btn_up.png")
         GUI:addOnClickEvent(Button, function()
-            SL:SendLuaNetMsg(101, 517, 1, 0, '')
+            -- SL:SendLuaNetMsg(101, 517, 1, 0, '')
+                npc.xjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
+                    windowName = "npc_anniu_517_xjm",
+                    overlay = {skin = "res/custom/treasureBasin/x.png"},
+                    background = {skin = "res/custom/treasureBasin/xjm_bg.png"},
+                    closeButton = {x = 330 + 220, y = 180 + 180, skin = "res/wy/public/close_red_big.png"},
+                })
+                npc.xjm_node = npc.xjm_window.node
+                xjm_UI_updata(npc.xjm_node)
         end)
 
         Button= GUI:Frames_Create(node, "Button2", 0, -50, "res/custom/treasureBasin/btn_eff/eff_", ".png", 1, 75,
@@ -2832,7 +2871,7 @@ npc[517] = function(p2, p3, Data)
         GUI:setLocalZOrder(win.node, 99)
     elseif p2 == 1 then
         npc.data_517.T_data.level = npc.data_517.T_data.level + 1
-        UI_updata(npc.node)
+        xjm_UI_updata(npc.xjm_node)
     elseif p2 == 2 then
         npc.data_517.jf = 0
         npc.data_517.cs = (npc.data_517.cs or 0) + 1
