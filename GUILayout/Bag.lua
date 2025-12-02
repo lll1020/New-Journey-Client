@@ -312,12 +312,12 @@ function Bag.OnUpdateGold(data)
         --SL:CustomAttrWidgetAdd("大米: &<TMONEY/大米>&", Bag._ui["Text_Money3"])
         --SL:CustomAttrWidgetAdd("积分: &<TMONEY/积分>&", Bag._ui["Text_Money4"])
 
-        GUI:Text_setString(Bag._ui["Text_Money1"],SL:GetThousandSepString(SL:GetMetaValue("TMONEY", "元宝")))
-        GUI:Text_setString(Bag._ui["Text_Money2"],SL:GetThousandSepString(SL:GetMetaValue("TMONEY", "绑定元宝")))
-        GUI:Text_setString(Bag._ui["Text_Money3"],SL:GetThousandSepString(SL:GetMetaValue("TMONEY", "灵符")))
-        GUI:Text_setString(Bag._ui["Text_Money4"],SL:GetThousandSepString(SL:GetMetaValue("TMONEY", "绑定灵符")))
-        GUI:Text_setString(Bag._ui["Text_Money5"],SL:GetThousandSepString(SL:GetMetaValue("TMONEY", "仙玉")))
-        GUI:Text_setString(Bag._ui["Text_Money6"],SL:GetThousandSepString(SL:GetMetaValue("TMONEY", "绑定仙玉")))
+        GUI:Text_setString(Bag._ui["Text_Money1"],SL:GetThousandSepString(SL:GetMetaValue("TMONEY", "金币")))
+        GUI:Text_setString(Bag._ui["Text_Money2"],SL:GetThousandSepString(SL:GetMetaValue("TMONEY", "绑定金币")))
+        GUI:Text_setString(Bag._ui["Text_Money3"],SL:GetThousandSepString(SL:GetMetaValue("TMONEY", "元宝")))
+        GUI:Text_setString(Bag._ui["Text_Money4"],SL:GetThousandSepString(SL:GetMetaValue("TMONEY", "绑定元宝")))
+        GUI:Text_setString(Bag._ui["Text_Money5"],SL:GetThousandSepString(SL:GetMetaValue("TMONEY", "灵石")))
+        GUI:Text_setString(Bag._ui["Text_Money6"],SL:GetThousandSepString(SL:GetMetaValue("TMONEY", "绑定灵石")))
         --货币显示end
     end
 end

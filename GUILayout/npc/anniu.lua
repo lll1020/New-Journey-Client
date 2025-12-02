@@ -2772,7 +2772,7 @@ npc[517] = function(p2, p3, Data)
         GUI:setAnchorPoint(GUI:RichText_Create(no, "tiaojian", 205/2, 127,  config.tiaojian, 500, 25, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
         , 0.5, 0.5)
         if npc.data_517.T_data.level >= #teshudata["anniu_517"].details then
-            GUI:Text_Create(no, "wz1",200,400, 20, "#FF0000", "聚宝盆已满级")
+            GUI:Text_Create(no, "wz1",400,50, 20, "#FF0000", "聚宝盆已满级")
             return
         end
         GUI:setAnchorPoint(GUI:Image_Create(node, "jt", 600/2, 398/2, "res/custom/treasureBasin/jt.png"), 0.5, 0.5)
