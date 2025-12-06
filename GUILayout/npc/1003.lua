@@ -40,16 +40,20 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:Effect_Create(node, "sEffect", 100, 250, 0, v.sEffect, 0, 0, 3, 1)
         GUI:Effect_Create(node, "shape", 60 + 270, 100, 4, v.shape, 0, 0, 3, 1)
 
-        local cost_show = checkItemNumByTable_img(npc._config.cost, nil,GUI:Node_Create(node, "cost_show", 0, 0))
-        GUI:setPosition(cost_show, 480, 100)
+        
 
 
+        if npc.data.T_data.yjs[""..npc._config.idx] and npc.data.T_data.yjs[""..npc._config.idx] == 1 then
+            local Button = GUI:Image_Create(node, "Button", 500, 50.00, "res/wy/public/9.png")
+        else
+            local cost_show = checkItemNumByTable_img(npc._config.cost, nil,GUI:Node_Create(node, "cost_show", 0, 0))
+            GUI:setPosition(cost_show, 480, 100)
 
-        local Button = GUI:Button_Create(node, "Button", 470, 10.00, "res/custom/shape/btn.png")
-        GUI:addOnClickEvent(Button, function()
-            SL:SendLuaNetMsg(100, npcid, 1, 0, "")
-        end)
-
+            local Button = GUI:Button_Create(node, "Button", 470, 10.00, "res/custom/shape/btn.png")
+            GUI:addOnClickEvent(Button, function()
+                SL:SendLuaNetMsg(100, npcid, 1, 0, "")
+            end)
+        end
     end
 
 
