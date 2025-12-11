@@ -4,8 +4,10 @@ npc._config = teshudata["npc_26"]
 
 
 
-local WINDOW_OPTS = {}
-
+local WINDOW_OPTS = {
+    background = {skin = "res/custom/two_city/qyzb/bg.png", eff = false},
+    closeButton = {x = 850, y = 450,},
+}
 function npc.main(npcid, p2, p3, msgData)
 
 
@@ -29,21 +31,27 @@ function npc.main(npcid, p2, p3, msgData)
 
         GUI:removeAllChildren(node)
         for v,k in ipairs(npc._config.details) do
-            local kuang = GUI:Image_Create(node, "kuang"..v, 200 + (v-1)*100, 250, "res/wy/public/70_70_k.png")
-            UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",k)))
+            local kuang = GUI:Image_Create(node, "kuang"..v, 50 + (v-1)*190, 170, "res/custom/two_city/qyzb/"..v..".png")
+            -- UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",k)))
             if SL:GetMetaValue("TITLE_DATA_BY_ID", SL:GetMetaValue("ITEM_INDEX_BY_NAME",k)) then
-                GUI:Text_Create(kuang, "Text_Money5", 56.00, 24.00, 14, "#ffffff", "当前")
+                local contentSize = kuang:getContentSize()
+                GUI:setAnchorPoint(GUI:Image_Create(kuang, "kuang", contentSize.width / 2, contentSize.height / 2, "res/custom/two_city/qyzb/kuang.png")
+                , 0.5, 0.5)
             end
         end
 
-        local cost = ItemNumByTable_img(npc._config.cost, nil,GUI:Node_Create(node, "cost", 0, 0))
-        GUI:setPosition(cost, 800, 200)
+        -- local cost = ItemNumByTable_img(npc._config.cost, nil,GUI:Node_Create(node, "cost", 0, 0))
+        -- GUI:setPosition(cost, 800, 200)
+        
+        GUI:Text_setFontName(GUI:Text_Create(node, "U_num",860,55, 25, "#00FF95", npc.data.U_num or 0)
+        , "fonts/500.ttf")
 
+            
+        GUI:setAnchorPoint(GUI:Image_Create(node, "wz", 520, 120.00, "res/custom/two_city/qyzb/wz.png")
+        , 0.5, 0.5)
 
-        local Button= GUI:Button_Create(node, "Button", 750, 100.00, "res/public/1900000660.png")
-        GUI:Button_setTitleText(Button, "占卜")
-        GUI:Button_setTitleFontSize(Button, 14)
-
+        local Button= GUI:Button_Create(node, "Button", 520, 60.00, "res/custom/two_city/qyzb/btn.png")
+        GUI:setAnchorPoint(Button, 0.5, 0.5)
         GUI:addOnClickEvent(Button, function()
             SL:SendLuaNetMsg(100, npcid, 1, 0, "")
         end)
@@ -56,8 +64,9 @@ function npc.main(npcid, p2, p3, msgData)
         ensureWindow(npcid)
         UI_updata(npc.node)
     elseif p2 == 1 then
+        npc.data.U_num = npc.data.U_num + 1
         UI_updata(npc.node)
-    end
+    end 
 end
 
 return npc

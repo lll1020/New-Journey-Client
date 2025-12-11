@@ -5,7 +5,11 @@ npc._config = teshudata["npc_601"]
 
 
 
-local WINDOW_OPTS = {}
+local WINDOW_OPTS = {
+    background = {skin = "res/custom/two_city/601_bg.png"},
+    closeButton = {x = 900, y = 390},
+
+}
 
 function npc.main(npcid, p2, p3, msgData)
 
@@ -31,16 +35,13 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:removeAllChildren(node)
 
         local cost = ItemNumByTable_img(npc._config.cost, nil,GUI:Node_Create(node, "cost", 0, 0))
-        GUI:setPosition(cost, 200, 200)
+        GUI:setPosition(cost, 750 - 327, 230)
 
-        local kuang = GUI:Image_Create(node, "kuang2", 750, 250, "res/wy/public/70_70_k.png")
+        local kuang = GUI:Image_Create(node, "kuang2", 750 - 327, 105, "res/wy/public/70_70_k.png")
         UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.details.ch.."[称号]")))
 
 
-        local Button= GUI:Button_Create(node, "Button", 750, 100.00, "res/public/1900000660.png")
-        GUI:Button_setTitleText(Button, "提交")
-        GUI:Button_setTitleFontSize(Button, 14)
-
+        local Button= GUI:Button_Create(node, "Button", 550, 30.00, "res/custom/two_city/601_btn.png")
         GUI:addOnClickEvent(Button, function()
             SL:SendLuaNetMsg(100, npcid, 1, 0, "")
         end)

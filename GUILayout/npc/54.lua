@@ -4,7 +4,10 @@ npc._config = teshudata["npc_54"]
 
 
 
-local WINDOW_OPTS = {}
+local WINDOW_OPTS = {
+    background = {skin = "res/custom/three_city/cuiti/bg.png", eff = true},
+    title = {x = 56, y = 464, skin = "res/custom/three_city/cuiti/title.png"},
+}
 
 function npc.main(npcid, p2, p3, msgData)
 
@@ -29,48 +32,31 @@ function npc.main(npcid, p2, p3, msgData)
 
         GUI:removeAllChildren(node)
 
-        GUI:setAnchorPoint(
-                GUI:RichText_Create(node, "desc", 200, 430,
-                        "<font color='#00FF00' size='20' >每次提升的概率为50%，成功加一级失败不减</font>"
-                , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-        , 0, 1)
+        -- GUI:setAnchorPoint(
+        --         GUI:RichText_Create(node, "desc", 200, 430,
+        --                 "<font color='#00FF00' size='20' >每次提升的概率为50%，成功加一级失败不减</font>"
+        --         , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+        -- , 0, 1)
 
 
-        local cllist = GUI:ListView_Create(node, "cllist", 200, 70, 500, 300, 1)
-        GUI:ListView_setItemsMargin(cllist, 3)
         for v,k in ipairs(npc._config.config) do
-            local l = GUI:Image_Create(cllist, "img_bj_l_"..v, 0, 0, 'res/wy/public/jdtk_1.png')
-            GUI:setContentSize(l, 500, 50)
-            GUI:RichText_Create(l, "text_name", 20, 20,
-                    "<font color='#00FF00' size='16' >"..k.name.."</font>"..
-                            "<font color='#0000FF' size='18' >"..k.attr_desc.." + "..(npc.data.dj_data[""..v] or 0).."%</font>"..
+            local l = GUI:Node_Create(node, "l_"..v, 270, 94 + 51*(v-1))
+            GUI:RichText_Create(l, "text_name", 20 + 236, 15,
                             SetCompletionProgress((npc.data.dj_data[""..v] or 0), npc._config.max_level)
             , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+            local cost_show = ItemNumByTable_img(npc._config.cost, nil,GUI:Node_Create(l, "cost_show", 0, 0))
+            GUI:setPosition(cost_show, 93, 2)
 
-
-            local Button= GUI:Button_Create(l, "Button", 350, 5, "res/public/1900000660.png")
-            GUI:Button_setTitleText(Button, "升级")
-            GUI:Button_setTitleFontSize(Button, 14)
-
+            local Button= GUI:Button_Create(l, "Button", 350, 5, "res/custom/three_city/cuiti/btn.png")
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 1, 0, '{"idx":'..v..'}')
             end)
         end
 
-        local kuang = GUI:Image_Create(node, "kuang2", 750, 250, "res/wy/public/70_70_k.png")
+        local kuang = GUI:Image_Create(node, "kuang2", 360, 18, "res/wy/public/70_70_k.png")
         UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.title.."[称号]")))
 
-
-        local cost_show = ItemNumByTable_img(npc._config.cost, nil,GUI:Node_Create(node, "cost_show", 0, 0))
-        GUI:setPosition(cost_show, 750, 350)
-
-        cost_show = ItemNumByTable_img(npc._config.max_cost, nil,GUI:Node_Create(node, "cost_show2", 0, 0))
-        GUI:setPosition(cost_show, 750, 175)
-
-        local Button= GUI:Button_Create(node, "Button", 750, 100.00, "res/public/1900000660.png")
-        GUI:Button_setTitleText(Button, "一键全满")
-        GUI:Button_setTitleFontSize(Button, 14)
-
+        local Button= GUI:Button_Create(node, "Button", 510, 0.00, "res/custom/three_city/cuiti/btn_all.png")
         GUI:addOnClickEvent(Button, function()
             SL:SendLuaNetMsg(100, npcid, 2, 0, "")
         end)

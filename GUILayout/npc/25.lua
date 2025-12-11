@@ -4,7 +4,10 @@ npc._config = teshudata["npc_25"]
 
 
 
-local WINDOW_OPTS = {}
+local WINDOW_OPTS = {
+    background = {skin = "res/custom/two_city/xyqh/bg.png", eff = true},
+    title = {x = 56, y = 464, skin = "res/custom/two_city/xyqh/title.png"},
+}
 
 function npc.main(npcid, p2, p3, msgData)
 
@@ -37,21 +40,25 @@ function npc.main(npcid, p2, p3, msgData)
 
         if config then
             local cost = ItemNumByTable_img(config.cost, nil,GUI:Node_Create(node, "cost", 0, 0))
-            GUI:setPosition(cost, 200, 200)
+            GUI:setPosition(cost, 530, 85)
 
-            GUI:setAnchorPoint(
-                    GUI:RichText_Create(node, "desc", 200, 430,
-                            "<font color='#00FF00' size='20' >当前幸运等级："..npc.data.level.."</font>\n"..
-                            "<font color='#00FF00' size='20' >强化成功率："..config.fake_gl.."</font>\n"
-                    , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-            , 0, 1)
+            -- GUI:setAnchorPoint(
+            --         GUI:RichText_Create(node, "desc", 200, 430,
+            --                 "<font color='#00FF00' size='20' >当前幸运等级："..npc.data.level.."</font>\n"..
+            --                 "<font color='#00FF00' size='20' >强化成功率："..config.fake_gl.."</font>\n"
+            --         , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+            -- , 0, 1)
+
+            GUI:setAnchorPoint(GUI:Image_Create(node, "num", 610, 175, "res/custom/two_city/xyqh/num/"..npc.data.level..".png")
+            , 0.5, 0.5)
+
+            GUI:Text_setFontName(GUI:Text_Create(node, "wz",668,96, 25, "#00FF00", config.fake_gl.."%" )
+            , "fonts/501.ttf")
 
         end
 
 
-        local Button= GUI:Button_Create(node, "Button", 750, 100.00, "res/public/1900000660.png")
-        GUI:Button_setTitleText(Button, "升级")
-        GUI:Button_setTitleFontSize(Button, 14)
+        local Button= GUI:Button_Create(node, "Button", 500, 0.00, "res/custom/two_city/xyqh/btn.png")
 
         GUI:addOnClickEvent(Button, function()
             SL:SendLuaNetMsg(100, npcid, 1, 0, "")

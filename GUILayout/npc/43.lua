@@ -4,7 +4,10 @@ npc._config = teshudata["npc_43"]
 
 
 
-local WINDOW_OPTS = {}
+local WINDOW_OPTS = {
+    background = {skin = "res/custom/two_city/43_bg.png", eff = true},
+    title = {x = 56, y = 464, skin = "res/custom/two_city/43_title.png"},
+}
 
 function npc.main(npcid, p2, p3, msgData)
 
@@ -29,22 +32,30 @@ function npc.main(npcid, p2, p3, msgData)
 
         GUI:removeAllChildren(node)
 
+        GUI:Text_setFontName(GUI:Text_Create(node, "new",210,355, 25, "#FF0000", (npc.data.dj_num > 0 and "["..npc._config.ch[npc.data.dj_num].."]" or "[无称号]"))
+        , "fonts/500.ttf")
+        if npc.data.dj_num > 0 then
+            GUI:setAnchorPoint(GUI:RichText_Create(node, "new_attr_desc", 80, 330,  Player:showEquipAttr(SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.ch[npc.data.dj_num]))), 200, 17, "#f7f7de", 3,nil,nil)
+            , 0, 1)
+        end
+
+      
 
 
+        GUI:Text_setFontName(GUI:Text_Create(node, "next",545,355, 25, "#FF0000", (npc.data.dj_num < npc._config.max_level and "["..npc._config.ch[npc.data.dj_num + 1].."]" or "[已经最高级]"))
+        , "fonts/500.ttf")
 
-        GUI:setAnchorPoint(
-                GUI:RichText_Create(node, "desc", 200, 430,
-                        "<font color='#00FF00' size='20' >当前称号："..(npc.data.dj_num > 0 and npc._config.ch[npc.data.dj_num] or "无称号").."</font>"
-                , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-        , 0, 1)
+        if npc.data.dj_num < npc._config.max_level then
+            GUI:setAnchorPoint(GUI:RichText_Create(node, "next_attr_desc", 520, 330,  Player:showEquipAttr(SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.ch[npc.data.dj_num + 1]))), 200, 17, "#f7f7de", 3,nil,nil)
+            , 0, 1)
+        end
+
 
         local cost_show = ItemNumByTable_img(npc._config.cost[npc.data.dj_num + 1], nil,GUI:Node_Create(node, "cost_show", 0, 0))
-        GUI:setPosition(cost_show, 200, 130)
+        GUI:setPosition(cost_show, 335, 100)
 
-        local Button= GUI:Button_Create(node, "Button", 750, 100.00, "res/public/1900000660.png")
-        GUI:Button_setTitleText(Button, "升级")
-        GUI:Button_setTitleFontSize(Button, 14)
-
+        local Button= GUI:Button_Create(node, "Button", 778/2, 50.00, "res/custom/two_city/43_btn.png")
+        GUI:setAnchorPoint(Button, 0.5, 0.5)
         GUI:addOnClickEvent(Button, function()
             SL:SendLuaNetMsg(100, npcid, 1, 0, "")
         end)

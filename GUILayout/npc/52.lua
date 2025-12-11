@@ -4,7 +4,10 @@ npc._config = teshudata["npc_52"]
 
 
 
-local WINDOW_OPTS = {}
+local WINDOW_OPTS = {
+    background = {skin = "res/custom/two_city/52_bg.png", eff = true},
+    title = {x = 56, y = 464, skin = "res/custom/two_city/52_title.png"},
+}
 
 function npc.main(npcid, p2, p3, msgData)
 
@@ -29,21 +32,27 @@ function npc.main(npcid, p2, p3, msgData)
 
         GUI:removeAllChildren(node)
 
+        GUI:Image_Create(node, "x", 0, 0.00, "res/custom/two_city/52_x.png")
+
+
         local item = SL:GetMetaValue("EQUIP_DATA", npc._config.where)
         if item then
 
+            local itemShow = GUI:ItemShow_Create(node, "next", 545, 337, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.give), look = true, bgVisible = false })
+            itemShow:setAnchorPoint(cc.p(0.5, 0.5))
 
-            local kuang = GUI:Image_Create(node, "kuang2", 400, 250, "res/wy/public/70_70_k.png")
-            UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.give)))
+            for i, v in ipairs(npc._config.cost) do
+                GUI:ItemShow_Create(node, "cost"..(i > 1 and i+1 or i), 400 + ((i > 1 and i+1 or i) - 1) * 86, 197, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME",v[1]),count = v[2], look = true, bgVisible = false })
+                if i  == 1 then
+                    GUI:ItemShow_Create(node, "cost"..2, 400 + (i) * 86, 197, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.now), look = true, bgVisible = false })
+                end 
+            end
 
-            GUI:Text_Create(node, "wz5",200,200, 20, "#FF0000", "消耗:")
-            local cost_show = ItemNumByTable_img(npc._config.cost, nil,GUI:Node_Create(node, "cost_show", 0, 0))
-            GUI:setPosition(cost_show, 200, 130)
+            -- local cost_show = ItemNumByTable_img(npc._config.cost, nil,GUI:Node_Create(node, "cost_show", 0, 0))
+            -- GUI:setPosition(cost_show, 200, 130)
 
         end
-        local Button= GUI:Button_Create(node, "Button", 750, 100.00, "res/public/1900000660.png")
-        GUI:Button_setTitleText(Button, "升级")
-        GUI:Button_setTitleFontSize(Button, 14)
+        local Button= GUI:Button_Create(node, "Button", 450, 20.00, "res/custom/two_city/41_btn.png")
 
         GUI:addOnClickEvent(Button, function()
             SL:SendLuaNetMsg(100, npcid, 1, 0, "")

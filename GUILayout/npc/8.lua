@@ -53,7 +53,7 @@ function npc.main(npcid, p2, p3, msgData)
 
                 GUI:setAnchorPoint(GUI:RichText_Create(node, "attr_desc_next", 100, 330 - 185,  Player:showEquipBaseAttr(SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",config.give))), 200, 17, "#f7f7de", 3,nil,nil)
                 , 0, 1)
-                 local Button= GUI:Button_Create(node, "Button", 450, 10.00, "res/custom/one_city/btn_1.png")
+                local Button= GUI:Button_Create(node, "Button", 450, 10.00, "res/custom/one_city/btn_1.png")
                 GUI:addOnClickEvent(Button, function()
                     SL:SendLuaNetMsg(100, npcid, 1, 0, "")
                 end)

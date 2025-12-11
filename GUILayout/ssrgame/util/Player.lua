@@ -203,7 +203,7 @@ function Player:showEquipBaseAttr(item)
                 if (attConfig and attConfig.type == 3) then --百分比
                 value = string.format("%.1d", value) .. "%"
             end
-            local oneStr = name ..":".. value
+            local oneStr = name .."+".. value
             local color = attConfig.color
             
             if color and color > 0 then
@@ -214,6 +214,8 @@ function Player:showEquipBaseAttr(item)
     end
     return attr_desc
 end
+
+
 
 
 function Player:showEquipAttr(item)
@@ -231,7 +233,7 @@ function Player:showEquipAttr(item)
                 if (attConfig and attConfig.type == 3) then --百分比
                 value = string.format("%.1d", value) .. "%"
             end
-            local oneStr = name ..":".. value
+            local oneStr = name .."+".. value
             local color = attConfig.color or 255
             
             if color and color > 0 then

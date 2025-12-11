@@ -179,6 +179,20 @@ function checkItemNumByTable(t, multiple)
     return str
 end
 
+function checkItemNumByTable_only(t, multiple)
+    local str = ""
+    for _,item in ipairs(t) do
+        local idx,num = SL:GetMetaValue("ITEM_INDEX_BY_NAME",item[1]),item[2]
+        if multiple then num=num*multiple end
+        if bind_money[item[1]] then
+            str = str .. "<a href='jump#item_tips#"..idx.."'>[<font color='#FFFF00'>"..item[1].."</font>]</a>" .. ((SL:GetMetaValue("ITEM_COUNT", bind_money[item[1]][1]) + SL:GetMetaValue("ITEM_COUNT", bind_money[item[1]][2])) >= num and "<font color='#4AE74A'>"..SL:GetSimpleNumber(SL:GetMetaValue("ITEM_COUNT", bind_money[item[1]][1]) + SL:GetMetaValue("ITEM_COUNT", bind_money[item[1]][2])).."</font>" or "<font color='#FB0000'>"..SL:GetSimpleNumber((SL:GetMetaValue("ITEM_COUNT", bind_money[item[1]][1]) + SL:GetMetaValue("ITEM_COUNT", bind_money[item[1]][2]))).."</font>") .."/"..SL:GetSimpleNumber(num)..''
+        else
+            str = str .. "<a href='jump#item_tips#"..idx.."'>[<font color='#FFFF00'>"..item[1].."</font>]</a>" .. (SL:GetMetaValue("ITEM_COUNT", idx) >= num and "<font color='#4AE74A'>"..SL:GetSimpleNumber(SL:GetMetaValue("ITEM_COUNT", idx)).."</font>" or "<font color='#FB0000'>"..SL:GetSimpleNumber(SL:GetMetaValue("ITEM_COUNT", idx)).."</font>") .."/"..SL:GetSimpleNumber(num)..''
+        end
+    end
+    return str
+end
+
 --检查 物品 货币 装备是否满足数量(数量不足返回不足物品的名字)---图文型
 function checkItemNumByTable_img(t, multiple,parent)
     local Node = GUI:Node_Create(parent, "Node_cl", 0.00, 0.00)

@@ -8,7 +8,7 @@
         <key>frame</key>
         <string>{{694,0},{401,256}}</string>
         <key>offset</key>
-        <string>{-212,145}</string>
+        <string>{-152,79}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
@@ -21,7 +21,7 @@
         <key>frame</key>
         <string>{{943,403},{400,258}}</string>
         <key>offset</key>
-        <string>{-211,147}</string>
+        <string>{-151,81}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
@@ -34,7 +34,7 @@
         <key>frame</key>
         <string>{{1576,646},{377,270}}</string>
         <key>offset</key>
-        <string>{-191,146}</string>
+        <string>{-131,80}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
@@ -47,7 +47,7 @@
         <key>frame</key>
         <string>{{1576,387},{380,257}}</string>
         <key>offset</key>
-        <string>{-194,145}</string>
+        <string>{-134,79}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
@@ -60,7 +60,7 @@
         <key>frame</key>
         <string>{{1203,801},{374,257}}</string>
         <key>offset</key>
-        <string>{-188,144}</string>
+        <string>{-128,78}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
@@ -73,7 +73,7 @@
         <key>frame</key>
         <string>{{1555,0},{385,255}}</string>
         <key>offset</key>
-        <string>{-198,142}</string>
+        <string>{-138,76}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
@@ -86,7 +86,7 @@
         <key>frame</key>
         <string>{{1298,0},{390,255}}</string>
         <key>offset</key>
-        <string>{-203,142}</string>
+        <string>{-143,76}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
@@ -99,7 +99,7 @@
         <key>frame</key>
         <string>{{1203,401},{398,371}}</string>
         <key>offset</key>
-        <string>{-212,262}</string>
+        <string>{-152,196}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
@@ -112,7 +112,7 @@
         <key>frame</key>
         <string>{{952,0},{399,344}}</string>
         <key>offset</key>
-        <string>{-212,231}</string>
+        <string>{-152,165}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
@@ -125,7 +125,7 @@
         <key>frame</key>
         <string>{{664,455},{449,277}}</string>
         <key>offset</key>
-        <string>{-183,164}</string>
+        <string>{-123,98}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
@@ -138,7 +138,7 @@
         <key>frame</key>
         <string>{{348,0},{453,344}}</string>
         <key>offset</key>
-        <string>{-158,193}</string>
+        <string>{-98,127}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
@@ -151,7 +151,7 @@
         <key>frame</key>
         <string>{{0,0},{471,346}}</string>
         <key>offset</key>
-        <string>{-176,163}</string>
+        <string>{-116,97}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
@@ -164,7 +164,7 @@
         <key>frame</key>
         <string>{{329,473},{465,333}}</string>
         <key>offset</key>
-        <string>{-170,141}</string>
+        <string>{-110,75}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
@@ -177,7 +177,7 @@
         <key>frame</key>
         <string>{{0,473},{468,327}}</string>
         <key>offset</key>
-        <string>{-173,141}</string>
+        <string>{-113,75}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
@@ -190,7 +190,7 @@
         <key>frame</key>
         <string>{{664,906},{370,277}}</string>
         <key>offset</key>
-        <string>{-179,142}</string>
+        <string>{-119,76}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
