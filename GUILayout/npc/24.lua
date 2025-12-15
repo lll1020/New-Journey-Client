@@ -3,8 +3,11 @@ local npc = {}
 npc._config = teshudata["npc_24"]
 
 
+local WINDOW_OPTS = {
+    background = {skin = "res/wy/public/*.png"},
+    closeButton = {x = 400, y = 200, skin = "res/wy/public/close_red_big.png"},
+}
 
-local WINDOW_OPTS = {}
 
 function npc.main(npcid, p2, p3, msgData)
 
@@ -18,65 +21,157 @@ function npc.main(npcid, p2, p3, msgData)
         opts.subTitle = npc._config and npc._config.title
         npc._window = NPC_UI_HELPER.ensureWindow(npc._window, npcid, opts)
         npc.bg = npc._window.bg
-        npc.node = npc._window.node
+
+        npc.bg = GUI:Frames_Create(npc.bg, "eff", 0, 0, "res/custom/tianshu/bg/bg_", ".png", 1, 15,
+            { speed = 100, count = 15, loop = -1})
+        GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
+        GUI:setTouchEnabled(npc.bg, true)
+
+        GUI:setLocalZOrder(npc._window.node, 99)
+        npc.node = GUI:Node_Create(npc.bg, 'node', 0, 0)
         return npc.node
     end
+
 
     local function UI_updata(node) --界面渲染
         if not node then
             return
         end
-        local titles = {"强化", "仙法", "往事"}
+        local titles = {"qh", "xf", "ws"}
         GUI:removeAllChildren(node)
 
 
         function GUI_createLabel(Label_node,idx) --主界面渲染
             GUI:removeAllChildren(Label_node)
-            local tt = GUI:Text_Create(Label_node, "tt", 1000/2, 500, 30, "#00FF00", titles[idx])
-            GUI:setAnchorPoint(tt, 0.5, 0.5)
+            local tt = GUI:Image_Create(Label_node, "tt", 60, 30, "res/custom/tianshu/title/title_"..idx..".png")
+            local xjm = GUI:Image_Create(Label_node, "xjm", 0, 0, "res/custom/tianshu/"..titles[idx].."/xjm.png")
+            -- GUI:setAnchorPoint(tt, 0.5, 0.5)
             if idx == 1 then
-                GUI:setAnchorPoint(
-                        GUI:RichText_Create(Label_node, "desc", 200, 430,
-                                "<font color='#00FF00' size='20' >当前天书等级："..(npc.data.T_data.level or 0).."</font>"
-                        , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-                , 0, 1)
+                -- GUI:setAnchorPoint(
+                --         GUI:RichText_Create(Label_node, "desc", 200, 430,
+                --                 "<font color='#00FF00' size='20' >当前天书等级："..(npc.data.T_data.level or 0).."</font>"
+                --         , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+                -- , 0, 1)
+
+                
                 local item = SL:GetMetaValue("EQUIP_DATA", npc._config.where)
                 if item then
-                    local kuang = GUI:Image_Create(Label_node, "kuang", 200, 250, "res/wy/public/70_70_k.png")
-                    UiTools.showItemData(kuang, item)
+                    local level = GUI:Text_Create(Label_node, "level",30 + 288,40 + 93, 30, "#FF0000", "天书【lv."..(npc.data.T_data.level or 0).."】")
+                    GUI:Text_setFontName(level, "fonts/501.ttf")
 
-                    local Button= GUI:Button_Create(Label_node, "Button", 750, 100.00, "res/public/1900000660.png")
-                    GUI:Button_setTitleText(Button, "升级")
-                    GUI:Button_setTitleFontSize(Button, 14)
+                    local jdt = GUI:LoadingBar_Create(Label_node, "jdt", 726,227,"res/custom/tianshu/qh/jdt.png", 0)
+                    GUI:LoadingBar_setPercent(jdt, (npc.data.T_data.jf or 0) / (npc._config.details[1].details[(npc.data.T_data.level or 0) + 1].jf) * 100)
 
+                    GUI:RichText_Create(Label_node, "text_name", 795,224,
+                        SetCompletionProgress_14((npc.data.T_data.jf or 0), (npc._config.details[1].details[(npc.data.T_data.level or 0) + 1].jf))
+                    , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+                    -- local kuang = GUI:Image_Create(Label_node, "kuang", 200, 250, "res/wy/public/70_70_k.png")
+                    -- UiTools.showItemData(kuang, item)
+
+                   local dbLayout = GUI:Layout_Create(Label_node, "dbLayout", 610,484, 315, 150)
+                   local attr = {
+                        {attr_name = "生命魔法", idx = 1},
+                        {attr_name = "攻  魔  道", idx = 4},
+                        {attr_name = "人物防御", idx = 10},
+                   }
+
+
+                    for v,k in pairs(attr) do
+                        local kuang = GUI:Image_Create(dbLayout, "kuang"..v, 0, 0, "res/custom/tianshu/qh/tip.png")
+                        GUI:Text_setFontName(GUI:Text_Create(kuang, "attr_name",25,-2, 20, "##00FFFF", k.attr_name.." +")
+                        , "fonts/502.ttf")
+                        local new_config = npc._config.details[1].details[(npc.data.T_data.level or 0) + 1]
+                        local old_config = npc._config.details[1].details[(npc.data.T_data.level or 0)]
+                        GUI:Text_setFontName(GUI:Text_Create(kuang, "new_attr_v",125,-2, 20, "##00FFFF", old_config and old_config.attr[k.idx][2] or 0)
+                        , "fonts/502.ttf")
+                        GUI:Image_Create(kuang, "jt", 170, -2, "res/custom/tianshu/qh/jt.png")
+                        GUI:Text_setFontName(GUI:Text_Create(kuang, "old_attr_v",215,-2, 20, "##109C18", new_config and new_config.attr[k.idx][2] or "已满级")
+                        , "fonts/502.ttf")
+                        GUI:Image_Create(kuang, "up", 270, 0, "res/custom/tianshu/qh/up.png")
+
+            
+                    end
+                    GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 1,gap = {x=40, y=10}})
+                    GUI:setAnchorPoint(dbLayout, 0, 1)
+
+                    local Button= GUI:Button_Create(Label_node, "Button", 660, 100.00, "res/custom/tianshu/qh/btn.png")
                     GUI:addOnClickEvent(Button, function()
                         SL:SendLuaNetMsg(100, npcid, 1, 0, "")
                     end)
-
-                end
+                    
+                end  
             elseif idx == 2 then
-                local GUI_list = GUI:ListView_Create(Label_node, "GUI_list", 200, 100, 700, 270, 2)
-                for i = 1, 10 do
-                    local kuang = GUI:Image_Create(GUI_list, "kuang"..i, 0, 0, "res/wy/public/anniu_999_bj.png")
-                    GUI:setContentSize(kuang, 150, 270)
-                    npc.data.T_data.caowei = npc.data.T_data.caowei or {}
-                    if npc.data.T_data.caowei[""..i] then
-                        GUI:setAnchorPoint(GUI:Text_Create(kuang, "wz5",150/2,230, 20, "#FF0000", npc._config.details[2].details[npc.data.T_data.caowei[""..i][1]][npc.data.T_data.caowei[""..i][2]].name)
-                        , 0.5, 0.5)
-                    else
-                        GUI:setAnchorPoint(GUI:Text_Create(kuang, "wz5",150/2,230, 20, "#FF0000", "暂未解锁")
-                        , 0.5, 0.5)
-                    end
-                    local Button= GUI:Button_Create(kuang, "Button", 150/2, 50, "res/public/1900000660.png")
-                    GUI:setAnchorPoint(Button, 0.5, 0.5)
-                    GUI:Button_setTitleText(Button, "洗练")
-                    GUI:Button_setTitleFontSize(Button, 14)
+                -- local GUI_list = GUI:ListView_Create(Label_node, "GUI_list", 200, 100, 700, 270, 2)
+                -- for i = 1, 10 do
+                --     local kuang = GUI:Image_Create(GUI_list, "kuang"..i, 0, 0, "res/wy/public/anniu_999_bj.png")
+                --     GUI:setContentSize(kuang, 150, 270)
+                --     npc.data.T_data.caowei = npc.data.T_data.caowei or {}
+                --     if npc.data.T_data.caowei[""..i] then
+                --         GUI:setAnchorPoint(GUI:Text_Create(kuang, "wz5",150/2,230, 20, "#FF0000", npc._config.details[2].details[npc.data.T_data.caowei[""..i][1]][npc.data.T_data.caowei[""..i][2]].name)
+                --         , 0.5, 0.5)
+                --     else
+                --         GUI:setAnchorPoint(GUI:Text_Create(kuang, "wz5",150/2,230, 20, "#FF0000", "暂未解锁")
+                --         , 0.5, 0.5)
+                --     end
+                --     local Button= GUI:Button_Create(kuang, "Button", 150/2, 50, "res/public/1900000660.png")
+                --     GUI:setAnchorPoint(Button, 0.5, 0.5)
+                --     GUI:Button_setTitleText(Button, "洗练")
+                --     GUI:Button_setTitleFontSize(Button, 14)
 
-                    GUI:addOnClickEvent(Button, function()
-                        SL:SendLuaNetMsg(100, npcid, 2, 0, SL:JsonEncode({caowei = i}))
+                --     GUI:addOnClickEvent(Button, function()
+                --         SL:SendLuaNetMsg(100, npcid, 2, 0, SL:JsonEncode({caowei = i}))
+                --     end)
+
+                -- end
+
+                local ScrollView = GUI:ScrollView_Create(Label_node, "ScrollView", 240, 110, 312, 346, 1)
+                GUI:ScrollView_setBounceEnabled(ScrollView, true)
+                GUI:ScrollView_setInnerContainerSize(ScrollView, 312, ((36 + 10) * 10))
+                local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 0,0, 312, ((36 + 10) * 10))
+                npc.data.T_data.caowei = npc.data.T_data.caowei or {}
+
+                for i = 1, 10 do
+                    local kuang = GUI:Image_Create(dbLayout, "kuang"..i, 0, 0, "res/custom/tianshu/xf/k_0.png")
+                    GUI:setTouchEnabled(kuang, true)
+                    GUI:addOnClickEvent(kuang, function()
+                        if npc.xf_sign then
+                            GUI:removeChildByName(GUI:ui_delegate(dbLayout)["kuang"..npc.xf_sign],"kuang_eff")
+                        end
+                        npc.xf_node = GUI:ui_delegate(Label_node)["xf_node"]
+                        if npc.xf_node then
+                            GUI:removeAllChildren(npc.xf_node)
+                        else
+                            npc.xf_node = GUI:Node_Create(Label_node, "xf_node", 0, 0)
+                        end
+                        npc.xf_sign = i
+                        local cbl_item = GUI:Frames_Create(kuang, "kuang_eff", -8, -6, "res/custom/tianshu/xf/kuang/kuang_", ".png", 1, 15,
+                            { speed = 100, count = 15, loop = -1})
+
+                        if npc.data.T_data.caowei[""..i] then
+                            GUI:setAnchorPoint(GUI:Text_Create(npc.xf_node, "wz5",50 + 549,16 + 480, 20, "#FF0000", npc._config.details[2].details[npc.data.T_data.caowei[""..i][1]][npc.data.T_data.caowei[""..i][2]].wz)
+                            , 0, 1)
+                        else
+                            GUI:setAnchorPoint(GUI:Text_Create(npc.xf_node, "wz5",50 + 549,16 + 480, 20, "#FF0000", "暂未解锁")
+                            , 0, 1)
+                        end
+
+                        local Button = GUI:Button_Create(npc.xf_node, "Button", 50 + 549 + 76,100, "res/custom/tianshu/xf/btn_up.png")
+                        GUI:addOnClickEvent(Button, function()
+                            SL:SendLuaNetMsg(100, npcid, 2, 0, SL:JsonEncode({caowei = i}))
+                        end)
                     end)
 
+                    if npc.data.T_data.caowei[""..i] then
+                        GUI:setAnchorPoint(GUI:Text_Create(kuang, "wz5",50,16, 20, "#FF0000", npc._config.details[2].details[npc.data.T_data.caowei[""..i][1]][npc.data.T_data.caowei[""..i][2]].name)
+                        , 0, 0.5)
+                    else
+                        GUI:setAnchorPoint(GUI:Text_Create(kuang, "wz5",50,16, 20, "#FF0000", "暂未解锁")
+                        , 0, 0.5)
+                    end
+
+                    
                 end
+                GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 1,gap = {x=40, y=10}})
             end
         end
 
@@ -86,9 +181,11 @@ function npc.main(npcid, p2, p3, msgData)
         npc.Label = GUI:Node_Create(node, "Label", 0, 0)
 
         for i = 1, #titles do
-            local cbl_item = GUI:Button_Create(node, "item" .. i, 100+(i-1)*120, 50, "res/public/1900000660.png")
-            GUI:Button_setTitleText(cbl_item, titles[i])
-            GUI:Button_setTitleFontSize(cbl_item, 14)
+            local cbl_item = GUI:Frames_Create(node, "item" .. i, 100+(i-1)*170, -20, "res/custom/tianshu/"..titles[i].."/btn_", ".png", 1, 15,
+            { speed = 100, count = 15, loop = -1})
+            GUI:setTouchEnabled(cbl_item, true)
+            -- GUI:Button_setTitleText(cbl_item, titles[i])
+            -- GUI:Button_setTitleFontSize(cbl_item, 14)
             GUI:addOnClickEvent(cbl_item, function()
                 npc.titles_sign = i
                 GUI_createLabel(npc.Label,i)

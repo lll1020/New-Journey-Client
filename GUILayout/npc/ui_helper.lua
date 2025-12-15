@@ -138,13 +138,13 @@ function UIHelper.createTitle(parent, text, subtitle, opts)
     end
     opts = opts or {}
     local node = GUI:Node_Create(parent, opts.name or 'title_node', opts.x or 0, opts.y or 255)
-    GUI:setAnchorPoint(node, 0.5, 0.5)
+    GUI:setAnchorPoint(node, 1, 0.5)
     local label = GUI:Text_Create(node, opts.labelName or 'title', 0, 0, opts.fontSize or 26, opts.color or '#ffe9c2', text)
-    GUI:setAnchorPoint(label, 0.5, 0.5)
+    GUI:setAnchorPoint(label, 1, 0.5)
     GUI:Text_enableOutline(label, opts.outlineColor or '#1d0f09', opts.outlineSize or 2)
     if subtitle then
         local sub = GUI:Text_Create(node, opts.subtitleName or 'subtitle', 0, -28, opts.subtitleFontSize or 20, opts.subtitleColor or '#a0d8ff', subtitle)
-        GUI:setAnchorPoint(sub, 0.5, 0.5)
+        GUI:setAnchorPoint(sub, 1, 0.5)
         GUI:Text_enableOutline(sub, opts.subtitleOutlineColor or '#0d1a24', opts.subtitleOutlineSize or 2)
         label._subtitle = sub
     end

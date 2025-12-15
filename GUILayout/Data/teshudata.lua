@@ -698,6 +698,17 @@ teshudata = {
             topN = 20,                            -- 前端展示数量
         },
     },
+    ["npc_46"] = {
+        id = 46,
+        name = "灾厄入侵",
+        details = {
+            {idx = 1, name = "嘲灾", mob_name = "嘲灾", mob_eff = 16416, num = 1,jl = {{"嘲灾的头颅",1},{"无相镜",1}},map = "鬼嘲深渊",spa = "无相",spa_details = "100%反弹所受伤害", time = 300,kz = "丹药：无相丹", kz_details = "使用后，嘲灾将无法反弹玩家的伤害，持续5分钟"},
+            {idx = 2, name = "息灾", mob_name = "息灾", mob_eff = 16417, num = 1,jl = {{"忌灾的头颅",1},{"诅咒娃娃",1}},map = "叹息旷野",spa = "叹息",spa_details = "被攻击时，会快速逃离玩家", time = 300,kz = "丹药：定身丹", kz_details = "可将息灾困在原地，无法逃离持续5分钟"},
+            {idx = 3, name = "忌灾", mob_name = "忌灾", mob_eff = 16418, num = 1,jl = {{"息灾的头颅",1},{"定风石",1}},map = "禁忌之海",spa = "诅咒",spa_details = "攻击施加中毒，每秒扣除10%最大生命值", time = 300,kz = "丹药：破瘴丹", kz_details = "免疫诅咒效果，持续5分钟"},
+            {idx = 4, name = "妄灾", mob_name = "妄灾", mob_eff = 16419, num = 1,jl = {{"妄灾的头颅",1},{"破妄之瞳",1}},map = "虚妄山脉",spa = "隐身",spa_details = "平时无法直视妄灾", time = 300,kz = "丹药：破妄丹", kz_details = "可看见妄灾，持续5分钟"},
+        },
+        ch = "灾厄杀手",
+    },
     ["npc_51"] = {
         id = 51,
         name = "斗笠升级2",

@@ -245,6 +245,63 @@ function ItemNumByTable_img(t, multiple,parent)
     end
     return Node
 end
+
+--检查 物品 货币 装备是否满足数量(数量不足返回不足物品的名字)---图文型
+function checkItemNumByTable_img_kuang(t, multiple,parent)
+    local Node = GUI:Node_Create(parent, "Node_cl", 0.00, 0.00)
+    local cllist = GUI:ListView_Create(Node, "cllist", 0, 0, 999, 50, 2)
+    GUI:ListView_setClippingEnabled(cllist, false)
+    GUI:setTouchEnabled(cllist, false)
+    GUI:ListView_setItemsMargin(cllist, 20)
+
+    for i,item in ipairs(t) do
+        local idx,num = SL:GetMetaValue("ITEM_INDEX_BY_NAME",item[1]),item[2]
+        if multiple then num=num*multiple end
+        GUI:Layout_Create(cllist, "itemkk"..i, 0, 0, 5, 50, 1)
+        local kuang = GUI:Image_Create(cllist, "item_kuang_"..idx, 0.00, 0.00, "res/wy/public/58-60.png")
+        
+        GUI:setAnchorPoint(GUI:ItemShow_Create(kuang, "item"..i, 58/2, 60/2, {index=idx,look= true})
+        , 0.5, 0.5)
+        if bind_money[item[1]] then
+            GUI:setAnchorPoint(
+                GUI:Text_Create(kuang, "sl"..i, 40, 0, 14,
+                        (SL:GetMetaValue("ITEM_COUNT", bind_money[item[1]][1]) + SL:GetMetaValue("ITEM_COUNT", bind_money[item[1]][2])) >= num and "#4AE74A" or "#FB0000"
+                , SL:GetSimpleNumber((SL:GetMetaValue("ITEM_COUNT", bind_money[item[1]][1]) + SL:GetMetaValue("ITEM_COUNT", bind_money[item[1]][2])),0))
+            , 1, 0)
+            
+        else
+            GUI:setAnchorPoint(
+                GUI:Text_Create(kuang, "sl"..i, 40, 0, 14, SL:GetMetaValue("ITEM_COUNT", idx) >= num and "#4AE74A" or "#FB0000", SL:GetSimpleNumber(SL:GetMetaValue("ITEM_COUNT",idx),2))
+            , 1, 0)
+            
+
+        end
+        
+            GUI:setAnchorPoint(
+                GUI:Text_Create(kuang, "xysl"..i, 40, 0, 14, "#FFFFFF", "/"..SL:GetSimpleNumber(num,2))
+            , 0, 0)
+    end
+    return Node
+end
+
+
+-- tip通用
+function tip_node(node, tip)
+    if SL:GetMetaValue("WINPLAYMODE") then
+        GUI:addMouseMoveEvent(node, {onEnterFunc = function()
+            local pos = GUI:getWorldPosition(node)
+            SL:OpenCommonDescTipsPop({str = tip, worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 0})
+        end, onLeaveFunc = function()
+            SL:CloseCommonDescTipsPop()
+        end})
+    else
+        GUI:setTouchEnabled(node, true)
+        GUI:addOnTouchEvent(node, function(self)
+            local pos = GUI:getWorldPosition(node)
+            SL:OpenCommonDescTipsPop({str = tip, worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 0})
+        end)
+    end
+end
 function dl_sz(i)
     if i == 0 then
         return true

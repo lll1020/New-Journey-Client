@@ -55,6 +55,8 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data.dj_num = npc.data.dj_num + 1
         UI_updata(npc.node)
     end
+
+    
 end
 
 return npc

@@ -121,6 +121,7 @@ function npc.main(npcid, p2, p3, msgData)
 
                 for v,k in pairs(npc._config.main_r or {}) do
                     local kuang = GUI:Image_Create(dbLayout, "kuang"..v, 0, 0, "res/custom/linggen/kuang.png")
+                    
 
                     local moveWidget = GUI:MoveWidget_Create(kuang, "moveWidget", 35, 35, 70, 70, SL:GetMetaValue("ITEMFROMUI_ENUM").fromToEvent, {
                         beginMoveCB = function(move_node)
@@ -129,20 +130,25 @@ function npc.main(npcid, p2, p3, msgData)
                             xjm_updata()
                             GUI:setVisible(GUI:ui_delegate(GUI:ui_delegate(npc.Label).item_main_kuang).eff, true)
                             GUI:setVisible(GUI:ui_delegate(GUI:ui_delegate(npc.Label).item_other_kuang).eff, true)
+                            GUI:setTouchEnabled(ScrollView, false)
                         end,
                         endMoveCB = function(move_node)
                             GUI:setVisible(GUI:ui_delegate(GUI:ui_delegate(npc.Label).item_main_kuang).eff, false)
                             GUI:setVisible(GUI:ui_delegate(GUI:ui_delegate(npc.Label).item_other_kuang).eff, false)
+                            GUI:setTouchEnabled(ScrollView, true)
                          end,
                         cancelMoveCB  = function(move_node)
                             GUI:setVisible(GUI:ui_delegate(GUI:ui_delegate(npc.Label).item_main_kuang).eff, false)
                             GUI:setVisible(GUI:ui_delegate(GUI:ui_delegate(npc.Label).item_other_kuang).eff, false)
+                            GUI:setTouchEnabled(ScrollView, true)
                         end})
                     GUI:setAnchorPoint(moveWidget, 0.5, 0.5)
-
-                    local showItem = GUI:Text_Create(moveWidget, "item"..v, 35, 35, 20, "#FFFFFF", k.name)
+                    local showItem = GUI:Image_Create(moveWidget, "item"..v, 84/2, 86/2, "res/custom/linggen/itme_"..v..".png")
                     GUI:setAnchorPoint(showItem, 0.5, 0.5)
-                    GUI:Text_Create(kuang, "level"..v, 0, 0, 20, "#FF00FF", (npc.data.T_data.level and npc.data.T_data.level[""..v]) and (npc.data.T_data.level[""..v].."级") or "未激活")
+                    GUI:Text_Create(kuang, "level"..v, 70, 0, 20, "#FF00FF", (npc.data.T_data.level and npc.data.T_data.level[""..v]) and ("lv."..npc.data.T_data.level[""..v]) or "未激活")
+
+
+                    
                 end
                 GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 3,gap = {x=40, y=10}})
                 --主灵根
@@ -165,8 +171,12 @@ function npc.main(npcid, p2, p3, msgData)
                             GUI:setVisible(npc.out_moveWidget, false)
                         end})
                 GUI:setAnchorPoint(moveWidget, 0.5, 0.5)
-                local showItem = GUI:Text_Create(moveWidget, "item", 35, 35, 20, "#FFFFFF", npc.data.T_data.main and npc._config.main_r[npc.data.T_data.main].name or "无")
-                GUI:setAnchorPoint(showItem, 0.5, 0.5)
+                -- local showItem = GUI:Text_Create(moveWidget, "item", 35, 35, 20, "#FFFFFF", npc.data.T_data.main and npc._config.main_r[npc.data.T_data.main].name or "无")
+                -- GUI:setAnchorPoint(showItem, 0.5, 0.5)
+                if npc.data.T_data.main then
+                    local showItem = GUI:Image_Create(contentSize, "item", 125/2, 160/2, "res/custom/linggen/itme_"..npc.data.T_data.main..".png")
+                    GUI:setAnchorPoint(showItem, 0.5, 0.5)
+                end
 
                 kuang = GUI:Layout_Create(Label_node, "item_other_kuang", 603, 290, 125, 160)
                 -- GUI:setContentSize(kuang, 125, 160)
@@ -184,8 +194,12 @@ function npc.main(npcid, p2, p3, msgData)
                             GUI:setVisible(npc.out_moveWidget, false)
                         end})
                 GUI:setAnchorPoint(moveWidget, 0.5, 0.5)
-                showItem = GUI:Text_Create(moveWidget, "item", 35, 35, 20, "#FFFFFF", npc.data.T_data.other and npc._config.main_r[npc.data.T_data.other].name or "无")
-                GUI:setAnchorPoint(showItem, 0.5, 0.5)
+                -- showItem = GUI:Text_Create(moveWidget, "item", 35, 35, 20, "#FFFFFF", npc.data.T_data.other and npc._config.main_r[npc.data.T_data.other].name or "无")
+                -- GUI:setAnchorPoint(showItem, 0.5, 0.5)
+                if npc.data.T_data.other then
+                    local showItem = GUI:Image_Create(moveWidget, "item", 125/2, 160/2, "res/custom/linggen/itme_"..npc.data.T_data.other..".png")
+                    GUI:setAnchorPoint(showItem, 0.5, 0.5)
+                end
 
 
                 npc.out_moveWidget = GUI:MoveWidget_Create(Label_node, "out_moveWidget", 365, 30, 435, 190, SL:GetMetaValue("ITEMFROMUI_ENUM").out,{})
@@ -233,9 +247,10 @@ function npc.main(npcid, p2, p3, msgData)
 
                 for v,k in pairs(npc._config.main_r or {}) do
                     local kuang = GUI:Image_Create(dbLayout, "kuang"..v, 0, 0, "res/custom/linggen/kuang.png")
-                    local showItem = GUI:Text_Create(kuang, "item"..v, 35, 35, 20, "#FFFFFF", k.name)
+                    -- local showItem = GUI:Text_Create(kuang, "item"..v, 84/2, 86/2, 20, "#FFFFFF", k.name)
+                    local showItem = GUI:Image_Create(kuang, "item"..v, 84/2, 86/2, "res/custom/linggen/itme_"..v..".png")
                     GUI:setAnchorPoint(showItem, 0.5, 0.5)
-                    GUI:Text_Create(kuang, "level"..v, 0, 0, 20, "#FF00FF", (npc.data.T_data.level and npc.data.T_data.level[""..v]) and (npc.data.T_data.level[""..v].."级") or "未激活")
+                    GUI:Text_Create(kuang, "level"..v, 70, 0, 20, "#FF00FF", (npc.data.T_data.level and npc.data.T_data.level[""..v]) and ("lv."..npc.data.T_data.level[""..v]) or "未激活")
 
                     GUI:setTouchEnabled(kuang, true)
                     GUI:addOnClickEvent(kuang, function()
@@ -253,8 +268,11 @@ function npc.main(npcid, p2, p3, msgData)
 
                 local kuang = GUI:Layout_Create(Label_node, "item_main_kuang", 430, 290, 125, 160)
                 -- GUI:setContentSize(kuang, 125, 160)
-                local showItem = GUI:Text_Create(kuang, "item", 35, 35, 20, "#FFFFFF", npc.data.T_data.main and npc._config.main_r[npc.data.T_data.main].name or "无")
-                GUI:setAnchorPoint(showItem, 0.5, 0.5)
+                -- local showItem = GUI:Text_Create(kuang, "item", 35, 35, 20, "#FFFFFF", npc.data.T_data.main and npc._config.main_r[npc.data.T_data.main].name or "无")
+                if npc.data.T_data.main then
+                    local showItem = GUI:Image_Create(kuang, "item", 125/2, 160/2, "res/custom/linggen/itme_"..npc.data.T_data.main..".png")
+                    GUI:setAnchorPoint(showItem, 0.5, 0.5)
+                end
                 GUI:setTouchEnabled(kuang, true)
                 GUI:addOnClickEvent(kuang, function()
                     npc.current_idx = npc.data.T_data.main or 0
@@ -263,8 +281,12 @@ function npc.main(npcid, p2, p3, msgData)
 
                 kuang = GUI:Layout_Create(Label_node, "item_other_kuang", 603, 290, 125, 160)
                 -- GUI:setContentSize(kuang, 125, 160)
-                showItem = GUI:Text_Create(kuang, "item", 35, 35, 20, "#FFFFFF", npc.data.T_data.other and npc._config.main_r[npc.data.T_data.other].name or "无")
-                GUI:setAnchorPoint(showItem, 0.5, 0.5)
+                if npc.data.T_data.other then
+                    local showItem = GUI:Image_Create(kuang, "item", 125/2, 160/2, "res/custom/linggen/itme_"..npc.data.T_data.other..".png")
+                    GUI:setAnchorPoint(showItem, 0.5, 0.5)
+                end
+                -- showItem = GUI:Text_Create(kuang, "item", 35, 35, 20, "#FFFFFF", npc.data.T_data.other and npc._config.main_r[npc.data.T_data.other].name or "无")
+                -- GUI:setAnchorPoint(showItem, 0.5, 0.5)
                 GUI:setTouchEnabled(kuang, true)
                 GUI:addOnClickEvent(kuang, function()
                     npc.current_idx = npc.data.T_data.other or 0
