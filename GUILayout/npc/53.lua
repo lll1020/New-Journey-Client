@@ -4,24 +4,24 @@ local npc = {}
 npc._config = teshudata["npc_53"]
 
 local WINDOW_OPTS = {
-    background = {skin = 'res/wy/public/tongyong_0.png'},
-    node = {x = 500, y = 300},
+    background = {skin = "res/custom/three_city/sshc/bg.png", eff = true},
+    title = {x = 56, y = 464, skin = "res/custom/three_city/sshc/title.png"},
 }
 
 local NEED_ITEM_NUM = npc._config and npc._config.needitemnum or 10
 
 -- 布局配置表：统一管理所有 UI 坐标与尺寸，方便整体调整
 local layoutCfg = {
-    bag = {x = -200, y = -90, width = 320, height = 320},            -- 左侧材料列表位置及滚动区域大小
-    selection = {x = 0, y = -50, cols = 5, colGap = 86, rowGap = 94}, -- 右侧已选槽位的起点、列数与间距
+    bag = {x = 200, y = 180 - 35 + 8, width = 320, height = 260 + 16},            -- 左侧材料列表位置及滚动区域大小
+    selection = {x = 425, y = -50 + 343, cols = 5, colGap = 58 + 5, rowGap = 60 + 5}, -- 右侧已选槽位的起点、列数与间距
     reward = {x = 250, y = 80},                                     -- “可能获得”展示节点
     slotTip = {x = 280, y = -140},                                    -- “点击可移除”提示坐标
     buttons = {                                                       -- 底部操作按钮坐标
-        compose = {x = 340, y = -260},                               -- “开始合成”
-        clear = {x = 210, y = -260},                                 -- “清空材料”
-        bag = {x = 80, y = -260},                                    -- “打开背包”
+        compose = {x = 340 + 133, y = 0},                               -- “开始合成”
+        clear = {x = 410, y = 100},                                 -- “清空材料”
+        bag = {x = 590, y = 100},                                    -- “打开背包”
     },
-    level = {startX = -360, startY = 130, gapX = 170},               -- 顶部等级切换按钮：起点与横向间距
+    level = {startX = 40, startY = 335, gapX = 170},               -- 顶部等级切换按钮：起点与横向间距
 }
 
 local tierNames = {"稀有", "史诗", "神话", "传说"}
@@ -100,8 +100,7 @@ local function updateLevelButtons()
     local state = npc._state
     for level, btn in ipairs(npc._ui.levelButtons) do
         local highlight = (level ~= state.currentLevel)
-        GUI:Button_setBright(btn, highlight)
-        GUI:Button_setTitleColor(btn, highlight and "#f1e2c6" or "#33ff99")
+        GUI:Button_setBright(btn, not highlight)
     end
 end
 
@@ -142,6 +141,40 @@ local function updateProbabilityText()
     GUI:Text_setString(npc._ui.rewardProb, tip)
 end
 
+local function updateProbabilityText_tip()
+    local state = npc._state
+    -- recomputeSlotCounts()
+    local total = #state.selectedList
+    local parts = {}
+
+    if total == 0 then
+        table.insert(parts, string.format("<请选择 %d 件材料，十个相同槽位必定提升。/FCOLOR=243>", NEED_ITEM_NUM))
+        return table.concat(parts, "\\")
+    end
+    for slotIndex, count in pairs(state.slotCounts) do
+        local slotName = state.slotList[slotIndex] or ("槽位" .. slotIndex)
+        local percent = math.floor((count / NEED_ITEM_NUM) * 100)
+        table.insert(parts, string.format("%s %d/%d (%d%%)", slotName, count, NEED_ITEM_NUM, percent))
+    end
+    table.sort(parts)
+    
+    if total == NEED_ITEM_NUM and next(state.slotCounts) then
+        local uniqueSlots = 0
+        for _ in pairs(state.slotCounts) do
+            uniqueSlots = uniqueSlots + 1
+        end
+        if uniqueSlots == 1 then
+            table.insert(parts, "（满足 10/10，100% 获得对应上一级）")
+        else
+            table.insert(parts, "（根据占比随机获得对应上一级）")
+        end
+    else
+        table.insert(parts, string.format("（已选 %d/%d）", total, NEED_ITEM_NUM))
+    end
+    local tip = table.concat(parts, "\\")
+    return tip
+end
+
 -- 展示下一等级所有可能奖励（顺序固定，方便对号入座）
 local function updateRewardPreview()
     if not npc._ui or not npc._ui.rewardNode then
@@ -156,27 +189,42 @@ local function updateRewardPreview()
         npc._ui.rewardProb = nil
         return
     end
-    npc._ui.rewardTitle = GUI:Text_Create(npc._ui.rewardNode, "reward_title", 0, 110, 18, "#f1e2c6", "可能获得：")
-    GUI:setAnchorPoint(npc._ui.rewardTitle, 0.5, 0.5)
-    npc._ui.rewardProb = GUI:Text_Create(npc._ui.rewardNode, "reward_prob", 0, 88, 16, "#f6ff8f", "")
-    GUI:setAnchorPoint(npc._ui.rewardProb, 0.5, 0.5)
-    local startX = -140
-    for idx, name in ipairs(nextList) do
-        local col = (idx - 1) % 4
-        local row = math.floor((idx - 1) / 4)
-        local bg = GUI:Image_Create(npc._ui.rewardNode, "reward_bg_" .. idx, startX + col * 70, 10 - row * 80, "res/wy/public/70_70_k.png")
-        GUI:setAnchorPoint(bg, 0, 0.5)
-        local itemIndex = SL:GetMetaValue("ITEM_INDEX_BY_NAME", name)
-        local itemData = itemIndex and SL:GetMetaValue("ITEM_DATA", itemIndex)
-        if itemData then
-            local itemNode = GUI:ItemShow_Create(bg, "reward_item_" .. idx, 35, 35, {itemData = itemData, count = 1, look = true, bgVisible = false})
-            GUI:setAnchorPoint(itemNode, 0.5, 0.5)
-        else
-            -- 备用：GUI:Text_Create(bg, "reward_name_" .. idx, 35, 35, 16, "#ffeeaa", name)
-        end
-        -- 备用：GUI:Text_Create(bg, "reward_label_" .. idx, 35, -10, 16, "#8fd6ff", name)
+    npc._ui.rewardTitle = GUI:Image_Create(npc._ui.rewardNode, "tip_wz", 232, -15, "res/custom/three_city/sshc/tip_wz.png")
+    if SL:GetMetaValue("WINPLAYMODE") then
+        GUI:addMouseMoveEvent(npc._ui.rewardTitle, {onEnterFunc = function()
+            local pos = GUI:getWorldPosition(npc._ui.rewardTitle)
+            SL:OpenCommonDescTipsPop({str = "<合成规则：/FCOLOR=243>\\<投入 10 件相同等级的神石即可尝试升级。 /FCOLOR=249>\\<十个相同槽位材料=100% 获得对应下一级，否则按照投入占比计算概率。 /FCOLOR=249>\\"..updateProbabilityText_tip(), worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 0})
+        end, onLeaveFunc = function()
+            SL:CloseCommonDescTipsPop()
+        end})
+    else
+        GUI:setTouchEnabled(npc._ui.rewardTitle, true)
+        GUI:addOnTouchEvent(npc._ui.rewardTitle, function(self)
+            local pos = GUI:getWorldPosition(npc._ui.rewardTitle)
+            SL:OpenCommonDescTipsPop({str = "<合成规则：/FCOLOR=243>\\<投入 10 件相同等级的神石即可尝试升级。 /FCOLOR=249>\\<十个相同槽位材料=100% 获得对应下一级，否则按照投入占比计算概率。 /FCOLOR=249>\\"..updateProbabilityText_tip(), worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 0})
+        end)
     end
-    updateProbabilityText()
+    -- npc._ui.rewardTitle = GUI:Text_Create(npc._ui.rewardNode, "reward_title", 0, 110, 18, "#f1e2c6", "可能获得：")
+    -- GUI:setAnchorPoint(npc._ui.rewardTitle, 0.5, 0.5)
+    -- npc._ui.rewardProb = GUI:Text_Create(npc._ui.rewardNode, "reward_prob", 0, 88, 16, "#f6ff8f", "")
+    -- GUI:setAnchorPoint(npc._ui.rewardProb, 0.5, 0.5)
+    -- local startX = -140
+    -- for idx, name in ipairs(nextList) do
+    --     local col = (idx - 1) % 4
+    --     local row = math.floor((idx - 1) / 4)
+    --     local bg = GUI:Image_Create(npc._ui.rewardNode, "reward_bg_" .. idx, startX + col * 70, 10 - row * 80, "res/wy/public/70_70_k.png")
+    --     GUI:setAnchorPoint(bg, 0, 0.5)
+    --     local itemIndex = SL:GetMetaValue("ITEM_INDEX_BY_NAME", name)
+    --     local itemData = itemIndex and SL:GetMetaValue("ITEM_DATA", itemIndex)
+    --     if itemData then
+    --         local itemNode = GUI:ItemShow_Create(bg, "reward_item_" .. idx, 35, 35, {itemData = itemData, count = 1, look = true, bgVisible = false})
+    --         GUI:setAnchorPoint(itemNode, 0.5, 0.5)
+    --     else
+    --         -- 备用：GUI:Text_Create(bg, "reward_name_" .. idx, 35, 35, 16, "#ffeeaa", name)
+    --     end
+    --     -- 备用：GUI:Text_Create(bg, "reward_label_" .. idx, 35, -10, 16, "#8fd6ff", name)
+    -- end
+    -- updateProbabilityText()
 end
 
 -- 计算某个分组在扣除已选数量后的剩余件数
@@ -234,12 +282,12 @@ local function updateSelectionSlots()
         local entry = state.selectedList[idx]
         if entry then
             
-            GUI:setAnchorPoint(GUI:ItemShow_Create(slotNode, "sel_item_" .. idx, 35, 35, {itemData = entry.itemData, count = 1, look = true, bgVisible = false})
+            GUI:setAnchorPoint(GUI:ItemShow_Create(slotNode, "sel_item_" .. idx, 58/2, 60/2, {itemData = entry.itemData, count = 1, look = true, bgVisible = false})
             , 0.5, 0.5)
             -- 备用：GUI:Text_Create(slotNode, "sel_name_" .. idx, 35, -10, 16, "#c0faff", entry.name or "")
             GUI:setTouchEnabled(slotNode, true)
         else
-            GUI:setAnchorPoint(GUI:Text_Create(slotNode, "sel_hint_" .. idx, 35, 35, 18, "#666666", "+"), 0.5, 0.5)
+            GUI:setAnchorPoint(GUI:Text_Create(slotNode, "sel_hint_" .. idx, 58/2, 60/2, 18, "#666666", "+"), 0.5, 0.5)
             GUI:setTouchEnabled(slotNode, false)
         end
     end
@@ -304,21 +352,17 @@ local function refreshBagList()
         local rowWidth = layoutCfg.bag.width - 10
         local layout = GUI:Layout_Create(npc._ui.bagList, "npc53_item_" .. idx, 0, 0, rowWidth, 80, false)
         -- 备用：GUI:ListView_pushBackCustomItem(npc._ui.bagList, layout)
-        local bg = GUI:Image_Create(layout, "row_bg_" .. idx, 0, 0, "res/wy/public/500-300.png")
+        local bg = GUI:Image_Create(layout, "row_bg_" .. idx, 0, 0, "res/custom/three_city/sshc/kuang.png")
         GUI:setAnchorPoint(bg, 0, 0)
-        GUI:setContentSize(bg, rowWidth - 4, 80 - 4)
         GUI:setAnchorPoint(
-        GUI:ItemShow_Create(GUI:Image_Create(bg, "row_item_kuang" .. idx, 5, 0, "res/wy/public/70_70_k.png")
-                , "row_item_" .. idx, 35, 35, {itemData = entry.itemData, count = entry.totalCount, look = true, bgVisible = false})
+        GUI:ItemShow_Create(GUI:Image_Create(bg, "row_item_kuang" .. idx, 15, 5, "res/wy/public/58-60.png")
+                , "row_item_" .. idx, 58/2, 60/2, {itemData = entry.itemData, look = true, bgVisible = false})
         , 0.5, 0.5)
         
         GUI:Text_Create(bg, "row_name_" .. idx, 90, 50, 18, "#f1e2c6", entry.name)
-        GUI:Text_Create(bg, "row_slot_" .. idx, 90, 30, 16, "#8fd6ff", string.format("槽位：%s", entry.slotName))
+        -- GUI:Text_Create(bg, "row_slot_" .. idx, 90, 30, 16, "#8fd6ff", string.format("槽位：%s", entry.slotName))
         local countText = GUI:Text_Create(bg, "row_count_" .. idx, 90, 0, 16, "#ffeeaa", "")
-        local btn = GUI:Button_Create(bg, "row_add_" .. idx, rowWidth - 90, 0, "res/public/1900000660.png")
-        GUI:setScale(btn, 0.7)
-        GUI:Button_setTitleText(btn, "添加")
-        GUI:Button_setTitleFontSize(btn, 18)
+        local btn = GUI:Button_Create(bg, "row_add_" .. idx, rowWidth - 70, 15, "res/custom/three_city/sshc/btn_put.png")
         GUI:addOnClickEvent(btn, function()
             if #state.selectedList >= NEED_ITEM_NUM then
                 SL:ShowSystemTips(string.format("<font color='#ff0000'>最多只能放入%d件材料</font>", NEED_ITEM_NUM))
@@ -382,7 +426,7 @@ local function buildSelectionArea(parent)
             "slot_bg_" .. i,
             col * layoutCfg.selection.colGap,
             -row * layoutCfg.selection.rowGap,
-            "res/wy/public/70_70_k.png"
+            "res/wy/public/58-60.png"
         )
         GUI:setAnchorPoint(slot, 0, 1)
         -- 备用：GUI:addOnClickEvent(slot, function())
@@ -402,9 +446,8 @@ end
 
 -- 构建背包列表容器与空状态提示
 local function buildBagPanel(parent)
-    local bg = GUI:Image_Create(parent, "bag_panel_bg", layoutCfg.bag.x, layoutCfg.bag.y, "res/wy/public/500-300.png")
+    local bg = GUI:Layout_Create(parent, "bag_panel_bg_layout", layoutCfg.bag.x, layoutCfg.bag.y, layoutCfg.bag.width + 40, layoutCfg.bag.height + 10, false)
     GUI:setAnchorPoint(bg, 0.5, 0.5)
-    GUI:setContentSize(bg, layoutCfg.bag.width + 40, layoutCfg.bag.height + 10)
     npc._ui.bagList = GUI:ListView_Create(parent, "bag_list", layoutCfg.bag.x, layoutCfg.bag.y, layoutCfg.bag.width, layoutCfg.bag.height, 1)
     GUI:setAnchorPoint(npc._ui.bagList, 0.5, 0.5)
     GUI:ListView_setItemsMargin(npc._ui.bagList, 10)
@@ -438,22 +481,19 @@ function npc.main(npcid, p2, p3, msgData)
         npc._ui = {root = node}
 
         -- 标题与规则说明
-        GUI:Text_Create(node, "title", 0, 220, 26, "#f6ff8f", "灵神石合成")
-        local ruleText = "规则：投入 10 件相同等级的神石即可尝试升级。十个相同槽位材料=100% 获得对应上一级，否则按照投入占比计算概率。"
-        GUI:setAnchorPoint(GUI:Text_Create(node, "rule", 0, 200, 18, "#ffecc6", ruleText), 0.5, 0.5)
+        -- GUI:Text_Create(node, "title", 0, 220, 26, "#f6ff8f", "灵神石合成")
+        -- local ruleText = "规则：投入 10 件相同等级的神石即可尝试升级。十个相同槽位材料=100% 获得对应上一级，否则按照投入占比计算概率。"
+        -- GUI:setAnchorPoint(GUI:Text_Create(node, "rule", 0, 200, 18, "#ffecc6", ruleText), 0.5, 0.5)
 
         -- 左上：等级选择按钮组（稀有→史诗→神话→传说）
         npc._ui.levelButtons = {}
         local state = npc._state
-        for level = 1, state.maxLevel do
+        for level = 1, state.maxLevel - 1 do
             local leftTier = tierNames[level] or string.format("等级%d", level)
             local rightTier = tierNames[level + 1] or string.format("等级%d", level + 1)
             local label = string.format("%s → %s", leftTier, rightTier)
             local btnX = layoutCfg.level.startX + (level - 1) * layoutCfg.level.gapX
-            local btn = GUI:Button_Create(node, "level_btn_" .. level, btnX, layoutCfg.level.startY, "res/public/1900000660.png")
-            GUI:setScale(btn, 0.9)
-            GUI:Button_setTitleText(btn, label)
-            GUI:Button_setTitleFontSize(btn, 18)
+            local btn = GUI:Button_Create(node, "level_btn_" .. level, btnX, layoutCfg.level.startY, "res/custom/three_city/sshc/btn_l_"..level..".png")
             GUI:addOnClickEvent(btn, function()
                 if setCurrentLevel(level) then
                     refreshBagList()
@@ -473,23 +513,23 @@ function npc.main(npcid, p2, p3, msgData)
         buildBagPanel(node)
 
         -- 底部按钮：开始合成 / 清空 / 打开背包
-        local composeBtn = GUI:Button_Create(node, "btn_compose", layoutCfg.buttons.compose.x, layoutCfg.buttons.compose.y, "res/public/1900000660.png")
-        GUI:Button_setTitleText(composeBtn, "开始合成")
-        GUI:Button_setTitleFontSize(composeBtn, 20)
+        local composeBtn = GUI:Button_Create(node, "btn_compose", layoutCfg.buttons.compose.x, layoutCfg.buttons.compose.y, "res/custom/three_city/sshc/btn_hc.png")
+        -- GUI:Button_setTitleText(composeBtn, "开始合成")
+        -- GUI:Button_setTitleFontSize(composeBtn, 20)
         GUI:addOnClickEvent(composeBtn, function()
             sendComposeRequest(npcid)
         end)
 
-        local clearBtn = GUI:Button_Create(node, "btn_clear", layoutCfg.buttons.clear.x, layoutCfg.buttons.clear.y, "res/public/1900000660.png")
-        GUI:Button_setTitleText(clearBtn, "清空材料")
-        GUI:Button_setTitleFontSize(clearBtn, 20)
+        local clearBtn = GUI:Button_Create(node, "btn_clear", layoutCfg.buttons.clear.x, layoutCfg.buttons.clear.y, "res/custom/three_city/sshc/btn_qk.png")
+        -- GUI:Button_setTitleText(clearBtn, "清空材料")
+        -- GUI:Button_setTitleFontSize(clearBtn, 20)
         GUI:addOnClickEvent(clearBtn, function()
             clearSelection()
         end)
 
-        local bagBtn = GUI:Button_Create(node, "btn_bag", layoutCfg.buttons.bag.x, layoutCfg.buttons.bag.y, "res/public/1900000660.png")
-        GUI:Button_setTitleText(bagBtn, "打开背包")
-        GUI:Button_setTitleFontSize(bagBtn, 20)
+        local bagBtn = GUI:Button_Create(node, "btn_bag", layoutCfg.buttons.bag.x, layoutCfg.buttons.bag.y, "res/custom/three_city/sshc/open_bag.png")
+        -- GUI:Button_setTitleText(bagBtn, "打开背包")
+        -- GUI:Button_setTitleFontSize(bagBtn, 20)
         GUI:addOnClickEvent(bagBtn, function()
             SL:OpenBagUI()
         end)
@@ -502,35 +542,8 @@ function npc.main(npcid, p2, p3, msgData)
 
     if p2 == 0 then
         -- 首次打开：刷新背包&状态，并生成窗口骨架
-        npc.data = SL:JsonDecode(msgData, false) or {}
-        resetSelection()
-        local parent = GUI:GetWindow(nil, "npc_" .. npcid)
-        if parent then
-            GUI:removeAllChildren(parent)
-            GUI:setPosition(parent, cogin.w / 2, cogin.h / 2)
-        else
-            parent = GUI:Win_Create("npc_" .. npcid, cogin.w / 2, cogin.h / 2, 0, 0, false, false, true, true, true, npcid, 1)
-        end
-        local bjt = GUI:Image_Create(parent, "bjt", 0, 0, "res/public/1900000651_1.png")
-        GUI:setAnchorPoint(bjt, 0.5, 0.5)
-        GUI:setContentSize(bjt, cogin.w + 100, cogin.h + 100)
-        GUI:setTouchEnabled(bjt, true)
-        GUI:addOnClickEvent(bjt, function()
-            GUI:Win_Close(parent)
-        end)
-        GUI:addMouseOverTips(bjt, "", {x = 0, y = 0}, {x = 0, y = 0})
-
-        npc.bg = GUI:Image_Create(parent, "img_bj", 0, 0, 'res/wy/public/tongyong_0.png')
-        GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
-        GUI:setTouchEnabled(npc.bg, true)
-        GUI:Timeline_Window1(npc.bg)
-
-        local close = GUI:Button_Create(npc.bg, 'close', 930, 480, 'res/wy/public/close_red_big.png')
-        GUI:addOnClickEvent(close, function()
-            GUI:Win_Close(parent)
-        end)
-
-        npc.node = GUI:Node_Create(npc.bg, "node", 500, 300)
+        npc.data = SL:JsonDecode(msgData,false)
+        ensureWindow(npcid)
         UI_updata(npc.node)
     elseif p2 == 1 then
         -- 合成成功或后端同步后刷新界面
