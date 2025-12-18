@@ -246,6 +246,24 @@ function ItemNumByTable_img(t, multiple,parent)
     return Node
 end
 
+-- 物品 展示
+function ItemNumByTable_img_new(t, multiple,parent)
+    local Node = GUI:Node_Create(parent, "Node_cl_show", 0.00, 0.00)
+    local cllist = GUI:ListView_Create(Node, "cllist", 0, 0, 999, 50, 2)
+    GUI:ListView_setClippingEnabled(cllist, false)
+    GUI:ListView_setItemsMargin(cllist, 10)
+    GUI:setTouchEnabled(cllist, false)
+    for i,item in ipairs(t) do
+        local idx,num = SL:GetMetaValue("ITEM_INDEX_BY_NAME",item[1]),item[2]
+        if multiple then num=num*multiple end
+        local kuang = GUI:Image_Create(cllist, "kuang"..i, 0, 0, "res/wy/public/58-60.png")
+        
+        GUI:setAnchorPoint(GUI:ItemShow_Create(kuang, "item", 58/2, 60/2, {index=idx,count = num,look= true})
+        , 0.5, 0.5)
+    end
+    return Node
+end
+
 --检查 物品 货币 装备是否满足数量(数量不足返回不足物品的名字)---图文型
 function checkItemNumByTable_img_kuang(t, multiple,parent)
     local Node = GUI:Node_Create(parent, "Node_cl", 0.00, 0.00)

@@ -12,7 +12,7 @@ local NEED_ITEM_NUM = npc._config and npc._config.needitemnum or 10
 
 -- 布局配置表：统一管理所有 UI 坐标与尺寸，方便整体调整
 local layoutCfg = {
-    bag = {x = 200, y = 180 - 35 + 8, width = 320, height = 260 + 16},            -- 左侧材料列表位置及滚动区域大小
+    bag = {x = 200, y = 180 - 35 + 8, width = 350, height = 260 + 16},            -- 左侧材料列表位置及滚动区域大小
     selection = {x = 425, y = -50 + 343, cols = 5, colGap = 58 + 5, rowGap = 60 + 5}, -- 右侧已选槽位的起点、列数与间距
     reward = {x = 250, y = 80},                                     -- “可能获得”展示节点
     slotTip = {x = 280, y = -140},                                    -- “点击可移除”提示坐标
@@ -260,7 +260,7 @@ local function updateBagListSelectionState()
         local ui = npc._ui.bagEntries[entry.uniqueKey]
         if ui then
             local remain = getGroupRemain(entry, state)
-            local text = string.format("持有:%d  可用:%d", entry.totalCount or 0, remain)
+            local text = string.format("背包:%d  剩余:%d", entry.totalCount or 0, remain)
             GUI:Text_setString(ui.countText, text)
             local canUse = remain > 0 and #state.selectedList < NEED_ITEM_NUM
             GUI:Button_setBright(ui.addBtn, canUse)
@@ -359,10 +359,10 @@ local function refreshBagList()
                 , "row_item_" .. idx, 58/2, 60/2, {itemData = entry.itemData, look = true, bgVisible = false})
         , 0.5, 0.5)
         
-        GUI:Text_Create(bg, "row_name_" .. idx, 90, 50, 18, "#f1e2c6", entry.name)
+        GUI:Text_Create(bg, "row_name_" .. idx, 130, 39, 16, "#f1e2c6", entry.name)
         -- GUI:Text_Create(bg, "row_slot_" .. idx, 90, 30, 16, "#8fd6ff", string.format("槽位：%s", entry.slotName))
-        local countText = GUI:Text_Create(bg, "row_count_" .. idx, 90, 0, 16, "#ffeeaa", "")
-        local btn = GUI:Button_Create(bg, "row_add_" .. idx, rowWidth - 70, 15, "res/custom/three_city/sshc/btn_put.png")
+        local countText = GUI:Text_Create(bg, "row_count_" .. idx, 130, 10, 16, "#ffeeaa", "")
+        local btn = GUI:Button_Create(bg, "row_add_" .. idx, rowWidth - 85, 15, "res/custom/three_city/sshc/btn_put.png")
         GUI:addOnClickEvent(btn, function()
             if #state.selectedList >= NEED_ITEM_NUM then
                 SL:ShowSystemTips(string.format("<font color='#ff0000'>最多只能放入%d件材料</font>", NEED_ITEM_NUM))
