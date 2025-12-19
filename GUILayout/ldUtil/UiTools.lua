@@ -983,6 +983,15 @@ function UiTools.showItemData(effNode, itemData)
     return itemShow
 end
 
+function UiTools.showItemData_Index(effNode, item_index)
+    effNode:removeAllChildren()
+    local contentSize = effNode:getContentSize()
+    --展示物品
+    local itemShow = GUI:ItemShow_Create(effNode, "item", contentSize.width / 2, contentSize.height / 2, { index = item_index, look = true, bgVisible = false })
+    itemShow:setAnchorPoint(cc.p(0.5, 0.5))
+    return itemShow
+end
+
 local function pauseAll(node)
     node:pause()
     for i, v in ipairs(node:getChildren()) do
