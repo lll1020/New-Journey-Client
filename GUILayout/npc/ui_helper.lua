@@ -124,7 +124,7 @@ function UIHelper.ensureWindow(cache, npcid, opts)
     cache.title = opts.title
 
     if opts.titleText then
-        cache.title = UIHelper.createTitle(bg, opts.titleText, opts.subTitle, opts.titleOptions)
+        UIHelper.createTitle(bg, opts.titleText, opts.subTitle, opts.titleOptions)
     end
 
     return cache
@@ -173,6 +173,10 @@ function UIHelper.createPrimaryButton(parent, name, x, y, text, callback, opts)
         if opts.color then
             GUI:Button_setTitleColor(btn, opts.color)
         end
+    end
+    if opts.Disabled_skin then
+        -- SL:release_print('NPC_UI_HELPER: Button set disabled skin:', opts.Disabled_skin)
+        GUI:Button_loadTextureDisabled(btn, opts.Disabled_skin)
     end
     GUI:addOnClickEvent(btn, function(widget)
         if opts.sound ~= false and SL and SL.PlaySound then

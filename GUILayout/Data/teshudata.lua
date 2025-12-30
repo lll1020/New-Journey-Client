@@ -649,7 +649,7 @@ teshudata = {
             likeValue = 1,                         -- 每次点赞增加的仙华值
         },
         RefineCfg = {                              -- 炼丹配置
-            furnaceCd = 60,                        -- 炼丹炉冷却
+            furnaceCd = 2,                        -- 炼丹炉冷却
             recipes = {
                 ["灵根丹"] = {
                     cost = {{"低阶灵草",10},{"金币", 5000}},         -- 消耗灵草
@@ -663,6 +663,17 @@ teshudata = {
             [101] = {id = 101, name = "竹林雅院", xiangHua = 20, cost = {{"金币", 5000}}},
             [102] = {id = 102, name = "桃花居", xiangHua = 50, cost = {{"元宝", 100}}},
             [201] = {id = 201, name = "烟雨轻岚", xiangHua = 80, cost = {{"元宝", 260}}},
+            [301] = {id = 301, name = "烟雨轻岚1", xiangHua = 80, cost = {{"元宝", 260}}},
+            [401] = {id = 401, name = "烟雨轻岚2", xiangHua = 80, cost = {{"元宝", 260}}},
+            [501] = {id = 501, name = "烟雨轻岚3", xiangHua = 80, cost = {{"元宝", 260}}},
+        },
+        DecorateplaceCfg = {
+            statue = {posX = 50, posY = 50,list = {201}},        -- 雕像装饰位置
+            cave = {posX = 300, posY = 100,list = {301}},  -- 洞府装饰位置
+            welcome = {posX = 300, posY = 100,list = {401}},  -- 欢迎语装饰位置
+            spring = {posX = 300, posY = 100,list = {501}},  -- 灵泉装饰位置
+            wall = {posX = 50, posY = 200,list = {101,102}},        -- 祥云装饰位置
+
         },
         TitleCfg = {                               -- 称号配置
             DanMaster = {id = 1, name = "极品炼丹师"},
@@ -720,6 +731,22 @@ teshudata = {
             {itme = "贵族藏宝图",jl = {weight = "1#40|2#40|3#25|4#10",details = {{"金币",1},{"元宝",1},{"神石宝箱",1},{"神石宝箱钥匙",1}}},map = {{map_name = "地图2",map_x = 1,map_y = 1},{map_name = "地图2",map_x = 1,map_y = 1},{map_name = "地图2",map_x = 1,map_y = 1}}},
             {itme = "王室藏宝图",jl = {weight = "1#40|2#40|3#25|4#10",details = {{"金币",1},{"元宝",1},{"神石宝箱",1},{"神石宝箱钥匙",1}}},map = {{map_name = "地图3",map_x = 1,map_y = 1},{map_name = "地图3",map_x = 1,map_y = 1},{map_name = "地图3",map_x = 1,map_y = 1}}},
             {itme = "普通藏宝图",jl = {weight = "1#40|2#40|3#25|4#10",details = {{"金币",1},{"元宝",1},{"神石宝箱",1},{"神石宝箱钥匙",1}}},map = {{map_name = "地图1",map_x = 1,map_y = 1},{map_name = "地图1",map_x = 1,map_y = 1},{map_name = "地图1",map_x = 1,map_y = 1}}},
+        },
+    },
+    ["npc_49"] = {
+        id = 49,
+        name = "八卦",
+        cost = {{"◆『卷轴』◆",1}},
+        ch = "天下第一神算子",
+        details = {
+            {attr = {{244,666}}},
+            {attr = {{1,500}}},
+            {attr = {{242,800}}},
+            {attr = {{3,100},{4,100}}},
+            {attr = {{35,300}}},
+            {attr = {{21,1}}},
+            {attr = {{22,1}}},
+            {attr = {{23,1}}},
         },
     },
     ["npc_51"] = {

@@ -10,17 +10,11 @@ local npc = {}
 npc._config = teshudata["npc_44"] or {}
 
 -- NPC 窗口的皮肤/关闭按钮等基础参数。
-local WINDOW_OPTS = {
-    background = {skin = 'res/wy/public/tongyong_0.png',},
-    closeButton = {x = 750, y = 460},
-    node = {x = 500, y = 300},
-   
-}
 
 -- 用于定位各个功能模块的锚点与尺寸，方便统一排版。
 local layout = {
     top = {x = 0, y = 250},
-    farm = {x = -360, y = 160, size = 92, gap = 8, perRow = 3},
+    farm = {x = -360, y = 160, size = 120, gap = 8, perRow = 3},
     farmDetail = {x = -360, y = -120},
     inventory = {x = 0, y = 170},
     quick = {x = 0, y = 40},
@@ -38,18 +32,23 @@ local MENU_TABS = {
     {id = 'overview', label = '总览'},
     {id = 'farm', label = '菜园'},
     {id = 'inventory', label = '灵草仓储'},
-    {id = 'social', label = '社交互动'},
-    {id = 'shop', label = '商城装扮'},
-    {id = 'refine', label = '炼丹炉'},
-    {id = 'pet', label = '灵兽培养'},
+    {idx = 1,id = 'social', label = '社交互动'},
+    {idx = 4,id = 'shop', label = '商城装扮'},
+    {idx = 4,id = 'refine', label = '炼丹炉'},
+    {idx = 7,id = 'pet', label = '灵兽培养'},
     {id = 'rank', label = '排行称号'},
     {id = 'system', label = '系统提示'},
+    {idx = 2,id = 'shape', label = '装扮'},
+}
+local MENU_TABS_LIST = {
+    [1] = {4,5,10},
+    [2] = {6,7},
 }
 
 -- UI 文本及按钮常用配色，集中管理方便整体调色。
 
 local MENU_PERMISSIONS = {
-    self = {overview = true, farm = true, inventory = true, social = true, shop = true, refine = true, pet = true, rank = true, system = true},
+    self = {overview = true, farm = true, inventory = true, social = true, shop = true, refine = true, pet = true, rank = true, system = true, shape = true},
     guest = {farm = true, social = true},
 }
 
@@ -408,69 +407,136 @@ local function countTableSize(t)
 end
 
 local function ensureWindow(npcid)
-    local opts = {}
-    for k, v in pairs(WINDOW_OPTS) do
-        opts[k] = v
+    local parent = GUI:GetWindow(nil, "npc_44")
+    if parent then
+        GUI:removeAllChildren(parent)
+        GUI:setPosition(parent, cogin.w / 2, cogin.h / 2)
+    else
+        parent = GUI:Win_Create("npc_44", cogin.w / 2, cogin.h / 2, 0, 0, false, false, true, true, true, 0, 1)
     end
-    opts.titleText = NPC_UI_HELPER.formatNpcTitle(npcid, npc._config)
-    opts.subTitle = '仙府总览'
-    npc._window = NPC_UI_HELPER.ensureWindow(npc._window, npcid, opts)
-    npc.bg = npc._window.bg
-    npc.node = npc._window.node
+
+    local bjt = GUI:Image_Create(parent, 'bjt', 0, 0, "res/custom/three_city/xianfu/bg.png")
+    GUI:setAnchorPoint(bjt, 0.5, 0.5)
+    GUI:setContentSize(bjt, cogin.w, cogin.h)
+    GUI:setTouchEnabled(bjt, true)
+    GUI:addMouseOverTips(bjt, "", {x = 0, y = 0}, {x = 0, y = 0})
+    npc.bg = bjt
+    npc.node = GUI:Node_Create(bjt, 'node', cogin.w / 2, cogin.h / 2)
+
+    local closeBtn = GUI:Button_Create(npc.bg, 'close', cogin.w-100, cogin.h-150, 'res/wy/public/anniu_4_x_close.png')
+    GUI:setLocalZOrder(closeBtn, 100)
+    GUI:addOnClickEvent(closeBtn, function()
+        GUI:Win_Close(parent)
+    end)
+
 end
 
 -- 顶部概览：玩家昵称/仙华/排行提示。
 local function buildTopOverview(node, snapshot, baseSnapshot)
+
     local state = ensureState()
     local guestMode = isGuestMode()
     local player = snapshot.player or {}
     local rankList = (snapshot.rank and #snapshot.rank > 0) and snapshot.rank or ((baseSnapshot and baseSnapshot.rank) or {})
-    local summary = GUI:Node_Create(node, 'top_summary', layout.top.x, layout.top.y)
-    GUI:setAnchorPoint(summary, 0.5, 0.5)
-    local titleFmt = guestMode and '拜访：%s    仙华值：%s' or '仙府主：%s    仙华值：%s'
-    local topText = string.format(titleFmt, player.name or '--', formatNumber(player.xiangHua or 0))
-    local label = GUI:Text_Create(summary, 'top_main', 0, 0, 22, colors.primary, topText)
-    GUI:setAnchorPoint(label, 0.5, 0)
+
+    local d_2 = GUI:Image_Create(node, 'd_2', 0, cogin.h / 2 - 40, "res/custom/three_city/xianfu/d_2.png")
+    GUI:setAnchorPoint(d_2, 0.5, 1)
+
+
+    local top_img = GUI:Image_Create(node, 'top_img', cogin.w / 2, cogin.h / 2, "res/custom/three_city/xianfu/d_4.png")
+    GUI:setAnchorPoint(top_img, 1, 1)
+    GUI:setContentSize(top_img, cogin.w, GUI:getContentSize(top_img).height)
+
+    local wz1 = GUI:Image_Create(top_img, 'wz1', cogin.w - 500, 10, "res/custom/three_city/xianfu/wz1.png")
+    local wz2 = GUI:Image_Create(top_img, 'wz2', cogin.w - 300, 10, "res/custom/three_city/xianfu/wz2.png")
+
+
+    local titleFmt = guestMode and '拜访：%s' or '仙府主：%s'
+    local topText = string.format(titleFmt, player.name)
+    local label = GUI:Text_Create(top_img, 'top_main', 20, 15, 22, colors.primary, topText)
+    GUI:setAnchorPoint(label, 0, 0)
     GUI:Text_enableOutline(label, '#1d0f09', 2)
-    local tip = guestMode and '拜访模式仅开放菜园与社交功能，其余操作需返回自宅。' or '仙华值通过点赞、装扮、炼丹等玩法提升，今日排名实时更新。'
-    local tipLabel = GUI:Text_Create(summary, 'top_tip', 0, -26, 18, colors.detail, tip)
-    GUI:setAnchorPoint(tipLabel, 0.5, 0)
-    GUI:Text_enableOutline(tipLabel, '#0c1a22', 1)
-    local rankN = math.min(#rankList, (npc._config.RankCfg and npc._config.RankCfg.topN) or #rankList)
-    local parts = {}
-    for i = 1, math.min(rankN, 5) do
-        local entry = rankList[i]
-        parts[#parts + 1] = string.format('%d.%s(%s)', i, entry and entry.name or '--', entry and formatNumber(entry.value or 0) or '0')
-    end
-    local rankText = (#parts > 0) and table.concat(parts, '  ') or '暂无排行数据'
-    local rankLabel = GUI:Text_Create(summary, 'top_rank', 0, -52, 18, colors.accent, string.format('今日排行 Top %d：%s', math.max(rankN, 1), rankText))
-    GUI:setAnchorPoint(rankLabel, 0.5, 0)
-    GUI:Text_enableOutline(rankLabel, '#0d1b26', 1)
-    local titleCfg = npc._config.TitleCfg or {}
-    local rankTitle = titleCfg.XianHuaRank1 and titleCfg.XianHuaRank1.name or '荣华天下'
-    local rewardTip = string.format('今日第一可获得称号「%s」（当天有效）', rankTitle)
-    local rewardLabel = GUI:Text_Create(summary, 'top_reward', 0, -76, 18, colors.warning, rewardTip)
-    GUI:setAnchorPoint(rewardLabel, 0.5, 0)
-    GUI:Text_enableOutline(rewardLabel, '#1b0f07', 1)
+
+    local xiangHua = GUI:TextAtlas_Create(wz1, "xiangHua", 120, 3, tonumber(player.xiangHua or 0), "res/custom/public/text1.png", 14, 30, ".")
+
+    local likenum = GUI:TextAtlas_Create(wz2, "likenum", 120, 3, tonumber(player.likenum or 0), "res/custom/public/text1.png", 14, 30, ".")
+
+
+    --SL:dump(player,"playerdata")
+
+
+    -- local tip = guestMode and '拜访模式仅开放菜园与社交功能，其余操作需返回自宅。' or '仙华值通过点赞、装扮、炼丹等玩法提升，今日排名实时更新。'
+    -- local tipLabel = GUI:Text_Create(summary, 'top_tip', 0, -26, 18, colors.detail, tip)
+    -- GUI:setAnchorPoint(tipLabel, 0.5, 0)
+    -- GUI:Text_enableOutline(tipLabel, '#0c1a22', 1)
+    -- local rankN = math.min(#rankList, (npc._config.RankCfg and npc._config.RankCfg.topN) or #rankList)
+    -- local parts = {}
+    -- for i = 1, math.min(rankN, 5) do
+    --     local entry = rankList[i]
+    --     parts[#parts + 1] = string.format('%d.%s(%s)', i, entry and entry.name or '--', entry and formatNumber(entry.value or 0) or '0')
+    -- end
+    -- local rankText = (#parts > 0) and table.concat(parts, '  ') or '暂无排行数据'
+    -- local rankLabel = GUI:Text_Create(summary, 'top_rank', 0, -52, 18, colors.accent, string.format('今日排行 Top %d：%s', math.max(rankN, 1), rankText))
+    -- GUI:setAnchorPoint(rankLabel, 0.5, 0)
+    -- GUI:Text_enableOutline(rankLabel, '#0d1b26', 1)
+    -- local titleCfg = npc._config.TitleCfg or {}
+    -- local rankTitle = titleCfg.XianHuaRank1 and titleCfg.XianHuaRank1.name or '荣华天下'
+    -- local rewardTip = string.format('今日第一可获得称号「%s」（当天有效）', rankTitle)
+    -- local rewardLabel = GUI:Text_Create(summary, 'top_reward', 0, -76, 18, colors.warning, rewardTip)
+    -- GUI:setAnchorPoint(rewardLabel, 0.5, 0)
+    -- GUI:Text_enableOutline(rewardLabel, '#1b0f07', 1)
     if guestMode then
-        NPC_UI_HELPER.createPrimaryButton(summary, 'btn_exit_guest', 260, -76, '返回自宅', function()
+    --返回自宅
+        NPC_UI_HELPER.createPrimaryButton(top_img, 'btn_exit_guest', cogin.w - 260, -200, '', function()
             exitGuestMode()
             npc.render()
-        end)
+        end,{skin = "res/custom/three_city/xianfu/btn/l/3.png"})
     end
 end
 
 local function drawMenuBar(node)
+
+    local under_img = GUI:Image_Create(node, 'under_img', cogin.w / 2,  - cogin.h / 2, "res/custom/three_city/xianfu/d_3.png")
+    GUI:setAnchorPoint(under_img, 1, 0)
+    GUI:setContentSize(under_img, cogin.w, GUI:getContentSize(under_img).height)
+
+    local btn_list_img = GUI:Image_Create(under_img, 'btn_list_img', cogin.w / 2,  40, "res/custom/three_city/xianfu/d_1.png")
+    GUI:setAnchorPoint(btn_list_img, 0.5, 0)
+
     local bar = GUI:Node_Create(node, 'menu_bar', layout.menu.x, layout.menu.y)
     GUI:setAnchorPoint(bar, 0.5, 0.5)
     local state = ensureState()
     local permission = MENU_PERMISSIONS[isGuestMode() and 'guest' or 'self'] or {}
     local total = #MENU_TABS
     local startX = -((total - 1) * 70)
-    for idx, tab in ipairs(MENU_TABS) do
+    -- for idx, tab in ipairs(MENU_TABS) do
+    --     local x = startX 
+    --     local allowed = permission[tab.id]
+    --     local btn = NPC_UI_HELPER.createPrimaryButton(bar, 'menu_btn_x' .. tab.id, x, - (idx - 1) * 50, tab.label, function()
+    --         local s = ensureState()
+    --         if not allowed then
+    --             s.lastMessage = '拜访模式仅开放菜园与社交功能'
+    --             npc.render()
+    --             return
+    --         end
+    --         if s.menuTab ~= tab.id then
+    --             s.menuTab = tab.id
+    --             npc.render()
+    --         end
+    --     end)
+    --     GUI:setAnchorPoint(btn, 0.5, 0.5)
+    --     if allowed then
+    --         GUI:Button_setBright(btn, state.menuTab ~= tab.id)
+    --     else
+    --         GUI:Button_setBright(btn, false)
+    --     end
+    -- end
+
+    for idx, k in ipairs(MENU_TABS_LIST[1]) do
+        local tab = MENU_TABS[k]
         local x = startX 
         local allowed = permission[tab.id]
-        local btn = NPC_UI_HELPER.createPrimaryButton(bar, 'menu_btn_' .. tab.id, x, - (idx - 1) * 50, tab.label, function()
+        local btn = NPC_UI_HELPER.createPrimaryButton(node, 'menu_btn_' .. tab.id, cogin.w / 2 + 10, - (idx - 1) * 100, "", function()
             local s = ensureState()
             if not allowed then
                 s.lastMessage = '拜访模式仅开放菜园与社交功能'
@@ -481,14 +547,40 @@ local function drawMenuBar(node)
                 s.menuTab = tab.id
                 npc.render()
             end
-        end)
-        GUI:setAnchorPoint(btn, 0.5, 0.5)
+        end,{skin = "res/custom/three_city/xianfu/list/l/"..tab.idx..".png",Disabled_skin = "res/custom/three_city/xianfu/list/n/"..tab.idx..".png"})
+        GUI:setAnchorPoint(btn, 1, 0)
         if allowed then
             GUI:Button_setBright(btn, state.menuTab ~= tab.id)
         else
             GUI:Button_setBright(btn, false)
         end
     end
+
+    for idx, k in ipairs(MENU_TABS_LIST[2]) do
+        local tab = MENU_TABS[k]
+        local x = startX 
+        local allowed = permission[tab.id]
+        local btn = NPC_UI_HELPER.createPrimaryButton(btn_list_img, 'menux_btn_' .. tab.id, 560 + (idx - 1) * 150, -10, "", function()
+            local s = ensureState()
+            if not allowed then
+                s.lastMessage = '拜访模式仅开放菜园与社交功能'
+                npc.render()
+                return
+            end
+            if s.menuTab ~= tab.id then
+                s.menuTab = tab.id
+                npc.render()
+            end
+        end,{skin = "res/custom/three_city/xianfu/btn/l/"..tab.idx..".png",Disabled_skin = "res/custom/three_city/xianfu/btn/n/"..tab.idx..".png"})
+        GUI:setAnchorPoint(btn, 0.5, 0)
+        if allowed then
+            GUI:Button_setBright(btn, state.menuTab ~= tab.id)
+        else
+            GUI:Button_setBright(btn, false)
+        end
+    end
+
+
 end
 
 
@@ -500,28 +592,56 @@ local function drawPlotCells(node, snapshot)
     local perRow = layout.farm.perRow
     local cellSize = layout.farm.size
     local gap = layout.farm.gap
-    local origin = GUI:Node_Create(node, 'farm_grid', layout.farm.x, layout.farm.y)
+    local origin = GUI:Node_Create(node, 'farm_grid', 0, 0)
     GUI:setAnchorPoint(origin, 0.5, 0.5)
-    local title = GUI:Text_Create(origin, 'farm_title', 0, cellSize + 40, 20, colors.primary, '菜园九宫格')
-    GUI:setAnchorPoint(title, 0.5, 0)
-    GUI:Text_enableOutline(title, '#1d0f09', 1)
+
+    local Pos = {
+        {0,90,0.4,-2,-2},
+        {-120,45,0.4,0,-2},
+        {120,45,0.4,-2,0},
+        {-240,0,0.4,2,0},
+        {0,0,0.4,0,0},
+        {240,0,0.4,0,2},
+        {-120,-45,0.4,2,4},
+        {120,-45,0.4,4,2},
+        {0,-90,0.4,4,4},
+    }
+
+
+
+    -- local title = GUI:Text_Create(origin, 'farm_title', 0, cellSize + 40, 20, colors.primary, '菜园九宫格')
+    -- GUI:Text_enableOutline(title, '#1d0f09', 1)
     local state = ensureState()
     for i = 1, gridSize do
         local row = math.floor((i - 1) / perRow)
         local col = (i - 1) % perRow
         local x = (col - 1) * (cellSize + gap)
         local y = -(row) * (cellSize + gap)
-        local btn = GUI:Button_Create(origin, 'plot_btn_' .. i, x, y, 'res/public/1900000660.png')
+        local itme = GUI:Node_Create(origin, 'itme'.. i, Pos[i][1], Pos[i][2] - 50)
+
+        local Layout = GUI:Layout_Create(itme, "Layout"..i, 0, 0, 100, 100)
+        GUI:setAnchorPoint(Layout, 0.5, 0.5)
+
+        local btn = GUI:Button_Create(Layout, 'plot_btn_' .. i, 50, 50, 'res/public/1900000660.png')
+        GUI:setRotation(btn,45)
         GUI:setAnchorPoint(btn, 0.5, 0.5)
-        GUI:setContentSize(btn, cellSize, cellSize)
+        GUI:setContentSize(btn, cellSize + Pos[i][4], cellSize + Pos[i][5] + Pos[i][5])
+
+        GUI:setScaleY(Layout, Pos[i][3])
+
+
         local plot = fields[i] or {state = 'empty', gridId = i}
         local status, tip = describePlot(plot)
         local content = string.format('<font size="18" color="#ffe9c2">地块%s</font><br/><font size="16" color="#9fe9ff">%s</font><br/><font size="14" color="#c8ffb4">%s</font>', i, status, tip)
-        NPC_UI_HELPER.createRichText(btn, 'plot_text_' .. i, 0, 0, content, {width = cellSize - 10, height = 20, anchor = {x = 0.5, y = 0.5}})
+        NPC_UI_HELPER.createRichText(itme, 'plot_text_' .. i, 0, 0, content, {width = cellSize - 10, height = 20, anchor = {x = 0.5, y = 0.5}})
         if state.selectedPlot == i then
-            GUI:Button_setBright(btn, false)
+            -- GUI:Button_setBright(btn, false)
+            local guang = GUI:Image_Create(btn, "guang", GUI:getContentSize(btn).width/2, GUI:getContentSize(btn).height/2, "res/wy/public/itembg.png")
+            GUI:setAnchorPoint(guang, 0.5, 0.5)
+            GUI:setContentSize(guang, GUI:getContentSize(btn).width + 20, GUI:getContentSize(btn).height + 20)
         else
-            GUI:Button_setBright(btn, true)
+            -- GUI:Button_setBright(btn, true)
+            GUI:removeChildByName(btn, "guang")
         end
         GUI:addOnClickEvent(btn, function()
             local s = ensureState()
@@ -534,11 +654,8 @@ end
 -- 地块详情 + 播种/收获操作提示。
 local function drawPlotDetail(node, snapshot, npcid)
     local state = ensureState()
-    local panel = GUI:Node_Create(node, 'farm_detail', layout.farmDetail.x, layout.farmDetail.y)
-    GUI:setAnchorPoint(panel, 0, 1)
-    local title = GUI:Text_Create(panel, 'farm_detail_title', 0, 0, 20, colors.primary, '地块详情')
-    GUI:setAnchorPoint(title, 0, 1)
-    GUI:Text_enableOutline(title, '#1d0f09', 1)
+    local panel = GUI:ui_delegate(GUI:ui_delegate(node).under_img).btn_list_img
+
     local player = snapshot.player or {}
     local fields = player.fields or {}
     local selected = math.max(1, math.min(state.selectedPlot or 1, npc._config.gridSize or 9))
@@ -547,52 +664,58 @@ local function drawPlotDetail(node, snapshot, npcid)
     local plantCfg = snapshot.cfg and snapshot.cfg.plant or {}
     local stealableName, safeName = pickStealTipNames(plantCfg)
     local status, tip = describePlot(plot)
-    local detailText = string.format('地块 %s｜状态：%s｜提示：%s', selected, status, tip)
-    NPC_UI_HELPER.createRichText(panel, 'farm_detail_text', 0, -28, detailText, {width = 360, height = 40, anchor = {x = 0, y = 1}})
-    local seedLabel = cfg and cfg.name or (plot.state == 'empty' and '未播种' or '未知种子')
-    local rewardText = summarizeProduct(plot.product)
-    local harvestInfo = string.format('作物：%s', seedLabel)
-    if rewardText ~= '' then
-        harvestInfo = harvestInfo .. string.format('｜奖励：%s', rewardText)
-    end
-    if plot.state == 'growing' and plot.finishAt then
-        harvestInfo = harvestInfo .. string.format('｜成熟倒计时：%s', formatSeconds((plot.finishAt or 0) - serverNow()))
-    end
-    if plot.state == 'mature' then
-        local theftTip = nil
-        if cfg then
-            if cfg.canSteal then
-                theftTip = string.format('%s成熟后请尽快收取，超时可被偷。', cfg.name or '灵草')
-            else
-                theftTip = string.format('%s成熟不可偷，安心收获。', cfg.name or '灵草')
-            end
-        elseif stealableName then
-            theftTip = string.format('%s成熟后请尽快收取，超时可被偷。', stealableName)
-        end
-        if theftTip then
-            harvestInfo = harvestInfo .. '\n' .. theftTip
-        end
-    elseif plot.state == 'empty' then
-        local baseTip
-        if stealableName and safeName then
-            baseTip = string.format('%s成熟未收会被偷，%s成熟不可偷。', stealableName, safeName)
-        elseif stealableName then
-            baseTip = string.format('%s成熟未收会被偷。', stealableName)
-        elseif safeName then
-            baseTip = string.format('%s成熟不可偷。', safeName)
-        else
-            baseTip = '请及时收获成熟灵草，避免损失。'
-        end
-        harvestInfo = harvestInfo .. '\n' .. baseTip
-    end
-    NPC_UI_HELPER.createRichText(panel, 'farm_detail_desc', 0, -64, harvestInfo, {width = 360, height = 60, anchor = {x = 0, y = 1}})
+    
+    -- local title = GUI:Text_Create(panel, 'farm_detail_title', 0, 0, 20, colors.primary, '地块详情')
+    -- GUI:setAnchorPoint(title, 0, 1)
+    -- GUI:Text_enableOutline(title, '#1d0f09', 1)
+    
+    -- local detailText = string.format('地块 %s｜状态：%s｜提示：%s', selected, status, tip)
+    -- NPC_UI_HELPER.createRichText(panel, 'farm_detail_text', 0, -28, detailText, {width = 360, height = 40, anchor = {x = 0, y = 1}})
+    -- local seedLabel = cfg and cfg.name or (plot.state == 'empty' and '未播种' or '未知种子')
+    -- local rewardText = summarizeProduct(plot.product)
+    -- local harvestInfo = string.format('作物：%s', seedLabel)
+    -- if rewardText ~= '' then
+    --     harvestInfo = harvestInfo .. string.format('｜奖励：%s', rewardText)
+    -- end
+    -- if plot.state == 'growing' and plot.finishAt then
+    --     harvestInfo = harvestInfo .. string.format('｜成熟倒计时：%s', formatSeconds((plot.finishAt or 0) - serverNow()))
+    -- end
+    -- if plot.state == 'mature' then
+    --     local theftTip = nil
+    --     if cfg then
+    --         if cfg.canSteal then
+    --             theftTip = string.format('%s成熟后请尽快收取，超时可被偷。', cfg.name or '灵草')
+    --         else
+    --             theftTip = string.format('%s成熟不可偷，安心收获。', cfg.name or '灵草')
+    --         end
+    --     elseif stealableName then
+    --         theftTip = string.format('%s成熟后请尽快收取，超时可被偷。', stealableName)
+    --     end
+    --     if theftTip then
+    --         harvestInfo = harvestInfo .. '\n' .. theftTip
+    --     end
+    -- elseif plot.state == 'empty' then
+    --     local baseTip
+    --     if stealableName and safeName then
+    --         baseTip = string.format('%s成熟未收会被偷，%s成熟不可偷。', stealableName, safeName)
+    --     elseif stealableName then
+    --         baseTip = string.format('%s成熟未收会被偷。', stealableName)
+    --     elseif safeName then
+    --         baseTip = string.format('%s成熟不可偷。', safeName)
+    --     else
+    --         baseTip = '请及时收获成熟灵草，避免损失。'
+    --     end
+    --     harvestInfo = harvestInfo .. '\n' .. baseTip
+    -- end
+    -- NPC_UI_HELPER.createRichText(panel, 'farm_detail_desc', 0, -64, harvestInfo, {width = 360, height = 60, anchor = {x = 0, y = 1}})
 
     local guestMode = isGuestMode()
     if guestMode then
         local guestTarget = getGuestTargetName()
         NPC_UI_HELPER.createRichText(panel, 'farm_guest_tip', 0, -100, '拜访模式仅可偷取成熟灵草，无法播种/收获。', {width = 360, height = 40, anchor = {x = 0, y = 1}, color = colors.warning})
         local canSteal = canPlotBeStolen(plot)
-        local btn = NPC_UI_HELPER.createPrimaryButton(panel, 'guest_steal_btn', 120, -140, '偷取', function()
+        -- '偷取'
+        local btn = NPC_UI_HELPER.createPrimaryButton(panel, 'guest_steal_btn', 245, -10, '', function()
             if not guestTarget or guestTarget == '' then
                 state.lastMessage = '拜访对象无效，请返回自宅后重试'
                 npc.render()
@@ -604,44 +727,86 @@ local function drawPlotDetail(node, snapshot, npcid)
                 return
             end
             sendAction(npcid, 'steal', {targetName = guestTarget, gridId = plot.gridId or selected})
-        end)
-        GUI:setAnchorPoint(btn, 0, 0.5)
+        end,{skin = "res/custom/three_city/xianfu/btn/l/6.png",Disabled_skin = "res/custom/three_city/xianfu/btn/n/6.png"})
+        GUI:setAnchorPoint(btn, 0.5, 0)
         if not canSteal then
             GUI:Button_setBright(btn, false)
         end
         return
     end
 
-    local buttonY = -130
-    local function createActionButton(name, x, text, callback, enabled)
-        local btn = NPC_UI_HELPER.createPrimaryButton(panel, name, x, buttonY, text, callback)
+    local buttonY = -10
+    local function createActionButton(name, x, text, callback, enabled,opts)
+        local btn = NPC_UI_HELPER.createPrimaryButton(panel, name, x, buttonY, text, callback,opts)
         if enabled == false then
             GUI:Button_setBright(btn, false)
         end
         return btn
     end
 
-    if plot.state == 'empty' then
-        createActionButton('btn_seed_low', 0, '播种·低阶', function()
-            sendAction(npcid, 'plant', {gridId = plot.gridId or selected, seedId = 'Low'})
-        end, true)
-        createActionButton('btn_seed_high', 150, '播种·高阶', function()
-            sendAction(npcid, 'plant', {gridId = plot.gridId or selected, seedId = 'High'})
-        end, true)
-    elseif plot.state == 'mature' then
-        local canHarvest = hasProductReward(plot.product)
-        createActionButton('btn_harvest', 0, '收获', function()
-            sendAction(npcid, 'harvest', {gridId = plot.gridId or selected})
-        end, canHarvest)
+    if plot.state == 'empty' or true then
+
+        
+        local btn_seed = GUI:Image_Create(panel, "btn_seed", 100, buttonY, "res/custom/three_city/xianfu/btn/"..(plot.state == 'empty' and "l" or "n").."/8.png")
+        GUI:setAnchorPoint(btn_seed, 0.5, 0)
+        if plot.state == 'empty' then
+        local seeds = player.seeds or {}
+        local shop = (snapshot.cfg and snapshot.cfg.shop) or {}
+        local seedList = shop.seeds or {}
+        local plantList = buildPlantList(plantCfg)
+        local herbs = player.herbs or {}
+
+
+        if #plantList == 0 then
+            local emptyTip = GUI:Text_Create(btn_seed, 'inventory_herb_empty', -170, y, 18, colors.warning, '暂无灵草配置')
+            GUI:setAnchorPoint(emptyTip, 0, 0.5)
+        else
+            for idx, entry in ipairs(seedList) do
+
+                local kuang = GUI:Image_Create(btn_seed, "btn_seed"..idx, 0 + (idx - 1)*83, 150, "res/wy/public/70_70_k.png")
+                local item = GUI:ItemShow_Create(kuang, "item", 35, 35, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME",entry.name), count = seeds[entry.seed] or 0, look = true, bgVisible = false })
+                GUI:setAnchorPoint(item, 0.5, 0.5)
+                GUI:ItemShow_addReplaceClickEvent(item, function()
+                    if idx == 1 then
+                        sendAction(npcid, 'plant', {gridId = plot.gridId or selected, seedId = 'Low'})
+                    elseif idx == 2 then
+                        sendAction(npcid, 'plant', {gridId = plot.gridId or selected, seedId = 'High'})
+                    end
+
+                end)
+                
+            end
+        end
+
+            
+            -- kuang = GUI:Image_Create(btn_seed, "btn_seed_high", 83, 150, "res/wy/public/70_70_k.png")
+
+            -- NPC_UI_HELPER.createPrimaryButton(btn_seed, 'btn_seed_low', -100, 80, '播种·低阶', function()
+            --     sendAction(npcid, 'plant', {gridId = plot.gridId or selected, seedId = 'Low'})
+            -- end)
+            -- NPC_UI_HELPER.createPrimaryButton(btn_seed, 'btn_seed_high', -100, 30, '播种·高阶', function()
+            --     sendAction(npcid, 'plant', {gridId = plot.gridId or selected, seedId = 'High'})
+            -- end)
+        end
+
+
     elseif plot.state == 'growing' then
-        createActionButton('btn_acc', 0, '加速（敬请期待）', function()
-            local s = ensureState()
-            s.lastMessage = '加速功能预留，暂未开放。'
-            s.lastActionOk = false
-            npc.render()
-        end, false)
+        -- createActionButton('btn_acc', 0, '加速（敬请期待）', function()
+        --     local s = ensureState()
+        --     s.lastMessage = '加速功能预留，暂未开放。'
+        --     s.lastActionOk = false
+        --     npc.render()
+        -- end, false)
     else
-        createActionButton('btn_idle', 0, '等待中', nil, false)
+        -- createActionButton('btn_idle', 0, '等待中', nil, false)
+    end
+
+    if plot.state == 'mature' or true then
+        local canHarvest = hasProductReward(plot.product)
+        local btn = createActionButton('btn_harvest', 245, '', function()
+            sendAction(npcid, 'harvest', {gridId = plot.gridId or selected})
+        end, canHarvest,{skin = "res/custom/three_city/xianfu/btn/l/5.png",Disabled_skin = "res/custom/three_city/xianfu/btn/n/5.png"})
+        GUI:setAnchorPoint(btn, 0.5, 0)
     end
 end
 
@@ -848,215 +1013,801 @@ local function drawQuickActions(node, snapshot, npcid, selfSnapshot)
     NPC_UI_HELPER.createRichText(panel, 'quick_tip_like', 0, -40, likeTip, {width = 520, height = 18, anchor = {x = 0.5, y = 1}, color = colors.detail})
 end
 
-local function drawVisitorLog(node, snapshot)
-    local panel = GUI:Node_Create(node, 'visitor_panel', layout.visitor.x, layout.visitor.y)
-    GUI:setAnchorPoint(panel, 0.5, 0.5)
-    local title = GUI:Text_Create(panel, 'visitor_title', 0, 80, 20, colors.primary, '访客石')
-    GUI:setAnchorPoint(title, 0.5, 0)
-    GUI:Text_enableOutline(title, '#1d0f09', 1)
-    local logs = ((snapshot.player or {}).visitor or {}).log or {}
-    local lines = {}
-    local actionLabel = {like = '点赞', steal = '偷菜', visit = '拜访'}
-    for index, entry in ipairs(logs) do
-        if index > 6 then
-            break
+local function drawVisitorLog(node, snapshot, npcid)
+    local function GUI_Visitor_createLabel(Label_node)
+        GUI:removeAllChildren(Label_node)
+
+        local logs = ((snapshot.player or {}).visitor or {}).log or {}
+        local lines = {}
+        local actionLabel = {like = '点赞', steal = '偷菜', visit = '拜访'}
+        --SL:dump(logs,"logslogslogslogslogslogslogslogs")
+
+        local ScrollView = GUI:ScrollView_Create(Label_node, "ScrollView", 30,15, 330, 330, 1)
+        GUI:ScrollView_setBounceEnabled(ScrollView, true)
+        GUI:ScrollView_setInnerContainerSize(ScrollView, 330, ((30) * math.ceil(#logs)) > 330 and ((30) * math.ceil(#logs)) or 330)
+        local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 0,0, 330, ((30) * math.ceil(#logs)) > 330 and ((30) * math.ceil(#logs)) or 330)
+        for index, entry in ipairs(logs) do
+            local kuang = GUI:Image_Create(dbLayout, "kuang"..index, 0, 0.00, "res/custom/three_city/xianfu/baifang/Visitor/k"..(index%2 == 1 and 1 or 2)..".png")
+            local timeText = os.date('%H:%M', (entry.time or 0))
+            local actionText = actionLabel[entry.action] or (entry.action or '')
+            local detail = entry.detail or ''
+            GUI:Text_Create(kuang, "wz",40, 6, 16, "#00FB00", string.format('[%s] %s %s %s', timeText, entry.from or '??', actionText, detail))
         end
-        local timeText = os.date('%H:%M', (entry.time or 0))
-        local actionText = actionLabel[entry.action] or (entry.action or '')
-        local detail = entry.detail or ''
-        lines[#lines + 1] = string.format('[%s] %s %s %s', timeText, entry.from or '??', actionText, detail)
+        if #logs == 0 then
+            local kuang = GUI:Image_Create(dbLayout, "kuang", 0, 0.00, "res/custom/three_city/xianfu/baifang/Visitor/k2.png")
+            GUI:Text_Create(kuang, "wz",40, 3, 18, "#00FB00", '暂无访客记录')
+
+        end
+        GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 1,gap = {x=0, y=0}})
+
+
+        local btn = NPC_UI_HELPER.createPrimaryButton(Label_node, 'btn_rank', 550, 80, "", function()
+            npc.xxjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
+                windowName = "npc_anniu_44_xxjm",
+                overlay = {skin = "res/custom/treasureBasin/x.png"},
+                background = {skin = "res/custom/three_city/xianfu/baifang/rank/bg.png"},
+                closeButton = {x = 300 + 504, y = 180 + 140 + 119, skin = "res/wy/public/close_red_big.png"},
+            })
+            npc.xxjm_node = npc.xxjm_window.node
+            npc.xx_Label = GUI:Node_Create(npc.xxjm_node, "Label", 0, 0)
+            local list = snapshot.rank or {}
+
+
+            local ScrollView = GUI:ScrollView_Create(npc.xx_Label, "ScrollView", 45 + 55, 40 + 100, 736, 295, 1)
+            GUI:ScrollView_setBounceEnabled(ScrollView, true)
+            GUI:ScrollView_setInnerContainerSize(ScrollView, 736, ((38) * math.ceil(#list)) > (295) and ((38) * math.ceil(#list)) or (295))
+            local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 10,0, 736, (((38) * math.ceil(#list)) > 295 and ((38) * math.ceil(#list)) or 295))
+
+            --SL:dump(list,"listlistlistlistlistlistlistlist")
+            if #list == 0 then
+                local kuang = GUI:Image_Create(dbLayout, "kuang"..k, 0, 0, "res/custom/three_city/xianfu/baifang/rank/k1.png")
+                GUI:Text_Create(kuang, 'rank_empty', 0, 20, 18, colors.muted, '暂无排行数据')
+
+                return
+            end
+            for i, entry in ipairs(list) do
+                if i > 10 then
+                    break
+                end
+                local kuang = GUI:Image_Create(dbLayout, "kuang"..i, 0, 0, "res/custom/three_city/xianfu/baifang/rank/k"..(i%2 == 1 and 1 or 2)..".png")
+
+                local color = (i == 1) and colors.warning or colors.primary
+
+                GUI:setAnchorPoint(GUI:Text_Create(kuang, 'i', 60, 19, 18, color, tostring(i)), 0.5, 0.5)
+                GUI:setAnchorPoint(GUI:Text_Create(kuang, 'name', 266, 19, 18, color, tostring(entry.name)), 0.5, 0.5)
+                GUI:setAnchorPoint(GUI:Text_Create(kuang, 'value', 640, 19, 18, color, tostring(entry.value or 0)), 0.5, 0.5)
+                GUI:setAnchorPoint(GUI:Text_Create(kuang, 'likenum', 480, 19, 18, color, tostring(entry.likenum or 0)), 0.5, 0.5)
+            
+
+            end
+            GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 1,gap = {x=0, y=0}})
+
+        end,{skin = "res/custom/three_city/xianfu/baifang/Visitor/btn_rank.png"})
+        GUI:setAnchorPoint(btn, 0.5, 0.5)
+
     end
-    if #lines == 0 then
-        lines[1] = '暂无访客记录'
-    end
-    local content = table.concat(lines, '\n') .. '\n最多保留30条，自动滚动。'
-    NPC_UI_HELPER.createRichText(panel, 'visitor_text', 0, 40, content, {width = 520, height = 20, anchor = {x = 0.5, y = 1}, color = colors.primary})
+
+    
+
+    npc.xjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
+        windowName = "npc_anniu_44_xjm",
+        overlay = {skin = "res/custom/treasureBasin/x.png"},
+        background = {skin = "res/custom/three_city/xianfu/baifang/Visitor/bg.png"},
+        closeButton = {x = 330 + 220 + 170, y = 180 + 180 + 50, skin = "res/wy/public/close_red_big.png"},
+    })
+    npc.xjm_node = npc.xjm_window.node
+    npc.xjm_Label = GUI:Node_Create(npc.xjm_node, "Label", 0, 0)
+
+    
+    GUI_Visitor_createLabel(npc.xjm_Label)
+
+    SL:RegisterLUAEvent(LUA_EVENT_CLOSEWIN, "关闭界面", function(self)
+        if self == "npc_anniu_44_xjm"  then
+            SL:UnRegisterLUAEvent(LUA_EVENT_CLOSEWIN, "关闭界面")
+            local s = ensureState()
+            if s.menuTab ~= "farm" then
+                s.menuTab = "farm"
+                npc.render()
+            end
+        end
+    end)
+    -- local panel = GUI:Node_Create(node, 'visitor_panel', layout.visitor.x, layout.visitor.y)
+    -- GUI:setAnchorPoint(panel, 0.5, 0.5)
+    -- local title = GUI:Text_Create(panel, 'visitor_title', 0, 80, 20, colors.primary, '访客石')
+    -- GUI:setAnchorPoint(title, 0.5, 0)
+    -- GUI:Text_enableOutline(title, '#1d0f09', 1)
+    -- local logs = ((snapshot.player or {}).visitor or {}).log or {}
+    -- local lines = {}
+    -- local actionLabel = {like = '点赞', steal = '偷菜', visit = '拜访'}
+    -- for index, entry in ipairs(logs) do
+    --     if index > 6 then
+    --         break
+    --     end
+    --     local timeText = os.date('%H:%M', (entry.time or 0))
+    --     local actionText = actionLabel[entry.action] or (entry.action or '')
+    --     local detail = entry.detail or ''
+    --     lines[#lines + 1] = string.format('[%s] %s %s %s', timeText, entry.from or '??', actionText, detail)
+    -- end
+    -- if #lines == 0 then
+    --     lines[1] = '暂无访客记录'
+    -- end
+    -- local content = table.concat(lines, '\n') .. '\n最多保留30条，自动滚动。'
+    -- NPC_UI_HELPER.createRichText(panel, 'visitor_text', 0, 40, content, {width = 520, height = 20, anchor = {x = 0.5, y = 1}, color = colors.primary})
 end
 
 local shopTabs = {
     {id = 'seeds', label = '种子'},
-    {id = 'eggs', label = '灵蛋'},
     {id = 'materials', label = '材料'},
+    {id = 'eggs', label = '灵蛋'},
     {id = 'decorate', label = '装扮'},
 }
+local shapeTabs = {
+    {id = 'statue', label = '种子'},
+    {id = 'cave', label = '材料'},
+    {id = 'welcome', label = '灵蛋'},
+    {id = 'spring', label = '装扮'},
+    {id = 'wall', label = '装扮'},
+}
+
+
 
 -- ===== 商城与装扮 =====
 local function drawShop(node, snapshot, npcid)
-    local panel = GUI:Node_Create(node, 'shop_panel', layout.shop.x, layout.shop.y)
-    GUI:setAnchorPoint(panel, 0.5, 0.5)
-    local title = GUI:Text_Create(panel, 'shop_title', 0, 120, 20, colors.primary, '商城 / 装扮')
-    GUI:setAnchorPoint(title, 0.5, 0)
-    GUI:Text_enableOutline(title, '#1d0f09', 1)
-    if isGuestMode() then
-        NPC_UI_HELPER.createRichText(panel, 'shop_guest_tip', 0, 60, '拜访模式不可进入商城，请返回自宅后再试。', {width = 360, height = 40, anchor = {x = 0.5, y = 1}, color = colors.warning})
-        return
-    end
-    local state = ensureState()
-    for idx, tab in ipairs(shopTabs) do
-        local btn = NPC_UI_HELPER.createPrimaryButton(panel, 'shop_tab_' .. tab.id, -150 + (idx - 1) * 100, 90, tab.label, function()
-            state.shopTab = tab.id
-            npc.render()
-        end)
-        GUI:Button_setBright(btn, state.shopTab ~= tab.id)
-    end
 
-    local rows = {}
-    local cfg = snapshot.cfg or {}
-    local player = snapshot.player or {}
-    local tabId = state.shopTab
-    if tabId == 'seeds' then
-        for _, entry in ipairs(cfg.shop and cfg.shop.seeds or {}) do
-            local plant = (cfg.plant or {})[entry.seed]
-            local canSteal = plant and plant.canSteal and '可偷' or '不可偷'
-            local reward = summarizeProduct(plant and plant.product)
-            local desc = string.format('成熟：%s｜奖励：%s｜%s', formatSeconds((plant and plant.matureTime) or 0), reward ~= '' and reward or '—', canSteal)
-            rows[#rows + 1] = {
-                name = entry.name,
-                desc = string.format('%s｜价格：%s', desc, formatCost(entry.cost)),
-                button = '购买',
-                callback = function()
-                    sendAction(npcid, 'buySeed', {id = entry.id, amount = 1})
-                end,
-            }
+    local function GUI_Shop_createLabel(Label_node,titles_sign)
+        GUI:removeAllChildren(Label_node)
+        if shopTabs[titles_sign] == nil then
+            return
         end
-    elseif tabId == 'eggs' then
-        for _, entry in ipairs(cfg.shop and cfg.shop.eggs or {}) do
-            local eggCfg = (cfg.pet and cfg.pet.eggs) and cfg.pet.eggs[entry.id]
-            local beast = eggCfg and eggCfg.beast or {}
-            local desc = string.format('灵兽：%s｜上限：%s级｜价格：%s', beast.type or '--', formatNumber(beast.maxLevel or 1), formatCost(entry.cost))
-            rows[#rows + 1] = {
-                name = entry.name,
-                desc = desc,
-                button = '购买',
-                callback = function()
-                    sendAction(npcid, 'buyEgg', {id = entry.id, amount = 1})
-                end,
-            }
-        end
-    elseif tabId == 'materials' then
-        for _, entry in ipairs(cfg.shop and cfg.shop.materials or {}) do
-            local desc = string.format('宠物养成材料｜价格：%s', formatCost(entry.cost))
-            rows[#rows + 1] = {
-                name = entry.name,
-                desc = desc,
-                button = '购买',
-                callback = function()
-                    sendAction(npcid, 'buyMaterial', {id = entry.id, amount = 1})
-                end,
-            }
-        end
-    elseif tabId == 'decorate' then
-        local owned = ((player.decoration or {}).owned) or {}
-        local equipped = (player.decoration or {}).equipped
-        for _, entry in ipairs(safePairs(cfg.decorate or {})) do
-            local own = owned[entry.id]
-            local status
-            local button
-            local callback
-            if own then
-                if equipped == entry.id then
-                    status = '已佩戴'
+
+        local cfg = snapshot.cfg or {}
+        local player = snapshot.player or {}
+
+        if shopTabs[titles_sign].id == 'seeds' then
+            local config = cfg.shop and cfg.shop.seeds or {}
+
+            GUI:Image_Create(Label_node, "wz1", 550, 20, "res/custom/one_city/shape/wz1.png")
+
+
+            local ScrollView = GUI:ScrollView_Create(Label_node, "ScrollView", 40, 0, 670, 440, 1)
+            GUI:ScrollView_setBounceEnabled(ScrollView, true)
+            GUI:ScrollView_setInnerContainerSize(ScrollView, 670, ((180 + 20) * math.ceil(#config/3)) > 440 and ((180 + 20) * math.ceil(#config/3)) or 440)
+            local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 0,0, 670, ((180 + 20) * math.ceil(#config/3)) > 440 and ((180 + 20) * math.ceil(#config/3)) or 440)
+            for k,v in ipairs(config) do
+                local kuang = GUI:Image_Create(dbLayout, "kuang"..k, 0, 0.00, "res/custom/three_city/xianfu/shop/kuang.png")
+                local wz5 = GUI:Text_Create(kuang, "wz5",142/2, 162, 18, "#FF0000", v.name)
+                GUI:setAnchorPoint(wz5, 0.5, 0.5)
+
+                local cost = GUI:RichText_Create(kuang, "cost", 142/2, 50,  ItemNumByTable(v.cost), 500, 18, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+                GUI:setAnchorPoint(cost, 0.5, 0.5)
+                
+                GUI:setAnchorPoint(GUI:ItemShow_Create(kuang, "item", 70, 118, {index= SL:GetMetaValue("ITEM_INDEX_BY_NAME",v.seed),count = 1,look= true})
+                , 0.5, 0.5)
+
+                local btn = NPC_UI_HELPER.createPrimaryButton(kuang, 'btn', 142/2, 18, "", function()
+                    sendAction(npcid, 'buySeed', {id = v.id, amount = 1})
+                end,{skin = "res/custom/three_city/xianfu/shop/btn.png"})
+                GUI:setAnchorPoint(btn, 0.5, 0.5)
+                    
+            end
+            GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 3,gap = {x=30, y=20}})
+        elseif shopTabs[titles_sign].id == 'materials' then
+            -- 材料 
+            local config = cfg.shop and cfg.shop.materials or {}
+
+            GUI:Image_Create(Label_node, "wz1", 550, 20, "res/custom/one_city/shape/wz1.png")
+
+
+            local ScrollView = GUI:ScrollView_Create(Label_node, "ScrollView", 40, 0, 670, 440, 1)
+            GUI:ScrollView_setBounceEnabled(ScrollView, true)
+            GUI:ScrollView_setInnerContainerSize(ScrollView, 670, ((180 + 20) * math.ceil(#config/3)) > 440 and ((180 + 20) * math.ceil(#config/3)) or 440)
+            local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 0,0, 670, ((180 + 20) * math.ceil(#config/3)) > 440 and ((180 + 20) * math.ceil(#config/3)) or 440)
+            for k,v in ipairs(config) do
+                local kuang = GUI:Image_Create(dbLayout, "kuang"..k, 0, 0.00, "res/custom/three_city/xianfu/shop/kuang.png")
+                local wz5 = GUI:Text_Create(kuang, "wz5",142/2, 162, 18, "#FF0000", v.name)
+                GUI:setAnchorPoint(wz5, 0.5, 0.5)
+
+                local cost = GUI:RichText_Create(kuang, "cost", 142/2, 50,  ItemNumByTable(v.cost), 500, 18, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+                GUI:setAnchorPoint(cost, 0.5, 0.5)
+                
+                GUI:setAnchorPoint(GUI:ItemShow_Create(kuang, "item", 70, 118, {index= SL:GetMetaValue("ITEM_INDEX_BY_NAME",v.seed),count = 1,look= true})
+                , 0.5, 0.5)
+
+                local btn = NPC_UI_HELPER.createPrimaryButton(kuang, 'btn', 142/2, 18, "", function()
+                    sendAction(npcid, 'buyMaterial', {id = v.id, amount = 1})
+                end,{skin = "res/custom/three_city/xianfu/shop/btn.png"})
+                GUI:setAnchorPoint(btn, 0.5, 0.5)
+                    
+            end
+            GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 3,gap = {x=30, y=20}})
+        elseif shopTabs[titles_sign].id == 'eggs' then
+            -- 蛋类 
+            local config = cfg.shop and cfg.shop.eggs or {}
+
+            GUI:Image_Create(Label_node, "wz1", 550, 20, "res/custom/one_city/shape/wz1.png")
+
+
+            local ScrollView = GUI:ScrollView_Create(Label_node, "ScrollView", 40, 0, 670, 440, 1)
+            GUI:ScrollView_setBounceEnabled(ScrollView, true)
+            GUI:ScrollView_setInnerContainerSize(ScrollView, 670, ((180 + 20) * math.ceil(#config/3)) > 440 and ((180 + 20) * math.ceil(#config/3)) or 440)
+            local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 0,0, 670, ((180 + 20) * math.ceil(#config/3)) > 440 and ((180 + 20) * math.ceil(#config/3)) or 440)
+            for k,v in ipairs(config) do
+                local kuang = GUI:Image_Create(dbLayout, "kuang"..k, 0, 0.00, "res/custom/three_city/xianfu/shop/kuang.png")
+                local wz5 = GUI:Text_Create(kuang, "wz5",142/2, 162, 18, "#FF0000", v.name)
+                GUI:setAnchorPoint(wz5, 0.5, 0.5)
+
+                local cost = GUI:RichText_Create(kuang, "cost", 142/2, 50,  ItemNumByTable(v.cost), 500, 18, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+                GUI:setAnchorPoint(cost, 0.5, 0.5)
+                
+                GUI:setAnchorPoint(GUI:ItemShow_Create(kuang, "item", 70, 118, {index= SL:GetMetaValue("ITEM_INDEX_BY_NAME",v.seed),count = 1,look= true})
+                , 0.5, 0.5)
+
+                local btn = NPC_UI_HELPER.createPrimaryButton(kuang, 'btn', 142/2, 18, "", function()
+                    sendAction(npcid, 'buyEgg', {id = v.id, amount = 1})
+                end,{skin = "res/custom/three_city/xianfu/shop/btn.png"})
+                GUI:setAnchorPoint(btn, 0.5, 0.5)
+                    
+            end
+            GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 3,gap = {x=30, y=20}})
+        elseif shopTabs[titles_sign].id == 'decorate' then
+            -- 装扮
+            local config = safePairs(cfg.decorate or {})
+
+            GUI:Image_Create(Label_node, "wz1", 550, 20, "res/custom/one_city/shape/wz1.png")
+
+            local ScrollView = GUI:ScrollView_Create(Label_node, "ScrollView", 40, 0, 670, 440, 1)
+            GUI:ScrollView_setBounceEnabled(ScrollView, true)
+            GUI:ScrollView_setInnerContainerSize(ScrollView, 670, ((180 + 20) * math.ceil(#config/3)) > 440 and ((180 + 20) * math.ceil(#config/3)) or 440)
+            local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 0,0, 670, ((180 + 20) * math.ceil(#config/3)) > 440 and ((180 + 20) * math.ceil(#config/3)) or 440)
+
+            local owned = ((player.decoration or {}).owned) or {}
+            local equipped = (player.decoration or {}).equipped
+
+            for k,v in ipairs(config) do
+                local kuang = GUI:Image_Create(dbLayout, "kuang"..k, 0, 0.00, "res/custom/three_city/xianfu/shop/kuang.png")
+                local wz5 = GUI:Text_Create(kuang, "wz5",142/2, 162, 18, "#FF0000", string.format("%s +%s仙华", v.name or v.id or "装扮", formatNumber(v.xiangHua or 0)))
+                GUI:setAnchorPoint(wz5, 0.5, 0.5)
+
+                local costText = ItemNumByTable(v.cost)
+                local cost = GUI:RichText_Create(kuang, "cost", 142/2, 50, costText, 500, 18, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+                GUI:setAnchorPoint(cost, 0.5, 0.5)
+
+                -- 装扮不一定有物品条目，优先使用 icon 字段，其次尝试道具索引
+                if v.icon then
+                    local icon = GUI:Image_Create(kuang, "icon"..k, 70, 118, v.icon)
+                    GUI:setAnchorPoint(icon, 0.5, 0.5)
                 else
-                    button = '佩戴'
-                    callback = function()
-                        sendAction(npcid, 'equipDecoration', {decoId = entry.id})
+                    local index = SL:GetMetaValue("ITEM_INDEX_BY_NAME", v.item or v.id or "")
+                    if index then
+                        GUI:setAnchorPoint(GUI:ItemShow_Create(kuang, "item"..k, 70, 118, {index = index,count = 1,look= true}), 0.5, 0.5)
                     end
                 end
-            else
-                button = '购买'
-                callback = function()
-                    sendAction(npcid, 'buyDecoration', {decoId = entry.id})
+                local own = owned[""..v.id]
+                if own then
+                    
+                    GUI:setAnchorPoint(GUI:Image_Create(kuang, "ok", 142/2, 23, "res/wy/public/6.png")
+                    , 0.5, 0.5)
+                else
+                    local btn = NPC_UI_HELPER.createPrimaryButton(kuang, 'btn', 142/2, 18, "", 
+                        function()
+                            sendAction(npcid, 'buyDecoration', {decoId = v.id})
+                        end
+                    , {skin = "res/custom/three_city/xianfu/shop/btn.png"})
+                    GUI:setAnchorPoint(btn, 0.5, 0.5)
                 end
+
             end
-            rows[#rows + 1] = {
-                name = string.format('%s（+%s仙华）', entry.name, formatNumber(entry.xiangHua or 0)),
-                desc = string.format('价格：%s｜%s', formatCost(entry.cost), status or '装扮可永久增加仙华（装备时生效）'),
-                button = button,
-                status = status,
-                callback = callback,
-            }
+
+            GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 3,gap = {x=30, y=20}})
+        end
+
+    end
+
+    
+
+    npc.xjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
+        windowName = "npc_anniu_44_xjm",
+        overlay = {skin = "res/custom/treasureBasin/x.png"},
+        background = {skin = "res/custom/three_city/xianfu/shop/bg.png"},
+        title = {x = 56, y = 464, skin = "res/custom/three_city/xianfu/shop/title.png"},
+        closeButton = {x = 330 + 220 + 185, y = 180 + 180 + 103, skin = "res/wy/public/close_red_big.png"},
+    })
+    npc.xjm_node = npc.xjm_window.node
+
+    if isGuestMode() then
+        SL:ShowSystemTips("<font color='#FF0000'>拜访模式不可使用商城与装扮功能，请返回自宅后再尝试。</font>")
+        return
+    end
+
+    npc.cbl_list = GUI:ListView_Create(npc.xjm_node, "cbl_list", -5, 10, 170, 440, 1)
+    GUI:ListView_setGravity(npc.cbl_list, 1)
+    GUI:ListView_setItemsMargin(npc.cbl_list, 10)
+    npc.Label = GUI:Node_Create(npc.xjm_node, "Label", 170, 15)
+
+    npc.titles_sign = npc.titles_sign or 1
+    for i = 1, 4 do
+        local cbl_item = GUI:Button_Create(npc.cbl_list, "item" .. i, 0, 0, "res/custom/three_city/xianfu/shop/list/"..(npc.titles_sign == i and "l" or "n").."/"..i..".png")
+        -- GUI:Button_setTitleText(cbl_item, titles[i])
+        -- GUI:Button_setTitleFontSize(cbl_item, 14)
+        GUI:Image_Create(npc.cbl_list, "fgx"..i, 0, 0, "res/custom/fulitating/list/fgx.png")
+        GUI:addOnClickEvent(cbl_item, function()
+            GUI:Button_loadTextureNormal(GUI:ui_delegate(npc.cbl_list)["item" .. npc.titles_sign], "res/custom/three_city/xianfu/shop/list/n/"..npc.titles_sign..".png")
+            npc.titles_sign = i
+            GUI_Shop_createLabel(npc.Label,i)
+
+            GUI:Button_loadTextureNormal(GUI:ui_delegate(npc.cbl_list)["item" .. npc.titles_sign], "res/custom/three_city/xianfu/shop/list/l/"..npc.titles_sign..".png")
+        end)
+    end
+    GUI_Shop_createLabel(npc.Label,npc.titles_sign)
+
+    SL:RegisterLUAEvent(LUA_EVENT_CLOSEWIN, "关闭界面", function(self)
+        if self == "npc_anniu_44_xjm"  then
+            SL:UnRegisterLUAEvent(LUA_EVENT_CLOSEWIN, "关闭界面")
+            local s = ensureState()
+            if s.menuTab ~= "farm" then
+                s.menuTab = "farm"
+                npc.titles_sign = 1
+                npc.render()
+            end
+        end
+    end)
+
+
+    -- local panel = GUI:Node_Create(node, 'shop_panel', layout.shop.x, layout.shop.y)
+    -- GUI:setAnchorPoint(panel, 0.5, 0.5)
+    -- local title = GUI:Text_Create(panel, 'shop_title', 0, 120, 20, colors.primary, '商城 / 装扮')
+    -- GUI:setAnchorPoint(title, 0.5, 0)
+    -- GUI:Text_enableOutline(title, '#1d0f09', 1)
+
+    -- local state = ensureState()
+    -- for idx, tab in ipairs(shopTabs) do
+    --     local btn = NPC_UI_HELPER.createPrimaryButton(panel, 'shop_tab_' .. tab.id, -150 + (idx - 1) * 100, 90, tab.label, function()
+    --         state.shopTab = tab.id
+    --         npc.render()
+    --     end)
+    --     GUI:Button_setBright(btn, state.shopTab ~= tab.id)
+    -- end
+
+    -- local rows = {}
+    -- local cfg = snapshot.cfg or {}
+    -- local player = snapshot.player or {}
+    -- local tabId = state.shopTab
+    -- if tabId == 'seeds' then
+    --     for _, entry in ipairs(cfg.shop and cfg.shop.seeds or {}) do
+    --         local plant = (cfg.plant or {})[entry.seed]
+    --         local canSteal = plant and plant.canSteal and '可偷' or '不可偷'
+    --         local reward = summarizeProduct(plant and plant.product)
+    --         local desc = string.format('成熟：%s｜奖励：%s｜%s', formatSeconds((plant and plant.matureTime) or 0), reward ~= '' and reward or '—', canSteal)
+    --         rows[#rows + 1] = {
+    --             name = entry.name,
+    --             desc = string.format('%s｜价格：%s', desc, formatCost(entry.cost)),
+    --             button = '购买',
+    --             callback = function()
+    --                 sendAction(npcid, 'buySeed', {id = entry.id, amount = 1})
+    --             end,
+    --         }
+    --     end
+    -- elseif tabId == 'eggs' then
+    --     for _, entry in ipairs(cfg.shop and cfg.shop.eggs or {}) do
+    --         local eggCfg = (cfg.pet and cfg.pet.eggs) and cfg.pet.eggs[entry.id]
+    --         local beast = eggCfg and eggCfg.beast or {}
+    --         local desc = string.format('灵兽：%s｜上限：%s级｜价格：%s', beast.type or '--', formatNumber(beast.maxLevel or 1), formatCost(entry.cost))
+    --         rows[#rows + 1] = {
+    --             name = entry.name,
+    --             desc = desc,
+    --             button = '购买',
+    --             callback = function()
+    --                 sendAction(npcid, 'buyEgg', {id = entry.id, amount = 1})
+    --             end,
+    --         }
+    --     end
+    -- elseif tabId == 'materials' then
+    --     for _, entry in ipairs(cfg.shop and cfg.shop.materials or {}) do
+    --         local desc = string.format('宠物养成材料｜价格：%s', formatCost(entry.cost))
+    --         rows[#rows + 1] = {
+    --             name = entry.name,
+    --             desc = desc,
+    --             button = '购买',
+    --             callback = function()
+    --                 sendAction(npcid, 'buyMaterial', {id = entry.id, amount = 1})
+    --             end,
+    --         }
+    --     end
+    -- elseif tabId == 'decorate' then
+    --     local owned = ((player.decoration or {}).owned) or {}
+    --     local equipped = (player.decoration or {}).equipped
+    --     for _, entry in ipairs(safePairs(cfg.decorate or {})) do
+    --         local own = owned[entry.id]
+    --         local status
+    --         local button
+    --         local callback
+    --         if own then
+    --             if equipped == entry.id then
+    --                 status = '已佩戴'
+    --             else
+    --                 button = '佩戴'
+    --                 callback = function()
+    --                     sendAction(npcid, 'equipDecoration', {decoId = entry.id})
+    --                 end
+    --             end
+    --         else
+    --             button = '购买'
+    --             callback = function()
+    --                 sendAction(npcid, 'buyDecoration', {decoId = entry.id})
+    --             end
+    --         end
+    --         rows[#rows + 1] = {
+    --             name = string.format('%s（+%s仙华）', entry.name, formatNumber(entry.xiangHua or 0)),
+    --             desc = string.format('价格：%s｜%s', formatCost(entry.cost), status or '装扮可永久增加仙华（装备时生效）'),
+    --             button = button,
+    --             status = status,
+    --             callback = callback,
+    --         }
+    --     end
+    -- end
+
+    -- local startY = 60
+    -- for idx, row in ipairs(rows) do
+    --     local y = startY - (idx - 1) * 30
+    --     local nameLabel = GUI:Text_Create(panel, 'shop_row_name_' .. idx, -150, y, 18, colors.primary, row.name or '')
+    --     GUI:setAnchorPoint(nameLabel, 0, 0.5)
+    --     GUI:Text_enableOutline(nameLabel, '#1d0f09', 1)
+    --     local descLabel = GUI:Text_Create(panel, 'shop_row_desc_' .. idx, -150, y - 16, 16, colors.detail, row.desc or '')
+    --     GUI:setAnchorPoint(descLabel, 0, 0.5)
+    --     GUI:Text_enableOutline(descLabel, '#0d1b26', 1)
+    --     if row.button and row.callback then
+    --         local btn = NPC_UI_HELPER.createPrimaryButton(panel, 'shop_btn_' .. idx, 140, y - 8, row.button, row.callback)
+    --         GUI:setAnchorPoint(btn, 0, 0.5)
+    --     elseif row.status then
+    --         local statusLabel = GUI:Text_Create(panel, 'shop_status_' .. idx, 140, y - 8, 16, colors.warning, row.status)
+    --         GUI:setAnchorPoint(statusLabel, 0, 0.5)
+    --     end
+    -- end
+
+    -- NPC_UI_HELPER.createRichText(panel, 'shop_tip', 0, -80, '装扮可永久增加仙华值（装备时生效）', {width = 360, height = 18, anchor = {x = 0.5, y = 1}, color = colors.warning})
+end
+
+-- ===== 装扮 =====
+local function drawshape(node, snapshot, npcid)
+
+    local function GUI_Shop_createLabel(Label_node,titles_sign)
+        GUI:removeAllChildren(Label_node)
+        if shapeTabs[titles_sign] == nil then
+            return
+        end
+        local config = npc._config.DecorateplaceCfg[shapeTabs[titles_sign].id] or {}
+
+
+        GUI:Image_Create(Label_node, "wz1", 550, 100, "res/custom/one_city/shape/wz1.png")
+        local player = snapshot.player or {}
+
+        local owned = ((player.decoration or {}).owned) or {}
+        local equipped = (player.decoration or {}).equipped
+        -- --SL:dump(owned, "owned")
+        -- --SL:dump(equipped, "equipped")
+
+
+        local ScrollView = GUI:ScrollView_Create(Label_node, "ScrollView", 40, 0, 670, 440, 1)
+        GUI:ScrollView_setBounceEnabled(ScrollView, true)
+        GUI:ScrollView_setInnerContainerSize(ScrollView, 670, ((180 + 20) * math.ceil(#config.list/3)) > 440 and ((180 + 20) * math.ceil(#config.list/3)) or 440)
+        local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 0,0, 670, ((180 + 20) * math.ceil(#config.list/3)) > 440 and ((180 + 20) * math.ceil(#config.list/3)) or 440)
+        local num = 0
+        for k,v in ipairs(config.list) do
+            if owned[tostring(v)] == nil then
+                goto continue
+            end
+            num = num + 1
+            local kuang = GUI:Image_Create(dbLayout, "kuang"..k, 0, 0.00, "res/custom/three_city/xianfu/zhuangshi/kuang.png")
+            local itme = npc._config.DecorateCfg[v]
+            local wz5 = GUI:Text_Create(kuang, "wz5",145/2, 143, 16, "#FF0000", itme.name)
+            GUI:setAnchorPoint(wz5, 0.5, 0.5)
+
+            
+            GUI:setAnchorPoint(GUI:Text_Create(kuang, "xhz",145/2, 42, 16, "#FF0000", "+"..itme.xiangHua)
+            , 0.5, 0.5)
+            if equipped and equipped[shapeTabs[titles_sign].id] == tostring(v) then
+                local yifu = GUI:Image_Create(kuang, "yifu", 145/2, 18, "res/custom/three_city/xianfu/zhuangshi/new.png")
+                GUI:setAnchorPoint(yifu, 0.5, 0.5)
+            else
+                local btn = NPC_UI_HELPER.createPrimaryButton(kuang, 'btn', 145/2, 18, "", function()
+                    sendAction(npcid, 'equipDecoration', {decoId = v})
+                end,{skin = "res/custom/three_city/xianfu/zhuangshi/btn.png"})
+                GUI:setAnchorPoint(btn, 0.5, 0.5)
+            end
+            ::continue::
+        end
+        GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 3,gap = {x=30, y=20}})
+        if num == 0 then
+            local emptyTip = GUI:Text_Create(Label_node, 'empty_tip', 300, 200, 20, colors.warning, '暂无已拥有的装扮，快去商城购买吧！')
+            GUI:setAnchorPoint(emptyTip, 0.5, 0.5)
         end
     end
 
-    local startY = 60
-    for idx, row in ipairs(rows) do
-        local y = startY - (idx - 1) * 30
-        local nameLabel = GUI:Text_Create(panel, 'shop_row_name_' .. idx, -150, y, 18, colors.primary, row.name or '')
-        GUI:setAnchorPoint(nameLabel, 0, 0.5)
-        GUI:Text_enableOutline(nameLabel, '#1d0f09', 1)
-        local descLabel = GUI:Text_Create(panel, 'shop_row_desc_' .. idx, -150, y - 16, 16, colors.detail, row.desc or '')
-        GUI:setAnchorPoint(descLabel, 0, 0.5)
-        GUI:Text_enableOutline(descLabel, '#0d1b26', 1)
-        if row.button and row.callback then
-            local btn = NPC_UI_HELPER.createPrimaryButton(panel, 'shop_btn_' .. idx, 140, y - 8, row.button, row.callback)
-            GUI:setAnchorPoint(btn, 0, 0.5)
-        elseif row.status then
-            local statusLabel = GUI:Text_Create(panel, 'shop_status_' .. idx, 140, y - 8, 16, colors.warning, row.status)
-            GUI:setAnchorPoint(statusLabel, 0, 0.5)
-        end
+        
+
+    
+
+    npc.xjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
+        windowName = "npc_anniu_44_xjm",
+        overlay = {skin = "res/custom/treasureBasin/x.png"},
+        background = {skin = "res/custom/three_city/xianfu/zhuangshi/bg.png"},
+        title = {x = 56, y = 464, skin = "res/custom/three_city/xianfu/zhuangshi/title.png"},
+        closeButton = {x = 330 + 220 + 185, y = 180 + 180 + 103, skin = "res/wy/public/close_red_big.png"},
+    })
+    npc.xjm_node = npc.xjm_window.node
+
+    if isGuestMode() then
+        SL:ShowSystemTips("<font color='#FF0000'>拜访模式不可使用商城与装扮功能，请返回自宅后再尝试。</font>")
+        return
     end
 
-    NPC_UI_HELPER.createRichText(panel, 'shop_tip', 0, -80, '装扮可永久增加仙华值（装备时生效）', {width = 360, height = 18, anchor = {x = 0.5, y = 1}, color = colors.warning})
+    npc.cbl_list = GUI:ListView_Create(npc.xjm_node, "cbl_list", -5, 10, 170, 440, 1)
+    GUI:ListView_setGravity(npc.cbl_list, 1)
+    GUI:ListView_setItemsMargin(npc.cbl_list, 10)
+    npc.Label = GUI:Node_Create(npc.xjm_node, "Label", 170, 15)
+
+    npc.titles_sign = npc.titles_sign or 1
+    for i = 1, 5 do
+        local cbl_item = GUI:Button_Create(npc.cbl_list, "item" .. i, 0, 0, "res/custom/three_city/xianfu/zhuangshi/list/"..(npc.titles_sign == i and "l" or "n").."/"..i..".png")
+        -- GUI:Button_setTitleText(cbl_item, titles[i])
+        -- GUI:Button_setTitleFontSize(cbl_item, 14)
+        GUI:Image_Create(npc.cbl_list, "fgx"..i, 0, 0, "res/custom/fulitating/list/fgx.png")
+        GUI:addOnClickEvent(cbl_item, function()
+            GUI:Button_loadTextureNormal(GUI:ui_delegate(npc.cbl_list)["item" .. npc.titles_sign], "res/custom/three_city/xianfu/zhuangshi/list/n/"..npc.titles_sign..".png")
+            npc.titles_sign = i
+            GUI_Shop_createLabel(npc.Label,i)
+
+            GUI:Button_loadTextureNormal(GUI:ui_delegate(npc.cbl_list)["item" .. npc.titles_sign], "res/custom/three_city/xianfu/zhuangshi/list/l/"..npc.titles_sign..".png")
+        end)
+    end
+    GUI_Shop_createLabel(npc.Label,npc.titles_sign)
+
+    local btn = NPC_UI_HELPER.createPrimaryButton(npc.xjm_node, 'btn', 650, 50, "", function()
+        npc.titles_sign = 4
+        drawShop(node, snapshot, npcid)
+    end,{skin = "res/custom/three_city/xianfu/zhuangshi/btn_shop.png"})
+    GUI:setAnchorPoint(btn, 0.5, 0.5)
+
+    SL:RegisterLUAEvent(LUA_EVENT_CLOSEWIN, "关闭界面", function(self)
+        if self == "npc_anniu_44_xjm"  then
+            SL:UnRegisterLUAEvent(LUA_EVENT_CLOSEWIN, "关闭界面")
+            local s = ensureState()
+            if s.menuTab ~= "farm" then
+                s.menuTab = "farm"
+                npc.titles_sign = 1
+                npc.render()
+            end
+        end
+    end)
 end
 
 -- 炼丹模块，展示配方/冷却。
 local function drawRefine(node, snapshot, npcid)
-    local panel = GUI:Node_Create(node, 'refine_panel', layout.refine.x, layout.refine.y)
-    GUI:setAnchorPoint(panel, 0.5, 0.5)
-    local title = GUI:Text_Create(panel, 'refine_title', 0, 80, 20, colors.primary, '炼丹炉')
-    GUI:setAnchorPoint(title, 0.5, 0)
-    GUI:Text_enableOutline(title, '#1d0f09', 1)
+
+    local function GUI_Refine_createLabel(Label_node,titles_sign)
+        GUI:removeAllChildren(Label_node)
+
+        local cfg = snapshot.cfg or {}
+        local recipes = cfg.refine and cfg.refine.recipes or {}
+        local player = snapshot.player or {}
+        local herbs = player.herbs or {}
+        local plantCfg = cfg.plant or {}
+        local lastTime = (player.refine or {}).lastTime or 0
+        local cd = (cfg.refine and cfg.refine.furnaceCd) or 0
+        local remainCd = math.max(0, (lastTime + cd) - serverNow())
+        local ready = remainCd <= 0
+        local rowIndex = 0
+        local collection = player.refine and player.refine.collection or {}
+        npc.name_sign = npc.name_sign or recipes and next(recipes) and next(recipes) or nil
+        -- --SL:dump(recipes, "recipes")
+        -- --SL:dump(npc.name_sign, "name_sign")
+
+        
+        -- GUI:Text_Create(Label_node, 'remainCd', 568, 300, 18, colors.primary, string.format('冷却 %s', formatSeconds(remainCd)))
+        
+
+        for k,v in ipairs(recipes[npc.name_sign].cost) do
+            local kuang = GUI:Image_Create(Label_node, "cost_"..k, 115, 300.00 - (k-1)*60, "res/custom/three_city/xianfu/ldl/kuang.png")
+            GUI:setAnchorPoint(
+                GUI:ItemShow_Create(kuang, "item", 48 / 2, 52 / 2, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME",v[1]),count = v[2], look = true, bgVisible = false })
+            , 0.5, 0.5)
+        end
+        
+
+        
+        GUI:Image_Create(Label_node, "cost", 80, 140.00, "res/custom/three_city/xianfu/ldl/cost.png")
+        
+
+        local btn = NPC_UI_HELPER.createPrimaryButton(Label_node, 'btn_make', 750/2, 80, "", function()
+            sendAction(npcid, 'refine', {recipeId = npc.name_sign})
+        end,{skin = "res/custom/three_city/xianfu/ldl/btn_make.png"})
+        GUI:setAnchorPoint(btn, 0.5, 0.5)
+
+        btn = NPC_UI_HELPER.createPrimaryButton(Label_node, 'btn_tj', 750/2 - 230, 80, "", function()
+            npc.xxjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
+                windowName = "npc_anniu_44_xxjm",
+                overlay = {skin = "res/custom/treasureBasin/x.png"},
+                background = {skin = "res/custom/three_city/xianfu/ldl/tj/bg.png"},
+                title = {x = 56, y = 464, skin = "res/custom/three_city/xianfu/ldl/tj/title.png"},
+                closeButton = {x = 330 + 220 + 185, y = 180 + 180 + 103, skin = "res/wy/public/close_red_big.png"},
+            })
+            npc.xxjm_node = npc.xxjm_window.node
+            npc.xx_Label = GUI:Node_Create(npc.xxjm_node, "Label", 15, 15 + 75)
+
+            local ScrollView = GUI:ScrollView_Create(npc.xx_Label, "ScrollView", 10, 0, 720, 370, 1)
+            GUI:ScrollView_setBounceEnabled(ScrollView, true)
+            GUI:ScrollView_setInnerContainerSize(ScrollView, 720, ((190) * math.ceil(#recipes/6)) > 370 and ((190) * math.ceil(#recipes/6)) or 370)
+            local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 0,0, 720, ((190) * math.ceil(#recipes/6)) > 370 and ((190) * math.ceil(#recipes/6)) or 370)
+            local num = 0
+            for k,v in pairs(recipes) do
+                local kuang = GUI:Image_Create(dbLayout, "kuang"..k, 0, 0, "res/custom/three_city/xianfu/ldl/tj/kuang.png")
+                local wz5 = GUI:Text_Create(kuang, "wz5",121/2, 155, 18, "#FF0000", k)
+                GUI:setAnchorPoint(wz5, 0.5, 0.5)
+
+                local itme_kuang = GUI:Image_Create(kuang, "xz_kuang", 121/2, 105.00, "res/custom/three_city/xianfu/ldl/kuang.png")
+                GUI:setAnchorPoint(itme_kuang, 0.5, 0.5)
+                UiTools.showItemData(itme_kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",k)))
+
+                if collection and collection[k] then
+                    GUI:setAnchorPoint(GUI:Image_Create(kuang, "ok", 121/2, 55, "res/custom/three_city/xianfu/ldl/tj/ydl.png")
+                    , 0.5, 0.5)
+                else
+                    local btn = NPC_UI_HELPER.createPrimaryButton(kuang, 'btn', 121/2, 55, "", function()
+                        npc.name_sign = k
+                        GUI_Refine_createLabel(npc.Label,npc.name_sign)
+                        local parent = GUI:GetWindow(nil, "npc_anniu_44_xxjm")
+                        if parent then
+                            GUI:Win_Close(parent)
+                        end
+                    end,{skin = "res/custom/three_city/xianfu/ldl/tj/bntn_lz.png"})
+                    GUI:setAnchorPoint(btn, 0.5, 0.5)
+                end 
+
+                
+
+            end
+            GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 6,gap = {x=0, y=0}})
+        end,{skin = "res/custom/three_city/xianfu/ldl/btn_tj.png"})
+        GUI:setAnchorPoint(btn, 0.5, 0.5)
+
+        btn = NPC_UI_HELPER.createPrimaryButton(Label_node, 'btn_xz', 750/2 + 230, 80, "", function()
+            npc.xxjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
+                windowName = "npc_anniu_44_xxjm",
+                overlay = {skin = "res/custom/treasureBasin/x.png"},
+                background = {skin = "res/custom/three_city/xianfu/ldl/xz_bg.png"},
+                closeButton = {x = 300, y = 180 + 140, skin = "res/wy/public/close_red_big.png"},
+            })
+            npc.xxjm_node = npc.xxjm_window.node
+            npc.xx_Label = GUI:Node_Create(npc.xxjm_node, "Label", 0, 0)
+
+            local ScrollView = GUI:ScrollView_Create(npc.xx_Label, "ScrollView", 45, 40, 280, 240, 1)
+            GUI:ScrollView_setBounceEnabled(ScrollView, true)
+            GUI:ScrollView_setInnerContainerSize(ScrollView, 280, ((52 + 50) * math.ceil(#recipes/4)) > (240 + 50) and ((52 + 50) * math.ceil(#recipes/4)) or (240 + 50))
+            local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 10,0, 280, 50 + (((52 + 50) * math.ceil(#recipes/4)) > 240 and ((52 + 50) * math.ceil(#recipes/4)) or 240))
+            for k,v in pairs(recipes) do
+                local kuang = GUI:Image_Create(dbLayout, "kuang"..k, 0, 0, "res/custom/three_city/xianfu/ldl/kuang.png")
+
+                local btn = NPC_UI_HELPER.createPrimaryButton(kuang, 'btn', 25, -20, "", function()
+                    npc.name_sign = k
+                    GUI_Refine_createLabel(npc.Label,npc.name_sign)
+                    local parent = GUI:GetWindow(nil, "npc_anniu_44_xxjm")
+                    if parent then
+                        GUI:Win_Close(parent)
+                    end
+                end,{skin = "res/custom/three_city/xianfu/ldl/btn_xz1.png"})
+                GUI:setAnchorPoint(btn, 0.5, 0.5)
+                
+            end
+            GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 4,gap = {x=20, y=50}})
+
+        end,{skin = "res/custom/three_city/xianfu/ldl/btn_xz.png"})
+        GUI:setAnchorPoint(btn, 0.5, 0.5)
+
+        
+        GUI:setAnchorPoint(GUI:Image_Create(btn, "xz_itme", 150/2, 60, "res/custom/three_city/xianfu/ldl/jt.png")
+        , 0.5, 0.5)
+        local xz_kuang = GUI:Image_Create(btn, "xz_kuang", 150/2, 100.00, "res/custom/three_city/xianfu/ldl/kuang.png")
+        GUI:setAnchorPoint(xz_kuang, 0.5, 0.5)
+        UiTools.showItemData(xz_kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc.name_sign)))
+
+    end
+
+        
+
+    
+
+    npc.xjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
+        windowName = "npc_anniu_44_xjm",
+        overlay = {skin = "res/custom/treasureBasin/x.png"},
+        background = {skin = "res/custom/three_city/xianfu/ldl/bg/eff_1.png"},
+        title = {x = 56 + 222, y = 464 - 105, skin = "res/custom/three_city/xianfu/ldl/title.png"},
+        closeButton = {x = 330 + 220 + 130, y = 180 + 180, skin = "res/wy/public/close_red_big.png"},
+    })
+    npc.xjm_node = npc.xjm_window.node
+
     if isGuestMode() then
-        NPC_UI_HELPER.createRichText(panel, 'refine_guest_tip', 0, 40, '拜访模式不可使用炼丹炉，请回到自宅。', {width = 360, height = 40, anchor = {x = 0.5, y = 1}, color = colors.warning})
+        SL:ShowSystemTips("<font color='#FF0000'>拜访模式不可使用商城与装扮功能，请返回自宅后再尝试。</font>")
         return
     end
-    local cfg = snapshot.cfg or {}
-    local recipes = cfg.refine and cfg.refine.recipes or {}
-    local player = snapshot.player or {}
-    local herbs = player.herbs or {}
-    local plantCfg = cfg.plant or {}
-    local lastTime = (player.refine or {}).lastTime or 0
-    local cd = (cfg.refine and cfg.refine.furnaceCd) or 0
-    local remainCd = math.max(0, (lastTime + cd) - serverNow())
-    local ready = remainCd <= 0
-    local rowIndex = 0
-    for name, recipe in pairs(recipes) do
-        rowIndex = rowIndex + 1
-        local y = 50 - (rowIndex - 1) * 40
-        local costHerb = formatCost(recipe.costHerb)
-        local costCurrency = formatCost(recipe.costCurrency)
-        local desc = string.format('%s｜灵草：%s｜货币：%s｜效果：%s', name, costHerb, costCurrency, formatAddValue(recipe.addValue))
-        NPC_UI_HELPER.createRichText(panel, 'refine_row_' .. rowIndex, -150, y, desc, {width = 360, height = 36, anchor = {x = 0, y = 0.5}, color = colors.primary})
-        local hasHerb = true
-        if type(recipe.costHerb) == 'table' then
-            for _, entry in pairs(recipe.costHerb) do
-                if type(entry) == 'table' then
-                    local herbName = entry[1]
-                    local need = entry[2] or 0
-                    if resolveHerbCount(herbs, plantCfg, herbName) < need then
-                        hasHerb = false
-                        break
-                    end
-                elseif type(entry) == 'string' then
-                    if resolveHerbCount(herbs, plantCfg, entry) <= 0 then
-                        hasHerb = false
-                        break
-                    end
-                end
+
+    local eff = GUI:Frames_Create(npc.xjm_window.bg, "eff", 0, 0, "res/custom/three_city/xianfu/ldl/bg/eff_", ".png", 1, 120,
+            { speed = 75, count = 120, loop = -1})
+    GUI:setLocalZOrder(eff, -1)
+
+    npc.Label = GUI:Node_Create(npc.xjm_node, "Label", 0, 0)
+
+    
+    GUI_Refine_createLabel(npc.Label,npc.titles_sign)
+
+
+    SL:RegisterLUAEvent(LUA_EVENT_CLOSEWIN, "关闭界面", function(self)
+        if self == "npc_anniu_44_xjm"  then
+            SL:UnRegisterLUAEvent(LUA_EVENT_CLOSEWIN, "关闭界面")
+            local s = ensureState()
+            if s.menuTab ~= "farm" then
+                s.menuTab = "farm"
+                npc.render()
             end
         end
-        local btnText = ready and '炼制' or string.format('冷却 %s', formatSeconds(remainCd))
-        local enabled = ready and hasHerb
-        local btn = NPC_UI_HELPER.createPrimaryButton(panel, 'refine_btn_' .. rowIndex, 150, y, btnText, function()
-            sendAction(npcid, 'refine', {recipeId = name})
-        end)
-        GUI:setAnchorPoint(btn, 0, 0.5)
-        if not enabled then
-            GUI:Button_setBright(btn, false)
-        end
-    end
-    local tip = '集齐全部丹方自动授予称号「极品炼丹师」'
-    NPC_UI_HELPER.createRichText(panel, 'refine_tip', 0, -40, tip, {width = 360, height = 30, anchor = {x = 0.5, y = 1}, color = colors.warning})
+    end)
+
+
+    -- local panel = GUI:Node_Create(node, 'refine_panel', layout.refine.x, layout.refine.y)
+    -- GUI:setAnchorPoint(panel, 0.5, 0.5)
+    -- local title = GUI:Text_Create(panel, 'refine_title', 0, 80, 20, colors.primary, '炼丹炉')
+    -- GUI:setAnchorPoint(title, 0.5, 0)
+    -- GUI:Text_enableOutline(title, '#1d0f09', 1)
+    -- if isGuestMode() then
+    --     NPC_UI_HELPER.createRichText(panel, 'refine_guest_tip', 0, 40, '拜访模式不可使用炼丹炉，请回到自宅。', {width = 360, height = 40, anchor = {x = 0.5, y = 1}, color = colors.warning})
+    --     return
+    -- end
+    -- local cfg = snapshot.cfg or {}
+    -- local recipes = cfg.refine and cfg.refine.recipes or {}
+    -- local player = snapshot.player or {}
+    -- local herbs = player.herbs or {}
+    -- local plantCfg = cfg.plant or {}
+    -- local lastTime = (player.refine or {}).lastTime or 0
+    -- local cd = (cfg.refine and cfg.refine.furnaceCd) or 0
+    -- local remainCd = math.max(0, (lastTime + cd) - serverNow())
+    -- local ready = remainCd <= 0
+    -- local rowIndex = 0
+    -- for name, recipe in pairs(recipes) do
+    --     rowIndex = rowIndex + 1
+    --     local y = 50 - (rowIndex - 1) * 40
+    --     local costHerb = formatCost(recipe.costHerb)
+    --     local costCurrency = formatCost(recipe.costCurrency)
+    --     local desc = string.format('%s｜灵草：%s｜货币：%s｜效果：%s', name, costHerb, costCurrency, formatAddValue(recipe.addValue))
+    --     NPC_UI_HELPER.createRichText(panel, 'refine_row_' .. rowIndex, -150, y, desc, {width = 360, height = 36, anchor = {x = 0, y = 0.5}, color = colors.primary})
+    --     local hasHerb = true
+    --     if type(recipe.costHerb) == 'table' then
+    --         for _, entry in pairs(recipe.costHerb) do
+    --             if type(entry) == 'table' then
+    --                 local herbName = entry[1]
+    --                 local need = entry[2] or 0
+    --                 if resolveHerbCount(herbs, plantCfg, herbName) < need then
+    --                     hasHerb = false
+    --                     break
+    --                 end
+    --             elseif type(entry) == 'string' then
+    --                 if resolveHerbCount(herbs, plantCfg, entry) <= 0 then
+    --                     hasHerb = false
+    --                     break
+    --                 end
+    --             end
+    --         end
+    --     end
+    --     local btnText = ready and '炼制' or string.format('冷却 %s', formatSeconds(remainCd))
+    --     local enabled = ready and hasHerb
+    --     local btn = NPC_UI_HELPER.createPrimaryButton(panel, 'refine_btn_' .. rowIndex, 150, y, btnText, function()
+    --         sendAction(npcid, 'refine', {recipeId = name})
+    --     end)
+    --     GUI:setAnchorPoint(btn, 0, 0.5)
+    --     if not enabled then
+    --         GUI:Button_setBright(btn, false)
+    --     end
+    -- end
+    -- local tip = '集齐全部丹方自动授予称号「极品炼丹师」'
+    -- NPC_UI_HELPER.createRichText(panel, 'refine_tip', 0, -40, tip, {width = 360, height = 30, anchor = {x = 0.5, y = 1}, color = colors.warning})
 end
 
 local function drawPet(node, snapshot, npcid)
@@ -1172,8 +1923,8 @@ local function renderSection(tab, snapshot, baseSnapshot, npcid)
     elseif tab == 'inventory' then
         drawInventory(npc.node, snapshot, npcid)
     elseif tab == 'social' then
-        drawQuickActions(npc.node, snapshot, npcid, baseSnapshot)
-        drawVisitorLog(npc.node, snapshot)
+        -- drawQuickActions(npc.node, snapshot, npcid, baseSnapshot)
+        drawVisitorLog(npc.node, snapshot, npcid)
     elseif tab == 'shop' then
         drawShop(npc.node, snapshot, npcid)
     elseif tab == 'refine' then
@@ -1184,16 +1935,11 @@ local function renderSection(tab, snapshot, baseSnapshot, npcid)
         drawRank(npc.node, snapshot)
     elseif tab == 'system' then
         drawSystemMessages(npc.node, snapshot)
+    elseif tab == 'shape' then
+        drawshape(npc.node, snapshot, npcid)
     else
-        if guestMode then
-            renderSection('farm', snapshot, baseSnapshot, npcid)
-        else
-            drawInventory(npc.node, snapshot, npcid)
-            drawQuickActions(npc.node, snapshot, npcid, baseSnapshot)
-            drawVisitorLog(npc.node, snapshot)
-            drawRank(npc.node, snapshot)
-            drawSystemMessages(npc.node, snapshot)
-        end
+        drawPlotCells(npc.node, snapshot)
+        drawPlotDetail(npc.node, snapshot, npcid)
     end
 end
 

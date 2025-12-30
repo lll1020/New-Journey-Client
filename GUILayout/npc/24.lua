@@ -172,6 +172,18 @@ function npc.main(npcid, p2, p3, msgData)
                     
                 end
                 GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 1,gap = {x=40, y=10}})
+            elseif idx == 3 then
+                local ScrollView = GUI:ScrollView_Create(Label_node, "ScrollView", 220, 110, 333, 346, 1)
+                GUI:ScrollView_setBounceEnabled(ScrollView, true)
+                GUI:ScrollView_setInnerContainerSize(ScrollView, 333, ((157 + 10) * 10))
+                local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 0,0, 312, ((157 + 10) * 10))
+                npc.data.T_data.caowei = npc.data.T_data.caowei or {}
+
+                for i = 1, 10 do
+                    local kuang = GUI:Image_Create(dbLayout, "kuang"..i, 0, 0, "res/custom/tianshu/ws/xnj_bg.png")
+                    
+                end
+                GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 1,gap = {x=40, y=10}})
             end
         end
 
