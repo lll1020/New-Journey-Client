@@ -379,13 +379,16 @@ local function describePlot(plot)
     local now = serverNow()
     if stateName == 'growing' then
         local remain = math.max(0, (plot.finishAt or now) - now)
-        return string.format('成长中\n%s', formatSeconds(remain)), cfg and cfg.canSteal and '可被偷' or '安全'
+        -- return string.format('成长中\n%s', formatSeconds(remain)), cfg and cfg.canSteal and '可被偷' or '安全'
+        return string.format('成长中\n%s', formatSeconds(remain)), ""
     elseif stateName == 'mature' then
         local reward = summarizeProduct(plot.product)
-        local tips = (cfg and cfg.canSteal) and '未收获可被偷' or '不可被偷'
+        -- local tips = (cfg and cfg.canSteal) and '未收获可被偷' or '不可被偷'
+        local tips = ""
         local statusText = '可收获'
         if reward ~= '' then
-            statusText = statusText .. '\n' .. reward
+            -- statusText = statusText .. '\n' .. reward
+            statusText = ""
         end
         return statusText, tips
     elseif stateName == 'empty' then
@@ -432,7 +435,7 @@ local function ensureWindow(npcid)
 end
 
 -- 顶部概览：玩家昵称/仙华/排行提示。
-local function buildTopOverview(node, snapshot, baseSnapshot)
+local function buildTopOverview(node, snapshot, baseSnapshot, npcid)
 
     local state = ensureState()
     local guestMode = isGuestMode()
@@ -491,6 +494,10 @@ local function buildTopOverview(node, snapshot, baseSnapshot)
             exitGuestMode()
             npc.render()
         end,{skin = "res/custom/three_city/xianfu/btn/l/3.png"})
+
+        NPC_UI_HELPER.createPrimaryButton(top_img, 'btn_like_guest', cogin.w - 400, -200, '', function()
+            sendAction(npcid, 'like', {targetName = player.name})
+        end,{skin = "res/custom/three_city/xianfu/btn/l/2.png"})
     end
 end
 
@@ -500,7 +507,7 @@ local function drawMenuBar(node)
     GUI:setAnchorPoint(under_img, 1, 0)
     GUI:setContentSize(under_img, cogin.w, GUI:getContentSize(under_img).height)
 
-    local btn_list_img = GUI:Image_Create(under_img, 'btn_list_img', cogin.w / 2,  40, "res/custom/three_city/xianfu/d_1.png")
+    local btn_list_img = GUI:Image_Create(under_img, 'btn_list_img', cogin.w / 2,  10, "res/custom/three_city/xianfu/d_1.png")
     GUI:setAnchorPoint(btn_list_img, 0.5, 0)
 
     local bar = GUI:Node_Create(node, 'menu_bar', layout.menu.x, layout.menu.y)
@@ -561,6 +568,11 @@ local function drawMenuBar(node)
         local x = startX 
         local allowed = permission[tab.id]
         local btn = NPC_UI_HELPER.createPrimaryButton(btn_list_img, 'menux_btn_' .. tab.id, 560 + (idx - 1) * 150, -10, "", function()
+
+            if tab.id == "pet" then
+                SL:SendLuaNetMsg(105, 64, 64, 0, '')
+                return
+            end
             local s = ensureState()
             if not allowed then
                 s.lastMessage = '拜访模式仅开放菜园与社交功能'
@@ -596,15 +608,15 @@ local function drawPlotCells(node, snapshot)
     GUI:setAnchorPoint(origin, 0.5, 0.5)
 
     local Pos = {
-        {0,90,0.4,-2,-2},
-        {-120,45,0.4,0,-2},
-        {120,45,0.4,-2,0},
-        {-240,0,0.4,2,0},
-        {0,0,0.4,0,0},
-        {240,0,0.4,0,2},
-        {-120,-45,0.4,2,4},
-        {120,-45,0.4,4,2},
-        {0,-90,0.4,4,4},
+        {0,90,0.35,-15,-15,-18},
+        {-120,45,0.37,-10,-10,-14},
+        {120,45,0.4,-14,-10,-14},
+        {-240,0,0.4,-10,-10,-14},
+        {0,0,0.4,-10,-10,-14},
+        {240,0,0.4,-10,-10,-14},
+        {-120,-45,0.4,0,0,-14},
+        {120,-45,0.4,4,-5,-14},
+        {0,-90,0.4,4,4,-14},
     }
 
 
@@ -619,35 +631,78 @@ local function drawPlotCells(node, snapshot)
         local y = -(row) * (cellSize + gap)
         local itme = GUI:Node_Create(origin, 'itme'.. i, Pos[i][1], Pos[i][2] - 50)
 
+        local plot_img = GUI:Image_Create(itme, "plot_img", 0, 0, "res/custom/three_city/xianfu/plot/p_"..i.."/k_2.png")
+        GUI:setAnchorPoint(plot_img, 0.5, 0.5)
+
         local Layout = GUI:Layout_Create(itme, "Layout"..i, 0, 0, 100, 100)
         GUI:setAnchorPoint(Layout, 0.5, 0.5)
 
-        local btn = GUI:Button_Create(Layout, 'plot_btn_' .. i, 50, 50, 'res/public/1900000660.png')
+        
+        
+
+        local btn = GUI:Button_Create(Layout, 'plot_btn_' .. i, 50, 50 + (Pos[i][6] or 0), 'res/public/0.png')
         GUI:setRotation(btn,45)
         GUI:setAnchorPoint(btn, 0.5, 0.5)
         GUI:setContentSize(btn, cellSize + Pos[i][4], cellSize + Pos[i][5] + Pos[i][5])
 
         GUI:setScaleY(Layout, Pos[i][3])
 
-
-        local plot = fields[i] or {state = 'empty', gridId = i}
-        local status, tip = describePlot(plot)
-        local content = string.format('<font size="18" color="#ffe9c2">地块%s</font><br/><font size="16" color="#9fe9ff">%s</font><br/><font size="14" color="#c8ffb4">%s</font>', i, status, tip)
-        NPC_UI_HELPER.createRichText(itme, 'plot_text_' .. i, 0, 0, content, {width = cellSize - 10, height = 20, anchor = {x = 0.5, y = 0.5}})
-        if state.selectedPlot == i then
-            -- GUI:Button_setBright(btn, false)
-            local guang = GUI:Image_Create(btn, "guang", GUI:getContentSize(btn).width/2, GUI:getContentSize(btn).height/2, "res/wy/public/itembg.png")
-            GUI:setAnchorPoint(guang, 0.5, 0.5)
-            GUI:setContentSize(guang, GUI:getContentSize(btn).width + 20, GUI:getContentSize(btn).height + 20)
-        else
-            -- GUI:Button_setBright(btn, true)
-            GUI:removeChildByName(btn, "guang")
-        end
         GUI:addOnClickEvent(btn, function()
             local s = ensureState()
             s.selectedPlot = i
             npc.render()
         end)
+
+
+        local plot = fields[i] or {state = 'empty', gridId = i}
+        local status, tip = describePlot(plot)
+        local content = string.format('<font size="16" color="#9fe9ff">%s</font><br/><font size="14" color="#c8ffb4">%s</font>', status, tip)
+
+        local stateName = plot.state or 'empty'
+        local cfg = getPlantCfg(plot.seedId)
+        local name = cfg and cfg.name or (plot.seedId == 'High' and '高阶灵草' or (plot.seedId == 'Low' and '低阶灵草' or '未播种'))
+        local now = serverNow()
+        
+        if state.selectedPlot == i then
+            -- GUI:Button_setBright(btn, false)
+            local guang = GUI:Image_Create(btn, "guang", GUI:getContentSize(btn).width/2, GUI:getContentSize(btn).height/2, "res/wy/public/itembg.png")
+            GUI:setAnchorPoint(guang, 0.5, 0.5)
+            GUI:setContentSize(guang, GUI:getContentSize(btn).width + 70, GUI:getContentSize(btn).height + 70)
+        else
+            -- GUI:Button_setBright(btn, true)
+            GUI:removeChildByName(btn, "guang")
+        end
+
+        if stateName == 'growing' then
+            GUI:setAnchorPoint(GUI:Image_Create(itme, "plot_sl", 0, 0, "res/custom/three_city/xianfu/plot/p_"..i.."/k_1.png")
+            , 0.5, 0.5)
+
+            -- local remain = math.max(0, (plot.finishAt or now) - now)
+            -- return string.format('成长中\n%s', formatSeconds(remain)), cfg and cfg.canSteal and '可被偷' or '安全'
+        elseif stateName == 'mature' then
+            if name == '低阶灵草' then
+                GUI:setAnchorPoint(GUI:Image_Create(itme, "plot_sl", 0, 0, "res/custom/three_city/xianfu/plot/p_"..i.."/k_3.png")
+                , 0.5, 0.5)
+
+            elseif name == '高阶灵草' then
+                GUI:setAnchorPoint(GUI:Image_Create(itme, "plot_sl", 0, 0, "res/custom/three_city/xianfu/plot/p_"..i.."/k_4.png")
+                , 0.5, 0.5)
+
+            end
+
+            -- local reward = summarizeProduct(plot.product)
+            -- local tips = (cfg and cfg.canSteal) and '未收获可被偷' or '不可被偷'
+            -- local statusText = '可收获'
+            -- if reward ~= '' then
+            --     statusText = statusText .. '\n' .. reward
+            -- end
+            -- return statusText, tips
+        elseif stateName == 'empty' then
+            -- return '空地', '可播种'
+        end
+        NPC_UI_HELPER.createRichText(itme, 'plot_text_' .. i, 10, 0, content, {width = cellSize - 10, height = 20, anchor = {x = 0.5, y = 0.5}})
+
+        
     end
 end
 
@@ -763,9 +818,10 @@ local function drawPlotDetail(node, snapshot, npcid)
         else
             for idx, entry in ipairs(seedList) do
 
-                local kuang = GUI:Image_Create(btn_seed, "btn_seed"..idx, 0 + (idx - 1)*83, 150, "res/wy/public/70_70_k.png")
-                local item = GUI:ItemShow_Create(kuang, "item", 35, 35, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME",entry.name), count = seeds[entry.seed] or 0, look = true, bgVisible = false })
+                local kuang = GUI:Image_Create(btn_seed, "btn_seed"..idx, 0 + (idx - 1)*83, 150, "res/wy/public/58_58_kuang.png")
+                local item = GUI:ItemShow_Create(kuang, "item", 29, 29, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME",entry.name), look = true, bgVisible = false })
                 GUI:setAnchorPoint(item, 0.5, 0.5)
+                GUI:Text_Create(kuang, "count",5,0, 14, "#FF0000", "库存:"..SL:GetMetaValue("ITEM_COUNT", entry.name))
                 GUI:ItemShow_addReplaceClickEvent(item, function()
                     if idx == 1 then
                         sendAction(npcid, 'plant', {gridId = plot.gridId or selected, seedId = 'Low'})
@@ -1930,7 +1986,8 @@ local function renderSection(tab, snapshot, baseSnapshot, npcid)
     elseif tab == 'refine' then
         drawRefine(npc.node, snapshot, npcid)
     elseif tab == 'pet' then
-        drawPet(npc.node, snapshot, npcid)
+        -- drawPet(npc.node, snapshot, npcid)
+        
     elseif tab == 'rank' then
         drawRank(npc.node, snapshot)
     elseif tab == 'system' then
@@ -1964,7 +2021,7 @@ function npc.render()
     if not permission[currentTab] then
         state.menuTab = guestMode and 'farm' or 'overview'
     end
-    buildTopOverview(npc.node, displaySnapshot, baseSnapshot)
+    buildTopOverview(npc.node, displaySnapshot, baseSnapshot, npcid)
     drawMenuBar(npc.node)
     renderSection(state.menuTab or 'overview', displaySnapshot, baseSnapshot, npcid)
 end

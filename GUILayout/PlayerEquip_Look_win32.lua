@@ -80,6 +80,22 @@ function PlayerEquip_Look.main(data)
     ----------------------
     PlayerEquip_Look.RegisterEvent()
     PlayerEquip_Look.InitEquipFramekuang()
+
+
+    local Button= GUI:Button_Create(PlayerEquip_Look._ui.Panel_1, "Button1", 40, 10.00, "res/private/player_main_layer_ui/btn_1.png")
+    GUI:addOnClickEvent(Button, function()
+    end)
+
+    Button= GUI:Button_Create(PlayerEquip_Look._ui.Panel_1, "Button2", 110, 10.00, "res/private/player_main_layer_ui/btn_2.png")
+    GUI:addOnClickEvent(Button, function()
+    end)
+    Button= GUI:Button_Create(PlayerEquip_Look._ui.Panel_1, "Button3", 180, 10.00, "res/private/player_main_layer_ui/btn_3.png")
+    GUI:addOnClickEvent(Button, function()
+    end)
+    Button= GUI:Button_Create(PlayerEquip_Look._ui.Panel_1, "Button4", 250, 10.00, "res/private/player_main_layer_ui/btn_4.png")
+    GUI:addOnClickEvent(Button, function()
+        SL:SendLuaNetMsg(100, 44, 1, 0, SL:JsonEncode({action = "visit", param = {targetName = SL:GetMetaValue("LOOK_USER_NAME")}}, false))
+    end)
 end
 
 
