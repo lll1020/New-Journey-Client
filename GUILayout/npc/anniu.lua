@@ -1822,8 +1822,24 @@ end
 npc[21] = function(p2, p3, Data)  --古玩
 
    
-    local function UI_updata(node) --界面渲染
+    local function UI_updata(node,idx) --界面渲染
         GUI:removeAllChildren(node)
+
+        local dbLayout = GUI:Layout_Create(node, "dbLayout", 33, 13, 300, 150)
+        for i = 1, 6 do
+            if idx == 0 then
+                local EquipShow = GUI:EquipShow_Create(dbLayout, "EquipShow"..i, 0,0, 110 + i, false, {look = true, movable = true, bgVisible = false, doubleTakeOff = true})
+                GUI:EquipShow_setAutoUpdate(EquipShow)
+            elseif idx == 1 then
+                GUI:ItemShow_Create(dbLayout, "EquipShow"..i, 0,0, {itemData = SL:GetMetaValue("EQUIP_DATA", 110 + i),look=true})
+            end
+        end
+        if idx == 0 then
+            GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 3,gap = {x=19, y=5}})
+        elseif idx == 1 then
+            GUI:setPosition(dbLayout, 50, 0)
+            GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 3,gap = {x=50, y=42}})
+        end
 
 
     end
@@ -1850,7 +1866,7 @@ npc[21] = function(p2, p3, Data)  --古玩
         GUI:setOpacity(npc.bg, 0)
         GUI:runAction(npc.bg, GUI:ActionSpawn(GUI:ActionMoveTo(0.3, -270, 0), GUI:ActionFadeIn(0.3)))
         npc.node = GUI:Node_Create(npc.bg, "node", 0, 0)
-        UI_updata(npc.node)
+        UI_updata(npc.node, p3)
 
     end
 end
