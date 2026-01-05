@@ -80,9 +80,9 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:setAnchorPoint(item,0.5, 0.5)
         GUI:Text_Create(kuang, "qmd", 40, 0, 18, "#FF00FF", (npc.ls_data.T_data.syw[""..npc.titles_sign] and npc.ls_data.T_data.syw[""..npc.titles_sign] == 1) and "已激活" or "未激活")
 
-        local Button= GUI:Button_Create(npc.xjm_node, "Button", 750, 100.00, "res/public/1900000660.png")
-        GUI:Button_setTitleText(Button, "出战")
-        GUI:Button_setTitleFontSize(Button, 14)
+        local Button= GUI:Button_Create(npc.xjm_node, "Button", 800, 0.00, "res/custom/four_city/lingshou/xjm/btn_cz.png")
+        -- GUI:Button_setTitleText(Button, "出战")
+        -- GUI:Button_setTitleFontSize(Button, 14)
 
         GUI:addOnClickEvent(Button, function()
             SL:SendLuaNetMsg(100, npcid, 2, 0, SL:JsonEncode({idx = npc.titles_sign}, false))

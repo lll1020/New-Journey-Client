@@ -97,7 +97,25 @@ function npc.main(npcid, p2, p3, msgData)
             end)
         end
         GUI:UserUILayout(layout, {dir=3,addDir=1,colnum = 2,gap = {x=10, y=0}})
+
+        
         xjm_UI_updata(npc.Label, npc.titles_sign)
+
+        local tip = GUI:Image_Create(node, "tip", 650, 0, "res/custom/four_city/gwjd/tip.png")
+        if SL:GetMetaValue("WINPLAYMODE") then
+            GUI:addMouseMoveEvent(tip, {onEnterFunc = function()
+                local pos = GUI:getWorldPosition(tip)
+                SL:OpenCommonDescTipsPop({str = "<古玩鉴定：/FCOLOR=243>\\<消耗未鉴定的古玩： /FCOLOR=249>\\<可以获得各个年代的古玩，越是珍贵的古玩，属性越是强大 /FCOLOR=249>", worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 0})
+            end, onLeaveFunc = function()
+                SL:CloseCommonDescTipsPop()
+            end})
+        else
+            GUI:setTouchEnabled(tip, true)
+            GUI:addOnTouchEvent(tip, function(self)
+                local pos = GUI:getWorldPosition(tip)
+                SL:OpenCommonDescTipsPop({str = "<古玩鉴定：/FCOLOR=243>\\<消耗未鉴定的古玩： /FCOLOR=249>\\<可以获得各个年代的古玩，越是珍贵的古玩，属性越是强大 /FCOLOR=249>", worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 0})
+            end)
+        end
     
 
     end
