@@ -862,7 +862,7 @@ local config = {
 	},
 	[204] = { 
 		Idx = 204,
-		name = "金币回收",
+		name = "元宝回收",
 		nbvalue = "100#100#100",
 		type = 2,
 		desc = "金币回收(回收时自动计算)",
@@ -1217,7 +1217,7 @@ local config = {
 		type = 3,
 		desc = "全属性加成",
 		isshow = 2,
-		scolor = 254,
+		scolor = 249,
 		sort = 999,
 	},
 }

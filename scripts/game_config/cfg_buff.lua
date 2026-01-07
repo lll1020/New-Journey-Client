@@ -258,5 +258,12 @@ local config = {
 		param = "36#-2000|37#-2000",
 		time = "5#0#0",
 	},
+	[20103] = { 
+		ID = 20103,
+		name = "醉酒狂魔舞",
+		tips = "PK增伤+5%、PK减伤+5%、生命偷取+5%、攻击速度+50%",
+		time = "0#0#0",
+		script_trigger = "1000#@buffchufa",
+	},
 }
 return config

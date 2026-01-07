@@ -332,7 +332,7 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
                 GUI:setVisible(dalucs,false)
 
                 ---测试使用
-                local Button_1 = GUI:Button_Create(npc.RightBottom, "Button_1", -86, 340 + 100, "res/private/player_main_layer_ui/player_main_layer_ui_win32/1900015011.png")
+                local Button_1 = GUI:Button_Create(npc.RightBottom, "Button_1", -150, 340 + 100, "res/private/player_main_layer_ui/player_main_layer_ui_win32/1900015011.png")
                 GUI:Button_setTitleText(Button_1, "测试")
                 GUI:addOnClickEvent(Button_1, function()
                     SL:SendLuaNetMsg(105, 665, 665, 0, "")
@@ -457,6 +457,47 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
                         SL:SetMetaValue("SETTING_VALUE", 56, {1})
                         GUI:Button_setGrey(gwcs, false)
                     end
+                end)
+
+                local zjkmw = GUI:Button_Create(npc.RightBottom, "zjkmw", -80, 550 - 130, "res/custom/five_city/zjkmw/img.png")
+                GUI:addOnClickEvent(zjkmw, function()
+
+                    if GUI:getChildByName(zjkmw, "img_bj") then
+                        GUI:removeChildByName(zjkmw, "img_bj")
+                        return
+                    end
+
+                    npc.bg = GUI:Image_Create(zjkmw, "img_bj", 100, 0, "res/custom/five_city/zjkmw/bg.png")
+                    GUI:setTouchEnabled(npc.bg, true)
+                    GUI:setAnchorPoint(npc.bg, 1, 0.5)
+                    GUI:setOpacity(npc.bg, 0)
+                    GUI:runAction(npc.bg, GUI:ActionSpawn(GUI:ActionMoveTo(0.3, 0, 0), GUI:ActionFadeIn(0.3)))
+                    npc.node = GUI:Node_Create(npc.bg, "node", 0, 0)
+
+                    local buff = SL:GetMetaValue("ACTOR_BUFF_DATA_BY_ID",SL:GetMetaValue("MAIN_ACTOR_ID"),20103)
+
+                    local Button = GUI:Button_Create(npc.node, "Button", 0, 10.00, "res/custom/five_city/zjkmw/btn_"..(buff and 2 or 1)..".png")
+                    GUI:addOnClickEvent(Button, function()
+                        SL:SendLuaNetMsg(100, 70, 2, 0, "")
+                        -- if buff then
+                        --     GUI:Button_loadTextures(Button, "res/custom/five_city/zjkmw/btn_1.png")
+                        -- end
+                    end)
+
+                    SL:RegisterLUAEvent(LUA_EVENT_MAINBUFFUPDATE, "主玩家buff刷新", function(data)
+                        if data.buffID == 20103 then
+                            local buff = SL:GetMetaValue("ACTOR_BUFF_DATA_BY_ID",SL:GetMetaValue("MAIN_ACTOR_ID"),20103)
+                            GUI:Button_loadTextures(Button, "res/custom/five_city/zjkmw/btn_"..(buff and 2 or 1)..".png")
+                            if buff then
+                                GUI:Frames_Create(zjkmw, "eff", 0, 0, "res/custom/five_city/zjkmw/eff/eff_", ".png", 1, 75,
+                                { speed = 75, count = 75, loop = 0})
+                            else
+                                GUI:removeChildByName(zjkmw, "eff")
+                            end
+                            
+                        end
+                    end)
+
                 end)
             else
                 npc.sjbeibao = GUI:Button_Create(npc.RightTop, "beibao", -160, -230, "res/private/main/bottom/bag.png")

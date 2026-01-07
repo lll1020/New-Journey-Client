@@ -87,6 +87,9 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data = SL:JsonDecode(msgData,false)
         ensureWindow(npcid)
         UI_updata(npc.node)
+    elseif p2 == 1 then--界面
+        npc.data = SL:JsonDecode(msgData,false)
+        GUI_createLabel(npc.Label,npc.titles_sign)
     end
 end
 
