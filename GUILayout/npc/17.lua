@@ -51,7 +51,7 @@ local function updateUI(npcid, node)
             (10 - (data.hbdh2 or 0)) .. "次"
         )
 
-    cc
+    GUI:setAnchorPoint(GUI:ItemShow_Create(npc.bg, "item1", 70,300 - 187, { index = 1, look = true, bgVisible = false }),0.5, 0.5)
     GUI:setAnchorPoint(GUI:ItemShow_Create(npc.bg, "item2", 70 + 320,300 - 187, { index = 2, look = true, bgVisible = false }),0.5, 0.5)
     GUI:setAnchorPoint(GUI:ItemShow_Create(npc.bg, "item3", 70,300, { index = 3, look = true, bgVisible = false }),0.5, 0.5)
     GUI:setAnchorPoint(GUI:ItemShow_Create(npc.bg, "item4", 70 + 320,300, { index = 4, look = true, bgVisible = false }),0.5, 0.5)

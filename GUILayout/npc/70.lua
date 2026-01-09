@@ -46,7 +46,7 @@ function npc.main(npcid, p2, p3, msgData)
         end)
 
         local Button= GUI:Button_Create(node, "Button2", 150 + 340, 70.00, "res/custom/five_city/emjg/btn_2.png")
-        GUI:addOnClickEvent(Button, function()
+        GUI:addOnClickEvent(Button, function() 
             SL:SendLuaNetMsg(100, npcid, 1, 0, SL:JsonEncode({idx = 2}, false))
         end)
 

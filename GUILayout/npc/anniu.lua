@@ -1916,8 +1916,23 @@ end
 npc[22] = function(p2, p3, Data)  --法宝
 
    
-    local function UI_updata(node) --界面渲染
+    local function UI_updata(node,idx) --界面渲染
         GUI:removeAllChildren(node)
+
+        if idx == 0 then
+            local item = SL:GetMetaValue("EQUIP_DATA", 71)
+            SL:dump(item)
+            if item then
+                local EquipShow = GUI:EquipShow_Create(node, "EquipShow"..71, 138,131, 71, false, {look = true, movable = true, bgVisible = false, doubleTakeOff = true})
+                GUI:EquipShow_setAutoUpdate(EquipShow)
+                GUI:setAnchorPoint(EquipShow, 0.5, 0.5)
+            else
+                
+                return
+            end
+        elseif idx == 1 then
+            
+        end
 
     end
 
@@ -1943,7 +1958,7 @@ npc[22] = function(p2, p3, Data)  --法宝
         GUI:setOpacity(npc.bg, 0)
         GUI:runAction(npc.bg, GUI:ActionSpawn(GUI:ActionMoveTo(0.3, -340, 0), GUI:ActionFadeIn(0.3)))
         npc.node = GUI:Node_Create(npc.bg, "node", 0, 0)
-        UI_updata(npc.node)
+        UI_updata(npc.node,p3)
 
     end
 end
