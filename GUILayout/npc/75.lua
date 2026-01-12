@@ -39,7 +39,7 @@ function npc.main(npcid, p2, p3, msgData)
 
 
         local cost = checkItemNumByTable_img_kuang(npc._config.details[idx].cost, nil,GUI:Node_Create(node, "cost_show", 0, 0))
-        GUI:setPosition(cost, 280, 130)
+        GUI:setPosition(cost, 280 - 47, 130)
 
         local Button = GUI:Button_Create(node, "Button", 778/2, 0, "res/custom/five_city/zbjf/btn.png")
         GUI:setAnchorPoint(Button, 0.5, 0)

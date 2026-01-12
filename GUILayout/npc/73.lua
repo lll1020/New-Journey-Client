@@ -33,7 +33,7 @@ function npc.main(npcid, p2, p3, msgData)
 
         GUI:removeAllChildren(node)
 
-        GUI:Text_setFontName(GUI:Text_Create(node, "tip",430,150 + 177, 20, "#00FFFF", "更强的怪物，更丰厚的奖励！")
+        GUI:Text_setFontName(GUI:Text_Create(node, "tip",430,150 + 177,24, "#00FFFF", "更强的怪物，更丰厚的奖励！")
         , "fonts/500.ttf")
 
         local cost = checkItemNumByTable_img_kuang(npc._config.cost, nil,GUI:Node_Create(node, "cost_show", 0, 0))
