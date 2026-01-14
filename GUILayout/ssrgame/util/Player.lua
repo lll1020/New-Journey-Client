@@ -190,26 +190,47 @@ end
 function Player:showEquipBaseAttr(item)
     local attList = GUIFunction:ParseItemBaseAtt(item.attribute)
     local attr_desc = ""
-    for id, v in pairs(attList) do
+    local sorted = {}
+
+    for _, v in pairs(attList) do
         local originId = v.id
         local attConfig = SL:GetMetaValue("ATTR_CONFIG", originId)
-        if originId >= 20 then
-            local name = string.gsub(attConfig.name, " ", "")
-            name = string.gsub(name, "　", "")
-            local value = v.value
-            if (attConfig and attConfig.type == 2) then --万分比除100
-                value = string.format("%.1d", value / 100) .. "%"
-            end
-                if (attConfig and attConfig.type == 3) then --百分比
-                value = string.format("%.1d", value) .. "%"
-            end
-            local oneStr = name .."+".. value
-            local color = attConfig.color
-            
-            if color and color > 0 then
-                -- SL:release_print(string.format("<font color='%s'>%s</font>", SL:GetHexColorByStyleId(color), oneStr))
-                attr_desc = attr_desc .. string.format("<font color='%s'>%s</font>\n", SL:GetHexColorByStyleId(color), oneStr)
-            end
+        if attConfig and originId >= 20 then
+            local cleanName = attConfig.name or ""
+            cleanName = string.gsub(cleanName, " ", "")
+            cleanName = string.gsub(cleanName, "　", "")
+            local isPercent = attConfig.type == 2 or attConfig.type == 3
+            table.insert(sorted, {data = v, attConfig = attConfig, name = cleanName, isPercent = isPercent})
+        end
+    end
+
+    table.sort(sorted, function(a, b)
+        if #a.name ~= #b.name then
+            return #a.name < #b.name
+        end
+        if a.isPercent ~= b.isPercent then
+            return not a.isPercent -- 数值在前，百分比在后
+        end
+        return a.name < b.name
+    end)
+
+    for _, entry in ipairs(sorted) do
+        local v = entry.data
+        local attConfig = entry.attConfig
+        local name = entry.name
+        local value = v.value
+        if (attConfig and attConfig.type == 2) then --万分比除100
+            value = string.format("%.1d", value / 100) .. "%"
+        end
+        if (attConfig and attConfig.type == 3) then --百分比
+            value = string.format("%.1d", value) .. "%"
+        end
+        local oneStr = name .."+".. value
+        local color = attConfig.color
+        
+        if color and color > 0 then
+            -- SL:release_print(string.format("<font color='%s'>%s</font>", SL:GetHexColorByStyleId(color), oneStr))
+            attr_desc = attr_desc .. string.format("<font color='%s'>%s</font>\n", SL:GetHexColorByStyleId(color), oneStr)
         end
     end
     return attr_desc
@@ -221,51 +242,92 @@ end
 function Player:showEquipAttr(item)
     local attList = GUIFunction:ParseItemBaseAtt(item.attribute)
     local attr_desc = ""
-    for id, v in pairs(attList) do
-        local originId = v.id
-        local attConfig = SL:GetMetaValue("ATTR_CONFIG", originId)
-        local name = string.gsub(attConfig.name, " ", "")
-            name = string.gsub(name, "　", "")
-            local value = v.value
-            if (attConfig and attConfig.type == 2) then --万分比除100
-                value = string.format("%.1d", value / 100) .. "%"
-            end
-                if (attConfig and attConfig.type == 3) then --百分比
-                value = string.format("%.1d", value) .. "%"
-            end
-            local oneStr = name .."+".. value
-            local color = attConfig.color or 255
-            
-            if color and color > 0 then
-                -- SL:release_print(string.format("<font color='%s'>%s</font>", SL:GetHexColorByStyleId(color), oneStr))
-                attr_desc = attr_desc .. string.format("<font color='%s'>%s</font>\n", SL:GetHexColorByStyleId(color), oneStr)
-            end
+    local sorted = {}
+
+    for _, v in pairs(attList) do
+        local attConfig = SL:GetMetaValue("ATTR_CONFIG", v.id)
+        local cleanName = attConfig and attConfig.name or ""
+        cleanName = string.gsub(cleanName, " ", "")
+        cleanName = string.gsub(cleanName, "　", "")
+        local isPercent = attConfig and (attConfig.type == 2 or attConfig.type == 3)
+        table.insert(sorted, {data = v, attConfig = attConfig, name = cleanName, isPercent = isPercent})
+    end
+
+    table.sort(sorted, function(a, b)
+        if #a.name ~= #b.name then
+            return #a.name < #b.name
         end
+        if a.isPercent ~= b.isPercent then
+            return not a.isPercent -- 数值在前，百分比在后
+        end
+        return a.name < b.name
+    end)
+
+    for _, entry in ipairs(sorted) do
+        local v = entry.data
+        local attConfig = entry.attConfig
+        local name = entry.name
+        local value = v.value
+        if (attConfig and attConfig.type == 2) then --万分比除100
+            value = string.format("%.1d", value / 100) .. "%"
+        end
+        if (attConfig and attConfig.type == 3) then --百分比
+            value = string.format("%.1d", value) .. "%"
+        end
+        local oneStr = name .."+".. value
+        local color = (attConfig and attConfig.color) or 255
+        
+        if color and color > 0 then
+            -- SL:release_print(string.format("<font color='%s'>%s</font>", SL:GetHexColorByStyleId(color), oneStr))
+            attr_desc = attr_desc .. string.format("<font color='%s'>%s</font>\n", SL:GetHexColorByStyleId(color), oneStr)
+        end
+    end
     return attr_desc
 end
 
 function Player:showAttr(attr)
     local attr_desc = ""
-    for id, v in pairs(attr) do
+    local sorted = {}
+
+    for _, v in pairs(attr) do
         local originId = v[1]
         local attConfig = SL:GetMetaValue("ATTR_CONFIG", originId)
-        local name = string.gsub(attConfig.name, " ", "")
-            name = string.gsub(name, "　", "")
-            local value = v[2]
-            if (attConfig and attConfig.type == 2) then --万分比除100
-                value = string.format("%.1d", value / 100) .. "%"
-            end
-                if (attConfig and attConfig.type == 3) then --百分比
-                value = string.format("%.1d", value) .. "%"
-            end
-            local oneStr = name .."+".. value
-            local color = attConfig.color or 255
-            
-            if color and color > 0 then
-                -- SL:release_print(string.format("<font color='%s'>%s</font>", SL:GetHexColorByStyleId(color), oneStr))
-                attr_desc = attr_desc .. string.format("<font color='%s'>%s</font>\n", SL:GetHexColorByStyleId(color), oneStr)
-            end
+        local cleanName = attConfig and attConfig.name or ""
+        cleanName = string.gsub(cleanName, " ", "")
+        cleanName = string.gsub(cleanName, "　", "")
+        local isPercent = attConfig and (attConfig.type == 2 or attConfig.type == 3)
+        table.insert(sorted, {data = v, attConfig = attConfig, name = cleanName, isPercent = isPercent})
+    end
+
+    table.sort(sorted, function(a, b)
+        if #a.name ~= #b.name then
+            return #a.name < #b.name
         end
+        if a.isPercent ~= b.isPercent then
+            return not a.isPercent -- 数值在前，百分比在后
+        end
+        return a.name < b.name
+    end)
+
+    for _, entry in ipairs(sorted) do
+        local v = entry.data
+        local attConfig = entry.attConfig
+        local name = entry.name
+        local value = v[2]
+        if (attConfig and attConfig.type == 2) then --万分比除100
+            value = string.format("%.1d", value / 100) .. "%"
+        end
+        if (attConfig and attConfig.type == 3) then --百分比
+            value = string.format("%.1d", value) .. "%"
+        end
+        local oneStr = name .."+".. value
+        local color = (attConfig and attConfig.color) or 255
+        
+        if color and color > 0 then
+            -- SL:release_print(string.format("<font color='%s'>%s</font>", SL:GetHexColorByStyleId(color), oneStr))
+            attr_desc = attr_desc .. string.format("<font color='%s'>%s</font>\n", SL:GetHexColorByStyleId(color), oneStr)
+        end
+    end
     return attr_desc
 end
 

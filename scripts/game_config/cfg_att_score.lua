@@ -1109,6 +1109,7 @@ local config = {
 		isshow = 0,
 		scolor = 250,
 		sort = 999,
+		ys = 1,
 		noshowtips = 1,
 	},
 	[281] = { 
@@ -1118,6 +1119,7 @@ local config = {
 		isshow = 0,
 		scolor = 250,
 		sort = 999,
+		ys = 1,
 		noshowtips = 1,
 	},
 	[282] = { 
@@ -1127,6 +1129,7 @@ local config = {
 		isshow = 0,
 		scolor = 250,
 		sort = 999,
+		ys = 1,
 		noshowtips = 1,
 	},
 	[283] = { 
@@ -1136,6 +1139,7 @@ local config = {
 		isshow = 0,
 		scolor = 250,
 		sort = 999,
+		ys = 1,
 		noshowtips = 1,
 	},
 	[284] = { 
@@ -1145,6 +1149,7 @@ local config = {
 		isshow = 0,
 		scolor = 250,
 		sort = 999,
+		ys = 1,
 		noshowtips = 1,
 	},
 	[285] = { 
@@ -1154,6 +1159,7 @@ local config = {
 		isshow = 0,
 		scolor = 250,
 		sort = 999,
+		ys = 1,
 		noshowtips = 1,
 	},
 	[286] = { 
@@ -1163,6 +1169,7 @@ local config = {
 		isshow = 0,
 		scolor = 250,
 		sort = 999,
+		ys = 1,
 		noshowtips = 1,
 	},
 	[287] = { 
@@ -1172,6 +1179,7 @@ local config = {
 		isshow = 0,
 		scolor = 250,
 		sort = 999,
+		ys = 1,
 		noshowtips = 1,
 	},
 	[288] = { 
@@ -1181,6 +1189,7 @@ local config = {
 		isshow = 0,
 		scolor = 250,
 		sort = 999,
+		ys = 1,
 		noshowtips = 1,
 	},
 	[289] = { 
@@ -1190,6 +1199,7 @@ local config = {
 		isshow = 0,
 		scolor = 250,
 		sort = 999,
+		ys = 1,
 		noshowtips = 1,
 	},
 	[290] = { 
@@ -1199,6 +1209,7 @@ local config = {
 		isshow = 0,
 		scolor = 250,
 		sort = 999,
+		ys = 1,
 		noshowtips = 1,
 	},
 	[291] = { 
@@ -1208,6 +1219,7 @@ local config = {
 		isshow = 0,
 		scolor = 250,
 		sort = 999,
+		ys = 1,
 		noshowtips = 1,
 	},
 	[300] = { 
@@ -1217,8 +1229,9 @@ local config = {
 		type = 3,
 		desc = "全属性加成",
 		isshow = 2,
-		scolor = 249,
+		scolor = 151,
 		sort = 999,
+		ys = 1,
 	},
 }
 return config

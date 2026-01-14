@@ -458,7 +458,7 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
                         GUI:Button_setGrey(gwcs, false)
                     end
                 end)
-
+                --醉酒狂魔舞
                 local zjkmw = GUI:Button_Create(npc.RightBottom, "zjkmw", -80, 550 - 130, "res/custom/five_city/zjkmw/img.png")
                 GUI:addOnClickEvent(zjkmw, function()
 

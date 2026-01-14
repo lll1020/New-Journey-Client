@@ -35,7 +35,7 @@ function npc.main(npcid, p2, p3, msgData)
 
         if item then
 
-            GUI:setAnchorPoint(GUI:RichText_Create(node, "attr_desc", 100, 330,  Player:showEquipBaseAttr(item), 200, 17, "#f7f7de", 3,nil,nil)
+            GUI:setAnchorPoint(GUI:RichText_Create(node, "attr_desc", 100, 330,  "<font color='#00FF00'>人物生命+"..(npc._config.config[Player:getEquipFieldByIndex(item.Index, 1)] and npc._config.config[Player:getEquipFieldByIndex(item.Index, 1)].ex_arrt[1] or 1).."%</font>\n"..Player:showEquipBaseAttr(item), 200, 17, "#f7f7de", 3,nil,nil)
             , 0, 1)
             local equipLevel = Player:getEquipFieldByIndex(item.Index, 1)
             equipLevel = tonumber(equipLevel)
@@ -51,7 +51,7 @@ function npc.main(npcid, p2, p3, msgData)
                 local cost_show = ItemNumByTable_img(config.cost, nil,GUI:Node_Create(node, "cost_show", 0, 0))
                 GUI:setPosition(cost_show, 520, 140)
 
-                GUI:setAnchorPoint(GUI:RichText_Create(node, "attr_desc_next", 100, 330 - 185,  Player:showEquipBaseAttr(SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",config.give))), 200, 17, "#f7f7de", 3,nil,nil)
+                GUI:setAnchorPoint(GUI:RichText_Create(node, "attr_desc_next", 100, 330 - 185,  "<font color='#00FF00'>人物生命+"..config.ex_arrt[1].."%</font>\n"..Player:showEquipBaseAttr(SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",config.give))), 200, 17, "#f7f7de", 3,nil,nil)
                 , 0, 1)
                 local Button= GUI:Button_Create(node, "Button", 450, 10.00, "res/custom/one_city/btn_1.png")
                 GUI:addOnClickEvent(Button, function()
