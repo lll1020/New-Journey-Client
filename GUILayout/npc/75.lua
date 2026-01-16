@@ -61,9 +61,12 @@ function npc.main(npcid, p2, p3, msgData)
         npc.xjm = GUI:Node_Create(node, "xjm", 0, 0)
 
         for i = 1, 4 do
-            local cbl_item = GUI:Button_Create(node, "item" .. i, 27 + (i-1)*182, 330, "res/custom/five_city/zbjf/l_"..i..".png")
+            local cbl_item = GUI:Button_Create(node, "item" .. i, 27 + (i-1)*182, 330, "res/custom/five_city/zbjf/"..(npc.titles_sign == i and "l" or "n").."_"..i..".png")
             GUI:addOnClickEvent(cbl_item, function()
+                GUI:Button_loadTextureNormal(GUI:ui_delegate(node)["item" .. npc.titles_sign], "res/custom/five_city/zbjf/n_"..npc.titles_sign..".png")
                 npc.titles_sign = i
+                GUI:Button_loadTextureNormal(cbl_item, "res/custom/five_city/zbjf/l_"..i..".png")
+
                 xjm_UI_updata(npc.xjm,i)
             end)
         end

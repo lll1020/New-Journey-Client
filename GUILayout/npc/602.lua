@@ -41,7 +41,7 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:setScale(model, config.scale or 1)
         
 
-        local state = (npc.data.T_dljq["npc_602"][""..idx] and npc.data.T_dljq["npc_602"][""..idx] == 1) and 2 or 1
+        local state = (npc.data.T_dljq["npc_602"][""..idx] and npc.data.T_dljq["npc_602"][""..idx] == 2) and 2 or 1
         GUI:Text_setFontName(GUI:Text_Create(Label_node, "state",430,299, 25, state_info[state].color, state_info[state].text)
         , "fonts/501.ttf")
         GUI:Text_setFontName(GUI:Text_Create(Label_node, "time",430,299 - 53, 25, "#B2F022", config.time.."秒")

@@ -5,7 +5,7 @@ npc._config = teshudata["npc_7"]
 
 
 local WINDOW_OPTS = {
-    background = {skin = "res/custom/one_city/6_bg.png", eff = true},
+    background = {skin = "res/custom/one_city/7_bg.png", eff = true},
     title = {x = 56, y = 464, skin = "res/custom/one_city/7_title.png"},
 }
 
