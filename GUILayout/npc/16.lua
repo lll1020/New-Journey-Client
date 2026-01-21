@@ -8,6 +8,12 @@ local WINDOW_OPTS = {
     background = {skin = "res/custom/one_city/sbk/bg.png", eff = true},
     title = {x = 56, y = 464, skin = "res/custom/one_city/sbk/title.png"},
 }
+local pos = {
+    {461,108},
+    {329,94},
+    {416,181},
+    {238,214},
+}
 
 function npc.main(npcid, p2, p3, msgData)
 
@@ -27,6 +33,17 @@ function npc.main(npcid, p2, p3, msgData)
     local function GUI_createLabel(Label_node,idx)
         GUI:removeAllChildren(Label_node)
         GUI:Image_Create(Label_node, "bg", 0, 0, "res/custom/one_city/sbk/bg_"..idx..".png")
+        if idx == 1 then
+            for i=1,4 do
+                local btn = GUI:Button_Create(Label_node, "item" .. i, pos[i][1], pos[i][2], "res/custom/one_city/sbk/btn/l/btn_"..i..".png")
+                GUI:setAnchorPoint(btn, 0.5, 0)
+                GUI:addOnClickEvent(btn, function()
+                    SL:SendLuaNetMsg(100, npcid, 1, i, "")
+                end)
+            end
+        elseif idx == 2 then
+              
+        end
     end
 
     local function UI_updata(node) --界面渲染

@@ -173,15 +173,22 @@ function npc.main(npcid, p2, p3, msgData)
                 end
                 GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 1,gap = {x=40, y=10}})
             elseif idx == 3 then
+                npc.data.T_data.wangshi = npc.data.T_data.wangshi or {}
+                
                 local ScrollView = GUI:ScrollView_Create(Label_node, "ScrollView", 220, 110, 333, 346, 1)
                 GUI:ScrollView_setBounceEnabled(ScrollView, true)
-                GUI:ScrollView_setInnerContainerSize(ScrollView, 333, ((157 + 10) * 10))
-                local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 0,0, 312, ((157 + 10) * 10))
+                GUI:ScrollView_setInnerContainerSize(ScrollView, 333, ((157 + 10) * #npc._config.details[3]))
+                local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 0,0, 312, ((157 + 10) * #npc._config.details[3]))
                 npc.data.T_data.caowei = npc.data.T_data.caowei or {}
 
-                for i = 1, 10 do
+                for i = 1, #npc._config.details[3] do
+                    local config = npc._config.details[3][i]
                     local kuang = GUI:Image_Create(dbLayout, "kuang"..i, 0, 0, "res/custom/tianshu/ws/xnj_bg.png")
-                    
+                    GUI:Text_Create(kuang, "name", 20, 110, 20, "#FFFFFF", config.name)
+                    if npc.data.T_data.wangshi[""..i] then
+                        local desc = GUI:RichText_Create(kuang, "desc", 20, 100, string.format(config.desc,unpack(npc.data.T_data.wangshi[""..i])), 290, 16, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+                        GUI:setAnchorPoint(desc, 0, 1)
+                    end
                 end
                 GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 1,gap = {x=40, y=10}})
             end
@@ -196,10 +203,19 @@ function npc.main(npcid, p2, p3, msgData)
             local cbl_item = GUI:Frames_Create(node, "item" .. i, 100+(i-1)*170, -20, "res/custom/tianshu/"..titles[i].."/btn_", ".png", 1, 15,
             { speed = 100, count = 15, loop = -1})
             GUI:setTouchEnabled(cbl_item, true)
+            if npc.titles_sign == i then
+                local kuang = GUI:Image_Create(cbl_item, "kuang", 140/2, 140/2, "res/wy/public/003.png")
+                GUI:setContentSize(kuang, 150, 140)
+                GUI:setAnchorPoint(kuang, 0.5, 0.5)
+            end
             -- GUI:Button_setTitleText(cbl_item, titles[i])
             -- GUI:Button_setTitleFontSize(cbl_item, 14)
             GUI:addOnClickEvent(cbl_item, function()
+                GUI:removeChildByName(GUI:ui_delegate(node)["item"..npc.titles_sign],"kuang")
                 npc.titles_sign = i
+                local kuang = GUI:Image_Create(GUI:ui_delegate(node)["item"..npc.titles_sign], "kuang", 140/2, 140/2, "res/wy/public/003.png")
+                GUI:setContentSize(kuang, 150, 140)
+                GUI:setAnchorPoint(kuang, 0.5, 0.5)
                 GUI_createLabel(npc.Label,i)
             end)
         end

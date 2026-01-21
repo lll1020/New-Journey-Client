@@ -54,8 +54,8 @@ function npc.main(npcid, p2, p3, msgData)
                 kuang = GUI:Image_Create(node, "kuang2", 404 + 209, 353, "res/wy/public/70_70_k.png")
                 UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",config.give)))
                 
-                local cost_show = ItemNumByTable_img(config.cost, nil,GUI:Node_Create(node, "cost_show", 0, 0))
-                GUI:setPosition(cost_show, 480, 100)
+                local cost_show = checkItemNumByTable_img_kuang(config.cost, nil,GUI:Node_Create(node, "cost_show", 0, 0))
+                GUI:setPosition(cost_show, 450, 100)
 
                 GUI:setAnchorPoint(GUI:RichText_Create(node, "attr_desc_next", 370 + 350, 320,  Player:showEquipBaseAttr(SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",config.give))), 200, 17, "#f7f7de", 3,nil,nil)
                 , 1, 1)

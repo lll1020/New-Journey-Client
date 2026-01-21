@@ -39,12 +39,15 @@ end
             GUI:Text_setFontName(GUI:Text_Create(node, "desc2",490,305, 25, "#ffffff", "人物切割："..npc._config.config[npc.data.dj_num].ratio.."→"..npc._config.config[npc.data.dj_num + 1].ratio)
             , "fonts/500.ttf")
 
-            local kuang = GUI:Image_Create(node, "kuang2", 750 - 240, 250 - 140, "res/wy/public/70_70_k.png")
-            local showItem = UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",config.cost[1][1])))
-            GUI:ItemShow_OnRunFunc(showItem, "SetCount", config.cost[1][2])
+            
+
+            local cost_show = checkItemNumByTable_img_kuang(config.cost, nil,GUI:Node_Create(node, "cost_show", 0, 0))
+            GUI:setPosition(cost_show, 750 - 250, 120)
 
             if npc.data.dj_num == 0 then
-                kuang = GUI:Image_Create(node, "kuang10", 750 - 240, 220, "res/wy/public/70_70_k.png")
+                GUI:Text_setFontName(GUI:Text_Create(node, "tip_max",400,250, 30, "#FF0000", "到达好感度5级时：")
+                , "fonts/500.ttf")
+                local kuang = GUI:Image_Create(node, "kuang10", 850 - 240 + 30, 220, "res/wy/public/70_70_k.png")
                 UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.half_give)))
             end
 

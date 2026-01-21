@@ -30,7 +30,14 @@ function npc.main(npcid, p2, p3, msgData)
         if idx == 1 then
             GUI:Image_Create(localNode, "wz1", 490, 380, "res/custom/four_city/lingshou/xjm/tip_1.png")
             GUI:Image_Create(localNode, "wz2", 490, 380 - 70, "res/custom/four_city/lingshou/xjm/tip_5.png")
-            GUI:Image_Create(localNode, "wz3", 490, 380 - 140, "res/custom/four_city/lingshou/xjm/tip_4.png")
+            -- GUI:Image_Create(localNode, "wz3", 490, 380 - 140, "res/custom/four_city/lingshou/xjm/tip_4.png")
+
+            
+            GUI:Text_setFontName(GUI:Text_Create(localNode, "b_skill",500,360, 18, "#FFFFFF", npc._config.config.ls[npc.titles_sign].b_skill)
+            , "fonts/500.ttf")
+            local s_skill = GUI:Text_Create(localNode, "s_skill",500,360 - 45, 18, "#FFFFFF", npc._config.config.ls[npc.titles_sign].s_skill)
+            GUI:Text_setFontName(s_skill, "fonts/500.ttf")
+            GUI:setAnchorPoint(s_skill,0, 1)
 
 
             if npc.ls_data.T_data.ls[""..npc.titles_sign] >= npc._config.config.wy.max_level then
@@ -53,6 +60,20 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:Image_Create(localNode, "wz1", 490, 380, "res/custom/four_city/lingshou/xjm/tip_2.png")
             GUI:Image_Create(localNode, "wz2", 490, 380 - 100, "res/custom/four_city/lingshou/xjm/tip_3.png")
 
+            GUI:Text_setFontName(GUI:Text_Create(localNode, "attr_give_wz",500,360, 18, "#FFFFFF", npc._config.config.ls[npc.titles_sign].attr_give_wz)
+            , "fonts/500.ttf")
+            GUI:Text_setFontName(GUI:Text_Create(localNode, "attr_wz",500,360 - 100, 18, "#FFFFFF", npc._config.config.ls[npc.titles_sign].attr_wz)
+            , "fonts/500.ttf")
+
+            local attr = deepCopy(npc._config.config.wy.det[npc.ls_data.T_data.ls[""..npc.titles_sign] or 1].attr)
+            for v,k in pairs(attr) do
+                local kuang = GUI:Image_Create(localNode, "kuang"..v, 500, 360 - (v-1)*20 - 30, "res/custom/tianshu/qh/tip.png")
+                -- k[2] = k[2] * npc.data.T_data.level[""..npc.current_idx]
+                GUI:RichText_Create(kuang, "attr_desc", 20, 0, Player:showAttr({{k[1],k[2]}}), 200, 17, "#f7f7de", 3,nil,nil)
+                GUI:Image_Create(kuang, "jt", 150, 0, "res/custom/tianshu/qh/jt.png")
+                GUI:Text_Create(kuang, "old_attr_v",200,3, 17, "#00FFFF", (npc.ls_data.T_data.ls[""..npc.titles_sign] < npc._config.config.wy.max_level) and (npc._config.config.wy.det[(npc.ls_data.T_data.ls[""..npc.titles_sign] or 1) + 1].attr[v][2]) .. "(下一级亲密度)" or "已满级")
+            end
+
         end
     end
     local function xjm_UI_updata() --小界面渲染
@@ -68,8 +89,8 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:setAnchorPoint(eff,0.5, 0.5)
         local wz = GUI:Image_Create(npc.xjm_node, "wz1", 290, 430, "res/custom/four_city/lingshou/xjm/wz_"..npc.titles_sign..".png")
         GUI:setAnchorPoint(wz,0.5, 0.5)
-        GUI:Text_Create(wz, "qmd", 170, 31, 20, "#FF00FF", npc.ls_data.T_data.ls[""..npc.titles_sign] or 0)
-        GUI:Text_Create(wz, "zhsj", 170, 5, 20, "#00FFFF", npc._config.config.wy.det[npc.ls_data.T_data.ls[""..npc.titles_sign] or 1].time.."秒")
+        GUI:Text_Create(wz, "qmd", 170, 31, 20, "#FF00FF", ((npc.ls_data.T_data.ls[""..npc.titles_sign] or 0) * 10) .."%")
+        GUI:Text_Create(wz, "zhsj", 170, 7, 18, "#00FFFF", npc._config.config.wy.det[npc.ls_data.T_data.ls[""..npc.titles_sign] or 1].time.."秒")
 
         GUI:Image_Create(npc.xjm_node, "wz2", 430, 415, "res/custom/four_city/lingshou/xjm/wz/wz_"..npc.titles_sign..".png")
 
@@ -78,6 +99,7 @@ function npc.main(npcid, p2, p3, msgData)
         local kuang = GUI:Image_Create(npc.xjm_node, "kuang2", 170 + 120, 150 - 10, "res/wy/public/58_58_kuang.png")
         local item = GUI:ItemShow_Create(kuang, "item", 58/2, 58/2, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.config.ls[npc.titles_sign].syw), look = true, bgVisible = false })
         GUI:setAnchorPoint(item,0.5, 0.5)
+        npc.ls_data.T_data.syw = npc.ls_data.T_data.syw or {}
         GUI:Text_Create(kuang, "qmd", 40, 0, 18, "#FF00FF", (npc.ls_data.T_data.syw[""..npc.titles_sign] and npc.ls_data.T_data.syw[""..npc.titles_sign] == 1) and "已激活" or "未激活")
 
         local Button= GUI:Button_Create(npc.xjm_node, "Button", 800, 0.00, "res/custom/four_city/lingshou/xjm/btn_cz.png")
@@ -124,6 +146,9 @@ function npc.main(npcid, p2, p3, msgData)
                     { speed = 75, count = 15, loop = -1})
                 GUI:setAnchorPoint(eff,0.5, 0.5)
             end
+            for ii = 1, 3 do
+                GUI:Image_Create(Button, "star"..ii, 90, 80 + (ii-1)*40, "res/custom/four_city/lingshou/star_"..((npc.ls_data.T_data.ls_sp[""..i] or 0)>ii and "l" or "n")..".png")
+            end
 
             
 
@@ -168,7 +193,11 @@ function npc.main(npcid, p2, p3, msgData)
         ensureWindow(npcid)
         UI_updata(npc.node)
     elseif p2 == 1 then
+        npc.ls_data = SL:JsonDecode(msgData,false)
         UI_updata(npc.node)
+    elseif p2 == 3 then
+        npc.ls_data = SL:JsonDecode(msgData,false)
+        xjm_UI_updata()
     end
 end
 

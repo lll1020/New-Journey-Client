@@ -56,8 +56,8 @@ function npc.main(npcid, p2, p3, msgData)
             end)
         end
         
-        local cost_show = ItemNumByTable_img(k.cost, nil,GUI:Node_Create(Label_node, "cost_show", 0, 0))
-        GUI:setPosition(cost_show, 80, 20)
+        local cost_show = checkItemNumByTable_img_kuang(k.cost, nil,GUI:Node_Create(Label_node, "cost_show", 0, 0))
+        GUI:setPosition(cost_show, 50, 30)
 
         local Button= GUI:Button_Create(Label_node, "Button", 350, 5, "res/custom/three_city/jnqh/btn.png")
         GUI:addOnClickEvent(Button, function()

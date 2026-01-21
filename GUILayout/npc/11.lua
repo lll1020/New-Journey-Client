@@ -70,8 +70,8 @@ function npc.main(npcid, p2, p3, msgData)
                 return
             end
 
-            local cost_show = ItemNumByTable_img(npc._config.cost, nil,GUI:Node_Create(label_node, "cost_show", 0, 0))
-            GUI:setPosition(cost_show, 750 - 250, 350 - 200)
+            local cost_show = checkItemNumByTable_img_kuang(npc._config.cost, nil,GUI:Node_Create(label_node, "cost_show", 0, 0))
+            GUI:setPosition(cost_show, 750 - 250 - 60, 350 - 200)
 
             
             local Button= GUI:Button_Create(label_node, "Button", 490, 70, "res/custom/one_city/cuiti/btn.png")

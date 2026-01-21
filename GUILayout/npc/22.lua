@@ -52,7 +52,7 @@ function npc.main(npcid, p2, p3, msgData)
             -- k[2] = k[2] * npc.data.T_data.level[""..npc.current_idx]
             GUI:RichText_Create(kuang, "attr_desc", 20, 0, Player:showAttr({{k[1],k[2] * npc.data.T_data.level[""..npc.current_idx]}}), 200, 17, "#f7f7de", 3,nil,nil)
             GUI:Image_Create(kuang, "jt", 128, 0, "res/custom/tianshu/qh/jt.png")
-            GUI:Text_Create(kuang, "old_attr_v",160,3, 17, "##109C18", (npc.data.T_data.level[""..npc.current_idx] and npc.data.T_data.level[""..npc.current_idx] < npc._config.main_updata.max_level) and (k[2] * (npc.data.T_data.level[""..npc.current_idx] + 1)) or "已满级")
+            GUI:Text_Create(kuang, "old_attr_v",160,3, 17, "#00FFFF", (npc.data.T_data.level[""..npc.current_idx] and npc.data.T_data.level[""..npc.current_idx] < npc._config.main_updata.max_level) and (k[2] * (npc.data.T_data.level[""..npc.current_idx] + 1)) or "已满级")
         end
 
         -- for v,k in pairs(attr) do
