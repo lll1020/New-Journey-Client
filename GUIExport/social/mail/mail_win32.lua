@@ -60,7 +60,7 @@ function ui.init(parent)
 
 	-- Create panel_title
 	local panel_title = GUI:Layout_Create(panel_main, "panel_title", 2.00, 360.00, 400.00, 24.00, false)
-	GUI:Layout_setBackGroundImage(panel_title, "res/private/mail/1900020064.png")
+	-- GUI:Layout_setBackGroundImage(panel_title, "res/private/mail/1900020064.png")
 	GUI:Layout_setBackGroundImageScale9Slice(panel_title, 0, 35, 11, 123)
 	GUI:setChineseName(panel_title, "邮件主题组合")
 	GUI:setTouchEnabled(panel_title, false)
@@ -84,7 +84,7 @@ function ui.init(parent)
 
 	-- Create panel_sender
 	local panel_sender = GUI:Layout_Create(panel_main, "panel_sender", 2.00, 338.00, 400.00, 24.00, false)
-	GUI:Layout_setBackGroundImage(panel_sender, "res/private/mail/1900020064.png")
+	-- GUI:Layout_setBackGroundImage(panel_sender, "res/private/mail/1900020064.png")
 	GUI:Layout_setBackGroundImageScale9Slice(panel_sender, 0, 35, 11, 123)
 	GUI:setChineseName(panel_sender, "邮件发送者组合")
 	GUI:setTouchEnabled(panel_sender, false)
@@ -108,7 +108,7 @@ function ui.init(parent)
 
 	-- Create panel_time
 	local panel_time = GUI:Layout_Create(panel_main, "panel_time", 2.00, 315.00, 400.00, 24.00, false)
-	GUI:Layout_setBackGroundImage(panel_time, "res/private/mail/1900020064.png")
+	-- GUI:Layout_setBackGroundImage(panel_time, "res/private/mail/1900020064.png")
 	GUI:Layout_setBackGroundImageScale9Slice(panel_time, 0, 35, 11, 123)
 	GUI:setChineseName(panel_time, "邮件时间组合")
 	GUI:setTouchEnabled(panel_time, false)
@@ -132,7 +132,7 @@ function ui.init(parent)
 
 	-- Create panel_mailContent
 	local panel_mailContent = GUI:Layout_Create(panel_main, "panel_mailContent", 7.00, 125.00, 390.00, 185.00, false)
-	GUI:Layout_setBackGroundImage(panel_mailContent, "res/private/mail/1900020064.png")
+	-- GUI:Layout_setBackGroundImage(panel_mailContent, "res/private/mail/1900020064.png")
 	GUI:Layout_setBackGroundImageScale9Slice(panel_mailContent, 0, 35, 0, 35)
 	GUI:setChineseName(panel_mailContent, "邮件_详细内容_文本")
 	GUI:setTouchEnabled(panel_mailContent, false)

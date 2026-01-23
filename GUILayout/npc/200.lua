@@ -4,31 +4,46 @@
 
 local RAW_MAP_CONFIG = {
     -- {地图名, x, y, 限制fun, 提示文本, 大陆ID, mob_name = "", mob_shape = 0, min_map = ""}
-    [201] = {"山庄", 0, 0, nil, nil, 1, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
-    [202] = {"幽谷", 0, 0, nil, nil, 1, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
-    [203] = {"洞穴", 0, 0, nil, nil, 1, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
-    [204] = {"古殿", 0, 0, nil, nil, 1, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [201] = {"山庄",0,0,nil,nil,1, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [202] = {"幽谷",0,0,nil,nil,1, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [203] = {"洞穴",0,0,nil,nil,1, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [204] = {"古殿",0,0,nil,nil,1, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
 
-    [205] = {"隐藏地图二", 100, 100, nil, nil, 2, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
-    [206] = {"野火帮", 100, 100, nil, nil, 2, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
-    [207] = {"极光城郊", 100, 100, nil, nil, 2, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
-    [208] = {"兵道古藏", 100, 100, nil, nil, 2, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
-    [209] = {"夜魔洞", 100, 100, nil, nil, 2, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
-    [210] = {"特殊秘境副本二", 100, 100, nil, nil, 2, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [205] = {"隐藏地图二",0,0,nil,nil,2, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [206] = {"野火帮",100,100,nil,nil,2, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [207] = {"极光城郊",100,100,nil,nil,2, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [208] = {"兵道古藏",100,100,nil,nil,2, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [209] = {"夜魔洞",100,100,nil,nil,2, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [210] = {"特殊秘境副本二",0,0,nil,nil,2, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
 
-    [211] = {"隐藏地图三", 100, 100, nil, nil, 3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
-    [212] = {"灰界", 100, 100, nil, nil, 3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
-    [213] = {"藏星海", 100, 100, nil, nil, 3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
-    [214] = {"红尘城", 100, 100, nil, nil, 3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
-    [215] = {"无主深渊", 100, 100, nil, nil, 3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
-    [216] = {"草药谷", 100, 100, nil, nil, 3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
-    [217] = {"特殊秘境副本三", 100, 100, nil, nil, 3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [211] = {"隐藏地图三",0,0,nil,nil,3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [212] = {"灰界",100,100,nil,nil,3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [213] = {"藏星海",100,100,nil,nil,3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [214] = {"苍云城",100,100,nil,nil,3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    -- [215] = {"无主深渊",100,100,nil,nil,3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [216] = {"草药谷",100,100,nil,nil,3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [217] = {"特殊秘境副本三",0,0,nil,nil,3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+
+    [218] = {"酆都鬼城",100,100,nil,nil,4, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [219] = {"大唐·长安城",100,100,nil,nil,4, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [220] = {"生肖灵域",100,100,nil,nil,4, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [221] = {"传说之地",100,100,nil,nil,4, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+
+    [222] = {"灵兽谷",100,100,nil,nil,5, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [223] = {"时空裂隙",100,100,nil,nil,5, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [224] = {"生命边界",100,100,nil,nil,5, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [225] = {"聊斋志异",100,100,nil,nil,5, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [226] = {"敦煌遗梦",100,100,nil,nil,5, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [227] = {"世界禁墟",100,100,nil,nil,5, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
 }
 
 local CONTINENT_LABELS = {
     [1] = "第一大陆",
     [2] = "第二大陆",
     [3] = "第三大陆",
+    [4] = "第四大陆",
+    [5] = "第五大陆",
+    [6] = "第六大陆",
 }
 
 local NPC_ALLOW_DEEP = {
@@ -318,12 +333,12 @@ function npc.main(npcid, p2, p3, msgData)
         end, {fontSize = 20,skin = "res/custom/ditu/qrcs_btn.png"})
         GUI:setAnchorPoint(enterBtn, 0.5, 0.5)
 
-        if NPC_ALLOW_DEEP[npcid] then
-            local deepBtn = NPC_UI_HELPER.createPrimaryButton(node, "enter_deep_btn", 200, actionY, "进入地图深处", function()
-                SL:SendLuaNetMsg(100, npcid, 1, 1, "")
-            end, {fontSize = 20})
-            GUI:setAnchorPoint(deepBtn, 0.5, 0.5)
-        end
+        -- if NPC_ALLOW_DEEP[npcid] then
+        --     local deepBtn = NPC_UI_HELPER.createPrimaryButton(node, "enter_deep_btn", 200, actionY, "进入地图深处", function()
+        --         SL:SendLuaNetMsg(100, npcid, 1, 1, "")
+        --     end, {fontSize = 20})
+        --     GUI:setAnchorPoint(deepBtn, 0.5, 0.5)
+        -- end
 
         if npc.data and npc.data.extraTips then
             local infoRich = GUI:RichText_Create(node, "extra_tips", 220, actionY - 60,

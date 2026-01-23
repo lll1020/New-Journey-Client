@@ -1963,6 +1963,198 @@ npc[22] = function(p2, p3, Data)  --法宝
     end
 end
 
+---砍树系统
+npc[30] = function(p2, p3, Data)
+    local function btn_updata_1_xjm() --界面渲染
+        local config = teshudata["anniu_30"]
+        npc.xjm_window = NPC_UI_HELPER.ensureWindow(nil, 30, {
+            windowName = "npc_anniu_30_xjm",
+            background = {skin = "res/custom/three_city/xianfu/kanshu/updata_1/bg.png"},
+            closeButton = {x = 650, y = 320},
+        })
+        npc.xjm_node = npc.xjm_window.node
+
+        GUI:setAnchorPoint(GUI:Image_Create(npc.xjm_node, "level_1", 210, 235, "res/custom/three_city/xianfu/kanshu/updata_1/level_"..npc.data_30.T_data.axe..".png"), 0.5, 0.5)
+        GUI:setAnchorPoint(GUI:Image_Create(npc.xjm_node, "wz_1", 210, 150, "res/custom/three_city/xianfu/kanshu/updata_1/wz_"..npc.data_30.T_data.axe..".png"), 0.5, 0.5)
+
+        GUI:Text_setFontName(GUI:Text_Create(npc.xjm_node, "cost", 370, 105, 30, "#FFFFFF", config.updata[1].details[npc.data_30.T_data.axe].cost[1][2])
+        , "fonts/501.ttf")
+        if npc.data_30.T_data.axe >= config.updata[1].max_level then
+            GUI:setAnchorPoint(GUI:Button_Create(npc.xjm_node, "btn", 364, 10, "res/wy/public/15.png"), 0.5, 0)
+        else
+            GUI:setAnchorPoint(GUI:Image_Create(npc.xjm_node, "level_2", 488, 235, "res/custom/three_city/xianfu/kanshu/updata_1/level_"..(npc.data_30.T_data.axe + 1)..".png"), 0.5, 0.5)
+            GUI:setAnchorPoint(GUI:Image_Create(npc.xjm_node, "wz_2", 488, 150, "res/custom/three_city/xianfu/kanshu/updata_1/wz_"..(npc.data_30.T_data.axe + 1)..".png"), 0.5, 0.5)
+
+            local btn = GUI:Button_Create(npc.xjm_node, "btn", 364, 10, "res/custom/three_city/xianfu/kanshu/updata_1/btn.png")
+            GUI:setAnchorPoint(btn, 0.5, 0)
+            GUI:addOnClickEvent(btn, function()  SL:SendLuaNetMsg(101, 30, 1, 1, '')  end)
+        end
+
+        
+
+    end
+    local function btn_updata_2_xjm() --界面渲染
+        local config = teshudata["anniu_30"]
+        npc.xjm_window = NPC_UI_HELPER.ensureWindow(nil, 30, {
+            windowName = "npc_anniu_30_xjm",
+            background = {skin = "res/custom/three_city/xianfu/kanshu/updata_2/bg.png"},
+            closeButton = {x = 650, y = 320},
+        })
+        npc.xjm_node = npc.xjm_window.node
+
+        GUI:setAnchorPoint(GUI:Image_Create(npc.xjm_node, "level_1", 420, 350, "res/custom/three_city/xianfu/kanshu/updata_2/level_"..npc.data_30.T_data.auto..".png"), 0.5, 0.5)
+        GUI:Text_setFontName(GUI:Text_Create(npc.xjm_node, "cost", 370, 105, 30, "#FFFFFF", config.updata[2].details[npc.data_30.T_data.auto].cost[1][2])
+        , "fonts/501.ttf")
+
+        if npc.data_30.T_data.auto >= config.updata[2].max_level then
+            GUI:setAnchorPoint(GUI:Button_Create(npc.xjm_node, "btn", 364, 10, "res/wy/public/15.png"), 0.5, 0)
+        else
+            local btn = GUI:Button_Create(npc.xjm_node, "btn", 364, 10, "res/custom/three_city/xianfu/kanshu/updata_2/btn.png")
+            GUI:setAnchorPoint(btn, 0.5, 0)
+            GUI:addOnClickEvent(btn, function()  SL:SendLuaNetMsg(101, 30, 1, 2, '')  end)
+        end
+
+        
+
+    end
+    local function btn_buy_xjm() --界面渲染
+        local config = teshudata["anniu_30"]
+        npc.xjm_window = NPC_UI_HELPER.ensureWindow(nil, 30, {
+            windowName = "npc_anniu_30_xjm",
+            background = {skin = "res/custom/three_city/xianfu/kanshu/buy/bg.png"},
+            closeButton = {x = 600, y = 260},
+        })
+        npc.xjm_node = npc.xjm_window.node
+        GUI:Text_setFontName(GUI:Text_Create(npc.xjm_node, "cost", 422, 100, 30, "#FFFFFF", (npc.data_30.T_data.dh_num + 1) > #config.dh.details and config.dh.cost[1][2] or config.dh.details[npc.data_30.T_data.dh_num + 1].cost[1][2])
+        , "fonts/501.ttf")
+        GUI:setAnchorPoint(GUI:ItemShow_Create(npc.xjm_node, "item1", 250,196, {index=SL:GetMetaValue("ITEM_INDEX_BY_NAME","仙府币"),count = 1,look= true}), 0.5, 0.5)
+        GUI:setAnchorPoint(GUI:ItemShow_Create(npc.xjm_node, "item2", 490,196, {index=SL:GetMetaValue("ITEM_INDEX_BY_NAME","砍树盲盒"),count = 1,look= true}), 0.5, 0.5)
+
+        local btn = GUI:Button_Create(npc.xjm_node, "btn", 364, 10, "res/custom/three_city/xianfu/kanshu/buy/btn.png")
+        GUI:setAnchorPoint(btn, 0.5, 0)
+        GUI:addOnClickEvent(btn, function()  SL:SendLuaNetMsg(101, 30, 4, 0, '')  end)
+
+    end
+    if p2 == 0 then
+        npc.data_30 = not Data and {} or SL:JsonDecode(Data, false)
+        npc.data_30.T_data.axe = npc.data_30.T_data.axe or 1
+        npc.data_30.T_data.auto = npc.data_30.T_data.auto or 1
+        npc.data_30.T_data.num = npc.data_30.T_data.num or 0
+        npc.data_30.T_data.dh_num = npc.data_30.T_data.dh_num or 0
+        local config = teshudata["anniu_30"]
+        local parent = GUI:GetWindow(nil, "anniu_30")
+        if parent then
+            GUI:removeAllChildren(parent)
+        else
+            parent = GUI:Win_Create("anniu_30", 0, 0, 0, 0, false, false, true, true, true, nil, 1)
+        end
+        local bjt = GUI:Image_Create(parent, "bjt", cogin.w / 2, cogin.h / 2, "res/custom/three_city/xianfu/kanshu/bg_1/eff_1.png")
+        GUI:setAnchorPoint(bjt, 0.5, 0.5)
+        GUI:setContentSize(bjt, cogin.w, cogin.h)
+        GUI:setTouchEnabled(bjt, true)
+        GUI:addMouseOverTips(bjt, "", {x = 0, y = 0}, {x = 0, y = 0})
+
+        local bg = GUI:Frames_Create(bjt, "bg", cogin.w/2,  cogin.h/2, "res/custom/three_city/xianfu/kanshu/bg_"..npc.data_30.T_data.axe.."/eff_", ".png", 1, 75,
+                { speed = 75, count = 75, loop = -1})
+        GUI:setContentSize(bg, cogin.w, cogin.h)
+        GUI:setAnchorPoint(bg, 0.5, 0.5)
+
+        local closeBtn = GUI:Button_Create(bg, 'close', cogin.w - 100,  cogin.h - 150, 'res/wy/public/anniu_4_x_close.png')
+        GUI:addOnClickEvent(closeBtn, function()
+            GUI:Win_Close(parent)
+        end)
+
+        local heidi = GUI:Image_Create(bg, "heidi", 0, cogin.h, "res/custom/three_city/xianfu/kanshu/heidi.png")
+        GUI:setAnchorPoint(heidi, 0, 1)
+        GUI:setContentSize(heidi, cogin.w, GUI:getContentSize(heidi).height)
+        local tip_wz = GUI:Image_Create(heidi, "tip_wz", cogin.w / 2, 30, "res/custom/three_city/xianfu/kanshu/tip_wz.png")
+        GUI:setAnchorPoint(tip_wz, 0.5, 0.5)
+        local lz_wz = GUI:Image_Create(bg, "lz_wz", 0, cogin.h - 200, "res/custom/three_city/xianfu/kanshu/lz_wz.png")
+        GUI:setAnchorPoint(lz_wz, 0, 1)
+
+        local re_wz = GUI:Image_Create(bg, "re_wz", cogin.w, 0, "res/custom/three_city/xianfu/kanshu/re_wz.png")
+        GUI:setAnchorPoint(re_wz, 1, 0)
+
+        local btn_knashu = GUI:Frames_Create(bg, "eff1", 400,  450, "res/custom/three_city/xianfu/kanshu/btn/eff_", ".png", 1, 75,
+                { speed = 75, count = 75, loop = -1})
+        GUI:setAnchorPoint(btn_knashu, 0.5, 0.5)
+        GUI:setTouchEnabled(btn_knashu, true)
+        GUI:addOnClickEvent(btn_knashu, function()
+            SL:SendLuaNetMsg(101, 30, 2, 2, '')
+        end)
+        npc.node = GUI:Node_Create(bg, "node", 0, 0)
+
+        -- SL:dump((config.updata[1].details[npc.data_30.T_data.axe].ratio * config.updata[2].details[npc.data_30.T_data.auto].ratio * config.base_time))
+
+        SL:schedule(npc.node, function() SL:SendLuaNetMsg(101, 30, 2, 1, '') end, (config.updata[1].details[npc.data_30.T_data.axe].ratio * config.updata[2].details[npc.data_30.T_data.auto].ratio * config.base_time))
+        npc.wz1 = GUI:Text_Create(re_wz, "wz1", 133, 483, 20, "#FFFFFF", npc.data_30.T_data.num)
+        npc.wz2 = GUI:Text_Create(re_wz, "wz2", 133, 449, 20, "#FFFFFF", npc.data_30.T_data.dh_num)
+
+        local btn_updata_2 = GUI:Button_Create(re_wz, "btn_updata_2", 278 / 2, 300 - 210, "res/custom/three_city/xianfu/kanshu/btn_updata_2.png")
+        local btn_buy = GUI:Button_Create(re_wz, "btn_buy", 278 / 2, 300 - 70, "res/custom/three_city/xianfu/kanshu/btn_buy.png")
+        local btn_tip = GUI:Button_Create(re_wz, "btn_tip", 278 / 2, 300, "res/custom/three_city/xianfu/kanshu/btn_tip.png")
+        local btn_updata_1 = GUI:Button_Create(re_wz, "btn_updata_", 278 / 2, 300 - 140, "res/custom/three_city/xianfu/kanshu/btn_updata_1.png")
+        GUI:setAnchorPoint(btn_updata_2, 0.5, 0.5)
+        GUI:setAnchorPoint(btn_buy, 0.5, 0.5)
+        GUI:setAnchorPoint(btn_tip, 0.5, 0.5)
+        GUI:setAnchorPoint(btn_updata_1, 0.5, 0.5)
+
+        GUI:addOnClickEvent(btn_updata_2, function()  btn_updata_2_xjm()  end)
+        GUI:addOnClickEvent(btn_buy, function()  
+            btn_buy_xjm()
+        end)
+        GUI:addOnClickEvent(btn_tip, function()  
+            npc.xjm_window = NPC_UI_HELPER.ensureWindow(nil, 30, {
+                windowName = "npc_anniu_30_xjm",
+                background = {skin = "res/custom/three_city/xianfu/kanshu/tip/bg.png"},
+                closeButton = {x = 200, y = 10, skin = "res/custom/three_city/xianfu/kanshu/tip/btn.png"},
+            })
+        end)
+        GUI:addOnClickEvent(btn_updata_1, function()  btn_updata_1_xjm()  end)
+
+       
+       
+       
+
+        
+    elseif p2 == 1 then
+        npc.data_30 = not Data and {} or SL:JsonDecode(Data, false)
+        npc.data_30.T_data.axe = npc.data_30.T_data.axe or 1
+        npc.data_30.T_data.auto = npc.data_30.T_data.auto or 1
+        npc.data_30.T_data.num = npc.data_30.T_data.num or 0
+        npc.data_30.T_data.dh_num = npc.data_30.T_data.dh_num or 0
+        GUI:Text_setString(npc.wz1, npc.data_30.T_data.num)
+        GUI:Text_setString(npc.wz2, npc.data_30.T_data.dh_num)
+    elseif p2 == 2 then
+        npc.data_30 = not Data and {} or SL:JsonDecode(Data, false)
+        if p3 == 1 then
+            btn_updata_1_xjm()
+        elseif p3 == 2 then
+            btn_updata_2_xjm()
+        end
+    
+    elseif p2 == 3 then
+        npc.json = SL:JsonDecode(Data,false) or {}
+        for i= 1, #npc.json do
+            local btn = GUI:ItemShow_Create(npc.node, "item"..os.clock(), math.random(300, 400),math.random(300, 400), {index=SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc.json[i][1]),count = 1,look= true})
+            local endPos = GUI:p(math.random(100, 500),math.random(100, 50))
+            local controlPoint_1 = GUI:p(300, 600)
+            local controlPoint_2 = GUI:p(300, 600)
+            local endPosition = endPos
+            local bezier = GUI:ActionBezierTo(0.5, controlPoint_1, controlPoint_2, endPosition)
+            GUI:runAction(btn,  GUI:ActionSequence(bezier,GUI:DelayTime(10),GUI:CallFunc(function()GUI:removeFromParent(btn)  end)))
+            GUI:Timeline_DelayTime(btn, 100, function()
+                GUI:removeFromParent(btn)
+            end)
+        end
+    elseif p2 == 4 then
+        npc.data_30 = not Data and {} or SL:JsonDecode(Data, false)
+        btn_buy_xjm()
+    
+    end
+end
+
+
 
 ---天人之战面板
 ---天人之战
@@ -3054,11 +3246,16 @@ npc[516] = function(p2, p3, Data)
 
             GUI:setAnchorPoint(GUI:Text_Create(item, "sgsl",228/2,130, 20, "#FF0000", "击杀怪物："..v.sgsl)
             , 0.5, 0.5)
-            local Button= GUI:Button_Create(item, "Button", 228/2, 80, 'res/custom/mfzz/btn.png')
-            GUI:setAnchorPoint(Button, 0.5, 0.5)
-            GUI:addOnClickEvent(Button, function()
-                SL:SendLuaNetMsg(101, 516, 1, k, "")
-            end)
+            if npc.data_516.T_data["zzlb_"..k] then
+                
+                GUI:setAnchorPoint(GUI:Image_Create(item, "Button", 228/2, 80, 'res/wy/public/9.png'), 0.5, 0.5)
+            else
+                local Button= GUI:Button_Create(item, "Button", 228/2, 80, 'res/custom/mfzz/btn.png')
+                GUI:setAnchorPoint(Button, 0.5, 0.5)
+                GUI:addOnClickEvent(Button, function()
+                    SL:SendLuaNetMsg(101, 516, 1, k, "")
+                end)
+            end
 
         end
 

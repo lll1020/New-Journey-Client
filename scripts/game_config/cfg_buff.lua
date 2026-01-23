@@ -200,6 +200,13 @@ local config = {
 		name = "NPC特效",
 		front_sfx = "4218#4218",
 	},
+	[19994] = { 
+		ID = 19994,
+		name = "传送功能",
+		tips = "传送功能",
+		time = "0#0#2",
+		teshusx = 4,
+	},
 	[19999] = { 
 		ID = 19999,
 		name = "新手60级泡点",

@@ -304,7 +304,7 @@ local function resolveHerbCount(herbs, plantCfg, herbName)
             return herbs[id]
         end
     end
-    if herbName == '低阶灵草' and herbs.Low ~= nil then
+    if herbName == '仙草' and herbs.Low ~= nil then
         return herbs.Low
     end
     if herbName == '高阶灵草' and herbs.High ~= nil then
@@ -375,7 +375,7 @@ local function describePlot(plot)
     plot = plot or {}
     local stateName = plot.state or 'empty'
     local cfg = getPlantCfg(plot.seedId)
-    local name = cfg and cfg.name or (plot.seedId == 'High' and '高阶灵草' or (plot.seedId == 'Low' and '低阶灵草' or '未播种'))
+    local name = cfg and cfg.name or (plot.seedId == 'High' and '高阶灵草' or (plot.seedId == 'Low' and '仙草' or '未播种'))
     local now = serverNow()
     if stateName == 'growing' then
         local remain = math.max(0, (plot.finishAt or now) - now)
@@ -543,7 +543,7 @@ local function drawMenuBar(node)
         local tab = MENU_TABS[k]
         local x = startX 
         local allowed = permission[tab.id]
-        local btn = NPC_UI_HELPER.createPrimaryButton(node, 'menu_btn_' .. tab.id, cogin.w / 2 + 10, - (idx - 1) * 100, "", function()
+        local btn = NPC_UI_HELPER.createPrimaryButton(node, 'menu_btn_' .. tab.id, cogin.w / 2 + 10, - (idx - 1) * 100 + 150, "", function()
             local s = ensureState()
             if not allowed then
                 s.lastMessage = '拜访模式仅开放菜园与社交功能'
@@ -660,7 +660,7 @@ local function drawPlotCells(node, snapshot)
 
         local stateName = plot.state or 'empty'
         local cfg = getPlantCfg(plot.seedId)
-        local name = cfg and cfg.name or (plot.seedId == 'High' and '高阶灵草' or (plot.seedId == 'Low' and '低阶灵草' or '未播种'))
+        local name = cfg and cfg.name or (plot.seedId == 'High' and '高阶灵草' or (plot.seedId == 'Low' and '仙草' or '未播种'))
         local now = serverNow()
         
         if state.selectedPlot == i then
@@ -668,7 +668,7 @@ local function drawPlotCells(node, snapshot)
             local guang = GUI:Image_Create(btn, "guang", GUI:getContentSize(btn).width/2, GUI:getContentSize(btn).height/2, "res/wy/public/itembg.png")
             GUI:setAnchorPoint(guang, 0.5, 0.5)
             GUI:setContentSize(guang, GUI:getContentSize(btn).width + 70, GUI:getContentSize(btn).height + 70)
-        else
+        elseif GUI:getChildByName(btn,"guang") then
             -- GUI:Button_setBright(btn, true)
             GUI:removeChildByName(btn, "guang")
         end
@@ -680,7 +680,7 @@ local function drawPlotCells(node, snapshot)
             -- local remain = math.max(0, (plot.finishAt or now) - now)
             -- return string.format('成长中\n%s', formatSeconds(remain)), cfg and cfg.canSteal and '可被偷' or '安全'
         elseif stateName == 'mature' then
-            if name == '低阶灵草' then
+            if name == '仙草' then
                 GUI:setAnchorPoint(GUI:Image_Create(itme, "plot_sl", 0, 0, "res/custom/three_city/xianfu/plot/p_"..i.."/k_3.png")
                 , 0.5, 0.5)
 
@@ -802,7 +802,7 @@ local function drawPlotDetail(node, snapshot, npcid)
     if plot.state == 'empty' or true then
 
         
-        local btn_seed = GUI:Image_Create(panel, "btn_seed", 100, buttonY, "res/custom/three_city/xianfu/btn/"..(plot.state == 'empty' and "l" or "n").."/8.png")
+        local btn_seed = GUI:Button_Create(panel, "btn_seed", 100, buttonY, "res/custom/three_city/xianfu/btn/"..(plot.state == 'empty' and "l" or "n").."/8.png")
         GUI:setAnchorPoint(btn_seed, 0.5, 0)
         if plot.state == 'empty' then
         local seeds = player.seeds or {}
@@ -810,11 +810,16 @@ local function drawPlotDetail(node, snapshot, npcid)
         local seedList = shop.seeds or {}
         local plantList = buildPlantList(plantCfg)
         local herbs = player.herbs or {}
+        GUI:addOnClickEvent(btn_seed, function()
+            sendAction(npcid, 'plant', {gridId = plot.gridId or selected, seedId = 'Low'})
+        end)
+
+        
 
 
         if #plantList == 0 then
-            local emptyTip = GUI:Text_Create(btn_seed, 'inventory_herb_empty', -170, y, 18, colors.warning, '暂无灵草配置')
-            GUI:setAnchorPoint(emptyTip, 0, 0.5)
+            -- local emptyTip = GUI:Text_Create(btn_seed, 'inventory_herb_empty', -170, y, 18, colors.warning, '暂无灵草配置')
+            -- GUI:setAnchorPoint(emptyTip, 0, 0.5)
         else
             for idx, entry in ipairs(seedList) do
 
@@ -822,14 +827,14 @@ local function drawPlotDetail(node, snapshot, npcid)
                 local item = GUI:ItemShow_Create(kuang, "item", 29, 29, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME",entry.name), look = true, bgVisible = false })
                 GUI:setAnchorPoint(item, 0.5, 0.5)
                 GUI:Text_Create(kuang, "count",5,0, 14, "#FF0000", "库存:"..SL:GetMetaValue("ITEM_COUNT", entry.name))
-                GUI:ItemShow_addReplaceClickEvent(item, function()
-                    if idx == 1 then
-                        sendAction(npcid, 'plant', {gridId = plot.gridId or selected, seedId = 'Low'})
-                    elseif idx == 2 then
-                        sendAction(npcid, 'plant', {gridId = plot.gridId or selected, seedId = 'High'})
-                    end
+                -- GUI:ItemShow_addReplaceClickEvent(item, function()
+                --     if idx == 1 then
+                --         sendAction(npcid, 'plant', {gridId = plot.gridId or selected, seedId = 'Low'})
+                --     elseif idx == 2 then
+                --         sendAction(npcid, 'plant', {gridId = plot.gridId or selected, seedId = 'High'})
+                --     end
 
-                end)
+                -- end)
                 
             end
         end
@@ -2023,6 +2028,13 @@ function npc.render()
     end
     buildTopOverview(npc.node, displaySnapshot, baseSnapshot, npcid)
     drawMenuBar(npc.node)
+    local btn_knashu = GUI:Frames_Create(npc.node, "eff1", cogin.w/2,  - cogin.h/2 + 120, "res/custom/three_city/xianfu/kanshu/btn/eff_", ".png", 1, 75,
+                { speed = 75, count = 75, loop = -1})
+    GUI:setAnchorPoint(btn_knashu, 1, 0)
+    GUI:setTouchEnabled(btn_knashu, true)
+    GUI:addOnClickEvent(btn_knashu, function()
+        SL:SendLuaNetMsg(101, 30, 0, 0, '')
+    end)
     renderSection(state.menuTab or 'overview', displaySnapshot, baseSnapshot, npcid)
 end
 
