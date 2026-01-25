@@ -102,6 +102,7 @@ function npc.main(npcid, p2, p3, msgData)
                     end
                     GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 1,gap = {x=40, y=10}})
                     GUI:setAnchorPoint(dbLayout, 0, 1)
+                    npc.data.T_data.level = npc.data.T_data.level or 0
                     if npc.data.T_data.level < npc._config.details[1].max_level then
                         local Button= GUI:Button_Create(Label_node, "Button", 660, 100.00, "res/custom/tianshu/qh/btn.png")
                         GUI:addOnClickEvent(Button, function()
