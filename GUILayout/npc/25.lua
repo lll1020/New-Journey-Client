@@ -37,6 +37,9 @@ function npc.main(npcid, p2, p3, msgData)
 
         local config = npc._config.details[npc.data.level + 1]
 
+        GUI:setAnchorPoint(GUI:Image_Create(node, "num", 610, 175, "res/custom/two_city/xyqh/num/"..npc.data.level..".png")
+        , 0.5, 0.5)
+
 
         if config then
             local cost = ItemNumByTable_img(config.cost, nil,GUI:Node_Create(node, "cost", 0, 0))
@@ -49,20 +52,27 @@ function npc.main(npcid, p2, p3, msgData)
             --         , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
             -- , 0, 1)
 
-            GUI:setAnchorPoint(GUI:Image_Create(node, "num", 610, 175, "res/custom/two_city/xyqh/num/"..npc.data.level..".png")
-            , 0.5, 0.5)
+            
 
             GUI:Text_setFontName(GUI:Text_Create(node, "wz",668,96, 25, "#00FF00", config.fake_gl.."%" )
             , "fonts/501.ttf")
+            local Button= GUI:Button_Create(node, "Button", 500, 0.00, "res/custom/two_city/xyqh/btn.png")
+
+            GUI:addOnClickEvent(Button, function()
+                SL:SendLuaNetMsg(100, npcid, 1, 0, "")
+            end)
+        else
+            local cost = ItemNumByTable_img({ {"灵石",999999} }, nil,GUI:Node_Create(node, "cost", 0, 0))
+            GUI:setPosition(cost, 530, 85)
+            GUI:Text_setFontName(GUI:Text_Create(node, "wz",668,96, 25, "#00FF00", "0%" )
+            , "fonts/501.ttf")
+            GUI:Image_Create(node, "Button", 500, 20.00, "res/wy/public/15.png")
+
 
         end
 
 
-        local Button= GUI:Button_Create(node, "Button", 500, 0.00, "res/custom/two_city/xyqh/btn.png")
-
-        GUI:addOnClickEvent(Button, function()
-            SL:SendLuaNetMsg(100, npcid, 1, 0, "")
-        end)
+        
 
     end
 

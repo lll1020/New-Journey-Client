@@ -7,6 +7,13 @@ local WINDOW_OPTS = {
     background = {skin = "res/wy/public/*.png"},
     closeButton = {x = 400, y = 200, skin = "res/wy/public/close_red_big.png"},
 }
+local level_coler = {
+    [1] = "#44DDFF",
+    [2] = "#00FFFF",
+    [3] = "#DF009F",
+    [4] = "#EFAD21",
+    [5] = "#FF0000",
+}
 
 
 function npc.main(npcid, p2, p3, msgData)
@@ -59,11 +66,14 @@ function npc.main(npcid, p2, p3, msgData)
                     local level = GUI:Text_Create(Label_node, "level",30 + 288,40 + 93, 30, "#FF0000", "天书【lv."..(npc.data.T_data.level or 0).."】")
                     GUI:Text_setFontName(level, "fonts/501.ttf")
 
+                    local new_config = npc._config.details[1].details[(npc.data.T_data.level or 0) + 1]
+                    local old_config = npc._config.details[1].details[(npc.data.T_data.level or 0)]
+
                     local jdt = GUI:LoadingBar_Create(Label_node, "jdt", 726,227,"res/custom/tianshu/qh/jdt.png", 0)
-                    GUI:LoadingBar_setPercent(jdt, (npc.data.T_data.jf or 0) / (npc._config.details[1].details[(npc.data.T_data.level or 0) + 1].jf) * 100)
+                    GUI:LoadingBar_setPercent(jdt, (npc.data.T_data.jf or 0) / (new_config and new_config.jf or 0) * 100)
 
                     GUI:RichText_Create(Label_node, "text_name", 795,224,
-                        SetCompletionProgress_14((npc.data.T_data.jf or 0), (npc._config.details[1].details[(npc.data.T_data.level or 0) + 1].jf))
+                        SetCompletionProgress_14((npc.data.T_data.jf or 0), (new_config and new_config.jf or 0))
                     , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
                     -- local kuang = GUI:Image_Create(Label_node, "kuang", 200, 250, "res/wy/public/70_70_k.png")
                     -- UiTools.showItemData(kuang, item)
@@ -80,24 +90,29 @@ function npc.main(npcid, p2, p3, msgData)
                         local kuang = GUI:Image_Create(dbLayout, "kuang"..v, 0, 0, "res/custom/tianshu/qh/tip.png")
                         GUI:Text_setFontName(GUI:Text_Create(kuang, "attr_name",25,-2, 20, "##00FFFF", k.attr_name.." +")
                         , "fonts/502.ttf")
-                        local new_config = npc._config.details[1].details[(npc.data.T_data.level or 0) + 1]
-                        local old_config = npc._config.details[1].details[(npc.data.T_data.level or 0)]
+                        
                         GUI:Text_setFontName(GUI:Text_Create(kuang, "new_attr_v",125,-2, 20, "##00FFFF", old_config and old_config.attr[k.idx][2] or 0)
                         , "fonts/502.ttf")
                         GUI:Image_Create(kuang, "jt", 170, -2, "res/custom/tianshu/qh/jt.png")
                         GUI:Text_setFontName(GUI:Text_Create(kuang, "old_attr_v",215,-2, 20, "##109C18", new_config and new_config.attr[k.idx][2] or "已满级")
                         , "fonts/502.ttf")
-                        GUI:Image_Create(kuang, "up", 270, 0, "res/custom/tianshu/qh/up.png")
+                        GUI:Image_Create(kuang, "up", 290, 3, "res/custom/tianshu/qh/up.png")
 
             
                     end
                     GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 1,gap = {x=40, y=10}})
                     GUI:setAnchorPoint(dbLayout, 0, 1)
+                    if npc.data.T_data.level < npc._config.details[1].max_level then
+                        local Button= GUI:Button_Create(Label_node, "Button", 660, 100.00, "res/custom/tianshu/qh/btn.png")
+                        GUI:addOnClickEvent(Button, function()
+                            SL:SendLuaNetMsg(100, npcid, 1, 0, "")
+                        end)
+                    else
+                        GUI:Image_Create(Label_node, "Button", 660, 100.00, "res/wy/public/15.png")
+                    end
 
-                    local Button= GUI:Button_Create(Label_node, "Button", 660, 100.00, "res/custom/tianshu/qh/btn.png")
-                    GUI:addOnClickEvent(Button, function()
-                        SL:SendLuaNetMsg(100, npcid, 1, 0, "")
-                    end)
+
+                    
                     
                 end  
             elseif idx == 2 then
@@ -151,7 +166,7 @@ function npc.main(npcid, p2, p3, msgData)
                             GUI:setAnchorPoint(GUI:Text_Create(npc.xf_node, "wz5",50 + 549,16 + 480, 20, "#FF0000", npc._config.details[2].details[npc.data.T_data.caowei[""..i][1]][npc.data.T_data.caowei[""..i][2]].wz)
                             , 0, 1)
                         else
-                            GUI:setAnchorPoint(GUI:Text_Create(npc.xf_node, "wz5",50 + 549,16 + 480, 20, "#FF0000", "暂未解锁")
+                            GUI:setAnchorPoint(GUI:Text_Create(npc.xf_node, "wz5",50 + 549,16 + 480, 20, "#A0A0A4", "暂未解锁")
                             , 0, 1)
                         end
 
@@ -162,10 +177,10 @@ function npc.main(npcid, p2, p3, msgData)
                     end)
 
                     if npc.data.T_data.caowei[""..i] then
-                        GUI:setAnchorPoint(GUI:Text_Create(kuang, "wz5",50,16, 20, "#FF0000", npc._config.details[2].details[npc.data.T_data.caowei[""..i][1]][npc.data.T_data.caowei[""..i][2]].name)
+                        GUI:setAnchorPoint(GUI:Text_Create(kuang, "wz5",50,16, 20, level_coler[npc.data.T_data.caowei[""..i][1]], npc._config.details[2].details[npc.data.T_data.caowei[""..i][1]][npc.data.T_data.caowei[""..i][2]].name)
                         , 0, 0.5)
                     else
-                        GUI:setAnchorPoint(GUI:Text_Create(kuang, "wz5",50,16, 20, "#FF0000", "暂未解锁")
+                        GUI:setAnchorPoint(GUI:Text_Create(kuang, "wz5",50,16, 20, "#A0A0A4", "暂未解锁")
                         , 0, 0.5)
                     end
 
@@ -229,6 +244,7 @@ function npc.main(npcid, p2, p3, msgData)
         ensureWindow(npcid)
         UI_updata(npc.node)
     elseif p2 == 1 then
+        npc.data = SL:JsonDecode(msgData,false)
         UI_updata(npc.node)
     elseif p2 == 2 then
         npc.data = SL:JsonDecode(msgData,false)

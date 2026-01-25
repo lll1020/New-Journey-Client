@@ -53,11 +53,16 @@ function npc.main(npcid, p2, p3, msgData)
             end
         end
         GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 4,gap = {x=5, y=0}})
+        if SL:GetMetaValue("TITLE_DATA_BY_ID", SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.ch)) then
+            GUI:Image_Create(node, "Button", 400, 10.00, "res/wy/public/9.png")
+        else
+            local Button= GUI:Button_Create(node, "btn", 520, 10.00, "res/custom/three_city/cqbg/btn.png")
+            GUI:addOnClickEvent(Button, function()
+                SL:SendLuaNetMsg(100, npcid, 1, 0, '')
+            end)
+        end
 
-        local Button= GUI:Button_Create(node, "btn", 520, 10.00, "res/custom/three_city/cqbg/btn.png")
-        GUI:addOnClickEvent(Button, function()
-            SL:SendLuaNetMsg(100, npcid, 1, 0, '')
-        end)
+        
 
     end
 

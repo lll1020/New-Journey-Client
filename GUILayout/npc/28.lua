@@ -80,6 +80,13 @@ function npc.main(npcid, p2, p3, msgData)
         npc.cost_show = GUI:Node_Create(node, "cost_show", 372, 90)
         if config then
             checkItemNumByTable_img_kuang(config.cost, nil,npc.cost_show)
+            local Button= GUI:Button_Create(node, "Button", 750 - 375, 0, "res/custom/two_city/zbqh/btn.png")
+            GUI:addOnClickEvent(Button, function()
+                SL:SendLuaNetMsg(100, npcid, 1, npc.idx, "")
+            end)
+        else
+            GUI:Text_setFontName(GUI:Text_Create(node, "tip_max",750 - 375, 50, 30, "#FF0000", "已达最高等级")
+            , "fonts/500.ttf")
         end
 
         npc.kuang = GUI:Image_Create(GUI:ui_delegate(dbLayout)["where_"..npc.idx], "kuang", 58/2 + 2, 60/2 + 2, "res/custom/two_city/qyzb/kuang.png")
@@ -99,16 +106,13 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:Image_Create(kuang, "jt", 220, 0, "res/custom/tianshu/qh/jt.png")
             GUI:Text_setFontName(GUI:Text_Create(kuang, "old_attr_v",260,0, 24, "##109C18", new_config and new_config.attr[k.idx][2] or "已满级")
             , "fonts/502.ttf")
-            GUI:Image_Create(kuang, "up", 310, 4, "res/custom/tianshu/qh/up.png")
+            GUI:Image_Create(kuang, "up", 340, 7, "res/custom/tianshu/qh/up.png")
         end
         GUI:UserUILayout(npc.dbLayout, {dir=3,addDir=1,colnum = 1,gap = {x=40, y=10}})
         GUI:setAnchorPoint(npc.dbLayout, 0, 1)
 
 
-        local Button= GUI:Button_Create(node, "Button", 750 - 375, 0, "res/custom/two_city/zbqh/btn.png")
-        GUI:addOnClickEvent(Button, function()
-            SL:SendLuaNetMsg(100, npcid, 1, npc.idx, "")
-        end)
+        
 
         local s_s_btn = GUI:Image_Create(node, "s_s_btn", 590, 20, "res/custom/two_city/zbqh/zd.png")
         local s_s_CheckBox = GUI:CheckBox_Create(s_s_btn, "CheckBox",GUI:getContentSize(s_s_btn).width - 25, 0, "res/wy/public/new_check_0.png", "res/wy/public/new_check_1.png")

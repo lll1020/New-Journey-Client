@@ -40,26 +40,31 @@ function npc.main(npcid, p2, p3, msgData)
 
 
         for v,k in ipairs(npc._config.config) do
-            local l = GUI:Node_Create(node, "l_"..v, 270, 94 + 51*(v-1))
+            local l = GUI:Node_Create(node, "l_"..v, 270, (94 + 51*4) - 51*(v-1))
             GUI:RichText_Create(l, "text_name", 20 + 236, 15,
                             SetCompletionProgress((npc.data.dj_data[""..v] or 0), npc._config.max_level)
             , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
             local cost_show = ItemNumByTable_img(npc._config.cost, nil,GUI:Node_Create(l, "cost_show", 0, 0))
             GUI:setPosition(cost_show, 93, 2)
+            if (npc.data.dj_data[""..v] or 0) >= npc._config.max_level then
+                GUI:Image_Create(l, "Button", 350, 5, "res/wy/public/rwjd_3.png")
+            else
+                local Button= GUI:Button_Create(l, "Button", 350, 5, "res/custom/three_city/cuiti/btn.png")
+                GUI:addOnClickEvent(Button, function()
+                    SL:SendLuaNetMsg(100, npcid, 1, 0, '{"idx":'..v..'}')
+                end)
+            end
 
-            local Button= GUI:Button_Create(l, "Button", 350, 5, "res/custom/three_city/cuiti/btn.png")
-            GUI:addOnClickEvent(Button, function()
-                SL:SendLuaNetMsg(100, npcid, 1, 0, '{"idx":'..v..'}')
-            end)
+            
         end
 
         local kuang = GUI:Image_Create(node, "kuang2", 360, 18, "res/wy/public/70_70_k.png")
         UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.title.."[称号]")))
 
-        local Button= GUI:Button_Create(node, "Button", 510, 0.00, "res/custom/three_city/cuiti/btn_all.png")
-        GUI:addOnClickEvent(Button, function()
-            SL:SendLuaNetMsg(100, npcid, 2, 0, "")
-        end)
+        -- local Button= GUI:Button_Create(node, "Button", 510, 0.00, "res/custom/three_city/cuiti/btn_all.png")
+        -- GUI:addOnClickEvent(Button, function()
+        --     SL:SendLuaNetMsg(100, npcid, 2, 0, "")
+        -- end)
 
     end
 

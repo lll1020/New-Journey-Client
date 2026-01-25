@@ -49,12 +49,19 @@ function npc.main(npcid, p2, p3, msgData)
             
         GUI:setAnchorPoint(GUI:Image_Create(node, "wz", 520, 120.00, "res/custom/two_city/qyzb/wz.png")
         , 0.5, 0.5)
+        if SL:GetMetaValue("TITLE_DATA_BY_ID", SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.details[5])) then
+            GUI:setAnchorPoint(GUI:Image_Create(node, "Button", 520, 60.00, "res/wy/public/15.png"), 0.5, 0.5)
+        else
+            local Button= GUI:Button_Create(node, "Button", 520, 60.00, "res/custom/two_city/qyzb/btn.png")
+            GUI:setAnchorPoint(Button, 0.5, 0.5)
+            GUI:addOnClickEvent(Button, function()
+                SL:SendLuaNetMsg(100, npcid, 1, 0, "")
+            end)
+            
+            
+        end
 
-        local Button= GUI:Button_Create(node, "Button", 520, 60.00, "res/custom/two_city/qyzb/btn.png")
-        GUI:setAnchorPoint(Button, 0.5, 0.5)
-        GUI:addOnClickEvent(Button, function()
-            SL:SendLuaNetMsg(100, npcid, 1, 0, "")
-        end)
+        
 
     end
 

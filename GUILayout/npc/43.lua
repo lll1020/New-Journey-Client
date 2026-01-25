@@ -48,17 +48,23 @@ function npc.main(npcid, p2, p3, msgData)
         if npc.data.dj_num < npc._config.max_level then
             GUI:setAnchorPoint(GUI:RichText_Create(node, "next_attr_desc", 520, 330,  Player:showEquipAttr(SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.ch[npc.data.dj_num + 1]))), 200, 17, "#f7f7de", 3,nil,nil)
             , 0, 1)
+
+            local cost_show = ItemNumByTable_img(npc._config.cost[npc.data.dj_num + 1], nil,GUI:Node_Create(node, "cost_show", 0, 0))
+            GUI:setPosition(cost_show, 335, 100)
+
+            local Button= GUI:Button_Create(node, "Button", 778/2, 50.00, "res/custom/two_city/43_btn.png")
+            GUI:setAnchorPoint(Button, 0.5, 0.5)
+            GUI:addOnClickEvent(Button, function()
+                SL:SendLuaNetMsg(100, npcid, 1, 0, "")
+            end)
+        else
+            local tip_max = GUI:Text_Create(node, "tip_max",390, 50, 30, "#FF0000", "已达最高等级")
+            GUI:Text_setFontName(tip_max, "fonts/500.ttf")
+            GUI:setAnchorPoint(tip_max, 0.5, 0.5)
         end
 
 
-        local cost_show = ItemNumByTable_img(npc._config.cost[npc.data.dj_num + 1], nil,GUI:Node_Create(node, "cost_show", 0, 0))
-        GUI:setPosition(cost_show, 335, 100)
-
-        local Button= GUI:Button_Create(node, "Button", 778/2, 50.00, "res/custom/two_city/43_btn.png")
-        GUI:setAnchorPoint(Button, 0.5, 0.5)
-        GUI:addOnClickEvent(Button, function()
-            SL:SendLuaNetMsg(100, npcid, 1, 0, "")
-        end)
+        
 
     end
 

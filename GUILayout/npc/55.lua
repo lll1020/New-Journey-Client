@@ -44,11 +44,20 @@ function npc.main(npcid, p2, p3, msgData)
         --显示奖励
         local rwjl_show = ItemNumByTable_img_new(npc._config.rwjl, nil,GUI:Node_Create(node, "rwjl", 0, 0))
         GUI:setPosition(rwjl_show, 490, 80)
+        
+
+
 
         if npc.data.jq_data["npc55"] and npc.data.jq_data["npc55"] == 2 then
             GUI:Text_setFontName(GUI:Text_Create(node, "tip",450,30, 25, "#00FF00", "任务已完成，恭喜您！")
             , "fonts/500.ttf")
         elseif npc.data.jq_data["npc55"] and npc.data.jq_data["npc55"] == 1 then
+
+            local desc = GUI:Text_Create(node, "desc",500,200, 20, "#808080", "当前击杀："..(npc.data.sg_data.npc55 or 0))
+            GUI:Text_setFontName(desc, "fonts/500.ttf")
+            GUI:Text_enableOutline(desc, "#00FFFF", 2)
+
+
             local Button= GUI:Button_Create(node, "Button2", 450, 0.00, "res/custom/three_city/xfts/btn.png")
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 2, 0, "")

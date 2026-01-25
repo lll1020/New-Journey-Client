@@ -55,14 +55,20 @@ function npc.main(npcid, p2, p3, msgData)
                 SL:OpenCommonDescTipsPop({str = k.mz, worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 0})
             end)
         end
-        
-        local cost_show = checkItemNumByTable_img_kuang(k.cost, nil,GUI:Node_Create(Label_node, "cost_show", 0, 0))
-        GUI:setPosition(cost_show, 50, 30)
+        if (npc.data.T_data.level[""..idx] or 0) >= k.max_level then
+            GUI:Image_Create(Label_node, "Button", 350, 5, "res/wy/public/15.png")
+            GUI:Text_setFontName(GUI:Text_Create(Label_node, "tip_max",70, 30, 30, "#FF0000", "已达最高等级")
+            , "fonts/500.ttf")
+        else
+            local cost_show = checkItemNumByTable_img_kuang(k.cost, nil,GUI:Node_Create(Label_node, "cost_show", 0, 0))
+            GUI:setPosition(cost_show, 50, 30)
 
-        local Button= GUI:Button_Create(Label_node, "Button", 350, 5, "res/custom/three_city/jnqh/btn.png")
-        GUI:addOnClickEvent(Button, function()
-            SL:SendLuaNetMsg(100, npcid, 1, idx, '')
-        end)
+            local Button= GUI:Button_Create(Label_node, "Button", 350, 5, "res/custom/three_city/jnqh/btn.png")
+            GUI:addOnClickEvent(Button, function()
+                SL:SendLuaNetMsg(100, npcid, 1, idx, '')
+            end)
+        end
+
     end
 
     local function UI_updata(node) --界面渲染
@@ -77,7 +83,7 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:ListView_setItemsMargin(npc.cbl_list, 10)
         npc.Label = GUI:Node_Create(node, "Label", 170, 15)
 
-        npc.titles_sign = 1
+        npc.titles_sign = 1 
         for i = 1, 6 do
             local cbl_item = GUI:Button_Create(npc.cbl_list, "item" .. i, 0, 0, "res/custom/three_city/jnqh/list/"..(npc.titles_sign == i and "l" or "n").."/"..i..".png")
             -- GUI:Button_setTitleText(cbl_item, titles[i])
@@ -101,9 +107,8 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data.T_data.level = npc.data.T_data.level or {}
         ensureWindow(npcid)
         UI_updata(npc.node)
-    elseif p2 == 0 then--界面渲染
+    elseif p2 == 1 then--界面渲染
         npc.data.T_data.level[""..npc.titles_sign] = (npc.data.T_data.level[""..npc.titles_sign] or 0) + 1
-        UI_updata(npc.node)
         GUI_createLabel(npc.Label,npc.titles_sign)
     end
 end
