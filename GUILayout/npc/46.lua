@@ -64,8 +64,11 @@ function npc.main(npcid, p2, p3, msgData)
             local kz = GUI:Text_Create(label_node, "kz",460,293 - 44 - 44 - 44, 20, "#FF0000", config.kz)
             GUI:Text_enableUnderline(kz)
             tip_node(kz, config.kz_details)
+            local key = "npc_"..config.key
+            npc.data.T_data[key] = (npc.data.T_data and npc.data.T_data[key]) and npc.data.T_data[key] or 0
+
             -- GUI:Text_Create(label_node, "kz",460,293 - 44 - 44 - 44, 20, "#FF0000", config.kz)
-            local state = (npc.data.T_data["npc_46"][""..idx] and npc.data.T_data["npc_46"][""..idx] == 1) and 2 or 1
+            local state = npc.data.T_data[key] >= 2 and 2 or 1
             GUI:Text_Create(label_node, "state",460,293 - 44 - 44 - 44 - 44, 20, state_info[state].color, state_info[state].text)
             
         end

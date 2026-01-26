@@ -43,6 +43,8 @@ end
 
         GUI:setAnchorPoint(GUI:Image_Create(node, "kuang2", 0, 0, "res/custom/one_city/kbzl/up.png")
         , 0.5, 0.5)
+        GUI:setAnchorPoint(GUI:Image_Create(node, "attr", 160, -30, "res/custom/one_city/kbzl/attr.png")
+        , 0.5, 0.5)
 
 
         -- GUI:setAnchorPoint(

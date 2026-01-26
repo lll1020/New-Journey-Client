@@ -38,25 +38,29 @@ function npc.main(npcid, p2, p3, msgData)
 
         for i = 1,3 do
             local kuang = GUI:Image_Create(node, "kuang"..i, 150 + 385 + (i-1)*50, 343.00, "res/wy/public/40-42.png")
-            UiTools.showItemData_Index(kuang, SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.details[i].itme))
+            SL:release_print(npc._config.details[i].itme)
+            GUI:setAnchorPoint(GUI:ItemShow_Create(kuang, "item", 20, 20, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.details[i].item)}), 0.5, 0.5)
+
         end
 
-        for i = 1,3 do
-            GUI:Text_Create(node, "map"..i,360,147 - (i-1)*30, 20, "#00FFFF", npc.data.T_data["level_"..i] and "["..npc._config.details[npc.data.T_data["level_"..i]].itme.."]"..string.format("地图：%s  x:%s  y:%s", npc.data.T_data["map_"..i].map_name, npc.data.T_data["map_"..i].map_x, npc.data.T_data["map_"..i].map_y) or "未揭示宝藏")
-        end
+        -- for i = 1,3 do
+        --     GUI:Text_Create(node, "map"..i,360,147 - (i-1)*30, 20, "#00FFFF", npc.data.T_data["level_"..i] and "["..npc._config.details[npc.data.T_data["level_"..i]].itme.."]"..string.format("地图：%s  x:%s  y:%s", npc.data.T_data["map_"..i].map_name, npc.data.T_data["map_"..i].map_x, npc.data.T_data["map_"..i].map_y) or "未揭示宝藏")
+        -- end
 
-        GUI:Text_Create(node, "num",460,37, 20, "#00FFFF", npc._config.max - npc.data.J_cs)
+        GUI:Text_Create(node, "num",300 + 138,150 + 3, 20, "#00FFFF", npc._config.max - npc.data.J_cs)
+
+        GUI:Image_Create(node, "wz", 300, 150.00, "res/custom/three_city/cbt/wz.png")
 
 
 
-        local Button= GUI:Button_Create(node, "btn_hc", 150, 100.00, "res/custom/three_city/cbt/btn_hc.png")
+        local Button= GUI:Button_Create(node, "btn_hc", 550, 20.00, "res/custom/three_city/cbt/btn_hc.png")
         GUI:addOnClickEvent(Button, function()
             SL:SendLuaNetMsg(100, npcid, 1, 0, "")
         end)
 
-        Button= GUI:Button_Create(node, "btn", 520, 10.00, "res/custom/three_city/cbt/btn.png")
-        GUI:addOnClickEvent(Button, function()
-        end)
+        -- Button= GUI:Button_Create(node, "btn", 520, 10.00, "res/custom/three_city/cbt/btn.png")
+        -- GUI:addOnClickEvent(Button, function()
+        -- end)
 
     end
 
