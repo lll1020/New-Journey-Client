@@ -132,6 +132,12 @@ function npc.main(npcid, p2, p3, msgData)
         if npc._config.cost then
             local cost = checkItemNumByTable_img_kuang(npc._config.cost, nil,GUI:Node_Create(node, "cost", 0, 0))
             GUI:setPosition(cost, cost_pos[1], cost_pos[2])
+
+            local desc = GUI:Text_Create(node, "desc",50, 140, 25, "#808080", "老王认可了你的实力 现在不用给医药费了")
+            GUI:Text_setFontName(desc, "fonts/500.ttf")
+            GUI:Text_enableOutline(desc, "#00FFFF", 2)
+
+            
         end
 
         local Button= GUI:Button_Create(node, "Button", btn_pos[1], btn_pos[2], "res/custom/all_story_mission/3/btn_641.png")

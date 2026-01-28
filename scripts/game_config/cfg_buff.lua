@@ -320,7 +320,37 @@ local config = {
 		time = "200#1#0",
 		overlap = 10,
 		uniqueType = "1#0",
-		avatar = "1#16256",
+	},
+	[20110] = { 
+		ID = 20110,
+		name = "无相丹",
+		icon = 228,
+		time = "300#0#0",
+	},
+	[20111] = { 
+		ID = 20111,
+		name = "定身丹",
+		icon = 229,
+		time = "300#0#0",
+	},
+	[20112] = { 
+		ID = 20112,
+		name = "破瘴丹",
+		icon = 230,
+		time = "300#0#0",
+	},
+	[20113] = { 
+		ID = 20113,
+		name = "破妄丹",
+		icon = 231,
+		time = "300#0#0",
+	},
+	[20114] = { 
+		ID = 20114,
+		name = "石化 用于 息灾",
+		dis_action = 15,
+		icon = 231,
+		time = "3#0#0",
 	},
 }
 return config

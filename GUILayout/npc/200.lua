@@ -35,6 +35,15 @@ local RAW_MAP_CONFIG = {
     [225] = {"聊斋志异",100,100,nil,nil,5, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
     [226] = {"敦煌遗梦",100,100,nil,nil,5, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
     [227] = {"世界禁墟",100,100,nil,nil,5, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+
+    --特殊地图npc
+    [300] = {"虚妄山脉", 92, 50,nil,nil,3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [301] = {"鬼嘲深渊", 273, 33,nil,nil,3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [302] = {"叹息旷野", 34, 41,nil,nil,3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [303] = {"禁忌之海", 33, 133,nil,nil,3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [304] = {"葬星海滩", 184, 40,nil,nil,3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [305] = {"船长室", 40, 46,nil,nil,3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [306] = {"水手舱", 59, 11,nil,nil,3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
 }
 
 local CONTINENT_LABELS = {

@@ -36,7 +36,7 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:removeAllChildren(node)
 
         local jl = ItemNumByTable_img_new(npc._config.rwjl, nil,GUI:Node_Create(node, "jl", 0, 0))
-        GUI:setPosition(jl, 390 - 20, 110 + 60)
+        GUI:setPosition(jl, 390 - 20, 110 + 40)
 
         if npc._config.cost then
             local cost = checkItemNumByTable_img_kuang(npc._config.cost, nil,GUI:Node_Create(node, "cost", 0, 0))

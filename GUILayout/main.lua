@@ -24,7 +24,7 @@ local cf_teshunpc = {
 SL:RegisterLuaNetMsg(100, function(msgID, p1, p2, p3, msgData)
     if cf_teshunpc[p1] then
         Npclib[cf_teshunpc[p1]].main(p1, p2, p3, msgData)
-    elseif p1 > 200 and p1 < 400 then
+    elseif p1 > 200 and p1 < 500 then
         Npclib[200].main(p1, p2, p3, msgData)
     elseif p1 > 500 and p1 < 520 then
         Npclib[500].main(p1, p2, p3, msgData)

@@ -111,8 +111,8 @@ local WINDOW_STYLE = {
     worldMap = {     -- 世界地图
         windowName = "npc_sjdt",
         overlay = {skin = "res/public/1900000651_1.png"},
-        background = {skin = "res/wy/public/tongyong_0.png"},
-        closeButton = {x = 740, y = 460, skin = "res/wy/public/close_red_big.png"},
+        background = {skin = "res/wy/public/102.png"},
+        closeButton = {x = 330, y = 180, skin = "res/wy/public/close_red_big.png"},
     },
     fairyFate = {    -- 仙途奇缘
         windowName = "npc_qy",
@@ -3169,18 +3169,29 @@ end
 ---世界地图
 ---世界地图
 npc[514] = function(p2, p3, Data)
+    local pos = {
+        {100 + 123,100 + 267},
+        {200 + 211,100 + 354},
+        {300 - 196,100 + 91},
+        {400 + 79,100 + 268},
+        {500 - 212,100 + 151},
+        {600 - 48,100 + 363},
+    }
     local function renderWorldMap(node)
         GUI:removeAllChildren(node)
-        local layout = GUI:Layout_Create(node, "dbLayout", 100, 0, 500, 500)
-        for i = 1, 9 do
-            local btn = GUI:Button_Create(layout, 'btn' .. i, 0, 0, 'res/public/1900000660.png')
-            GUI:Button_setTitleText(btn, teshudata["sjdt"][500 + i][1])
-            GUI:Button_setTitleFontSize(btn, 14)
+        local bg = GUI:Frames_Create(node, "bg", 0, 0, "res/custom/sjdt/eff/eff_", ".png", 1, 8,
+            { speed = 75, count = 8, loop = -1})
+        GUI:setAnchorPoint(bg, 0.5, 0.5)
+        
+        for i = 1, 6 do
+            local btn = GUI:Button_Create(bg, 'btn' .. i, pos[i][1], pos[i][2], 'res/custom/sjdt/dl/l/'..i..'.png')
+            -- GUI:Button_setTitleText(btn, teshudata["sjdt"][500 + i][1])
+            -- GUI:Button_setTitleFontSize(btn, 14)
             GUI:addOnClickEvent(btn, function()
                 SL:SendLuaNetMsg(100, 500 + i, 1, 0, "")
             end)
         end
-        GUI:UserUILayout(layout, {dir = 3, addDir = 1, gap = {x = 5, y = 5}})
+        
     end
 
     if p2 == 0 then
