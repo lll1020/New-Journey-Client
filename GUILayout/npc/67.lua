@@ -44,6 +44,9 @@ function npc.main(npcid, p2, p3, msgData)
             if npc.titles_sign == i then
                 GUI:setAnchorPoint(GUI:Image_Create(cbl_item, "x", 98/2, 94/2, "res/custom/four_city/sxsh/kuang.png"), 0.5, 0.5)
             end
+            if npc.data.T_data[""..i] and npc.data.T_data[""..i] == 1 then
+                GUI:Image_Create(cbl_item, "dui", 20, 0, "res/wy/public/6.png")
+            end
             
         end
         GUI:UserUILayout(layout, {dir=3,addDir=1,colnum = 4,gap = {x=10, y=0}})
@@ -71,7 +74,7 @@ function npc.main(npcid, p2, p3, msgData)
         ensureWindow(npcid)
         UI_updata(npc.node)
     elseif p2 == 1 then
-        npc.data = SL:JsonDecode(msgData,false)
+        npc.data.T_data[""..p3] = 1
         UI_updata(npc.node)
     end
 end

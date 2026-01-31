@@ -35,7 +35,7 @@ function npc.main(npcid, p2, p3, msgData)
 
         GUI:removeAllChildren(node)
 
-       local ch_kuang = GUI:Image_Create(node, "ch_kuang", 240 + 320 - 410 + 235, 105, "res/wy/public/70_70_k.png")
+        local ch_kuang = GUI:Image_Create(node, "ch_kuang", 240 + 320 - 410 + 235, 105, "res/wy/public/70_70_k.png")
         UiTools.showItemData(ch_kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.ch.."[称号]")))
         npc.data.jq_data[key] = (npc.data.jq_data and npc.data.jq_data[key]) and npc.data.jq_data[key] or 0
 

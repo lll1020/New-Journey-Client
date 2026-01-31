@@ -9,8 +9,8 @@ local WINDOW_OPTS = {
     closeButton = {x = 747, y = 380},
 }
 local key = "npc_674"
-local btn_pos = {600, 110}
-local cost_pos = {507 + 25, 202 + 10}
+local btn_pos = {450, 80}
+local cost_pos = {625, 235}
 
 function npc.main(npcid, p2, p3, msgData)
 
@@ -34,6 +34,25 @@ function npc.main(npcid, p2, p3, msgData)
         end
 
         GUI:removeAllChildren(node)
+        npc.data.T_dljq[key] = (npc.data.T_dljq and npc.data.T_dljq[key]) and npc.data.T_dljq[key] or 0
+
+        local ch_kuang = GUI:Image_Create(node, "ch_kuang", 553, 125, "res/wy/public/70_70_k.png")
+        UiTools.showItemData(ch_kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.ch.."[称号]")))
+
+        if npc._config.cost then
+            local cost = checkItemNumByTable_img_kuang(npc._config.cost, nil,GUI:Node_Create(node, "cost", 0, 0))
+            GUI:setPosition(cost, cost_pos[1], cost_pos[2])
+        end
+
+        if npc.data.T_dljq[key] == 1 or npc.data.T_dljq[key] == 0 then
+            local Button= GUI:Button_Create(node, "Button", btn_pos[1], btn_pos[2], "res/custom/all_story_mission/2/btn_give.png")
+            GUI:setAnchorPoint(Button, 0.5, 0.5)
+            GUI:addOnClickEvent(Button, function()
+                SL:SendLuaNetMsg(100, npcid, 1, 0, "")
+            end)
+        elseif npc.data.T_dljq[key] == 2 then
+            GUI:Image_Create(node, "Button", btn_pos[1], btn_pos[2], "res/wy/public/7_1.png")
+        end
 
     
 
@@ -45,6 +64,7 @@ function npc.main(npcid, p2, p3, msgData)
         ensureWindow(npcid)
         UI_updata(npc.node)
     elseif p2 == 1 then
+        npc.data.T_dljq[key] = p3
         UI_updata(npc.node)
     end
 end

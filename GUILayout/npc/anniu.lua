@@ -3,10 +3,10 @@ local npc = {}
 ---顶部图标显示
 npc.iconpx = {
     {
-        {7, "天天省钱",509,1}, {3, "福利大厅",511,2}, {1, "游戏攻略",512,3},{5, "活动大厅",507,4},{8, "首充礼包",501,5},{4, "仙途奇缘",515,15},{4, "飞剑",19,15}
+        {15, "天天省钱",509,1}, {3, "福利大厅",511,2}, {17, "游戏攻略",512,3},{4, "活动大厅",507,4},{14, "首充礼包",501,5},{16, "仙途奇缘",515,15},{18, "飞剑",19,15}
     },
     {
-        {12, "在线充值", 502,11}, {2, "交易行",510,12},{4, "解绑特权",504,13},{4, "狂暴之力",513,14},{4, "世界地图",514,15},{4, "免费赞助",516,16},{4, "聚宝盆",517,17}
+        {19, "在线充值", 502,11}, {5, "交易行",510,12},{2, "解绑特权",504,13},{7, "狂暴之力",513,14},{12, "世界地图",514,15},{10, "免费赞助",516,16},{6, "聚宝盆",517,17}
     }
 }
 npc.LeftTop = GUI:Attach_LeftTop() -- 左上
@@ -50,7 +50,6 @@ local WINDOW_STYLE = {
         background = {skin = "res/custom/strategy/bg_0.png"},
         closeButton = {x = 740, y = 460, skin = "res/wy/public/close_red_big.png"},
         title = {x = 56, y = 464, skin = "res/custom/strategy/title.png"},
-
     },
     firstCharge = {  -- 首充礼包
         windowName = "npc_sclb",
@@ -177,8 +176,8 @@ end
 -- 工具：创建顶部快捷按钮
 local function createShortcutButton(container, cfg, order, prefix)
     local btnName = string.format("%s_%d", prefix, order)
-    local button = GUI:Button_Create(container, btnName, 498 - 80 * order, 0, "res/wy/icon/" .. cfg[1] .. ".png")
-    GUI:Text_Create(button, "tt", 0, 14, 14, "#ffffff", cfg[2])
+    local button = GUI:Button_Create(container, btnName, 498 - 80 * order, 0, "res/wy/icon/top_" .. cfg[1] .. ".png")
+    -- GUI:Text_Create(button, "tt", 0, 14, 14, "#ffffff", cfg[2])
     GUI:addOnClickEvent(button, function()
         SL:SendLuaNetMsg(101, cfg[3], 0, 0, "")
     end)
@@ -322,14 +321,14 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
             local guaji = {}
             if cogin.isWin32 then
                 guaji[1] = GUI:Button_Create(npc.RightBottom, "guaji", -80, 500, "res/wy/icon/base.png")
-                local dalucs = GUI:Button_Create(npc.RightBottom, "dalucs", -80, 200, "res/wy/icon/sjdt.png")
-                GUI:addOnClickEvent(dalucs, function()
-                    Npclib["anniu"][4](0)
-                end)
+                -- local dalucs = GUI:Button_Create(npc.RightBottom, "dalucs", -120, 500, "res/wy/icon/sjdt.png")
+                -- GUI:addOnClickEvent(dalucs, function()
+                --     Npclib["anniu"][4](0)
+                -- end)
 
                 ---暂时隐藏一下
-                --GUI:setVisible(guaji[1],false)
-                GUI:setVisible(dalucs,false)
+                -- GUI:setVisible(guaji[1],false)
+                -- GUI:setVisible(dalucs,false)
 
                 ---测试使用
                 local Button_1 = GUI:Button_Create(npc.RightBottom, "Button_1", -150, 340 + 100, "res/private/player_main_layer_ui/player_main_layer_ui_win32/1900015011.png")
@@ -418,7 +417,7 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
                     GUI:Timeline_EaseSineIn_MoveTo(cbl, {x = cogin.w, y = 0}, 0.5)
                 end)
                 --客服
-                if SL:GetMetaValue("IS_SHOW_MAUNAL_SERVICE") then
+                if SL:GetMetaValue("IS_SHOW_MAUNAL_SERVICE") or true then
                     local kefu = GUI:Button_Create(npc.RightBottom, "kefu", -260 - 100, 90, "res/wy/icon/kefu_pc.png")
                     GUI:addOnClickEvent(kefu, function()
                         SL:RequestOpen996ManualService()
@@ -2553,7 +2552,7 @@ npc[507] = function(p2, p3, Data)
         npc.bg = win.bg
         npc.node = win.node
         npc.title = win.title
-        GUI:setLocalZOrder(npc.title, 99)
+        -- GUI:setLocalZOrder(npc.title, 99)
         
         renderActivity(npc.node)
         GUI_createLabel_507(npc.Label,1)
@@ -3244,7 +3243,7 @@ end
 npc[516] = function(p2, p3, Data)
     local function UI_updata(node) --界面渲染
         GUI:removeAllChildren(node)
-        local  list = GUI:ListView_Create( node, "list", 80,30, 800, 400,2)
+        local list = GUI:ListView_Create(node, "list", 80,30, 800, 400,2)
         GUI:ListView_setItemsMargin(list,5)
         for k,v in ipairs(teshudata["anniu_516"].details) do
             local item = GUI:Image_Create(list, "item"..k, 0, 0, 'res/custom/mfzz/itme_'..k..'.png')
@@ -3276,7 +3275,14 @@ npc[516] = function(p2, p3, Data)
     if p2 == 0 then
         npc.data_516 = not Data and {} or SL:JsonDecode(Data, false)
         local win = ensureWindow("freeSponsor", 516, {titleText = "免费赞助"})
-        UI_updata(win.node)
+        npc.node_516 = win.node
+        UI_updata(npc.node_516)
+    elseif p2 == 1 then
+        npc.data_516.T_data["zzlb_"..p3] = true
+        local list = GUI:ui_delegate(npc.node_516)["list"]
+        local item = GUI:ui_delegate(list)["item"..p3]
+        GUI:removeChildByName(item,"Button")
+        GUI:setAnchorPoint(GUI:Image_Create(item, "Button", 228/2, 80, 'res/wy/public/9.png'), 0.5, 0.5)
     end
 end
 
@@ -3380,6 +3386,7 @@ npc[517] = function(p2, p3, Data)
     if p2 == 0 then
         npc.data_517 = not Data and {} or SL:JsonDecode(Data, false)
         local win = ensureWindow("treasureBasin", 517, {titleText = "聚宝盆"})
+        npc.node_517 = win.node
 
         win.bg = GUI:Frames_Create(win.bg, "eff", 0, 0, "res/custom/treasureBasin/bg/eff_", ".png", 1, 75,
             { speed = 75, count = 75, loop = -1})
@@ -3395,7 +3402,7 @@ npc[517] = function(p2, p3, Data)
     elseif p2 == 2 then
         npc.data_517.jf = 0
         npc.data_517.cs = (npc.data_517.cs or 0) + 1
-        UI_updata(npc.node)
+        UI_updata(npc.node_517)
     end
 end
 
