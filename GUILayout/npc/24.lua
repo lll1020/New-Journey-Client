@@ -1,4 +1,4 @@
-local npc = {}
+﻿local npc = {}
 
 npc._config = teshudata["npc_24"]
 
@@ -145,49 +145,89 @@ function npc.main(npcid, p2, p3, msgData)
                 GUI:ScrollView_setInnerContainerSize(ScrollView, 312, ((36 + 10) * 10))
                 local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 0,0, 312, ((36 + 10) * 10))
                 npc.data.T_data.caowei = npc.data.T_data.caowei or {}
+                local caowei = npc.data.T_data.caowei
+                local cfg = npc._config.details[2]
+                local cfg_details = cfg.details
+                local unlock_lv = cfg.unlock_lv or {}
+                local cur_lv = npc.data.T_data.level or 0
+                local label_delegate = GUI:ui_delegate(Label_node)
+                local layout_delegate = GUI:ui_delegate(dbLayout)
+
+                local function get_slot_info(slot, slot_data)
+                    if slot_data then
+                        local group = slot_data[1]
+                        local idx2 = slot_data[2]
+                        local info = cfg_details[group] and cfg_details[group][idx2]
+                        if info then
+                            return info.name, level_coler[group] or "#FFFFFF", info.wz
+                        end
+                    end
+                    local need_lv = unlock_lv[slot] or 1
+                    if cur_lv >= need_lv then
+                        return "已解锁", "#00FF00", nil
+                    end
+                    return "解锁天书等级："..need_lv, "#A0A0A4", nil
+                end
+
+                local function render_slot_detail(slot)
+                    local slot_key = ""..slot
+                    local slot_data = caowei[slot_key]
+                    local _, _, wz = get_slot_info(slot, slot_data)
+
+                    npc.xf_node = label_delegate["xf_node"]
+                    if npc.xf_node then
+                        GUI:removeAllChildren(npc.xf_node)
+                    else
+                        npc.xf_node = GUI:Node_Create(Label_node, "xf_node", 0, 0)
+                    end
+
+                    if wz then
+                        -- GUI:setAnchorPoint(GUI:Text_Create(npc.xf_node, "wz5",50 + 549,16 + 480, 20, "#FF0000", wz), 0, 1)
+                        GUI:setAnchorPoint(GUI:RichText_Create(npc.xf_node, "attr_desc_next", 50 + 549,16 + 480,  wz, 310, 17, "#f7f7de", 3,nil,nil)
+                        , 0, 1)
+                    else
+                        local need_lv = unlock_lv[slot] or 1
+                        local text = (cur_lv >= need_lv) and "已解锁,首次刷新免费" or ("解锁天书等级："..need_lv)
+                        GUI:setAnchorPoint(GUI:Text_Create(npc.xf_node, "wz5",50 + 549,16 + 480, 20, "#A0A0A4", text), 0, 1)
+                    end
+
+                    local Button = GUI:Button_Create(npc.xf_node, "Button", 50 + 549 + 76,100, "res/custom/tianshu/xf/btn_up.png")
+                    GUI:addOnClickEvent(Button, function()
+                        SL:SendLuaNetMsg(100, npcid, 2, 0, SL:JsonEncode({caowei = slot}))
+                    end)
+                end
 
                 for i = 1, 10 do
                     local kuang = GUI:Image_Create(dbLayout, "kuang"..i, 0, 0, "res/custom/tianshu/xf/k_0.png")
                     GUI:setTouchEnabled(kuang, true)
                     GUI:addOnClickEvent(kuang, function()
                         if npc.xf_sign then
-                            GUI:removeChildByName(GUI:ui_delegate(dbLayout)["kuang"..npc.xf_sign],"kuang_eff")
-                        end
-                        npc.xf_node = GUI:ui_delegate(Label_node)["xf_node"]
-                        if npc.xf_node then
-                            GUI:removeAllChildren(npc.xf_node)
-                        else
-                            npc.xf_node = GUI:Node_Create(Label_node, "xf_node", 0, 0)
+                            GUI:removeChildByName(layout_delegate["kuang"..npc.xf_sign], "kuang_eff")
                         end
                         npc.xf_sign = i
-                        local cbl_item = GUI:Frames_Create(kuang, "kuang_eff", -8, -6, "res/custom/tianshu/xf/kuang/kuang_", ".png", 1, 15,
+                        GUI:Frames_Create(kuang, "kuang_eff", -8, -6, "res/custom/tianshu/xf/kuang/kuang_", ".png", 1, 15,
                             { speed = 100, count = 15, loop = -1})
-
-                        if npc.data.T_data.caowei[""..i] then
-                            GUI:setAnchorPoint(GUI:Text_Create(npc.xf_node, "wz5",50 + 549,16 + 480, 20, "#FF0000", npc._config.details[2].details[npc.data.T_data.caowei[""..i][1]][npc.data.T_data.caowei[""..i][2]].wz)
-                            , 0, 1)
-                        else
-                            GUI:setAnchorPoint(GUI:Text_Create(npc.xf_node, "wz5",50 + 549,16 + 480, 20, "#A0A0A4", "暂未解锁")
-                            , 0, 1)
-                        end
-
-                        local Button = GUI:Button_Create(npc.xf_node, "Button", 50 + 549 + 76,100, "res/custom/tianshu/xf/btn_up.png")
-                        GUI:addOnClickEvent(Button, function()
-                            SL:SendLuaNetMsg(100, npcid, 2, 0, SL:JsonEncode({caowei = i}))
-                        end)
+                        render_slot_detail(i)
                     end)
 
-                    if npc.data.T_data.caowei[""..i] then
-                        GUI:setAnchorPoint(GUI:Text_Create(kuang, "wz5",50,16, 20, level_coler[npc.data.T_data.caowei[""..i][1]], npc._config.details[2].details[npc.data.T_data.caowei[""..i][1]][npc.data.T_data.caowei[""..i][2]].name)
-                        , 0, 0.5)
-                    else
-                        GUI:setAnchorPoint(GUI:Text_Create(kuang, "wz5",50,16, 20, "#A0A0A4", "暂未解锁")
-                        , 0, 0.5)
-                    end
-
-                    
+                    local slot_key = ""..i
+                    local slot_data = caowei[slot_key]
+                    local name, color = get_slot_info(i, slot_data)
+                    GUI:setAnchorPoint(GUI:Text_Create(kuang, "wz5",50,16, 20, color, name), 0, 0.5)
+                    local level = (slot_data and slot_data[1]) or 0
+                    GUI:Image_loadTexture(kuang, "res/custom/tianshu/xf/k_"..level..".png")
                 end
                 GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 1,gap = {x=40, y=10}})
+
+                npc.xf_sign = npc.xf_sign or 1
+                if npc.xf_sign >= 1 and npc.xf_sign <= 10 then
+                    local kuang = layout_delegate["kuang"..npc.xf_sign]
+                    if kuang then
+                        GUI:Frames_Create(kuang, "kuang_eff", -8, -6, "res/custom/tianshu/xf/kuang/kuang_", ".png", 1, 15,
+                            { speed = 100, count = 15, loop = -1})
+                        render_slot_detail(npc.xf_sign)
+                    end
+                end
             elseif idx == 3 then
                 npc.data.T_data.wangshi = npc.data.T_data.wangshi or {}
                 

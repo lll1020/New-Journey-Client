@@ -61,9 +61,9 @@ local function updateUI(npcid, node)
     local num4 = GUI:TextAtlas_Create(npc.bg, "num4", 70 + 320+ 80,300 - 23, "1000", "res/custom/public/text1.png", 14, 30, ".")
 
     animateNumberTransition(0,1000000,0.2,20,function (value)    if num1 then GUI:TextAtlas_setString(num1, tostring(value))end end)
-    animateNumberTransition(0,200000,0.2,20,function (value)    if num2 then GUI:TextAtlas_setString(num2, tostring(value))end end)
+    animateNumberTransition(0,10000,0.2,20,function (value)    if num2 then GUI:TextAtlas_setString(num2, tostring(value))end end)
     animateNumberTransition(0,1000000,0.2,20,function (value)    if num3 then GUI:TextAtlas_setString(num3, tostring(value))end end)
-    animateNumberTransition(0,200000,0.2,20,function (value)    if num4 then GUI:TextAtlas_setString(num4, tostring(value))end end)
+    animateNumberTransition(0,10000,0.2,20,function (value)    if num4 then GUI:TextAtlas_setString(num4, tostring(value))end end)
 
     createExchangeButton(node, "Button1", 630, 260, 1, npcid)
     createExchangeButton(node, "Button2", 630, 70, 2, npcid)

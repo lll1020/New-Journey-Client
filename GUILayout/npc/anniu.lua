@@ -1770,13 +1770,24 @@ npc[19] = function(p2, p3, Data)  --飞剑
                 if npc.data_19.T_data.num and npc.data_19.T_data.num >= cogin.teshudata["anniu_19"].num then
                     jh = 2
                 end
-                -- GUI:Text_Create(kuang, "jd",100,0, 20, "#FF0000", (npc.data_19.T_data.num or 0)..'/'..cogin.teshudata["anniu_19"].num)
 
             end
             local jian = GUI:Image_Create(kuang, "jian"..v, 0, 0, "res/custom/feijian/itme_"..v.."_1.png")
             GUI:setGrey(jian,jh == 2 and false or true)
             GUI:Text_Create(kuang, "jh",150,130, 18, state_info[jh].color, state_info[jh].text)
             GUI:Image_Create(kuang, "jian_Wz"..v, 0, 0, "res/custom/feijian/itme_"..v.."_2.png")
+            if v == 4 then
+                local jd = GUI:Text_Create(kuang, "jd",40,105, 21, "#d1e3ec", "累计飞剑攻击：")
+                GUI:Text_setFontName(jd, "fonts/502.ttf")
+                GUI:Text_enableOutline(jd, "#081800", 1)
+
+                local num = GUI:RichText_Create(kuang, "num", 226/2, 100,
+                    SetCompletionProgress((npc.data_19.T_data.num or 0), cogin.teshudata["anniu_19"].num)
+                , 500, 30, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+                GUI:setAnchorPoint(num, 0.5, 0.5)
+            end
+
+             
 
         end
 
@@ -2037,7 +2048,7 @@ npc[30] = function(p2, p3, Data)
     if p2 == 0 then
         npc.data_30 = not Data and {} or SL:JsonDecode(Data, false)
         npc.data_30.T_data.axe = npc.data_30.T_data.axe or 1
-        npc.data_30.T_data.auto = npc.data_30.T_data.auto or 1
+        npc.data_30.T_data.auto = npc.data_30.T_data.auto or 0
         npc.data_30.T_data.num = npc.data_30.T_data.num or 0
         npc.data_30.T_data.dh_num = npc.data_30.T_data.dh_num or 0
         local config = teshudata["anniu_30"]
@@ -2085,7 +2096,7 @@ npc[30] = function(p2, p3, Data)
 
         -- SL:dump((config.updata[1].details[npc.data_30.T_data.axe].ratio * config.updata[2].details[npc.data_30.T_data.auto].ratio * config.base_time))
 
-        SL:schedule(npc.node, function() SL:SendLuaNetMsg(101, 30, 2, 1, '') end, (config.updata[1].details[npc.data_30.T_data.axe].ratio * config.updata[2].details[npc.data_30.T_data.auto].ratio * config.base_time))
+        SL:schedule(npc.node, function() SL:SendLuaNetMsg(101, 30, 2, 1, '') end, (config.updata[1].details[npc.data_30.T_data.axe].ratio * config.updata[2].details[math.max(npc.data_30.T_data.auto,1)].ratio * config.base_time))
         npc.wz1 = GUI:Text_Create(re_wz, "wz1", 133, 483, 20, "#FFFFFF", npc.data_30.T_data.num)
         npc.wz2 = GUI:Text_Create(re_wz, "wz2", 133, 449, 20, "#FFFFFF", npc.data_30.T_data.dh_num)
 
@@ -2111,6 +2122,18 @@ npc[30] = function(p2, p3, Data)
         end)
         GUI:addOnClickEvent(btn_updata_1, function()  btn_updata_1_xjm()  end)
 
+        if npc.data_30.T_data.auto == 0 then
+            local open_auto = GUI:Button_Create(re_wz, "open_auto", -100, 300 - 210, "res/wy/public/an_tongyong.png")
+            GUI:setAnchorPoint(open_auto, 0.5, 0.5)
+            local Button_wz = GUI:Text_Create(open_auto, "desc",116,52, 25, "#FFFBF0", "开启自动砍树")
+            GUI:setAnchorPoint(Button_wz, 0.5, 0.5)
+            GUI:Text_setFontName(Button_wz, "fonts/500.ttf")
+            GUI:Text_enableOutline(Button_wz, "#CA352C", 2)
+            NPC_UI_HELPER.redpoint_create(open_auto)
+            GUI:addOnClickEvent(open_auto, function()  SL:SendLuaNetMsg(101, 30, 3, 1, '')  end)
+            GUI:setVisible(btn_updata_2, false)
+        end
+
        
        
        
@@ -2119,7 +2142,7 @@ npc[30] = function(p2, p3, Data)
     elseif p2 == 1 then
         npc.data_30 = not Data and {} or SL:JsonDecode(Data, false)
         npc.data_30.T_data.axe = npc.data_30.T_data.axe or 1
-        npc.data_30.T_data.auto = npc.data_30.T_data.auto or 1
+        npc.data_30.T_data.auto = npc.data_30.T_data.auto or 0
         npc.data_30.T_data.num = npc.data_30.T_data.num or 0
         npc.data_30.T_data.dh_num = npc.data_30.T_data.dh_num or 0
         GUI:Text_setString(npc.wz1, npc.data_30.T_data.num)

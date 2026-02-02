@@ -65,6 +65,7 @@ function npc.main(npcid, p2, p3, msgData)
                 GUI:addOnClickEvent(Button, function()
                     SL:SendLuaNetMsg(100, npcid, 1, 0, "")
                 end)
+                -- NPC_UI_HELPER.redpoint_create(Button)
             else
                 GUI:Text_setFontName(GUI:Text_Create(node, "tip_max",450,100, 30, "#FF0000", "已达最高等级")
                 , "fonts/500.ttf")

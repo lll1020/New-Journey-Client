@@ -29,7 +29,7 @@ function npc.main(npcid, p2, p3, msgData)
         if not node then
             return
         end
-
+ 
         GUI:removeAllChildren(node)
 
         local dbLayout = GUI:Layout_Create(node, "dbLayout", 70,30, 500, 340)
@@ -39,6 +39,22 @@ function npc.main(npcid, p2, p3, msgData)
             {attr_name = "人物攻击", idx = 1},
             {attr_name = "人物防御", idx = 4},
         }
+
+        local tip = GUI:Image_Create(node, "tip", 700, 150, "res/wy/public/xqh_tip.png")
+        if SL:GetMetaValue("WINPLAYMODE") then
+            GUI:addMouseMoveEvent(tip, {onEnterFunc = function()
+                local pos = GUI:getWorldPosition(tip)
+                SL:OpenCommonDescTipsPop({str = "<全装备位置强化 + 10/FCOLOR=243>\\<            全属性+  10%/FCOLOR=249>\\_________________\\<全装备位置强化 + 20/FCOLOR=243>\\<            全属性+  20%/FCOLOR=249>\\_________________\\<全装备位置强化 + 30/FCOLOR=243>\\<            全属性+  30%/FCOLOR=249>", worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 0})
+            end, onLeaveFunc = function()
+                SL:CloseCommonDescTipsPop()
+            end})
+         else
+            GUI:setTouchEnabled(tip, true)
+            GUI:addOnTouchEvent(tip, function(self)
+                local pos = GUI:getWorldPosition(tip)
+                SL:OpenCommonDescTipsPop({str = "<全装备位置强化 + 10/FCOLOR=243>\\<            全属性+  10%/FCOLOR=249>\\_________________\\<全装备位置强化 + 20/FCOLOR=243>\\<            全属性+  20%/FCOLOR=249>\\_________________\\<全装备位置强化 + 30/FCOLOR=243>\\<            全属性+  30%/FCOLOR=249>", worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 0})
+            end)
+        end
 
 
         local idx = 1

@@ -822,11 +822,14 @@ local function drawPlotDetail(node, snapshot, npcid)
             -- GUI:setAnchorPoint(emptyTip, 0, 0.5)
         else
             for idx, entry in ipairs(seedList) do
+                local desc = GUI:Text_Create(btn_seed, "desc",5 + (idx - 1)*83, 150, 23, "#081839", "仙草种子："..SL:GetMetaValue("ITEM_COUNT", entry.name))
+                GUI:Text_setFontName(desc, "fonts/500.ttf")
+                GUI:Text_enableOutline(desc, "#FFFFFF", 2)
 
-                local kuang = GUI:Image_Create(btn_seed, "btn_seed"..idx, 0 + (idx - 1)*83, 150, "res/wy/public/58_58_kuang.png")
-                local item = GUI:ItemShow_Create(kuang, "item", 29, 29, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME",entry.name), look = true, bgVisible = false })
-                GUI:setAnchorPoint(item, 0.5, 0.5)
-                GUI:Text_Create(kuang, "count",5,0, 14, "#FF0000", "库存:"..SL:GetMetaValue("ITEM_COUNT", entry.name))
+                -- local kuang = GUI:Image_Create(btn_seed, "btn_seed"..idx, 0 + (idx - 1)*83, 150, "res/wy/public/58_58_kuang.png")
+                -- local item = GUI:ItemShow_Create(kuang, "item", 29, 29, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME",entry.name), look = true, bgVisible = false })
+                -- GUI:setAnchorPoint(item, 0.5, 0.5)
+                -- GUI:Text_Create(kuang, "count",5,0, 14, "#FF0000", "库存:"..SL:GetMetaValue("ITEM_COUNT", entry.name))
                 -- GUI:ItemShow_addReplaceClickEvent(item, function()
                 --     if idx == 1 then
                 --         sendAction(npcid, 'plant', {gridId = plot.gridId or selected, seedId = 'Low'})
@@ -1723,9 +1726,6 @@ local function drawRefine(node, snapshot, npcid)
                     end,{skin = "res/custom/three_city/xianfu/ldl/tj/bntn_lz.png"})
                     GUI:setAnchorPoint(btn, 0.5, 0.5)
                 end 
-
-                
-
             end
             GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 6,gap = {x=0, y=0}})
         end,{skin = "res/custom/three_city/xianfu/ldl/btn_tj.png"})
@@ -1743,12 +1743,20 @@ local function drawRefine(node, snapshot, npcid)
 
             local ScrollView = GUI:ScrollView_Create(npc.xx_Label, "ScrollView", 45, 40, 280, 240, 1)
             GUI:ScrollView_setBounceEnabled(ScrollView, true)
-            GUI:ScrollView_setInnerContainerSize(ScrollView, 280, ((52 + 50) * math.ceil(#recipes/4)) > (240 + 50) and ((52 + 50) * math.ceil(#recipes/4)) or (240 + 50))
-            local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 10,0, 280, 50 + (((52 + 50) * math.ceil(#recipes/4)) > 240 and ((52 + 50) * math.ceil(#recipes/4)) or 240))
+            GUI:ScrollView_setInnerContainerSize(ScrollView, 280, ((52 + 70) * math.ceil(#recipes/4)) > (240 + 70) and ((52 + 70) * math.ceil(#recipes/4)) or (240 + 70))
+            local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 10,0, 280, 70 + (((52 + 70) * math.ceil(#recipes/4)) > 240 and ((52 + 70) * math.ceil(#recipes/4)) or 240))
             for k,v in pairs(recipes) do
                 local kuang = GUI:Image_Create(dbLayout, "kuang"..k, 0, 0, "res/custom/three_city/xianfu/ldl/kuang.png")
 
-                local btn = NPC_UI_HELPER.createPrimaryButton(kuang, 'btn', 25, -20, "", function()
+                local itemShow = GUI:ItemShow_Create(kuang, "item", 48 / 2, 52 / 2, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME",k), look = true, bgVisible = false })
+                GUI:setAnchorPoint(itemShow, 0.5, 0.5)
+
+                local desc = GUI:Text_Create(kuang, "desc",48 / 2,-10, 20, "#808080", k)
+                GUI:setAnchorPoint(desc, 0.5, 0.5)
+                GUI:Text_setFontName(desc, "fonts/500.ttf")
+                GUI:Text_enableOutline(desc, "#00FFFF", 2)
+
+                local btn = NPC_UI_HELPER.createPrimaryButton(kuang, 'btn', 25, -40, "", function()
                     npc.name_sign = k
                     GUI_Refine_createLabel(npc.Label,npc.name_sign)
                     local parent = GUI:GetWindow(nil, "npc_anniu_44_xxjm")
@@ -1769,8 +1777,12 @@ local function drawRefine(node, snapshot, npcid)
         , 0.5, 0.5)
         local xz_kuang = GUI:Image_Create(btn, "xz_kuang", 150/2, 100.00, "res/custom/three_city/xianfu/ldl/kuang.png")
         GUI:setAnchorPoint(xz_kuang, 0.5, 0.5)
-        UiTools.showItemData(xz_kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc.name_sign)))
+        local itemShow = GUI:ItemShow_Create(xz_kuang, "item", 48 / 2, 52 / 2, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc.name_sign), look = true, bgVisible = false })
+        GUI:setAnchorPoint(itemShow, 0.5, 0.5)
 
+        local desc = GUI:Text_Create(xz_kuang, "desc",50,0, 20, "#808080", npc.name_sign)
+        GUI:Text_setFontName(desc, "fonts/500.ttf")
+        GUI:Text_enableOutline(desc, "#00FFFF", 2)
     end
 
         

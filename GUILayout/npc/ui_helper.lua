@@ -209,6 +209,17 @@ function UIHelper.formatNpcTitle(npcid, config)
     end
     return table.concat(parts, ' ')
 end
+-- 红点标识名称生成，例如：NPC 17 (兑换使者)
+function UIHelper.redpoint_create(parent, opts)
+    opts = opts or {}
+    local contentSize = parent:getContentSize()
+
+    local eff = GUI:Frames_Create(parent, "eff1", opts.x or (contentSize.width - 20), opts.y or (contentSize.height - 20), "res/wy/icon/hongdian/eff_", ".png", 1, 15,
+        { speed = 75, count = 15, loop = -1})
+    GUI:setScale(eff, opts.scale or 0.5)
+    GUI:setAnchorPoint(eff, opts.anchorX or 0.5, opts.anchorY or 0.5)
+    
+end
 
 _G.NPC_UI_HELPER = UIHelper
 return UIHelper

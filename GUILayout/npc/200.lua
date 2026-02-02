@@ -44,6 +44,19 @@ local RAW_MAP_CONFIG = {
     [304] = {"葬星海滩", 184, 40,nil,nil,3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
     [305] = {"船长室", 40, 46,nil,nil,3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
     [306] = {"水手舱", 59, 11,nil,nil,3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    
+    [307] = {"黄泉路", 49, 29,nil,nil,4, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [308] = {"罗酆六天", 71, 78,nil,nil,4, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [309] = {"东海龙宫", 31, 83,nil,nil,4, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [310] = {"黑风山", 158, 72,nil,nil,4, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [311] = {"黄风岭", 92, 368,nil,nil,4, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [312] = {"女儿国", 161, 146,nil,nil,4, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [313] = {"通天河", 237, 39,nil,nil,4, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [314] = {"狮驼岭", 17, 87,nil,nil,4, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [315] = {"天竺山", 68, 66,nil,nil,4, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [316] = {"灵域·二层", 72, 25,nil,nil,4, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [317] = {"灵域·三层", 63, 61,nil,nil,4, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
+    [318] = {"灵域·秘境", 21, 20,nil,nil,4, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
 }
 
 local CONTINENT_LABELS = {

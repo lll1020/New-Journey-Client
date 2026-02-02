@@ -8,6 +8,11 @@ local WINDOW_OPTS = {
     background = {skin = "res/custom/four_city/sxsh/bg.png", eff = true},
     -- title = {x = 56, y = 464, skin = "res/custom/four_city/sxsh/title.png"},
 }
+local attr_wz = {
+    "对怪吸血+3%",
+    "神圣一击概率+3%",
+    "暴击伤害+3%",
+}
 function npc.main(npcid, p2, p3, msgData)
 
 
@@ -50,6 +55,12 @@ function npc.main(npcid, p2, p3, msgData)
             
         end
         GUI:UserUILayout(layout, {dir=3,addDir=1,colnum = 4,gap = {x=10, y=0}})
+
+        for i=1,3 do
+            local desc = GUI:Text_Create(node, "desc"..i,300 + 257,220 + 115 - (i-1)*96, 22, "#00FFFF", attr_wz[i])
+            GUI:Text_setFontName(desc, "fonts/500.ttf")
+            GUI:Text_enableOutline(desc, "#000000", 2)
+        end
 
 
         local kuang = GUI:Image_Create(node, "kuang2", 255, 28, "res/wy/public/58-60.png")

@@ -33,9 +33,9 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:Effect_Create(Layout1, "rw1", 40, 40, 4, SL:GetMetaValue("EQUIP_DATA", 0) and SL:GetMetaValue("EQUIP_DATA", 0).Shape or 1300, 0, 2, 2, 0.8)
         GUI:Effect_Create(Layout1, "wq", 40, 40, 5, SL:GetMetaValue("EQUIP_DATA", 1) and SL:GetMetaValue("EQUIP_DATA", 1).Shape or 6, 0, 2, 2, 0.8)
 
-        GUI:RichTextFCOLOR_Create(Label_node, "text_name", 200, 350,
-                        (npc.data.T_data.level[""..idx] or 0).."/"..k.max_level
-        , 500, 25, "#f7f7de", 3,nil,"fonts/500.ttf",{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+        local desc2 = GUI:Text_Create(Label_node, "desc2",180, 350, 25, "#FF00FF", (npc.data.T_data.level[""..idx] or 0).."/"..k.max_level)
+        GUI:Text_setFontName(desc2, "fonts/501.ttf")
+        GUI:Text_enableOutline(desc2, "#FFFFFF", 2)
         
         GUI:Text_setFontName(GUI:Text_Create(Label_node, "wz",190,108, 25, "#00FF00", "技能伤害提升2%")
         , "fonts/501.ttf")
