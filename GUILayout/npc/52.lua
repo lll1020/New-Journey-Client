@@ -52,11 +52,18 @@ function npc.main(npcid, p2, p3, msgData)
             -- GUI:setPosition(cost_show, 200, 130)
 
         end
-        local Button= GUI:Button_Create(node, "Button", 450, 20.00, "res/custom/two_city/41_btn.png")
+        local equipLevel = Player:getEquipFieldByIndex(item.Index, 1)
+        equipLevel = tonumber(equipLevel)
+        if equipLevel >= 13 then
+            GUI:Text_setFontName(GUI:Text_Create(node, "tip_max",450,100, 30, "#FF0000", "已经合成完毕")
+            , "fonts/502.ttf")
+        else
+            local Button= GUI:Button_Create(node, "Button", 450, 20.00, "res/custom/two_city/41_btn.png")
 
-        GUI:addOnClickEvent(Button, function()
-            SL:SendLuaNetMsg(100, npcid, 1, 0, "")
-        end)
+            GUI:addOnClickEvent(Button, function()
+                SL:SendLuaNetMsg(100, npcid, 1, 0, "")
+            end)
+        end
 
 
     end

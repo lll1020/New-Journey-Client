@@ -60,8 +60,9 @@ local WINDOW_STYLE = {
     onlineRecharge = { -- 在线充值
         windowName = "npc_zxcz",
         overlay = {skin = "res/public/1900000651_1.png"},
-        background = {skin = "res/wy/public/tongyong_0.png"},
+        background = {skin = "res/custom/chongzhi/bg.png", eff = true},
         closeButton = {x = 740, y = 460, skin = "res/wy/public/close_red_big.png"},
+        title = {x = 56, y = 464, skin = "res/custom/chongzhi/title.png"},
     },
     unbind = {       -- 解绑特权
         windowName = "npc_jbtq",
@@ -336,7 +337,7 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
                 GUI:addOnClickEvent(Button_1, function()
                     SL:SendLuaNetMsg(105, 9999, 9999, 0, "")
                 end)
-                npc.an_cbl = GUI:Button_Create(npc.RightBottom, "an_cbl", -86, 340, "res/private/main/bottom/1900012580.png")
+                npc.an_cbl = GUI:Button_Create(npc.RightBottom, "an_cbl", -86, 320, "res/private/main/bottom/1900012580.png")
                 GUI:Button_loadTexturePressed(npc.an_cbl, "res/private/main/bottom/1900012580.png")
                 GUI:setAnchorPoint(GUI:Image_Create(npc.an_cbl, "ts", 86/2, 86/2, "res/private/main/bottom/1900012538.png")
                 , 0.5, 0.5)
@@ -458,7 +459,7 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
                     end
                 end)
                 --醉酒狂魔舞
-                local zjkmw = GUI:Button_Create(npc.RightBottom, "zjkmw", -80, 550 - 130, "res/custom/five_city/zjkmw/img.png")
+                local zjkmw = GUI:Button_Create(npc.RightBottom, "zjkmw", -80, 550 - 135, "res/custom/five_city/zjkmw/img.png")
                 GUI:addOnClickEvent(zjkmw, function()
 
                     if GUI:getChildByName(zjkmw, "img_bj") then
@@ -2282,40 +2283,73 @@ end
 npc[502] = function(p2, p3, Data) -- 在线充值
     -- 界面渲染：自定义金额 + 多档快速充值按钮
     local function UI_updata(node)
+        if not node then
+            return
+        end
         GUI:removeAllChildren(node)
 
 
-        local Input = GUI:TextInput_Create(node, "Input",180.00, 50.00, 100.00, 25.00, 18)
-        GUI:TextInput_setPlaceHolder(Input, "输入(最少10)")
+        local Input = GUI:TextInput_Create(node, "Input",180.00 + 324, 50.00 + 363, 50.00, 20.00, 13)
+        GUI:TextInput_setPlaceHolder(Input, "最少10")
         GUI:setTouchEnabled(Input, true)
 
-        local cz_an = GUI:Button_Create(node, "cz_an", 300, 38, "res/public/1900000660.png")
-        GUI:Button_setTitleText(cz_an, "充值")
+        local num = GUI:Text_Create(node, "num", 180.00 + 324 + 30, 80.00 + 363, 20, "#FFFFFF", SL:GetThousandSepString(SL:GetMetaValue("TMONEY", "累计充值")))
+        GUI:setAnchorPoint(num, 0.5, 0.5)
+
+        num = GUI:TextAtlas_Create(npc.bg, "num1", 690,30, SL:GetThousandSepString(SL:GetMetaValue("TMONEY", "真充积分")), "res/custom/public/text1.png", 14, 30, ".")
+        GUI:setAnchorPoint(num, 0, 0.5)
+
+        local cz_an = GUI:Button_Create(node, "cz_an", 300 + 274, 38 + 350, "res/custom/chongzhi/btn.png")
         GUI:addOnClickEvent(cz_an, function()
             local msg = tonumber(GUI:TextInput_getString(Input))
             if msg then
                 SL:SendLuaNetMsg(101, 502, 0, 3, msg)
             end
         end)
+        for i=1,3 do
+            GUI:Image_Create(node, "way_"..i,  180 + (i-1)*30, 38 + 350 + 32, "res/custom/chongzhi/way_"..i..".png")
+        end
+
+        local ScrollView = GUI:ScrollView_Create(node, "ScrollView", 30, 50, 720, 350, 1)
+        GUI:ScrollView_setInnerContainerSize(ScrollView, 720, 185 + (234 * 2))
 
 
-
-        for i=1,6 do
+        local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 0,185, 108*4, (234 * 2))
+        for i=1,8 do
             --
-            local Button = GUI:Image_Create(node, "img_lf"..i,  100 + (i < 4 and i or i-3) * 200, 100 + (i > 3 and 0 or 150), "res/wy/public/500-300.png")
+            local Button = GUI:Image_Create(dbLayout, "img_lf"..i,  0, 0, "res/custom/chongzhi/"..teshudata["anniu_502"].fj[i]..".png")
             GUI:setTouchEnabled(Button, true)
-            GUI:setContentSize(Button, 200, 150)
+            local list = GUI:Layout_Create(Button, "list", 10,35, 40*4, 42)
+            for j=1,#teshudata["anniu_502"].jl[i].give do
+                local itme = GUI:Image_Create(list, "itme"..j,  0, 0, "dev/res/wy/public/40-42.png")
+                local show = GUI:ItemShow_Create(itme, "item", 40/2, 42/2, {index=SL:GetMetaValue("ITEM_INDEX_BY_NAME",teshudata["anniu_502"].jl[i].give[j][1]),look= true})
+                GUI:setAnchorPoint(show, 0.5, 0.5)
+                
+                GUI:setAnchorPoint(GUI:Text_Create(itme, "count", 40/2, 5, 13, "#FFFFFF", SL:GetSimpleNumber(teshudata["anniu_502"].jl[i].give[j][2],0)), 0.5, 0.5)
+            end
+            if teshudata["anniu_502"].jl[i].ch then
+                local itme = GUI:Image_Create(list, "ch",  0, 0, "dev/res/wy/public/40-42.png")
+                local show = GUI:ItemShow_Create(itme, "item", 40/2, 42/2, {index=SL:GetMetaValue("ITEM_INDEX_BY_NAME",teshudata["anniu_502"].jl[i].ch.."[称号]"),look= true})
+                GUI:setAnchorPoint(show, 0.5, 0.5)
+            end
+            if teshudata["anniu_502"].jl[i].skill then
+                local itme = GUI:Image_Create(list, "skill",  0, 0, "dev/res/wy/public/40-42.png")
+                local show = GUI:ItemShow_Create(itme, "item", 40/2, 42/2, {index=SL:GetMetaValue("ITEM_INDEX_BY_NAME",teshudata["anniu_502"].jl[i].skill),look= true})
+                GUI:setAnchorPoint(show, 0.5, 0.5)
+            end
+            GUI:UserUILayout(list, {dir=3,addDir=1,colnum = 4,gap = {x=0, y=0}})
+            
+            -- GUI:Text_Create(Button, "wz",30,100, 20, "#FF0000", teshudata["anniu_502"].fj[i].."元")
 
-            GUI:Text_Create(Button, "wz",30,100, 20, "#FF0000", teshudata["anniu_502"].fj[i].."元")
-
-            local richText = GUI:RichTextFCOLOR_Create(Button, "rich0", 10, 10, "<非绑灵石/FCOLOR=250><*"..(teshudata["anniu_502"].fj[i] * 100).."/FCOLOR=149>   <绑定灵石/FCOLOR=250><*"..(teshudata["anniu_502"].fj[i] * 100).."/FCOLOR=149>", 400, 13, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-            --GUI:setAnchorPoint(richText, 0.5, 1)
+            -- local richText = GUI:RichTextFCOLOR_Create(Button, "rich0", 10, 10, "<非绑灵石/FCOLOR=250><*"..(teshudata["anniu_502"].fj[i] * 100).."/FCOLOR=149>   <绑定灵石/FCOLOR=250><*"..(teshudata["anniu_502"].fj[i] * 100).."/FCOLOR=149>", 400, 13, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+            -- --GUI:setAnchorPoint(richText, 0.5, 1)
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(101, 502, 0, 2, teshudata["anniu_502"].fj[i])
             end)
 
         end
-
+        GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 4,gap = {x=0, y=0}})
+        GUI:Image_Create(ScrollView, "k_1",  0, 0, "res/custom/chongzhi/k_1.png")
     end
 
     if p2 == 0 then
@@ -2323,6 +2357,9 @@ npc[502] = function(p2, p3, Data) -- 在线充值
         local rechargeWin = ensureWindow("onlineRecharge", 502, {titleText = "在线充值"})
         npc.bg = rechargeWin.bg
         npc.node = rechargeWin.node
+        UI_updata(npc.node)
+    elseif p2 == 1 then
+        npc.data_502 = not Data and {} or SL:JsonDecode(Data, false)
         UI_updata(npc.node)
     end
 end
@@ -2551,14 +2588,14 @@ npc[507] = function(p2, p3, Data)
 
 
 
-        npc.cbl_list = GUI:ListView_Create(node, "cbl_list", 55, 50, 190, 420, 1)
+        npc.cbl_list = GUI:ListView_Create(node, "cbl_list", -20, 50, 300, 420, 1)
         GUI:ListView_setGravity(npc.cbl_list, 2)
         npc.Label = GUI:Node_Create(node, "Label", 250, 15)
 
         npc.titles_sign = 1
         for i = 1, 14 do
             local cbl_item = GUI:Button_Create(npc.cbl_list, "item" .. i, 0, 0, "res/custom/activity/list/"..(npc.titles_sign == i and "l" or "n").."/"..(npc.titles_sign == i and "l_" or "n_")..i..".png")
-            GUI:setContentSize(cbl_item, GUI:getContentSize(cbl_item).width * 0.6, GUI:getContentSize(cbl_item).height * 0.6)
+            GUI:setContentSize(cbl_item, GUI:getContentSize(cbl_item).width * 0.8, GUI:getContentSize(cbl_item).height * 0.8)
             GUI:addOnClickEvent(cbl_item, function()
                 GUI:Button_loadTextureNormal(GUI:ui_delegate(npc.cbl_list)["item" .. npc.titles_sign], "res/custom/activity/list/n/n_"..npc.titles_sign..".png")
                 npc.titles_sign = i
@@ -3433,7 +3470,7 @@ end
 -- GM 面板配置：货币/礼包/变量/首充说明表
 local xlxl = {
     {"金币","元宝","绑定金币","绑定元宝","灵石","绑定灵石","累计充值","礼包积分","一合充值","二合充值","三合后充值"},
-    {"充值8","充值8","充值8","充值28","充值88","充值88","充值88","充值188","充值588","充值888"},
+    {10,30,68,128,198,328,648,998},
     {{"个人变量",105,178},{"个人标识",225,178},{"个人Buff",105,144},{"全局变量",225,144}},
     {"快人一步","前三天首充","三天后首充"},
 }
@@ -3516,7 +3553,7 @@ npc[998] = function(p2, p3, Data)
     GUI:addOnClickEvent(an_libao, function()
         local zb = GUI:getWorldPosition(an_libao)
         SL:OpenSelectListUI(xlxl[2],{x=zb.x,y=zb.y},156,30,function(iiid)
-            GUI:Text_setString(Text_libao, xlxl[2][iiid])
+            GUI:Text_setString(Text_libao, "充值"..xlxl[2][iiid])
         end)
     end)
 	local an_lb = GUI:Button_Create(npc.bg, "an_lb", 724.00, 491.00, "res/public/1900000660.png")
