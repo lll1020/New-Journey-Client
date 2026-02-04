@@ -1,4 +1,4 @@
-local npc = {}
+﻿local npc = {}
 
 ---顶部图标显示
 npc.iconpx = {
@@ -1155,274 +1155,12 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
 end
 ---伏妖录任务
 ----任务名,npcid,任务类型（1为主线任务,2为支线任务）,任务检测（1数字型,2数组型,3称号型）,任务结束标志和进度标志,任务传送地点,任务传送限制（{1,10}等级,{2,10}转生,{3,”称号“}所需称号）
-npc.xyl = {
-    --二大陆任务
-    {
-         --第一章
-        {
-            jq = {
-                { "扫荡野火帮（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "剿灭恶徒（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "天书强化",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) 
-                    local T_data = Player.getJsonTableByVar(play, VarCfg["T_天书"])
-                    return (T_data.level or 0) >= 1 and true or false
-                end ,khdjy = function() 
-                    local T_data = Player:JsonToTbl(Player:getServerVar("T42"))
-                    return (T_data.level or 0) >= 1 and true or false
-                end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "初识仙法",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) 
-                    local T_data = Player.getJsonTableByVar(play, VarCfg["T_天书"])
-                    return T_data["tj"] and true or false
-                end ,khdjy = function() 
-                    local T_data = Player:JsonToTbl(Player:getServerVar("T42"))
-                    return T_data["tj"] and true or false
-                end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-            },
-            --需求
-            jqd = 0,
-            jl = {{"绑定金币",1000000},{"绑定元宝",100000}}
-        },
-        --第二章
-        {
-            jq = {
-                { "杀伐之路（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "讨伐夜魔（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "装备强化",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "喂养灵根",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-            },
-            jqd = 400,
-            jl = {{"绑定金币",1000000},{"绑定元宝",100000}}
-        },
-        --第三章
-        {
-            jq = {
-                { "修复轩辕剑（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "深入野火（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "守护森林（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "兵道之谜（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "幸运增幅",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "气运占卜",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "转生·二",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-
-            },
-            jqd = 800,
-            jl = {{"绑定金币",1000000},{"绑定元宝",100000}}
-        },
-    },
-    {
-         --第一章
-        {
-            jq = {
-                { "扫荡野火帮（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "剿灭恶徒（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "天书强化",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) 
-                    local T_data = Player.getJsonTableByVar(play, VarCfg["T_天书"])
-                    return (T_data.level or 0) >= 1 and true or false
-                end ,khdjy = function() 
-                    local T_data = Player:JsonToTbl(Player:getServerVar("T42"))
-                    return (T_data.level or 0) >= 1 and true or false
-                end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "初识仙法",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) 
-                    local T_data = Player.getJsonTableByVar(play, VarCfg["T_天书"])
-                    return T_data["tj"] and true or false
-                end ,khdjy = function() 
-                    local T_data = Player:JsonToTbl(Player:getServerVar("T42"))
-                    return T_data["tj"] and true or false
-                end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-            },
-            --需求
-            jqd = 0,
-            jl = {{"绑定金币",1000000},{"绑定元宝",100000}}
-        },
-        --第二章
-        {
-            jq = {
-                { "杀伐之路（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "讨伐夜魔（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "装备强化",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "喂养灵根",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-            },
-            jqd = 400,
-            jl = {{"绑定金币",1000000},{"绑定元宝",100000}}
-        },
-        --第三章
-        {
-            jq = {
-                { "修复轩辕剑（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "深入野火（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "守护森林（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "兵道之谜（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "幸运增幅",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "气运占卜",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "转生·二",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-
-            },
-            jqd = 800,
-            jl = {{"绑定金币",1000000},{"绑定元宝",100000}}
-        },
-    },
-    {
-         --第一章
-        {
-            jq = {
-                { "扫荡野火帮（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "剿灭恶徒（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "天书强化",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) 
-                    local T_data = Player.getJsonTableByVar(play, VarCfg["T_天书"])
-                    return (T_data.level or 0) >= 1 and true or false
-                end ,khdjy = function() 
-                    local T_data = Player:JsonToTbl(Player:getServerVar("T42"))
-                    return (T_data.level or 0) >= 1 and true or false
-                end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "初识仙法",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) 
-                    local T_data = Player.getJsonTableByVar(play, VarCfg["T_天书"])
-                    return T_data["tj"] and true or false
-                end ,khdjy = function() 
-                    local T_data = Player:JsonToTbl(Player:getServerVar("T42"))
-                    return T_data["tj"] and true or false
-                end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-            },
-            --需求
-            jqd = 0,
-            jl = {{"绑定金币",1000000},{"绑定元宝",100000}}
-        },
-        --第二章
-        {
-            jq = {
-                { "杀伐之路（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "讨伐夜魔（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "装备强化",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "喂养灵根",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-            },
-            jqd = 400,
-            jl = {{"绑定金币",1000000},{"绑定元宝",100000}}
-        },
-        --第三章
-        {
-            jq = {
-                { "修复轩辕剑（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "深入野火（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "守护森林（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "兵道之谜（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "幸运增幅",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "气运占卜",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "转生·二",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-
-            },
-            jqd = 800,
-            jl = {{"绑定金币",1000000},{"绑定元宝",100000}}
-        },
-    },
-    {
-         --第一章
-        {
-            jq = {
-                { "扫荡野火帮（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "剿灭恶徒（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "天书强化",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) 
-                    local T_data = Player.getJsonTableByVar(play, VarCfg["T_天书"])
-                    return (T_data.level or 0) >= 1 and true or false
-                end ,khdjy = function() 
-                    local T_data = Player:JsonToTbl(Player:getServerVar("T42"))
-                    return (T_data.level or 0) >= 1 and true or false
-                end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "初识仙法",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) 
-                    local T_data = Player.getJsonTableByVar(play, VarCfg["T_天书"])
-                    return T_data["tj"] and true or false
-                end ,khdjy = function() 
-                    local T_data = Player:JsonToTbl(Player:getServerVar("T42"))
-                    return T_data["tj"] and true or false
-                end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-            },
-            --需求
-            jqd = 0,
-            jl = {{"绑定金币",1000000},{"绑定元宝",100000}}
-        },
-        --第二章
-        {
-            jq = {
-                { "杀伐之路（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "讨伐夜魔（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "装备强化",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "喂养灵根",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-            },
-            jqd = 400,
-            jl = {{"绑定金币",1000000},{"绑定元宝",100000}}
-        },
-        --第三章
-        {
-            jq = {
-                { "修复轩辕剑（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "深入野火（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "守护森林（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "兵道之谜（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "幸运增幅",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "气运占卜",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "转生·二",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-
-            },
-            jqd = 800,
-            jl = {{"绑定金币",1000000},{"绑定元宝",100000}}
-        },
-    },
-    {
-         --第一章
-        {
-            jq = {
-                { "扫荡野火帮（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "剿灭恶徒（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "天书强化",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) 
-                    local T_data = Player.getJsonTableByVar(play, VarCfg["T_天书"])
-                    return (T_data.level or 0) >= 1 and true or false
-                end ,khdjy = function() 
-                    local T_data = Player:JsonToTbl(Player:getServerVar("T42"))
-                    return (T_data.level or 0) >= 1 and true or false
-                end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "初识仙法",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) 
-                    local T_data = Player.getJsonTableByVar(play, VarCfg["T_天书"])
-                    return T_data["tj"] and true or false
-                end ,khdjy = function() 
-                    local T_data = Player:JsonToTbl(Player:getServerVar("T42"))
-                    return T_data["tj"] and true or false
-                end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-            },
-            --需求
-            jqd = 0,
-            jl = {{"绑定金币",1000000},{"绑定元宝",100000}}
-        },
-        --第二章
-        {
-            jq = {
-                { "杀伐之路（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "讨伐夜魔（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "装备强化",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "喂养灵根",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-            },
-            jqd = 400,
-            jl = {{"绑定金币",1000000},{"绑定元宝",100000}}
-        },
-        --第三章
-        {
-            jq = {
-                { "修复轩辕剑（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "深入野火（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "守护森林（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "兵道之谜（剧）",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "幸运增幅",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "气运占卜",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-                { "转生·二",id = 999, jl = {{"剧情点",100}},fwdjy = function(play) return true end ,khdjy = function() return true end,yd = {1,"剑门外门",166,109,83} ,desc = "<核心/FCOLOR=249>完成二大陆转职\\(<提升核心属性/FCOLOR=250>)" },
-
-            },
-            jqd = 800,
-            jl = {{"绑定金币",1000000},{"绑定元宝",100000}}
-        },
-    },
-}
+npc.xyl = SL:Require("GUILayout/Data/xyl.lua", true)
 ---异闻录：章节任务界面（UIHelper 统一窗口）
 npc[11] = function(p2, p3, Data)
     if p2 == 0 then
         npc.data = Data and SL:JsonDecode(Data, false) or {}
-        npc.l = npc.l or 1  -- 当前大章节
+        npc.l = npc.l or 2  -- 当前大章节
         npc.zj = npc.zj or 1 -- 当前小节
 
         local win = ensureWindow("storyLog", 11, { titleText = "异闻录" })
@@ -1430,9 +1168,9 @@ npc[11] = function(p2, p3, Data)
         local node = win.node
 
         -- 左侧章节列表
-        local chapterList = GUI:ListView_Create(npc.bg, "chapter_list", 25, 0, 230, 520, 1, false)
+        local chapterList = GUI:ListView_Create(npc.bg, "chapter_list", 25, 23, 230, 520 - 23, 1, false)
         GUI:ListView_setGravity(chapterList, 2)
-        GUI:ListView_setItemsMargin(chapterList, 10)
+        GUI:ListView_setItemsMargin(chapterList, 3)
         npc.ywl_list = chapterList
 
         -- 渲染右侧任务/奖励卡片
@@ -1452,6 +1190,9 @@ npc[11] = function(p2, p3, Data)
             GUI:ScrollView_setInnerContainerSize(scroll, taskCount * (232 + 0 ), 414)
             local layout = GUI:Layout_Create(scroll, "task_layout", 0, 0, taskCount * (232 + 10), 414, false)
 
+            local curJqd = tonumber(SL:GetMetaValue("TMONEY", "剧情点")) or 0
+            local lockedByJqd = zjCfg.jqd and curJqd < zjCfg.jqd
+
             for idx, task in ipairs(tasks) do
                 local card = GUI:Image_Create(layout, "card" .. idx, 0, 0, 'res/custom/ywl/kuang.png')
                 -- GUI:setPosition(card, 232, 414)
@@ -1468,19 +1209,25 @@ npc[11] = function(p2, p3, Data)
 
                 local enable = false
                 if task.id == 999 and task.khdjy then
-                    enable = task.khdjy()
+                    enable = task.khdjy(task)
                 end
+                -- enable = true
                 if npc.data and npc.data.ywl and npc.data.ywl["jl_" .. npc.l .. "_" .. npc.zj .. "_" .. idx] and npc.data.ywl["jl_" .. npc.l .. "_" .. npc.zj .. "_" .. idx] == 1 then
                     GUI:setAnchorPoint(GUI:Image_Create(img, "ylq", 232/2, 90, 'res/custom/ywl/ylq.png')
                     , 0.5, 0.5)
                 else
-                    local btnSkin = enable and 'res/custom/ywl/btn_1.png' or 'res/custom/ywl/btn_2.png'
-                    local goBtn = GUI:Button_Create(img, "go" .. idx, 232/2, 90, btnSkin)
-                    GUI:setAnchorPoint(goBtn, 0.5, 0.5)
-                    GUI:addOnClickEvent(goBtn, function()
-                        SL:SendLuaNetMsg(101, 11, enable and 3 or 1, 0,
-                            string.format('{"i":%d,"j":%d,"k":0,"z":%d}', npc.l, npc.zj, idx))
-                    end)
+                    if lockedByJqd then
+                        local lockText = GUI:Text_Create(img, "lock" .. idx, 232/2, 90, 22, "#FF3B30", "未解锁")
+                        GUI:setAnchorPoint(lockText, 0.5, 0.5)
+                    else
+                        local btnSkin = enable and 'res/custom/ywl/btn_1.png' or 'res/custom/ywl/btn_2.png'
+                        local goBtn = GUI:Button_Create(img, "go" .. idx, 232/2, 90, btnSkin)
+                        GUI:setAnchorPoint(goBtn, 0.5, 0.5)
+                        GUI:addOnClickEvent(goBtn, function()
+                            SL:SendLuaNetMsg(101, 11, enable and 3 or 1, 0,
+                                string.format('{"i":%d,"j":%d,"k":0,"z":%d}', npc.l, npc.zj, idx))
+                        end)
+                    end
                 end
                 
             end
@@ -1508,7 +1255,7 @@ npc[11] = function(p2, p3, Data)
         -- 渲染章节列表
         local function renderChapterList()
             GUI:removeAllChildren(chapterList)
-            for i = 1, #npc.xyl do
+            for i = 2, #npc.xyl do
                 local btn = GUI:Button_Create(chapterList, "chap_" .. i, 0, 0, 'res/custom/ywl/list/dl_' .. i .. '.png')
                 GUI:addOnClickEvent(btn, function()
                     if dl_sz and not dl_sz(i) then
@@ -1522,23 +1269,30 @@ npc[11] = function(p2, p3, Data)
                 end)
                 if i == npc.l then
                     for y = 1, #npc.xyl[npc.l] do
+                        local x_chap = GUI:Layout_Create(chapterList, "x_chap_" .. y, 0, 0, 84, 40, false)
                         
-                        local x_btn = GUI:Button_Create(GUI:Layout_Create(chapterList, "x_chap_" .. y, 0, 0, 84, 40, false)
-                        , "x_chap", 0, 10, 'res/custom/ywl/list/x_1_' .. y .. '.png')
+                        local x_btn = GUI:Button_Create(x_chap, "x_chap", 84/2, 40/2, 'res/custom/ywl/list/xz.png')
+                        GUI:setAnchorPoint(x_btn, 0.5, 0.5)
+                        local zj_name = GUI:Text_Create(x_chap, "wz", 84/2, 40/2, 23, "#FFFFFF", npc.xyl[npc.l][y].name)
+                        GUI:Text_setFontName(zj_name, "fonts/500.ttf")
+                        GUI:Text_enableOutline(zj_name, "#000000", 2)
+                        GUI:setAnchorPoint(zj_name, 0.5, 0.5)
                         GUI:addOnClickEvent(x_btn, function()
-                            GUI:removeAllChildren(GUI:ui_delegate(GUI:ui_delegate(chapterList)["x_chap_" .. npc.zj]).x_chap)
+                            GUI:Text_setTextColor(GUI:ui_delegate(GUI:ui_delegate(chapterList)["x_chap_" .. npc.zj]).wz, "#FFFFFF")
                             npc.zj = y
                             -- renderChapterList()
+                            GUI:Text_setTextColor(GUI:ui_delegate(GUI:ui_delegate(chapterList)["x_chap_" .. npc.zj]).wz, "#FF0000")
                             
-                            GUI:setAnchorPoint(GUI:Image_Create(x_btn, "xz", 84/2, 20/2, 'res/custom/ywl/list/xz.png')
-                            , 0.5, 0.5)
-                            GUI:Image_Create(x_btn, "xz_wz", 0, 0, 'res/custom/ywl/list/x_1_' .. y .. '.png')
+                            -- GUI:setAnchorPoint(GUI:Image_Create(x_btn, "xz", 84/2, 20/2, 'res/custom/ywl/list/xz.png')
+                            -- , 0.5, 0.5)
+                            -- GUI:Image_Create(x_btn, "xz_wz", 0, 0, 'res/custom/ywl/list/x_1_' .. y .. '.png')
                             renderTasks()
                         end)
                         if y == npc.zj then
-                            GUI:setAnchorPoint(GUI:Image_Create(x_btn, "xz", 84/2, 20/2, 'res/custom/ywl/list/xz.png')
-                            , 0.5, 0.5)
-                            GUI:Image_Create(x_btn, "xz_wz", 0, 0, 'res/custom/ywl/list/x_1_' .. y .. '.png')
+                            GUI:Text_setTextColor(GUI:ui_delegate(GUI:ui_delegate(chapterList)["x_chap_" .. npc.zj]).wz, "#FF0000")
+                            -- GUI:setAnchorPoint(GUI:Image_Create(x_btn, "xz", 84/2, 20/2, 'res/custom/ywl/list/xz.png')
+                            -- , 0.5, 0.5)
+                            -- GUI:Image_Create(x_btn, "xz_wz", 0, 0, 'res/custom/ywl/list/x_1_' .. y .. '.png')
                         end
 
                     end
@@ -1831,7 +1585,7 @@ npc[20] = function(p2, p3, Data)  --神石
                 local EquipShow = GUI:EquipShow_Create(dbLayout, "EquipShow"..i, 0,0, 102 + i, false, {look = true, movable = true, bgVisible = false, doubleTakeOff = true})
                 GUI:EquipShow_setAutoUpdate(EquipShow)
             elseif idx == 1 then
-                GUI:ItemShow_Create(dbLayout, "EquipShow"..i, 0,0, {itemData = SL:GetMetaValue("EQUIP_DATA", 102 + i),look=true})
+                GUI:ItemShow_Create(dbLayout, "EquipShow"..i, 0,0, {itemData = SL:GetMetaValue("L.M.EQUIP_DATA", 102 + i),look=true})
             end
         end
         if idx == 0 then
@@ -1883,7 +1637,7 @@ npc[21] = function(p2, p3, Data)  --古玩
                 local EquipShow = GUI:EquipShow_Create(dbLayout, "EquipShow"..i, 0,0, 110 + i, false, {look = true, movable = true, bgVisible = false, doubleTakeOff = true})
                 GUI:EquipShow_setAutoUpdate(EquipShow)
             elseif idx == 1 then
-                GUI:ItemShow_Create(dbLayout, "EquipShow"..i, 0,0, {itemData = SL:GetMetaValue("EQUIP_DATA", 110 + i),look=true})
+                GUI:ItemShow_Create(dbLayout, "EquipShow"..i, 0,0, {itemData = SL:GetMetaValue("L.M.EQUIP_DATA", 110 + i),look=true})
             end
         end
         if idx == 0 then
@@ -1925,26 +1679,38 @@ end
 
 ---法宝
 npc[22] = function(p2, p3, Data)  --法宝
+-- 时光之杖[未激活]
+-- 首切法宝[未激活]
+-- 秘宝·万鬼啸【鬼】[未激活]
+-- 秘宝·破龙吟【兵】[未激活]
+-- 酒仙剑[未激活]
+
 
    
     local function UI_updata(node,idx) --界面渲染
         GUI:removeAllChildren(node)
 
-        if idx == 0 then
-            local item = SL:GetMetaValue("EQUIP_DATA", 71)
-            SL:dump(item)
+        local metaKey = idx == 1 and "L.M.EQUIP_DATA" or "EQUIP_DATA"
+        local items = {
+            {id = 71, x = 138, y = 131, name = "时光之杖[未激活]"},
+            {id = 72, x = 246, y = 94, name = "首切法宝[未激活]"},
+            {id = 73, x = 65, y = 60, name = "秘宝·万鬼啸【鬼】[未激活]"},
+            {id = 74, x = 65, y = 131, name = "秘宝·破龙吟【兵】[未激活]"},
+            {id = 75, x = 138, y = 60, name = "酒仙剑[未激活]"},
+        }
+
+        for _, cfg in ipairs(items) do
+            local item = SL:GetMetaValue(metaKey, cfg.id)
             if item then
-                local EquipShow = GUI:EquipShow_Create(node, "EquipShow"..71, 138,131, 71, false, {look = true, movable = true, bgVisible = false, doubleTakeOff = true})
+                local EquipShow = GUI:EquipShow_Create(node, "EquipShow"..cfg.id, cfg.x, cfg.y, cfg.id, false, {look = true, movable = true, bgVisible = false, doubleTakeOff = true})
                 GUI:EquipShow_setAutoUpdate(EquipShow)
                 GUI:setAnchorPoint(EquipShow, 0.5, 0.5)
             else
-                
-                return
+                local EquipShow = GUI:ItemShow_Create(node, "EquipShow"..cfg.id, cfg.x, cfg.y, {index = SL:GetMetaValue("ITEM_INDEX_BY_NAME", cfg.name), look = true})
+                GUI:ItemShow_setIconGrey(EquipShow, true)
+                GUI:setAnchorPoint(EquipShow, 0.5, 0.5)
             end
-        elseif idx == 1 then
-            
         end
-
     end
 
     if p2 == 0 then
@@ -2319,25 +2085,31 @@ npc[502] = function(p2, p3, Data) -- 在线充值
             --
             local Button = GUI:Image_Create(dbLayout, "img_lf"..i,  0, 0, "res/custom/chongzhi/"..teshudata["anniu_502"].fj[i]..".png")
             GUI:setTouchEnabled(Button, true)
-            local list = GUI:Layout_Create(Button, "list", 10,35, 40*4, 42)
-            for j=1,#teshudata["anniu_502"].jl[i].give do
-                local itme = GUI:Image_Create(list, "itme"..j,  0, 0, "dev/res/wy/public/40-42.png")
-                local show = GUI:ItemShow_Create(itme, "item", 40/2, 42/2, {index=SL:GetMetaValue("ITEM_INDEX_BY_NAME",teshudata["anniu_502"].jl[i].give[j][1]),look= true})
-                GUI:setAnchorPoint(show, 0.5, 0.5)
+            if npc.data_502["cz502_"..teshudata["anniu_502"].fj[i]] and npc.data_502["cz502_"..teshudata["anniu_502"].fj[i]] == 1 then
                 
-                GUI:setAnchorPoint(GUI:Text_Create(itme, "count", 40/2, 5, 13, "#FFFFFF", SL:GetSimpleNumber(teshudata["anniu_502"].jl[i].give[j][2],0)), 0.5, 0.5)
+            else
+                GUI:Image_Create(Button, "double",  100, 100, "res/custom/chongzhi/double.png")
+                local list = GUI:Layout_Create(Button, "list", 10,35, 40*4, 42)
+                for j=1,#teshudata["anniu_502"].jl[i].give do
+                    local itme = GUI:Image_Create(list, "itme"..j,  0, 0, "dev/res/wy/public/40-42.png")
+                    local show = GUI:ItemShow_Create(itme, "item", 40/2, 42/2, {index=SL:GetMetaValue("ITEM_INDEX_BY_NAME",teshudata["anniu_502"].jl[i].give[j][1]),look= true})
+                    GUI:setAnchorPoint(show, 0.5, 0.5)
+                    
+                    GUI:setAnchorPoint(GUI:Text_Create(itme, "count", 40/2, 5, 13, "#FFFFFF", SL:GetSimpleNumber(teshudata["anniu_502"].jl[i].give[j][2],0)), 0.5, 0.5)
+                end
+                if teshudata["anniu_502"].jl[i].ch then
+                    local itme = GUI:Image_Create(list, "ch",  0, 0, "dev/res/wy/public/40-42.png")
+                    local show = GUI:ItemShow_Create(itme, "item", 40/2, 42/2, {index=SL:GetMetaValue("ITEM_INDEX_BY_NAME",teshudata["anniu_502"].jl[i].ch.."[称号]"),look= true})
+                    GUI:setAnchorPoint(show, 0.5, 0.5)
+                end
+                if teshudata["anniu_502"].jl[i].skill then
+                    local itme = GUI:Image_Create(list, "skill",  0, 0, "dev/res/wy/public/40-42.png")
+                    local show = GUI:ItemShow_Create(itme, "item", 40/2, 42/2, {index=SL:GetMetaValue("ITEM_INDEX_BY_NAME",teshudata["anniu_502"].jl[i].skill),look= true})
+                    GUI:setAnchorPoint(show, 0.5, 0.5)
+                end
+                GUI:UserUILayout(list, {dir=3,addDir=1,colnum = 4,gap = {x=0, y=0}})
             end
-            if teshudata["anniu_502"].jl[i].ch then
-                local itme = GUI:Image_Create(list, "ch",  0, 0, "dev/res/wy/public/40-42.png")
-                local show = GUI:ItemShow_Create(itme, "item", 40/2, 42/2, {index=SL:GetMetaValue("ITEM_INDEX_BY_NAME",teshudata["anniu_502"].jl[i].ch.."[称号]"),look= true})
-                GUI:setAnchorPoint(show, 0.5, 0.5)
-            end
-            if teshudata["anniu_502"].jl[i].skill then
-                local itme = GUI:Image_Create(list, "skill",  0, 0, "dev/res/wy/public/40-42.png")
-                local show = GUI:ItemShow_Create(itme, "item", 40/2, 42/2, {index=SL:GetMetaValue("ITEM_INDEX_BY_NAME",teshudata["anniu_502"].jl[i].skill),look= true})
-                GUI:setAnchorPoint(show, 0.5, 0.5)
-            end
-            GUI:UserUILayout(list, {dir=3,addDir=1,colnum = 4,gap = {x=0, y=0}})
+            
             
             -- GUI:Text_Create(Button, "wz",30,100, 20, "#FF0000", teshudata["anniu_502"].fj[i].."元")
 
@@ -3470,7 +3242,7 @@ end
 -- GM 面板配置：货币/礼包/变量/首充说明表
 local xlxl = {
     {"金币","元宝","绑定金币","绑定元宝","灵石","绑定灵石","累计充值","礼包积分","一合充值","二合充值","三合后充值"},
-    {10,30,68,128,198,328,648,998},
+    {"充值10","充值30","充值68","充值128","充值198","充值328","充值648","充值998"},
     {{"个人变量",105,178},{"个人标识",225,178},{"个人Buff",105,144},{"全局变量",225,144}},
     {"快人一步","前三天首充","三天后首充"},
 }
@@ -3553,7 +3325,7 @@ npc[998] = function(p2, p3, Data)
     GUI:addOnClickEvent(an_libao, function()
         local zb = GUI:getWorldPosition(an_libao)
         SL:OpenSelectListUI(xlxl[2],{x=zb.x,y=zb.y},156,30,function(iiid)
-            GUI:Text_setString(Text_libao, "充值"..xlxl[2][iiid])
+            GUI:Text_setString(Text_libao, xlxl[2][iiid])
         end)
     end)
 	local an_lb = GUI:Button_Create(npc.bg, "an_lb", 724.00, 491.00, "res/public/1900000660.png")
@@ -3635,6 +3407,8 @@ npc[998] = function(p2, p3, Data)
             return
         end
         local giftId = findIndexByLabel(xlxl[2], giftName)
+        SL:release_print(giftId)
+        SL:release_print(giftName)
         if not giftId then
             showErrorTip("未知礼包类型，请重新选择")
             return
@@ -3994,6 +3768,7 @@ npc[9999] = function(p2, p3, msgData) -- 通用关闭
     end
 end
 return npc
+
 
 
 

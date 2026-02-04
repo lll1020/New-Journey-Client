@@ -192,8 +192,31 @@ function npc.main(npcid, p2, p3, msgData)
                     end
 
                     local Button = GUI:Button_Create(npc.xf_node, "Button", 50 + 549 + 76,100, "res/custom/tianshu/xf/btn_up.png")
+                    local function do_refresh()
+                        if checkItemNum({{"仙品仙法卷轴",1}}) then
+                            SL:OpenCommonTipsPop({str="是否要使用仙品仙法卷轴，必可得到仙品仙法！",btnType=2,callback=function(atype,param)
+                                if atype == 1 then
+                                    SL:SendLuaNetMsg(100, npcid, 2, 2, SL:JsonEncode({caowei = slot}))
+                                else
+                                    SL:SendLuaNetMsg(100, npcid, 2, 0, SL:JsonEncode({caowei = slot}))
+                                end
+                            end})
+                        else
+                            SL:SendLuaNetMsg(100, npcid, 2, 0, SL:JsonEncode({caowei = slot}))
+                        end
+                        
+                    end
                     GUI:addOnClickEvent(Button, function()
-                        SL:SendLuaNetMsg(100, npcid, 2, 0, SL:JsonEncode({caowei = slot}))
+                        local cur_quality = slot_data and slot_data[1] or 0
+                        if cur_quality >= 4 then
+                            SL:OpenCommonTipsPop({str="当前已是仙品仙法，是否继续刷新？",btnType=2,callback=function(atype,param)
+                                if atype == 1 then
+                                    do_refresh()
+                                end
+                            end})
+                        else
+                            do_refresh()
+                        end
                     end)
                 end
 
