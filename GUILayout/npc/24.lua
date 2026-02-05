@@ -78,12 +78,12 @@ function npc.main(npcid, p2, p3, msgData)
                     -- local kuang = GUI:Image_Create(Label_node, "kuang", 200, 250, "res/wy/public/70_70_k.png")
                     -- UiTools.showItemData(kuang, item)
 
-                   local dbLayout = GUI:Layout_Create(Label_node, "dbLayout", 610,484, 315, 150)
-                   local attr = {
-                        {attr_name = "生命魔法", idx = 1},
-                        {attr_name = "攻  魔  道", idx = 4},
-                        {attr_name = "人物防御", idx = 10},
-                   }
+                    local dbLayout = GUI:Layout_Create(Label_node, "dbLayout", 610,484, 315, 150)
+                    local attr = {
+                            {attr_name = "生命魔法", idx = 1},
+                            {attr_name = "攻  魔  道", idx = 4},
+                            {attr_name = "人物防御", idx = 10},
+                    }
 
 
                     for v,k in pairs(attr) do

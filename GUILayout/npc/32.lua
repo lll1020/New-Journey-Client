@@ -96,6 +96,8 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 1, 0, "")
             end)
+        else
+            GUI:Image_Create(node, "Button", 750 - 469, 20.00, "res/wy/public/15.png")
 
 
         end
