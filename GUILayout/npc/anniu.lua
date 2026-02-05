@@ -2179,29 +2179,49 @@ end
 ---解绑特权
 npc[504] = function(p2, p3, Data) -- 解绑特权
     -- 界面渲染：展示奖励列表 + 开通按钮
-    local function renderPage(node)
-        GUI:removeAllChildren(node)
-        local give = deepCopy(teshudata["anniu_504"].give)
-        table.insert(give, {teshudata["anniu_504"].ch .."[称号]",1})
-        local rewardRoot = GUI:Node_Create(node, "give", 0, 0)
-        local give_show = ItemNumByTable_img(give, nil, rewardRoot)
-        GUI:setPosition(give_show, 200, 300)
-
-        local openBtn= GUI:Button_Create(node, "btn_open_privilege", 750, 100.00, "res/public/1900000660.png")
-        GUI:Button_setTitleText(openBtn, "开通特权")
-        GUI:Button_setTitleFontSize(openBtn, 14)
-        GUI:addOnClickEvent(openBtn, function()
-            SL:SendLuaNetMsg(101, 504, 1, 0, "")
-        end)
-    end
-
     if p2 == 0 then
-        npc.data_504 = not Data and {} or SL:JsonDecode(Data, false)
-        local win = ensureWindow("unbind", 504, {titleText = "解绑特权"})
-        npc.bg = win.bg
-        npc.node = win.node
-        renderPage(npc.node)
-    end
+        npc.kryb =  SL:JsonDecode(Data, false)
+		local parent = GUI:GetWindow(nil, "npc_sclb")
+		if parent then
+			GUI:removeAllChildren(parent)
+			GUI:setPosition(parent, cogin.w / 2, cogin.h / 2)
+		else
+			parent = GUI:Win_Create("npc_sclb", cogin.w / 2, cogin.h / 2, 0, 0, false, false, true, true, true, 0, 1)
+		end
+		local bjt = GUI:Image_Create(parent, "bjt", 0, 0, "res/public/1900000651_1.png")
+		GUI:setAnchorPoint(bjt, 0.5, 0.5)
+		GUI:setContentSize(bjt, cogin.w + 100, cogin.h + 100)
+		GUI:setTouchEnabled(bjt, true)
+		GUI:addOnClickEvent(bjt, function()
+			GUI:Win_Close(parent)
+		end)
+        npc.bg = GUI:Frames_Create(parent, "bg", 0, 0, "res/wy/eff/city/gm_bj", ".png", 1, 60, {speed = 50, count = 60, loop = -1})
+		GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
+		GUI:setTouchEnabled(npc.bg, true)
+
+        GUI:Image_Create(npc.bg, "img_1", 150, 400, "res/custom/top/kryb/img_1.png")
+        GUI:Image_Create(npc.bg, "img_2", 0, 300, "res/custom/top/kryb/img_2.png")
+        GUI:Image_Create(npc.bg, "img_3", 0, 130, "res/custom/top/kryb/img_3.png")
+        GUI:Image_Create(npc.bg, "img_4", 150, 20, "res/custom/top/kryb/img_4.png")
+        -- GUI:Image_Create(npc.bg, "anniu_504_5", 800, 0, "res/wy/public/anniu_504_5.png")
+
+        -- local jl_node = ItemNumByTable_img(npc.s_show[504].show,nil,npc.bg)
+        -- GUI:setPosition(jl_node, 500, 130)
+
+        local close = GUI:Button_Create(npc.bg, 'close', 850, 450, 'res/wy/public/close.png')
+        GUI:addOnClickEvent(close, function()
+            GUI:Win_Close(parent)
+        end)
+
+        if npc.kryb.mztq == 0 then
+            npc.Button = GUI:Button_Create(npc.bg, "Button", 470, 20, "res/custom/top/kryb/btn.png")
+            GUI:addOnClickEvent(npc.Button, function()
+                SL:SendLuaNetMsg(101, 504, 1, 0, "")
+            end)
+        else
+            GUI:Image_Create(npc.bg, "img_bj1", 457, 46, "res/wy/public/6.png")
+        end
+	end
 end
 
 ---巡航挂机

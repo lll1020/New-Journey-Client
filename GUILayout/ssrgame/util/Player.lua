@@ -186,6 +186,14 @@ function Player:JsonToTbl(str)
     return ret
 end
 
+local function _fmt_percent(value)
+    local num = tonumber(value) or 0
+    if num == math.floor(num) then
+        return string.format("%d", num)
+    end
+    return string.format("%.1f", num)
+end
+
 
 function Player:showEquipBaseAttr(item)
     local attList = GUIFunction:ParseItemBaseAtt(item.attribute)
@@ -220,10 +228,10 @@ function Player:showEquipBaseAttr(item)
         local name = entry.name
         local value = v.value
         if (attConfig and attConfig.type == 2) then --万分比除100
-            value = string.format("%.1d", value / 100) .. "%"
+            value = _fmt_percent(value / 100) .. "%"
         end
         if (attConfig and attConfig.type == 3) then --百分比
-            value = string.format("%.1d", value) .. "%"
+            value = _fmt_percent(value) .. "%"
         end
         local oneStr = name .."+".. value
         local color = attConfig.color
@@ -269,10 +277,10 @@ function Player:showEquipAttr(item)
         local name = entry.name
         local value = v.value
         if (attConfig and attConfig.type == 2) then --万分比除100
-            value = string.format("%.1d", value / 100) .. "%"
+            value = _fmt_percent(value / 100) .. "%"
         end
         if (attConfig and attConfig.type == 3) then --百分比
-            value = string.format("%.1d", value) .. "%"
+            value = _fmt_percent(value) .. "%"
         end
         local oneStr = name .."+".. value
         local color = (attConfig and attConfig.color) or 255
@@ -315,10 +323,10 @@ function Player:showAttr(attr)
         local name = entry.name
         local value = v[2]
         if (attConfig and attConfig.type == 2) then --万分比除100
-            value = string.format("%.1d", value / 100) .. "%"
+            value = _fmt_percent(value / 100) .. "%"
         end
         if (attConfig and attConfig.type == 3) then --百分比
-            value = string.format("%.1d", value) .. "%"
+            value = _fmt_percent(value) .. "%"
         end
         local oneStr = name .."+".. value
         local color = (attConfig and attConfig.color) or 255
