@@ -54,8 +54,8 @@ local WINDOW_STYLE = {
     firstCharge = {  -- 首充礼包
         windowName = "npc_sclb",
         overlay = {skin = "res/public/1900000651_1.png"},
-        background = {skin = "res/wy/public/tongyong_0.png"},
-        closeButton = {x = 740, y = 460, skin = "res/wy/public/close_red_big.png"},
+        background = {skin = "res/custom/top/shochong/bg.png"},
+        closeButton = {x = 740 - 114, y = 460 - 181, skin = "res/wy/public/close_red_big.png"},
     },
     onlineRecharge = { -- 在线充值
         windowName = "npc_zxcz",
@@ -1528,9 +1528,13 @@ npc[19] = function(p2, p3, Data)  --飞剑
 
             end
             local jian = GUI:Image_Create(kuang, "jian"..v, 0, 0, "res/custom/feijian/itme_"..v.."_1.png")
-            GUI:setGrey(jian,jh == 2 and false or true)
             GUI:Text_Create(kuang, "jh",150,130, 18, state_info[jh].color, state_info[jh].text)
             GUI:Image_Create(kuang, "jian_Wz"..v, 0, 0, "res/custom/feijian/itme_"..v.."_2.png")
+            if jh == 1 then
+                GUI:setGrey(jian, true)
+            end
+            
+
             if v == 4 then
                 local jd = GUI:Text_Create(kuang, "jd",40,105, 21, "#d1e3ec", "累计飞剑攻击：")
                 GUI:Text_setFontName(jd, "fonts/502.ttf")
@@ -2013,26 +2017,122 @@ end
 
 ---首冲礼包
 npc[501] = function(p2, p3, Data) -- 首冲礼包
-    local function UI_updata(node) --界面渲染
+    local function get_501_state()
+        local cfg = teshudata["anniu_501"] or {}
+        local T_data = (npc.data_501 and npc.data_501.T_data) or {}
+        local time_data = tonumber((npc.data_501 and npc.data_501.time_data) or 0) or 0
+        local endtime = tonumber(cfg.endtime or 0) or 0
+        local ok = T_data["ok"] == 1
+        local max = (cfg.details and cfg.details["首充"] and #cfg.details["首充"]) or 0
+        local buy_day = T_data["buy_day"] or time_data
+        local cur_idx = (time_data - buy_day) + 1
+        if cur_idx < 1 then cur_idx = 1 end
+        if max > 0 and cur_idx > max then cur_idx = max end
+        return cfg, T_data, time_data, endtime, ok, max, cur_idx
+    end
+
+    local function UI_updata_1(node) --界面渲染
         GUI:removeAllChildren(node)
+
+        -- GUI:setAnchorPoint(
+        --         GUI:RichText_Create(node, "desc", 200, 430,
+        --                 "<font color='#00FF00' size='20' >当前开服天数："..npc.data_501.time_data.."</font>\n"..
+        --                         "<font color='#00FF00' size='20' >第一天奖励："..((npc.data_501.T_data["首充"] and npc.data_501.T_data["首充"] == 1 and npc.data_501.T_data._lb and npc.data_501.T_data._lb >= 1) and "已领取" or "未领取").."</font>\n"..
+        --                         "<font color='#00FF00' size='20' >第二天奖励："..((npc.data_501.T_data["首充"] and npc.data_501.T_data["首充"] == 1 and npc.data_501.T_data._lb and npc.data_501.T_data._lb >= 2) and "已领取" or "未领取").."</font>\n"..
+        --                         "<font color='#00FF00' size='20' >第三天奖励："..((npc.data_501.T_data["首充"] and npc.data_501.T_data["首充"] == 1 and npc.data_501.T_data._lb and npc.data_501.T_data._lb >= 3) and "已领取" or "未领取").."</font>\n"..
+        --                         "<font color='#00FF00' size='20' >三天之后购买的奖励："..((npc.data_501.T_data["补充"] and npc.data_501.T_data["补充"] == 1 and npc.data_501.T_data._lb and npc.data_501.T_data._lb == 1) and "已领取" or "未领取").."</font>\n"
+        --         , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+        -- , 0, 1)
+        local cfg, T_data, time_data, endtime, ok, max, cur_idx = get_501_state()
+        npc.idx_501 = npc.idx_501 or 1
+        if max > 0 and npc.idx_501 > max then
+            npc.idx_501 = max
+        end
+        
+        GUI:Image_Create(node, "wz_2", 200, 230, "res/custom/top/shochong/wz_2.png")
 
         GUI:setAnchorPoint(
                 GUI:RichText_Create(node, "desc", 200, 430,
-                        "<font color='#00FF00' size='20' >当前开服天数："..npc.data_501.time_data.."</font>\n"..
-                                "<font color='#00FF00' size='20' >第一天奖励："..((npc.data_501.T_data["首充"] and npc.data_501.T_data["首充"] == 1 and npc.data_501.T_data._lb and npc.data_501.T_data._lb >= 1) and "已领取" or "未领取").."</font>\n"..
-                                "<font color='#00FF00' size='20' >第二天奖励："..((npc.data_501.T_data["首充"] and npc.data_501.T_data["首充"] == 1 and npc.data_501.T_data._lb and npc.data_501.T_data._lb >= 2) and "已领取" or "未领取").."</font>\n"..
-                                "<font color='#00FF00' size='20' >第三天奖励："..((npc.data_501.T_data["首充"] and npc.data_501.T_data["首充"] == 1 and npc.data_501.T_data._lb and npc.data_501.T_data._lb >= 3) and "已领取" or "未领取").."</font>\n"..
-                                "<font color='#00FF00' size='20' >三天之后购买的奖励："..((npc.data_501.T_data["补充"] and npc.data_501.T_data["补充"] == 1 and npc.data_501.T_data._lb and npc.data_501.T_data._lb == 1) and "已领取" or "未领取").."</font>\n"
+                        "<font color='#00FF00' size='20' >当前开服天数："..time_data.."</font>\n"..
+                        "<font color='#00FF00' size='20' >当前可领取：第"..cur_idx.."天</font>"
+                , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+        , 0, 1)
+
+        for i = 1, 3 do --天数按钮
+            local btn = GUI:Button_Create(node, "btn_"..i, 313 + (i-1)*90, 195, "res/custom/top/shochong/list/"..(npc.idx_501 == i and "l" or "n").."/"..i..".png")
+            GUI:addOnClickEvent(btn, function()
+                npc.idx_501 = i
+                UI_updata_1(node)
+            end)
+            
+        end
+        local jl = {}
+        if cfg.details and cfg.details["首充"] then
+            jl = cfg.details["首充"][npc.idx_501] or {}
+        end
+        for j=1,#jl do
+            local itme = GUI:Image_Create(node, "itme"..j,  311 + (j-1)*70, 300 - 160, "dev/res/wy/public/50-50.png")
+            local show = GUI:ItemShow_Create(itme, "item", 50/2, 50/2, {index=SL:GetMetaValue("ITEM_INDEX_BY_NAME",jl[j][1]),look= true})
+            GUI:setAnchorPoint(show, 0.5, 0.5)
+            
+            GUI:setAnchorPoint(GUI:Text_Create(itme, "count", 60/2, 5, 13, "#FFFFFF", SL:GetSimpleNumber(jl[j][2],0)), 0.5, 0.5)
+        end
+
+
+        local claimed = (T_data["首充"] == 1) and ((T_data["other_lb"] or 0) >= npc.idx_501)
+        local canClaim = ok and (T_data["首充"] == 1) and (time_data <= endtime) and (npc.idx_501 == cur_idx) and not claimed
+        local btnSkin = canClaim and "res/custom/all_story_mission/2/btn_give.png" or "res/custom/top/shochong/btn_1.png"
+        local Button= GUI:Button_Create(node, "Button", 750 - 460, 0.00, btnSkin)
+        -- GUI:Button_setTitleText(Button, canClaim and "领取奖励" or "未满足")
+        -- GUI:Button_setTitleFontSize(Button, 18)
+        -- GUI:Button_setTitleText(Button, "领取奖励")
+        -- GUI:Button_setTitleFontSize(Button, 14)
+
+        GUI:addOnClickEvent(Button, function()
+            if canClaim then
+                SL:SendLuaNetMsg(101, 501, 1, 0, "")
+            else
+                SL:ShowSystemTips("<font color='#ff0500'>未满足领取条件...</font>")
+            end
+        end)
+    end
+    local function UI_updata_2(node) --界面渲染
+        GUI:removeAllChildren(node)
+
+        local cfg, T_data, time_data, endtime, ok = get_501_state()
+        GUI:setAnchorPoint(
+                GUI:RichText_Create(node, "desc", 200, 430,
+                        "<font color='#00FF00' size='20' >当前开服天数："..time_data.."</font>\n"..
+                        "<font color='#00FF00' size='20' >补充礼包</font>"
                 , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
         , 0, 1)
 
 
-        local Button= GUI:Button_Create(node, "Button", 750, 100.00, "res/public/1900000660.png")
-        GUI:Button_setTitleText(Button, "领取奖励")
-        GUI:Button_setTitleFontSize(Button, 14)
+        local desc = GUI:Text_Create(node, "need_xxz",313,195, 25, "#FFFFFF", "可以领取丰厚的奖励")
+        GUI:Text_setFontName(desc, "fonts/502.ttf")
+        GUI:Text_enableOutline(desc, "#000000", 2)
 
+        local jl = {}
+        if cfg.details and cfg.details["补充"] then
+            jl = cfg.details["补充"][1] or {}
+        end
+        for j=1,#jl do
+            local itme = GUI:Image_Create(node, "itme_bc"..j,  311 + (j-1)*70, 300 - 160, "dev/res/wy/public/50-50.png")
+            local show = GUI:ItemShow_Create(itme, "item", 50/2, 50/2, {index=SL:GetMetaValue("ITEM_INDEX_BY_NAME",jl[j][1]),look= true})
+            GUI:setAnchorPoint(show, 0.5, 0.5)
+            GUI:setAnchorPoint(GUI:Text_Create(itme, "count", 60/2, 5, 13, "#FFFFFF", SL:GetSimpleNumber(jl[j][2],0)), 0.5, 0.5)
+        end
+
+        local claimed = T_data["bc_ok"] == 1
+        local canClaim = ok and (T_data["补充"] == 1) and (time_data > endtime) and not claimed
+        local btnSkin = canClaim and "res/custom/all_story_mission/2/btn_give.png" or "res/custom/top/shochong/btn_2.png"
+        local Button= GUI:Button_Create(node, "Button", 750 - 460, 0.00, btnSkin)
         GUI:addOnClickEvent(Button, function()
-            SL:SendLuaNetMsg(101, 501, 1, 0, "")
+            if canClaim then
+                SL:SendLuaNetMsg(101, 501, 1, 0, "")
+            else
+                SL:ShowSystemTips("<font color='#ff0500'>未满足领取条件...</font>")
+            end
         end)
     end
 
@@ -2041,8 +2141,16 @@ npc[501] = function(p2, p3, Data) -- 首冲礼包
         local firstChargeWin = ensureWindow("firstCharge", 501, {titleText = "首充礼包"})
         npc.bg = firstChargeWin.bg
         npc.node = firstChargeWin.node
-        GUI:removeAllChildren(npc.node)
-        UI_updata(npc.node)
+        local cfg, T_data, time_data, endtime = get_501_state()
+        local buy_day = tonumber(T_data["buy_day"] or time_data) or time_data
+        local in_first3 = time_data <= endtime
+        local bought_in_first3 = (T_data["首充"] == 1) and (buy_day <= endtime)
+        if in_first3 or bought_in_first3 then -- 首充：开服前三天 或前三天有过首冲
+            UI_updata_1(npc.node)
+        else -- 补充
+            UI_updata_2(npc.node)
+        end
+        
     end
 end
 ---在线充值
