@@ -1165,7 +1165,7 @@ npc[11] = function(p2, p3, Data)
 
         local win = ensureWindow("storyLog", 11, { titleText = "异闻录" })
         npc.bg = win.bg
-        local node = win.node
+        npc.node_11 = win.node
 
         -- 左侧章节列表
         local chapterList = GUI:ListView_Create(npc.bg, "chapter_list", 25, 23, 230, 520 - 23, 1, false)
@@ -1174,7 +1174,7 @@ npc[11] = function(p2, p3, Data)
         npc.ywl_list = chapterList
 
         -- 渲染右侧任务/奖励卡片
-        local function renderTasks()
+        local function renderTasks(node)
             GUI:removeAllChildren(node)
 
             local lCfg = npc.xyl[npc.l]
@@ -1184,72 +1184,233 @@ npc[11] = function(p2, p3, Data)
             if not zjCfg then return end
             local tasks = zjCfg.jq or zjCfg
             local taskCount = #tasks
-
-            local scroll = GUI:ScrollView_Create(node, "task_scroll", 250, 120, 675, 414, 2)
-            GUI:ScrollView_setBounceEnabled(scroll, true)
-            GUI:ScrollView_setInnerContainerSize(scroll, taskCount * (232 + 0 ), 414)
-            local layout = GUI:Layout_Create(scroll, "task_layout", 0, 0, taskCount * (232 + 10), 414, false)
-
             local curJqd = tonumber(SL:GetMetaValue("TMONEY", "剧情点")) or 0
             local lockedByJqd = zjCfg.jqd and curJqd < zjCfg.jqd
+            
+            if lockedByJqd then
+                GUI:Image_Create(node, "500-300", 250, 108, 'res/wy/public/500-300.png')
+                GUI:Image_Create(node, "lock", 250, 100, 'res/wy/public/xz_img.png')
+                GUI:setContentSize(GUI:ui_delegate(node)["lock"], 675, 414)
+                GUI:setContentSize(GUI:ui_delegate(node)["500-300"], 675, 414)
 
-            for idx, task in ipairs(tasks) do
-                local card = GUI:Image_Create(layout, "card" .. idx, 0, 0, 'res/custom/ywl/kuang.png')
-                -- GUI:setPosition(card, 232, 414)
-                local img = GUI:Image_Create(card, "card" .. idx, 214/2, 410/2 - 20, 'res/custom/ywl/kuang1.png')
-                GUI:setAnchorPoint(img, 0.5, 0.5)
-                local title = GUI:Text_Create(img, "title", 232/2, 350, 22, "#F7F7DE", task[1] or task.title or "任务")
-                GUI:setAnchorPoint(title, 0.5, 0.5)
-                -- GUI:setAnchorPoint(GUI:RichText_Create(card, "desc", 100, 180, "任务描述:" .. (task.desc or "可在任务界面查看"), 150, 16, "#00FFFF", 1, nil, nil, { outlineSize = 2, outlineColor = SL:ConvertColorFromHexString("#100808") }), 0.5, 1)
-
-                -- if task.jl then
-                --     local jlNode = ItemNumByTable_img(task.jl, nil, card)
-                --     GUI:setPosition(jlNode, 40, 55)
-                -- end
-
-                local enable = false
-                if task.id == 999 and task.khdjy then
-                    enable = task.khdjy(task)
-                end
-                -- enable = true
-                if npc.data and npc.data.ywl and npc.data.ywl["jl_" .. npc.l .. "_" .. npc.zj .. "_" .. idx] and npc.data.ywl["jl_" .. npc.l .. "_" .. npc.zj .. "_" .. idx] == 1 then
-                    GUI:setAnchorPoint(GUI:Image_Create(img, "ylq", 232/2, 90, 'res/custom/ywl/ylq.png')
-                    , 0.5, 0.5)
-                else
-                    if lockedByJqd then
-                        local lockText = GUI:Text_Create(img, "lock" .. idx, 232/2, 90, 22, "#FF3B30", "未解锁")
-                        GUI:setAnchorPoint(lockText, 0.5, 0.5)
-                    else
-                        local btnSkin = enable and 'res/custom/ywl/btn_1.png' or 'res/custom/ywl/btn_2.png'
-                        local goBtn = GUI:Button_Create(img, "go" .. idx, 232/2, 90, btnSkin)
-                        GUI:setAnchorPoint(goBtn, 0.5, 0.5)
-                        GUI:addOnClickEvent(goBtn, function()
-                            SL:SendLuaNetMsg(101, 11, enable and 3 or 1, 0,
-                                string.format('{"i":%d,"j":%d,"k":0,"z":%d}', npc.l, npc.zj, idx))
-                        end)
-                    end
-                end
-                
-            end
-            GUI:UserUILayout(layout, { dir = 2, addDir = 1, gap = { x = 0 + 18 } })
-
-            if zjCfg.jl then
-                GUI:setPosition(ItemNumByTable_img(zjCfg.jl, nil, node), 560, 40)
-            end
-
-            if npc.data and npc.data.ywl and npc.data.ywl["jl_" .. npc.l .. "_" .. npc.zj] == 1 then
-                GUI:Image_Create(node, "done", 710, 0, 'res/custom/ywl/ylq.png')
+                local need = tonumber(zjCfg.jqd) or 0
+                local tip = string.format("剧情点不足：%d/%d", curJqd, need)
+                local tipText = GUI:Text_Create(node, "lock_tip", 588, 150, 24, "#FFFFFF", tip)
+                GUI:Text_setFontName(tipText, "fonts/500.ttf")
+                GUI:Text_enableOutline(tipText, "#000000", 2)
+                GUI:setAnchorPoint(tipText, 0.5, 0.5)
             else
-                npc.jl = GUI:Button_Create(node, "btn_reward", 710, 0, 'res/custom/ywl/btn_3.png')
-                GUI:addOnClickEvent(npc.jl, function()
-                    SL:SendLuaNetMsg(101, 11, 2, 0, string.format('{"i":%d,"j":%d,"k":0}', npc.l, npc.zj))
-                end)
+                
+                local scroll = GUI:ScrollView_Create(node, "task_scroll", 250, 120, 675, 414, 2)
+                GUI:ScrollView_setBounceEnabled(scroll, true)
+                GUI:ScrollView_setInnerContainerSize(scroll, taskCount * (232 + 0 ), 414)
+                local layout = GUI:Layout_Create(scroll, "task_layout", 0, 0, taskCount * (232 + 10), 414, false)
+
+
+                local function _ywl_vertical_text(text)
+                    if not text then
+                        return ""
+                    end
+                    local s = tostring(text)
+                    local out = {}
+                    local i = 1
+                    while i <= #s do
+                        local c = string.byte(s, i)
+                        local len = 1
+                        if c >= 0xF0 then
+                            len = 4
+                        elseif c >= 0xE0 then
+                            len = 3
+                        elseif c >= 0xC0 then
+                            len = 2
+                        end
+                        local ch = string.sub(s, i, i + len - 1)
+                        if ch == "（" or ch == "(" then
+                            local close = (ch == "（") and "）" or ")"
+                            local j = i + len
+                            while j <= #s do
+                                local cb = string.byte(s, j)
+                                local clen = 1
+                                if cb >= 0xF0 then
+                                    clen = 4
+                                elseif cb >= 0xE0 then
+                                    clen = 3
+                                elseif cb >= 0xC0 then
+                                    clen = 2
+                                end
+                                local cj = string.sub(s, j, j + clen - 1)
+                                if cj == close then
+                                    j = j + clen
+                                    break
+                                end
+                                j = j + clen
+                            end
+                            i = j
+                        else
+                            table.insert(out, ch)
+                            i = i + len
+                        end
+                    end
+                    return table.concat(out, "\n")
+                end
+
+                for idx, task in ipairs(tasks) do
+                    local card = GUI:Image_Create(layout, "card" .. idx, 0, 0, 'res/custom/ywl/kuang.png')
+                    -- GUI:setPosition(card, 232, 414)
+                    local img = GUI:Image_Create(card, "img", 214/2, 410/2 - 20, 'res/custom/ywl/kuang1.png')
+                    GUI:setAnchorPoint(img, 0.5, 0.5)
+                    GUI:setTouchEnabled(img, true)
+                    GUI:addOnClickEvent(img, function()
+                        -- 创建遮盖层，动态从上到下，再次点击收回
+                        local ui = GUI:ui_delegate(img)
+                        local size = GUI:getContentSize(img)
+                        local startY = size.height + size.height / 2
+                        local endY = size.height / 2 + 20
+                        local cover = ui.cover
+                        local function toggleCover()
+                            cover = ui.cover
+                            if not cover then
+                                return
+                            end
+                            if ui.cover_anim then
+                                return
+                            end
+                            if not ui.cover_open then
+                                ui.cover_anim = true
+                                if ui.cover_hidden then
+                                    for _, child in ipairs(ui.cover_hidden) do
+                                        GUI:setVisible(child, false)
+                                    end
+                                end
+                                GUI:setVisible(cover, true)
+                                GUI:runAction(cover, GUI:ActionSequence(
+                                        GUI:ActionMoveTo(0.2, size.width / 2, endY),
+                                        GUI:CallFunc(function()
+                                            ui.cover_open = true
+                                            ui.cover_anim = false
+                                            -- GUI:setTouchEnabled(img, false)
+                                        end)
+                                ))
+                            else
+                                ui.cover_anim = true
+                                GUI:runAction(cover, GUI:ActionSequence(
+                                        GUI:ActionMoveTo(0.2, size.width / 2, startY),
+                                        GUI:CallFunc(function()
+                                            -- GUI:setVisible(cover, false)
+                                            GUI:removeFromParent(cover)
+                                            if ui.cover_hidden then
+                                                for _, child in ipairs(ui.cover_hidden) do
+                                                    GUI:setVisible(child, true)
+                                                end
+                                            end
+                                            ui.cover_open = false
+                                            ui.cover_anim = false
+                                            -- GUI:setTouchEnabled(img, true)
+                                        end)
+                                ))
+                            end
+                        end
+                        if not cover then
+                            local children = GUI:getChildren(img) or {}
+                            ui.cover_hidden = {}
+                            for _, child in ipairs(children) do
+                                if child ~= cover then
+                                    table.insert(ui.cover_hidden, child)
+                                end
+                            end
+                            cover = GUI:Image_Create(img, "cover", size.width / 2, startY, "res/wy/public/500-300.png")
+                            GUI:setContentSize(cover, size.width - 40, size.height - 60)
+                            GUI:setAnchorPoint(cover, 0.5, 0.5)
+                            GUI:setTouchEnabled(cover, true)
+                            GUI:addOnClickEvent(cover, toggleCover)
+                            ui.cover = cover
+                            ui.cover_open = false
+
+                            local title = GUI:Text_Create(cover, "title_wz",10, 300, 30, "#FFFFFF", "任务名称:")
+                            -- GUI:Text_enableUnderline(title)
+                            GUI:Text_setFontName(title, "fonts/448.ttf")
+                            GUI:Text_enableOutline(title, "#000000", 2)
+                            GUI:Text_Create(cover, "title",10, 300 - 25, 18, "#FF00FF", task[1] or task.title or "任务")
+
+                            local jl = GUI:Text_Create(cover, "jl_wz",10, 220, 30, "#FFFFFF", "完成奖励")
+                            GUI:Text_enableUnderline(jl)
+                            GUI:Text_setFontName(jl, "fonts/448.ttf")
+                            GUI:Text_enableOutline(jl, "#000000", 2)
+                            
+                            GUI:setPosition(ItemNumByTable_img_new(task.jl, nil,jl), 0, -60)
+
+                            local desc = GUI:Text_Create(cover, "desc_wz",10, 100, 30, "#FFFFFF", "任务简介")
+                            GUI:Text_enableUnderline(desc)
+                            GUI:Text_setFontName(desc, "fonts/448.ttf")
+                            GUI:Text_enableOutline(desc, "#000000", 2)
+
+                            GUI:setAnchorPoint(GUI:RichText_Create(desc, "desc", 0, -5,  task.desc, 170, 17, "#f7f7de", 3,nil,nil)
+                            , 0, 1)
+
+                        end
+                        toggleCover()
+                    end)
+                    
+                    local title = GUI:Text_Create(img, "title",232/2 + 83, 390, 30, "#FFFFFF", _ywl_vertical_text(task[1] or task.title or "任务"))
+                    GUI:setLocalZOrder(title, 100)
+                    GUI:setAnchorPoint(title, 0.5, 1)
+                    GUI:Text_setFontName(title, "fonts/448.ttf")
+                    GUI:Text_enableOutline(title, "#000000", 2)
+                    -- GUI:setAnchorPoint(GUI:RichText_Create(card, "desc", 100, 180, "任务描述:" .. (task.desc or "可在任务界面查看"), 150, 16, "#00FFFF", 1, nil, nil, { outlineSize = 2, outlineColor = SL:ConvertColorFromHexString("#100808") }), 0.5, 1)
+
+                    -- if task.jl then
+                    --     local jlNode = ItemNumByTable_img(task.jl, nil, card)
+                    --     GUI:setPosition(jlNode, 40, 55)
+                    -- end
+
+                    local enable = false
+                    if task.id == 999 and task.khdjy then
+                        enable = task.khdjy(task)
+                    end
+                    -- enable = true
+                    if (npc.data and npc.data.ywl and npc.data.ywl["jl_" .. npc.l .. "_" .. npc.zj .. "_" .. idx] and npc.data.ywl["jl_" .. npc.l .. "_" .. npc.zj .. "_" .. idx] == 1) or 
+                        (npc.data and npc.data.ywl and npc.data.ywl["jl_" .. npc.l .. "_" .. npc.zj] == 1)
+                    then
+                        GUI:setAnchorPoint(GUI:Image_Create(img, "ylq", 232/2, 90, 'res/custom/ywl/ylq.png')
+                        , 0.5, 0.5)
+                    else
+                        if lockedByJqd then
+                            local lockText = GUI:Text_Create(img, "lock", 232/2, 90, 22, "#FF3B30", "未解锁")
+                            GUI:setAnchorPoint(lockText, 0.5, 0.5)
+                        else
+                            local btnSkin = enable and 'res/custom/ywl/btn_1.png' or 'res/custom/ywl/btn_2.png'
+                            local goBtn = GUI:Button_Create(img, "goBtn", 232/2, 90, btnSkin)
+                            GUI:setAnchorPoint(goBtn, 0.5, 0.5)
+                            GUI:addOnClickEvent(goBtn, function()
+                                SL:SendLuaNetMsg(101, 11, enable and 3 or 1, 0,
+                                    string.format('{"i":%d,"j":%d,"k":0,"z":%d}', npc.l, npc.zj, idx))
+                            end)
+                        end
+                    end
+                    GUI:Image_Create(node, "wz", 340, 110, 'res/custom/ywl/wz.png')
+                    
+                end
+                GUI:UserUILayout(layout, { dir = 2, addDir = 1, gap = { x = 0 + 18 } })
+
+                if zjCfg.jl then
+                    GUI:setPosition(ItemNumByTable_img(zjCfg.jl, nil, node), 560, 40)
+                end
+
+                if npc.data and npc.data.ywl and npc.data.ywl["jl_" .. npc.l .. "_" .. npc.zj] == 1 then
+                    GUI:Image_Create(node, "done", 750, 40, 'res/wy/public/rwjd_3.png')
+                else
+                    npc.jl = GUI:Button_Create(node, "btn_reward", 710, 0, 'res/custom/ywl/btn_3.png')
+                    GUI:addOnClickEvent(npc.jl, function()
+                        SL:SendLuaNetMsg(101, 11, 2, 0, string.format('{"i":%d,"j":%d,"k":0}', npc.l, npc.zj))
+                    end)
+                end
             end
+
+            
             local TMONEY = GUI:Text_Create(node, "TMONEY",50 + 278,40 + 9, 25, "#FF0000", SL:GetMetaValue("TMONEY", "剧情点"))
             GUI:Text_setFontName(TMONEY, "fonts/500.ttf")
             GUI:setAnchorPoint(TMONEY, 0.5, 0.5)
 
-            GUI:Image_Create(node, "wz", 340, 110, 'res/custom/ywl/wz.png')
         end
 
         -- 渲染章节列表
@@ -1265,7 +1426,7 @@ npc[11] = function(p2, p3, Data)
                     npc.l = i
                     npc.zj = 1
                     renderChapterList()
-                    renderTasks()
+                    renderTasks(npc.node_11)
                 end)
                 if i == npc.l then
                     for y = 1, #npc.xyl[npc.l] do
@@ -1286,7 +1447,7 @@ npc[11] = function(p2, p3, Data)
                             -- GUI:setAnchorPoint(GUI:Image_Create(x_btn, "xz", 84/2, 20/2, 'res/custom/ywl/list/xz.png')
                             -- , 0.5, 0.5)
                             -- GUI:Image_Create(x_btn, "xz_wz", 0, 0, 'res/custom/ywl/list/x_1_' .. y .. '.png')
-                            renderTasks()
+                            renderTasks(npc.node_11)
                         end)
                         if y == npc.zj then
                             GUI:Text_setTextColor(GUI:ui_delegate(GUI:ui_delegate(chapterList)["x_chap_" .. npc.zj]).wz, "#FF0000")
@@ -1301,7 +1462,7 @@ npc[11] = function(p2, p3, Data)
         end
 
         renderChapterList()
-        renderTasks()
+        renderTasks(npc.node_11)
 
         SL:RegisterLUAEvent(LUA_EVENT_CLOSEWIN, "关闭界面", function(self)
             if self == "npc_ywl" then
@@ -1310,13 +1471,26 @@ npc[11] = function(p2, p3, Data)
         end)
 
     elseif p2 == 2 then
-        if npc.data and npc.data.ywl then
-            npc.data.ywl["jl_" .. p3] = 1
+        local data = SL:JsonDecode(Data, false)
+        if p3 == 1 then
+        elseif p3 == 2 then
+            npc.data.ywl["jl_" .. data.i .. "_" .. data.j] = 1
+            GUI:removeChildByName(npc.node_11,"btn_reward")
+            GUI:Image_Create(npc.node_11, "done", 750, 40, 'res/wy/public/rwjd_3.png')
+        elseif p3 == 3 then
+            npc.data.ywl["jl_" .. data.i .. "_" .. data.j .. "_" .. data.z] = 1
+            local img  = GUI:ui_delegate(GUI:ui_delegate(npc.node_11)["card" .. data.z]).img
+            GUI:removeChildByName(img,"goBtn")
+            GUI:setAnchorPoint(GUI:Image_Create(img, "ylq", 232/2, 90, 'res/custom/ywl/ylq.png')
+            , 0.5, 0.5)
         end
-        if npc.jl then
-            GUI:Image_Create(GUI:getParent(npc.jl), 'wc', 515, 5, 'res/wy/public/7_1.png')
-            GUI:removeFromParent(npc.jl)
-        end
+        -- if npc.data and npc.data.ywl then
+        --     npc.data.ywl["jl_" .. p3] = 1
+        -- end
+        -- if npc.jl then
+        --     GUI:Image_Create(GUI:getParent(npc.jl), 'wc', 515, 5, 'res/wy/public/7_1.png')
+        --     GUI:removeFromParent(npc.jl)
+        -- end
     elseif p2 == 3 then
         npc.data = SL:JsonDecode(Data, false)
         npc[11](0, 0, Data)
