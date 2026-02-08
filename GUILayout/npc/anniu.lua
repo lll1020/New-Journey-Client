@@ -1350,8 +1350,10 @@ npc[11] = function(p2, p3, Data)
                         end
                         toggleCover()
                     end)
+
                     
-                    local title = GUI:Text_Create(img, "title",232/2 + 83, 390, 30, "#FFFFFF", _ywl_vertical_text(task[1] or task.title or "任务"))
+                    
+                    local title = GUI:Text_Create(GUI:Image_Create(img, "name_kuang", 150, 200, "res/custom/ywl/name_kuang.png"), "title",38, 190, 30, "#FFFFFF", _ywl_vertical_text(task[1] or task.title or "任务"))
                     GUI:setLocalZOrder(title, 100)
                     GUI:setAnchorPoint(title, 0.5, 1)
                     GUI:Text_setFontName(title, "fonts/448.ttf")
@@ -2255,20 +2257,19 @@ npc[501] = function(p2, p3, Data) -- 首冲礼包
 
         local claimed = (T_data["首充"] == 1) and ((T_data["other_lb"] or 0) >= npc.idx_501)
         local canClaim = ok and (T_data["首充"] == 1) and (time_data <= endtime) and (npc.idx_501 == cur_idx) and not claimed
-        local btnSkin = canClaim and "res/custom/all_story_mission/2/btn_give.png" or "res/custom/top/shochong/btn_1.png"
-        local Button= GUI:Button_Create(node, "Button", 750 - 460, 0.00, btnSkin)
-        -- GUI:Button_setTitleText(Button, canClaim and "领取奖励" or "未满足")
-        -- GUI:Button_setTitleFontSize(Button, 18)
-        -- GUI:Button_setTitleText(Button, "领取奖励")
-        -- GUI:Button_setTitleFontSize(Button, 14)
-
-        GUI:addOnClickEvent(Button, function()
-            if canClaim then
+        if canClaim then
+            local Button= GUI:Button_Create(node, "Button", 750 - 460, 0.00, "res/custom/all_story_mission/2/btn_give.png")
+            GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(101, 501, 1, 0, "")
-            else
-                SL:ShowSystemTips("<font color='#ff0500'>未满足领取条件...</font>")
-            end
-        end)
+            end)
+        else
+            local stateText = claimed and "已经领取" or "还不能领取哦~"
+            local stateColor = claimed and "#00FF00" or "#ff0500"
+            local stateLabel = GUI:Text_Create(node, "claim_state", 750 - 460 + 80, 35, 26, stateColor, stateText)
+            GUI:setAnchorPoint(stateLabel, 0.5, 0.5)
+            GUI:Text_setFontName(stateLabel, "fonts/502.ttf")
+            GUI:Text_enableOutline(stateLabel, "#000000", 2)
+        end
     end
     local function UI_updata_2(node) --界面渲染
         GUI:removeAllChildren(node)
@@ -2299,15 +2300,19 @@ npc[501] = function(p2, p3, Data) -- 首冲礼包
 
         local claimed = T_data["bc_ok"] == 1
         local canClaim = ok and (T_data["补充"] == 1) and (time_data > endtime) and not claimed
-        local btnSkin = canClaim and "res/custom/all_story_mission/2/btn_give.png" or "res/custom/top/shochong/btn_2.png"
-        local Button= GUI:Button_Create(node, "Button", 750 - 460, 0.00, btnSkin)
-        GUI:addOnClickEvent(Button, function()
-            if canClaim then
+        if canClaim then
+            local Button= GUI:Button_Create(node, "Button", 750 - 460, 0.00, "res/custom/all_story_mission/2/btn_give.png")
+            GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(101, 501, 1, 0, "")
-            else
-                SL:ShowSystemTips("<font color='#ff0500'>未满足领取条件...</font>")
-            end
-        end)
+            end)
+        else
+            local stateText = claimed and "已经领取" or "不能领取"
+            local stateColor = claimed and "#00FF00" or "#ff0500"
+            local stateLabel = GUI:Text_Create(node, "claim_state_bc", 750 - 460 + 80, 35, 26, stateColor, stateText)
+            GUI:setAnchorPoint(stateLabel, 0.5, 0.5)
+            GUI:Text_setFontName(stateLabel, "fonts/502.ttf")
+            GUI:Text_enableOutline(stateLabel, "#000000", 2)
+        end
     end
 
     if p2 == 0 then
