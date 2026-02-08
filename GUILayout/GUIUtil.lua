@@ -34,37 +34,53 @@ SL:Require("GUILayout/A/LeftTopOBJ", true)
 
 ---回收的数据初始化
 cogin.huishou_jc_list = {}
-for v,k in pairs(cogin.hs.zzhs)  do
-    for vv,kk in pairs(k)  do
-        for vvv,kkk in pairs(kk.l)  do
-            cogin.huishou_jc_list[vvv] = kkk
-            cogin.huishou_jc_list[vvv].gl = 1
+local function append_nested_group(source, gl)
+    for _, group in pairs(source or {}) do
+        if type(group) == "table" then
+            for _, subgroup in pairs(group) do
+                if type(subgroup) == "table" and type(subgroup.l) == "table" then
+                    for itemIdx, cfg in pairs(subgroup.l) do
+                        cogin.huishou_jc_list[itemIdx] = cfg
+                        cogin.huishou_jc_list[itemIdx].gl = gl
+                    end
+                end
+            end
         end
     end
 end
-for v,k in pairs(cogin.hs.zsfj)  do
-    for vv,kk in pairs(k)  do
-        for vvv,kkk in pairs(kk.l)  do
-            cogin.huishou_jc_list[vvv] = kkk
-            cogin.huishou_jc_list[vvv].gl = 2
+
+local function append_single_group(source, gl)
+    for _, group in pairs(source or {}) do
+        if type(group) == "table" and type(group.l) == "table" then
+            for itemIdx, cfg in pairs(group.l) do
+                cogin.huishou_jc_list[itemIdx] = cfg
+                cogin.huishou_jc_list[itemIdx].gl = gl
+            end
         end
     end
 end
-for v,k in pairs(cogin.hs.clfj)  do
-    for vv,kk in pairs(k.l)  do
-        cogin.huishou_jc_list[vv] = kk
-        cogin.huishou_jc_list[vv].gl = 3
+
+local function append_flat_group(source, gl)
+    for itemIdx, cfg in pairs(source or {}) do
+        if type(cfg) == "table" then
+            cogin.huishou_jc_list[itemIdx] = cfg
+            cogin.huishou_jc_list[itemIdx].gl = gl
+        end
     end
 end
-for v,k in pairs(cogin.hs.kexiaohui)  do
-    cogin.huishou_jc_list[v] = k
-end
-for v,k in pairs(cogin.hs.fzfj)  do
-    for vv,kk in pairs(k)  do
-        for vvv,kkk in pairs(kk.l)  do
-            cogin.huishou_jc_list[vvv] = kkk
-            cogin.huishou_jc_list[vvv].gl = 4
-        end
+
+append_nested_group(cogin.hs.zzhs, 1)
+append_nested_group(cogin.hs.fzfj, 1)
+append_nested_group(cogin.hs.zsfj, 2)
+append_nested_group(cogin.hs.sqhs, 3)
+append_nested_group(cogin.hs.gwfj, 4)
+append_nested_group(cogin.hs.ssfj, 5)
+append_single_group(cogin.hs.clfj, 6)
+append_flat_group(cogin.hs.teshuhuihsou, 7)
+
+for itemIdx, cfg in pairs(cogin.hs.kexiaohui or {})  do
+    if not cogin.huishou_jc_list[itemIdx] then
+        cogin.huishou_jc_list[itemIdx] = cfg
     end
 end
 

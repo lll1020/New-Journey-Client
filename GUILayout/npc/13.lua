@@ -44,7 +44,7 @@ end
             local cost_show = checkItemNumByTable_img_kuang(config.cost, nil,GUI:Node_Create(node, "cost_show", 0, 0))
             GUI:setPosition(cost_show, 750 - 250, 120)
 
-            if npc.data.dj_num == 0 then
+            if npc.data.dj_num <= 5 then
                 GUI:Text_setFontName(GUI:Text_Create(node, "tip_max",400,250, 30, "#FF0000", "到达好感度5级时：")
                 , "fonts/502.ttf")
                 local kuang = GUI:Image_Create(node, "kuang10", 850 - 240 + 30, 220, "res/wy/public/70_70_k.png")
