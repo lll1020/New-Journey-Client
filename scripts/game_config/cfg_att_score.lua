@@ -862,7 +862,7 @@ local config = {
 	},
 	[204] = { 
 		Idx = 204,
-		name = "元宝回收",
+		name = "金币回收",
 		nbvalue = "100#100#100",
 		type = 2,
 		desc = "金币回收(回收时自动计算)",
@@ -873,7 +873,7 @@ local config = {
 	},
 	[205] = { 
 		Idx = 205,
-		name = "灵符回收",
+		name = "元宝回收",
 		nbvalue = "100#100#100",
 		type = 2,
 		desc = "元宝回收(回收时自动计算)",

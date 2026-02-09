@@ -30,7 +30,7 @@ function ui.init(parent)
 	GUI:setTag(ItemBg, -1)
 
 	-- Create ItemNode
-	local ItemNode = GUI:Layout_Create(PPopUI, "ItemNode", 72.00, 112.00, 0.00, 0.00, false)
+	local ItemNode = GUI:Layout_Create(PPopUI, "ItemNode", 66.00, 117.00, 0.00, 0.00, false)
 	GUI:setChineseName(ItemNode, "快捷使用_物品_节点")
 	GUI:setAnchorPoint(ItemNode, 0.50, 0.50)
 	GUI:setTouchEnabled(ItemNode, false)
@@ -54,7 +54,6 @@ function ui.init(parent)
 
 	-- Create BtnUse
 	local BtnUse = GUI:Button_Create(PPopUI, "BtnUse", 69.00, 23.00, "res/public/bg_hhdb_btn.png")
-	-- GUI:Button_loadTexturePressed(BtnUse, "res/public/1900000679_1.png")
 	GUI:Button_setTitleText(BtnUse, "")
 	GUI:Button_setTitleColor(BtnUse, "#f8e6c6")
 	GUI:Button_setTitleFontSize(BtnUse, 16)

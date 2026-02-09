@@ -2096,8 +2096,17 @@ npc[501] = function(p2, p3, Data) -- 首冲礼包
         end
 
 
-        local claimed = (T_data["首充"] == 1) and ((T_data["other_lb"] or 0) >= npc.idx_501)
-        local canClaim = ok and (T_data["首充"] == 1) and (time_data <= endtime) and (npc.idx_501 == cur_idx) and not claimed
+        local needRecharge = T_data["首充"] ~= 1
+        if needRecharge then
+            local Button= GUI:Button_Create(node, "Button", 400, 0.00, "res/custom/top/shochong/btn_1.png")
+            GUI:addOnClickEvent(Button, function()
+                SL:SendLuaNetMsg(101, 501, 1, 0, "")
+            end)
+            return
+        end
+
+        local claimed = (T_data["other_lb"] or 0) >= npc.idx_501
+        local canClaim = ok and (time_data <= endtime) and (npc.idx_501 == cur_idx) and not claimed
         if canClaim then
             local Button= GUI:Button_Create(node, "Button", 750 - 460, 0.00, "res/custom/all_story_mission/2/btn_give.png")
             GUI:addOnClickEvent(Button, function()
@@ -2139,8 +2148,17 @@ npc[501] = function(p2, p3, Data) -- 首冲礼包
             GUI:setAnchorPoint(GUI:Text_Create(itme, "count", 60/2, 5, 13, "#FFFFFF", SL:GetSimpleNumber(jl[j][2],0)), 0.5, 0.5)
         end
 
+        local needRecharge = T_data["补充"] ~= 1
+        if needRecharge then
+            local Button= GUI:Button_Create(node, "Button", 400, 0.00, "res/custom/top/shochong/btn_2.png")
+            GUI:addOnClickEvent(Button, function()
+                SL:SendLuaNetMsg(101, 501, 1, 0, "")
+            end)
+            return
+        end
+
         local claimed = T_data["bc_ok"] == 1
-        local canClaim = ok and (T_data["补充"] == 1) and (time_data > endtime) and not claimed
+        local canClaim = ok and (time_data > endtime) and not claimed
         if canClaim then
             local Button= GUI:Button_Create(node, "Button", 750 - 460, 0.00, "res/custom/all_story_mission/2/btn_give.png")
             GUI:addOnClickEvent(Button, function()
