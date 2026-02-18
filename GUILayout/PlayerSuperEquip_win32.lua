@@ -52,7 +52,7 @@ function PlayerSuperEquip.main(data)
 
     local Button= GUI:Button_Create(PlayerSuperEquip._ui.Panel_1, "Button1", 40 + 18, 10.00, "res/private/player_main_layer_ui/btn_5.png")
     GUI:addOnClickEvent(Button, function()
-        
+        SL:SendLuaNetMsg(105, 64, 64, 0, "")
     end)
 
 

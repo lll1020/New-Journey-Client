@@ -46,6 +46,28 @@ function PlayerSuperEquip.main(data)
     --刷新行会信息
     PlayerSuperEquip.RefreshGuildInfo()
     PlayerSuperEquip.InitEquipFramekuang()
+
+    PlayerSuperEquip.gzd = GUI:Node_Create(PlayerSuperEquip._ui.Panel_1, "gzd", 0, 260)
+    GUI:setLocalZOrder(PlayerSuperEquip.gzd, 0)
+
+
+    local Button= GUI:Button_Create(PlayerSuperEquip._ui.Panel_1, "Button1", 40 + 18, 10.00, "res/private/player_main_layer_ui/btn_5.png")
+    GUI:addOnClickEvent(Button, function()
+        SL:SendLuaNetMsg(105, 64, 64, 0, "")
+    end)
+
+
+    Button = GUI:Button_Create(PlayerSuperEquip._ui.Panel_1, "Button12", 400 + 120 - 253 + 18, 50+363, "res/private/player_main_layer_ui/btn_12.png")
+    GUI:addOnClickEvent(Button, function()
+        Npclib["anniu"][21](0,0,"")     --古玩
+    end)
+
+    Button = GUI:Button_Create(PlayerSuperEquip._ui.Panel_1, "Button13", 400 + 120 - 253 + 18, 50+363 - 54, "res/private/player_main_layer_ui/btn_13.png")
+    GUI:addOnClickEvent(Button, function()
+       Npclib["anniu"][20](0,0,"")     --神石
+    end)
+
+    
     return true
 end
 

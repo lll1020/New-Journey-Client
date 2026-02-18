@@ -107,13 +107,13 @@ function PlayerEquip.main(data)
     end)
 
     
-    local T_41_data = Player:getServerVar("T41")
-    -- local U_28_data = Player:getServerVar("U28")
-    if T_41_data == "" then
-        T_41_data = {}
-    else
-        T_41_data = SL:JsonDecode(T_41_data,false)
-    end
+    -- local T_41_data = Player:getServerVar("T41")
+    -- -- local U_28_data = Player:getServerVar("U28")
+    -- if T_41_data == "" then
+    --     T_41_data = {}
+    -- else
+    --     T_41_data = SL:JsonDecode(T_41_data,false)
+    -- end
     -- U_28_data = tonumber(U_28_data)
 
     -- if U_28_data > 0 then

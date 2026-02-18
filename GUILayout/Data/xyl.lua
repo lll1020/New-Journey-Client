@@ -411,6 +411,7 @@ end
 -- 备注：剧情点验证入口（优先特殊逻辑，其次剧情完成）
 local function _xyl_check_task(name)
     local key = _xyl_norm_name(name)
+    SL:release_print(key)
     local special = {
         ["天书强化"] = _xyl_has_tianshu_level,
         ["初识仙法"] = _xyl_has_any_xianfa,
@@ -587,7 +588,7 @@ local npc_xyl = {
                 },
                 {
                     "装备强化",
-                    tk = "npc_28",
+                    -- tk = "npc_28",
                     id = 999,
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
@@ -615,17 +616,18 @@ local npc_xyl = {
                     desc = "闯过讨伐夜魔，证我道途",
                 },
                 {
-                    "兵道之谜（剧）",
+                    "古刹之谜（剧）",
+                    tk = "npc_609",
                     id = 999,
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 1, "兵道古藏", 605, 103, 53 },
-                    desc = "前往兵道之谜，探寻其中机缘",
+                    yd = { 1, "洞穴秘境", 609, 143, 153 },
+                    desc = "前往古刹，探寻其中机缘",
                 },
                 {
                     "修复轩辕剑（剧）",
-                    tk = "npc_601",
+                    -- tk = "npc_601",
                     id = 999,
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,

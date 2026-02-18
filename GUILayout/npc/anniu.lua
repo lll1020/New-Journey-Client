@@ -578,6 +578,12 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
                 end
             end)
             rebuildShortcutButtons("")
+            ---提升按钮
+            SL:AddUpgradeBtn(2, "提升斧头", function()
+                SL:SendLuaNetMsg(105, 6, 6, 0, "")
+            end)
+            SL:RemoveUpgradeBtn(2)
+
         elseif p3 == 1 then
             rebuildShortcutButtons(msgData or "")
         end

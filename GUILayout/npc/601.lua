@@ -27,6 +27,18 @@ function npc.main(npcid, p2, p3, msgData)
         return npc.node
     end
 
+    local function hasTitleFinished()
+        local titleName = npc._config and npc._config.details and npc._config.details.ch
+        if not titleName or titleName == "" then
+            return false
+        end
+        local titleIdx = SL:GetMetaValue("ITEM_INDEX_BY_NAME", titleName)
+        if not titleIdx then
+            return false
+        end
+        return SL:GetMetaValue("TITLE_DATA_BY_ID", titleIdx) ~= nil
+    end
+
     local function UI_updata(node) --界面渲染
         if not node then
             return
@@ -41,16 +53,22 @@ function npc.main(npcid, p2, p3, msgData)
         UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.details.ch.."[称号]")))
 
 
-        local Button= GUI:Button_Create(node, "Button", 550, 30.00, "res/custom/two_city/601_btn.png")
-        GUI:addOnClickEvent(Button, function()
-            SL:SendLuaNetMsg(100, npcid, 1, 0, "")
-        end)
+        if hasTitleFinished() then
+            GUI:Image_Create(node, "Button", 550, 30.00, "res/wy/public/7_1.png")
+        else
+            local Button= GUI:Button_Create(node, "Button", 550, 30.00, "res/custom/two_city/601_btn.png")
+            GUI:addOnClickEvent(Button, function()
+                SL:SendLuaNetMsg(100, npcid, 1, 0, "")
+            end)
+        end
     end
 
 
     if p2 == 0 then--界面
         npc.data = SL:JsonDecode(msgData,false)
         ensureWindow(npcid)
+        UI_updata(npc.node)
+    elseif p2 == 1 then--界面
         UI_updata(npc.node)
     end
 end
