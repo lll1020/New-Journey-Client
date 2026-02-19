@@ -336,11 +336,95 @@ function tip_node(node, tip)
         end)
     end
 end
-function dl_sz(i)
-    if i == 0 then
+local function _dl_to_num(v, defaultValue)
+    local n = tonumber(v)
+    if n == nil then
+        return defaultValue or 0
+    end
+    return n
+end
+
+local function _dl_get_mainline_progress()
+    local uNum = _dl_to_num(Player:getServerVar("U_zxrw"), 0)
+    if uNum > 0 then
+        return uNum
+    end
+    uNum = _dl_to_num(Player:getServerVar("U11"), 0)
+    if uNum > 0 then
+        return uNum
+    end
+    return 0
+end
+
+local function _dl_get_jqd()
+    local count = _dl_to_num(Player:getServerVar("JQD"), 0)
+    if count > 0 then
+        return count
+    end
+
+    count = _dl_to_num(SL:GetMetaValue("ITEM_COUNT", 9), 0)
+    if count > 0 then
+        return count
+    end
+
+    count = _dl_to_num(SL:GetMetaValue("MONEY_ASSOCIATED", 9), 0)
+    if count > 0 then
+        return count
+    end
+
+    count = _dl_to_num(SL:GetMetaValue("TMONEY", "剧情点"), 0)
+    if count > 0 then
+        return count
+    end
+
+    return 0
+end
+
+local function _dl_get_zslv()
+    local zslv = _dl_to_num(Player:getServerVar("U43"), 0)
+    if zslv > 0 then
+        return zslv
+    end
+    return _dl_to_num(SL:GetMetaValue("RELEVEL"), 0)
+end
+
+local function _dl_check(dl)
+    dl = _dl_to_num(dl, 0)
+    if dl == 1 then
         return true
     end
+
+    local zxrw = _dl_get_mainline_progress()
+    local zslv = _dl_get_zslv()
+    local jqd = _dl_get_jqd()
+
+    if dl == 2 then
+        if zxrw >= 22 then
+            return true
+        end
+        return false, "需完成主线引导后才可进入二大陆"
+    elseif dl == 3 then
+        if zslv >= 20 and jqd >= 15 then
+            return true
+        end
+        return false, "需完成二大陆转生且剧情点达到15后才可进入三大陆"
+    elseif dl == 4 then
+        if zslv >= 30 and jqd >= 50 then
+            return true
+        end
+        return false, "需完成三大陆转生且剧情点达到50后才可进入四大陆"
+    elseif dl == 5 then
+        if zslv >= 40 and jqd >= 100 then
+            return true
+        end
+        return false, "需完成四大陆转生且剧情点达到100后才可进入五大陆"
+    end
+
     return true
+end
+function dl_sz(i)
+    local ok,opened = _dl_check(i)
+    return ok
 end
 -- 0:不显示 1显示但是不可提升 2显示且可提升 3已经满级
 function slts_jz(idx, idx_x)

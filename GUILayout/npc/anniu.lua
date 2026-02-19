@@ -207,6 +207,8 @@ local function rebuildShortcutButtons(filterKey)
     renderRow(npc.iconpx[2], npc.dbrqx, "anniu_2")
 end
 
+local UPGRADE_HELPER = SL:Require("GUILayout/npc/upgrade_helper", true)
+
 local zbz = {}
 if cogin.isWin32 then
     zbz = {-700, -150, 200, -180, -60}
@@ -447,7 +449,7 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
                 end)
 
                 --移动各位刺杀开关
-                local gwcs = GUI:Button_Create(npc.RightBottom, "gwcs", -200, 250, "res/wy/icon/gwcs.png")
+                local gwcs = GUI:Button_Create(npc.RightBottom, "gwcs", -130, 210, "res/wy/icon/gwcs.png")
                 GUI:Button_setGrey(gwcs,  SL:GetMetaValue("SETTING_VALUE", 56)[1] ~= 1)
                 GUI:addOnClickEvent(gwcs, function()
                     if SL:GetMetaValue("SETTING_VALUE", 56)[1] == 1 then
@@ -511,7 +513,7 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
                 guaji[1] = GUI:Button_Create(npc.RightTop, "guaji", -80, -230, "res/wy/icon/base.png")
 
                 --移动各位刺杀开关
-                local gwcs = GUI:Button_Create(npc.RightTop, "gwcs", -250 - 100, -360 - 93, "res/wy/icon/gwcs.png")
+                local gwcs = GUI:Button_Create(npc.RightTop, "gwcs", -160, -230 - 100, "res/wy/icon/gwcs.png")
                 GUI:Button_setGrey(gwcs,  SL:GetMetaValue("SETTING_VALUE", 56)[1] ~= 1)
                 GUI:addOnClickEvent(gwcs, function()
                     if SL:GetMetaValue("SETTING_VALUE", 56)[1] == 1 then
@@ -578,14 +580,17 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
                 end
             end)
             rebuildShortcutButtons("")
-            ---提升按钮
-            SL:AddUpgradeBtn(2, "提升斧头", function()
-                SL:SendLuaNetMsg(105, 6, 6, 0, "")
-            end)
-            SL:RemoveUpgradeBtn(2)
+            ---快捷打开按钮
+            UPGRADE_HELPER.registerOpenNpcButtons()
+            UPGRADE_HELPER.startEquipChangeRefresh()
+            UPGRADE_HELPER.startAutoRefresh(20 * 1)
+            
 
         elseif p3 == 1 then
             rebuildShortcutButtons(msgData or "")
+            UPGRADE_HELPER.registerOpenNpcButtons()
+            UPGRADE_HELPER.startEquipChangeRefresh()
+            UPGRADE_HELPER.startAutoRefresh(20 * 1)
         end
     elseif p2 == 10 then -- 红点
         if npc.db_anniu[""..p3] and not GUI:ui_delegate(npc.db_anniu[""..p3]).ists then

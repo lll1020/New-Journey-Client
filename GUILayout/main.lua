@@ -109,14 +109,6 @@ SL:RegisterLuaNetMsg(6000, function(msgID, p1, p2, p3, msgData)
     Npclib["GMbox"]:OpenUI(p1, p2, p3, msgData)
 end)
 
-
-SL:RegisterLUAEvent(LUA_EVENT_PLAYER_EQUIP_CHANGE, "角色装备数据操作", function(data)
-
-end)
-
-SL:RegisterLUAEvent(LUA_EVENT_ROLE_PROPERTY_INITED, "玩家角色属性初始化完毕", function(data)
-    Npclib["anniu"][1](2,0,"")
-end)
 SL:RegisterLUAEvent(LUA_EVENT_MAPINFOCHANGE, "切换地图(不同地图)", function(data)
 end)
 
@@ -152,3 +144,4 @@ end
 SL:Require("GUILayout/lib/ease",true)
 SL:Require("GUILayout/ldUtil/init",true)
 SL:Require("GUILayout/logic/SkillEffectLogic",true)
+SL:Require("GUILayout/npc/upgrade_helper", true)
