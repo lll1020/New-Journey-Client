@@ -234,29 +234,22 @@ local function _upgrade_check_haogandu()
     if not cfg then
         return true
     end
-    local rawLv = Player:getServerVar("U29")
-    if rawLv and rawLv ~= "" then
-        local lv = _upgrade_to_num(rawLv, 0)
-        local maxLevel = _upgrade_to_num(cfg.max_level, 0)
-        if maxLevel > 0 and lv >= maxLevel then
-            return false
-        end
-        local nextCfg = cfg.config and cfg.config[lv + 1]
-        if not nextCfg then
-            return false
-        end
-        if not _upgrade_can_pay(nextCfg.cost) then
-            return false
-        end
-        return true
+    local lv = _upgrade_to_num(Player:getServerVar("U27"), -1)
+    if lv < 0 then
+        return false
     end
-    for i = 1, _upgrade_to_num(cfg.max_level, 0) do
-        local c = cfg.config and cfg.config[i]
-        if c and _upgrade_can_pay(c.cost) then
-            return true
-        end
+
+    local maxLevel = _upgrade_to_num(cfg.max_level, 0)
+    if maxLevel > 0 and lv >= maxLevel then
+        return false
     end
-    return false
+
+    local nextCfg = cfg.config and cfg.config[lv + 1]
+    if not nextCfg or type(nextCfg.cost) ~= "table" then
+        return false
+    end
+
+    return _upgrade_can_pay(nextCfg.cost)
 end
 
 local function _upgrade_check_title_43()

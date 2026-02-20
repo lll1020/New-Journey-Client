@@ -241,8 +241,10 @@ end
 
 local function triggerNavigate(point, meta)
     local rwxx = SL:GetMetaValue("ACTOR_MAP_X", SL:GetMetaValue("MAIN_ACTOR_ID"))
-    local safeX = (point.x == rwxx) and (point.x + 1) or point.x
-    SL:SetMetaValue("BATTLE_MOVE_BEGIN", point.map or point.x, safeX, point.y, meta, 1)
+    local safeX = (point.map == rwxx) and (point.x + 1) or point.x
+    SL:release_print(point.map,safeX,point.y,SL:JsonEncode(meta))
+
+    SL:SetMetaValue("BATTLE_MOVE_BEGIN", point.map, safeX+1, point.y+1, meta, 1)
 end
 
 local function openBagGuide(desc, pcWidget, mobileWidget)
@@ -269,7 +271,10 @@ local guideDispatch = {
         startGuideOnButton(data)
     end,
     [2] = function(data) -- 指定寻路
-        triggerNavigate({map = data.npcdt, x = data.xx, y = data.yy}, {type = 1, index = data.npcid})
+        SL:ScheduleOnce(function()
+            -- local curMapName = SL:GetMetaValue("MAP_NAME")
+            triggerNavigate({map = data.npcdt, x = tonumber(data.xx) or 0, y = tonumber(data.yy) or 0}, {type = 1, index = data.npcid})
+        end, 0.2)
     end,
     [3] = function(data)--指定背包引导
         openBagGuide("打开背包", MainProperty._ui.Button_bag, npc.sjbeibao)
@@ -278,7 +283,11 @@ local guideDispatch = {
         end
     end,
     [4] = function(data)-- 指定引路到指定位置
-        triggerNavigate({map = data.yd[1], x = data.yd[2], y = data.yd[3]}, {type = 0})
+        SL:ScheduleOnce(function()
+            -- local curMapName = SL:GetMetaValue("MAP_NAME")
+            local yd = data and data.yd or {}
+            triggerNavigate({map = data.npcdt, x = tonumber(yd[2]) or 0, y = tonumber(yd[3]) or 0}, {type = 0})
+        end, 0.2)
     end,
     [14] = function() ---打开人物界面
         openRoleGuide()
@@ -1241,10 +1250,10 @@ npc[11] = function(p2, p3, Data)
                             end)
                         end
                     end
-                    GUI:Image_Create(node, "wz", 340, 110, 'res/custom/ywl/wz.png')
                     
                 end
                 GUI:UserUILayout(layout, { dir = 2, addDir = 1, gap = { x = 0 + 18 } })
+                GUI:Image_Create(node, "wz1", 340, 110, 'res/custom/ywl/wz.png')
 
                 if zjCfg.jl then
                     GUI:setPosition(ItemNumByTable_img(zjCfg.jl, nil, node), 560, 40)

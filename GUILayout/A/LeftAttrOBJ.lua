@@ -59,11 +59,25 @@ local function createLeftPanel()
             LeftAttrOBJ.IsShow = not LeftAttrOBJ.IsShow
             LeftAttrOBJ:HideandShow(true)
         end)
+
+        
+
     end
 end
 --buff改变触发
 function LeftAttrOBJ:onBuffUpdate(t)
     self:reloadInit()
+    if t.buffID == 20060 or t.buffID == 20078 then
+        if t.type == 0 or t.type == 1 then
+            local rwid = SL:GetMetaValue("MAIN_ACTOR_ID")
+            local hb16 = tonumber(SL:GetMetaValue("MONEY",16))
+            local hb14 = tonumber(SL:GetMetaValue("MONEY",14))
+            local hb15 = tonumber(SL:GetMetaValue("MONEY",15))
+            local baoLv = ((SL:GetMetaValue("ACTOR_BUFF_DATA_BY_ID",rwid,20060) and 0 or hb16) + hb15) > 0 and "[可复活]" or "[不可复活]"
+            GUI:Text_setTextColor(self.ui.fuHuo, ((SL:GetMetaValue("ACTOR_BUFF_DATA_BY_ID",rwid,20060) and 0 or hb16) + hb15) > 0 and "#00FF00" or "#FF0000")
+            GUI:Text_setString(self.ui.fuHuo, baoLv)
+        end
+    end
 end
 
 function LeftAttrOBJ:onAttrChange()
@@ -71,9 +85,23 @@ function LeftAttrOBJ:onAttrChange()
     local qieGe = math.floor(SL:GetMetaValue("ATT_BY_TYPE", 244)*(1 + SL:GetMetaValue("ATT_BY_TYPE", 253)/10000))
     local baoLv = SL:GetMetaValue("ATT_BY_TYPE", 242)/100
     local gongSu = SL:GetMetaValue("ATT_BY_TYPE", 200)/100
+    local beiGong = SL:GetMetaValue("ATT_BY_TYPE", 67)/100
     GUI:Text_setString(self.ui.qieGe, qieGe)
     GUI:Text_setString(self.ui.baoLv, baoLv .. "%")
     GUI:Text_setString(self.ui.gongSu, gongSu .. "%")
+    GUI:Text_setString(self.ui.beiGong, beiGong .. "%")
+
+    local rwid = SL:GetMetaValue("MAIN_ACTOR_ID")
+    local hb16 = tonumber(SL:GetMetaValue("MONEY",16))
+    local hb14 = tonumber(SL:GetMetaValue("MONEY",14))
+    local hb15 = tonumber(SL:GetMetaValue("MONEY",15))
+
+    local baoLv = ((SL:GetMetaValue("ACTOR_BUFF_DATA_BY_ID",rwid,20060) and 0 or hb16) + hb15) > 0 and "[可复活]" or "[不可复活]"
+    GUI:Text_setTextColor(self.ui.fuHuo, ((SL:GetMetaValue("ACTOR_BUFF_DATA_BY_ID",rwid,20060) and 0 or hb16) + hb15) > 0 and "#00FF00" or "#FF0000")
+    GUI:Text_setString(self.ui.fuHuo, baoLv)
+
+
+
 end
 
 --重载初始化
