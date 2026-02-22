@@ -1019,10 +1019,139 @@ end
 npc.xyl = SL:Require("GUILayout/Data/xyl.lua", true)
 ---异闻录：章节任务界面（UIHelper 统一窗口）
 npc[11] = function(p2, p3, Data)
+    local AUTO_GUIDE_TASKS = {
+        ["天书强化"] = true,
+        ["开辟仙府（主城NPC）"] = true,
+        ["寻宝大师"] = true,
+    }
+
+    local function _ywl_find_next_chapter(curL, curZj)
+        local startL = tonumber(curL) or 2
+        local startZj = tonumber(curZj) or 0
+        for i = startL, #npc.xyl do
+            local lCfg = npc.xyl[i]
+            if type(lCfg) == "table" and #lCfg > 0 then
+                local begin = 1
+                if i == startL then
+                    begin = math.max(1, startZj + 1)
+                end
+                for j = begin, #lCfg do
+                    return i, j
+                end
+            end
+        end
+        return nil, nil
+    end
+
+    local function _ywl_story_node_done(node)
+        if node == nil then
+            return false
+        end
+        if type(node) == "number" then
+            return tonumber(node) >= 2
+        end
+        if type(node) == "table" then
+            if tonumber(node[1] or node["1"] or 0) >= 2 then
+                return true
+            end
+            if tonumber(node.wc or node.finish or node.done or node.ok or 0) >= 1 then
+                return true
+            end
+            if tonumber(node.cnt or node.num or 0) >= 2 then
+                return true
+            end
+        end
+        return false
+    end
+
+    local function _ywl_story_node_started(node)
+        if node == nil then
+            return false
+        end
+        if type(node) == "number" then
+            return tonumber(node) > 0
+        end
+        if type(node) == "table" then
+            if tonumber(node[1] or node["1"] or 0) > 0 then
+                return true
+            end
+            if tonumber(node.wc or node.finish or node.done or node.ok or 0) > 0 then
+                return true
+            end
+            if tonumber(node.cnt or node.num or 0) > 0 then
+                return true
+            end
+        end
+        return false
+    end
+
+    local function _ywl_is_task_started_or_done_by_story(taskName, task)
+        local raw = Player:getServerVar("T13")
+        if not raw or raw == "" then
+            return false
+        end
+        local ok, storyData = pcall(function()
+            return Player:JsonToTbl(raw)
+        end)
+        if not ok or type(storyData) ~= "table" then
+            return false
+        end
+
+        local tk = task and task.tk
+        if tk and _ywl_story_node_started(storyData[tk]) then
+            return true
+        end
+
+        if taskName == "开辟仙府（主城NPC）" then
+            if _ywl_story_node_started(storyData["npc_55"]) or _ywl_story_node_started(storyData["npc55"]) then
+                return true
+            end
+        end
+        return false
+    end
+
     if p2 == 0 then
         npc.data = Data and SL:JsonDecode(Data, false) or {}
-        npc.l = npc.l or 2  -- 当前大章节
-        npc.zj = npc.zj or 1 -- 当前小节
+        npc._ywl_auto_guided_chapter = nil
+        local function isChapterDone(i, j)
+            return npc.data and npc.data.ywl and npc.data.ywl["jl_" .. i .. "_" .. j] == 1
+        end
+        local function findNearestUnfinished()
+            for i = 2, #npc.xyl do
+                local lCfg = npc.xyl[i]
+                if type(lCfg) == "table" and #lCfg > 0 then
+                    for j = 1, #lCfg do
+                        if not isChapterDone(i, j) then
+                            return i, j
+                        end
+                    end
+                end
+            end
+            local li, zj = 2, 1
+            for i = 2, #npc.xyl do
+                local lCfg = npc.xyl[i]
+                if type(lCfg) == "table" and #lCfg > 0 then
+                    li = i
+                    zj = #lCfg
+                end
+            end
+            return li, zj
+        end
+
+        -- 有缓存进度就沿用；没有就自动定位到最近未完成章节
+        if npc.l == nil or npc.zj == nil then
+            npc.l, npc.zj = findNearestUnfinished()
+        end
+        local curCfg = npc.xyl[npc.l]
+        if type(curCfg) ~= "table" or #curCfg == 0 then
+            npc.l, npc.zj = findNearestUnfinished()
+            curCfg = npc.xyl[npc.l]
+        end
+        if type(curCfg) == "table" and #curCfg > 0 then
+            npc.zj = math.max(1, math.min(npc.zj, #curCfg))
+        else
+            npc.l, npc.zj = 2, 1
+        end
 
         local win = ensureWindow("storyLog", 11, { titleText = "异闻录" })
         npc.bg = win.bg
@@ -1046,7 +1175,19 @@ npc[11] = function(p2, p3, Data)
             local tasks = zjCfg.jq or zjCfg
             local taskCount = #tasks
             local curJqd = tonumber(SL:GetMetaValue("TMONEY", "剧情点")) or 0
-            local lockedByJqd = zjCfg.jqd and curJqd < zjCfg.jqd
+            local need = tonumber(zjCfg.jqd) or 0
+            local lackJqd = zjCfg.jqd and curJqd < need
+            local lockInfo = nil
+            if npc.xyl and npc.xyl.get_chapter_lock_info then
+                lockInfo = npc.xyl.get_chapter_lock_info(npc.l, npc.zj, curJqd)
+            end
+            local lockExtTips = {}
+            if lockInfo then
+                need = tonumber(lockInfo.need_jqd) or need
+                lackJqd = lockInfo.lack_jqd and true or false
+                lockExtTips = lockInfo.ext_tips or {}
+            end
+            local lockedByJqd = lockInfo and lockInfo.locked or lackJqd
             
             if lockedByJqd then
                 GUI:Image_Create(node, "500-300", 250, 108, 'res/wy/public/500-300.png')
@@ -1054,18 +1195,36 @@ npc[11] = function(p2, p3, Data)
                 GUI:setContentSize(GUI:ui_delegate(node)["lock"], 675, 414)
                 GUI:setContentSize(GUI:ui_delegate(node)["500-300"], 675, 414)
 
-                local need = tonumber(zjCfg.jqd) or 0
-                local tip = string.format("剧情点不足：%d/%d", curJqd, need)
-                local tipText = GUI:Text_Create(node, "lock_tip", 588, 150, 24, "#FFFFFF", tip)
+                local tip = lockInfo and lockInfo.tip or nil
+                if not tip or tip == "" then
+                    tip = lackJqd and string.format("剧情点不足：%d/%d", curJqd, need) or "章节未解锁"
+                end
+                local tipText = GUI:Text_Create(node, "lock_tip", 588, 160, 24, "#FFFFFF", tip)
                 GUI:Text_setFontName(tipText, "fonts/500.ttf")
                 GUI:Text_enableOutline(tipText, "#000000", 2)
                 GUI:setAnchorPoint(tipText, 0.5, 0.5)
+                for i, txt in ipairs(lockExtTips) do
+                    local extTip = GUI:Text_Create(
+                        node,
+                        "lock_tip_ext_" .. i,
+                        588,
+                        128 - ((i - 1) * 30),
+                        20,
+                        "#FFE9A3",
+                        txt
+                    )
+                    GUI:Text_setFontName(extTip, "fonts/500.ttf")
+                    GUI:Text_enableOutline(extTip, "#000000", 2)
+                    GUI:setAnchorPoint(extTip, 0.5, 0.5)
+                end
             else
                 
                 local scroll = GUI:ScrollView_Create(node, "task_scroll", 250, 120, 675, 414, 2)
                 GUI:ScrollView_setBounceEnabled(scroll, true)
                 GUI:ScrollView_setInnerContainerSize(scroll, taskCount * (232 + 0 ), 414)
                 local layout = GUI:Layout_Create(scroll, "task_layout", 0, 0, taskCount * (232 + 10), 414, false)
+                local autoGuideWidget = nil
+                local autoGuideDesc = nil
 
 
                 local function _ywl_vertical_text(text)
@@ -1116,6 +1275,7 @@ npc[11] = function(p2, p3, Data)
                 end
 
                 for idx, task in ipairs(tasks) do
+                    local taskName = task[1] or task.title or "任务"
                     local card = GUI:Image_Create(layout, "card" .. idx, 0, 0, 'res/custom/ywl/kuang.png')
                     -- GUI:setPosition(card, 232, 414)
                     local img = GUI:Image_Create(card, "img", 214/2, 410/2 - 20, 'res/custom/ywl/kuang1.png')
@@ -1214,7 +1374,7 @@ npc[11] = function(p2, p3, Data)
 
                     
                     
-                    local title = GUI:Text_Create(GUI:Image_Create(img, "name_kuang", 150, 200, "res/custom/ywl/name_kuang.png"), "title",38, 190, 30, "#FFFFFF", _ywl_vertical_text(task[1] or task.title or "任务"))
+                    local title = GUI:Text_Create(GUI:Image_Create(img, "name_kuang", 150, 200, "res/custom/ywl/name_kuang.png"), "title",38, 190, 30, "#FFFFFF", _ywl_vertical_text(taskName))
                     GUI:setLocalZOrder(title, 100)
                     GUI:setAnchorPoint(title, 0.5, 1)
                     GUI:Text_setFontName(title, "fonts/448.ttf")
@@ -1242,12 +1402,22 @@ npc[11] = function(p2, p3, Data)
                             GUI:setAnchorPoint(lockText, 0.5, 0.5)
                         else
                             local btnSkin = enable and 'res/custom/ywl/btn_1.png' or 'res/custom/ywl/btn_2.png'
-                            local goBtn = GUI:Button_Create(img, "goBtn", 232/2, 90, btnSkin)
-                            GUI:setAnchorPoint(goBtn, 0.5, 0.5)
+                            local goBtn = GUI:Button_Create(img, "goBtn", 25, 90, btnSkin)
+                            GUI:setAnchorPoint(goBtn, 0, 0.5)
                             GUI:addOnClickEvent(goBtn, function()
                                 SL:SendLuaNetMsg(101, 11, enable and 3 or 1, 0,
                                     string.format('{"i":%d,"j":%d,"k":0,"z":%d}', npc.l, npc.zj, idx))
                             end)
+                            if AUTO_GUIDE_TASKS[taskName] and not autoGuideWidget then
+                                local chapterDone = npc.data and npc.data.ywl and npc.data.ywl["jl_" .. npc.l .. "_" .. npc.zj] == 1
+                                local taskDone = npc.data and npc.data.ywl and npc.data.ywl["jl_" .. npc.l .. "_" .. npc.zj .. "_" .. idx] == 1
+                                local khdDone = (task.id == 999 and task.khdjy) and (task.khdjy(task) == true) or false
+                                local storyStarted = _ywl_is_task_started_or_done_by_story(taskName, task)
+                                if not chapterDone and not taskDone and not khdDone and not storyStarted then
+                                    autoGuideWidget = goBtn
+                                    autoGuideDesc = "点击前往" .. taskName
+                                end
+                            end
                         end
                     end
                     
@@ -1266,6 +1436,21 @@ npc[11] = function(p2, p3, Data)
                     GUI:addOnClickEvent(npc.jl, function()
                         SL:SendLuaNetMsg(101, 11, 2, 0, string.format('{"i":%d,"j":%d,"k":0}', npc.l, npc.zj))
                     end)
+                end
+
+                local chapterKey = tostring(npc.l) .. "_" .. tostring(npc.zj)
+                if npc._ywl_auto_guided_chapter ~= chapterKey then
+                    npc._ywl_auto_guided_chapter = chapterKey
+                    if autoGuideWidget then
+                        local guideParent = GUI:getParent(autoGuideWidget) or node
+                        SL:StartGuide({
+                            dir = 3,
+                            guideWidget = autoGuideWidget,
+                            guideParent = guideParent,
+                            guideDesc = "点击前往任务",
+                            isForce = false,
+                        })
+                    end
                 end
             end
 
@@ -1334,12 +1519,23 @@ npc[11] = function(p2, p3, Data)
         end)
 
     elseif p2 == 2 then
-        local data = SL:JsonDecode(Data, false)
+        local data = SL:JsonDecode(Data, false) or {}
         if p3 == 1 then
         elseif p3 == 2 then
+            npc.data = npc.data or {}
+            npc.data.ywl = npc.data.ywl or {}
             npc.data.ywl["jl_" .. data.i .. "_" .. data.j] = 1
-            GUI:removeChildByName(npc.node_11,"btn_reward")
-            GUI:Image_Create(npc.node_11, "done", 750, 40, 'res/wy/public/rwjd_3.png')
+
+            local nextL, nextZj = _ywl_find_next_chapter(data.i, data.j)
+            if nextL and nextZj then
+                npc.l, npc.zj = nextL, nextZj
+            else
+                npc.l = tonumber(data.i) or npc.l
+                npc.zj = tonumber(data.j) or npc.zj
+            end
+
+            npc[11](0, 0, SL:JsonEncode(npc.data, false))
+            return
         elseif p3 == 3 then
             npc.data.ywl["jl_" .. data.i .. "_" .. data.j .. "_" .. data.z] = 1
             local img  = GUI:ui_delegate(GUI:ui_delegate(npc.node_11)["card" .. data.z]).img

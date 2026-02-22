@@ -1,6 +1,6 @@
 ﻿local UpgradeHelper = {}
 
-local AUTO_REFRESH_INTERVAL = 20 * 60
+local AUTO_REFRESH_INTERVAL = 1 * 60
 local AUTO_REFRESH_TIMER_KEY = "__UPGRADE_BTN_AUTO_REFRESH_TIMER__"
 local EQUIP_REFRESH_LISTENER_KEY = "__UPGRADE_BTN_EQUIP_REFRESH_LISTENER__"
 
@@ -65,6 +65,17 @@ local function _upgrade_has_title(titleName)
         return false
     end
     return SL:GetMetaValue("TITLE_DATA_BY_ID", idx) ~= nil
+end
+
+local function _upgrade_get_item_count_by_name(itemName)
+    if not itemName or itemName == "" then
+        return 0
+    end
+    local idx = SL:GetMetaValue("ITEM_INDEX_BY_NAME", itemName)
+    if not idx then
+        return 0
+    end
+    return _upgrade_to_num(SL:GetMetaValue("ITEM_COUNT", idx), 0)
 end
 
 local function _upgrade_can_pay(cost)
@@ -250,6 +261,39 @@ local function _upgrade_check_haogandu()
     end
 
     return _upgrade_can_pay(nextCfg.cost)
+end
+
+local function _upgrade_check_xianshifang_14()
+    local cfg = teshudata and teshudata["npc_14"]
+    if not cfg or type(cfg.config) ~= "table" then
+        return false
+    end
+
+    if cfg.title and _upgrade_has_title(cfg.title) then
+        return false
+    end
+
+    local totalNeed = 10
+    local totalCount = 0
+    local visited = {}
+
+    for _, detail in pairs(cfg.config) do
+        local cost = detail and detail.cost
+        if type(cost) == "table" then
+            for _, item in ipairs(cost) do
+                local itemName = item and item[1]
+                if type(itemName) == "string" and itemName ~= "" and not visited[itemName] then
+                    visited[itemName] = true
+                    totalCount = totalCount + _upgrade_get_item_count_by_name(itemName)
+                    if totalCount >= totalNeed then
+                        return true
+                    end
+                end
+            end
+        end
+    end
+
+    return false
 end
 
 local function _upgrade_check_title_43()
@@ -547,6 +591,7 @@ local UPGRADE_CHECKERS = {
     [9] = _upgrade_check_tejie,
     [10] = function() return _upgrade_check_simple_equip(10) end,
     [11] = _upgrade_check_cuiti_11,
+    [14] = _upgrade_check_xianshifang_14,
     [54] = _upgrade_check_cuiti_54,
     [24] = _upgrade_check_tianshu,
     [22] = _upgrade_check_linggen,
@@ -565,23 +610,24 @@ local UPGRADE_CHECKERS = {
 
 local OPEN_BTN_LIST = {
     {id = 6, label = "切割之斧", npcid = 6, continent = 1},
-    {id = 7, label = "攻速", npcid = 7, continent = 1},
-    {id = 8, label = "斗笠", npcid = 8, continent = 1},
+    {id = 7, label = "攻速之镰[★]", npcid = 7, continent = 1},
+    {id = 8, label = "斗笠[★]", npcid = 8, continent = 1},
     {id = 9, label = "特戒", npcid = 9, continent = 1},
-    {id = 10, label = "魂体", npcid = 10, continent = 1},
-    {id = 11, label = "淬体修炼一", npcid = 11, continent = 1},
-    {id = 13, label = "好感度", npcid = 13, continent = 1},
+    {id = 10, label = "酒葫芦[★]", npcid = 10, continent = 1},
+    {id = 11, label = "基础淬体", npcid = 11, continent = 1},
+    {id = 13, label = "小兰赠礼[★]", npcid = 13, continent = 1},
+    {id = 14, label = "小二倒酒[★]", npcid = 14, continent = 1},
 
-    {id = 24, label = "天书", npcid = 24, continent = 2},
-    {id = 22, label = "灵根", npcid = 22, continent = 2},
-    {id = 43, label = "江湖称号", npcid = 43, continent = 2},
+    {id = 24, label = "天书[★]", npcid = 24, continent = 2},
+    {id = 22, label = "灵根[★]", npcid = 22, continent = 2},
+    {id = 43, label = "江湖称号[★]", npcid = 43, continent = 2},
     {id = 26, label = "气运占卜", npcid = 26, continent = 2},
     {id = 28, label = "装备强化", npcid = 28, continent = 2},
     {id = 25, label = "幸运强化", npcid = 25, continent = 2},
 
-    {id = 54, label = "淬体修炼二", npcid = 54, continent = 3, precondition = _upgrade_is_cuiti_11_completed},
+    {id = 54, label = "高级淬体[★]", npcid = 54, continent = 3, precondition = _upgrade_is_cuiti_11_completed},
     {id = 27, label = "技能强化", npcid = 27, continent = 3},
-    {id = 4401, label = "仙府成熟提示", npcid = 44, continent = 3, precondition = _upgrade_is_npc_55_completed},
+    {id = 4401, label = "仙草成熟", npcid = 44, continent = 3, precondition = _upgrade_is_npc_55_completed},
 
     {id = 64, label = "灵兽", npcid = 64, continent = 4},
     {id = 65, label = "古玩鉴定", npcid = 65, continent = 4},
@@ -639,26 +685,15 @@ function UpgradeHelper.startAutoRefresh(intervalSec)
 end
 
 function UpgradeHelper.startEquipChangeRefresh()
-    if rawget(_G, EQUIP_REFRESH_LISTENER_KEY) then
-        return
-    end
-
+    
+    SL:release_print("startEquipChangeRefresh")
     local function _refresh_on_equip_change(data)
-        if type(data) == "table" and data.isSuccess == false then
-            return
-        end
         UpgradeHelper.registerOpenNpcButtons()
     end
 
-    local onEquipOnEvent = (EventCfg and EventCfg.OnTakeOnEquip) or "OnTakeOnEquip"
-    local onEquipOffEvent = (EventCfg and EventCfg.OnTakeOffEquip) or "OnTakeOffEquip"
-    local onEquipInitEvent = (EventCfg and EventCfg.OnPlayerEquipInit) or "OnPlayerEquipInit"
+    SL:RegisterLUAEvent(LUA_EVENT_TAKE_ON_EQUIP, "upgrade_helper_equip_on", _refresh_on_equip_change)
+    SL:RegisterLUAEvent(LUA_EVENT_TAKE_OFF_EQUIP, "upgrade_helper_equip_off", _refresh_on_equip_change)
 
-    SL:RegisterLUAEvent(onEquipOnEvent, "upgrade_helper_equip_on", _refresh_on_equip_change)
-    SL:RegisterLUAEvent(onEquipOffEvent, "upgrade_helper_equip_off", _refresh_on_equip_change)
-    SL:RegisterLUAEvent(onEquipInitEvent, "upgrade_helper_equip_init", _refresh_on_equip_change)
-
-    rawset(_G, EQUIP_REFRESH_LISTENER_KEY, true)
 end
 
 -- 兼容旧调用名

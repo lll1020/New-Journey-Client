@@ -488,6 +488,7 @@ function ItemTips.GetSwordOfSoul(parent, soulData, swordSoulIndex)
     local jinduValue    = soulData[6] --进度值
     local jinduMaxValue = soulData[7] --进度最大值
     local level         = soulData[8] --等级
+    SL:release_print(jinduSwitch)
 
     local newColor = nil
     if color then
@@ -2951,7 +2952,7 @@ function ItemTips.CreateEquipPanel(data, itemData, isWear, panelInsertIndex)
                 table.insert(upAttrRichs, rich_att_ys)
             end
         end
-        ItemTips.PushItem(contentPanel, ItemTips.CreateIntervalPanel(contentPanel, _DefaultSpace, true))
+        -- ItemTips.PushItem(contentPanel, ItemTips.CreateIntervalPanel(contentPanel, _DefaultSpace, true))
     end
 
     -- 附加属性
@@ -2976,7 +2977,7 @@ function ItemTips.CreateEquipPanel(data, itemData, isWear, panelInsertIndex)
                 table.insert(upAttrRichs, rich_att_ex)
             end
         end
-        ItemTips.PushItem(contentPanel, ItemTips.CreateIntervalPanel(contentPanel, _DefaultSpace, true))
+        -- ItemTips.PushItem(contentPanel, ItemTips.CreateIntervalPanel(contentPanel, _DefaultSpace, true))
     end
 
     -- 添加属性提升标识
@@ -3010,8 +3011,14 @@ function ItemTips.CreateEquipPanel(data, itemData, isWear, panelInsertIndex)
     -- 描述
     local desc = itemDescs.desc
     if desc then
+        local beizhu_eff = GUI:Frames_Create(contentPanel, "beizhu_eff", 0, 0, "res/private/item_tips/eff/zbjs/eff_", ".png", 1, 15,
+        { speed = 75, count = 15, loop = -1})
+        ItemTips.PushItem(contentPanel, beizhu_eff)
+        maxWidth = math.max(maxWidth, GUI:getContentSize(beizhu_eff).width)
+
         removeLastLine()
         pushDescItem(desc)
+              
         ItemTips.PushItem(contentPanel, ItemTips.CreateIntervalPanel(contentPanel, _DefaultSpace, true))
     end
 

@@ -445,9 +445,6 @@ local function _xyl_check_task(name)
             local cfg = teshudata and teshudata["npc_46"]
             return cfg and _xyl_has_title(cfg.ch)
         end,
-        ["兵道之谜"] = function()
-            return _xyl_check_story("npc_609")
-        end,
     }
     if special[key] then
         return special[key]()
@@ -467,11 +464,114 @@ local function _xyl_khdjy(task)
     return _xyl_check_task(tk)
 end
 
+local function _xyl_get_chapter_cfg(taskData, l, zj)
+    local lCfg = taskData and taskData[l]
+    if type(lCfg) ~= "table" then
+        return nil
+    end
+    return lCfg[zj]
+end
+
+local function _xyl_to_pre_list(pre)
+    if type(pre) ~= "table" then
+        return nil
+    end
+    if pre[1] ~= nil then
+        return pre
+    end
+    if pre.l or pre.i or pre.zj or pre.j or pre.idx or pre.k or pre.tip or pre.check then
+        return { pre }
+    end
+    return nil
+end
+
+local function _xyl_check_chapter_pre(taskData, pre)
+    if type(pre) ~= "table" then
+        return true
+    end
+    if type(pre.check) == "function" then
+        return pre.check() and true or false
+    end
+    local l = tonumber(pre.l or pre.i)
+    local zj = tonumber(pre.zj or pre.j)
+    local idx = tonumber(pre.idx or pre.k) or 1
+    if not l or not zj then
+        return false
+    end
+    local cfg = _xyl_get_chapter_cfg(taskData, l, zj)
+    local task = cfg and cfg.jq and cfg.jq[idx]
+    if not task then
+        return false
+    end
+    if task.khdjy then
+        return task.khdjy(task) and true or false
+    end
+    return false
+end
+
+local function _xyl_get_chapter_lock_info(taskData, l, zj, curJqd)
+    local cfg = _xyl_get_chapter_cfg(taskData, l, zj)
+    if not cfg then
+        return { locked = false, tip = "", ext_tips = {}, cur_jqd = tonumber(curJqd) or 0, need_jqd = 0, lack_jqd = false }
+    end
+
+    local nowJqd = tonumber(curJqd) or 0
+    local needJqd = tonumber(cfg.jqd) or 0
+    local lackJqd = cfg.jqd and nowJqd < needJqd
+    local locked = lackJqd and true or false
+    local tip = lackJqd and string.format("剧情点不足：%d/%d", nowJqd, needJqd) or ""
+    local extTips = {}
+
+    local preList = _xyl_to_pre_list(cfg.pre) or _xyl_to_pre_list(cfg.unlock_pre)
+    if preList then
+        for _, pre in ipairs(preList) do
+            local ok = _xyl_check_chapter_pre(taskData, pre)
+            if not ok then
+                locked = true
+                if tip == "" then
+                    tip = pre.lock_tip or pre.lockTip or "章节未解锁"
+                end
+                local ext = pre.tip or pre.desc
+                if ext and ext ~= "" then
+                    table.insert(extTips, tostring(ext))
+                end
+            end
+        end
+    end
+
+    return {
+        locked = locked,
+        tip = tip,
+        ext_tips = extTips,
+        cur_jqd = nowJqd,
+        need_jqd = needJqd,
+        lack_jqd = lackJqd and true or false,
+    }
+end
+
 local npc_xyl = {
     {},
     {
         {
             jq = {
+                {
+                    "天书强化",
+                    id = 999,
+                    jl = { { "剧情点", 1 } },
+                    fwdjy = nil,
+                    khdjy = _xyl_khdjy,
+                    yd = { 1, "二大陆主城", 24, 101, 113 },
+                    desc = "直面天书强化，破局前行",
+                },
+                {
+                    "初识仙法",
+                    id = 999,
+                    jl = { { "剧情点", 1 } },
+                    fwdjy = nil,
+                    khdjy = _xyl_khdjy,
+                    yd = { 1, "二大陆主城", 24, 101, 113 },
+                    desc = "历经初识仙法，收获机缘",
+                },
                 {
                     "扫荡野火帮（剧）",
                     tk = "npc_603",
@@ -492,24 +592,6 @@ local npc_xyl = {
                     yd = { 1, "野火帮大营", 607, 60, 279 },
                     desc = "探入敌营深处，摸清野火脉络",
                 },
-                {
-                    "天书强化",
-                    id = 999,
-                    jl = { { "剧情点", 1 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    yd = { 1, "二大陆主城", 24, 101, 113 },
-                    desc = "直面天书强化，破局前行",
-                },
-                {
-                    "初识仙法",
-                    id = 999,
-                    jl = { { "剧情点", 1 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    yd = { 1, "二大陆主城", 24, 101, 113 },
-                    desc = "历经初识仙法，收获机缘",
-                },
             },
             name = "初入江湖",
 
@@ -519,6 +601,24 @@ local npc_xyl = {
         },
         {
             jq = {
+                {
+                    "幸运增幅",
+                    id = 999,
+                    jl = { { "剧情点", 1 } },
+                    fwdjy = nil,
+                    khdjy = _xyl_khdjy,
+                    yd = { 1, "二大陆主城", 25, 105, 113 },
+                    desc = "历经幸运增幅，收获机缘",
+                },
+                {
+                    "气运占卜",
+                    id = 999,
+                    jl = { { "剧情点", 1 } },
+                    fwdjy = nil,
+                    khdjy = _xyl_khdjy,
+                    yd = { 1, "二大陆主城", 26, 109, 113 },
+                    desc = "闯过气运占卜，证我道途",
+                },
                 {
                     "剿灭恶徒（剧）",
                     tk = "npc_604",
@@ -539,24 +639,6 @@ local npc_xyl = {
                     yd = { 1, "神秘森林", 608, 52, 53 },
                     desc = "前往守护森林，探寻其中机缘",
                 },
-                {
-                    "幸运增幅",
-                    id = 999,
-                    jl = { { "剧情点", 1 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    yd = { 1, "二大陆主城", 25, 105, 113 },
-                    desc = "历经幸运增幅，收获机缘",
-                },
-                {
-                    "气运占卜",
-                    id = 999,
-                    jl = { { "剧情点", 1 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    yd = { 1, "二大陆主城", 26, 109, 113 },
-                    desc = "闯过气运占卜，证我道途",
-                },
             },
             name = "小试牛刀",
 
@@ -566,6 +648,16 @@ local npc_xyl = {
         },
         {
             jq = {
+                {
+                    "装备强化",
+                    -- tk = "npc_28",
+                    id = 999,
+                    jl = { { "剧情点", 1 } },
+                    fwdjy = nil,
+                    khdjy = _xyl_khdjy,
+                    yd = { 1, "二大陆主城", 28, 117, 113 },
+                    desc = "于装备强化中磨砺，道心更稳",
+                },
                 {
                     "杀伐之路（剧）",
                     tk = "npc_605",
@@ -586,16 +678,6 @@ local npc_xyl = {
                     yd = { 1, "乱葬岗", 610, 170, 212 },
                     desc = "踏入掘墓人，循迹而行",
                 },
-                {
-                    "装备强化",
-                    -- tk = "npc_28",
-                    id = 999,
-                    jl = { { "剧情点", 1 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    yd = { 1, "二大陆主城", 28, 117, 113 },
-                    desc = "于装备强化中磨砺，道心更稳",
-                },
             },
             name = "漫漫仙途",
 
@@ -605,6 +687,15 @@ local npc_xyl = {
         },
         {
             jq = {
+                {
+                    "喂养灵根",
+                    id = 999,
+                    jl = { { "剧情点", 1 } },
+                    fwdjy = nil,
+                    khdjy = _xyl_khdjy,
+                    yd = { 1, "二大陆主城", 22, 97, 113 },
+                    desc = "历经喂养灵根，收获机缘",
+                },
                 {
                     "讨伐夜魔（剧）",
                     tk = "npc_606",
@@ -626,6 +717,15 @@ local npc_xyl = {
                     desc = "前往古刹，探寻其中机缘",
                 },
                 {
+                    "转生·二",
+                    id = 999,
+                    jl = { { "剧情点", 1 } },
+                    fwdjy = nil,
+                    khdjy = _xyl_khdjy,
+                    yd = { 1, "xtc", 33, 132, 121 },
+                    desc = "踏入转生·二，循迹而行",
+                },
+                {
                     "修复轩辕剑（剧）",
                     -- tk = "npc_601",
                     id = 999,
@@ -634,24 +734,6 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     yd = { 1, "二大陆主城", 601, 99, 123 },
                     desc = "于修复轩辕剑中磨砺，道心更稳",
-                },
-                {
-                    "喂养灵根",
-                    id = 999,
-                    jl = { { "剧情点", 1 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    yd = { 1, "二大陆主城", 22, 97, 113 },
-                    desc = "历经喂养灵根，收获机缘",
-                },
-                {
-                    "转生·二",
-                    id = 999,
-                    jl = { { "剧情点", 1 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    yd = { 1, "xtc", 33, 132, 121 },
-                    desc = "踏入转生·二，循迹而行",
                 },
             },
             name = "融会贯通",
@@ -665,86 +747,81 @@ local npc_xyl = {
         {
             jq = {
                 {
-                    "拥有1传说神石",
-                    id = 999,
-                    jl = { { "剧情点", 3 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    yd = { 0 },
-                    desc = "深入拥有1传说神石，寻回失落线索",
-                },
-                {
-                    "转生·三",
-                    id = 999,
-                    jl = { { "剧情点", 1 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    yd = { 0 },
-                    desc = "历经转生·三，收获机缘",
-                },
-                {
-                    "传说·斗笠",
-                    id = 999,
-                    jl = { { "剧情点", 2 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    yd = { 0 },
-                    desc = "深入传说·斗笠，寻回失落线索",
-                },
-                {
-                    "神·酒葫芦",
-                    id = 999,
-                    jl = { { "剧情点", 2 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    yd = { 0 },
-                    desc = "踏入神·酒葫芦，循迹而行",
-                },
-                {
-                    "高级淬体",
-                    tk = "npc_53",
-                    id = 999,
-                    jl = { { "剧情点", 2 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    yd = { 0 },
-                    desc = "踏入高级淬体，循迹而行",
-                },
-            },
-            name = "苍云秘闻",
-
-            jqd = 15,
-
-            jl = { { "1元真实充值", 5 }, { "等级卷轴", 5 } },
-        },
-        {
-            jq = {
-                {
                     "开辟仙府（主城NPC）",
                     id = 999,
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
+                    yd = { 1, "三大陆主城", 55, 169, 230 },
                     desc = "踏入开辟仙府（主城NPC，循迹而行",
                 },
                 {
-                    "炼制丹药",
+                    "踏入·虚妄山脉",
+                    tk = "npc_621",
                     id = 999,
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
-                    desc = "闯过炼制丹药，证我道途",
+                    yd = { 1, "灰界", 621, 200, 378 },
+                    desc = "行走踏入·虚妄山脉，破除迷障",
                 },
                 {
-                    "了解砍树",
+                    "踏入·叹息旷野",
+                    tk = "npc_622",
                     id = 999,
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
-                    desc = "行走了解砍树，破除迷障",
+                    yd = { 1, "灰界", 622, 204, 25 },
+                    desc = "踏入踏入·叹息旷野，循迹而行",
+                },
+                {
+                    "踏入·鬼嘲深渊",
+                    tk = "npc_623",
+                    id = 999,
+                    jl = { { "剧情点", 1 } },
+                    fwdjy = nil,
+                    khdjy = _xyl_khdjy,
+                    yd = { 1, "灰界", 623, 379, 209 },
+                    desc = "闯过踏入·鬼嘲深渊，证我道途",
+                },
+                {
+                    "踏入·禁忌之海",
+                    tk = "npc_624",
+                    id = 999,
+                    jl = { { "剧情点", 1 } },
+                    fwdjy = nil,
+                    khdjy = _xyl_khdjy,
+                    yd = { 1, "灰界", 624, 24, 194 },
+                    desc = "于踏入·禁忌之海中磨砺，道心更稳",
+                },
+                {
+                    "灾厄入侵",
+                    tk = "npc_46",
+                    id = 999,
+                    jl = {},
+                    fwdjy = nil,
+                    khdjy = _xyl_khdjy,
+                    yd = { 1, "三大陆主城", 46, 157, 225 },
+                    desc = "踏入灾厄入侵，循迹而行",
+                },
+            },
+            name = "灰界开篇",
+
+            jqd = 15,
+
+            jl = {{ "1元真实充值", 2 }, { "藏宝图碎片", 10 }},
+        },
+        {
+            jq = {
+                {
+                    "寻宝大师",
+                    id = 999,
+                    jl = { { "剧情点", 2 } },
+                    fwdjy = nil,
+                    khdjy = _xyl_khdjy,
+                    yd = { 1, "三大陆主城", 47, 161, 225 },
+                    desc = "行走寻宝大师，破除迷障",
                 },
                 {
                     "种植仙草",
@@ -752,24 +829,91 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
+                    yd = { 1, "三大陆主城", 44, 149, 225 },
                     desc = "闯过种植仙草，证我道途",
                 },
                 {
-                    "寻宝大师",
+                    "了解砍树",
+                    id = 999,
+                    jl = { { "剧情点", 1 } },
+                    fwdjy = nil,
+                    khdjy = _xyl_khdjy,
+                    yd = { 1, "三大陆主城", 44, 149, 225 },
+                    desc = "行走了解砍树，破除迷障",
+                },
+            },
+            name = "仙府功能",
+
+            jqd = 18,
+            pre = {
+                {
+                    l = 3,
+                    zj = 1,
+                    idx = 1,
+                    lock_tip = "章节未解锁",
+                    tip = "解锁条件：必须完成「开辟仙府（主城NPC）」",
+                },
+            },
+
+            jl = {{ "1元真实充值", 2 }, { "激活火灵根", 1 }},
+        },
+        {
+            jq = {
+                {
+                    "炼制丹药",
+                    id = 999,
+                    jl = { { "剧情点", 1 } },
+                    fwdjy = nil,
+                    khdjy = _xyl_khdjy,
+                    yd = { 1, "三大陆主城", 44, 149, 225 },
+                    desc = "闯过炼制丹药，证我道途",
+                },
+                {
+                    "讨伐嘲灾",
+                    tk = "npc_625",
                     id = 999,
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
-                    desc = "行走寻宝大师，破除迷障",
+                    yd = { 1, "灰界", 621, 200, 378 },
+                    desc = "踏破讨伐嘲灾，守护一方安宁",
+                },
+                {
+                    "讨伐忌灾",
+                    tk = "npc_626",
+                    id = 999,
+                    jl = { { "剧情点", 2 } },
+                    fwdjy = nil,
+                    khdjy = _xyl_khdjy,
+                    yd = { 1, "灰界", 622, 204, 25 },
+                    desc = "深入讨伐忌灾，寻回失落线索",
+                },
+                {
+                    "讨伐息灾",
+                    tk = "npc_627",
+                    id = 999,
+                    jl = { { "剧情点", 2 } },
+                    fwdjy = nil,
+                    khdjy = _xyl_khdjy,
+                    yd = { 1, "灰界", 623, 379, 209 },
+                    desc = "探访讨伐息灾，揭开真相",
+                },
+                {
+                    "讨伐妄灾",
+                    tk = "npc_628",
+                    id = 999,
+                    jl = { { "剧情点", 2 } },
+                    fwdjy = nil,
+                    khdjy = _xyl_khdjy,
+                    yd = { 1, "灰界", 624, 24, 194 },
+                    desc = "踏破讨伐妄灾，守护一方安宁",
                 },
             },
-            name = "初入苍云",
+            name = "炼丹与讨伐",
 
-            jqd = 15,
+            jqd = 22,
 
-            jl = { { "1元真实充值", 2 }, { "激活火灵根", 1 } },
+            jl = {{ "1元真实充值", 2 }, { "神石宝箱钥匙", 1 }},
         },
         {
             jq = {
@@ -780,7 +924,7 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
+                    yd = { 1, "三大陆主城", 47, 161, 225 },
                     desc = "直面杀戮的欲望，化解其中隐患",
                 },
                 {
@@ -790,7 +934,7 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
+                    yd = { 1, "千年沉船", 629, 44, 34 },
                     desc = "直面沉船之谜，化解其中隐患",
                 },
                 {
@@ -800,7 +944,7 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
+                    yd = { 1, "千年沉船", 305, 24, 23 },
                     desc = "踏破船长的宝藏，守护一方安宁",
                 },
                 {
@@ -810,15 +954,15 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
+                    yd = { 1, "千年沉船", 306, 18, 15 },
                     desc = "历经谁是内鬼，收获机缘",
                 },
             },
             name = "外海之旅",
 
-            jqd = 21,
+            jqd = 26,
 
-            jl = { { "1元真实充值", 2 }, { "激活土灵根", 1 } },
+            jl = {{ "1元真实充值", 2 }, { "激活土灵根", 1 }},
         },
         {
             jq = {
@@ -829,7 +973,7 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
+                    yd = { 1, "藏星内海", 635, 81, 166 },
                     desc = "闯过送葬者，证我道途",
                 },
                 {
@@ -839,7 +983,7 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
+                    yd = { 1, "七星岛", 636, 159, 408 },
                     desc = "直面热血的友情，化解其中隐患",
                 },
                 {
@@ -849,7 +993,7 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
+                    yd = { 1, "葬星城", 637, 110, 96 },
                     desc = "深入真正的海贼王，寻回失落线索",
                 },
                 {
@@ -875,9 +1019,9 @@ local npc_xyl = {
             },
             name = "内海探秘",
 
-            jqd = 25,
+            jqd = 30,
 
-            jl = { { "1元真实充值", 2 }, { "神石宝箱钥匙", 1 } },
+            jl = {{ "1元真实充值", 2 }, { "神石宝箱钥匙", 1 }},
         },
         {
             jq = {
@@ -888,7 +1032,7 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
+                    yd = { 1, "草药古深处", 638, 31, 51 },
                     desc = "于采仙草咯中磨砺，道心更稳",
                 },
                 {
@@ -898,7 +1042,7 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
+                    yd = { 1, "丹道古藏", 639, 243, 97 },
                     desc = "行走丹仙秘辛，破除迷障",
                 },
                 {
@@ -908,114 +1052,70 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
+                    yd = { 1, "苍云客栈", 640, 26, 58 },
                     desc = "前往棋痴老王，探寻其中机缘",
                 },
             },
-            name = "平步青云",
+            name = "草谷丹道",
 
-            jqd = 32,
+            jqd = 34,
 
-            jl = { { "1元真实充值", 2 }, { "神石宝箱钥匙", 1 } },
+            jl = {{ "1元真实充值", 2 }, { "神石宝箱钥匙", 1 }},
         },
         {
             jq = {
                 {
-                    "灾厄入侵",
-                    tk = "npc_46",
+                    "拥有1传说神石",
                     id = 999,
-                    jl = {},
+                    jl = { { "剧情点", 3 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
-                    desc = "踏入灾厄入侵，循迹而行",
+                    yd = { 1, "三大陆主城", 53, 161, 230 },
+                    desc = "深入拥有1传说神石，寻回失落线索",
                 },
                 {
-                    "讨伐嘲灾",
-                    tk = "npc_625",
+                    "传说·斗笠",
                     id = 999,
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
-                    desc = "踏破讨伐嘲灾，守护一方安宁",
+                    yd = { 1, "三大陆主城", 51, 153, 230 },
+                    desc = "深入传说·斗笠，寻回失落线索",
                 },
                 {
-                    "讨伐忌灾",
-                    tk = "npc_626",
+                    "神·酒葫芦",
                     id = 999,
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
-                    desc = "深入讨伐忌灾，寻回失落线索",
+                    yd = { 1, "三大陆主城", 52, 157, 230 },
+                    desc = "踏入神·酒葫芦，循迹而行",
                 },
                 {
-                    "讨伐息灾",
-                    tk = "npc_627",
+                    "高级淬体",
+                    tk = "npc_53",
                     id = 999,
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
-                    desc = "探访讨伐息灾，揭开真相",
+                    yd = { 1, "三大陆主城", 53, 161, 230 },
+                    desc = "踏入高级淬体，循迹而行",
                 },
                 {
-                    "讨伐妄灾",
-                    tk = "npc_628",
-                    id = 999,
-                    jl = { { "剧情点", 2 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    yd = { 0 },
-                    desc = "踏破讨伐妄灾，守护一方安宁",
-                },
-                {
-                    "踏入·虚妄山脉",
-                    tk = "npc_621",
+                    "转生·三",
                     id = 999,
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
-                    desc = "行走踏入·虚妄山脉，破除迷障",
-                },
-                {
-                    "踏入·叹息旷野",
-                    tk = "npc_622",
-                    id = 999,
-                    jl = { { "剧情点", 1 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    yd = { 0 },
-                    desc = "踏入踏入·叹息旷野，循迹而行",
-                },
-                {
-                    "踏入·鬼嘲深渊",
-                    tk = "npc_623",
-                    id = 999,
-                    jl = { { "剧情点", 1 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    yd = { 0 },
-                    desc = "闯过踏入·鬼嘲深渊，证我道途",
-                },
-                {
-                    "踏入·禁忌之海",
-                    tk = "npc_624",
-                    id = 999,
-                    jl = { { "剧情点", 1 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    yd = { 0 },
-                    desc = "于踏入·禁忌之海中磨砺，道心更稳",
+                    yd = { 1, "xtc", 34, 136, 121 },
+                    desc = "历经转生·三，收获机缘",
                 },
             },
-            name = "灭世灾厄",
+            name = "三大陆毕业章",
 
             jqd = 37,
 
-            jl = { { "1元真实充值", 5 }, { "神石宝箱钥匙", 2 } },
+            jl = {{ "1元真实充值", 5 }, { "等级卷轴", 5 }},
         },
     },
     {
@@ -1027,7 +1127,7 @@ local npc_xyl = {
                     jl = { { "剧情点", 3 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
+                    yd = { 1, "四大陆主城", 64, 38, 27 },
                     desc = "前往灵兽全一星，探寻其中机缘",
                 },
                 {
@@ -1036,7 +1136,7 @@ local npc_xyl = {
                     jl = { { "剧情点", 5 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
+                    yd = { 1, "四大陆主城", 64, 38, 27 },
                     desc = "前往灵兽全二星，探寻其中机缘",
                 },
                 {
@@ -1045,7 +1145,7 @@ local npc_xyl = {
                     jl = { { "剧情点", 10 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
+                    yd = { 1, "四大陆主城", 64, 38, 27 },
                     desc = "踏入灵兽全三星，循迹而行",
                 },
                 {
@@ -1054,7 +1154,7 @@ local npc_xyl = {
                     jl = { { "剧情点", 3 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
+                    yd = { 1, "四大陆主城", 65, 41, 27 },
                     desc = "踏破唐代古玩，守护一方安宁",
                 },
                 {
@@ -1063,7 +1163,7 @@ local npc_xyl = {
                     jl = { { "剧情点", 3 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
+                    yd = { 1, "二大陆主城", 24, 101, 113 },
                     desc = "闯过红色仙法，证我道途",
                 },
                 {
@@ -1072,7 +1172,7 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
+                    yd = { 1, "xtc", 35, 140, 121 },
                     desc = "探访转生·四，揭开真相",
                 },
             },
@@ -1090,7 +1190,7 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
+                    yd = { 1, "酆都鬼城", 666, 84, 50 },
                     desc = "前往捉鬼人，探寻其中机缘",
                 },
                 {
@@ -1100,7 +1200,7 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
+                    yd = { 1, "鬼门关", 667, 83, 95 },
                     desc = "踏入买路钱，循迹而行",
                 },
                 {
@@ -1169,7 +1269,7 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
+                    yd = { 1, "大唐·长安城", 642, 35, 57 },
                     desc = "直面资格考验，化解其中隐患",
                 },
                 {
@@ -1249,7 +1349,7 @@ local npc_xyl = {
                     jl = {},
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
+                    yd = { 1, "四大陆主城", 641, 37, 42 },
                     desc = "直面重走西游路，化解其中隐患",
                 },
             },
@@ -1436,7 +1536,7 @@ local npc_xyl = {
                     jl = { { "剧情点", 5 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
+                    yd = { 1, "四大陆主城", 67, 47, 27 },
                     desc = "行走生肖守护，破除迷障",
                 },
             },
@@ -1455,7 +1555,7 @@ local npc_xyl = {
                     jl = {},
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
+                    yd = { 1, "盘古开天", 673, 67, 48 },
                     desc = "历经传说修复局，收获机缘",
                 },
                 {
@@ -1465,7 +1565,7 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
+                    yd = { 1, "羿射九日", 674, 355, 119 },
                     desc = "行走盘古开天，破除迷障",
                 },
                 {
@@ -1475,7 +1575,7 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
+                    yd = { 1, "不周山", 675, 75, 77 },
                     desc = "行走羿射九日，破除迷障",
                 },
                 {
@@ -1485,7 +1585,7 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
+                    yd = { 1, "女娲补天", 676, 110, 58 },
                     desc = "直面共公怒触不周山，化解其中隐患",
                 },
                 {
@@ -1495,7 +1595,7 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
+                    yd = { 1, "女娲补天", 677, 102, 58 },
                     desc = "前往女娲补天，探寻其中机缘",
                 },
                 {
@@ -1505,7 +1605,7 @@ local npc_xyl = {
                     jl = { { "剧情点", 3 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
+                    yd = { 1, "黑白无常", 678, 101, 57 },
                     desc = "历经后土娘娘，收获机缘",
                 },
                 {
@@ -1515,7 +1615,7 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
+                    yd = { 1, "后土娘娘", 679, 152, 171 },
                     desc = "踏入黑白无常，循迹而行",
                 },
                 {
@@ -1525,7 +1625,7 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
+                    yd = { 1, "真假玉帝", 680, 84, 93 },
                     desc = "踏破真假玉帝，守护一方安宁",
                 },
                 {
@@ -1535,14 +1635,12 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    yd = { 0 },
+                    yd = { 1, "白蛇传说", 681, 216, 167 },
                     desc = "踏入白蛇传说，循迹而行",
                 },
             },
             name = "修复传说",
-
             jqd = 89,
-
             jl = { { "等级卷轴", 10 }, { "1元真实充值", 15 } },
         },
     },
@@ -1585,6 +1683,9 @@ local npc_xyl = {
         },
     },
 }
+npc_xyl.get_chapter_lock_info = function(l, zj, curJqd)
+    return _xyl_get_chapter_lock_info(npc_xyl, l, zj, curJqd)
+end
 return npc_xyl
 
 

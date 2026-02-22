@@ -91,6 +91,24 @@ end
             
         end
 
+        local EquipShow_16 = GUI:EquipShow_Create(
+            node
+        , "EquipShow_16", 180, 90, 16, false, {look = true, movable = true, bgVisible = false, doubleTakeOff = true})
+        GUI:EquipShow_setAutoUpdate(EquipShow_16)
+        GUI:setAnchorPoint(EquipShow_16, 0.5, 0.5)
+
+
+        local Button= GUI:Button_Create(node, "Button", 310, 30, "res/wy/public/an_tongyong.png")
+        local Button_wz = GUI:Text_Create(Button, "desc",116,52, 25, "#FFFBF0", "一键全部饮用")
+        GUI:setAnchorPoint(Button_wz, 0.5, 0.5)
+        GUI:Text_setFontName(Button_wz, "fonts/500.ttf")
+        GUI:Text_enableOutline(Button_wz, "#CA352C", 2)
+
+        GUI:setAnchorPoint(Button, 0.5, 0.5)
+        GUI:addOnClickEvent(Button, function()
+            SL:SendLuaNetMsg(100, npcid, 2, 0, "")
+        end)
+
         local kuang = GUI:Image_Create(node, "kuang2", 720, 0, "res/wy/public/70_70_k.png")
         UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.title.."[称号]")))
     end
