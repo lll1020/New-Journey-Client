@@ -218,11 +218,33 @@ local function _upgrade_check_linggen()
         return true
     end
     local data = _upgrade_get_server_json("T41")
-    local levels = data.level or {}
+    local levels = data.level or (data.T_data and data.T_data.level) or {}
+    local mainIdx = _upgrade_to_num(data.main or (data.T_data and data.T_data.main), 0)
+    local otherIdx = _upgrade_to_num(data.other or (data.T_data and data.T_data.other), 0)
+
+    local checkIdx = {}
+    if mainIdx > 0 then
+        checkIdx[#checkIdx + 1] = mainIdx
+    end
+    if otherIdx > 0 and otherIdx ~= mainIdx then
+        checkIdx[#checkIdx + 1] = otherIdx
+    end
+
+    -- 未装配主/副灵根时，不显示灵根升级提示
+    if #checkIdx <= 0 then
+        return false
+    end
+
     local maxLevel = _upgrade_to_num(mainCfg.max_level, 0)
     local hasAnySlot = false
-    for i = 1, 10 do
-        local lv = _upgrade_to_num(levels[tostring(i)] or levels[i], 0)
+    for _, i in ipairs(checkIdx) do
+        local rawLv = levels[tostring(i)]
+        if rawLv == nil then
+            rawLv = levels[i]
+        end
+        -- 未激活（无等级数据）时，不参与可升级检测
+        if rawLv ~= nil then
+            local lv = _upgrade_to_num(rawLv, 0)
         if maxLevel <= 0 or lv < maxLevel then
             local det = mainCfg.details and ((i <= 5) and mainCfg.details.low or mainCfg.details.up)
             local nextCfg = det and det[lv + 1]
@@ -232,6 +254,7 @@ local function _upgrade_check_linggen()
                     return true
                 end
             end
+        end
         end
     end
     if hasAnySlot then
@@ -691,8 +714,7 @@ function UpgradeHelper.startEquipChangeRefresh()
         UpgradeHelper.registerOpenNpcButtons()
     end
 
-    SL:RegisterLUAEvent(LUA_EVENT_TAKE_ON_EQUIP, "upgrade_helper_equip_on", _refresh_on_equip_change)
-    SL:RegisterLUAEvent(LUA_EVENT_TAKE_OFF_EQUIP, "upgrade_helper_equip_off", _refresh_on_equip_change)
+    SL:RegisterLUAEvent(LUA_EVENT_PLAYER_EQUIP_CHANGE, "upgrade_helper_equip_on", _refresh_on_equip_change)
 
 end
 

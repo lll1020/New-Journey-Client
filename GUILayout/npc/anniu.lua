@@ -186,6 +186,251 @@ local function createShortcutButton(container, cfg, order, prefix)
     return button
 end
 
+local function _shortcut_has_title(titleName)
+    if not titleName or titleName == "" then
+        return false
+    end
+    local idx = SL:GetMetaValue("ITEM_INDEX_BY_NAME", titleName)
+    if not idx then
+        return false
+    end
+    return SL:GetMetaValue("TITLE_DATA_BY_ID", idx) ~= nil
+end
+
+local function _shortcut_is_freesponsor_completed()
+    local cfg = teshudata and teshudata["anniu_516"]
+    local details = cfg and cfg.details or {}
+    if #details <= 0 then
+        return false
+    end
+
+    if npc.data_516 and npc.data_516.T_data then
+        local allDone = true
+        for i = 1, #details do
+            if npc.data_516.T_data["zzlb_" .. i] ~= true then
+                allDone = false
+                break
+            end
+        end
+        if allDone then
+            return true
+        end
+    end
+
+    local finalTitle = details[#details] and details[#details].ch
+    return _shortcut_has_title(finalTitle)
+end
+
+local function _shortcut_is_firstcharge_completed()
+    local cfg = teshudata and teshudata["anniu_501"] or {}
+    local details = cfg.details or {}
+    local T_data = npc.data_501 and npc.data_501.T_data
+    if type(T_data) ~= "table" then
+        return false
+    end
+
+    local time_data = tonumber(SL:GetMetaValue("SERVER_VALUE", "开区天数") or 1) or 1
+    local endtime = tonumber(cfg.endtime or 3) or 3
+    local buy_day = tonumber(T_data["buy_day"] or time_data) or time_data
+    local in_first3 = time_data <= endtime
+    local bought_in_first3 = (T_data["首充"] == 1) and (buy_day <= endtime)
+
+    if in_first3 or bought_in_first3 then
+        local firstList = details["首充"] or {}
+        local firstCount = #firstList
+        local firstClaimed = tonumber(T_data["other_lb"] or T_data["_lb"] or 0) or 0
+        return firstCount > 0 and firstClaimed >= firstCount
+    end
+
+    local extraClaimed = tonumber(T_data["bc_ok"] or 0) == 1
+    return extraClaimed
+end
+
+local function _shortcut_is_kuangbao_completed()
+    local cfg = teshudata and teshudata["npc_15"]
+    local titleName = cfg and cfg.give and cfg.give.ch or "狂暴之力"
+    return _shortcut_has_title(titleName)
+end
+
+local function _feijian_has_main_buff(buffId)
+    local actorId = SL:GetMetaValue("MAIN_ACTOR_ID")
+    if not actorId then
+        return false
+    end
+    return SL:GetMetaValue("ACTOR_BUFF_DATA_BY_ID", actorId, buffId) ~= nil
+end
+
+local function _feijian_get_buff_left_seconds(buffId)
+    local actorId = SL:GetMetaValue("MAIN_ACTOR_ID")
+    if not actorId then
+        return nil
+    end
+    local buffData = SL:GetMetaValue("ACTOR_BUFF_DATA_BY_ID", actorId, buffId)
+    if type(buffData) ~= "table" then
+        return nil
+    end
+
+    local now = tonumber(SL:GetMetaValue("SERVER_TIME") or 0) or 0
+
+    local function _to_left_by_abs(ts)
+        local t = tonumber(ts)
+        if not t then
+            return nil
+        end
+        if now > 0 and t > now then
+            return math.max(math.floor(t - now), 0)
+        end
+        return nil
+    end
+
+    local function _to_left_by_sec(secOrTs)
+        local v = tonumber(secOrTs)
+        if not v then
+            return nil
+        end
+        if now > 0 and v > now then
+            return math.max(math.floor(v - now), 0)
+        end
+        if v > 0 then
+            return math.max(math.floor(v), 0)
+        end
+        return nil
+    end
+
+    local absKeys = {"endTime", "end_time", "expireTime", "expire_time", "overTime"}
+    for _, key in ipairs(absKeys) do
+        local left = _to_left_by_abs(buffData[key])
+        if left and left >= 0 then
+            return left
+        end
+    end
+
+    local secKeys = {"left", "leftTime", "left_time", "remain", "remainTime", "remain_time", "time", "duration"}
+    for _, key in ipairs(secKeys) do
+        local left = _to_left_by_sec(buffData[key])
+        if left and left >= 0 then
+            return left
+        end
+    end
+
+    return nil
+end
+
+local function _feijian_format_left_seconds(seconds)
+    local left = math.max(tonumber(seconds) or 0, 0)
+    if SL.TimeFormatToStr then
+        local ok, result = pcall(function()
+            return SL:TimeFormatToStr(left)
+        end)
+        if ok and result and result ~= "" then
+            return result
+        end
+    end
+    local h = math.floor(left / 3600)
+    local m = math.floor((left % 3600) / 60)
+    local s = math.floor(left % 60)
+    if h > 0 then
+        return string.format("%02d:%02d:%02d", h, m, s)
+    end
+    return string.format("%02d:%02d", m, s)
+end
+
+local function _feijian_get_activation_state()
+    local state = {}
+    local cfg = teshudata and teshudata["anniu_19"] or {}
+    local needNum = tonumber(cfg.num or 0) or 0
+    local tData = (npc.data_19 and npc.data_19.T_data) or {}
+
+    local cond1_perm = tonumber(SL:GetMetaValue("RELEVEL") or 0) >= 1
+    local cond1_buff = _feijian_has_main_buff(20000)
+    state[1] = {
+        active = cond1_perm or cond1_buff,
+        byBuff = (not cond1_perm) and cond1_buff,
+        buffId = 20000,
+    }
+
+    local firstChargeData = (npc.data_501 and npc.data_501.T_data) or {}
+    local cond2_perm = tonumber(firstChargeData["首充"] or 0) == 1
+        or tonumber(firstChargeData["补充"] or 0) == 1
+        or tData.ratio ~= nil
+    local cond2_buff = _feijian_has_main_buff(20001)
+    state[2] = {
+        active = cond2_perm or cond2_buff,
+        byBuff = (not cond2_perm) and cond2_buff,
+        buffId = 20001,
+    }
+
+    local unbindOpened = (npc.kryb and tonumber(npc.kryb.mztq or 0) == 1)
+        or _shortcut_has_title((teshudata and teshudata["anniu_504"] and teshudata["anniu_504"].ch) or "解绑特权")
+    local cond3_perm = unbindOpened or tData.cd ~= nil
+    local cond3_buff = _feijian_has_main_buff(20002)
+    state[3] = {
+        active = cond3_perm or cond3_buff,
+        byBuff = (not cond3_perm) and cond3_buff,
+        buffId = 20002,
+    }
+
+    state[4] = {
+        active = tonumber(tData.num or 0) >= needNum,
+        byBuff = false,
+    }
+    return state
+end
+
+local function _feijian_get_activation_count()
+    local count = {}
+    local state = _feijian_get_activation_state()
+    for i = 1, 4 do
+        if state[i] and state[i].active then
+            count[i] = 1
+        end
+    end
+
+    local serverCount = npc.data_19_tmp and npc.data_19_tmp.count
+    if type(serverCount) == "table" then
+        for i = 1, 4 do
+            if tonumber(serverCount[tostring(i)] or serverCount[i] or 0) >= 1 then
+                count[i] = 1
+            end
+        end
+    end
+    return count, state
+end
+
+local function _shortcut_is_flying_sword_completed()
+    local count = _feijian_get_activation_count()
+    return count[1] == 1 and count[2] == 1 and count[3] == 1 and count[4] == 1
+end
+
+local function _shortcut_is_unbind_completed()
+    if npc.kryb and tonumber(npc.kryb.mztq or 0) == 1 then
+        return true
+    end
+    local cfg = teshudata and teshudata["anniu_504"]
+    local titleName = (cfg and cfg.ch) or "解绑特权"
+    return _shortcut_has_title(titleName)
+end
+
+local function _shortcut_should_show(cfg)
+    local npcid = tonumber(cfg and cfg[3] or 0)
+    if npcid == 516 then
+        return not _shortcut_is_freesponsor_completed()
+    end
+    if npcid == 501 then
+        return not _shortcut_is_firstcharge_completed()
+    end
+    if npcid == 513 then
+        return not _shortcut_is_kuangbao_completed()
+    end
+    if npcid == 19 then
+        return not _shortcut_is_flying_sword_completed()
+    end
+    if npcid == 504 then
+        return not _shortcut_is_unbind_completed()
+    end
+    return true
+end
+
 -- 根据 iconpx 配置重建顶部两排按钮
 local function rebuildShortcutButtons(filterKey)
     if not npc.dbLayout then
@@ -198,13 +443,37 @@ local function rebuildShortcutButtons(filterKey)
     local function renderRow(list, container, prefix)
         local order = 1
         for _, cfg in ipairs(list) do
-            createShortcutButton(container, cfg, order, prefix)
-            order = order + 1
+            if _shortcut_should_show(cfg) then
+                createShortcutButton(container, cfg, order, prefix)
+                order = order + 1
+            end
         end
     end
 
     renderRow(npc.iconpx[1], npc.dbrqs, "anniu_1")
     renderRow(npc.iconpx[2], npc.dbrqx, "anniu_2")
+end
+
+local function registerShortcutTitleRefresh()
+    if npc._shortcut_title_refresh_registered then
+        return
+    end
+    npc._shortcut_title_refresh_registered = true
+
+    local function _refresh_shortcut()
+        if npc._shortcut_refresh_pending then
+            return
+        end
+        npc._shortcut_refresh_pending = true
+        SL:ScheduleOnce(function()
+            npc._shortcut_refresh_pending = false
+            rebuildShortcutButtons("")
+        end, 0.1)
+    end
+
+    SL:RegisterLUAEvent(LUA_EVENT_ROLE_PROPERTY_CHANGE, "anniu_shortcut_title_refresh_prop", _refresh_shortcut)
+    SL:RegisterLUAEvent(LUA_EVENT_SERVER_VALUE_CHANGE, "anniu_shortcut_title_refresh_server", _refresh_shortcut)
+    SL:RegisterLUAEvent(LUA_EVENT_MAINBUFFUPDATE, "anniu_shortcut_title_refresh_buff", _refresh_shortcut)
 end
 
 local UPGRADE_HELPER = SL:Require("GUILayout/npc/upgrade_helper", true)
@@ -589,6 +858,7 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
                 end
             end)
             rebuildShortcutButtons("")
+            registerShortcutTitleRefresh()
             ---快捷打开按钮
             UPGRADE_HELPER.registerOpenNpcButtons()
             UPGRADE_HELPER.startEquipChangeRefresh()
@@ -597,6 +867,7 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
 
         elseif p3 == 1 then
             rebuildShortcutButtons(msgData or "")
+            registerShortcutTitleRefresh()
             UPGRADE_HELPER.registerOpenNpcButtons()
             UPGRADE_HELPER.startEquipChangeRefresh()
             UPGRADE_HELPER.startAutoRefresh(20 * 1)
@@ -1734,6 +2005,8 @@ npc[19] = function(p2, p3, Data)  --飞剑
 
     local function UI_updata(node) --界面渲染
         GUI:removeAllChildren(node)
+        local tData = (npc.data_19 and npc.data_19.T_data) or {}
+        local activeCount, activeState = _feijian_get_activation_count()
 
         for v,k in pairs(cogin.teshudata["anniu_19"].details) do
             local kuang = GUI:Image_Create(node, "kuang"..v, 100 + (v-1) * 216, 50, "res/custom/feijian/itme_"..v.."_0.png")
@@ -1741,30 +2014,33 @@ npc[19] = function(p2, p3, Data)  --飞剑
             -- local itemShow = GUI:ItemShow_Create(kuang, "item", contentSize.width / 2, contentSize.height / 2, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME",k.name), look = true, bgVisible = false })
             -- itemShow:setAnchorPoint(cc.p(0.5, 0.5))
             -- GUI:Text_Create(kuang, "name",30,50, 20, "#FF0000", k.name)
-            local jh = 1
-            if v == 1 then
-                if SL:GetMetaValue("RELEVEL") >= 1 then
-                    jh = 2
-                end
-            elseif v == 2 then
-                if npc.data_19.T_data.ratio then
-                    jh = 2
-                end
-            elseif v == 3 then
-                if npc.data_19.T_data.cd then
-                    jh = 2
-                end
-            elseif v == 4 then
-                if npc.data_19.T_data.num and npc.data_19.T_data.num >= cogin.teshudata["anniu_19"].num then
-                    jh = 2
-                end
-
-            end
+            local jh = (activeCount[v] == 1) and 2 or 1
             local jian = GUI:Image_Create(kuang, "jian"..v, 0, 0, "res/custom/feijian/itme_"..v.."_1.png")
             GUI:Text_Create(kuang, "jh",150,130, 18, state_info[jh].color, state_info[jh].text)
             GUI:Image_Create(kuang, "jian_Wz"..v, 0, 0, "res/custom/feijian/itme_"..v.."_2.png")
             if jh == 1 then
                 GUI:setGrey(jian, true)
+            end
+
+            local vState = activeState and activeState[v] or nil
+            if vState and vState.byBuff and vState.buffId then
+                local leftText = GUI:Text_Create(kuang, "buff_left" .. v, 150,130 + 30, 16, "#FFE07D", "1232")
+                GUI:setAnchorPoint(leftText, 0.5, 0.5)
+                GUI:Text_enableOutline(leftText, "#000000", 1)
+                local buffId = vState.buffId
+                local function _update_left()
+                    if tolua.isnull(leftText) then
+                        return
+                    end
+                    local left = _feijian_get_buff_left_seconds(buffId)
+                    if left and left > 0 then
+                        GUI:Text_setString(leftText, "剩余:" .. _feijian_format_left_seconds(left))
+                    else
+                        GUI:Text_setString(leftText, "")
+                    end
+                end
+                SL:schedule(leftText, _update_left, 1)
+                _update_left()
             end
             
 
@@ -1774,7 +2050,7 @@ npc[19] = function(p2, p3, Data)  --飞剑
                 GUI:Text_enableOutline(jd, "#081800", 1)
 
                 local num = GUI:RichText_Create(kuang, "num", 226/2, 100,
-                    SetCompletionProgress((npc.data_19.T_data.num or 0), cogin.teshudata["anniu_19"].num)
+                    SetCompletionProgress((tData.num or 0), cogin.teshudata["anniu_19"].num)
                 , 500, 30, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
                 GUI:setAnchorPoint(num, 0.5, 0.5)
             end
@@ -1801,13 +2077,29 @@ npc[19] = function(p2, p3, Data)  --飞剑
 
     if p2 == 0 then
         npc.data_19 = not Data and {} or SL:JsonDecode(Data, false)
+        rebuildShortcutButtons("")
         local win = ensureWindow("flyingSword", 19, {titleText = "飞剑"})
         npc.bg = win.bg
         npc.node = win.node
         UI_updata(npc.node)
+        if not npc._feijian_buff_listener_registered then
+            npc._feijian_buff_listener_registered = true
+            SL:RegisterLUAEvent(LUA_EVENT_MAINBUFFUPDATE, "anniu_feijian_buff_refresh", function(data)
+                local buffId = data and tonumber(data.buffID or 0) or 0
+                if buffId == 20000 or buffId == 20001 or buffId == 20002 then
+                    if npc.node and not tolua.isnull(npc.node) then
+                        UI_updata(npc.node)
+                    end
+                end
+            end)
+        end
     elseif p2 == 1 then
         npc.data_19_tmp = not Data and {} or SL:JsonDecode(Data, false)
         SL:onLUAEvent(LUA_EVENT_PASSIVE_SKILL_DATA, { type = p3 ,count = npc.data_19_tmp.count ,psData = npc.data_19_tmp.psData})
+        if npc.node and not tolua.isnull(npc.node) then
+            UI_updata(npc.node)
+        end
+        rebuildShortcutButtons("")
     end
 end
 ---神石
@@ -2392,6 +2684,7 @@ npc[501] = function(p2, p3, Data) -- 首冲礼包
 
     if p2 == 0 then
         npc.data_501 = not Data and {} or SL:JsonDecode(Data, false)
+        rebuildShortcutButtons("")
         local firstChargeWin = ensureWindow("firstCharge", 501, {titleText = "首充礼包"})
         npc.bg = firstChargeWin.bg
         npc.node = firstChargeWin.node
@@ -2543,6 +2836,7 @@ npc[504] = function(p2, p3, Data) -- 解绑特权
     -- 界面渲染：展示奖励列表 + 开通按钮
     if p2 == 0 then
         npc.kryb =  SL:JsonDecode(Data, false)
+        rebuildShortcutButtons("")
 		local parent = GUI:GetWindow(nil, "npc_sclb")
 		if parent then
 			GUI:removeAllChildren(parent)
