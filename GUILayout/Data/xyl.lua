@@ -650,7 +650,7 @@ local npc_xyl = {
             jq = {
                 {
                     "装备强化",
-                    tk = "npc_28",
+                    -- tk = "npc_28",
                     id = 999,
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,

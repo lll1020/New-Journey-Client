@@ -1,6 +1,5 @@
---npc功能：
+﻿--npc功能：
 local npc = {}
-
 npc._config = teshudata["npc_22"]
 
 
@@ -38,7 +37,6 @@ function npc.main(npcid, p2, p3, msgData)
         return npc.node
     end
     function xjm_UI_updata(x_node) --小界面渲染
-            
         local name = GUI:Text_Create(x_node, "name", 116 + 110, 222, 25, "#FFFFFF", npc._config.main_r[npc.current_idx].name.."灵根")
         GUI:setAnchorPoint(name, 0.5, 0.5)
         GUI:Text_setFontName(name, "fonts/501.ttf")
@@ -84,6 +82,113 @@ function npc.main(npcid, p2, p3, msgData)
             SL:SendLuaNetMsg(100, npcid, 5, npc.current_idx, "")
         end)
     
+    end
+
+    local function renderLinggenDetailScroll(parent, idx, opts)
+        opts = opts or {}
+        if not parent or not idx or idx <= 0 or not npc._config.main_r[idx] then
+            return nil
+        end
+
+        local yLift = 80
+        local yOffset = (opts.yOffset or 0) + yLift
+        local maxLevelForSeal = opts.maxLevelForSeal
+        local scrollView = GUI:ScrollView_Create(parent, opts.scrollName or "ScrollView", 0, 0, 210, 215, 1)
+        GUI:ScrollView_setBounceEnabled(scrollView, true)
+
+        local innerH = 400
+        GUI:ScrollView_setInnerContainerSize(scrollView, 210, innerH)
+
+        local level = npc.data.T_data.level and npc.data.T_data.level["" .. idx]
+        local cfg = npc._config.main_r[idx]
+
+        local name = GUI:Text_Create(scrollView, "name", 10, 285 + yOffset, 25, color[idx], "【" .. cfg.name .. "灵根】")
+        GUI:Text_setFontName(name, "fonts/501.ttf")
+
+        if not (level and level >= 0) then
+            return {scrollView = scrollView, level = level, isMax = false}
+        end
+        -- level = 1
+
+        local up_num = GUI:Text_Create(scrollView, "up_num", 130, 285 + yOffset, 20, "#FFFFFF", "lv." .. level)
+        local effect = GUI:Frames_Create(scrollView,opts.effectNodeName or "jcsx_eff",10,250 + yOffset,opts.effectPrefix or "res/private/item_tips/eff/jcsx/eff_",".png",1,15,{speed = 75, count = 15, loop = -1})
+
+        local attr = deepCopy(cfg.attr)
+        for _, k in pairs(attr) do
+            k[2] = k[2] * level
+        end
+
+        local cursorY = 240 + yOffset
+        local attr_desc = GUI:RichText_Create(scrollView, "attr_desc", 30, cursorY, Player:showAttr(attr), 200, 17, "#f7f7de", 3, nil, nil)
+        GUI:setAnchorPoint(attr_desc, 0, 1)
+        cursorY = cursorY - GUI:getBoundingBox(attr_desc).height - 35
+
+        local effect = GUI:Frames_Create(scrollView,opts.effectNodeName or "tsxg_eff",10,cursorY,opts.effectPrefix or "res/private/item_tips/eff/tsxg/eff_",".png",1,15,{speed = 75, count = 15, loop = -1})
+        -- cursorY = cursorY - 35
+
+        local main_name = GUI:Text_Create(scrollView, "main_name", 20, cursorY - 20, 20, "#FFD700", "主灵根效果")
+        GUI:Text_setFontName(main_name, "fonts/501.ttf")
+        cursorY = cursorY - 5
+        local main_desc = GUI:RichText_Create(
+            scrollView,
+            "main_desc",
+            10,
+            cursorY-20,
+            string.format(cfg.wz1, cfg.value1, level .. "(灵根等级)"),
+            200,
+            17,
+            "#f7f7de",
+            2,
+            nil,
+            nil
+        )
+        GUI:setAnchorPoint(main_desc, 0, 1)
+        cursorY = cursorY - GUI:getBoundingBox(main_desc).height - 10
+
+        local other_name = GUI:Text_Create(scrollView, "other_name", 20, cursorY-30, 20, "#87CEFA", "副灵根效果")
+        GUI:Text_setFontName(other_name, "fonts/501.ttf")
+        cursorY = cursorY - 5
+        local other_desc = GUI:RichText_Create(
+            scrollView,
+            "other_desc",
+            10,
+            cursorY-30,
+            string.format(cfg.wz2, cfg.value2, level .. "(灵根等级)"),
+            200,
+            17,
+            "#f7f7de",
+            2,
+            nil,
+            nil
+        )
+        GUI:setAnchorPoint(other_desc, 0, 1)
+        cursorY = cursorY - GUI:getBoundingBox(other_desc).height - 10
+
+        if cursorY < 0 then
+            local delta = math.abs(cursorY) + 60
+            innerH = innerH + delta
+            GUI:ScrollView_setInnerContainerSize(scrollView, 210, innerH)
+            for _, node in ipairs({name, up_num, effect, attr_desc, main_name, main_desc, other_name, other_desc}) do
+                if node then
+                    local p = GUI:getPosition(node)
+                    GUI:setPosition(node, p.x, p.y + delta)
+                end
+            end
+        end
+
+        local isMax = maxLevelForSeal and level >= maxLevelForSeal
+        if isMax then
+            GUI:Image_Create(scrollView, "6_1", 50, 20 + yLift, "res/wy/public/6_1.png")
+        end
+
+        return {scrollView = scrollView, level = level, isMax = isMax}
+    end
+
+    local function getDefaultLinggenIdx()
+        if npc.data and npc.data.T_data then
+            return npc.data.T_data.main or npc.data.T_data.other or 0
+        end
+        return 0
     end
 
     local function UI_updata(node) --界面渲染
@@ -143,49 +248,15 @@ function npc.main(npcid, p2, p3, msgData)
                     end
                 
                     local current_kuang = GUI:Node_Create(npc.Label, "current_kuang", 125, 100)
-
-                    local ScrollView = GUI:ScrollView_Create(current_kuang, "ScrollView", 0, 0, 210, 215, 1)
-                    GUI:ScrollView_setBounceEnabled(ScrollView, true)
-                    GUI:ScrollView_setInnerContainerSize(ScrollView, 210, 400)
-
-
-                    local name = GUI:Text_Create(ScrollView, "name", 10, 285 + 82, 25, color[npc.current_idx], "【"..npc._config.main_r[npc.current_idx].name.."灵根】")
-                        GUI:Text_setFontName(name, "fonts/501.ttf")
-
-                    if npc.data.T_data.level and npc.data.T_data.level[""..npc.current_idx] and npc.data.T_data.level[""..npc.current_idx] >= 0 then
-                        local up_num = GUI:Text_Create(ScrollView, "up_num", 10 + 120, 285 + 82, 20, "#FFFFFF", "lv."..npc.data.T_data.level[""..npc.current_idx])
-                        GUI:Frames_Create(ScrollView, "tsxg_eff", 10, 250 + 82, "res/private/item_tips/eff/tsxg/eff_", ".png", 1, 15,
-                        { speed = 75, count = 15, loop = -1})
-                        
-
-                        local attr = deepCopy(npc._config.main_r[npc.current_idx].attr)
-                        for v,k in pairs(attr) do
-                            k[2] = k[2] * npc.data.T_data.level[""..npc.current_idx]
-                        end
-                        GUI:Text_setFontName(name, "fonts/501.ttf")
-                        GUI:Text_setFontName(GUI:Text_Create(ScrollView, "main_name", 20, 240 + 82 - 15, 20,"#FFD700", "主灵根效果"), "fonts/501.ttf")
-                        local attr_desc1 = GUI:RichText_Create(ScrollView, "attr_desc1", 10, 240 + 82 - 20, 
-                            string.format(npc._config.main_r[npc.current_idx].wz1,npc._config.main_r[npc.current_idx].value1,npc.data.T_data.level[""..npc.current_idx].."(灵根等级)"), 200, 17, "#f7f7de", 3,nil,nil)
-                        GUI:setAnchorPoint(attr_desc1, 0, 1)
-                        GUI:Text_setFontName(GUI:Text_Create(ScrollView, "other_name", 20, 240 + 82 - 40 - GUI:getBoundingBox(attr_desc1).height - 10 + 5, 20,"#87CEFA", "副灵根效果"), "fonts/501.ttf")
-                        local attr_desc2 = GUI:RichText_Create(ScrollView, "attr_desc2", 10, 240 + 82 - 40 - GUI:getBoundingBox(attr_desc1).height - 10, 
-                            string.format(npc._config.main_r[npc.current_idx].wz2,npc._config.main_r[npc.current_idx].value2,npc.data.T_data.level[""..npc.current_idx].."(灵根等级)"), 200, 17, "#f7f7de", 3,nil,nil)
-                        GUI:setAnchorPoint(attr_desc2, 0, 1)
-
-                        -- GUI:setAnchorPoint(GUI:Text_Create(current_kuang, "up_wz", 250/2, 100, 20, "#FFFFFF", "强化")
-                        -- , 0.5, 0.5)
-                        -- GUI:setAnchorPoint(GUI:Text_Create(current_kuang, "up_num", 250/2, 80, 20, "#FFFFFF", npc.data.T_data.level[""..npc.current_idx].."/"..npc._config.main_updata.max_level)
-                        -- , 0.5, 0.5)
-
-                    else
-                        -- GUI:setAnchorPoint(GUI:Text_Create(current_kuang, "up_wz", 10, 100, 20, "#FFFFFF", "未激活")
-                        -- , 0.5, 0.5)
-                    end
+                    renderLinggenDetailScroll(current_kuang, npc.current_idx, {
+                    })
                 end
 
 
                 npc.current_move_node = 0
-                npc.current_idx = npc.current_idx or 0
+                if not npc.current_idx or npc.current_idx <= 0 then
+                    npc.current_idx = getDefaultLinggenIdx()
+                end
 
                 GUI:Image_Create(Label_node, "wz_1", 760, 30, "res/custom/linggen/wz_3.png")
                 GUI:Image_Create(Label_node, "wz_2", 155, 315, "res/custom/linggen/wz_1.png")
@@ -321,67 +392,32 @@ function npc.main(npcid, p2, p3, msgData)
                 local function qh_xjm(current_kuang) 
                     GUI:removeAllChildren(current_kuang)
                     if npc.current_idx and npc.current_idx > 0 then
-                    
-                        -- GUI:setAnchorPoint(GUI:Text_Create(current_kuang, "name", 250/2, 280, 20, "#FFFFFF", npc._config.main_r[npc.current_idx].name.."灵根")
-                        -- , 0.5, 0.5)
-
-                        -- GUI:setAnchorPoint(GUI:Text_Create(current_kuang, "main_eff", 250/2, 250, 20, "#FFFFFF", "主灵根效果")
-                        -- , 0.5, 0.5)
-                        -- GUI:setAnchorPoint(GUI:Text_Create(current_kuang, "other_eff", 250/2, 150, 20, "#FFFFFF", "副灵根效果")
-                        -- , 0.5, 0.5)
-                        local name = GUI:Text_Create(current_kuang, "name", 10, 285, 25, color[npc.current_idx], "【"..npc._config.main_r[npc.current_idx].name.."灵根】")
-                        GUI:Text_setFontName(name, "fonts/501.ttf")
-
-
-
-
-                        if npc.data.T_data.level and npc.data.T_data.level[""..npc.current_idx] and npc.data.T_data.level[""..npc.current_idx] >= 0 then
-                            local up_num = GUI:Text_Create(current_kuang, "up_num", 10 + 120, 285, 20, "#FFFFFF", "lv."..npc.data.T_data.level[""..npc.current_idx])
-                            GUI:Frames_Create(current_kuang, "jcsx_eff", 10, 250, "res/private/item_tips/eff/jcsx/eff_", ".png", 1, 15,
-                            { speed = 75, count = 15, loop = -1})
-
-                            local attr = deepCopy(npc._config.main_r[npc.current_idx].attr)
-                            for v,k in pairs(attr) do
-                                k[2] = k[2] * npc.data.T_data.level[""..npc.current_idx]
-                            end
-
-                            GUI:setAnchorPoint(GUI:RichText_Create(current_kuang, "attr_desc", 35, 240, Player:showAttr(attr), 200, 17, "#f7f7de", 3,nil,nil)
-                            , 0, 1)
-
-                            -- GUI:Frames_Create(label, "tsxg_eff", 440 + 150, 290, "res/private/item_tips/eff/tsxg/eff_", ".png", 1, 15,
-                            -- { speed = 75, count = 15, loop = -1})
-
-                            -- GUI:setAnchorPoint(GUI:Text_Create(current_kuang, "up_wz", 250/2, 100, 20, "#FFFFFF", "强化")
-                            -- , 0.5, 0.5)
-                            -- GUI:setAnchorPoint(GUI:Text_Create(current_kuang, "up_num", 250/2, 80, 20, "#FFFFFF", npc.data.T_data.level[""..npc.current_idx].."/"..npc._config.main_updata.max_level)
-                            -- , 0.5, 0.5)
-                            if npc.data.T_data.level[""..npc.current_idx] >= 10 then
-                                GUI:Image_Create(current_kuang, "6_1", 50, 20, "res/wy/public/6_1.png")
-                                return
-                            end
+                        local detail = renderLinggenDetailScroll(current_kuang, npc.current_idx, {
                             
-
-                            local Button= GUI:Button_Create(current_kuang, "Button", 0, 10, "res/custom/linggen/btn_up.png")
-                            GUI:addOnClickEvent(Button, function()
-                                -- SL:SendLuaNetMsg(100, npcid, 5, npc.current_idx, "")
-                                npc.xjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
-                                    windowName = "npc_anniu_22_xjm",
-                                    overlay = {skin = "res/custom/treasureBasin/x.png"},
-                                    background = {skin = "res/custom/linggen/x_bg.png"},
-                                    closeButton = {x = 415, y = 327, skin = "res/wy/public/close_red_big.png"},
-                                })
-                                npc.xjm_node = npc.xjm_window.node
-                                xjm_UI_updata(npc.xjm_node)
-                            end)
-                        else
-                            -- GUI:setAnchorPoint(GUI:Text_Create(current_kuang, "up_wz", 10, 100, 20, "#FFFFFF", "未激活")
-                            -- , 0.5, 0.5)
+                        })
+                        if not detail or not (detail.level and detail.level >= 0) or detail.isMax then
+                            return
                         end
+
+                        local Button= GUI:Button_Create(current_kuang, "Button", 0, -90, "res/custom/linggen/btn_up.png")
+                        GUI:addOnClickEvent(Button, function()
+                            -- SL:SendLuaNetMsg(100, npcid, 5, npc.current_idx, "")
+                            npc.xjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
+                                windowName = "npc_anniu_22_xjm",
+                                overlay = {skin = "res/custom/treasureBasin/x.png"},
+                                background = {skin = "res/custom/linggen/x_bg.png"},
+                                closeButton = {x = 415, y = 327, skin = "res/wy/public/close_red_big.png"},
+                            })
+                            npc.xjm_node = npc.xjm_window.node
+                            xjm_UI_updata(npc.xjm_node)
+                        end)
                     end
                 end
 
-                npc.current_idx = npc.current_idx or 0
-                local current_kuang = GUI:Node_Create(Label_node, "current_kuang", 125, 0)
+                if not npc.current_idx or npc.current_idx <= 0 then
+                    npc.current_idx = getDefaultLinggenIdx()
+                end
+                local current_kuang = GUI:Node_Create(Label_node, "current_kuang", 125, 100)
 
 
                 GUI:Image_Create(Label_node, "wz_3", 760, 30, "res/custom/linggen/wz_3.png")
