@@ -480,9 +480,9 @@ local UPGRADE_HELPER = SL:Require("GUILayout/npc/upgrade_helper", true)
 
 local zbz = {}
 if cogin.isWin32 then
-    zbz = {-700, -150, 200, -180, -60}
+    zbz = {-700, -150, 200, -180, -70}
 else
-    zbz = {-700, -150, 200, -160, -60}
+    zbz = {-700, -150, 200, -170, -70}
 end
 
 -- ===== 指引/寻路相关工具 =====
@@ -617,10 +617,10 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
                 GUI:addOnClickEvent(Button_1, function()
                     SL:SendLuaNetMsg(105, 9999, 9999, 0, "")
                 end)
-                npc.an_cbl = GUI:Button_Create(npc.RightBottom, "an_cbl", -86, 320, "res/private/main/bottom/1900012580.png")
-                GUI:Button_loadTexturePressed(npc.an_cbl, "res/private/main/bottom/1900012580.png")
-                GUI:setAnchorPoint(GUI:Image_Create(npc.an_cbl, "ts", 86/2, 86/2, "res/private/main/bottom/1900012538.png")
-                , 0.5, 0.5)
+                npc.an_cbl = GUI:Button_Create(npc.RightBottom, "an_cbl", -70, 320, "res/private/main/bottom/1900012580.png")
+                -- GUI:Button_loadTexturePressed(npc.an_cbl, "res/private/main/bottom/1900012580.png")
+                -- GUI:setAnchorPoint(GUI:Image_Create(npc.an_cbl, "ts", 86/2, 86/2, "res/private/main/bottom/1900012538.png")
+                -- , 0.5, 0.5)
                 GUI:addOnClickEvent(npc.an_cbl, function()
                     local parent = GUI:GetWindow(nil, "main_cbl")
                     if parent then

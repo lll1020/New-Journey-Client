@@ -55,6 +55,9 @@ end
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 1, 0, '')
             end)
+            if checkItemNum(config.cost) then
+                NPC_UI_HELPER.redpoint_create(Button)
+            end
         else
 
             GUI:Text_setFontName(GUI:Text_Create(node, "desc1",490,353, 25, "#ffffff", "10")

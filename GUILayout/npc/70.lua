@@ -44,11 +44,17 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:addOnClickEvent(Button, function()
             SL:SendLuaNetMsg(100, npcid, 1, 0, SL:JsonEncode({idx = 1}, false))
         end)
+        if checkItemNum(npc._config.cost[1]) then
+            NPC_UI_HELPER.redpoint_create(Button)
+        end
 
         local Button= GUI:Button_Create(node, "Button2", 150 + 340, 70.00, "res/custom/five_city/emjg/btn_2.png")
         GUI:addOnClickEvent(Button, function() 
             SL:SendLuaNetMsg(100, npcid, 1, 0, SL:JsonEncode({idx = 2}, false))
         end)
+        if checkItemNum(npc._config.cost[2]) then
+            NPC_UI_HELPER.redpoint_create(Button)
+        end
 
         GUI:TextAtlas_Create(node, "TextAtlas_1", 190, 32, npc.data.num, "res/custom/public/text1.png", 14, 30, ".")
 

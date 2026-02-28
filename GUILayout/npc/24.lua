@@ -108,6 +108,9 @@ function npc.main(npcid, p2, p3, msgData)
                         GUI:addOnClickEvent(Button, function()
                             SL:SendLuaNetMsg(100, npcid, 1, 0, "")
                         end)
+                        if new_config and (not new_config.cost or checkItemNum(new_config.cost)) and (not new_config.jf or (npc.data.T_data.jf or 0) >= new_config.jf) then
+                            NPC_UI_HELPER.redpoint_create(Button)
+                        end
                     else
                         GUI:Image_Create(Label_node, "Button", 660, 100.00, "res/wy/public/15.png")
                     end
@@ -192,6 +195,9 @@ function npc.main(npcid, p2, p3, msgData)
                     end
 
                     local Button = GUI:Button_Create(npc.xf_node, "Button", 50 + 549 + 76,100, "res/custom/tianshu/xf/btn_up.png")
+                    if checkItemNum({{"仙品仙法卷轴",1}}) then
+                        NPC_UI_HELPER.redpoint_create(Button)
+                    end
                     local function do_refresh()
                         if checkItemNum({{"仙品仙法卷轴",1}}) then
                             SL:OpenCommonTipsPop({str="是否要使用仙品仙法卷轴，必可得到仙品仙法！",btnType=2,callback=function(atype,param)

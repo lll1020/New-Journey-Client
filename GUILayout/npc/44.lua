@@ -810,6 +810,16 @@ local function drawPlotDetail(node, snapshot, npcid)
         local seedList = shop.seeds or {}
         local plantList = buildPlantList(plantCfg)
         local herbs = player.herbs or {}
+        local hasAnySeed = false
+        for _, entry in ipairs(seedList) do
+            if entry and entry.name and (tonumber(SL:GetMetaValue("ITEM_COUNT", entry.name)) or 0) > 0 then
+                hasAnySeed = true
+                break
+            end
+        end
+        if hasAnySeed then
+            NPC_UI_HELPER.redpoint_create(btn_seed)
+        end
         GUI:addOnClickEvent(btn_seed, function()
             sendAction(npcid, 'plant', {gridId = plot.gridId or selected, seedId = 'Low'})
         end)

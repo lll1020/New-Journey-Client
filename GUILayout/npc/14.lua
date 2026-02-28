@@ -36,6 +36,7 @@ end
 
         local cllist = GUI:ListView_Create(node, "cllist", 280, 70,645, 380, 2)
         GUI:ListView_setItemsMargin(cllist, 3)
+        local hasAnyCanDrink = false
         for v,k in ipairs(npc._config.config) do
             local l = GUI:Image_Create(cllist, "img_bj_l_"..v, 0, 0, 'res/custom/one_city/14_itme_'..v..'.png')
            
@@ -59,6 +60,10 @@ end
             else
                 local Button= GUI:Button_Create(l, "Button", 106, 40, 'res/custom/one_city/btn_2.png')
                 GUI:setAnchorPoint(Button, 0.5, 0.5)
+                if checkItemNum(k.cost) then
+                    NPC_UI_HELPER.redpoint_create(Button)
+                    hasAnyCanDrink = true
+                end
                 GUI:addOnTouchEvent(Button, function(sender, type)
                     -- 触发控件（sender）：控件本身
                     -- 事件类型（type）：触摸阶段 0-3
@@ -108,6 +113,9 @@ end
         GUI:addOnClickEvent(Button, function()
             SL:SendLuaNetMsg(100, npcid, 2, 0, "")
         end)
+        if hasAnyCanDrink then
+            NPC_UI_HELPER.redpoint_create(Button)
+        end
 
         local kuang = GUI:Image_Create(node, "kuang2", 720, 0, "res/wy/public/70_70_k.png")
         UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.title.."[称号]")))

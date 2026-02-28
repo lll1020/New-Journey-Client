@@ -61,6 +61,9 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 1, 0, "")
             end)
+            if checkItemNum(config.cost) then
+                NPC_UI_HELPER.redpoint_create(Button)
+            end
         else
             local cost = ItemNumByTable_img({ {"灵石",999999} }, nil,GUI:Node_Create(node, "cost", 0, 0))
             GUI:setPosition(cost, 530, 85)

@@ -78,6 +78,9 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 1, 0, '{"idx":'..idx..'}')
             end)
+            if checkItemNum(npc._config.cost) then
+                NPC_UI_HELPER.redpoint_create(Button)
+            end
         end
         local kuang = GUI:Image_Create(node, "kuang2", 320, 15, "res/wy/public/70_70_k.png")
         UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.title.."[称号]")))

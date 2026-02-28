@@ -61,6 +61,9 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:addOnClickEvent(Button, function()
             SL:SendLuaNetMsg(100, npcid, 1, 0, SL:JsonEncode({idx = npc.titles_sign}, false))
         end)
+        if checkItemNum(npc._config.config[npc.titles_sign].cost) then
+            NPC_UI_HELPER.redpoint_create(Button)
+        end
         
     end
 
@@ -95,6 +98,9 @@ function npc.main(npcid, p2, p3, msgData)
 
                 xjm_UI_updata(npc.Label, npc.titles_sign)
             end)
+            if checkItemNum(npc._config.config[i].cost) then
+                NPC_UI_HELPER.redpoint_create(Button)
+            end
         end
         GUI:UserUILayout(layout, {dir=3,addDir=1,colnum = 2,gap = {x=10, y=0}})
 

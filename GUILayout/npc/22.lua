@@ -81,6 +81,10 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:addOnClickEvent(btn_upup, function()
             SL:SendLuaNetMsg(100, npcid, 5, npc.current_idx, "")
         end)
+        local xjmNextCost = npc._config.main_updata.details[npc.current_idx <= 5 and "low" or "up"][npc.data.T_data.level[""..npc.current_idx] + 1].cost
+        if xjmNextCost and checkItemNum(xjmNextCost) then
+            NPC_UI_HELPER.redpoint_create(btn_upup)
+        end
     
     end
 
@@ -411,6 +415,12 @@ function npc.main(npcid, p2, p3, msgData)
                             npc.xjm_node = npc.xjm_window.node
                             xjm_UI_updata(npc.xjm_node)
                         end)
+                        local lv = npc.data.T_data.level[""..npc.current_idx] or 0
+                        local det = npc._config.main_updata.details[(npc.current_idx <= 5) and "low" or "up"]
+                        local nextCfg = det and det[lv + 1]
+                        if nextCfg and nextCfg.cost and checkItemNum(nextCfg.cost) then
+                            NPC_UI_HELPER.redpoint_create(Button)
+                        end
                     end
                 end
 

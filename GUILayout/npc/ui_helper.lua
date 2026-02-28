@@ -211,14 +211,42 @@ function UIHelper.formatNpcTitle(npcid, config)
 end
 -- 红点标识名称生成，例如：NPC 17 (兑换使者)
 function UIHelper.redpoint_create(parent, opts)
+    if not parent then
+        return nil
+    end
     opts = opts or {}
-    local contentSize = parent:getContentSize()
+    local size = (GUI and GUI.getContentSize and GUI:getContentSize(parent)) or parent:getContentSize() or { width = 0, height = 0 }
+    local width = tonumber(size.width) or 0
+    local height = tonumber(size.height) or 0
+    local minSide = math.max(1, math.min(width > 0 and width or 64, height > 0 and height or 64))
 
-    local eff = GUI:Frames_Create(parent, "eff1", opts.x or (contentSize.width - 20), opts.y or (contentSize.height - 20), "res/wy/icon/hongdian/eff_", ".png", 1, 15,
+    -- 统一规则：红点默认右对齐 + 垂直居中，且保持在按钮框内
+    local inset = opts.inset
+    if inset == nil then
+        inset = math.max(4, math.floor(minSide * 0.08))
+    end
+
+    local autoScale = opts.autoScale
+    if autoScale == nil then
+        autoScale = math.max(0.55, math.min(0.95, minSide / 110))
+    end
+
+    local posX = opts.x
+    if posX == nil then
+        posX = width - inset
+    end
+    local posY = opts.y
+    if posY == nil then
+        posY = height * 0.5
+    end
+    posX = math.max(0, math.min(width, posX))
+    posY = math.max(0, math.min(height, posY))
+
+    local eff = GUI:Frames_Create(parent, opts.name or "eff1", posX, posY, "res/wy/icon/hongdian/eff_", ".png", 1, 15,
         { speed = 75, count = 15, loop = -1})
-    GUI:setScale(eff, opts.scale or 0.5)
-    GUI:setAnchorPoint(eff, opts.anchorX or 0.5, opts.anchorY or 0.5)
-    
+    GUI:setScale(eff, opts.scale or autoScale)
+    GUI:setAnchorPoint(eff, opts.anchorX or 1, opts.anchorY or 0.5)
+    return eff
 end
 
 _G.NPC_UI_HELPER = UIHelper

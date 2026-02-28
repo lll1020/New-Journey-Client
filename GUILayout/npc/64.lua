@@ -1,6 +1,7 @@
 local npc = {}
 
 npc._config = teshudata["npc_64"]
+local UIHelper = NPC_UI_HELPER
 
 
 
@@ -8,6 +9,34 @@ local WINDOW_OPTS = {
     background = {skin = "res/custom/four_city/lingshou/bg.png", eff = false},
     closeButton = {x = 350 + 470, y = 180 + 288, skin = "res/wy/public/close_red_big.png"},
 }
+
+local function _has_cost(cost)
+    if type(cost) ~= "table" then
+        return false
+    end
+    local ok, canPay = pcall(function()
+        return checkItemNum(cost)
+    end)
+    return ok and canPay == true
+end
+
+local function _item_count_by_name(itemName)
+    if not itemName or itemName == "" then
+        return 0
+    end
+    local idx = SL:GetMetaValue("ITEM_INDEX_BY_NAME", itemName)
+    if not idx then
+        return 0
+    end
+    return tonumber(SL:GetMetaValue("ITEM_COUNT", idx)) or 0
+end
+
+local function _redpoint_if(parent, condition, opts)
+    local helper = UIHelper or NPC_UI_HELPER
+    if condition and parent and helper and helper.redpoint_create then
+        helper.redpoint_create(parent, opts)
+    end
+end
 
 function npc.main(npcid, p2, p3, msgData)
 
@@ -54,6 +83,7 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 3, 0, SL:JsonEncode({idx = npc.titles_sign}, false))
             end)
+            _redpoint_if(Button, _has_cost(npc._config.config.wy.cost[npc.ls_data.T_data.ls[""..npc.titles_sign] or 1]))
 
 
         elseif idx == 2 then
@@ -109,6 +139,9 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:addOnClickEvent(Button, function()
             SL:SendLuaNetMsg(100, npcid, 2, 0, SL:JsonEncode({idx = npc.titles_sign}, false))
         end)
+        local sywName = npc._config.config.ls[npc.titles_sign] and npc._config.config.ls[npc.titles_sign].syw
+        local isSywActive = npc.ls_data.T_data.syw[""..npc.titles_sign] == 1
+        _redpoint_if(Button, (not isSywActive) and _item_count_by_name(sywName) > 0)
         
         npc.Label = GUI:Node_Create(npc.xjm_node, "Label", 0, 0)
  
@@ -156,6 +189,9 @@ function npc.main(npcid, p2, p3, msgData)
             else
                 GUI:Button_setBrightEx(Button, false)
             end
+            local sywName = npc._config.config.ls[i] and npc._config.config.ls[i].syw
+            local isSywActive = npc.ls_data.T_data.syw[""..i] == 1
+            _redpoint_if(Button, (not isSywActive) and _item_count_by_name(sywName) > 0)
             GUI:addOnClickEvent(Button, function()
                 npc.titles_sign = i
                 xjm_UI_updata()
@@ -177,6 +213,7 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:addOnClickEvent(btn_make, function()
             SL:SendLuaNetMsg(100, npcid, 1, 0, "")
         end)
+        _redpoint_if(btn_make, _has_cost(npc._config.cost))
 
         GUI:addOnClickEvent(btn_tip, function()
             npc.xjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
