@@ -83,7 +83,7 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 3, 0, SL:JsonEncode({idx = npc.titles_sign}, false))
             end)
-            _redpoint_if(Button, _has_cost(npc._config.config.wy.cost[npc.ls_data.T_data.ls[""..npc.titles_sign] or 1]))
+            _redpoint_if(Button, _has_cost(npc._config.config.wy.cost[npc.ls_data.T_data.ls[""..npc.titles_sign] or 1]),{x=190,y=43})
 
 
         elseif idx == 2 then
@@ -208,12 +208,13 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:setAnchorPoint(btn_tip,0.5, 0.5)
         GUI:setAnchorPoint(btn_make,0.5, 0.5)
         GUI:setAnchorPoint(btn_buy,0.5, 0.5)
+        GUI:setVisible(btn_buy,false)
 
 
         GUI:addOnClickEvent(btn_make, function()
             SL:SendLuaNetMsg(100, npcid, 1, 0, "")
         end)
-        _redpoint_if(btn_make, _has_cost(npc._config.cost))
+        _redpoint_if(btn_make, _has_cost(npc._config.cost),{x=240,y=55})
 
         GUI:addOnClickEvent(btn_tip, function()
             npc.xjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {

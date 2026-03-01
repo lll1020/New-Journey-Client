@@ -58,7 +58,7 @@ function npc.main(npcid, p2, p3, msgData)
                 SL:SendLuaNetMsg(100, npcid, 1, 0, "")
             end)
             if checkItemNum(npc._config.cost) then
-                NPC_UI_HELPER.redpoint_create(Button)
+                NPC_UI_HELPER.redpoint_create(Button,{x = 185,y = 47,autoScale = 1})
             end
             
             

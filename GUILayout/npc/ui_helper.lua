@@ -209,8 +209,8 @@ function UIHelper.formatNpcTitle(npcid, config)
     end
     return table.concat(parts, ' ')
 end
--- 红点标识名称生成，例如：NPC 17 (兑换使者)
-function UIHelper.redpoint_create(parent, opts)
+-- 红点标识名称生成，例如：NPC 17 (兑换使者)--特效类
+function UIHelper.redpoint_create_eff(parent, opts)
     if not parent then
         return nil
     end
@@ -245,6 +245,37 @@ function UIHelper.redpoint_create(parent, opts)
     local eff = GUI:Frames_Create(parent, opts.name or "eff1", posX, posY, "res/wy/icon/hongdian/eff_", ".png", 1, 15,
         { speed = 75, count = 15, loop = -1})
     GUI:setScale(eff, opts.scale or autoScale)
+    GUI:setAnchorPoint(eff, opts.anchorX or 1, opts.anchorY or 0.5)
+    return eff
+end
+-- 红点标识名称生成，例如：NPC 17 (兑换使者)--无特效类
+function UIHelper.redpoint_create(parent, opts)
+    if not parent then
+        return nil
+    end
+    opts = opts or {}
+    local size = (GUI and GUI.getContentSize and GUI:getContentSize(parent)) or parent:getContentSize() or { width = 0, height = 0 }
+    local width = tonumber(size.width) or 0
+    local height = tonumber(size.height) or 0
+    local minSide = math.max(1, math.min(width > 0 and width or 64, height > 0 and height or 64))
+
+    -- 统一规则：红点默认右对齐 + 垂直居中，且保持在按钮框内
+    local inset = opts.inset
+    if inset == nil then
+        inset = math.max(30, math.floor(minSide * 0.20))
+    end
+    local posX = opts.x
+    if posX == nil then
+        posX = width - inset
+    end
+    local posY = opts.y
+    if posY == nil then
+        posY = height - 27
+    end
+    posX = math.max(0, math.min(width, posX))
+    posY = math.max(0, math.min(height, posY))
+
+    local eff = GUI:Image_Create(parent, opts.name or "eff1", posX, posY, "res/public/ists_red.png")
     GUI:setAnchorPoint(eff, opts.anchorX or 1, opts.anchorY or 0.5)
     return eff
 end

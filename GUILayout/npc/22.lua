@@ -83,7 +83,7 @@ function npc.main(npcid, p2, p3, msgData)
         end)
         local xjmNextCost = npc._config.main_updata.details[npc.current_idx <= 5 and "low" or "up"][npc.data.T_data.level[""..npc.current_idx] + 1].cost
         if xjmNextCost and checkItemNum(xjmNextCost) then
-            NPC_UI_HELPER.redpoint_create(btn_upup)
+            NPC_UI_HELPER.redpoint_create(btn_upup,{x = 185,y = 35})
         end
     
     end
@@ -419,7 +419,7 @@ function npc.main(npcid, p2, p3, msgData)
                         local det = npc._config.main_updata.details[(npc.current_idx <= 5) and "low" or "up"]
                         local nextCfg = det and det[lv + 1]
                         if nextCfg and nextCfg.cost and checkItemNum(nextCfg.cost) then
-                            NPC_UI_HELPER.redpoint_create(Button)
+                            NPC_UI_HELPER.redpoint_create_eff(Button,{x = 54,y = 50})
                         end
                     end
                 end

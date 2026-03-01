@@ -2365,10 +2365,7 @@ npc[30] = function(p2, p3, Data)
         GUI:setContentSize(bg, cogin.w, cogin.h)
         GUI:setAnchorPoint(bg, 0.5, 0.5)
 
-        local closeBtn = GUI:Button_Create(bg, 'close', cogin.w - 100,  cogin.h - 150, 'res/wy/public/anniu_4_x_close.png')
-        GUI:addOnClickEvent(closeBtn, function()
-            GUI:Win_Close(parent)
-        end)
+        
 
         local heidi = GUI:Image_Create(bg, "heidi", 0, cogin.h, "res/custom/three_city/xianfu/kanshu/heidi.png")
         GUI:setAnchorPoint(heidi, 0, 1)
@@ -2419,16 +2416,17 @@ npc[30] = function(p2, p3, Data)
         GUI:addOnClickEvent(btn_updata_1, function()  btn_updata_1_xjm()  end)
 
         if npc.data_30.T_data.auto == 0 then
-            local open_auto = GUI:Button_Create(re_wz, "open_auto", -100, 300 - 210, "res/wy/public/an_tongyong.png")
+            local open_auto = GUI:Button_Create(re_wz, "open_auto", 278 / 2, 300 - 210, "res/custom/three_city/xianfu/kanshu/btn_auto.png")
             GUI:setAnchorPoint(open_auto, 0.5, 0.5)
-            local Button_wz = GUI:Text_Create(open_auto, "desc",116,52, 25, "#FFFBF0", "开启自动砍树")
-            GUI:setAnchorPoint(Button_wz, 0.5, 0.5)
-            GUI:Text_setFontName(Button_wz, "fonts/500.ttf")
-            GUI:Text_enableOutline(Button_wz, "#CA352C", 2)
             NPC_UI_HELPER.redpoint_create(open_auto)
             GUI:addOnClickEvent(open_auto, function()  SL:SendLuaNetMsg(101, 30, 3, 1, '')  end)
             GUI:setVisible(btn_updata_2, false)
         end
+
+        local closeBtn = GUI:Button_Create(bg, 'close', cogin.w - 100,  cogin.h - 70, 'res/wy/public/anniu_4_x_close.png')
+        GUI:addOnClickEvent(closeBtn, function()
+            GUI:Win_Close(parent)
+        end)
 
        
        

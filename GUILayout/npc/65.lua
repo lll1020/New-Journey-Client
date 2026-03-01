@@ -99,7 +99,7 @@ function npc.main(npcid, p2, p3, msgData)
                 xjm_UI_updata(npc.Label, npc.titles_sign)
             end)
             if checkItemNum(npc._config.config[i].cost) then
-                NPC_UI_HELPER.redpoint_create(Button)
+                NPC_UI_HELPER.redpoint_create(kuang,{x=105,y=85})
             end
         end
         GUI:UserUILayout(layout, {dir=3,addDir=1,colnum = 2,gap = {x=10, y=0}})

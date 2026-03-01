@@ -397,6 +397,31 @@ local function describePlot(plot)
     return stateName, name
 end
 
+-- 选中下一块地块（循环到 1），用于种植/采摘后自动跳转。
+local function selectNextPlot(currentGridId)
+    local state = ensureState()
+    local gridSize = math.max(1, tonumber(npc._config.gridSize) or 9)
+    local current = math.max(1, math.min(gridSize, tonumber(currentGridId) or tonumber(state.selectedPlot) or 1))
+    local nextIdx = current + 1
+    if nextIdx > gridSize then
+        nextIdx = 1
+    end
+    state.selectedPlot = nextIdx
+end
+
+-- 记录需要在服务端成功回包后执行的“跳到下一地块”动作。
+local function queuePlotAdvance(action, gridId)
+    if not action then
+        return
+    end
+    local state = ensureState()
+    state.pendingPlotAdvance = {
+        action = action,
+        gridId = tonumber(gridId) or tonumber(state.selectedPlot) or 1,
+        createdAt = serverNow(),
+    }
+end
+
 -- 小工具：统计 table 元素个数。
 local function countTableSize(t)
     local n = 0
@@ -426,7 +451,7 @@ local function ensureWindow(npcid)
     npc.bg = bjt
     npc.node = GUI:Node_Create(bjt, 'node', cogin.w / 2, cogin.h / 2)
 
-    local closeBtn = GUI:Button_Create(npc.bg, 'close', cogin.w-100, cogin.h-150, 'res/wy/public/anniu_4_x_close.png')
+    local closeBtn = GUI:Button_Create(npc.bg, 'close', cogin.w-100, cogin.h-100, 'res/wy/public/anniu_4_x_close.png')
     GUI:setLocalZOrder(closeBtn, 100)
     GUI:addOnClickEvent(closeBtn, function()
         GUI:Win_Close(parent)
@@ -821,7 +846,9 @@ local function drawPlotDetail(node, snapshot, npcid)
             NPC_UI_HELPER.redpoint_create(btn_seed)
         end
         GUI:addOnClickEvent(btn_seed, function()
-            sendAction(npcid, 'plant', {gridId = plot.gridId or selected, seedId = 'Low'})
+            local gridId = plot.gridId or selected
+            queuePlotAdvance('plant', gridId)
+            sendAction(npcid, 'plant', {gridId = gridId, seedId = 'Low'})
         end)
 
         
@@ -878,7 +905,12 @@ local function drawPlotDetail(node, snapshot, npcid)
     if plot.state == 'mature' or true then
         local canHarvest = hasProductReward(plot.product)
         local btn = createActionButton('btn_harvest', 245, '', function()
-            sendAction(npcid, 'harvest', {gridId = plot.gridId or selected})
+            if not canHarvest then
+                return
+            end
+            local gridId = plot.gridId or selected
+            queuePlotAdvance('harvest', gridId)
+            sendAction(npcid, 'harvest', {gridId = gridId})
         end, canHarvest,{skin = "res/custom/three_city/xianfu/btn/l/5.png",Disabled_skin = "res/custom/three_city/xianfu/btn/n/5.png"})
         GUI:setAnchorPoint(btn, 0.5, 0)
     end
@@ -2050,9 +2082,9 @@ function npc.render()
     end
     buildTopOverview(npc.node, displaySnapshot, baseSnapshot, npcid)
     drawMenuBar(npc.node)
-    local btn_knashu = GUI:Frames_Create(npc.node, "eff1", cogin.w/2,  - cogin.h/2 + 120, "res/custom/three_city/xianfu/kanshu/btn/eff_", ".png", 1, 75,
+    local btn_knashu = GUI:Frames_Create(npc.node, "eff1", -cogin.w/2,  - cogin.h/2 + 150, "res/custom/three_city/xianfu/kanshu/btn/eff_", ".png", 1, 75,
                 { speed = 75, count = 75, loop = -1})
-    GUI:setAnchorPoint(btn_knashu, 1, 0)
+    GUI:setAnchorPoint(btn_knashu, 0, 0)
     GUI:setTouchEnabled(btn_knashu, true)
     GUI:addOnClickEvent(btn_knashu, function()
         SL:SendLuaNetMsg(101, 30, 0, 0, '')
@@ -2075,6 +2107,13 @@ local function handleAction(npcid, msgData)
         return
     end
     local state = ensureState()
+
+    local pending = state.pendingPlotAdvance
+    if pending and pending.createdAt and (serverNow() - pending.createdAt > 15) then
+        state.pendingPlotAdvance = nil
+        pending = nil
+    end
+
     state.lastMessage = payload.message or ''
     state.lastActionOk = payload.ok and true or false
     if payload.state then
@@ -2086,6 +2125,24 @@ local function handleAction(npcid, msgData)
     elseif not extra and payload.action == 'sync' then
         exitGuestMode()
     end
+
+    if pending then
+        local replyAction = payload.action
+        local matched = false
+        if replyAction ~= nil then
+            matched = (replyAction == pending.action)
+        else
+            -- 兼容无 action 字段的旧回包：有 ok 即视为动作回执
+            matched = (payload.ok ~= nil)
+        end
+        if matched then
+            if payload.ok then
+                selectNextPlot(pending.gridId)
+            end
+            state.pendingPlotAdvance = nil
+        end
+    end
+
     npc.render()
 end
 
