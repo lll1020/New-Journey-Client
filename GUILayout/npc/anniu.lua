@@ -672,7 +672,7 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
                         SL:JumpTo(31)
                     end)
                     GUI:addOnClickEvent(sj_xz, function()
-                        SL:SendLuaNetMsg(105, 8, 8, 0, "")
+                        SL:SendLuaNetMsg(105, 1002, 1002, 0, "")
                     end)
                     GUI:addOnClickEvent(haoyou, function()
                         SL:JumpTo(28)
@@ -686,15 +686,15 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
                     GUI:addOnClickEvent(exit, function()
                         SL:JumpTo(29)
                     end)
-                    local zz = GUI:Button_Create(cbl, "lbg", width/2, cogin.h - 80, "res/wy/public/main_cbl_zz.png")
-                    local syt = GUI:Button_Create(cbl, "sqt", width/2, cogin.h - 80 - 105, "res/wy/public/main_cbl_syt.png")
-                    local ldl = GUI:Button_Create(cbl, "tj", width/2, cogin.h - 80 - 210, "res/wy/public/main_cbl_ldl.png")
-                    GUI:setAnchorPoint(zz, 0.5, 1)
-                    GUI:setAnchorPoint(syt, 0.5, 1)
-                    GUI:setAnchorPoint(ldl, 0.5, 1)
-                    GUI:addOnClickEvent(zz, function() SL:SendLuaNetMsg(105, 166, 166, 0, "") end)
-                    GUI:addOnClickEvent(syt, function() SL:SendLuaNetMsg(105, 19, 19, 0, "") end)
-                    GUI:addOnClickEvent(ldl, function()  SL:SendLuaNetMsg(105, 103, 103, 0, "") end)
+                    -- local zz = GUI:Button_Create(cbl, "lbg", width/2, cogin.h - 80, "res/wy/public/main_cbl_zz.png")
+                    -- local syt = GUI:Button_Create(cbl, "sqt", width/2, cogin.h - 80 - 105, "res/wy/public/main_cbl_syt.png")
+                    -- local ldl = GUI:Button_Create(cbl, "tj", width/2, cogin.h - 80 - 210, "res/wy/public/main_cbl_ldl.png")
+                    -- GUI:setAnchorPoint(zz, 0.5, 1)
+                    -- GUI:setAnchorPoint(syt, 0.5, 1)
+                    -- GUI:setAnchorPoint(ldl, 0.5, 1)
+                    -- GUI:addOnClickEvent(zz, function() SL:SendLuaNetMsg(105, 166, 166, 0, "") end)
+                    -- GUI:addOnClickEvent(syt, function() SL:SendLuaNetMsg(105, 19, 19, 0, "") end)
+                    -- GUI:addOnClickEvent(ldl, function()  SL:SendLuaNetMsg(105, 103, 103, 0, "") end)
                     GUI:Timeline_EaseSineIn_MoveTo(cbl, {x = cogin.w, y = 0}, 0.5)
                 end)
                 --客服
@@ -1490,12 +1490,43 @@ npc[11] = function(p2, p3, Data)
                 end
             else
                 
-                local scroll = GUI:ScrollView_Create(node, "task_scroll", 250, 120, 675, 414, 2)
+                local scroll = GUI:ScrollView_Create(node, "task_scroll", 250, 110, 675, 414, 2)
                 GUI:ScrollView_setBounceEnabled(scroll, true)
-                GUI:ScrollView_setInnerContainerSize(scroll, taskCount * (232 + 0 ), 414)
-                local layout = GUI:Layout_Create(scroll, "task_layout", 0, 0, taskCount * (232 + 10), 414, false)
+                local taskCardWidth = 232
+                local taskCardGapX = 0
+                local taskCardStepX = taskCardWidth + taskCardGapX
+                local layoutWidth = taskCount * taskCardStepX + taskCardStepX
+                GUI:ScrollView_setInnerContainerSize(scroll, layoutWidth, 414)
+                local layout = GUI:Layout_Create(scroll, "task_layout", 0, 0, layoutWidth, 414, false)
                 local autoGuideWidget = nil
                 local autoGuideDesc = nil
+                local taskSlots = {}
+                local taskSlotState = {}
+
+                -- 统一从独立状态表读取槽位状态，避免 ui_delegate 在不同调用点丢失字段。
+                local function _slot_state(slot)
+                    return taskSlotState[slot]
+                end
+                
+                -- 手动重排任务卡片：不依赖 UserUILayout，支持展开时后续卡片位移动画。
+                local function _relayout_task_cards(withAnim)
+                    local x = 0
+                    for _, slot in ipairs(taskSlots) do
+                        local slotUi = _slot_state(slot)
+                        local targetY = 0
+                        if withAnim then
+                            GUI:stopAllActions(slot)
+                            GUI:runAction(slot, GUI:ActionMoveTo(0.12, x, targetY))
+                        else
+                            GUI:setPosition(slot, x, targetY)
+                        end
+                        local w = (slotUi and (slotUi.current_w or slotUi.base_w)) or taskCardWidth
+                        x = x + w + taskCardGapX
+                    end
+                    local innerWidth = math.max(layoutWidth, x + taskCardGapX)
+                    GUI:setContentSize(layout, innerWidth, 414)
+                    -- GUI:ScrollView_setInnerContainerSize(scroll, innerWidth, 414)
+                end
 
 
                 local function _ywl_vertical_text(text)
@@ -1545,103 +1576,198 @@ npc[11] = function(p2, p3, Data)
                     return table.concat(out, "\n")
                 end
 
+                local expandedSlot = nil
+
+                -- 设置单个任务槽位的展开状态（宽度与层级）。
+                local function _set_task_slot_open(slot, slotUi, isOpen)
+                    local targetW = slotUi.base_w + (isOpen and slotUi.expand_w or 0)
+                    slotUi.current_w = targetW
+                    GUI:setContentSize(slot, targetW, slotUi.base_h)
+                    GUI:setLocalZOrder(slot, isOpen and (10000 + slotUi.base_z) or slotUi.base_z)
+                end
+
+                -- 收起任务槽位；支持回调以串联“先收起旧项，再展开新项”。
+                local function _collapse_task_slot(slot, onDone)
+                    local slotUi = _slot_state(slot)
+                    if not slotUi or slotUi.cover_anim then
+                        return
+                    end
+                    local cover = slotUi.cover
+                    if not cover then
+                        slotUi.cover_open = false
+                        _set_task_slot_open(slot, slotUi, false)
+                        _relayout_task_cards(true)
+                        if expandedSlot == slot then
+                            expandedSlot = nil
+                        end
+                        if onDone then
+                            onDone()
+                        end
+                        return
+                    end
+
+                    slotUi.cover_anim = true
+                    GUI:stopAllActions(cover)
+                    GUI:runAction(cover, GUI:ActionSequence(
+                            GUI:ActionMoveTo(0.12, slotUi.cover_start_x, slotUi.cover_y),
+                            GUI:CallFunc(function()
+                                GUI:setVisible(cover, false)
+                                slotUi.cover_open = false
+                                _set_task_slot_open(slot, slotUi, false)
+                                _relayout_task_cards(true)
+                                slotUi.cover_anim = false
+                                if expandedSlot == slot then
+                                    expandedSlot = nil
+                                end
+                                if onDone then
+                                    onDone()
+                                end
+                            end)
+                    ))
+                end
+
+                -- 展开任务槽位；展开前确保详情面板已创建。
+                local function _expand_task_slot(slot)
+                    local slotUi = _slot_state(slot)
+                    if not slotUi or slotUi.cover_anim then
+                        return
+                    end
+                    local cover = slotUi.ensure_cover and slotUi.ensure_cover() or slotUi.cover
+                    if not cover then
+                        return
+                    end
+
+                    slotUi.cover_anim = true
+                    _set_task_slot_open(slot, slotUi, true)
+                    _relayout_task_cards(true)
+                    GUI:stopAllActions(cover)
+                    GUI:setPosition(cover, slotUi.cover_start_x, slotUi.cover_y)
+                    GUI:setVisible(cover, true)
+                    GUI:runAction(cover, GUI:ActionSequence(
+                            GUI:ActionMoveTo(0.12, slotUi.cover_end_x, slotUi.cover_y),
+                            GUI:CallFunc(function()
+                                slotUi.cover_open = true
+                                slotUi.cover_anim = false
+                                expandedSlot = slot
+                            end)
+                    ))
+                end
+
+                -- 任务槽位折叠/展开切换：同一时刻仅允许一个展开。
+                local function _toggle_task_slot(slot)
+                    local slotUi = _slot_state(slot)
+                    if not slotUi or slotUi.cover_anim then
+                        return
+                    end
+
+                    if expandedSlot and expandedSlot ~= slot then
+                        local prevUi = _slot_state(expandedSlot)
+                        if prevUi and prevUi.cover_anim then
+                            return
+                        end
+                        local prevSlot = expandedSlot
+                        _collapse_task_slot(prevSlot, function()
+                            _expand_task_slot(slot)
+                        end)
+                        return
+                    end
+
+                    if slotUi.cover_open then
+                        _collapse_task_slot(slot)
+                    else
+                        _expand_task_slot(slot)
+                    end
+                end
+
                 for idx, task in ipairs(tasks) do
                     local taskName = task[1] or task.title or "任务"
-                    local card = GUI:Image_Create(layout, "card" .. idx, 0, 0, 'res/custom/ywl/kuang.png')
-                    -- GUI:setPosition(card, 232, 414)
+                    local cardSlot = GUI:Layout_Create(layout, "card_slot" .. idx, 0, 0, taskCardWidth, 414, false)
+                    GUI:setLocalZOrder(cardSlot, idx)
+                    local slotUi = {
+                        base_w = taskCardWidth,
+                        base_h = 414,
+                        base_z = idx,
+                        expand_w = taskCardStepX,
+                        current_w = taskCardWidth,
+                        cover_open = false,
+                        cover_anim = false,
+                    }
+                    taskSlotState[cardSlot] = slotUi
+                    GUI:Layout_setClippingEnabled(cardSlot, false)
+                    table.insert(taskSlots, cardSlot)
+                    local card = GUI:Image_Create(cardSlot, "card" .. idx, 0, 0, 'res/custom/ywl/kuang.png')
                     local img = GUI:Image_Create(card, "img", 214/2, 410/2 - 20, 'res/custom/ywl/kuang1.png')
                     GUI:setAnchorPoint(img, 0.5, 0.5)
+                    -- 延迟创建详情面板，避免初始渲染过重。
+                    local function ensure_cover()
+                        if slotUi.cover then
+                            return slotUi.cover
+                        end
+                        local taskTitle = task[1] or task.title or "任务"
+                        local taskDesc = task.desc or task.wz or "暂无任务简介"
+                        local rewardData = (type(task.jl) == "table") and task.jl or {}
+                        local size = GUI:getContentSize(img)
+                        local imgPos = GUI:getPosition(img)
+                        local coverWidth = size.width - 50
+                        local coverHeight = size.height - 60
+                        slotUi.cover_end_x = imgPos.x + size.width / 2 + coverWidth / 2
+                        slotUi.cover_start_x = slotUi.cover_end_x + coverWidth / 2
+                        slotUi.cover_y = imgPos.y + 25
+                        local coverRightX = slotUi.cover_end_x + coverWidth / 2
+                        local overflowRight = math.max(0, coverRightX - slotUi.base_w)
+                        slotUi.expand_w = math.min(taskCardStepX, math.floor(overflowRight + 10))
+
+                        local cover = GUI:Image_Create(cardSlot, "cover_" .. idx, slotUi.cover_start_x, slotUi.cover_y, "res/wy/public/500-300.png")
+                        GUI:setContentSize(cover, coverWidth, coverHeight)
+                        GUI:setAnchorPoint(cover, 0.5, 0.5)
+                        GUI:setVisible(cover, false)
+                        GUI:setLocalZOrder(cover, 99999)
+                        GUI:setTouchEnabled(cover, true)
+                        GUI:addOnClickEvent(cover, function()
+                            _toggle_task_slot(cardSlot)
+                        end)
+
+                        local title = GUI:Text_Create(cover, "title_wz", 10, 300, 30, "#FFFFFF", "任务名称:")
+                        GUI:Text_setFontName(title, "fonts/448.ttf")
+                        GUI:Text_enableOutline(title, "#000000", 2)
+                        GUI:Text_Create(cover, "title", 10, 275, 18, "#FF00FF", taskTitle)
+
+                        local jl = GUI:Text_Create(cover, "jl_wz", 10, 220, 30, "#FFFFFF", "完成奖励")
+                        GUI:Text_enableUnderline(jl)
+                        GUI:Text_setFontName(jl, "fonts/448.ttf")
+                        GUI:Text_enableOutline(jl, "#000000", 2)
+                        local okReward, rewardNode = pcall(function()
+                            return ItemNumByTable_img_new(rewardData, nil, jl)
+                        end)
+                        if okReward and rewardNode then
+                            GUI:setPosition(rewardNode, 0, -60)
+                        end
+
+                        local desc = GUI:Text_Create(cover, "desc_wz", 10, 100, 30, "#FFFFFF", "任务简介")
+                        GUI:Text_enableUnderline(desc)
+                        GUI:Text_setFontName(desc, "fonts/448.ttf")
+                        GUI:Text_enableOutline(desc, "#000000", 2)
+                        local okDesc, descNode = pcall(function()
+                            return GUI:RichText_Create(desc, "desc", 0, -5, taskDesc, 170, 17, "#f7f7de", 3, nil, nil)
+                        end)
+                        if okDesc and descNode then
+                            GUI:setAnchorPoint(descNode, 0, 1)
+                        else
+                            GUI:setAnchorPoint(GUI:Text_Create(desc, "desc_plain", 0, -5, 16, "#f7f7de", taskDesc), 0, 1)
+                        end
+
+                        slotUi.cover = cover
+                        return cover
+                    end
+                    slotUi.ensure_cover = ensure_cover
+
                     GUI:setTouchEnabled(img, true)
                     GUI:addOnClickEvent(img, function()
-                        -- 创建遮盖层，动态从上到下，再次点击收回
-                        local ui = GUI:ui_delegate(img)
-                        local size = GUI:getContentSize(img)
-                        local startY = size.height + size.height / 2
-                        local endY = size.height / 2 + 20
-                        local cover = ui.cover
-                        local function toggleCover()
-                            cover = ui.cover
-                            if not cover then
-                                return
-                            end
-                            if ui.cover_anim then
-                                return
-                            end
-                            if not ui.cover_open then
-                                ui.cover_anim = true
-                                if ui.cover_hidden then
-                                    for _, child in ipairs(ui.cover_hidden) do
-                                        GUI:setVisible(child, false)
-                                    end
-                                end
-                                GUI:setVisible(cover, true)
-                                GUI:runAction(cover, GUI:ActionSequence(
-                                        GUI:ActionMoveTo(0.2, size.width / 2, endY),
-                                        GUI:CallFunc(function()
-                                            ui.cover_open = true
-                                            ui.cover_anim = false
-                                            -- GUI:setTouchEnabled(img, false)
-                                        end)
-                                ))
-                            else
-                                ui.cover_anim = true
-                                GUI:runAction(cover, GUI:ActionSequence(
-                                        GUI:ActionMoveTo(0.2, size.width / 2, startY),
-                                        GUI:CallFunc(function()
-                                            -- GUI:setVisible(cover, false)
-                                            GUI:removeFromParent(cover)
-                                            if ui.cover_hidden then
-                                                for _, child in ipairs(ui.cover_hidden) do
-                                                    GUI:setVisible(child, true)
-                                                end
-                                            end
-                                            ui.cover_open = false
-                                            ui.cover_anim = false
-                                            -- GUI:setTouchEnabled(img, true)
-                                        end)
-                                ))
-                            end
-                        end
-                        if not cover then
-                            local children = GUI:getChildren(img) or {}
-                            ui.cover_hidden = {}
-                            for _, child in ipairs(children) do
-                                if child ~= cover then
-                                    table.insert(ui.cover_hidden, child)
-                                end
-                            end
-                            cover = GUI:Image_Create(img, "cover", size.width / 2, startY, "res/wy/public/500-300.png")
-                            GUI:setContentSize(cover, size.width - 40, size.height - 60)
-                            GUI:setAnchorPoint(cover, 0.5, 0.5)
-                            GUI:setTouchEnabled(cover, true)
-                            GUI:addOnClickEvent(cover, toggleCover)
-                            ui.cover = cover
-                            ui.cover_open = false
-
-                            local title = GUI:Text_Create(cover, "title_wz",10, 300, 30, "#FFFFFF", "任务名称:")
-                            -- GUI:Text_enableUnderline(title)
-                            GUI:Text_setFontName(title, "fonts/448.ttf")
-                            GUI:Text_enableOutline(title, "#000000", 2)
-                            GUI:Text_Create(cover, "title",10, 300 - 25, 18, "#FF00FF", task[1] or task.title or "任务")
-
-                            local jl = GUI:Text_Create(cover, "jl_wz",10, 220, 30, "#FFFFFF", "完成奖励")
-                            GUI:Text_enableUnderline(jl)
-                            GUI:Text_setFontName(jl, "fonts/448.ttf")
-                            GUI:Text_enableOutline(jl, "#000000", 2)
-                            
-                            GUI:setPosition(ItemNumByTable_img_new(task.jl, nil,jl), 0, -60)
-
-                            local desc = GUI:Text_Create(cover, "desc_wz",10, 100, 30, "#FFFFFF", "任务简介")
-                            GUI:Text_enableUnderline(desc)
-                            GUI:Text_setFontName(desc, "fonts/448.ttf")
-                            GUI:Text_enableOutline(desc, "#000000", 2)
-
-                            GUI:setAnchorPoint(GUI:RichText_Create(desc, "desc", 0, -5,  task.desc, 170, 17, "#f7f7de", 3,nil,nil)
-                            , 0, 1)
-
-                        end
-                        toggleCover()
+                        _toggle_task_slot(cardSlot)
                     end)
+
+                    -- 避免父节点吞掉点击事件，仅使用 img 作为折叠展开入口。
+                    GUI:setTouchEnabled(card, false)
 
                     
                     
@@ -1693,7 +1819,7 @@ npc[11] = function(p2, p3, Data)
                     end
                     
                 end
-                GUI:UserUILayout(layout, { dir = 2, addDir = 1, gap = { x = 0 + 18 } })
+                _relayout_task_cards(false)
                 GUI:Image_Create(node, "wz1", 340, 110, 'res/custom/ywl/wz.png')
 
                 if zjCfg.jl then
@@ -1718,7 +1844,7 @@ npc[11] = function(p2, p3, Data)
                             dir = 3,
                             guideWidget = autoGuideWidget,
                             guideParent = guideParent,
-                            guideDesc = "点击前往任务",
+                            guideDesc = "建议优先领取",
                             isForce = false,
                         })
                     end
