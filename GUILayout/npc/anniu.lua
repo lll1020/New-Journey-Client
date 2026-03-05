@@ -1576,6 +1576,16 @@ npc[11] = function(p2, p3, Data)
                     return table.concat(out, "\n")
                 end
 
+                local function _ywl_build_task_desc(task)
+                    if npc.xyl and npc.xyl.build_task_desc then
+                        local ok, built = pcall(npc.xyl.build_task_desc, task)
+                        if ok and built and built ~= "" then
+                            return built
+                        end
+                    end
+                    return (type(task) == "table" and (task.desc or task.wz)) or "暂无任务简介"
+                end
+
                 local expandedSlot = nil
 
                 -- 设置单个任务槽位的展开状态（宽度与层级）。
@@ -1704,7 +1714,7 @@ npc[11] = function(p2, p3, Data)
                             return slotUi.cover
                         end
                         local taskTitle = task[1] or task.title or "任务"
-                        local taskDesc = task.desc or task.wz or "暂无任务简介"
+                        local taskDesc = _ywl_build_task_desc(task)
                         local rewardData = (type(task.jl) == "table") and task.jl or {}
                         local size = GUI:getContentSize(img)
                         local imgPos = GUI:getPosition(img)
@@ -1727,12 +1737,12 @@ npc[11] = function(p2, p3, Data)
                             _toggle_task_slot(cardSlot)
                         end)
 
-                        local title = GUI:Text_Create(cover, "title_wz", 10, 300, 30, "#FFFFFF", "任务名称:")
+                        local title = GUI:Text_Create(cover, "title_wz", 10, 310, 25, "#FF00FF", taskTitle)
                         GUI:Text_setFontName(title, "fonts/448.ttf")
                         GUI:Text_enableOutline(title, "#000000", 2)
-                        GUI:Text_Create(cover, "title", 10, 275, 18, "#FF00FF", taskTitle)
+                        -- GUI:Text_Create(cover, "title", 10, 275, 18, "#FF00FF", taskTitle)
 
-                        local jl = GUI:Text_Create(cover, "jl_wz", 10, 220, 30, "#FFFFFF", "完成奖励")
+                        local jl = GUI:Text_Create(cover, "jl_wz", 10, 280, 25, "#FFFFFF", "完成奖励")
                         GUI:Text_enableUnderline(jl)
                         GUI:Text_setFontName(jl, "fonts/448.ttf")
                         GUI:Text_enableOutline(jl, "#000000", 2)
@@ -1743,12 +1753,13 @@ npc[11] = function(p2, p3, Data)
                             GUI:setPosition(rewardNode, 0, -60)
                         end
 
-                        local desc = GUI:Text_Create(cover, "desc_wz", 10, 100, 30, "#FFFFFF", "任务简介")
+                        local desc = GUI:Text_Create(cover, "desc_wz", 10, 172, 30, "#FFFFFF", "任务简介")
                         GUI:Text_enableUnderline(desc)
                         GUI:Text_setFontName(desc, "fonts/448.ttf")
                         GUI:Text_enableOutline(desc, "#000000", 2)
                         local okDesc, descNode = pcall(function()
                             return GUI:RichText_Create(desc, "desc", 0, -5, taskDesc, 170, 17, "#f7f7de", 3, nil, nil)
+
                         end)
                         if okDesc and descNode then
                             GUI:setAnchorPoint(descNode, 0, 1)

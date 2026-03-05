@@ -560,8 +560,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "二大陆主城", 24, 101, 113 },
-                    desc = "直面天书强化，破局前行",
+                    desc = "强化天书一级\n进度：%s",
                 },
                 {
                     "初识仙法",
@@ -569,8 +570,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "二大陆主城", 24, 101, 113 },
-                    desc = "历经初识仙法，收获机缘",
+                    desc = "学习第一个仙法\n进度：%s",
                 },
                 {
                     "扫荡野火帮（剧）",
@@ -579,8 +581,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 1, "野火帮", 603, 100, 223 },
-                    desc = "直面扫荡野火帮，破局前行",
+                    desc = "击杀30只怪物\n进度：%s",
                 },
                 {
                     "深入野火（剧）",
@@ -589,8 +592,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 1, "野火帮大营", 607, 60, 279 },
-                    desc = "探入敌营深处，摸清野火脉络",
+                    desc = "提交：\n野火帮罪证*10\n进度：%s",
                 },
             },
             name = "初入江湖",
@@ -607,8 +611,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 }, { "灵石", 100 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "二大陆主城", 25, 105, 113 },
-                    desc = "历经幸运增幅，收获机缘",
+                    desc = "强化幸运一级\n进度：%s",
                 },
                 {
                     "气运占卜",
@@ -616,8 +621,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 }, { "灵石", 100 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "二大陆主城", 26, 109, 113 },
-                    desc = "闯过气运占卜，证我道途",
+                    desc = "完成一次气运占卜\n进度：%s",
                 },
                 {
                     "剿灭恶徒（剧）",
@@ -626,8 +632,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 1, "极光城郊", 604, 83, 166 },
-                    desc = "踏入剿灭恶徒，循迹而行",
+                    desc = "击杀\n寒霜狐   %s\n冰羽雀   %s",
                 },
                 {
                     "守护森林（剧）",
@@ -636,8 +643,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 1, "神秘森林", 608, 52, 53 },
-                    desc = "前往守护森林，探寻其中机缘",
+                    desc = "击杀怪物50只\n进度：%s",
                 },
             },
             name = "小试牛刀",
@@ -655,8 +663,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "二大陆主城", 28, 117, 113 },
-                    desc = "于装备强化中磨砺，道心更稳",
+                    desc = "完成装备强化\n进度：%s",
                 },
                 {
                     "杀伐之路（剧）",
@@ -665,8 +674,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 1, "兵道古藏", 605, 103, 53 },
-                    desc = "踏入杀伐之路，循迹而行",
+                    desc = "击杀怪物30只\n进度：%s",
                 },
                 {
                     "掘墓人（剧）",
@@ -675,8 +685,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 1, "乱葬岗", 610, 170, 212 },
-                    desc = "踏入掘墓人，循迹而行",
+                    desc = "提交：唐三彩*5\n进度：%s",
                 },
             },
             name = "漫漫仙途",
@@ -693,8 +704,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "二大陆主城", 22, 97, 113 },
-                    desc = "历经喂养灵根，收获机缘",
+                    desc = "完成喂养灵根\n进度：%s",
                 },
                 {
                     "讨伐夜魔（剧）",
@@ -703,8 +715,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 1, "夜魔洞", 606, 98, 95 },
-                    desc = "闯过讨伐夜魔，证我道途",
+                    desc = "击杀\n夜蝠魇   %s\n地腔鼠   %s",
                 },
                 {
                     "古刹之谜（剧）",
@@ -713,8 +726,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "洞穴秘境", 609, 143, 153 },
-                    desc = "前往古刹，探寻其中机缘",
+                    desc = "提交\n杀意碎片   %s\n煞气   %s",
                 },
                 {
                     "转生·二",
@@ -722,8 +736,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "xtc", 33, 132, 121 },
-                    desc = "踏入转生·二，循迹而行",
+                    desc = "完成转生·二\n进度：%s",
                 },
                 {
                     "修复轩辕剑（剧）",
@@ -732,8 +747,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "二大陆主城", 601, 99, 123 },
-                    desc = "于修复轩辕剑中磨砺，道心更稳",
+                    desc = "完成修复轩辕剑（剧）\n进度：%s",
                 },
             },
             name = "融会贯通",
@@ -752,8 +768,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 1, "三大陆主城", 55, 169, 230 },
-                    desc = "踏入开辟仙府（主城NPC，循迹而行",
+                    desc = "完成开辟仙府（主城NPC）\n进度：%s",
                 },
                 {
                     "踏入·虚妄山脉",
@@ -762,8 +779,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 1, "灰界南部", 621, 229, 144 },
-                    desc = "行走踏入·虚妄山脉，破除迷障",
+                    desc = "击杀50只怪物\n进度：%s",
                 },
                 {
                     "踏入·叹息旷野",
@@ -772,8 +790,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 1, "灰界北部", 622, 41, 43 },
-                    desc = "踏入踏入·叹息旷野，循迹而行",
+                    desc = "击杀50只怪物\n进度：%s",
                 },
                 {
                     "踏入·鬼嘲深渊",
@@ -782,8 +801,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 1, "灰界东部", 623, 10, 66 },
-                    desc = "闯过踏入·鬼嘲深渊，证我道途",
+                    desc = "击杀50只怪物\n进度：%s",
                 },
                 {
                     "踏入·禁忌之海",
@@ -792,8 +812,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 1, "灰界西部", 624, 21, 77 },
-                    desc = "于踏入·禁忌之海中磨砺，道心更稳",
+                    desc = "击杀50只怪物\n进度：%s",
                 },
             },
             name = "灰界开篇",
@@ -810,8 +831,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 }, { "藏宝图碎片", 5 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "三大陆主城", 44, 149, 225 },
-                    desc = "闯过种植仙草，证我道途",
+                    desc = "种植一次仙草\n进度：%s",
                 },
                 {
                     "了解砍树",
@@ -819,8 +841,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 }, { "藏宝图碎片", 5 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "三大陆主城", 44, 149, 225 },
-                    desc = "行走了解砍树，破除迷障",
+                    desc = "开启自动砍树\n进度：%s",
                 },
                 {
                     "寻宝大师",
@@ -828,8 +851,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "三大陆主城", 47, 161, 225 },
-                    desc = "行走寻宝大师，破除迷障",
+                    desc = "制作一次藏宝图\n进度：%s",
                 },
             },
             name = "仙府功能",
@@ -855,8 +879,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "三大陆主城", 44, 149, 225 },
-                    desc = "闯过炼制丹药，证我道途",
+                    desc = "炼制一次丹药\n进度：%s",
                 },
                 {
                     "讨伐嘲灾",
@@ -867,8 +892,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 1, "鬼嘲深渊", 625, 174, 460 },
-                    desc = "踏破讨伐嘲灾，守护一方安宁",
+                    desc = "讨伐嘲灾",
                 },
                 {
                     "讨伐忌灾",
@@ -879,8 +905,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 1, "禁忌之海", 626, 74, 67 },
-                    desc = "深入讨伐忌灾，寻回失落线索",
+                    desc = "讨伐忌灾",
                 },
                 {
                     "讨伐息灾",
@@ -891,8 +918,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 1, "叹息旷野", 627, 126, 209 },
-                    desc = "探访讨伐息灾，揭开真相",
+                    desc = "讨伐息灾",
                 },
                 {
                     "讨伐妄灾",
@@ -903,8 +931,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 1, "虚妄山脉", 628, 107, 97 },
-                    desc = "踏破讨伐妄灾，守护一方安宁",
+                    desc = "讨伐妄灾",
                 },
             },
             name = "炼丹与讨伐",
@@ -922,8 +951,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 1, "三大陆主城", 47, 161, 225 },
-                    desc = "直面杀戮的欲望，化解其中隐患",
+                    desc = "击杀300只怪物\n进度：%s",
                 },
                 {
                     "沉船之谜",
@@ -932,8 +962,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "千年沉船", 629, 44, 34 },
-                    desc = "直面沉船之谜，化解其中隐患",
+                    desc = "提交\n船长室钥匙   %s\n水手舱钥匙   %s",
                 },
                 {
                     "船长的宝藏",
@@ -944,8 +975,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 1, "船长室", 630, 29, 34 },
-                    desc = "踏破船长的宝藏，守护一方安宁",
+                    desc = "提交：宝藏碎片*10\n进度：%s",
                 },
                 {
                     "谁是内鬼",
@@ -956,8 +988,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 1, "水手舱", 631, 30, 36 },
-                    desc = "历经谁是内鬼，收获机缘",
+                    desc = "击杀200只怪物\n进度：%s",
                 },
             },
             name = "外海之旅",
@@ -975,8 +1008,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 1, "藏星内海", 635, 81, 166 },
-                    desc = "闯过送葬者，证我道途",
+                    desc = "击杀5只怪物\n进度：%s",
                 },
                 {
                     "热血的友情",
@@ -985,8 +1019,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "七星岛", 636, 159, 408 },
-                    desc = "直面热血的友情，化解其中隐患",
+                    desc = "提交：热血的友情*10\n进度：%s",
                 },
                 {
                     "真正的海贼王",
@@ -995,8 +1030,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "葬星城", 637, 110, 96 },
-                    desc = "深入真正的海贼王，寻回失落线索",
+                    desc = "提交\n路飞的帽子   %s\n索隆的刀   %s\n乌索普的弹弓   %s\n海贼意志   %s",
                 },
                 {
                     "海滩拾贝",
@@ -1005,8 +1041,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 0 },
-                    desc = "直面海滩拾贝，化解其中隐患",
+                    desc = "提交：贝壳*20\n进度：%s",
                 },
                 {
                     "海盗宝藏",
@@ -1015,8 +1052,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 0 },
-                    desc = "深入海盗宝藏，寻回失落线索",
+                    desc = "提交：海盗头目信物",
                 },
             },
             name = "内海探秘",
@@ -1034,8 +1072,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "草药古深处", 638, 31, 51 },
-                    desc = "于采仙草咯中磨砺，道心更稳",
+                    desc = "采集：仙草[任务]*20\n进度：%s",
                 },
                 {
                     "丹仙秘辛",
@@ -1044,8 +1083,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "丹道古藏", 639, 243, 97 },
-                    desc = "行走丹仙秘辛，破除迷障",
+                    desc = "提交：\n丹仙秘辛残页*10\n进度：%s",
                 },
                 {
                     "棋痴老王",
@@ -1054,8 +1094,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "苍云客栈", 640, 26, 58 },
-                    desc = "前往棋痴老王，探寻其中机缘",
+                    desc = "赢得五子棋残局",
                 },
             },
             name = "草谷丹道",
@@ -1073,8 +1114,9 @@ local npc_xyl = {
                     jl = {},
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "三大陆主城", 46, 157, 225 },
-                    desc = "踏入灾厄入侵，循迹而行",
+                    desc = "达成灾厄入侵挑战\n进度：%s",
                 },
                 {
                     "拥有1传说神石",
@@ -1082,8 +1124,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 3 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "三大陆主城", 53, 161, 230 },
-                    desc = "深入拥有1传说神石，寻回失落线索",
+                    desc = "拥有传说神石\n进度：%s",
                 },
                 {
                     "传说·斗笠",
@@ -1091,8 +1134,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "三大陆主城", 51, 153, 230 },
-                    desc = "深入传说·斗笠，寻回失落线索",
+                    desc = "制作传说·斗笠\n进度：%s",
                 },
                 {
                     "神·酒葫芦",
@@ -1100,8 +1144,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "三大陆主城", 52, 157, 230 },
-                    desc = "踏入神·酒葫芦，循迹而行",
+                    desc = "制作神·酒葫芦\n进度：%s",
                 },
                 {
                     "高级淬体",
@@ -1110,8 +1155,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "三大陆主城", 53, 161, 230 },
-                    desc = "踏入高级淬体，循迹而行",
+                    desc = "完成高级淬体五行锻体\n进度：%s",
                 },
                 {
                     "转生·三",
@@ -1119,8 +1165,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "xtc", 34, 136, 121 },
-                    desc = "历经转生·三，收获机缘",
+                    desc = "转生达到三阶\n进度：%s",
                 },
                 
             },
@@ -1140,8 +1187,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 3 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "四大陆主城", 64, 38, 27 },
-                    desc = "前往灵兽全一星，探寻其中机缘",
+                    desc = "灵兽全部达到一星\n进度：%s",
                 },
                 {
                     "灵兽全二星",
@@ -1149,8 +1197,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 5 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "四大陆主城", 64, 38, 27 },
-                    desc = "前往灵兽全二星，探寻其中机缘",
+                    desc = "灵兽全部达到二星\n进度：%s",
                 },
                 {
                     "灵兽全三星",
@@ -1158,8 +1207,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 10 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "四大陆主城", 64, 38, 27 },
-                    desc = "踏入灵兽全三星，循迹而行",
+                    desc = "灵兽全部达到三星\n进度：%s",
                 },
                 {
                     "唐代古玩",
@@ -1167,8 +1217,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 3 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "四大陆主城", 65, 41, 27 },
-                    desc = "踏破唐代古玩，守护一方安宁",
+                    desc = "鉴定出唐代古玩\n进度：%s",
                 },
                 {
                     "红色仙法",
@@ -1176,8 +1227,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 3 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "二大陆主城", 24, 101, 113 },
-                    desc = "闯过红色仙法，证我道途",
+                    desc = "获得红色仙法\n进度：%s",
                 },
                 {
                     "转生·四",
@@ -1185,8 +1237,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "xtc", 35, 140, 121 },
-                    desc = "探访转生·四，揭开真相",
+                    desc = "转生达到四阶\n进度：%s",
                 },
             },
             name = "若水秘闻",
@@ -1203,8 +1256,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "酆都鬼城", 666, 84, 50 },
-                    desc = "前往捉鬼人，探寻其中机缘",
+                    desc = "击杀100只怪物\n提交：亡者灵魂*30\n进度：%s",
                 },
                 {
                     "买路钱",
@@ -1213,8 +1267,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "鬼门关", 667, 83, 95 },
-                    desc = "踏入买路钱，循迹而行",
+                    desc = "提交\n鬼界令牌   %s\n金币   %s",
                 },
                 {
                     "思念之人",
@@ -1223,8 +1278,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 0 },
-                    desc = "探访思念之人，揭开真相",
+                    desc = "提交\n彼岸花   %s\n金币   %s",
                 },
                 {
                     "忘却前生情",
@@ -1233,8 +1289,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 0 },
-                    desc = "行走忘却前生情，破除迷障",
+                    desc = "提交：\n孟婆汤*10\n进度：%s",
                 },
                 {
                     "讨伐六天宫",
@@ -1243,8 +1300,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 0 },
-                    desc = "历经讨伐六天宫，收获机缘",
+                    desc = "提交：\n六天宫残魂*10\n进度：%s",
                 },
                 {
                     "地狱使者",
@@ -1253,8 +1311,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 3 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 0 },
-                    desc = "历经地狱使者，收获机缘",
+                    desc = "通过地狱十八层挑战\n进度：%s",
                 },
                 {
                     "轮回之路",
@@ -1263,8 +1322,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 3 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 0 },
-                    desc = "深入轮回之路，寻回失落线索",
+                    desc = "通过轮回六道试炼",
                 },
             },
             name = "地府探秘",
@@ -1282,8 +1342,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 1, "大唐·长安城", 642, 35, 57 },
-                    desc = "直面资格考验，化解其中隐患",
+                    desc = "击杀\n怪物   %s\nBOSS   %s",
                 },
                 {
                     "龙王的噩梦",
@@ -1292,8 +1353,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 0 },
-                    desc = "探访龙王的噩梦，揭开真相",
+                    desc = "提交\n虾兵的头颅   %s\n蟹将的头颅   %s",
                 },
                 {
                     "我的袈裟！",
@@ -1302,8 +1364,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 0 },
-                    desc = "探访我的袈裟！，揭开真相",
+                    desc = "击杀\n黑风大王\n并提交：师傅的袈裟\n进度：%s %s",
                 },
                 {
                     "黄风大圣",
@@ -1312,8 +1375,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 0 },
-                    desc = "于黄风大圣中磨砺，道心更稳",
+                    desc = "击杀\n黄风大圣\n提交：黄风谷特产\n进度：%s %s",
                 },
                 {
                     "你竟是女王？",
@@ -1322,8 +1386,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 0 },
-                    desc = "直面你竟是女王？，化解其中隐患",
+                    desc = "女儿国?",
                 },
                 {
                     "驮我过河",
@@ -1332,8 +1397,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 0 },
-                    desc = "直面驮我过河，化解其中隐患",
+                    desc = "按任务指引通过驮我过河",
                 },
                 {
                     "大闹狮驼岭",
@@ -1342,8 +1408,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 0 },
-                    desc = "前往大闹狮驼岭，探寻其中机缘",
+                    desc = "击杀\n★青狮★   %s\n★白象★   %s\n★大鹏★   %s",
                 },
                 {
                     "真假经书",
@@ -1352,8 +1419,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 3 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 0 },
-                    desc = "历经真假经书，收获机缘",
+                    desc = "鉴定经书",
                 },
                 {
                     "重走西游路",
@@ -1362,8 +1430,9 @@ local npc_xyl = {
                     jl = {},
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "四大陆主城", 641, 37, 42 },
-                    desc = "直面重走西游路，化解其中隐患",
+                    desc = "重走西游路",
                 },
             },
             name = "重走西游",
@@ -1381,8 +1450,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 0 },
-                    desc = "踏入天鼠的游戏，循迹而行",
+                    desc = "回答天鼠谜题\n进度：%s",
                 },
                 {
                     "天牛的游戏",
@@ -1391,8 +1461,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 0 },
-                    desc = "历经天牛的游戏，收获机缘",
+                    desc = "达成天牛试炼要求\n进度：%s",
                 },
                 {
                     "天虎的游戏",
@@ -1401,8 +1472,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 0 },
-                    desc = "踏破天虎的游戏，守护一方安宁",
+                    desc = "击杀300只怪物\n进度：%s",
                 },
                 {
                     "天兔的游戏",
@@ -1411,8 +1483,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 0 },
-                    desc = "深入天兔的游戏，寻回失落线索",
+                    desc = "限时抵达终点\n进度：%s",
                 },
                 {
                     "灵域使者·一",
@@ -1421,8 +1494,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 0 },
-                    desc = "历经灵域使者·一，收获机缘",
+                    desc = "通过\n天鼠/天牛/天虎/天兔试炼\n进度：%s",
                 },
             },
             name = "生肖守护[始]",
@@ -1440,8 +1514,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 0 },
-                    desc = "前往天龙的游戏，探寻其中机缘",
+                    desc = "提交：龙珠",
                 },
                 {
                     "天蛇的游戏",
@@ -1450,8 +1525,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 0 },
-                    desc = "探访天蛇的游戏，揭开真相",
+                    desc = "提交：蛇图腾碎片*1\n进度：%s",
                 },
                 {
                     "天马的游戏",
@@ -1460,8 +1536,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 0 },
-                    desc = "踏破天马的游戏，守护一方安宁",
+                    desc = "提交：摸鱼能力卡*5\n进度：%s",
                 },
                 {
                     "天羊的游戏",
@@ -1470,8 +1547,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 0 },
-                    desc = "深入天羊的游戏，寻回失落线索",
+                    desc = "击杀333只怪物\n进度：%s",
                 },
                 {
                     "灵域使者·二",
@@ -1480,8 +1558,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 0 },
-                    desc = "历经灵域使者·二，收获机缘",
+                    desc = "通过\n天龙/天蛇/天马/天羊试炼\n进度：%s",
                 },
             },
             name = "生肖守护[转]",
@@ -1499,8 +1578,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 0 },
-                    desc = "踏破天猴的游戏，守护一方安宁",
+                    desc = "提交\n天猴的卡牌   %s\n元宝   %s",
                 },
                 {
                     "天鸡的游戏",
@@ -1509,8 +1589,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 0 },
-                    desc = "行走天鸡的游戏，破除迷障",
+                    desc = "提交：\n凤凰的羽毛*10\n进度：%s",
                 },
                 {
                     "天狗的游戏",
@@ -1519,8 +1600,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 0 },
-                    desc = "直面天狗的游戏，化解其中隐患",
+                    desc = "击杀500只怪物\n进度：%s",
                 },
                 {
                     "天猪的游戏",
@@ -1529,8 +1611,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 0 },
-                    desc = "踏破天猪的游戏，守护一方安宁",
+                    desc = "达成天猪试炼要求\n进度：%s",
                 },
                 {
                     "灵域使者·三",
@@ -1539,8 +1622,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 0 },
-                    desc = "闯过灵域使者·三，证我道途",
+                    desc = "通过\n天猴/天鸡/天狗/天猪试炼\n进度：%s",
                 },
                 {
                     "生肖守护",
@@ -1549,8 +1633,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 5 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "四大陆主城", 67, 47, 27 },
-                    desc = "行走生肖守护，破除迷障",
+                    desc = "通过十二生肖守护试炼\n进度：%s",
                 },
             },
             name = "生肖守护[终]",
@@ -1568,8 +1653,9 @@ local npc_xyl = {
                     jl = {},
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = false,
                     yd = { 1, "盘古开天", 673, 67, 48 },
-                    desc = "历经传说修复局，收获机缘",
+                    desc = "通过八则传说试炼\n进度：%s",
                 },
                 {
                     "盘古开天",
@@ -1578,8 +1664,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 1, "羿射九日", 674, 355, 119 },
-                    desc = "行走盘古开天，破除迷障",
+                    desc = "叫醒盘古",
                 },
                 {
                     "羿射九日",
@@ -1588,8 +1675,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 1, "不周山", 675, 75, 77 },
-                    desc = "行走羿射九日，破除迷障",
+                    desc = "射落九个太阳",
                 },
                 {
                     "共公怒触不周山",
@@ -1598,8 +1686,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 1, "女娲补天", 676, 110, 58 },
-                    desc = "直面共公怒触不周山，化解其中隐患",
+                    desc = "撞倒不周山",
                 },
                 {
                     "女娲补天",
@@ -1608,8 +1697,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 1, "女娲补天", 677, 102, 58 },
-                    desc = "前往女娲补天，探寻其中机缘",
+                    desc = "补天",
                 },
                 {
                     "后土娘娘",
@@ -1618,8 +1708,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 3 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 1, "黑白无常", 678, 101, 57 },
-                    desc = "历经后土娘娘，收获机缘",
+                    desc = "通过后土多阶段试炼",
                 },
                 {
                     "黑白无常",
@@ -1628,8 +1719,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 1, "后土娘娘", 679, 152, 171 },
-                    desc = "踏入黑白无常，循迹而行",
+                    desc = "提交：\n友情的力量*10\n进度：%s",
                 },
                 {
                     "真假玉帝",
@@ -1638,8 +1730,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 1, "真假玉帝", 680, 84, 93 },
-                    desc = "踏破真假玉帝，守护一方安宁",
+                    desc = "提交\n鱼竿   %s\n鱼饵   %s",
                 },
                 {
                     "白蛇传说",
@@ -1648,8 +1741,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
+                    need_receive = true,
                     yd = { 1, "白蛇传说", 681, 216, 167 },
-                    desc = "踏入白蛇传说，循迹而行",
+                    desc = "提交：\n白蛇的礼物\n进度：%s",
                 },
             },
             name = "修复传说",
@@ -1697,10 +1791,354 @@ local npc_xyl = {
     },
 }
 
+-- 备注：扁平化 cost 配置，兼容 {{"道具",1}} 与 { [1]={{"道具",1}} } 两种写法。
+local function _xyl_collect_cost_entries(cost, out)
+    out = out or {}
+    if type(cost) ~= "table" then
+        return out
+    end
+    for _, v in pairs(cost) do
+        if type(v) == "table" then
+            if type(v[1]) == "string" and tonumber(v[2]) then
+                table.insert(out, { v[1], tonumber(v[2]) })
+            else
+                _xyl_collect_cost_entries(v, out)
+            end
+        end
+    end
+    return out
+end
+
+local function _xyl_count_placeholders(desc)
+    local n = 0
+    local s = tostring(desc or "")
+    for _ in s:gmatch("%%s") do
+        n = n + 1
+    end
+    return n
+end
+
+local function _xyl_story_node_done(node)
+    if node == nil then
+        return false
+    end
+    if type(node) == "number" then
+        return tonumber(node) >= 2
+    end
+    if type(node) == "table" then
+        if tonumber(node[1] or node["1"] or 0) >= 2 then
+            return true
+        end
+        if tonumber(node.wc or node.finish or node.done or node.ok or 0) >= 1 then
+            return true
+        end
+        if tonumber(node.cnt or node.num or 0) >= 2 then
+            return true
+        end
+    end
+    return false
+end
+
+local function _xyl_story_node_started(node)
+    if node == nil then
+        return false
+    end
+    if type(node) == "number" then
+        return tonumber(node) > 0
+    end
+    if type(node) == "table" then
+        if tonumber(node[1] or node["1"] or 0) > 0 then
+            return true
+        end
+        if tonumber(node.wc or node.finish or node.done or node.ok or 0) > 0 then
+            return true
+        end
+        if tonumber(node.cnt or node.num or 0) > 0 then
+            return true
+        end
+    end
+    return false
+end
+
+local function _xyl_get_story_node_by_tk(tk, storyData)
+    if not tk or tk == "" then
+        return nil
+    end
+    local data = storyData or _xyl_get_json("T13")
+    local node = data[tk]
+    if node == nil then
+        node = data[tostring(tk):gsub("_", "")]
+    end
+    return node
+end
+
+local function _xyl_progress_pair_text(cur, need)
+    local c = tonumber(cur) or 0
+    local n = tonumber(need) or 0
+    if n > 0 and c > n then
+        c = n
+    end
+    return c, n, string.format("%d/%d", c, n)
+end
+
+-- 备注：统一将进度节点转为数值，兼容 number/string/table 三种结构。
+local function _xyl_node_to_number(node)
+    if type(node) == "number" then
+        return tonumber(node) or 0
+    end
+    if type(node) == "string" then
+        return tonumber(node) or 0
+    end
+    if type(node) == "table" then
+        return tonumber(node.cnt or node.num or node.value or node[1] or node["1"] or 0) or 0
+    end
+    return 0
+end
+
+-- 备注：读取杀怪进度，兼容 tk / 去下划线 tk / shaguai_id 等不同存储键名。
+local function _xyl_get_kill_progress_value(sg, tk, cfg, suffix)
+    if type(sg) ~= "table" then
+        return 0
+    end
+    local suf = tostring(suffix or "")
+    local sufNoUnder = suf:gsub("^_", "")
+    local keyList = {}
+
+    local function add_key(v)
+        if v == nil then
+            return
+        end
+        table.insert(keyList, v)
+    end
+
+    local tkStr = tk and tostring(tk) or nil
+    if tkStr and tkStr ~= "" then
+        add_key(tkStr .. suf)
+        add_key(tkStr:gsub("_", "") .. suf)
+        if sufNoUnder ~= "" then
+            add_key(tkStr .. sufNoUnder)
+            add_key(tkStr:gsub("_", "") .. sufNoUnder)
+        end
+    end
+
+    local sid = cfg and tonumber(cfg.shaguai_id) or nil
+    if sid then
+        add_key(tostring(sid) .. suf)
+        if sufNoUnder ~= "" then
+            add_key(tostring(sid) .. sufNoUnder)
+        end
+        add_key(sid)
+    end
+
+    local sources = { sg }
+    if type(sg.sg_data) == "table" then
+        table.insert(sources, sg.sg_data)
+    end
+
+    local best = 0
+    for _, src in ipairs(sources) do
+        for _, k in ipairs(keyList) do
+            local node = src[k]
+            if node ~= nil then
+                local n = _xyl_node_to_number(node)
+                if n > best then
+                    best = n
+                end
+            end
+        end
+    end
+    return best
+end
+
+local function _xyl_get_item_count_by_name(itemName)
+    if not itemName or itemName == "" then
+        return 0
+    end
+    local itemIdx = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", itemName))
+    if not itemIdx then
+        return 0
+    end
+    if Player.isCurrency and Player:isCurrency(itemIdx) then
+        return tonumber(SL:GetMetaValue("MONEY_ASSOCIATED", itemIdx)) or 0
+    end
+    return tonumber(SL:GetMetaValue("ITEM_COUNT", itemIdx)) or 0
+end
+
+local function _xyl_get_task_progress_values(task, storyData)
+    if type(task) ~= "table" then
+        return nil, nil, nil
+    end
+    local tk = task.tk and tostring(task.tk) or nil
+    if not tk or tk == "" then
+        return nil, nil, nil
+    end
+
+    local node = _xyl_get_story_node_by_tk(tk, storyData)
+    if node == nil then
+        return nil, nil, nil
+    end
+
+    local cfg = teshudata and teshudata[tk]
+    local need = tonumber(cfg and cfg.max_num)
+    local cur = 0
+    if type(node) == "number" then
+        cur = tonumber(node) or 0
+    elseif type(node) == "table" then
+        cur = tonumber(node.cnt or node.num or node[1] or node["1"] or 0) or 0
+        if cur <= 0 and tonumber(node.wc or node.finish or node.done or node.ok or 0) >= 1 then
+            cur = need or 1
+        end
+    end
+
+    if need and need > 0 then
+        return _xyl_progress_pair_text(cur, need)
+    end
+    if _xyl_story_node_done(node) then
+        return cur, need, "已完成"
+    end
+    if _xyl_story_node_started(node) then
+        return cur, need, "进行中"
+    end
+    return cur, need, "未开始"
+end
+
+local function _xyl_get_task_progress_format_args(task, storyData, killData)
+    local args = {}
+    local tk = type(task) == "table" and task.tk and tostring(task.tk) or nil
+    local cfg = tk and teshudata and teshudata[tk] or nil
+    local sg = killData or _xyl_get_json("T35")
+    if tk and cfg then
+        local hasABC = (tonumber(cfg.num_a) or 0) > 0 or (tonumber(cfg.num_b) or 0) > 0 or (tonumber(cfg.num_c) or 0) > 0
+        if hasABC then
+            local pairs = {
+                {"_a", cfg.num_a},
+                {"_b", cfg.num_b},
+                {"_c", cfg.num_c},
+            }
+            for _, it in ipairs(pairs) do
+                local need = tonumber(it[2]) or 0
+                if need > 0 then
+                    local cur = _xyl_get_kill_progress_value(sg, tk, cfg, it[1])
+                    local _, _, txt = _xyl_progress_pair_text(cur, need)
+                    table.insert(args, txt)
+                end
+            end
+        else
+            local need = tonumber(cfg.num) or 0
+            if need > 0 then
+                local cur = _xyl_get_kill_progress_value(sg, tk, cfg, "")
+                local _, _, txt = _xyl_progress_pair_text(cur, need)
+                table.insert(args, txt)
+            end
+        end
+
+        local costEntries = _xyl_collect_cost_entries(cfg.cost)
+        for _, entry in ipairs(costEntries) do
+            local name = entry[1]
+            local need = tonumber(entry[2]) or 0
+            if need > 0 then
+                local cur = _xyl_get_item_count_by_name(name)
+                local _, _, txt = _xyl_progress_pair_text(cur, need)
+                table.insert(args, txt)
+            end
+        end
+
+        if #args == 0 and type(cfg.details) == "table" then
+            local aNeed, bNeed, cNeed = 0, 0, 0
+            for _, d in ipairs(cfg.details) do
+                aNeed = math.max(aNeed, tonumber(d and d.a_num) or 0)
+                bNeed = math.max(bNeed, tonumber(d and d.b_num) or 0)
+                cNeed = math.max(cNeed, tonumber(d and d.c_num) or 0)
+            end
+            if aNeed > 0 then
+                local _, _, txt = _xyl_progress_pair_text(_xyl_get_kill_progress_value(sg, tk, cfg, "_a"), aNeed)
+                table.insert(args, txt)
+            end
+            if bNeed > 0 then
+                local _, _, txt = _xyl_progress_pair_text(_xyl_get_kill_progress_value(sg, tk, cfg, "_b"), bNeed)
+                table.insert(args, txt)
+            end
+            if cNeed > 0 then
+                local _, _, txt = _xyl_progress_pair_text(_xyl_get_kill_progress_value(sg, tk, cfg, "_c"), cNeed)
+                table.insert(args, txt)
+            end
+        end
+    end
+
+    if #args == 0 then
+        local _, _, progressText = _xyl_get_task_progress_values(task, storyData)
+        table.insert(args, progressText or "未开始")
+    end
+    return args
+end
+
+local function _xyl_build_task_desc(task)
+    local desc = (type(task) == "table" and (task.desc or task.wz)) or nil
+    if not desc or desc == "" then
+        desc = "暂无任务简介"
+    end
+
+    local storyData = _xyl_get_json("T13")
+    local killData = _xyl_get_json("T35")
+    local args = _xyl_get_task_progress_format_args(task, storyData, killData)
+    local summary = table.concat(args, " ")
+    local unpack_fn = table.unpack or unpack
+
+    local placeholderCount = _xyl_count_placeholders(desc)
+    if placeholderCount > #args then
+        for i = #args + 1, placeholderCount do
+            args[i] = summary ~= "" and summary or "未开始"
+        end
+    end
+
+    local ok, formatted = pcall(function()
+        return string.format(desc, unpack_fn(args))
+    end)
+    if ok and formatted then
+        return formatted
+    end
+    if string.find(desc, "进度：", 1, true) then
+        local fallback = desc:gsub("进度：[^\n]*", "进度：" .. (summary ~= "" and summary or "未开始"), 1)
+        return fallback
+    end
+    return desc .. "\n进度：" .. (summary ~= "" and summary or "未开始")
+end
+
+-- 备注：统一补齐“需领取”字段，默认 false；可在单任务里显式改为 true。
+local function _xyl_mark_accept_tasks(taskData)
+    for _, continent in ipairs(taskData or {}) do
+        if type(continent) == "table" then
+            for _, chapter in ipairs(continent) do
+                local jq = chapter and chapter.jq
+                if type(jq) == "table" then
+                    for _, task in ipairs(jq) do
+                        if type(task) == "table" then
+                            if task.need_receive == nil then
+                                task.need_receive = false
+                            end
+                            task.need_accept = true
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+_xyl_mark_accept_tasks(npc_xyl)
+
 npc_xyl.get_chapter_lock_info = function(l, zj, curJqd)
     return _xyl_get_chapter_lock_info(npc_xyl, l, zj, curJqd)
 end
+npc_xyl.build_task_desc = function(task)
+    return _xyl_build_task_desc(task)
+end
 return npc_xyl
+
+
+
+
+
 
 
 
