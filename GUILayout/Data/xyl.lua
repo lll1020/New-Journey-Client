@@ -592,7 +592,7 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    need_receive = true,
+                    need_receive = false,
                     yd = { 1, "野火帮大营", 607, 60, 279 },
                     desc = "提交：\n野火帮罪证*10\n进度：%s",
                 },
@@ -685,7 +685,7 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    need_receive = true,
+                    need_receive = false,
                     yd = { 1, "乱葬岗", 610, 170, 212 },
                     desc = "提交：唐三彩*5\n进度：%s",
                 },
@@ -706,7 +706,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "二大陆主城", 22, 97, 113 },
-                    desc = "完成喂养灵根\n进度：%s",
+                    desc = "完成一次升级灵根\n进度：%s",
                 },
                 {
                     "讨伐夜魔（剧）",
@@ -770,7 +770,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "三大陆主城", 55, 169, 230 },
-                    desc = "完成开辟仙府（主城NPC）\n进度：%s",
+                    desc = "完成开辟仙府【重要】\n进度：%s",
                 },
                 {
                     "踏入·虚妄山脉",
@@ -894,7 +894,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "鬼嘲深渊", 625, 174, 460 },
-                    desc = "讨伐嘲灾",
+                    desc = "讨伐嘲灾\n需要重要丹药",
                 },
                 {
                     "讨伐忌灾",
@@ -907,7 +907,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "禁忌之海", 626, 74, 67 },
-                    desc = "讨伐忌灾",
+                    desc = "讨伐忌灾\n需要重要丹药",
                 },
                 {
                     "讨伐息灾",
@@ -920,7 +920,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "叹息旷野", 627, 126, 209 },
-                    desc = "讨伐息灾",
+                    desc = "讨伐息灾\n需要重要丹药",
                 },
                 {
                     "讨伐妄灾",
@@ -933,7 +933,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "虚妄山脉", 628, 107, 97 },
-                    desc = "讨伐妄灾",
+                    desc = "讨伐妄灾\n需要重要丹药",
                 },
             },
             name = "炼丹与讨伐",
@@ -964,7 +964,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "千年沉船", 629, 44, 34 },
-                    desc = "提交\n船长室钥匙   %s\n水手舱钥匙   %s",
+                    desc = "提交\n船长室钥匙\n%s\n水手舱钥匙\n%s",
                 },
                 {
                     "船长的宝藏",
@@ -977,7 +977,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "船长室", 630, 29, 34 },
-                    desc = "提交：宝藏碎片*10\n进度：%s",
+                    desc = "提交：宝藏碎片*10\n（累计3次）\n提交进度：%s\n背包拥有：%s",
                 },
                 {
                     "谁是内鬼",
@@ -990,7 +990,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "水手舱", 631, 30, 36 },
-                    desc = "击杀200只怪物\n进度：%s",
+                    desc = "审问水手\n（累计4次）\n确认进度：%s",
                 },
             },
             name = "外海之旅",
@@ -1010,7 +1010,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "藏星内海", 635, 81, 166 },
-                    desc = "击杀5只怪物\n进度：%s",
+                    desc = "击杀50只怪物\n进度：%s",
                 },
                 {
                     "热血的友情",
@@ -1021,7 +1021,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "七星岛", 636, 159, 408 },
-                    desc = "提交：热血的友情*10\n进度：%s",
+                    desc = "提交：热血的友情*10\n（累计3次）\n提交进度：%s",
                 },
                 {
                     "真正的海贼王",
@@ -1116,7 +1116,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "三大陆主城", 46, 157, 225 },
-                    desc = "达成灾厄入侵挑战\n进度：%s",
+                    desc = "完成四灾试炼\n讨伐嘲灾   %s\n讨伐忌灾   %s\n讨伐息灾   %s\n讨伐妄灾   %s",
                 },
                 {
                     "拥有1传说神石",
@@ -1252,13 +1252,14 @@ local npc_xyl = {
             jq = {
                 {
                     "捉鬼人",
+                    tk = "npc_666",
                     id = 999,
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    need_receive = false,
+                    need_receive = true,
                     yd = { 1, "酆都鬼城", 666, 84, 50 },
-                    desc = "击杀100只怪物\n提交：亡者灵魂*30\n进度：%s",
+                    desc = "击杀100只怪物   %s\n提交亡者灵魂   %s",
                 },
                 {
                     "买路钱",
@@ -1300,7 +1301,7 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    need_receive = true,
+                    need_receive = false,
                     yd = { 0 },
                     desc = "提交：\n六天宫残魂*10\n进度：%s",
                 },
@@ -1311,7 +1312,7 @@ local npc_xyl = {
                     jl = { { "剧情点", 3 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    need_receive = false,
+                    need_receive = true,
                     yd = { 0 },
                     desc = "通过地狱十八层挑战\n进度：%s",
                 },
@@ -1366,7 +1367,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 0 },
-                    desc = "击杀\n黑风大王\n并提交：师傅的袈裟\n进度：%s %s",
+                    desc = "击杀黑风大王   %s\n提交师傅的袈裟   %s",
                 },
                 {
                     "黄风大圣",
@@ -1377,7 +1378,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 0 },
-                    desc = "击杀\n黄风大圣\n提交：黄风谷特产\n进度：%s %s",
+                    desc = "击杀黄风大圣   %s\n提交黄风谷特产   %s",
                 },
                 {
                     "你竟是女王？",
@@ -1472,7 +1473,7 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    need_receive = false,
+                    need_receive = true,
                     yd = { 0 },
                     desc = "击杀300只怪物\n进度：%s",
                 },
@@ -1675,7 +1676,7 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    need_receive = true,
+                    need_receive = false,
                     yd = { 1, "不周山", 675, 75, 77 },
                     desc = "射落九个太阳",
                 },
@@ -1719,7 +1720,7 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    need_receive = true,
+                    need_receive = false,
                     yd = { 1, "后土娘娘", 679, 152, 171 },
                     desc = "提交：\n友情的力量*10\n进度：%s",
                 },
@@ -1741,9 +1742,9 @@ local npc_xyl = {
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    need_receive = true,
+                    need_receive = false,
                     yd = { 1, "白蛇传说", 681, 216, 167 },
-                    desc = "提交：\n白蛇的礼物\n进度：%s",
+                    desc = "提交：白蛇的礼物*1\n（累计100次）\n提交进度：%s\n背包拥有：%s",
                 },
             },
             name = "修复传说",
@@ -1964,6 +1965,39 @@ local function _xyl_get_item_count_by_name(itemName)
     return tonumber(SL:GetMetaValue("ITEM_COUNT", itemIdx)) or 0
 end
 
+-- 备注：读取“分项提交”状态（同源服务端 T_dljq 的 tk_a/tk_b/tk_c 标记）。
+-- 未提交时补充显示“是否已拥有对应道具”。
+local function _xyl_get_split_submit_state_text(storyData, tk, idx, entry)
+    if type(storyData) ~= "table" or not tk then
+        return nil
+    end
+    local suffixMap = { "_a", "_b", "_c" }
+    local suffix = suffixMap[tonumber(idx) or 0]
+    if not suffix then
+        return nil
+    end
+    local v = storyData[tostring(tk) .. suffix]
+    local submitted = (v == true or tonumber(v or 0) == 1)
+    if submitted then
+        return "已提交"
+    end
+
+    if type(entry) == "table" and entry[1] then
+        local itemName = entry[1]
+        local need = tonumber(entry[2]) or 1
+        local cur = _xyl_get_item_count_by_name(itemName)
+        if cur >= need then
+            return "未提交(已拥有)"
+        end
+        return "未提交(未拥有)"
+    end
+
+    if tostring(tk) == "npc_629" then
+        return "未提交(未拥有)"
+    end
+    return nil
+end
+
 local function _xyl_get_task_progress_values(task, storyData)
     if type(task) ~= "table" then
         return nil, nil, nil
@@ -2002,12 +2036,122 @@ local function _xyl_get_task_progress_values(task, storyData)
     return cur, need, "未开始"
 end
 
+-- 备注：重复提交类任务进度（同源 tk 计数 + cfg.max_num），如 npc_630。
+local function _xyl_get_repeat_submit_progress_text(storyData, tk, cfg)
+    if type(storyData) ~= "table" or not tk or type(cfg) ~= "table" then
+        return nil
+    end
+    local need = tonumber(cfg.max_num) or 0
+    if need <= 1 then
+        return nil
+    end
+    local cur = _xyl_node_to_number(storyData[tk])
+    local _, _, txt = _xyl_progress_pair_text(cur, need)
+    return txt
+end
+
+-- 备注：多次确认/审问类任务进度（同源 tk_s 列表长度），如 npc_631。
+local function _xyl_get_repeat_confirm_progress_text(storyData, tk, totalNeed)
+    if type(storyData) ~= "table" or not tk then
+        return nil
+    end
+    local need = tonumber(totalNeed) or 0
+    if need <= 1 then
+        return nil
+    end
+    local node = storyData[tostring(tk) .. "_s"]
+    local cur = 0
+    if type(node) == "table" then
+        cur = #node
+    elseif tonumber(node) then
+        cur = tonumber(node) or 0
+    end
+    local _, _, txt = _xyl_progress_pair_text(cur, need)
+    return txt
+end
+
 local function _xyl_get_task_progress_format_args(task, storyData, killData)
     local args = {}
     local tk = type(task) == "table" and task.tk and tostring(task.tk) or nil
     local cfg = tk and teshudata and teshudata[tk] or nil
     local sg = killData or _xyl_get_json("T35")
     if tk and cfg then
+        -- 特殊任务：灾厄入侵（npc_46）要求四个前置讨伐任务全部完成。
+        if tk == "npc_46" then
+            local preTasks = { "npc_625", "npc_626", "npc_627", "npc_628" }
+            for _, preTk in ipairs(preTasks) do
+                local done = false
+                local preCfg = teshudata and teshudata[preTk]
+
+                if preCfg and preCfg.ch and _xyl_has_title(preCfg.ch) then
+                    done = true
+                else
+                    local node = _xyl_get_story_node_by_tk(preTk, storyData)
+                    if node ~= nil then
+                        local need = tonumber(preCfg and preCfg.max_num) or 0
+                        if need > 0 then
+                            local cur = _xyl_node_to_number(node)
+                            if cur >= need then
+                                done = true
+                            end
+                        end
+                        if not done and _xyl_story_node_done(node) then
+                            done = true
+                        end
+                    end
+                end
+
+                table.insert(args, done and "已完成" or "未完成")
+            end
+            return args
+        end
+
+        -- 特殊任务：船长的宝藏（npc_630）显示提交次数进度（0/3）+ 当前背包数量。
+        if tk == "npc_630" then
+            local submitText = _xyl_get_repeat_submit_progress_text(storyData, tk, cfg)
+            if submitText then
+                table.insert(args, submitText)
+            end
+            local costEntries = _xyl_collect_cost_entries(cfg.cost)
+            local entry = costEntries[1]
+            if type(entry) == "table" and entry[1] then
+                local own = _xyl_get_item_count_by_name(entry[1])
+                table.insert(args, tostring(own))
+            else
+                table.insert(args, "0")
+            end
+            if #args == 1 then
+                table.insert(args, "0")
+            end
+            return args
+        end
+        -- 特殊任务：热血的友情（npc_636）显示提交次数进度（0/3）。
+        if tk == "npc_636" then
+            local submitText = _xyl_get_repeat_submit_progress_text(storyData, tk, cfg)
+            table.insert(args, submitText or "0/3")
+            return args
+        end
+        -- 特殊任务：谁是内鬼（npc_631）显示“审问/确认次数进度（0/4）”。
+        if tk == "npc_631" then
+            local confirmText = _xyl_get_repeat_confirm_progress_text(storyData, tk, 4)
+            table.insert(args, confirmText or "0/4")
+            return args
+        end
+        -- 特殊任务：白蛇传说（npc_681）显示累计提交进度（0/100）+ 背包拥有数量。
+        if tk == "npc_681" then
+            local submitText = _xyl_get_repeat_submit_progress_text(storyData, tk, cfg)
+            table.insert(args, submitText or "0/100")
+            local costEntries = _xyl_collect_cost_entries(cfg.cost)
+            local entry = costEntries[1]
+            if type(entry) == "table" and entry[1] then
+                local own = _xyl_get_item_count_by_name(entry[1])
+                table.insert(args, tostring(own))
+            else
+                table.insert(args, "0")
+            end
+            return args
+        end
+
         local hasABC = (tonumber(cfg.num_a) or 0) > 0 or (tonumber(cfg.num_b) or 0) > 0 or (tonumber(cfg.num_c) or 0) > 0
         if hasABC then
             local pairs = {
@@ -2033,13 +2177,25 @@ local function _xyl_get_task_progress_format_args(task, storyData, killData)
         end
 
         local costEntries = _xyl_collect_cost_entries(cfg.cost)
-        for _, entry in ipairs(costEntries) do
-            local name = entry[1]
-            local need = tonumber(entry[2]) or 0
-            if need > 0 then
-                local cur = _xyl_get_item_count_by_name(name)
-                local _, _, txt = _xyl_progress_pair_text(cur, need)
-                table.insert(args, txt)
+        for i, entry in ipairs(costEntries) do
+            -- 仅 npc_629 使用“分项提交状态”；其余任务保持原本背包数量进度逻辑。
+            local handled = false
+            if tk == "npc_629" then
+                local splitState = _xyl_get_split_submit_state_text(storyData, tk, i, entry)
+                if splitState then
+                    table.insert(args, splitState)
+                    handled = true
+                end
+            end
+
+            if not handled then
+                local name = entry[1]
+                local need = tonumber(entry[2]) or 0
+                if need > 0 then
+                    local cur = _xyl_get_item_count_by_name(name)
+                    local _, _, txt = _xyl_progress_pair_text(cur, need)
+                    table.insert(args, txt)
+                end
             end
         end
 

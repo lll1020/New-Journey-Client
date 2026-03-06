@@ -30,8 +30,9 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:removeAllChildren(node)
         local item = SL:GetMetaValue("EQUIP_DATA", npc._config.where)
 
-        GUI:Text_setFontName(GUI:Text_Create(node, "tip",50,40, 25, "#FF0000", "满级后获得称号:")
-        , "fonts/500.ttf")
+        local tipText = GUI:Text_Create(node, "lock_tip", 50,40, 25, "#FF0000", "满级后获得称号")
+        GUI:Text_setFontName(tipText, "fonts/500.ttf")
+        GUI:Text_enableOutline(tipText, "#000000", 2)
         local ch_kuang = GUI:Image_Create(node, "ch_kuang", 240, 20, "res/wy/public/70_70_k.png")
         UiTools.showItemData(ch_kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.title.."[称号]")))
 

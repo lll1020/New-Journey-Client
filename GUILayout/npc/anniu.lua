@@ -1576,6 +1576,12 @@ npc[11] = function(p2, p3, Data)
         npc.bg = win.bg
         npc.node_11 = win.node
 
+        local tipText = GUI:Text_Create(npc.bg, "lock_tip", 700,510, 22, "#FFFFFF", "点击任务卡片可以查看具体的任务详情")
+        GUI:Text_setFontName(tipText, "fonts/500.ttf")
+        GUI:Text_enableOutline(tipText, "#000000", 2)
+        GUI:setAnchorPoint(tipText, 0.5, 0.5)
+
+
         -- 左侧章节列表
         local chapterList = GUI:ListView_Create(npc.bg, "chapter_list", 25, 23, 230, 520 - 23, 1, false)
         GUI:ListView_setGravity(chapterList, 2)
@@ -1839,6 +1845,19 @@ npc[11] = function(p2, p3, Data)
 
                 for idx, task in ipairs(tasks) do
                     local taskName = task[1] or task.title or "任务"
+                    local chapterDone = npc.data and npc.data.ywl and npc.data.ywl["jl_" .. npc.l .. "_" .. npc.zj] == 1
+                    local taskDoneByReward = npc.data and npc.data.ywl and npc.data.ywl["jl_" .. npc.l .. "_" .. npc.zj .. "_" .. idx] == 1
+                    local khdDone = (task.id == 999 and task.khdjy) and (task.khdjy(task) == true) or false
+                    local storyStarted = _ywl_is_task_started_or_done_by_story(taskName, task)
+                    local taskProgressDone = chapterDone or taskDoneByReward or khdDone
+                    local needReceive = task.need_receive == true
+                    local rwjdSkin = "res/wy/public/rwjd_2.png"
+                    if taskProgressDone then
+                        rwjdSkin = "res/wy/public/rwjd_3.png"
+                    elseif needReceive and not storyStarted then
+                        rwjdSkin = "res/wy/public/rwjd_1.png"
+                    end
+
                     local cardSlot = GUI:Layout_Create(layout, "card_slot" .. idx, 0, 0, taskCardWidth, 414, false)
                     GUI:setLocalZOrder(cardSlot, idx)
                     local slotUi = {
@@ -1855,6 +1874,8 @@ npc[11] = function(p2, p3, Data)
                     table.insert(taskSlots, cardSlot)
                     local card = GUI:Image_Create(cardSlot, "card" .. idx, 0, 0, 'res/custom/ywl/kuang.png')
                     local img = GUI:Image_Create(card, "img", 214/2, 410/2 - 20, 'res/custom/ywl/kuang1.png')
+                    GUI:Image_Create(img, "rwjd", 25, 350, rwjdSkin)
+
                     GUI:setAnchorPoint(img, 0.5, 0.5)
                     -- 延迟创建详情面板，避免初始渲染过重。
                     local function ensure_cover()
@@ -1942,14 +1963,9 @@ npc[11] = function(p2, p3, Data)
                     --     GUI:setPosition(jlNode, 40, 55)
                     -- end
 
-                    local enable = false
-                    if task.id == 999 and task.khdjy then
-                        enable = task.khdjy(task)
-                    end
+                    local enable = khdDone
                     -- enable = true
-                    if (npc.data and npc.data.ywl and npc.data.ywl["jl_" .. npc.l .. "_" .. npc.zj .. "_" .. idx] and npc.data.ywl["jl_" .. npc.l .. "_" .. npc.zj .. "_" .. idx] == 1) or 
-                        (npc.data and npc.data.ywl and npc.data.ywl["jl_" .. npc.l .. "_" .. npc.zj] == 1)
-                    then
+                    if taskDoneByReward or chapterDone then
                         GUI:setAnchorPoint(GUI:Image_Create(img, "ylq", 232/2, 90, 'res/custom/ywl/ylq.png')
                         , 0.5, 0.5)
                     else
@@ -1966,11 +1982,7 @@ npc[11] = function(p2, p3, Data)
                                     string.format('{"i":%d,"j":%d,"k":0,"z":%d}', npc.l, npc.zj, idx))
                             end)
                             if AUTO_GUIDE_TASKS[taskName] and not autoGuideWidget then
-                                local chapterDone = npc.data and npc.data.ywl and npc.data.ywl["jl_" .. npc.l .. "_" .. npc.zj] == 1
-                                local taskDone = npc.data and npc.data.ywl and npc.data.ywl["jl_" .. npc.l .. "_" .. npc.zj .. "_" .. idx] == 1
-                                local khdDone = (task.id == 999 and task.khdjy) and (task.khdjy(task) == true) or false
-                                local storyStarted = _ywl_is_task_started_or_done_by_story(taskName, task)
-                                if not chapterDone and not taskDone and not khdDone and not storyStarted then
+                                if not chapterDone and not taskDoneByReward and not khdDone and not storyStarted then
                                     autoGuideWidget = goBtn
                                     autoGuideDesc = "点击前往" .. taskName
                                 end
@@ -1980,7 +1992,7 @@ npc[11] = function(p2, p3, Data)
                     
                 end
                 _relayout_task_cards(false)
-                GUI:Image_Create(node, "wz1", 340, 110, 'res/custom/ywl/wz.png')
+                GUI:Image_Create(node, "wz1", 340, 100, 'res/custom/ywl/wz.png')
 
                 if zjCfg.jl then
                     GUI:setPosition(ItemNumByTable_img(zjCfg.jl, nil, node), 560, 40)
@@ -4220,6 +4232,14 @@ npc[516] = function(p2, p3, Data)
 
     local function UI_updata(node) --界面渲染
         GUI:removeAllChildren(node)
+
+        local tipText = GUI:Text_Create(node, "lock_tip", 700,30, 22, "#FFFFFF", "当前击杀怪物："..npc.data_516.sgsl)
+        GUI:Text_setFontName(tipText, "fonts/500.ttf")
+        GUI:Text_enableOutline(tipText, "#000000", 2)
+        GUI:setAnchorPoint(tipText, 0.5, 0.5)
+
+
+
         local list = GUI:ListView_Create(node, "list", 80,30, 800, 400,2)
         GUI:ListView_setItemsMargin(list,5)
         for k,v in ipairs(teshudata["anniu_516"].details) do
@@ -4230,9 +4250,11 @@ npc[516] = function(p2, p3, Data)
             GUI:setAnchorPoint(GUI:RichText_Create(item, "attr_desc_next", 50,320,  Player:showEquipAttr(SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",v.ch))), 200, 18, "#f7f7de", 3,nil,nil)
             , 0, 1)
             
+            local tipText = GUI:Text_Create(item, "lock_tip", 228/2,130, 22, "#FF0000", "击杀怪物："..v.sgsl)
+            GUI:Text_setFontName(tipText, "fonts/500.ttf")
+            GUI:Text_enableOutline(tipText, "#000000", 2)
+            GUI:setAnchorPoint(tipText, 0.5, 0.5)
 
-            GUI:setAnchorPoint(GUI:Text_Create(item, "sgsl",228/2,130, 20, "#FF0000", "击杀怪物："..v.sgsl)
-            , 0.5, 0.5)
             if mfzz_is_claimed(k) then
                 
                 GUI:setAnchorPoint(GUI:Image_Create(item, "Button", 228/2, 80, 'res/wy/public/9.png'), 0.5, 0.5)
@@ -4285,7 +4307,7 @@ npc[516] = function(p2, p3, Data)
                 end
             end
         end
-        GUI:ListView_jumpToItem(list, mfzz_get_min_unclaimed_index())
+        GUI:ListView_jumpToItem(list, mfzz_get_min_unclaimed_index()-2)
     end
 end
 
