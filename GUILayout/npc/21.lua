@@ -129,6 +129,12 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 1, 0, "")
             end)
+            -- 主线任务 19：在境界提升界面内引导点击升级按钮。
+            NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, Button, node, npcid, 1, {
+                taskMap = {[21] = 19},
+                keyPrefix = "mainline_realm",
+                dir = 5,
+            })
         else
             GUI:Image_Create(node, "Button", 460, 10.00, "res/wy/public/15.png")
 

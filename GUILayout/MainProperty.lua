@@ -100,14 +100,18 @@ function MainProperty.InitQuickUseShow()
             if layout and GUI:getVisible(layout) then
                 showNum = showNum + 1
             end
+            if i == 6 then
+                local jls = GUI:Button_Create(layout, "jls", 5, 3, "res/wy/icon/jys.png")
+                GUI:setLocalZOrder(jls, 99)
+                GUI:addOnClickEvent(jls, function()
+                    Npclib["anniu"][13](0)
+                end)
+            end
         end
     end
     -- 设置快捷框个数 (最大：6)
     SL:SetMetaValue("QUICK_USE_NUM", showNum)
-    local jls = GUI:Button_Create(MainProperty._ui.Panel_quick_use, "jls", 202, 4, "res/wy/icon/jys.png")
-    GUI:addOnClickEvent(jls, function()
-        Npclib["anniu"][13](0)
-    end)
+    
 end
 
 -- 快捷栏cell

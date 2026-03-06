@@ -91,6 +91,14 @@ function PlayerEquip.main(data)
     GUI:addOnClickEvent(Button, function()
         SL:SendLuaNetMsg(105, 21, 21, 0, "")
     end)
+    -- 主线任务 19：在境界提升界面内引导点击升级按钮。
+    NPC_UI_HELPER.tryStartMainlineUpgradeGuide(nil, Button, PlayerEquip._ui.Panel_1, 21, 1, {
+        taskMap = {[21] = 19},
+        keyPrefix = "mainline_realm",
+        dir = 5,
+        hideMask = true,
+        isForce = false,
+    })
     Button= GUI:Button_Create(PlayerEquip._ui.Panel_1, "Button3", 180, 10.00, "res/private/player_main_layer_ui/btn_3.png")
     GUI:addOnClickEvent(Button, function()
         SL:SendLuaNetMsg(105, 22, 22, 0, "")

@@ -52,6 +52,7 @@ function npc.main(npcid, p2, p3, msgData)
                     GUI:addOnClickEvent(Button, function()
                         SL:SendLuaNetMsg(100, npcid, 1, i, "")
                     end)
+                    NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, Button, item_node, npcid, i,{dir = 5})
                     if checkItemNum(config.cost) then
                         NPC_UI_HELPER.redpoint_create(Button)
                     end

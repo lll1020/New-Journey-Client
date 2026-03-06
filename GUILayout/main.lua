@@ -46,9 +46,7 @@ SL:RegisterLuaNetMsg(103, function(msgID, p1, p2, p3, msgData)
             cogin.sjtb.kqfz = msgData.kqfz
         end
         if msgData.rwid then
-            if cogin.sjtb.rwid and cogin.sjtb.rwid ~= msgData.rwid then
-                cogin.sjtb.rwid = msgData.rwid
-            end
+            cogin.sjtb.rwid = msgData.rwid
         end
         if msgData.ngkg then
             cogin.sjtb.ngkg = msgData.ngkg

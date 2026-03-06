@@ -1958,7 +1958,8 @@ npc[11] = function(p2, p3, Data)
                             GUI:setAnchorPoint(lockText, 0.5, 0.5)
                         else
                             local btnSkin = enable and 'res/custom/ywl/btn_1.png' or 'res/custom/ywl/btn_2.png'
-                            local goBtn = GUI:Button_Create(img, "goBtn", 25, 90, btnSkin)
+                            local goBtn = GUI:Button_Create(img, "goBtn", 55, 90, btnSkin)
+                            GUI:setScale(goBtn, 0.8)
                             GUI:setAnchorPoint(goBtn, 0, 0.5)
                             GUI:addOnClickEvent(goBtn, function()
                                 SL:SendLuaNetMsg(101, 11, enable and 3 or 1, 0,
@@ -2266,6 +2267,21 @@ npc[18] = function(p2, p3, Data)
         GUI:addOnClickEvent(btn, function()
             SL:SendLuaNetMsg(101, 18, 1, 0, "")
         end)
+        -- 主线任务 1：引导点击新手礼包领取按钮（仅触发一次）。
+        local rwid = tonumber(cogin and cogin.sjtb and cogin.sjtb.rwid) or 0
+        if rwid == 1 then
+            local guideKey = "mainline_newbie_gift_1"
+            if npc._mainline_newbie_guide_key ~= guideKey then
+                npc._mainline_newbie_guide_key = guideKey
+                SL:StartGuide({
+                    dir = 5,
+                    guideWidget = btn,
+                    guideParent = node,
+                    guideDesc = "点击领取",
+                    isForce = false,
+                })
+            end
+        end
     end
 
     if p2 == 0 then
@@ -4175,6 +4191,32 @@ npc[516] = function(p2, p3, Data)
         local killCount = tonumber(npc.data_516 and npc.data_516.sgsl) or 0
         return killCount >= (tonumber(cfg.sgsl) or 0)
     end
+    
+    -- 返回免费赞助列表中最小未领取档位；若全部已领取，则回落到最后一档（至少为 1）。
+    local function mfzz_get_min_unclaimed_index()
+        local details = teshudata["anniu_516"] and teshudata["anniu_516"].details or {}
+        for i = 1, #details do
+            if not mfzz_is_claimed(i) then
+                return i
+            end
+        end
+        return math.max(#details, 1)
+    end
+
+    -- 主线任务 2：免费赞助面板引导第 1 档领取按钮（每次进入界面都可触发）。
+    local function mfzz_try_start_mainline_guide(button, guideParent, idx)
+        local rwid = tonumber(cogin and cogin.sjtb and cogin.sjtb.rwid) or 0
+        if rwid ~= 2 or tonumber(idx) ~= 1 then
+            return
+        end
+        SL:StartGuide({
+            dir = 5,
+            guideWidget = button,
+            guideParent = guideParent,
+            guideDesc = "点击领取",
+            isForce = false,
+        })
+    end
 
     local function UI_updata(node) --界面渲染
         GUI:removeAllChildren(node)
@@ -4200,12 +4242,15 @@ npc[516] = function(p2, p3, Data)
                 GUI:addOnClickEvent(Button, function()
                     SL:SendLuaNetMsg(101, 516, 1, k, "")
                 end)
+                -- 主线引导入口：仅主线任务 2 且第一档奖励时触发。
+                mfzz_try_start_mainline_guide(Button, list, k)
                 if mfzz_can_claim(k, v) then
                     NPC_UI_HELPER.redpoint_create(Button, {x = 160, y = 35})
                 end
             end
 
         end
+        GUI:ListView_jumpToItem(list, mfzz_get_min_unclaimed_index() - 2)
 
 
     end
@@ -4240,6 +4285,7 @@ npc[516] = function(p2, p3, Data)
                 end
             end
         end
+        GUI:ListView_jumpToItem(list, mfzz_get_min_unclaimed_index())
     end
 end
 

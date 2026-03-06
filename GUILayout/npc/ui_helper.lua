@@ -16,6 +16,14 @@ local DEFAULT_BG = 'res/wy/public/tongyong_0.png'              -- 背景面板�
 local DEFAULT_CLOSE = 'res/wy/public/close_red_big.png'        -- 默认关闭按钮
 local DEFAULT_BUTTON = 'res/public/1900000660.png'     -- 默认主按钮皮肤
 local DEFAULT_OUTLINE = SL and SL:ConvertColorFromHexString('#100808') or '#100808'
+-- 主线引导映射：提升类 NPC 界面对应的主线任务号。
+local MAINLINE_TASK_BY_UPGRADE_NPC = {
+    [6] = 7,
+    [7] = 9,
+    [8] = 11,
+    [9] = 13,
+    [10] = 15,
+}
 
 -- ===== 基础工具函数 =====
 -- 空函数：用于 overlay / closeBtn 的默认 onClick，避免频繁创建匿名函数
@@ -199,6 +207,40 @@ function UIHelper.createDivider(parent, name, x, y, width, height, opts)
     end
     GUI:setOpacity(divider, opts.opacity or 200)
     return divider
+end
+
+-- 当主线步骤匹配时，为提升按钮触发引导（同 key 只触发一次）。
+-- guideCache 通常传 npc 表，用于缓存 `_guide_key` 防止重复弹窗。
+function UIHelper.tryStartMainlineUpgradeGuide(guideCache, button, guideParent, npcid, marker, opts)
+    if not button then
+        return false
+    end
+    opts = opts or {}
+    local rwid = tonumber(cogin and cogin.sjtb and cogin.sjtb.rwid) or 0
+    local taskMap = opts.taskMap or MAINLINE_TASK_BY_UPGRADE_NPC
+    local targetTask = taskMap[npcid]
+    if rwid ~= (tonumber(targetTask) or -1) then
+        return false
+    end
+
+    local keyPrefix = opts.keyPrefix or "mainline_upgrade"
+    local guideKey = string.format("%s_%s_%s_%s", keyPrefix, tostring(rwid), tostring(npcid), tostring(marker or 0))
+    if guideCache and guideCache._guide_key == guideKey then
+        return false
+    end
+    if guideCache then
+        guideCache._guide_key = guideKey
+    end
+
+    SL:StartGuide({
+        dir = opts.dir or 3,
+        guideWidget = button,
+        guideParent = guideParent,
+        guideDesc = opts.desc or "点击提升",
+        isForce = opts.isForce == true,
+        hideMask = opts.hideMask or false
+    })
+    return true
 end
 
 -- 格式化 NPC 标题，例如：NPC 17 (兑换使者)
