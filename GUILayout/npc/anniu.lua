@@ -3,7 +3,7 @@
 ---顶部图标显示
 npc.iconpx = {
     {
-        {15, "天天省钱",509,1}, {3, "福利大厅",511,2}, {17, "游戏攻略",512,3},{4, "活动大厅",507,4},{14, "首充礼包",501,5},{16, "仙途奇缘",515,15},{18, "飞剑",19,15}
+        {15, "天天省钱",509,1}, {3, "福利大厅",511,2}, {17, "游戏攻略",512,3},{4, "活动大厅",507,4},{14, "首充礼包",501,5},{16, "仙途奇缘",515,515},{18, "飞剑",19,19}
     },
     {
         {19, "在线充值", 502,11}, {5, "交易行",510,12},{2, "解绑特权",504,13},{7, "狂暴之力",513,14},{12, "世界地图",514,15},{10, "免费赞助",516,16},{6, "聚宝盆",517,17}
@@ -465,10 +465,10 @@ local function registerShortcutTitleRefresh()
             return
         end
         npc._shortcut_refresh_pending = true
-        SL:ScheduleOnce(function()
-            npc._shortcut_refresh_pending = false
-            rebuildShortcutButtons("")
-        end, 0.1)
+        -- SL:ScheduleOnce(function()
+        --     npc._shortcut_refresh_pending = false
+        --     rebuildShortcutButtons("")
+        -- end, 0.1)
     end
 
     SL:RegisterLUAEvent(LUA_EVENT_ROLE_PROPERTY_CHANGE, "anniu_shortcut_title_refresh_prop", _refresh_shortcut)
@@ -873,9 +873,8 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
             UPGRADE_HELPER.startAutoRefresh(20 * 1)
         end
     elseif p2 == 10 then -- 红点
-        if npc.db_anniu[""..p3] and not GUI:ui_delegate(npc.db_anniu[""..p3]).ists then
-            local ists = GUI:Image_Create(npc.db_anniu[""..p3], "ists", 65, 65, "res/public/ists.png")
-            GUI:setAnchorPoint(ists, 0.5, 0.5)
+        if npc.db_anniu[""..p3] and not GUI:ui_delegate(npc.db_anniu[""..p3]).redpoint then
+            NPC_UI_HELPER.redpoint_create_eff(npc.db_anniu[""..p3], {x = 85,y = 65})
         end
     end
 end
@@ -3290,6 +3289,111 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
         }
     }
 
+    local fldt_section_key_map = {
+        [4] = "grss",
+        [5] = "grsb",
+        [6] = "qqsb",
+    }
+    local fldt_section_flag_map = {
+        [4] = "grss_can_claim",
+        [5] = "grsb_can_claim",
+        [6] = "qqsb_can_claim",
+    }
+
+    local function fldt_to_bool(v)
+        if type(v) == "boolean" then
+            return v
+        end
+        if type(v) == "number" then
+            return v ~= 0
+        end
+        if type(v) == "string" then
+            local lower = string.lower(v)
+            return lower == "1" or lower == "true"
+        end
+        return false
+    end
+
+    -- 计算左侧每个分页是否存在“可领取”内容，用于列表红点。
+    local function fldt_has_claimable_by_state_key(stateKey, stateTable)
+        local cfg = fldt_data_cfg[stateKey] or {}
+        local st = stateTable or npc.ts_data or {}
+        for idx, _ in pairs(cfg) do
+            if tonumber(st[tostring(idx)] or st[idx] or 0) == 1 then
+                return true
+            end
+        end
+        return false
+    end
+
+    local function fldt_section_has_claimable(idx)
+        if idx == 1 then
+            local tqrbq = fldt_get_state()
+            local loginDays = tonumber(npc.fldt_data and npc.fldt_data.U_dlts) or 0
+            local claimed = tonumber(tqrbq["7rqd"]) or 0
+            local rewards = fldt_data_cfg["7rqd"] or {}
+            local nextIdx = claimed + 1
+            local nextCfg = rewards[nextIdx]
+            return nextCfg ~= nil and loginDays >= nextIdx
+        elseif idx == 2 then
+            local tqrbq = fldt_get_state()
+            local claimed = tonumber(tqrbq["zxjl"]) or 0
+            local onlineMinutes = tonumber(npc.fldt_data and npc.fldt_data.J_zxsj) or 0
+            local rewards = fldt_data_cfg["zxjl"] or {}
+            local nextIdx = claimed + 1
+            local nextCfg = rewards[nextIdx]
+            return nextCfg ~= nil and onlineMinutes >= (tonumber(nextCfg.time) or 0)
+        elseif idx == 3 then
+            local tqrbq = fldt_get_state()
+            local claimed = tonumber(tqrbq["sgjl"]) or 0
+            local killCount = tonumber(npc.fldt_data and npc.fldt_data.U_sgsl) or 0
+            local rewards = fldt_data_cfg["sgjl"] or {}
+            local nextIdx = claimed + 1
+            local nextCfg = rewards[nextIdx]
+            return nextCfg ~= nil and killCount >= (tonumber(nextCfg.num) or 0)
+        elseif idx >= 4 and idx <= 6 then
+            local flagKey = fldt_section_flag_map[idx]
+            local stateKey = fldt_section_key_map[idx]
+            local hasClaimable = false
+            if npc.fldt_data and flagKey and npc.fldt_data[flagKey] ~= nil then
+                hasClaimable = fldt_to_bool(npc.fldt_data[flagKey])
+            elseif npc.fldt_state_cache and type(npc.fldt_state_cache[stateKey]) == "table" then
+                hasClaimable = fldt_has_claimable_by_state_key(stateKey, npc.fldt_state_cache[stateKey])
+            end
+            if npc.titles_sign == idx and type(npc.ts_data) == "table" then
+                hasClaimable = fldt_has_claimable_by_state_key(stateKey, npc.ts_data)
+                npc.fldt_state_cache = npc.fldt_state_cache or {}
+                npc.fldt_state_cache[stateKey] = npc.ts_data
+                if npc.fldt_data and flagKey then
+                    npc.fldt_data[flagKey] = hasClaimable and 1 or 0
+                end
+            end
+            return hasClaimable
+        end
+        return false
+    end
+
+    local function fldt_refresh_side_redpoints()
+        if not npc.cbl_list then
+            return
+        end
+        local ui = GUI:ui_delegate(npc.cbl_list)
+        for i = 1, 6 do
+            local btn = ui and ui["item" .. i] or nil
+            if btn then
+                local hasClaimable = fldt_section_has_claimable(i)
+                if hasClaimable then
+                    local btnUi = GUI:ui_delegate(btn)
+                    if not (btnUi and btnUi.redpoint) then
+                        NPC_UI_HELPER.redpoint_create(btn,{x = 180,y = 32})
+                    end
+                else
+                    GUI:removeChildByName(btn, "redpoint")
+                end
+            end
+        end
+    end
+
 
     local function GUI_createLabel(Label_node,idx)
         GUI:removeAllChildren(Label_node)
@@ -3365,6 +3469,7 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                 GUI:addOnClickEvent(claimButton, function()
                     SL:SendLuaNetMsg(101, 511, 1, 1, string.format('{"7rqd":%d}', todayIdx))
                 end)
+                NPC_UI_HELPER.redpoint_create(claimButton)
             else
                 local tipText
                 if not canShow or todayIdx > totalDays then
@@ -3390,6 +3495,7 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
             local onlineRewards = fldt_data_cfg["zxjl"] or {}
             for v, k in ipairs(onlineRewards) do
                 local l = GUI:Image_Create(Label_list, "img_bj_l_" .. v, 0, 0, 'res/custom/fulitating/list_fgx_'..(v%2 == 1 and 1 or 2)..'.png')
+                local canClaimNow = (v == (claimed + 1)) and (onlineMinutes >= (tonumber(k.time) or 0))
 
                 GUI:Text_Create(l, "wz", 30, 20, 20, "#FFEE8A", string.format("在线满%d分钟", k.time))
 
@@ -3429,6 +3535,9 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                     GUI:addOnClickEvent(Button, function()
                         SL:SendLuaNetMsg(101, 511, 1, 2, '{"zxjl":' .. v .. '}')
                     end)
+                    if canClaimNow then
+                        NPC_UI_HELPER.redpoint_create(Button,{x = 110,y = 30})
+                    end
                 else
                     GUI:Image_Create(l, "ylq", 440, 10, 'res/wy/public/4.png')
                 end
@@ -3444,6 +3553,7 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
             local killRewards = fldt_data_cfg["sgjl"] or {}
             for v, k in ipairs(killRewards) do
                 local l = GUI:Image_Create(Label_list, "img_bj_l_" .. v, 0, 0, 'res/custom/fulitating/list_fgx_'..(v%2 == 1 and 1 or 2)..'.png')
+                local canClaimNow = (v == (claimed + 1)) and (killCount >= (tonumber(k.num) or 0))
 
                 GUI:Text_Create(l, "wz", 30, 20, 20, "#FFEE8A", string.format("击杀%d只怪物", k.num))
 
@@ -3480,6 +3590,9 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                     GUI:addOnClickEvent(Button, function()
                         SL:SendLuaNetMsg(101, 511, 1, 3, '{"sgjl":' .. v .. '}')                    
                         end)
+                    if canClaimNow then
+                        NPC_UI_HELPER.redpoint_create(Button,{x = 110,y = 30})
+                    end
                 else
                     GUI:Image_Create(l, "ylq", 440, 10, 'res/wy/public/4.png')
                 end
@@ -3731,6 +3844,7 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
         end
         
         GUI:Image_Create(node, "bg_fgx", 0, 0, "res/custom/fulitating/bg_fgx.png")
+        fldt_refresh_side_redpoints()
 
     end
 
@@ -3738,6 +3852,7 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
         npc.fldt_data = fldt_decode_json(Data)
         npc.fldt_data.T_qrbq = npc.fldt_data.T_qrbq or {}
         npc.ts_data = npc.ts_data or {}
+        npc.fldt_state_cache = {}
         local welfareWindow = ensureWindow("welfare", 511, {titleText = "福利大厅"})
         npc.bg = welfareWindow.bg
         npc.node = welfareWindow.node
@@ -3751,11 +3866,22 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
             if npc.Label and (npc.titles_sign or 1) <= 3 then
                 GUI_createLabel(npc.Label, npc.titles_sign or 1)
             end
+            fldt_refresh_side_redpoints()
         end
     elseif p2 == 2 then
         npc.ts_data = fldt_decode_json(Data)
         npc.titles_sign = p3
+        local stateKey = fldt_section_key_map[p3]
+        local flagKey = fldt_section_flag_map[p3]
+        if stateKey then
+            npc.fldt_state_cache = npc.fldt_state_cache or {}
+            npc.fldt_state_cache[stateKey] = npc.ts_data
+        end
+        if stateKey and flagKey and npc.fldt_data then
+            npc.fldt_data[flagKey] = fldt_has_claimable_by_state_key(stateKey, npc.ts_data) and 1 or 0
+        end
         GUI_createLabel(npc.Label,p3)
+        fldt_refresh_side_redpoints()
     end
 
 end
@@ -3884,6 +4010,23 @@ npc[515] = function(p2, p3, Data) -- 仙途奇缘
 end
 --免费赞助
 npc[516] = function(p2, p3, Data)
+    local function mfzz_is_claimed(idx)
+        local tData = npc.data_516 and npc.data_516.T_data or {}
+        local v = tData["zzlb_" .. idx]
+        return v == true or tonumber(v or 0) == 1
+    end
+
+    local function mfzz_can_claim(idx, cfg)
+        if not cfg or mfzz_is_claimed(idx) then
+            return false
+        end
+        if idx > 1 and not mfzz_is_claimed(idx - 1) then
+            return false
+        end
+        local killCount = tonumber(npc.data_516 and npc.data_516.sgsl) or 0
+        return killCount >= (tonumber(cfg.sgsl) or 0)
+    end
+
     local function UI_updata(node) --界面渲染
         GUI:removeAllChildren(node)
         local list = GUI:ListView_Create(node, "list", 80,30, 800, 400,2)
@@ -3899,7 +4042,7 @@ npc[516] = function(p2, p3, Data)
 
             GUI:setAnchorPoint(GUI:Text_Create(item, "sgsl",228/2,130, 20, "#FF0000", "击杀怪物："..v.sgsl)
             , 0.5, 0.5)
-            if npc.data_516.T_data["zzlb_"..k] then
+            if mfzz_is_claimed(k) then
                 
                 GUI:setAnchorPoint(GUI:Image_Create(item, "Button", 228/2, 80, 'res/wy/public/9.png'), 0.5, 0.5)
             else
@@ -3908,6 +4051,9 @@ npc[516] = function(p2, p3, Data)
                 GUI:addOnClickEvent(Button, function()
                     SL:SendLuaNetMsg(101, 516, 1, k, "")
                 end)
+                if mfzz_can_claim(k, v) then
+                    NPC_UI_HELPER.redpoint_create(Button, {x = 160, y = 35})
+                end
             end
 
         end
@@ -3917,20 +4063,54 @@ npc[516] = function(p2, p3, Data)
 
     if p2 == 0 then
         npc.data_516 = not Data and {} or SL:JsonDecode(Data, false)
+        npc.data_516.T_data = npc.data_516.T_data or {}
         local win = ensureWindow("freeSponsor", 516, {titleText = "免费赞助"})
         npc.node_516 = win.node
         UI_updata(npc.node_516)
     elseif p2 == 1 then
+        npc.data_516 = npc.data_516 or {}
+        npc.data_516.T_data = npc.data_516.T_data or {}
         npc.data_516.T_data["zzlb_"..p3] = true
         local list = GUI:ui_delegate(npc.node_516)["list"]
         local item = GUI:ui_delegate(list)["item"..p3]
         GUI:removeChildByName(item,"Button")
         GUI:setAnchorPoint(GUI:Image_Create(item, "Button", 228/2, 80, 'res/wy/public/9.png'), 0.5, 0.5)
+        local nextIdx = (tonumber(p3) or 0) + 1
+        local nextCfg = teshudata["anniu_516"].details[nextIdx]
+        if nextCfg then
+            local nextItem = GUI:ui_delegate(list)["item"..nextIdx]
+            local nextBtn = nextItem and GUI:ui_delegate(nextItem)["Button"] or nil
+            if nextBtn then
+                if mfzz_can_claim(nextIdx, nextCfg) then
+                    local nextBtnUi = GUI:ui_delegate(nextBtn)
+                    if not (nextBtnUi and nextBtnUi.redpoint) then
+                        NPC_UI_HELPER.redpoint_create(nextBtn, {x = 160, y = 35})
+                    end
+                else
+                    GUI:removeChildByName(nextBtn, "redpoint")
+                end
+            end
+        end
     end
 end
 
 --聚宝盆
 npc[517] = function(p2, p3, Data)
+    local function jbp_can_claim_reward()
+        local data = npc.data_517 or {}
+        local tData = data.T_data or {}
+        local level = tonumber(tData.level) or 1
+        local cfg = teshudata["anniu_517"] and teshudata["anniu_517"].details and teshudata["anniu_517"].details[level]
+        if not cfg then
+            return false
+        end
+        local jf = tonumber(data.jf) or 0
+        local cs = tonumber(data.cs) or 0
+        local needJf = tonumber(cfg.jf) or 0
+        local maxCs = tonumber(cfg.maxcs) or 0
+        return cs < maxCs and jf >= needJf
+    end
+
     local function xjm_UI_updata(node) --界面渲染
         GUI:removeAllChildren(node)
         local no = GUI:Image_Create(node, "no", 20, 20, "res/custom/treasureBasin/itme_1.png")
@@ -4022,12 +4202,17 @@ npc[517] = function(p2, p3, Data)
         GUI:addOnClickEvent(Button, function()
             SL:SendLuaNetMsg(101, 517, 2, 0, '')
         end)
+        if jbp_can_claim_reward() then
+            NPC_UI_HELPER.redpoint_create_eff(Button, {x = 200, y = 155})
+        end
 
 
     end
 
     if p2 == 0 then
         npc.data_517 = not Data and {} or SL:JsonDecode(Data, false)
+        npc.data_517.T_data = npc.data_517.T_data or {}
+        npc.data_517.T_data.level = tonumber(npc.data_517.T_data.level) or 1
         local win = ensureWindow("treasureBasin", 517, {titleText = "聚宝盆"})
         npc.node_517 = win.node
 

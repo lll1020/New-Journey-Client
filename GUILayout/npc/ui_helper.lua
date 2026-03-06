@@ -242,7 +242,7 @@ function UIHelper.redpoint_create_eff(parent, opts)
     posX = math.max(0, math.min(width, posX))
     posY = math.max(0, math.min(height, posY))
 
-    local eff = GUI:Frames_Create(parent, opts.name or "eff1", posX, posY, "res/wy/icon/hongdian/eff_", ".png", 1, 15,
+    local eff = GUI:Frames_Create(parent, opts.name or "redpoint", posX, posY, "res/wy/icon/hongdian/eff_", ".png", 1, 15,
         { speed = 75, count = 15, loop = -1})
     GUI:setScale(eff, opts.scale or autoScale)
     GUI:setAnchorPoint(eff, opts.anchorX or 1, opts.anchorY or 0.5)
@@ -275,7 +275,7 @@ function UIHelper.redpoint_create(parent, opts)
     posX = math.max(0, math.min(width, posX))
     posY = math.max(0, math.min(height, posY))
 
-    local eff = GUI:Image_Create(parent, opts.name or "eff1", posX, posY, "res/public/ists_red.png")
+    local eff = GUI:Image_Create(parent, opts.name or "redpoint", posX, posY, "res/public/ists_red.png")
     GUI:setAnchorPoint(eff, opts.anchorX or 1, opts.anchorY or 0.5)
     return eff
 end
