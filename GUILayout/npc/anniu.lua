@@ -916,6 +916,100 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
             [6] = "clfj",
             [7] = "teshuhuihsou",
         }
+        local refresh_bulk_select_state
+
+        local function collect_current_select_keys()
+            local keyMap = {}
+            local category_key = hs_tab_map[npc.s]
+            if not category_key then
+                return {}
+            end
+
+            local function add_key(key)
+                if key ~= nil and key ~= "" then
+                    keyMap[tostring(key)] = true
+                end
+            end
+
+            local function normalize_category_data_for_bulk()
+                local source = cogin.hs[category_key]
+                if type(source) ~= "table" then
+                    return {}
+                end
+
+                if category_key == "zzhs" then
+                    local merged = {}
+                    for k, v in pairs(source) do
+                        merged[k] = v
+                    end
+                    for k, v in pairs(cogin.hs.fzfj or {}) do
+                        merged[k] = v
+                    end
+                    return merged
+                end
+
+                local by_tab = source[npc.s]
+                if type(by_tab) == "table" then
+                    if by_tab.l then
+                        return {[npc.s] = {by_tab}}
+                    end
+                    return {[npc.s] = by_tab}
+                end
+
+                if source.l then
+                    return {[npc.s] = {source}}
+                end
+
+                if category_key == "teshuhuihsou" then
+                    local group_idx = npc.s
+                    for _, cfg in pairs(source) do
+                        if type(cfg) == "table" and cfg[1] then
+                            group_idx = cfg[1]
+                            break
+                        end
+                    end
+                    return {[group_idx] = {{name = "teshuhuihsou", l = source}}}
+                end
+
+                for k, v in pairs(source) do
+                    if type(v) == "table" and type(v.l) == "table" then
+                        return {[k] = {v}}
+                    end
+                end
+
+                return source
+            end
+
+            local category_data = normalize_category_data_for_bulk()
+            for v, group_data in pairs(category_data) do
+                if type(group_data) == "table" then
+                    for vv, subgroup_cfg in pairs(group_data) do
+                        if type(subgroup_cfg) == "table" and type(subgroup_cfg.l) == "table" then
+                            local group_key = tostring(npc.s) .. "_" .. tostring(v)
+                            local subgroup_key = group_key .. "_" .. tostring(vv)
+                            add_key(group_key)
+                            add_key(subgroup_key)
+                        end
+                    end
+                end
+            end
+
+            local keys = {}
+            for key, _ in pairs(keyMap) do
+                keys[#keys + 1] = key
+            end
+            return keys
+        end
+
+        local function batch_set_current_select_state(isSelected)
+            local keys = collect_current_select_keys()
+            for _, key in ipairs(keys) do
+                local current = shuju.xz[key] and shuju.xz[key] == 1 or false
+                if current ~= isSelected then
+                    syncSelection(key, isSelected)
+                end
+            end
+        end
 
         local function hasGroupSelection(config)
             if not config or not config.gl or not config[1] then
@@ -934,9 +1028,12 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
 
         -- 列表刷新：根据背包数据生成回收选择槽
         function xiaohui_update()
+            if not npc.bbzs then
+                return
+            end
             GUI:removeAllChildren(npc.bbzs)
             local rowLayouts = {}
-            local bagItems = SL:GetMetaValue("BAG_DATA")
+            local bagItems = SL:GetMetaValue("BAG_DATA") or {}
             npc.hs = {}
             local rowIndex = 0
             local slotIndex = 1
@@ -985,28 +1082,34 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                 end
                 local config = huishou_jc_list[bagItem.Index]
                 if config then
-                    local slot = GUI:Image_Create(rowLayouts[rowIndex], "kuang" .. slotIndex, ((((slotIndex - 1) % 12)) * 41) + 4, 0, "res/wy/public/40-40.png")
-                    local itemShow = GUI:ItemShow_Create(slot, "item" .. slotIndex, 20, 20, {itemData = bagItem, count = bagItem.Count, look = true, bgVisible = false})
-                    if not cogin.isWin32 then
-                        GUI:setScale(itemShow, 0.7)
-                    end
-                    GUI:setAnchorPoint(itemShow, 0.5, 0.5)
-                    GUI:setTouchEnabled(slot, true)
+                    local rowParent = rowLayouts[rowIndex]
+                    if rowParent then
+                        local slot = GUI:Image_Create(rowParent, "kuang" .. slotIndex, ((((slotIndex - 1) % 12)) * 41) + 4, 0, "res/wy/public/40-40.png")
+                        if slot then
+                            local itemShow = GUI:ItemShow_Create(slot, "item" .. slotIndex, 20, 20, {itemData = bagItem, count = bagItem.Count, look = true, bgVisible = false})
+                            if itemShow then
+                                if not cogin.isWin32 then
+                                    GUI:setScale(itemShow, 0.7)
+                                end
+                                GUI:setAnchorPoint(itemShow, 0.5, 0.5)
+                                GUI:setTouchEnabled(slot, true)
 
-                    itemWidgets[bagIndex] = itemShow
-                    inRecycle[bagIndex] = false
+                                itemWidgets[bagIndex] = itemShow
+                                inRecycle[bagIndex] = false
 
-                    GUI:addOnClickEvent(slot, function()
-                        toggleRecycleSelection(bagIndex)
-                    end)
-                    GUI:ItemShow_addReplaceClickEvent(itemShow, function()
-                        toggleRecycleSelection(bagIndex)
-                    end)
+                                GUI:addOnClickEvent(slot, function()
+                                    toggleRecycleSelection(bagIndex)
+                                end)
+                                GUI:ItemShow_addReplaceClickEvent(itemShow, function()
+                                    toggleRecycleSelection(bagIndex)
+                                end)
 
-                    local shouldSelect = hasGroupSelection(config) or shuju.xz["" .. bagItem.Index]
-
-                    if shouldSelect then
-                        setRecycleSelection(bagIndex, true)
+                                local shouldSelect = hasGroupSelection(config) or shuju.xz["" .. bagItem.Index]
+                                if shouldSelect then
+                                    setRecycleSelection(bagIndex, true)
+                                end
+                            end
+                        end
                     end
                     slotIndex = slotIndex + 1
                 end
@@ -1014,6 +1117,9 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
         end
         local ty_node = GUI:Node_Create(recycleWindow.node,"ty_node",0,0)
         local jm_node = GUI:Node_Create(recycleWindow.node,"jm_node",0,0)
+        npc.bbzs = GUI:ListView_Create(ty_node, "bbzs", 120, 108, 500, 230, 1)
+        GUI:ListView_setItemsMargin(npc.bbzs, 2)
+        GUI:ListView_setGravity(npc.bbzs, 2)
 
         
 
@@ -1225,6 +1331,9 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                 GUI:Button_loadTextureNormal(npc.hs_btn["s_"..npc.s], "res/wy/public/huishou/hsan_lsan_"..npc.s..".png")
                 GUI:Image_Create(GUI:ui_delegate(l_list)["fgx"..npc.s], "kuang", -5, -43, "res/wy/public/huishou/hsan_kuang.png")
                 new_hs_update()
+                if refresh_bulk_select_state then
+                    refresh_bulk_select_state()
+                end
             end)
         end
         GUI:Button_loadTextureNormal(npc.hs_btn["s_"..npc.s], "res/wy/public/huishou/hsan_lsan_"..npc.s..".png")
@@ -1246,8 +1355,46 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
             SL:SendLuaNetMsg(101, 2, 4, 1, GUI:CheckBox_isSelected(self) and 1 or 0)
             SL:SendLuaNetMsg(101, 2, 4, 2, GUI:CheckBox_isSelected(self) and 1 or 0)
         end)
+        --一键全选
+        local CheckBox4 = GUI:CheckBox_Create(ty_node, "kaiguan4",380, 65, "res/wy/public/xz0.png", "res/wy/public/xz1.png")
+        local CheckBox5
+        local bulk_checkbox_lock = false
+        refresh_bulk_select_state = function()
+            local keys = collect_current_select_keys()
+            local allSelected = #keys > 0
+            for _, key in ipairs(keys) do
+                if not (shuju.xz[key] and shuju.xz[key] == 1) then
+                    allSelected = false
+                    break
+                end
+            end
+            bulk_checkbox_lock = true
+            GUI:CheckBox_setSelected(CheckBox4, allSelected)
+            GUI:CheckBox_setSelected(CheckBox5, not allSelected)
+            bulk_checkbox_lock = false
+        end
+        GUI:CheckBox_addOnEvent(CheckBox4, function(self)
+            if bulk_checkbox_lock then
+                return
+            end
+            batch_set_current_select_state(true)
+            refresh_bulk_select_state()
+            -- xiaohui_update()
+            new_hs_update()
+        end)
+        --一键取消全选
+        CheckBox5 = GUI:CheckBox_Create(ty_node, "kaiguan5",380 + 130, 65, "res/wy/public/xz0.png", "res/wy/public/xz1.png")
+        GUI:CheckBox_addOnEvent(CheckBox5, function(self)
+            if bulk_checkbox_lock then
+                return
+            end
+            batch_set_current_select_state(false)
+            refresh_bulk_select_state()
+            -- xiaohui_update()
+            new_hs_update()
+        end)
 
-        npc.yjcz = GUI:Button_Create(ty_node, 'yjcz', 430, 20, 'res/wy/public/hsan_11.png')
+        npc.yjcz = GUI:Button_Create(ty_node, 'yjcz', 430, 15, 'res/wy/public/hsan_11.png')
         GUI:addOnClickEvent(npc.yjcz, function()
             if npc.s >= 1 and npc.s <= 7 then
                 local item = SL:GetMetaValue("BAG_DATA")
@@ -1268,9 +1415,11 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
         end)
 
         new_hs_update()
+        -- xiaohui_update()
+        refresh_bulk_select_state()
     elseif p2 == 4 then  -- refresh
         if npc.bbzs then
-            xiaohui_update()
+            -- xiaohui_update()
         end
     end
     SL:RegisterLUAEvent(LUA_EVENT_CLOSEWIN, "recycle_close", function(self)
