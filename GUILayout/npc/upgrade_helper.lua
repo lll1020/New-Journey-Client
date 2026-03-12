@@ -658,9 +658,57 @@ local OPEN_BTN_LIST = {
     {id = 70, label = "恶魔酒馆", npcid = 70, continent = 5, precondition = _upgrade_has_required_equip_for_70},
 }
 
+-- 主线任务与功能入口解锁映射
+-- key: 功能/NPC 标识（与服务端 rwcf 的 id 一致）
+-- value: 解锁该功能所需的主线任务号 rwid
+-- 同源：E:\新起航\服务端\Mir200\Envir\QuestDiary\task.lua -> rwcf
+local MAINLINE_UNLOCK_MAP = {
+    [6] = 7,      -- NPC 6（切割之斧）：主线到 7 解锁
+    [7] = 9,      -- NPC 7（攻速之镰）：主线到 9 解锁
+    [8] = 11,     -- NPC 8（斗笠）：主线到 11 解锁
+    [9] = 13,     -- NPC 9（特戒）：主线到 13 解锁
+    [10] = 15,    -- NPC 10（酒葫芦）：主线到 15 解锁
+    [13] = 17,    -- NPC 13（小兰赠礼）：主线到 17 解锁
+    [21] = 19,    -- NPC 21（境界修为）：主线到 19 解锁
+    [32] = 20,    -- NPC 32（转生）：主线到 20 解锁
+    [516] = 2,    -- NPC 516（免费赞助）：主线到 2 解锁
+    [502] = 21,   -- NPC 502（在线充值）：主线到 21 解锁
+}
+
+-- 获取主线进度：优先使用客户端缓存 rwid，不足时兜底读取服务端变量 U_zxrw/U11
+local function _upgrade_get_mainline_rwid()
+    local rwid = _upgrade_to_num(cogin and cogin.sjtb and cogin.sjtb.rwid, 0)
+    if rwid > 0 then
+        return rwid
+    end
+    if not Player or type(Player.getServerVar) ~= "function" then
+        return rwid
+    end
+    rwid = _upgrade_to_num(Player:getServerVar("U_zxrw"), 0)
+    if rwid > 0 then
+        return rwid
+    end
+    return _upgrade_to_num(Player:getServerVar("U11"), 0)
+end
+
+-- 判断当前提升入口是否达到主线解锁要求
+local function _upgrade_check_mainline_unlock(npcid)
+    local needRwid = MAINLINE_UNLOCK_MAP[_upgrade_to_num(npcid, 0)]
+    if not needRwid then
+        return true
+    end
+    return _upgrade_get_mainline_rwid() >= needRwid
+end
+
 local function _check_precondition(cfg)
+    if type(cfg) ~= "table" then
+        return false
+    end
 
     if not _is_continent_open(cfg.continent) then
+        return false
+    end
+    if not _upgrade_check_mainline_unlock(cfg.npcid) then
         return false
     end
     if type(cfg.precondition) == "function" then
