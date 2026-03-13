@@ -3,10 +3,10 @@
 ---顶部图标显示
 npc.iconpx = {
     {
-        {15, "天天省钱",509,1}, {3, "福利大厅",511,2}, {17, "游戏攻略",512,3},{4, "活动大厅",507,4},{14, "首充礼包",501,5},{16, "仙途奇缘",515,515},{18, "飞剑",19,19}
+        {15, "天天省钱",509,1}, {3, "福利大厅",511,2}, {17, "游戏攻略",512,3},{4, "活动大厅",507,4},{14, "首充礼包",501,5},{16, "仙途奇缘",515,515},{18, "护体光环",23,23}
     },
     {
-        {19, "在线充值", 502,11}, {5, "交易行",510,12},{2, "解绑特权",504,13},{7, "狂暴之力",513,14},{12, "世界地图",514,15},{10, "免费赞助",516,16},{6, "聚宝盆",517,17}
+        {19, "在线充值", 502,11}, {5, "交易行",510,12},{2, "解绑特权",504,13},{7, "狂暴之力",513,14},{12, "世界地图",514,15},{10, "免费赞助",516,16},{6, "聚宝盆",517,17},
     }
 }
 npc.LeftTop = GUI:Attach_LeftTop() -- 左上
@@ -55,7 +55,7 @@ local WINDOW_STYLE = {
         windowName = "npc_sclb",
         overlay = {skin = "res/public/1900000651_1.png"},
         background = {skin = "res/custom/top/shochong/bg.png"},
-        closeButton = {x = 740 - 114, y = 460 - 181, skin = "res/wy/public/close_red_big.png"},
+        closeButton = {x = 740, y = 460 - 150, skin = "res/wy/public/close_red_big.png"},
     },
     onlineRecharge = { -- 在线充值
         windowName = "npc_zxcz",
@@ -134,12 +134,12 @@ local WINDOW_STYLE = {
         background = {skin = "res/wy/public/*.png"},
         closeButton = {x = 330, y = 180, skin = "res/wy/public/close_red_big.png"},
     },
-    flyingSword = { -- 飞剑
+    bodyAura = { -- 护体光环
         windowName = "npc_19",
         overlay = {skin = "res/public/1900000651_1.png"},
-        background = {skin = "res/custom/feijian/bg.png", timeline = true},
-        closeButton = {x = 950, y = 470, skin = "res/wy/public/close_red_big.png"},
-    }
+        background = {skin = "res/custom/htgh/bg.png"},
+        closeButton = {x = 875, y = 500, skin = "res/wy/public/close_red_big.png"},
+    },
 }
 
 -- windowCache[name]：保存 UIHelper 返回引用，避免重复创建
@@ -228,22 +228,10 @@ local function _shortcut_is_firstcharge_completed()
     if type(T_data) ~= "table" then
         return false
     end
-
-    local time_data = tonumber(SL:GetMetaValue("SERVER_VALUE", "开区天数") or 1) or 1
-    local endtime = tonumber(cfg.endtime or 3) or 3
-    local buy_day = tonumber(T_data["buy_day"] or time_data) or time_data
-    local in_first3 = time_data <= endtime
-    local bought_in_first3 = (T_data["首充"] == 1) and (buy_day <= endtime)
-
-    if in_first3 or bought_in_first3 then
-        local firstList = details["首充"] or {}
-        local firstCount = #firstList
-        local firstClaimed = tonumber(T_data["other_lb"] or T_data["_lb"] or 0) or 0
-        return firstCount > 0 and firstClaimed >= firstCount
-    end
-
-    local extraClaimed = tonumber(T_data["bc_ok"] or 0) == 1
-    return extraClaimed
+    local firstList = details["首充"] or {}
+    local firstCount = #firstList
+    local firstClaimed = tonumber(T_data["other_lb"] or T_data["_lb"] or 0) or 0
+    return firstCount > 0 and firstClaimed >= firstCount
 end
 
 local function _shortcut_is_kuangbao_completed()
@@ -399,7 +387,7 @@ end
 
 local function _shortcut_is_flying_sword_completed()
     local count = _feijian_get_activation_count()
-    return count[1] == 1 and count[2] == 1 and count[3] == 1 and count[4] == 1
+    return count[1] == 1 and count[2] == 1 and count[3] == 1
 end
 
 local function _shortcut_is_unbind_completed()
@@ -409,6 +397,107 @@ local function _shortcut_is_unbind_completed()
     local cfg = teshudata and teshudata["anniu_504"]
     local titleName = (cfg and cfg.ch) or "解绑特权"
     return _shortcut_has_title(titleName)
+end
+
+local HUTI_CARD_CFG = {
+    [1] = {
+        name = "攻击",
+        effect = "每3刀额外造成1000伤害",
+        need = "完成一大陆转生",
+        lockedTip = "需要先完成一大陆转生",
+    },
+    [2] = {
+        name = "防御",
+        effect = "每3刀额外造成888伤害",
+        need = "领取首充礼包",
+        lockedTip = "需要先领取首充礼包",
+    },
+    [3] = {
+        name = "斩杀",
+        effect = "每3刀额外造成1000伤害",
+        need = "购买超级特权",
+        lockedTip = "需要先激活解绑特权",
+    },
+}
+
+local function _huti_read_first_number(data, keys)
+    if type(data) ~= "table" then
+        return nil
+    end
+    for _, key in ipairs(keys or {}) do
+        local value = data[key]
+        local num = tonumber(value)
+        if num ~= nil then
+            return num
+        end
+    end
+    return nil
+end
+
+local function _huti_read_first_flag(data, keys)
+    if type(data) ~= "table" then
+        return nil
+    end
+    for _, key in ipairs(keys or {}) do
+        local value = data[key]
+        if value ~= nil then
+            if value == true or value == "true" then
+                return true
+            end
+            local num = tonumber(value)
+            if num ~= nil then
+                return num >= 1
+            end
+            return false
+        end
+    end
+    return nil
+end
+
+local function _huti_get_card_states()
+    local result = {}
+    local tData = (npc.data_19 and npc.data_19.T_data) or {}
+    local serverCount = npc.data_19_tmp and npc.data_19_tmp.count or {}
+    local activeCount = _feijian_get_activation_count()
+    local firstChargeData = (npc.data_501 and npc.data_501.T_data) or {}
+    local condState = {
+        [1] = tonumber(SL:GetMetaValue("RELEVEL") or 0) >= 1,
+        [2] = tonumber(firstChargeData["首充"] or 0) == 1 or tonumber(firstChargeData["补充"] or 0) == 1,
+        [3] = _shortcut_is_unbind_completed(),
+    }
+
+    for idx, cfg in ipairs(HUTI_CARD_CFG) do
+        local countNum = _huti_read_first_number(serverCount, {
+            idx,
+            tostring(idx),
+            "ht_" .. idx,
+            "huti_" .. idx,
+        })
+        local active = (countNum and countNum >= 1) or activeCount[idx] == 1
+        local visible = _huti_read_first_flag(tData, {
+            "show_" .. idx,
+            "open_" .. idx,
+            "display_" .. idx,
+            "waixian_" .. idx,
+            "wx_" .. idx,
+            "ht_show_" .. idx,
+            "_local_show_" .. idx,
+        })
+        if visible == nil then
+            visible = active
+        end
+        result[idx] = {
+            idx = idx,
+            name = cfg.name,
+            effect = cfg.effect,
+            need = cfg.need,
+            lockedTip = cfg.lockedTip,
+            canActivate = condState[idx] == true,
+            active = active == true,
+            visible = visible == true,
+        }
+    end
+    return result
 end
 
 local function _shortcut_should_show(cfg)
@@ -2302,113 +2391,92 @@ npc[18] = function(p2, p3, Data)
         renderNewbieGift(win.node)
     end
 end
----飞剑
-npc[19] = function(p2, p3, Data)  --飞剑
+---护体光环
+npc[23] = function(p2, p3, Data)  --护体光环
+    local cardPosX = {100, 360, 620}
+    local UI_updata
 
-    local state_info = {
-        [1] = {
-            color = "#FF0000", -- 红色
-            text = "未激活"
-        },
-        [2] = {
-            color = "#00FF00", -- 绿色
-            text = "已激活"
-        }
-    }
+    local function setCommonText(textObj, outlineColor)
+        GUI:Text_setFontName(textObj, "fonts/502.ttf")
+        GUI:Text_enableOutline(textObj, outlineColor or "#081800", 1)
+        GUI:setAnchorPoint(textObj, 0.5, 0.5)
+    end
 
-    local function UI_updata(node) --界面渲染
-        GUI:removeAllChildren(node)
-        local tData = (npc.data_19 and npc.data_19.T_data) or {}
-        local activeCount, activeState = _feijian_get_activation_count()
+    local function renderCard(node, state)
+        local idx = state.idx
+        local card = GUI:Image_Create(node, "huti_card_" .. idx, cardPosX[idx], 34, "res/custom/htgh/item_" .. idx .. ".png")
+        GUI:setAnchorPoint(card, 0, 0)
 
-        for v,k in pairs(cogin.teshudata["anniu_19"].details) do
-            local kuang = GUI:Image_Create(node, "kuang"..v, 100 + (v-1) * 216, 50, "res/custom/feijian/itme_"..v.."_0.png")
-            -- local contentSize = kuang:getContentSize()
-            -- local itemShow = GUI:ItemShow_Create(kuang, "item", contentSize.width / 2, contentSize.height / 2, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME",k.name), look = true, bgVisible = false })
-            -- itemShow:setAnchorPoint(cc.p(0.5, 0.5))
-            -- GUI:Text_Create(kuang, "name",30,50, 20, "#FF0000", k.name)
-            local jh = (activeCount[v] == 1) and 2 or 1
-            local jian = GUI:Image_Create(kuang, "jian"..v, 0, 0, "res/custom/feijian/itme_"..v.."_1.png")
-            GUI:Text_Create(kuang, "jh",150,130, 18, state_info[jh].color, state_info[jh].text)
-            GUI:Image_Create(kuang, "jian_Wz"..v, 0, 0, "res/custom/feijian/itme_"..v.."_2.png")
-            if jh == 1 then
-                GUI:setGrey(jian, true)
-            end
+        -- local effectTitle = GUI:Text_Create(card, "effect_title_" .. idx, 133, 176, 24, "#FFE07D", "光环效果")
+        -- setCommonText(effectTitle)
+        -- local effectText = GUI:Text_Create(card, "effect_text_" .. idx, 133, 140, 23, "#F2F2F2", state.effect)
+        -- setCommonText(effectText)
 
-            local vState = activeState and activeState[v] or nil
-            if vState and vState.byBuff and vState.buffId then
-                local leftText = GUI:Text_Create(kuang, "buff_left" .. v, 150,130 + 30, 16, "#FFE07D", "1232")
-                GUI:setAnchorPoint(leftText, 0.5, 0.5)
-                GUI:Text_enableOutline(leftText, "#000000", 1)
-                local buffId = vState.buffId
-                local function _update_left()
-                    if tolua.isnull(leftText) then
-                        return
-                    end
-                    local left = _feijian_get_buff_left_seconds(buffId)
-                    if left and left > 0 then
-                        GUI:Text_setString(leftText, "剩余:" .. _feijian_format_left_seconds(left))
-                    else
-                        GUI:Text_setString(leftText, "")
-                    end
+        -- local needTitle = GUI:Text_Create(card, "need_title_" .. idx, 133, 102, 24, "#FFE07D", "激活条件")
+        -- setCommonText(needTitle)
+        -- local needText = GUI:Text_Create(card, "need_text_" .. idx, 133, 66, 23, "#F2F2F2", state.need)
+        -- setCommonText(needText)
+
+        if state.active then
+            local activeText = GUI:Text_Create(card, "active_text_" .. idx, 78 + 60, 110, 26, "#7CFF7C", "已激活")
+            GUI:setAnchorPoint(activeText, 0.5, 0.5)
+
+            setCommonText(activeText, "#003300")
+        else
+            local btn = GUI:Image_Create(card, "activate_btn_" .. idx, 78 + 60, 110, "res/custom/htgh/btn_activate.png")
+            GUI:setAnchorPoint(btn, 0.5, 0.5)
+
+            GUI:setTouchEnabled(btn, true)
+            GUI:addOnClickEvent(btn, function()
+                if not state.canActivate then
+                    SL:ShowSystemTips(state.lockedTip or "当前条件未满足")
+                    return
                 end
-                SL:schedule(leftText, _update_left, 1)
-                _update_left()
-            end
-            
-
-            if v == 4 then
-                local jd = GUI:Text_Create(kuang, "jd",40,105, 21, "#d1e3ec", "累计飞剑攻击：")
-                GUI:Text_setFontName(jd, "fonts/502.ttf")
-                GUI:Text_enableOutline(jd, "#081800", 1)
-
-                local num = GUI:RichText_Create(kuang, "num", 226/2, 100,
-                    SetCompletionProgress((tData.num or 0), cogin.teshudata["anniu_19"].num)
-                , 500, 30, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-                GUI:setAnchorPoint(num, 0.5, 0.5)
-            end
-
-             
-
+                SL:SendLuaNetMsg(101, 19, 1, idx, "")
+            end)
         end
 
-        -- local Button= GUI:Button_Create(node, "Button1", 750, 200.00, "res/public/1900000660.png")
-        -- GUI:Button_setTitleText(Button, "飞剑激活")
-        -- GUI:Button_setTitleFontSize(Button, 14)
+        -- local showText = GUI:Text_Create(card, "show_text_" .. idx, 55, 420, 26, "#FFFFFF", "外显")
+        -- setCommonText(showText, "#000000")
 
-        -- GUI:addOnClickEvent(Button, function()
-        --     SL:SendLuaNetMsg(101, 19, 1, 0, "")
-        -- end)
-        -- Button= GUI:Button_Create(node, "Button2", 750, 100.00, "res/public/1900000660.png")
-        -- GUI:Button_setTitleText(Button, "飞剑取消")
-        -- GUI:Button_setTitleFontSize(Button, 14)
+        local switchSkin = state.visible and "res/custom/htgh/open.png" or "res/custom/htgh/close.png"
+        local switchBtn = GUI:Image_Create(card, "switch_btn_" .. idx, 204, 40, switchSkin)
+        GUI:setAnchorPoint(switchBtn, 0.5, 0.5)
+        GUI:setTouchEnabled(switchBtn, state.active)
+        if state.active then
+            GUI:addOnClickEvent(switchBtn, function()
+                local nextVisible = not state.visible
+                npc.data_19 = npc.data_19 or {}
+                npc.data_19.T_data = npc.data_19.T_data or {}
+                npc.data_19.T_data["_local_show_" .. idx] = nextVisible and 1 or 0
+                SL:SendLuaNetMsg(101, 19, nextVisible and 2 or 3, idx, "")
+                if npc.node and not tolua.isnull(npc.node) then
+                    UI_updata(npc.node)
+                end
+            end)
+        else
+            GUI:setGrey(switchBtn, true)
+        end
+    end
 
-        -- GUI:addOnClickEvent(Button, function()
-        --     SL:SendLuaNetMsg(101, 19, 3, 0, "")
-        -- end)
+    UI_updata = function(node) --界面渲染
+        GUI:removeAllChildren(node)
+        local states = _huti_get_card_states()
+        for idx = 1, 3 do
+            renderCard(node, states[idx])
+        end
     end
 
     if p2 == 0 then
         npc.data_19 = not Data and {} or SL:JsonDecode(Data, false)
         rebuildShortcutButtons("")
-        local win = ensureWindow("flyingSword", 19, {titleText = "飞剑"})
+        local win = ensureWindow("bodyAura", 19, {titleText = "护体光环"})
         npc.bg = win.bg
         npc.node = win.node
         UI_updata(npc.node)
-        if not npc._feijian_buff_listener_registered then
-            npc._feijian_buff_listener_registered = true
-            SL:RegisterLUAEvent(LUA_EVENT_MAINBUFFUPDATE, "anniu_feijian_buff_refresh", function(data)
-                local buffId = data and tonumber(data.buffID or 0) or 0
-                if buffId == 20000 or buffId == 20001 or buffId == 20002 then
-                    if npc.node and not tolua.isnull(npc.node) then
-                        UI_updata(npc.node)
-                    end
-                end
-            end)
-        end
-    elseif p2 == 1 then
+    elseif p2 == 1 or p2 == 2 or p2 == 3 then
         npc.data_19_tmp = not Data and {} or SL:JsonDecode(Data, false)
-        SL:onLUAEvent(LUA_EVENT_PASSIVE_SKILL_DATA, { type = p3 ,count = npc.data_19_tmp.count ,psData = npc.data_19_tmp.psData})
+        SL:onLUAEvent(LUA_EVENT_PASSIVE_SKILL_DATA, { type = p3, count = npc.data_19_tmp.count, psData = npc.data_19_tmp.psData })
         if npc.node and not tolua.isnull(npc.node) then
             UI_updata(npc.node)
         end
@@ -2856,141 +2924,119 @@ npc[501] = function(p2, p3, Data) -- 首冲礼包
     local function get_501_state()
         local cfg = teshudata["anniu_501"] or {}
         local T_data = (npc.data_501 and npc.data_501.T_data) or {}
-        local time_data = tonumber((npc.data_501 and npc.data_501.time_data) or 0) or 0
-        local endtime = tonumber(cfg.endtime or 0) or 0
-        local ok = T_data["ok"] == 1
         local max = (cfg.details and cfg.details["首充"] and #cfg.details["首充"]) or 0
-        local buy_day = T_data["buy_day"] or time_data
-        local cur_idx = (time_data - buy_day) + 1
-        if cur_idx < 1 then cur_idx = 1 end
-        if max > 0 and cur_idx > max then cur_idx = max end
-        return cfg, T_data, time_data, endtime, ok, max, cur_idx
+        local ok = tonumber(T_data["ok"] or 0) == 1
+        local dl_progress = tonumber((npc.data_501 and (npc.data_501.dl_progress or npc.data_501.time_data)) or 1) or 1
+        local claimed = tonumber(T_data["other_lb"] or T_data["_lb"] or 0) or 0
+        if dl_progress < 1 then
+            dl_progress = 1
+        end
+        if claimed < 0 then
+            claimed = 0
+        end
+        if max > 0 and dl_progress > max then
+            dl_progress = max
+        end
+        if max > 0 and claimed > max then
+            claimed = max
+        end
+        local cur_idx = claimed + 1
+        if cur_idx < 1 then
+            cur_idx = 1
+        end
+        if max > 0 and cur_idx > max then
+            cur_idx = max
+        end
+        return cfg, T_data, ok, max, dl_progress, claimed, cur_idx
     end
 
-    local function UI_updata_1(node) --界面渲染
-        GUI:removeAllChildren(node)
-
-        -- GUI:setAnchorPoint(
-        --         GUI:RichText_Create(node, "desc", 200, 430,
-        --                 "<font color='#00FF00' size='20' >当前开服天数："..npc.data_501.time_data.."</font>\n"..
-        --                         "<font color='#00FF00' size='20' >第一天奖励："..((npc.data_501.T_data["首充"] and npc.data_501.T_data["首充"] == 1 and npc.data_501.T_data._lb and npc.data_501.T_data._lb >= 1) and "已领取" or "未领取").."</font>\n"..
-        --                         "<font color='#00FF00' size='20' >第二天奖励："..((npc.data_501.T_data["首充"] and npc.data_501.T_data["首充"] == 1 and npc.data_501.T_data._lb and npc.data_501.T_data._lb >= 2) and "已领取" or "未领取").."</font>\n"..
-        --                         "<font color='#00FF00' size='20' >第三天奖励："..((npc.data_501.T_data["首充"] and npc.data_501.T_data["首充"] == 1 and npc.data_501.T_data._lb and npc.data_501.T_data._lb >= 3) and "已领取" or "未领取").."</font>\n"..
-        --                         "<font color='#00FF00' size='20' >三天之后购买的奖励："..((npc.data_501.T_data["补充"] and npc.data_501.T_data["补充"] == 1 and npc.data_501.T_data._lb and npc.data_501.T_data._lb == 1) and "已领取" or "未领取").."</font>\n"
-        --         , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-        -- , 0, 1)
-        local cfg, T_data, time_data, endtime, ok, max, cur_idx = get_501_state()
-        npc.idx_501 = npc.idx_501 or 1
-        if max > 0 and npc.idx_501 > max then
-            npc.idx_501 = max
-        end
-        
-        GUI:Image_Create(node, "wz_2", 200, 230, "res/custom/top/shochong/wz_2.png")
-
-        GUI:setAnchorPoint(
-                GUI:RichText_Create(node, "desc", 200, 430,
-                        "<font color='#00FF00' size='20' >当前开服天数："..time_data.."</font>\n"..
-                        "<font color='#00FF00' size='20' >当前可领取：第"..cur_idx.."天</font>"
-                , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-        , 0, 1)
-
-        for i = 1, 3 do --天数按钮
-            local btn = GUI:Button_Create(node, "btn_"..i, 313 + (i-1)*90, 195, "res/custom/top/shochong/list/"..(npc.idx_501 == i and "l" or "n").."/"..i..".png")
-            GUI:addOnClickEvent(btn, function()
-                npc.idx_501 = i
-                UI_updata_1(node)
-            end)
-            
-        end
-        local jl = {}
-        if cfg.details and cfg.details["首充"] then
-            jl = cfg.details["首充"][npc.idx_501].show or {}
-        end
-        for j=1,#jl do
-            local itme = GUI:Image_Create(node, "itme"..j,  311 + (j-1)*70, 300 - 160, "dev/res/wy/public/50-50.png")
-            local show = GUI:ItemShow_Create(itme, "item", 50/2, 50/2, {index=SL:GetMetaValue("ITEM_INDEX_BY_NAME",jl[j][1]),look= true})
+    local function create_501_item(parent, name, count, x, y)
+        local kuang = GUI:Image_Create(parent, "kuang_" .. tostring(x) .. "_" .. tostring(y), x, y, "res/custom/top/shochong/kuang.png")
+        local itemIndex = SL:GetMetaValue("ITEM_INDEX_BY_NAME", name)
+        if tonumber(itemIndex) and tonumber(itemIndex) > 0 then
+            local show = GUI:ItemShow_Create(kuang, "item", 25, 24, {index = itemIndex, look = true})
             GUI:setAnchorPoint(show, 0.5, 0.5)
-            
-            GUI:setAnchorPoint(GUI:Text_Create(itme, "count", 60/2, 5, 13, "#FFFFFF", SL:GetSimpleNumber(jl[j][2],0)), 0.5, 0.5)
+        end
+        if tonumber(count or 0) > 1 then
+            local num = GUI:Text_Create(kuang, "count", 25, 2, 13, "#FFFFFF", SL:GetSimpleNumber(count, 0))
+            GUI:setAnchorPoint(num, 0.5, 0)
+            GUI:Text_enableOutline(num, "#000000", 1)
+        end
+    end
+
+    local function get_501_row_status(idx, ok, claimed, dl_progress)
+        if idx <= claimed then
+            return "已领取", "#33ff99", false
+        end
+        if not ok then
+            return "未首充", "#ff7056", false
+        end
+        if idx == claimed + 1 and dl_progress >= idx then
+            return "可领取", "#ffe07a", true
+        end
+        if idx == claimed + 1 then
+            return "未解锁", "#ff7056", false
+        end
+        return "后续档位", "#b08a53", false
+    end
+
+    local function UI_updata(node) -- 界面渲染
+        GUI:removeAllChildren(node)
+        local cfg, T_data, ok, max, dl_progress, claimed, cur_idx = get_501_state()
+        local rewardList = (cfg.details and cfg.details["首充"]) or {}
+        local rowY = {262, 190, 118}
+        local rowItemStartX = 215
+        local rowItemStepX = 58
+
+        GUI:Image_Create(node, "bg", 0, 0, "res/custom/top/shochong/bg.png")
+
+        for i = 1, max do
+            local rowRewards = rewardList[i] and (rewardList[i].show or rewardList[i].jl) or {}
+            local statusText, statusColor = get_501_row_status(i, ok, claimed, dl_progress)
+            for j = 1, math.min(#rowRewards, 4) do
+                create_501_item(node, rowRewards[j][1], rowRewards[j][2], rowItemStartX + (j - 1) * rowItemStepX, rowY[i] - 20)
+            end
+            local stateLabel = GUI:Text_Create(node, "state_" .. i, 150, rowY[i] - 28, 18, statusColor, statusText)
+            GUI:Text_setFontName(stateLabel, "fonts/500.ttf")
+            GUI:Text_enableOutline(stateLabel, "#5a1d0c", 2)
         end
 
+        local canClaim = ok and max > 0 and claimed < max and dl_progress >= cur_idx
 
-        local needRecharge = T_data["首充"] ~= 1
-        if needRecharge then
-            local Button= GUI:Button_Create(node, "Button", 400, 0.00, "res/custom/top/shochong/btn_1.png")
-            GUI:addOnClickEvent(Button, function()
+        if not ok then
+            local rechargeButton = GUI:Button_Create(node, "recharge", 600, 0, "res/custom/top/shochong/btn_1.png")
+            GUI:setAnchorPoint(rechargeButton, 0.5, 0)
+            GUI:addOnClickEvent(rechargeButton, function()
                 SL:SendLuaNetMsg(101, 501, 1, 0, "")
             end)
             return
         end
 
-        local claimed = (T_data["other_lb"] or 0) >= npc.idx_501
-        local canClaim = ok and (time_data <= endtime) and (npc.idx_501 == cur_idx) and not claimed
         if canClaim then
-            local Button= GUI:Button_Create(node, "Button", 750 - 460, 0.00, "res/custom/all_story_mission/2/btn_give.png")
-            GUI:addOnClickEvent(Button, function()
+            local claimButton = GUI:Button_Create(node, "claim", 600, 0, "res/custom/all_story_mission/2/btn_give.png")
+            GUI:setAnchorPoint(claimButton, 0.5, 0)
+            GUI:addOnClickEvent(claimButton, function()
                 SL:SendLuaNetMsg(101, 501, 1, 0, "")
-            end)
-        else
-            local stateText = claimed and "已经领取" or "还不能领取哦~"
-            local stateColor = claimed and "#00FF00" or "#ff0500"
-            local stateLabel = GUI:Text_Create(node, "claim_state", 750 - 460 + 80, 35, 26, stateColor, stateText)
-            GUI:setAnchorPoint(stateLabel, 0.5, 0.5)
-            GUI:Text_setFontName(stateLabel, "fonts/502.ttf")
-            GUI:Text_enableOutline(stateLabel, "#000000", 2)
-        end
-    end
-    local function UI_updata_2(node) --界面渲染
-        GUI:removeAllChildren(node)
-
-        local cfg, T_data, time_data, endtime, ok = get_501_state()
-        GUI:setAnchorPoint(
-                GUI:RichText_Create(node, "desc", 200, 430,
-                        "<font color='#00FF00' size='20' >当前开服天数："..time_data.."</font>\n"..
-                        "<font color='#00FF00' size='20' >补充礼包</font>"
-                , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-        , 0, 1)
-
-
-        local desc = GUI:Text_Create(node, "need_xxz",313,195, 25, "#FFFFFF", "可以领取丰厚的奖励")
-        GUI:Text_setFontName(desc, "fonts/502.ttf")
-        GUI:Text_enableOutline(desc, "#000000", 2)
-
-        local jl = {}
-        if cfg.details and cfg.details["补充"] then
-            jl = cfg.details["补充"][1] or {}
-        end
-        for j=1,#jl do
-            local itme = GUI:Image_Create(node, "itme_bc"..j,  311 + (j-1)*70, 300 - 160, "dev/res/wy/public/50-50.png")
-            local show = GUI:ItemShow_Create(itme, "item", 50/2, 50/2, {index=SL:GetMetaValue("ITEM_INDEX_BY_NAME",jl[j][1]),look= true})
-            GUI:setAnchorPoint(show, 0.5, 0.5)
-            GUI:setAnchorPoint(GUI:Text_Create(itme, "count", 60/2, 5, 13, "#FFFFFF", SL:GetSimpleNumber(jl[j][2],0)), 0.5, 0.5)
-        end
-
-        local needRecharge = T_data["补充"] ~= 1
-        if needRecharge then
-            local Button= GUI:Button_Create(node, "Button", 400, 0.00, "res/custom/top/shochong/btn_2.png")
-            GUI:addOnClickEvent(Button, function()
-                SL:SendLuaNetMsg(101, 501, 1, 0, "")
+                npc.data_501 = npc.data_501 or {}
+                npc.data_501.T_data = npc.data_501.T_data or {}
+                npc.data_501.T_data["other_lb"] = cur_idx
+                UI_updata(node)
             end)
             return
         end
 
-        local claimed = T_data["bc_ok"] == 1
-        local canClaim = ok and (time_data > endtime) and not claimed
-        if canClaim then
-            local Button= GUI:Button_Create(node, "Button", 750 - 460, 0.00, "res/custom/all_story_mission/2/btn_give.png")
-            GUI:addOnClickEvent(Button, function()
-                SL:SendLuaNetMsg(101, 501, 1, 0, "")
-            end)
-        else
-            local stateText = claimed and "已经领取" or "不能领取"
-            local stateColor = claimed and "#00FF00" or "#ff0500"
-            local stateLabel = GUI:Text_Create(node, "claim_state_bc", 750 - 460 + 80, 35, 26, stateColor, stateText)
-            GUI:setAnchorPoint(stateLabel, 0.5, 0.5)
-            GUI:Text_setFontName(stateLabel, "fonts/502.ttf")
-            GUI:Text_enableOutline(stateLabel, "#000000", 2)
+        local tipText = "当前不可领取"
+        if claimed >= max and max > 0 then
+            tipText = "首充礼包已全部领取"
+        elseif dl_progress < cur_idx then
+            tipText = "对应大陆未解锁"
+        elseif cur_idx <= claimed then
+            tipText = "该档已领取"
         end
+        local tip = GUI:Text_Create(node, "tip", 560, 34, 20, "#ff7056", tipText)
+        GUI:setAnchorPoint(tip, 0.5, 0.5)
+        GUI:Text_setFontName(tip, "fonts/500.ttf")
+        GUI:Text_enableOutline(tip, "#5a1d0c", 2)
     end
 
     if p2 == 0 then
@@ -2999,16 +3045,7 @@ npc[501] = function(p2, p3, Data) -- 首冲礼包
         local firstChargeWin = ensureWindow("firstCharge", 501, {titleText = "首充礼包"})
         npc.bg = firstChargeWin.bg
         npc.node = firstChargeWin.node
-        local cfg, T_data, time_data, endtime = get_501_state()
-        local buy_day = tonumber(T_data["buy_day"] or time_data) or time_data
-        local in_first3 = time_data <= endtime
-        local bought_in_first3 = (T_data["首充"] == 1) and (buy_day <= endtime)
-        if in_first3 or bought_in_first3 then -- 首充：开服前三天 或前三天有过首冲
-            UI_updata_1(npc.node)
-        else -- 补充
-            UI_updata_2(npc.node)
-        end
-        
+        UI_updata(npc.node)
     end
 end
 ---在线充值
@@ -3384,6 +3421,12 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
     local fldt_cfg_table = fldt_data_cfg["fldt_cfg"]
     local fldt_seven_cfg = (fldt_cfg_table and fldt_cfg_table.seven_login) or {}
     local fldt_online_limit = fldt_seven_cfg.online_limit or 10
+    local fldt_number_days = tonumber(fldt_seven_cfg.number_days or 4) or 4
+    if fldt_number_days < 1 then
+        fldt_number_days = 1
+    elseif fldt_number_days > 7 then
+        fldt_number_days = 7
+    end
 
     local function fldt_decode_json(raw)
         if type(raw) == "table" then
@@ -3409,6 +3452,33 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
             fp = {}
         end
         return fp
+    end
+
+    local function fldt_get_mat_reward_by_day(day)
+        local tqrbq = fldt_get_state()
+        local matData = tqrbq and tqrbq["7rqd_mat"] or nil
+        if type(matData) ~= "table" then
+            return nil
+        end
+        local record = matData[day]
+        if record == nil then
+            record = matData[tostring(day)]
+        end
+        if record == nil then
+            for _, one in ipairs(matData) do
+                if type(one) == "table" and (tonumber(one.day) or 0) == (tonumber(day) or 0) then
+                    record = one
+                    break
+                end
+            end
+        end
+        if type(record) ~= "table" then
+            return nil
+        end
+        if type(record.give) == "table" and #record.give > 0 then
+            return record.give
+        end
+        return nil
     end
     
     local function fldt_calc_flip_value(fp)
@@ -3596,20 +3666,28 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
             -- GUI:Text_Create(Label_node, "seven_digits", 260 + 365, 390 - 290, 18, "#00E4FF", "幸运号码：" .. digitDisplay)
 
             for i = 7, 1, -1 do
+                local slotX = 47 - (i - 7) * 82
                 local v = flipDigits[i] or flipDigits[tostring(i)]
-                -- seq[#seq + 1] = v ~= nil and tostring(v) or "?"
-                if v ~= nil then
-                    GUI:setAnchorPoint(GUI:Image_Create(Label_node, "img_bj_l_" .. i, 47 - (i-7) * 82, 308, "res/custom/fulitating/num/"..v..".png")
+                local isClaimedDay = claimed >= i
+                if i > fldt_number_days and isClaimedDay then
+                    local matGive = fldt_get_mat_reward_by_day(i)
+                    local matRow = type(matGive) == "table" and matGive[1] or nil
+                    GUI:setAnchorPoint(GUI:Image_Create(Label_node, "img_bj_l_" .. i, slotX, 308, "res/custom/fulitating/num/kongbai.png")
                         , 0.5, 0.5)
-                    local effwu = GUI:Frames_Create(Label_node, "effwu"..i, 47 - (i-7) * 82, 328, "res/custom/fulitating/eff/"..i.."/y_", ".png", 1, 15,
+                    if type(matRow) == "table" and matRow[1] then
+                        local matNode = ItemNumByTable_img({matRow}, nil, GUI:Node_Create(Label_node, "mat_node_" .. i, 0, 0))
+                        GUI:setPosition(matNode, slotX - 25, 283)
+                    end
+                elseif i <= fldt_number_days and isClaimedDay and v ~= nil then
+                    GUI:setAnchorPoint(GUI:Image_Create(Label_node, "img_bj_l_" .. i, slotX, 308, "res/custom/fulitating/num/"..v..".png")
+                        , 0.5, 0.5)
+                    local effwu = GUI:Frames_Create(Label_node, "effwu"..i, slotX, 328, "res/custom/fulitating/eff/"..i.."/y_", ".png", 1, 15,
                         { speed = 75, count = 15, loop = 1, finishhide = false })
                     GUI:setAnchorPoint(effwu, 0.5, 0.5)
                 else
-                    GUI:setAnchorPoint(GUI:Image_Create(Label_node, "img_bj_l_" .. i, 47 - (i-7) * 82, 328, "res/custom/fulitating/eff/"..i.."/y_1.png")
+                    GUI:setAnchorPoint(GUI:Image_Create(Label_node, "img_bj_l_" .. i, slotX, 328, "res/custom/fulitating/eff/"..i.."/y_1.png")
                         , 0.5, 0.5)
                 end
-                    
-                
             end
 
             -- local finalText

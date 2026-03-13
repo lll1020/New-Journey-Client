@@ -1,5 +1,5 @@
---npc加载
---npclib 渲染地址
+﻿-- npc加载
+-- npclib 渲染地址
 
 Npclib = setmetatable({}, {
 	__index = function(Npclib, key)
@@ -15,7 +15,7 @@ Npclib = setmetatable({}, {
 
 local cf_teshunpc = {
     [501] = 500, [502] = 500, [503] = 500, [504] = 500, [505] = 500, [506] = 500, [507] = 500, [508] = 500, [509] = 500, -- 世界地图
-    [32] = 32, [33] = 32, [34] = 32, [35] = 32, [36] = 32, [37] = 32, [38] = 32, [39] = 32, [40] = 32,-- 转生
+    [32] = 32, [33] = 32, [34] = 32, [35] = 32, [36] = 32, [37] = 32, [38] = 32, [39] = 32, [40] = 32, -- 转生
     [1003] = 1003,[1004] = 1003,[1005] = 1003,[1006] = 1003,[1007] = 1003, -- 各大陆时装兑换
 
 }
@@ -40,7 +40,7 @@ SL:RegisterLuaNetMsg(101, function(msgID, p1, p2, p3, msgData)
 end)
 
 SL:RegisterLuaNetMsg(103, function(msgID, p1, p2, p3, msgData)
-    if p1 == 1 then  --初始化
+    if p1 == 1 then  -- 初始化
         msgData = SL:JsonDecode(msgData, false)
         if  msgData.kqfz then
             cogin.sjtb.kqfz = msgData.kqfz
@@ -71,7 +71,7 @@ SL:RegisterLuaNetMsg(103, function(msgID, p1, p2, p3, msgData)
         end
         if msgData.zhuboma and msgData.zhuboma == 1 then
             cogin.sjtb.zhuboma = true
-            Npclib["anniu"][1](0,0,"")     --按钮初始化
+            Npclib["anniu"][1](0,0,"")     -- 按钮初始化
         end
     end
     SL:ScheduleOnce(function ()
@@ -114,31 +114,19 @@ SL:RegisterLUAEvent(LUA_EVENT_MAINBUFFUPDATE, "主玩家buff刷新", function(da
 
 end)
 
-SL:RegisterLUAEvent(LUA_EVENT_SERVER_VALUE_CHANGE, "服务端属性下发",  function(data)
+SL:RegisterLUAEvent(LUA_EVENT_SERVER_VALUE_CHANGE, "服务端属性下发", function(data)
 
 end)
 
 
 
----飞剑相关
---命中目标发送消息给服务端进行扣血操作
+---飞剑相关（临时关闭）
+-- 命中目标上报接口先保留空实现，避免旧调用报错。
 function SL:SubmitForm(msgName,...)
-    local content = {}
-
-    if msgName == nil then
-        return false
-    end
-
-    content.script = msgName
-    content.paramList = {}
-    local arg = {...}
-    for i=1, #arg do
-        content.paramList[i] = arg[i]
-    end
-    SL:SendLuaNetMsg(101, 19, 2, 0, SL:JsonEncode(content,false))
+    return false
 end
 
---加载相关lua文件
+-- 加载相关 lua 文件
 SL:Require("GUILayout/lib/ease",true)
 SL:Require("GUILayout/ldUtil/init",true)
 SL:Require("GUILayout/logic/SkillEffectLogic",true)

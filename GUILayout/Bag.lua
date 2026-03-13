@@ -1,21 +1,21 @@
-Bag = {}
+﻿Bag = {}
 function Bag.Init(isWin32)
     -- 网格配置
-    Bag._ScrollHeight = isWin32 and 214 or 320     -- 容器滚动区域的高度
-    Bag._PWidth       = isWin32 and 338 or 500     -- 容器可见区域 宽
-    Bag._PHeight      = isWin32 and 214 or 320     -- 容器可见区域 高
-    Bag._IWidth       = isWin32 and 42.8 or 62.5     -- item 宽
-    Bag._IHeight      = isWin32 and 40.6 or 64       -- item 高
+    Bag._ScrollHeight = isWin32 and 214 or 320     -- 容器滚动区域高度
+    Bag._PWidth       = isWin32 and 338 or 500     -- 容器可见区域宽度
+    Bag._PHeight      = isWin32 and 214 or 320     -- 容器可见区域高度
+    Bag._IWidth       = isWin32 and 42.8 or 62.5   -- item 宽
+    Bag._IHeight      = isWin32 and 40.6 or 64     -- item 高
     Bag._Row          = 5       -- 行数
     Bag._Col          = 8       -- 列数
-    Bag._PerPageNum   = 40      -- 每页的数量（Row * Col）
+    Bag._PerPageNum   = 40      -- 每页数量（Row * Col）
     Bag._defaultNum   = 40      -- 默认官方每页格子数量
-    Bag._MaxPage      = 5       -- 最大的页数
-    Bag._codeInitGrid = false   -- 是否需要代码生成格子，对于背景没有格子线和滚动容器没有格子线的情况
+    Bag._MaxPage      = 5       -- 最大页数
+    Bag._codeInitGrid = false   -- 是否需要代码生成格子
 
     Bag._changeStoreMode = false
-    Bag._bagPage    = 1     -- 开放到几页（默认1）
-    Bag._selPage    = 0     -- 当前选中的页签
+    Bag._bagPage    = 1     -- 开放到第几页（默认1）
+    Bag._selPage    = 0     -- 当前选中页签
     Bag._openNum    = SL:GetMetaValue("MAX_BAG")
 
     Bag._lockImg   = "res/public/icon_tyzys_01.png"
@@ -39,7 +39,7 @@ function Bag.main(page)
     -- 适配
     GUI:setPositionY(Bag._ui["Panel_1"], isWin32 and SL:GetMetaValue("PC_POS_Y") or SL:GetMetaValue("SCREEN_HEIGHT") / 2)
 
-    -- -- 界面拖动
+    -- 界面拖动
     GUI:Win_SetDrag(parent, Bag._ui["Image_bg"])
 
     -- 界面浮起
@@ -52,17 +52,17 @@ function Bag.main(page)
     GUI:addOnClickEvent(Bag._ui["Button_close"], function()
         SL:CloseBagUI()
     end)
-     --打仓库
+     -- 打开仓库
      GUI:addOnClickEvent(Bag._ui["ZongHeButton"], function()
          SL:SendLuaNetMsg(101, 3, 0, 0, "")
          Bag.itemBoxClose()
      end)
-    --打开回收
+    -- 打开回收
     GUI:addOnClickEvent(Bag._ui["HuiShouButton"], function()
         SL:SendLuaNetMsg(101, 2, 0, 0, "")
     end)
 
-    --服务按钮  打开服务界面
+    -- 服务按钮：打开服务界面
     GUI:addOnClickEvent(Bag._ui["FuWuButton"], function()
         local isShow = GUI:getVisible(Bag._ui["FuWuJieMian"])
         if isShow then
@@ -71,7 +71,7 @@ function Bag.main(page)
             GUI:setVisible(Bag._ui["FuWuJieMian"], true)
         end
     end)
-        --服务按钮  打开背包神器
+        -- 服务按钮：打开背包神器
     GUI:addOnClickEvent(Bag._ui["bbsqbtn"], function()
         local isShow = GUI:getVisible(Bag._ui["ListView_Equip"])
         if isShow then
@@ -81,7 +81,7 @@ function Bag.main(page)
         end
     end)
 
-    --整理背包
+    -- 整理背包
     GUI:addOnClickEvent(Bag._ui["ZhengLiButton"], function()
         SL:RefreshBagPos()
         Bag.itemBoxClose()
@@ -92,9 +92,9 @@ function Bag.main(page)
         SL:SendLuaNetMsg(105, 17, 17, 0, "")
     end)
 
-    --飞剑服务界面
+    --护体光环服务界面
     GUI:addOnClickEvent(Bag._ui["FuWuJieMian_feijian"], function()
-        SL:SendLuaNetMsg(101, 19, 4, 0, "")
+        SL:SendLuaNetMsg(101, 19, 0, 0, "")
     end)
 
         --物品销毁
@@ -108,13 +108,13 @@ function Bag.main(page)
         end
         GUI:setVisible(Bag._ui["ImageXiaoHui"], not isShow)
     end)
-        --屏蔽消息
+        -- 屏蔽消息
     GUI:addOnClickEvent(Bag._ui["FuWuJieMian_PingBiXiaoXi"], function()
         SL:SendLuaNetMsg(101, 2, 998, 0, "")
     end)
 
 
-    --物品销毁
+    -- 物品销毁
     GUI:addOnClickEvent(Bag._ui["FuWuJieMian_WuPinXiaoHui"], function()
         local isShow = GUI:getVisible(Bag._ui["ImageXiaoHui"])
         if not isShow then
@@ -127,7 +127,7 @@ function Bag.main(page)
     end)
     --
     --
-    ----销毁界面
+    ---- 销毁界面
     GUI:addOnClickEvent(Bag._ui["Button_XiaoHui"], function()
         local widget = GUI:getChildByName(Bag._ui["ImageXiaoHui"],"itemBox")
         local itemData = GUI:ItemBox_GetItemData(widget,1)
@@ -138,7 +138,7 @@ function Bag.main(page)
         local MakeIndex = itemData.MakeIndex
         local OverLap = itemData.OverLap
         local data = {}
-        data.str = string.format("正在销毁物品【%s*%s】,一旦销毁,无法找回,是否确定？",Name,OverLap)
+        data.str = string.format("正在销毁物品：%s*%s。一旦销毁，无法找回，是否确定？", Name, OverLap)
         data.btnType = 2
         data.showEdit = false
         data.callback = function(atype, param)
@@ -189,7 +189,7 @@ function Bag.itemBoxClose()
 end
 
 function Bag.InitPage()
-    -- 当前最大显示几页
+    -- 当前最多显示几页
     Bag._bagPage = math.ceil(Bag._openNum / Bag._PerPageNum)
     Bag._bagPage = math.max(Bag._bagPage, 1)
     Bag._bagPage = math.min(Bag._bagPage, Bag._MaxPage)
@@ -244,7 +244,7 @@ function Bag.InitGird()
             local x = (j-1) * Bag._IWidth
             local y = Bag._ScrollHeight - (i-1) * Bag._IHeight
 
-            -- 竖线
+            -- 绔栫嚎
             if i <= Bag._Row then
                 local pGird1 = GUI:Image_Create(Bag._UI_ScrollView, "Grid_1_" .. index, x, y, "res/public/bag_gezi.png")
                 GUI:setAnchorPoint(pGird1, 0, j == 1 and 0 or 1)
@@ -262,7 +262,7 @@ function Bag.InitGird()
     end
 end
 
--- 重置初始参数
+-- 重置初始化参数
 function Bag.ResetInitData( ... )
     local isWinMode = SL:GetMetaValue("WINPLAYMODE")
     local bag_row_col = SL:GetMetaValue("GAME_DATA", "bag_row_col_max")
@@ -295,7 +295,7 @@ function Bag.ResetInitData( ... )
     end
 end
 
--- PC背包金币数量刷新
+-- PC背包货币数量刷新
 function Bag.OnUpdateGold(data)
     --if SL:GetMetaValue("WINPLAYMODE") then
     --    if not data or (data.id == 1) then
@@ -306,7 +306,7 @@ function Bag.OnUpdateGold(data)
     --    end
     --end
     if GUI:GetWindow(nil, "BagLayerGUI") then
-            --货币显示start
+            --货币显示 start
         --SL:CustomAttrWidgetAdd("金币: &<TMONEY/金币>&", Bag._ui["Text_Money1"])
         --SL:CustomAttrWidgetAdd("元宝: &<TMONEY/元宝>&", Bag._ui["Text_Money2"])
         --SL:CustomAttrWidgetAdd("大米: &<TMONEY/大米>&", Bag._ui["Text_Money3"])
@@ -318,7 +318,7 @@ function Bag.OnUpdateGold(data)
         GUI:Text_setString(Bag._ui["Text_Money4"],SL:GetThousandSepString(SL:GetMetaValue("TMONEY", "绑定元宝")))
         GUI:Text_setString(Bag._ui["Text_Money5"],SL:GetThousandSepString(SL:GetMetaValue("TMONEY", "灵石")))
         GUI:Text_setString(Bag._ui["Text_Money6"],SL:GetThousandSepString(SL:GetMetaValue("TMONEY", "绑定灵石")))
-        --货币显示end
+        --货币显示 end
     end
 end
 
@@ -340,3 +340,4 @@ function Bag.UnRegisterEvent()
     SL:UnRegisterLUAEvent(LUA_EVENT_CLOSEWIN, "Bag")
     BagOBJ = nil
 end
+

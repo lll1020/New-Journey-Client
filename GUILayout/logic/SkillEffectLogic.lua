@@ -1,4 +1,5 @@
-SL:Require('GUILayout/skill/FeiJianSkill.lua', true)
+-- 飞剑技能逻辑临时关闭
+-- SL:Require('GUILayout/skill/FeiJianSkill.lua', true)
 
 ---@class SkillEffectLogic 技能特效处理逻辑
 SkillEffectLogic = {}
