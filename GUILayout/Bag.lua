@@ -94,7 +94,7 @@ function Bag.main(page)
 
     --护体光环服务界面
     GUI:addOnClickEvent(Bag._ui["FuWuJieMian_feijian"], function()
-        SL:SendLuaNetMsg(101, 19, 0, 0, "")
+        SL:SendLuaNetMsg(101, 23, 0, 0, "")
     end)
 
         --物品销毁

@@ -135,7 +135,7 @@ local WINDOW_STYLE = {
         closeButton = {x = 330, y = 180, skin = "res/wy/public/close_red_big.png"},
     },
     bodyAura = { -- 护体光环
-        windowName = "npc_19",
+        windowName = "npc_23",
         overlay = {skin = "res/public/1900000651_1.png"},
         background = {skin = "res/custom/htgh/bg.png"},
         closeButton = {x = 875, y = 500, skin = "res/wy/public/close_red_big.png"},
@@ -323,73 +323,6 @@ local function _feijian_format_left_seconds(seconds)
     return string.format("%02d:%02d", m, s)
 end
 
-local function _feijian_get_activation_state()
-    local state = {}
-    local cfg = teshudata and teshudata["anniu_19"] or {}
-    local needNum = tonumber(cfg.num or 0) or 0
-    local tData = (npc.data_19 and npc.data_19.T_data) or {}
-
-    local cond1_perm = tonumber(SL:GetMetaValue("RELEVEL") or 0) >= 1
-    local cond1_buff = _feijian_has_main_buff(20000)
-    state[1] = {
-        active = cond1_perm or cond1_buff,
-        byBuff = (not cond1_perm) and cond1_buff,
-        buffId = 20000,
-    }
-
-    local firstChargeData = (npc.data_501 and npc.data_501.T_data) or {}
-    local cond2_perm = tonumber(firstChargeData["首充"] or 0) == 1
-        or tonumber(firstChargeData["补充"] or 0) == 1
-        or tData.ratio ~= nil
-    local cond2_buff = _feijian_has_main_buff(20001)
-    state[2] = {
-        active = cond2_perm or cond2_buff,
-        byBuff = (not cond2_perm) and cond2_buff,
-        buffId = 20001,
-    }
-
-    local unbindOpened = (npc.kryb and tonumber(npc.kryb.mztq or 0) == 1)
-        or _shortcut_has_title((teshudata and teshudata["anniu_504"] and teshudata["anniu_504"].ch) or "解绑特权")
-    local cond3_perm = unbindOpened or tData.cd ~= nil
-    local cond3_buff = _feijian_has_main_buff(20002)
-    state[3] = {
-        active = cond3_perm or cond3_buff,
-        byBuff = (not cond3_perm) and cond3_buff,
-        buffId = 20002,
-    }
-
-    state[4] = {
-        active = tonumber(tData.num or 0) >= needNum,
-        byBuff = false,
-    }
-    return state
-end
-
-local function _feijian_get_activation_count()
-    local count = {}
-    local state = _feijian_get_activation_state()
-    for i = 1, 4 do
-        if state[i] and state[i].active then
-            count[i] = 1
-        end
-    end
-
-    local serverCount = npc.data_19_tmp and npc.data_19_tmp.count
-    if type(serverCount) == "table" then
-        for i = 1, 4 do
-            if tonumber(serverCount[tostring(i)] or serverCount[i] or 0) >= 1 then
-                count[i] = 1
-            end
-        end
-    end
-    return count, state
-end
-
-local function _shortcut_is_flying_sword_completed()
-    local count = _feijian_get_activation_count()
-    return count[1] == 1 and count[2] == 1 and count[3] == 1
-end
-
 local function _shortcut_is_unbind_completed()
     if npc.kryb and tonumber(npc.kryb.mztq or 0) == 1 then
         return true
@@ -403,8 +336,8 @@ local HUTI_CARD_CFG = {
     [1] = {
         name = "攻击",
         effect = "每3刀额外造成1000伤害",
-        need = "完成一大陆转生",
-        lockedTip = "需要先完成一大陆转生",
+        need = "转生等级达到10级",
+        lockedTip = "需要转生等级达到10级",
     },
     [2] = {
         name = "防御",
@@ -420,81 +353,85 @@ local HUTI_CARD_CFG = {
     },
 }
 
-local function _huti_read_first_number(data, keys)
-    if type(data) ~= "table" then
-        return nil
-    end
-    for _, key in ipairs(keys or {}) do
-        local value = data[key]
-        local num = tonumber(value)
-        if num ~= nil then
-            return num
-        end
-    end
-    return nil
+-- 读取护体光环服务端数据，字段结构与服务端 npc[23] 回包保持一致。
+local function _huti_get_server_data()
+    return type(npc.data_23) == "table" and npc.data_23 or {}
 end
 
-local function _huti_read_first_flag(data, keys)
-    if type(data) ~= "table" then
-        return nil
+-- 读取指定光环档位数据，兼容数组下标和字符串下标。
+local function _huti_get_aura_info(idx)
+    local data = _huti_get_server_data()
+    local aura = type(data.aura) == "table" and data.aura or {}
+    local info = aura[idx] or aura[tostring(idx)]
+    return type(info) == "table" and info or {}
+end
+
+-- 护体光环解锁条件在未打开面板前也要可用，便于快捷入口直接判断是否完成。
+local function _huti_get_local_open_flag(idx)
+    if idx == 1 then
+        return (tonumber(SL:GetMetaValue("RELEVEL") or 0) or 0) >= 1
     end
-    for _, key in ipairs(keys or {}) do
-        local value = data[key]
-        if value ~= nil then
-            if value == true or value == "true" then
-                return true
-            end
-            local num = tonumber(value)
-            if num ~= nil then
-                return num >= 1
-            end
+    if idx == 2 then
+        local firstChargeData = (npc.data_501 and npc.data_501.T_data) or {}
+        return tonumber(firstChargeData["首充"] or 0) == 1
+    end
+    if idx == 3 then
+        return _shortcut_is_unbind_completed()
+    end
+    return false
+end
+
+-- 优先使用服务端 open 状态；若该档尚未拉取到数据，则回退本地可判定条件。
+local function _huti_is_open(idx)
+    local info = _huti_get_aura_info(idx)
+    if info.open ~= nil then
+        return tonumber(info.open or 0) == 1
+    end
+    return _huti_get_local_open_flag(idx)
+end
+
+-- 当前激活档位由服务端直接下发，若 active 缺失则回退读各档 active 标记。
+local function _huti_get_active_idx()
+    local data = _huti_get_server_data()
+    local active = tonumber(data.active or 0) or 0
+    if active >= 1 and active <= 3 then
+        return active
+    end
+    for idx = 1, 3 do
+        local info = _huti_get_aura_info(idx)
+        if tonumber(info.active or 0) == 1 then
+            return idx
+        end
+    end
+    return 0
+end
+
+-- 快捷入口隐藏条件：三个护体光环全部解锁后不再显示入口。
+local function _shortcut_is_body_aura_completed()
+    for idx = 1, 3 do
+        if not _huti_is_open(idx) then
             return false
         end
     end
-    return nil
+    return true
 end
 
 local function _huti_get_card_states()
     local result = {}
-    local tData = (npc.data_19 and npc.data_19.T_data) or {}
-    local serverCount = npc.data_19_tmp and npc.data_19_tmp.count or {}
-    local activeCount = _feijian_get_activation_count()
-    local firstChargeData = (npc.data_501 and npc.data_501.T_data) or {}
-    local condState = {
-        [1] = tonumber(SL:GetMetaValue("RELEVEL") or 0) >= 1,
-        [2] = tonumber(firstChargeData["首充"] or 0) == 1 or tonumber(firstChargeData["补充"] or 0) == 1,
-        [3] = _shortcut_is_unbind_completed(),
-    }
-
+    local activeIdx = _huti_get_active_idx()
     for idx, cfg in ipairs(HUTI_CARD_CFG) do
-        local countNum = _huti_read_first_number(serverCount, {
-            idx,
-            tostring(idx),
-            "ht_" .. idx,
-            "huti_" .. idx,
-        })
-        local active = (countNum and countNum >= 1) or activeCount[idx] == 1
-        local visible = _huti_read_first_flag(tData, {
-            "show_" .. idx,
-            "open_" .. idx,
-            "display_" .. idx,
-            "waixian_" .. idx,
-            "wx_" .. idx,
-            "ht_show_" .. idx,
-            "_local_show_" .. idx,
-        })
-        if visible == nil then
-            visible = active
-        end
+        local info = _huti_get_aura_info(idx)
+        local canActivate = _huti_is_open(idx)
+        local active = activeIdx == idx or tonumber(info.active or 0) == 1
         result[idx] = {
             idx = idx,
             name = cfg.name,
             effect = cfg.effect,
             need = cfg.need,
             lockedTip = cfg.lockedTip,
-            canActivate = condState[idx] == true,
+            canActivate = canActivate,
             active = active == true,
-            visible = visible == true,
+            visible = active == true,
         }
     end
     return result
@@ -511,8 +448,8 @@ local function _shortcut_should_show(cfg)
     if npcid == 513 then
         return not _shortcut_is_kuangbao_completed()
     end
-    if npcid == 19 then
-        return not _shortcut_is_flying_sword_completed()
+    if npcid == 23 then
+        return not _shortcut_is_body_aura_completed()
     end
     if npcid == 504 then
         return not _shortcut_is_unbind_completed()
@@ -2406,6 +2343,9 @@ npc[23] = function(p2, p3, Data)  --护体光环
         local idx = state.idx
         local card = GUI:Image_Create(node, "huti_card_" .. idx, cardPosX[idx], 34, "res/custom/htgh/item_" .. idx .. ".png")
         GUI:setAnchorPoint(card, 0, 0)
+        
+        GUI:setScale(GUI:Effect_Create(card, "effect", 115, 320, 0, 11501 + idx, 0, 0, 0, 1), 1)
+        GUI:Effect_Create(card, "rw1", 115, 320, 4, SL:GetMetaValue("EQUIP_DATA", 0) and SL:GetMetaValue("EQUIP_DATA", 0).Shape or 1300, 0, 0, 2, 0.8)
 
         -- local effectTitle = GUI:Text_Create(card, "effect_title_" .. idx, 133, 176, 24, "#FFE07D", "光环效果")
         -- setCommonText(effectTitle)
@@ -2417,7 +2357,7 @@ npc[23] = function(p2, p3, Data)  --护体光环
         -- local needText = GUI:Text_Create(card, "need_text_" .. idx, 133, 66, 23, "#F2F2F2", state.need)
         -- setCommonText(needText)
 
-        if state.active then
+        if state.canActivate then
             local activeText = GUI:Text_Create(card, "active_text_" .. idx, 78 + 60, 110, 26, "#7CFF7C", "已激活")
             GUI:setAnchorPoint(activeText, 0.5, 0.5)
 
@@ -2432,27 +2372,19 @@ npc[23] = function(p2, p3, Data)  --护体光环
                     SL:ShowSystemTips(state.lockedTip or "当前条件未满足")
                     return
                 end
-                SL:SendLuaNetMsg(101, 19, 1, idx, "")
+                SL:SendLuaNetMsg(101, 23, 1, idx, "")
             end)
         end
 
-        -- local showText = GUI:Text_Create(card, "show_text_" .. idx, 55, 420, 26, "#FFFFFF", "外显")
-        -- setCommonText(showText, "#000000")
-
+        -- 服务端现在用 active 同时控制效果和外显，这里开关直接映射为启用/关闭当前光环。
         local switchSkin = state.visible and "res/custom/htgh/open.png" or "res/custom/htgh/close.png"
         local switchBtn = GUI:Image_Create(card, "switch_btn_" .. idx, 204, 40, switchSkin)
         GUI:setAnchorPoint(switchBtn, 0.5, 0.5)
-        GUI:setTouchEnabled(switchBtn, state.active)
-        if state.active then
+        GUI:setTouchEnabled(switchBtn, state.canActivate)
+        if state.canActivate then
             GUI:addOnClickEvent(switchBtn, function()
-                local nextVisible = not state.visible
-                npc.data_19 = npc.data_19 or {}
-                npc.data_19.T_data = npc.data_19.T_data or {}
-                npc.data_19.T_data["_local_show_" .. idx] = nextVisible and 1 or 0
-                SL:SendLuaNetMsg(101, 19, nextVisible and 2 or 3, idx, "")
-                if npc.node and not tolua.isnull(npc.node) then
-                    UI_updata(npc.node)
-                end
+                local nextIdx = state.active and 0 or idx
+                SL:SendLuaNetMsg(101, 23, 1, nextIdx, "")
             end)
         else
             GUI:setGrey(switchBtn, true)
@@ -2468,15 +2400,14 @@ npc[23] = function(p2, p3, Data)  --护体光环
     end
 
     if p2 == 0 then
-        npc.data_19 = not Data and {} or SL:JsonDecode(Data, false)
+        npc.data_23 = not Data and {} or SL:JsonDecode(Data, false)
         rebuildShortcutButtons("")
-        local win = ensureWindow("bodyAura", 19, {titleText = "护体光环"})
+        local win = ensureWindow("bodyAura", 23, {titleText = "护体光环"})
         npc.bg = win.bg
         npc.node = win.node
         UI_updata(npc.node)
-    elseif p2 == 1 or p2 == 2 or p2 == 3 then
-        npc.data_19_tmp = not Data and {} or SL:JsonDecode(Data, false)
-        SL:onLUAEvent(LUA_EVENT_PASSIVE_SKILL_DATA, { type = p3, count = npc.data_19_tmp.count, psData = npc.data_19_tmp.psData })
+    elseif p2 == 1 then
+        npc.data_23 = not Data and {} or SL:JsonDecode(Data, false)
         if npc.node and not tolua.isnull(npc.node) then
             UI_updata(npc.node)
         end
