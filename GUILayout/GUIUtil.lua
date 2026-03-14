@@ -75,7 +75,7 @@ append_nested_group(cogin.hs.zsfj, 2)
 append_nested_group(cogin.hs.sqhs, 3)
 append_nested_group(cogin.hs.gwfj, 4)
 append_nested_group(cogin.hs.ssfj, 5)
-append_single_group(cogin.hs.clfj, 6)
+append_nested_group(cogin.hs.clfj, 6)
 append_flat_group(cogin.hs.teshuhuihsou, 7)
 
 for itemIdx, cfg in pairs(cogin.hs.kexiaohui or {})  do

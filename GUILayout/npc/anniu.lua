@@ -909,6 +909,7 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
     if p2 == 2 then
         local shuju = SL:JsonDecode(msgData,false)
         shuju.xz = shuju.xz or {}
+        shuju.kg = shuju.kg or {}
 
         -- 工具：重用/创建指定窗口，避免重复的 Win_Create
         local recycleWindow = ensureWindow("recycle", 2, {titleText = "装备回收"})
@@ -943,6 +944,148 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
             [7] = "teshuhuihsou",
         }
         local refresh_bulk_select_state
+
+        local function setRecycleText(widget, color, size, outline)
+            -- GUI:Text_setFontName(widget, "fonts/500.ttf")
+            GUI:Text_enableOutline(widget, outline or "#110b05", 2)
+            if color then
+                GUI:Text_setTextColor(widget, color)
+            end
+            if size then
+                GUI:Text_setFontSize(widget, size)
+            end
+        end
+
+        local function getGroupNameColor(name)
+            local text = tostring(name or "")
+            local colorByTier = {
+                "#72F26B",
+                "#66F0A9",
+                "#72E9D8",
+                "#79D7FF",
+                "#8CB9FF",
+                "#A99BFF",
+                "#C58CFF",
+                "#E688FF",
+                "#FF8EDC",
+                "#FF9FB0",
+                "#FFAE7A",
+                "#FFC15F",
+                "#FFD451",
+                "#FFE46C",
+                "#FFF08A",
+            }
+
+            local function clampTier(tier)
+                tier = tonumber(tier or 1) or 1
+                if tier < 1 then
+                    tier = 1
+                elseif tier > #colorByTier then
+                    tier = #colorByTier
+                end
+                return tier
+            end
+
+            local startTier = string.match(text, "基础装备(%d+)%-%d+")
+            if startTier then
+                local tier = tonumber(startTier) or 1
+                return colorByTier[clampTier(tier)]
+            end
+
+            local zishuTier = string.match(text, "专属附加(%d+)")
+            if zishuTier then
+                return colorByTier[clampTier(zishuTier)]
+            end
+
+            local shizhuangTier = string.match(text, "时装首饰(%d+)")
+            if shizhuangTier then
+                return colorByTier[clampTier((tonumber(shizhuangTier) or 1) + 5)]
+            end
+
+            local shengxiaoTier = string.match(text, "生肖(%d+)")
+            if shengxiaoTier then
+                return colorByTier[clampTier((tonumber(shengxiaoTier) or 1) + 1)]
+            end
+
+            local guwanTierMap = {
+                ["唐代"] = 1,
+                ["宋代"] = 3,
+                ["元代"] = 5,
+                ["明代"] = 7,
+                ["清代"] = 9,
+                ["近代"] = 11,
+            }
+            for key, tier in pairs(guwanTierMap) do
+                if string.find(text, key) then
+                    return colorByTier[clampTier(tier)]
+                end
+            end
+
+            local shenshiTierMap = {
+                ["稀有"] = 4,
+                ["史诗"] = 7,
+                ["神话"] = 11,
+                ["传说"] = 14,
+            }
+            for key, tier in pairs(shenshiTierMap) do
+                if string.find(text, key) then
+                    return colorByTier[clampTier(tier)]
+                end
+            end
+
+            local cailiaoTierMap = {
+                ["常规材料"] = 1,
+                ["主线材料"] = 5,
+                ["海域材料"] = 9,
+                ["西游材料"] = 13,
+            }
+            for key, tier in pairs(cailiaoTierMap) do
+                if string.find(text, key) then
+                    return colorByTier[clampTier(tier)]
+                end
+            end
+
+            return "#F5E6B2"
+        end
+
+        -- 回收奖励显示与服务端/配置同源：
+        -- 常规页签：{组别, 子组, 名称, 金币, 元宝}
+        -- 专属附加：{组别, 子组, 名称, 数量, 辉耀水晶标记, 幻灵石标记}
+        local function formatRecycleReward(cfg)
+            if type(cfg) ~= "table" then
+                return ""
+            end
+
+            local groupType = tonumber(cfg.gl or cfg[1] or 0) or 0
+            local countA = tonumber(cfg[4] or 0) or 0
+            local countB = tonumber(cfg[5] or 0) or 0
+            local countC = tonumber(cfg[6] or 0) or 0
+
+            if groupType == 2 then
+                if countB == 1 then
+                    return "辉耀水晶*" .. tostring(countA)
+                end
+                if countC == 1 then
+                    return "幻灵石*" .. tostring(countA)
+                end
+                return "不返还"
+            end
+
+            local parts = {}
+            if countA > 0 then
+                parts[#parts + 1] = "金币*" .. tostring(countA)
+            end
+            if countB > 0 then
+                parts[#parts + 1] = "元宝*" .. tostring(countB)
+            end
+            return #parts > 0 and table.concat(parts, " ") or "无"
+        end
+
+        -- 回收表里有一部分只是分段标题，占位展示用，不作为实际可勾选道具显示。
+        local function isRecycleTitleItem(cfg)
+            local itemName = tostring(cfg and cfg[3] or "")
+            return string.find(itemName, "^·%-%-%-") ~= nil
+        end
 
         local function collect_current_select_keys()
             local keyMap = {}
@@ -1107,7 +1250,7 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                     rowLayouts[rowIndex] = GUI:Layout_Create(npc.bbzs, "h" .. rowIndex, 0, 0, 500, 41 ,false)
                 end
                 local config = huishou_jc_list[bagItem.Index]
-                if config then
+                if config and not isRecycleTitleItem(config) then
                     local rowParent = rowLayouts[rowIndex]
                     if rowParent then
                         local slot = GUI:Image_Create(rowParent, "kuang" .. slotIndex, ((((slotIndex - 1) % 12)) * 41) + 4, 0, "res/wy/public/40-40.png")
@@ -1143,7 +1286,7 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
         end
         local ty_node = GUI:Node_Create(recycleWindow.node,"ty_node",0,0)
         local jm_node = GUI:Node_Create(recycleWindow.node,"jm_node",0,0)
-        npc.bbzs = GUI:ListView_Create(ty_node, "bbzs", 120, 108, 500, 230, 1)
+        npc.bbzs = GUI:ListView_Create(ty_node, "bbzs", 226, 140, 404, 98, 1)
         GUI:ListView_setItemsMargin(npc.bbzs, 2)
         GUI:ListView_setGravity(npc.bbzs, 2)
 
@@ -1242,12 +1385,14 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
             end
             subgroup_count = math.max(subgroup_count, 1)
 
-            local list_height = math.max(230, 32 * math.ceil(subgroup_count / 3))
-            local ScrollView = GUI:ScrollView_Create(jm_node, "ScrollView", 120.00, 108.00, 463.00, 230.00, 1)
-            GUI:ScrollView_setInnerContainerSize(ScrollView, 463, list_height)
+            local visible_width = 414
+            local visible_height = 228
+            local list_height = math.max(visible_height, 58 * math.ceil(subgroup_count / 2))
+            local ScrollView = GUI:ScrollView_Create(jm_node, "ScrollView", 135.00, 112.00, visible_width, visible_height, 1)
+            GUI:ScrollView_setInnerContainerSize(ScrollView, visible_width, list_height)
             GUI:setTouchEnabled(ScrollView, true)
             GUI:ScrollView_setBounceEnabled(ScrollView, true)
-            local s_list = GUI:Layout_Create(ScrollView, "s_list", 0.00, 0.00, 463.00, list_height)
+            local s_list = GUI:Layout_Create(ScrollView, "s_list", 0.00, 0.00, visible_width, list_height)
 
             local function open_subgroup_popup(anchor_btn, group_key, subgroup_key, subgroup_cfg)
                 local xjm_parent = npc.hs_xbj
@@ -1256,43 +1401,101 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                     npc.hs_xbj = nil
                 end
 
-                local pos = GUI:getWorldPosition(anchor_btn)
-                npc.hs_xbj = GUI:Image_Create(jm_node, "bj", pos.x - 265, 35 + pos.y - 229, "res/private/item_tips/bg_tipszy_05.png")
+                npc.hs_xbj = GUI:Image_Create(jm_node, "bj", 258, 318, "res/private/item_tips/bg_tipszy_05.png")
                 GUI:setAnchorPoint(npc.hs_xbj, 0, 1)
                 GUI:setTouchEnabled(npc.hs_xbj, true)
-                GUI:setContentSize(npc.hs_xbj, GUI:getContentSize(anchor_btn).width + 10, 5 * (35 + 10))
+                GUI:setContentSize(npc.hs_xbj, 252, 300)
                 GUI:Win_SetZPanel(jm_node, npc.hs_xbj)
                 GUI:setLocalZOrder(npc.hs_xbj, 99)
 
-                local x_close = GUI:Button_Create(npc.hs_xbj, "close", GUI:getContentSize(anchor_btn).width + 10, 5 * (35 + 10), "res/public/1900000511.png")
+                local titleText = GUI:Text_Create(npc.hs_xbj, "popup_title", 126, 268, 24, "#F4D879", subgroup_cfg.name or "回收分组")
+                GUI:setAnchorPoint(titleText, 0.5, 0.5)
+                setRecycleText(titleText, "#F4D879", 24, "#110b05")
+
+                local x_close = GUI:Button_Create(npc.hs_xbj, "close", 252, 300, "res/public/1900000511.png")
                 GUI:setAnchorPoint(x_close, 0, 1)
                 GUI:addOnClickEvent(x_close, function()
                     GUI:removeFromParent(npc.hs_xbj)
                     npc.hs_xbj = nil
                 end)
 
-                local s_s_s_list = GUI:ListView_Create(npc.hs_xbj, "s_s_s_list", 0, 3, GUI:getContentSize(anchor_btn).width + 10, 5 * (35 + 10) - 6, 1)
+                local function popup_is_all_selected()
+                    if (shuju.xz[group_key] and shuju.xz[group_key] == 1)
+                        or (shuju.xz[subgroup_key] and shuju.xz[subgroup_key] == 1) then
+                        return true
+                    end
+                    local hasEntry = false
+                    for item_idx, item_cfg in sorted_pairs(subgroup_cfg.l) do
+                        if not isRecycleTitleItem(item_cfg) then
+                            hasEntry = true
+                            if not (shuju.xz[tostring(item_idx)] and shuju.xz[tostring(item_idx)] == 1) then
+                                return false
+                            end
+                        end
+                    end
+                    return hasEntry
+                end
+
+                local s_s_s_list = GUI:ListView_Create(npc.hs_xbj, "s_s_s_list", 11, 46, 230, 198, 1)
                 GUI:ListView_setGravity(s_s_s_list, 2)
-                GUI:ListView_setItemsMargin(s_s_s_list, 10)
+                GUI:ListView_setItemsMargin(s_s_s_list, 6)
 
                 for item_idx, item_cfg in sorted_pairs(subgroup_cfg.l) do
-                    local s_s_s_btn = GUI:Image_Create(s_s_s_list, "s_s_s_btn" .. item_idx, 0, 0, "res/wy/public/new_kuang.png")
-                    local s_s_s_CheckBox = GUI:CheckBox_Create(s_s_s_btn, "CheckBox", GUI:getContentSize(s_s_s_btn).width - 40, 3, "res/wy/public/new_check_0.png", "res/wy/public/new_check_1.png")
-                    GUI:CheckBox_setSelected(
-                        s_s_s_CheckBox,
-                        (shuju.xz[group_key] and shuju.xz[group_key] == 1)
-                            or (shuju.xz[subgroup_key] and shuju.xz[subgroup_key] == 1)
-                            or (shuju.xz[tostring(item_idx)] and shuju.xz[tostring(item_idx)] == 1)
-                    )
-                    GUI:CheckBox_addOnEvent(s_s_s_CheckBox, function(self)
-                        syncSelection(tostring(item_idx), GUI:CheckBox_isSelected(self))
+                    if not isRecycleTitleItem(item_cfg) then
+                        local s_s_s_btn = GUI:Image_Create(s_s_s_list, "s_s_s_btn" .. item_idx, 0, 0, "res/wy/public/new_kuang.png")
+                        GUI:setContentSize(s_s_s_btn, 228, 50)
+                        local iconBg = GUI:Image_Create(s_s_s_btn, "icon_bg", 8, 8, "res/wy/public/40-40.png")
+                        local itemShow = GUI:ItemShow_Create(iconBg, "item", 20, 20, { index = item_idx, look = true, bgVisible = false })
+                        GUI:setAnchorPoint(itemShow, 0.5, 0.5)
+                        local s_s_s_CheckBox = GUI:CheckBox_Create(s_s_s_btn, "CheckBox", 186, 12, "res/wy/public/xz0.png", "res/wy/public/xz1.png")
+                        GUI:CheckBox_setSelected(
+                            s_s_s_CheckBox,
+                            (shuju.xz[group_key] and shuju.xz[group_key] == 1)
+                                or (shuju.xz[subgroup_key] and shuju.xz[subgroup_key] == 1)
+                                or (shuju.xz[tostring(item_idx)] and shuju.xz[tostring(item_idx)] == 1)
+                        )
+                        GUI:CheckBox_addOnEvent(s_s_s_CheckBox, function(self)
+                            syncSelection(tostring(item_idx), GUI:CheckBox_isSelected(self))
+                            clearSelectionIfNeeded(group_key)
+                            clearSelectionIfNeeded(subgroup_key)
+                        end)
+                        local item_name = item_cfg and item_cfg[3] or tostring(item_idx)
+                        local reward_desc = formatRecycleReward(item_cfg)
+                        -- local s_s_s_wz = GUI:RichText_Create(s_s_s_btn, "s_s_s_wz", 110, 28, "<a href='jump#item_tips#" .. item_idx .. "'>" .. item_name .. "</a>", 120, 18, "#f0c14b", 1, nil, nil, {outlineSize = 2, outlineColor = SL:ConvertColorFromHexString("#100808")})
+                        local s_s_s_wz = GUI:RichText_Create(s_s_s_btn, "s_s_s_wz", 120, 35, item_name, 200, 16, "#f0c14b", 1, nil, nil, {})
+                        GUI:setAnchorPoint(s_s_s_wz, 0.5, 0.5)
+                        local rewardText = GUI:Text_Create(s_s_s_btn, "reward", 110, 17, 16, "#F3E8CE", reward_desc)
+                        GUI:setAnchorPoint(rewardText, 0.5, 0.5)
+                        setRecycleText(rewardText, "#F3E8CE", 16, "#110b05")
+                    end
+                end
+
+                local allSelectBtn = GUI:Button_Create(npc.hs_xbj, "all_select", 126, 4, "res/public/1900000660.png")
+                GUI:setAnchorPoint(allSelectBtn, 0.5, 0)
+                GUI:Button_setTitleText(allSelectBtn, popup_is_all_selected() and "取消全选" or "全选")
+                GUI:Button_setTitleColor(allSelectBtn, "#F4E7B5")
+                GUI:Button_setTitleFontSize(allSelectBtn, 20)
+                GUI:Button_titleEnableOutline(allSelectBtn, "#110b05", 2)
+                GUI:addOnClickEvent(allSelectBtn, function()
+                    local targetSelected = not popup_is_all_selected()
+                    if targetSelected then
+                        syncSelection(subgroup_key, true)
+                        clearSelectionIfNeeded(group_key)
+                    else
                         clearSelectionIfNeeded(group_key)
                         clearSelectionIfNeeded(subgroup_key)
-                    end)
-                    local item_name = item_cfg and item_cfg[3] or tostring(item_idx)
-                    local s_s_s_wz = GUI:RichText_Create( s_s_s_btn, "s_s_s_wz", 77, 17, "<a href='jump#item_tips#" .. item_idx .. "'>" .. item_name .. "</a>", 500, 17, "#f7f7de", 3, nil, nil, {outlineSize = 2, outlineColor = SL:ConvertColorFromHexString("#100808")})
-                    GUI:setAnchorPoint(s_s_s_wz, 0.5, 0.5)
-                end
+                        for item_idx, item_cfg in sorted_pairs(subgroup_cfg.l) do
+                            if not isRecycleTitleItem(item_cfg) then
+                                clearSelectionIfNeeded(tostring(item_idx))
+                            end
+                        end
+                    end
+                    new_hs_update()
+                    if refresh_bulk_select_state then
+                        refresh_bulk_select_state()
+                    end
+                    open_subgroup_popup(anchor_btn, group_key, subgroup_key, subgroup_cfg)
+                end)
             end
 
             for v, group_data in sorted_pairs(category_data) do
@@ -1300,7 +1503,8 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                     for vv, subgroup_cfg in sorted_pairs(group_data) do
                         if type(subgroup_cfg) == "table" and type(subgroup_cfg.l) == "table" then
                             local s_s_btn = GUI:Image_Create(s_list, "s_s_btn" .. tostring(v) .. "_" .. tostring(vv), 0, 0, "res/wy/public/new_kuang.png")
-                            local s_s_CheckBox = GUI:CheckBox_Create(s_s_btn, "CheckBox", GUI:getContentSize(s_s_btn).width - 40, 3, "res/wy/public/new_check_0.png", "res/wy/public/new_check_1.png")
+                            GUI:setContentSize(s_s_btn, 198, 48)
+                            local s_s_CheckBox = GUI:CheckBox_Create(s_s_btn, "CheckBox", 164, 11, "res/wy/public/xz0.png", "res/wy/public/xz1.png")
 
                             local group_key = npc.s .. "_" .. tostring(v)
                             local subgroup_key = group_key .. "_" .. tostring(vv)
@@ -1319,10 +1523,10 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                             end)
 
                             local group_name = subgroup_cfg.name or ("分组" .. tostring(vv))
-                            local s_s_wz = GUI:Text_Create(s_s_btn, "wz", 70, 17, 17, "#44DDFF", group_name)
+                            local color = getGroupNameColor(group_name)
+                            local s_s_wz = GUI:Text_Create(s_s_btn, "wz", 84, 26, 18, color, group_name)
                             GUI:setAnchorPoint(s_s_wz, 0.5, 0.5)
-                            GUI:Text_enableOutline(s_s_wz, "#150800", 2)
-                            GUI:Text_enableUnderline(s_s_wz)
+                            setRecycleText(s_s_wz, color, 18, "#110b05")
 
                             GUI:setTouchEnabled(s_s_btn, true)
                             GUI:addOnClickEvent(s_s_btn, function()
@@ -1333,7 +1537,7 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                 end
             end
 
-            GUI:UserUILayout(s_list, {dir = 3, addDir = 1, colnum = 3, gap = {x = -5, y = 0}})
+            GUI:UserUILayout(s_list, {dir = 3, addDir = 1, colnum = 2, gap = {x = 12, y = 10}})
         end
 
         npc.s = 1
@@ -1345,7 +1549,7 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
         local l_list = GUI:ListView_Create(ty_node, "ListView", 15.00, 15.00, 120.00, 325.00, 1)
         GUI:ListView_setItemsMargin(l_list, 8)
         GUI:ListView_setGravity(l_list, 2)
-        for ii = 1,7 do
+        for ii = 1,6 do
             GUI:Image_Create(l_list, "fgx"..ii, 0, 0, "res/wy/public/huishou/hsan_fgx.png")
             npc.hs_btn["s_"..ii] = GUI:Button_Create(l_list, "san"..ii, 0, 0, "res/wy/public/huishou/hsan_nsan_"..ii..".png")
             GUI:addOnClickEvent(npc.hs_btn["s_"..ii], function()
@@ -1409,7 +1613,7 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
             new_hs_update()
         end)
         --一键取消全选
-        CheckBox5 = GUI:CheckBox_Create(ty_node, "kaiguan5",380 + 130, 65, "res/wy/public/xz0.png", "res/wy/public/xz1.png")
+        CheckBox5 = GUI:CheckBox_Create(ty_node, "kaiguan5",510, 65, "res/wy/public/xz0.png", "res/wy/public/xz1.png")
         GUI:CheckBox_addOnEvent(CheckBox5, function(self)
             if bulk_checkbox_lock then
                 return
