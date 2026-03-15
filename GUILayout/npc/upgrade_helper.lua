@@ -578,7 +578,7 @@ local function _upgrade_is_cuiti_11_completed()
 end
 
 local function _upgrade_is_npc_55_completed()
-    return _upgrade_is_story_done("npc55") or _upgrade_is_story_done("npc_55")
+    return _upgrade_is_story_done("npc_55") or _upgrade_is_story_done("npc_55")
 end
 
 local function _upgrade_has_required_equip_for_70()
@@ -637,7 +637,7 @@ local OPEN_BTN_LIST = {
     {id = 8, label = "斗笠[★]", npcid = 8, continent = 1},
     {id = 9, label = "特戒", npcid = 9, continent = 1},
     {id = 10, label = "酒葫芦[★]", npcid = 10, continent = 1},
-    {id = 11, label = "基础淬体", npcid = 11, continent = 1},
+    {id = 11, label = "基础淬体", npcid = 11, continent = 2},
     {id = 13, label = "小兰赠礼[★]", npcid = 13, continent = 1},
     {id = 14, label = "小二倒酒[★]", npcid = 14, continent = 1},
 

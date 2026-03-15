@@ -43,8 +43,8 @@ end
 
         GUI:setAnchorPoint(GUI:Image_Create(node, "kuang2", 0, 0, "res/custom/one_city/kbzl/up.png")
         , 0.5, 0.5)
-        GUI:setAnchorPoint(GUI:Image_Create(node, "attr", 160, -30, "res/custom/one_city/kbzl/attr.png")
-        , 0.5, 0.5)
+        -- GUI:setAnchorPoint(GUI:Image_Create(node, "attr", 160, -30, "res/custom/one_city/kbzl/attr.png")
+        -- , 0.5, 0.5)
 
 
         -- GUI:setAnchorPoint(
@@ -60,7 +60,7 @@ end
         -- UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.give.ch.."[称号]")))
 
 
-        local Button= GUI:Button_Create(node, "Button", 100, -250, "res/custom/one_city/kbzl/btn.png")
+        local Button= GUI:Button_Create(node, "Button", 100, -270, "res/custom/one_city/kbzl/btn.png")
         GUI:addOnClickEvent(Button, function()
             SL:SendLuaNetMsg(100, npcid, 1, 0, "")
         end)

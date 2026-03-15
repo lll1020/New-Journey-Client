@@ -38,7 +38,7 @@ function npc.main(npcid, p2, p3, msgData)
 
         -- GUI:setAnchorPoint(
         --         GUI:RichText_Create(node, "desc", 200, 430,
-        --                 "<font color='#00FF00' size='20' >领取任务 共计击杀200只怪物，当前击杀："..(npc.data.sg_data.npc55 or 0).."</font>"
+        --                 "<font color='#00FF00' size='20' >领取任务 共计击杀200只怪物，当前击杀："..(npc.data.sg_data.npc_55 or 0).."</font>"
         --         , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
         -- , 0, 1)
         --显示奖励
@@ -48,12 +48,12 @@ function npc.main(npcid, p2, p3, msgData)
 
 
 
-        if npc.data.jq_data["npc55"] and npc.data.jq_data["npc55"] == 2 then
+        if npc.data.jq_data["npc_55"] and npc.data.jq_data["npc_55"] == 2 then
             GUI:Text_setFontName(GUI:Text_Create(node, "tip",450,30, 25, "#00FF00", "任务已完成，恭喜您！")
             , "fonts/500.ttf")
-        elseif npc.data.jq_data["npc55"] and npc.data.jq_data["npc55"] == 1 then
+        elseif npc.data.jq_data["npc_55"] and npc.data.jq_data["npc_55"] == 1 then
 
-            local desc = GUI:Text_Create(node, "desc",500,200, 20, "#808080", "当前击杀："..(npc.data.sg_data.npc55 or 0))
+            local desc = GUI:Text_Create(node, "desc",500,200, 20, "#808080", "当前击杀："..(npc.data.sg_data.npc_55 or 0))
             GUI:Text_setFontName(desc, "fonts/500.ttf")
             GUI:Text_enableOutline(desc, "#00FFFF", 2)
 
@@ -77,7 +77,7 @@ function npc.main(npcid, p2, p3, msgData)
         ensureWindow(npcid)
         UI_updata(npc.node)
     elseif p2 == 1 then
-        npc.data.jq_data["npc55"] = p3
+        npc.data.jq_data["npc_55"] = p3
         UI_updata(npc.node)
     end
 end

@@ -226,21 +226,21 @@ function UIHelper.tryStartMainlineUpgradeGuide(guideCache, button, guideParent, 
     local keyPrefix = opts.keyPrefix or "mainline_upgrade"
     local guideKey = string.format("%s_%s_%s_%s", keyPrefix, tostring(rwid), tostring(npcid), tostring(marker or 0))
     if guideCache and guideCache._guide_key == guideKey then
-        return false
+        -- return false
     end
     if guideCache then
         guideCache._guide_key = guideKey
     end
 
-    SL:StartGuide({
+    
+    return SL:StartGuide({
         dir = opts.dir or 3,
         guideWidget = button,
         guideParent = guideParent,
         guideDesc = opts.desc or "点击提升",
         isForce = opts.isForce == true,
-        hideMask = opts.hideMask or false
+        hideMask = opts.hideMask or true
     })
-    return true
 end
 
 -- 格式化 NPC 标题，例如：NPC 17 (兑换使者)

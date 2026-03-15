@@ -179,8 +179,10 @@ local function createShortcutButton(container, cfg, order, prefix)
     local btnName = string.format("%s_%d", prefix, order)
     local button = GUI:Button_Create(container, btnName, 498 - 80 * order, 0, "res/wy/icon/top_" .. cfg[1] .. ".png")
     -- GUI:Text_Create(button, "tt", 0, 14, 14, "#ffffff", cfg[2])
+    GUI:setScale(button, 0.9)
     GUI:addOnClickEvent(button, function()
         SL:SendLuaNetMsg(101, cfg[3], 0, 0, "")
+        GUI:removeAllChildren(button)
     end)
     npc.db_anniu[""..cfg[4]] = button
     return button
@@ -531,6 +533,7 @@ local function startGuideOnButton(data)
         guideParent = npc.dbLayout,
         guideDesc = data.ms,
         isForce = false,
+        hideMask = true
     })
 end
 
@@ -545,19 +548,19 @@ end
 local function openBagGuide(desc, pcWidget, mobileWidget)
     SL:RefreshBagPos()
     if cogin.isWin32 then
-        SL:StartGuide({dir = 1, guideWidget = pcWidget, guideParent = MainProperty._ui.Panel_act, guideDesc = desc, isForce = false})
+        SL:StartGuide({dir = 1, guideWidget = pcWidget, guideParent = MainProperty._ui.Panel_act, guideDesc = desc, isForce = false,hideMask = true})
         GUI:Timeline_FadeIn(pcWidget, 0.2)
     else
-        SL:StartGuide({dir = 1, guideWidget = mobileWidget, guideParent = npc.RightTop, guideDesc = desc, isForce = false})
+        SL:StartGuide({dir = 1, guideWidget = mobileWidget, guideParent = npc.RightTop, guideDesc = desc, isForce = false,hideMask = true})
     end
 end
 
 local function openRoleGuide()
     if cogin.isWin32 then
-        SL:StartGuide({dir = 2, guideWidget = MainProperty._ui.Button_role, guideParent = MainProperty._ui.Panel_act, guideDesc = "打开人物界面", isForce = false})
+        SL:StartGuide({dir = 2, guideWidget = MainProperty._ui.Button_role, guideParent = MainProperty._ui.Panel_act, guideDesc = "打开人物界面", isForce = false,hideMask = true})
         GUI:Timeline_FadeIn(MainProperty._ui.Button_role, 0.2)
     else
-        SL:StartGuide({dir = 1, guideWidget = npc.jueshe, guideParent = npc.RightTop, guideDesc = "打开人物界面", isForce = false})
+        SL:StartGuide({dir = 1, guideWidget = npc.jueshe, guideParent = npc.RightTop, guideDesc = "打开人物界面", isForce = false,hideMask = true})
     end
 end
 
@@ -1643,6 +1646,10 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                 end
             end
         end)
+        local rwid = tonumber(cogin and cogin.sjtb and cogin.sjtb.rwid) or 0
+        if rwid == 5 then
+            SL:StartGuide({dir = 5, guideWidget = Bag._ui["HuiShouButton"], guideParent = Bag._ui["Image_bg"], guideDesc = "打开回收设置", isForce = false,hideMask = true})
+        end
 
         new_hs_update()
         -- xiaohui_update()
@@ -1752,7 +1759,7 @@ npc[11] = function(p2, p3, Data)
         end
 
         if taskName == "开辟仙府（主城NPC）" then
-            if _ywl_story_node_started(storyData["npc_55"]) or _ywl_story_node_started(storyData["npc55"]) then
+            if _ywl_story_node_started(storyData["npc_55"]) or _ywl_story_node_started(storyData["npc_55"]) then
                 return true
             end
         end
@@ -2248,6 +2255,7 @@ npc[11] = function(p2, p3, Data)
                             guideParent = guideParent,
                             guideDesc = "建议优先领取",
                             isForce = false,
+                            hideMask = true
                         })
                     end
                 end
@@ -2521,6 +2529,7 @@ npc[18] = function(p2, p3, Data)
                     guideParent = node,
                     guideDesc = "点击领取",
                     isForce = false,
+                    hideMask = true
                 })
             end
         end
@@ -4440,6 +4449,7 @@ npc[516] = function(p2, p3, Data)
             guideParent = guideParent,
             guideDesc = "点击领取",
             isForce = false,
+            hideMask = true
         })
     end
 
