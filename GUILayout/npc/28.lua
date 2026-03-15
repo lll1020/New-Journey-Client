@@ -120,12 +120,12 @@ function npc.main(npcid, p2, p3, msgData)
             , "fonts/502.ttf")
             local new_config = config
             local old_config = npc._config.details[npc.data[""..npc.idx]]
-            GUI:Text_setFontName(GUI:Text_Create(kuang, "new_attr_v",160,0, 24, "##00FFFF", old_config and old_config.attr[k.idx][2] or 0)
+            GUI:Text_setFontName(GUI:Text_Create(kuang, "new_attr_v",160,-2, 24, "##00FFFF", old_config and old_config.attr[k.idx][2] or 0)
             , "fonts/502.ttf")
             GUI:Image_Create(kuang, "jt", 220, 0, "res/custom/tianshu/qh/jt.png")
-            GUI:Text_setFontName(GUI:Text_Create(kuang, "old_attr_v",260,0, 24, "##109C18", new_config and new_config.attr[k.idx][2] or "已满级")
+            GUI:Text_setFontName(GUI:Text_Create(kuang, "old_attr_v",260,-2, 24, "##109C18", new_config and ("+"..new_config.attr[k.idx][2]) or "已满级")
             , "fonts/502.ttf")
-            GUI:Image_Create(kuang, "up", 340, 7, "res/custom/tianshu/qh/up.png")
+            GUI:Image_Create(kuang, "up", 340, 3, "res/custom/tianshu/qh/up.png")
         end
         GUI:UserUILayout(npc.dbLayout, {dir=3,addDir=1,colnum = 1,gap = {x=40, y=10}})
         GUI:setAnchorPoint(npc.dbLayout, 0, 1)

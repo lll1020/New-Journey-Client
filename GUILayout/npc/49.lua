@@ -36,7 +36,7 @@ function npc.main(npcid, p2, p3, msgData)
             { speed = 75, count = 34, loop = -1})
 
         local rwjl_show = ItemNumByTable_img_new(npc._config.cost, nil,GUI:Node_Create(node, "cost", 0, 0))
-        GUI:setPosition(rwjl_show, 145 + 454, 100)
+        GUI:setPosition(rwjl_show, 145 + 454 - 35, 100)
 
         local kuang = GUI:Image_Create(node, "kuang", 410 , 30.00, "res/wy/public/58-60.png")
         UiTools.showItemData_Index(kuang, SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.ch.."[称号]"))

@@ -3,6 +3,7 @@
 local AUTO_REFRESH_INTERVAL = 1 * 60
 local AUTO_REFRESH_TIMER_KEY = "__UPGRADE_BTN_AUTO_REFRESH_TIMER__"
 local EQUIP_REFRESH_LISTENER_KEY = "__UPGRADE_BTN_EQUIP_REFRESH_LISTENER__"
+local OPEN_BTN_STATE_KEY = "__UPGRADE_OPEN_BTN_STATE__"
 
 local function _to_num(v, defaultValue)
     local n = tonumber(v)
@@ -730,13 +731,33 @@ local function _can_add_button(cfg)
     return ok and canUpgrade == true
 end
 
+-- 记录当前已经挂到提升栏里的按钮，避免每次刷新都先删后加。
+local function _get_open_btn_state()
+    local state = rawget(_G, OPEN_BTN_STATE_KEY)
+    if type(state) ~= "table" then
+        state = {}
+        rawset(_G, OPEN_BTN_STATE_KEY, state)
+    end
+    return state
+end
+
 function UpgradeHelper.registerOpenNpcButtons()
+    local btnState = _get_open_btn_state()
     for _, cfg in ipairs(OPEN_BTN_LIST) do
-        SL:RemoveUpgradeBtn(cfg.id)
-        if _can_add_button(cfg) then
+        local hasButton = btnState[cfg.id] == true
+        local canAdd = _can_add_button(cfg)
+
+        -- 当前条件不满足时直接移除；满足时再补挂，避免每次刷新都先删后加。
+        if not canAdd then
+            if hasButton then
+                SL:RemoveUpgradeBtn(cfg.id)
+                btnState[cfg.id] = nil
+            end
+        elseif not hasButton then
             SL:AddUpgradeBtn(cfg.id, cfg.label, function()
                 SL:SendLuaNetMsg(105, cfg.npcid, cfg.npcid, 0, "")
             end)
+            btnState[cfg.id] = true
         end
     end
 end
