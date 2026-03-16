@@ -336,6 +336,45 @@ function tip_node(node, tip)
         end)
     end
 end
+
+-- 备注：给弹层绑定拖动与位置记忆。
+-- dragNode：响应拖动的控件。
+-- rootNode：实际被移动的弹层根节点。
+-- owner/cacheKey：位置缓存写回的位置表与字段名。
+-- defaultPos：首次打开时的默认位置。
+function bind_drag_popup_memory(dragNode, rootNode, owner, cacheKey, defaultPos)
+    if not dragNode or not rootNode or type(owner) ~= "table" or type(cacheKey) ~= "string" then
+        return
+    end
+
+    local pos = owner[cacheKey]
+    if type(pos) ~= "table" then
+        pos = defaultPos or {x = 0, y = 0}
+    end
+    GUI:setPosition(rootNode, tonumber(pos.x) or 0, tonumber(pos.y) or 0)
+    owner[cacheKey] = {x = tonumber(pos.x) or 0, y = tonumber(pos.y) or 0}
+
+    GUI:setTouchEnabled(dragNode, true)
+    GUI:addOnTouchEvent(dragNode, function(sender, eventType)
+        if eventType == SLDefine.TouchEventType.began then
+            sender._drag_begin_touch = GUI:getTouchBeganPosition(sender)
+            sender._drag_begin_root = GUI:getPosition(rootNode)
+        elseif eventType == SLDefine.TouchEventType.moved then
+            local beginTouch = sender._drag_begin_touch
+            local beginRoot = sender._drag_begin_root
+            local moveTouch = GUI:getTouchMovePosition(sender)
+            if beginTouch and beginRoot and moveTouch then
+                local moveX = math.floor((beginRoot.x or 0) + (moveTouch.x - beginTouch.x))
+                local moveY = math.floor((beginRoot.y or 0) + (moveTouch.y - beginTouch.y))
+                GUI:setPosition(rootNode, moveX, moveY)
+                owner[cacheKey] = {x = moveX, y = moveY}
+            end
+        elseif eventType == SLDefine.TouchEventType.ended or eventType == SLDefine.TouchEventType.canceled then
+            owner[cacheKey] = GUI:getPosition(rootNode)
+        end
+    end)
+end
+
 local function _dl_to_num(v, defaultValue)
     local n = tonumber(v)
     if n == nil then

@@ -562,7 +562,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "二大陆主城", 24, 101, 113 },
-                    desc = "强化天书一级\n进度：%s",
+                    desc = "前往天书界面完成首次强化，让天书正式发挥作用。\n<font color='#F4D179'>目标：</font>将天书提升至1级\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "初识仙法",
@@ -572,7 +572,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "二大陆主城", 24, 101, 113 },
-                    desc = "学习第一个仙法\n进度：%s",
+                    desc = "在天书中学习并装配第一个仙法，正式掌握仙法力量。\n<font color='#F4D179'>目标：</font>已获得任意仙法\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "扫荡野火帮（剧）",
@@ -583,7 +583,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "野火帮", 603, 100, 223 },
-                    desc = "击杀30只怪物\n进度：%s",
+                    desc = "深入野火帮外围清剿匪徒，用连续战斗打开剧情缺口。\n<font color='#F4D179'>目标：</font>击杀怪物30只\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "深入野火（剧）",
@@ -594,7 +594,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "野火帮大营", 607, 60, 279 },
-                    desc = "提交：\n野火帮罪证*10\n进度：%s",
+                    desc = "清理现场后搜集罪证，将野火帮的恶行作为后续调查线索。\n<font color='#F4D179'>目标：</font>\n提交野火帮罪证×10\n<font color='#F4D179'>进度：</font>%s",
                 },
             },
             name = "初入江湖",
@@ -613,7 +613,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "二大陆主城", 25, 105, 113 },
-                    desc = "强化幸运一级\n进度：%s",
+                    desc = "前往幸运强化界面完成首次提升，补齐基础成长线。\n<font color='#F4D179'>目标：</font>幸运强化达到1级\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "气运占卜",
@@ -623,7 +623,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "二大陆主城", 26, 109, 113 },
-                    desc = "完成一次气运占卜\n进度：%s",
+                    desc = "进行一次气运占卜，开启命格与气运加成的第一步。\n<font color='#F4D179'>目标：</font>完成1次气运占卜\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "剿灭恶徒（剧）",
@@ -634,7 +634,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "极光城郊", 604, 83, 166 },
-                    desc = "击杀\n寒霜狐   %s\n冰羽雀   %s",
+                    desc = "追踪森林异动，分别清剿两类作乱妖物。\n<font color='#F4D179'>目标：</font>\n<font color='#F0B42A'>寒霜狐</font>   %s\n<font color='#F0B42A'>冰羽雀</font>   %s",
                 },
                 {
                     "守护森林（剧）",
@@ -645,7 +645,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "神秘森林", 608, 52, 53 },
-                    desc = "击杀怪物50只\n进度：%s",
+                    desc = "持续肃清林地中的杂兵，稳定整片区域的安全局势。\n<font color='#F4D179'>目标：</font>击杀怪物50只\n<font color='#F4D179'>进度：</font>%s",
                 },
             },
             name = "小试牛刀",
@@ -665,7 +665,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "二大陆主城", 28, 117, 113 },
-                    desc = "完成装备强化\n进度：%s",
+                    desc = "前往装备强化界面完成一次强化，让角色拥有更稳定的正向成长。\n<font color='#F4D179'>目标：</font>\n完成任意部位装备强化\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "杀伐之路（剧）",
@@ -676,7 +676,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "兵道古藏", 605, 103, 53 },
-                    desc = "击杀怪物30只\n进度：%s",
+                    desc = "在血战中证明自己，继续推进主线杀伐节奏。\n<font color='#F4D179'>目标：</font>击杀怪物30只\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "掘墓人（剧）",
@@ -687,7 +687,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "乱葬岗", 610, 170, 212 },
-                    desc = "提交：唐三彩*5\n进度：%s",
+                    desc = "从古墓线索中带回关键古物，推进墓地支线真相。\n<font color='#F4D179'>目标：</font>提交唐三彩×5\n<font color='#F4D179'>进度：</font>%s",
                 },
             },
             name = "漫漫仙途",
@@ -706,7 +706,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "二大陆主城", 22, 97, 113 },
-                    desc = "完成一次升级灵根\n进度：%s",
+                    desc = "完成一次灵根培养，让修炼体系正式进入进阶阶段。\n<font color='#F4D179'>目标：</font>完成1次灵根升级\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "讨伐夜魔（剧）",
@@ -717,7 +717,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "夜魔洞", 606, 98, 95 },
-                    desc = "击杀\n夜蝠魇   %s\n地腔鼠   %s",
+                    desc = "夜探古刹外围，分别讨伐两种潜伏在暗处的魔物。\n<font color='#F4D179'>目标：</font>\n<font color='#F0B42A'>夜蝠魇</font>   %s\n<font color='#F0B42A'>地腔鼠</font>   %s",
                 },
                 {
                     "古刹之谜（剧）",
@@ -728,7 +728,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "洞穴秘境", 609, 143, 153 },
-                    desc = "提交\n杀意碎片   %s\n煞气   %s",
+                    desc = "收集古刹异变残留物，拼出幕后事件的关键线索。\n<font color='#F4D179'>目标：</font>\n<font color='#F0B42A'>杀意碎片</font>   %s\n<font color='#F0B42A'>煞气</font>   %s",
                 },
                 {
                     "转生·二",
@@ -738,7 +738,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "xtc", 33, 132, 121 },
-                    desc = "完成转生·二\n进度：%s",
+                    desc = "完成第二阶段转生突破，继续开启更高阶成长内容。\n<font color='#F4D179'>目标：</font>转生达到二阶要求\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "修复轩辕剑（剧）",
@@ -749,7 +749,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "二大陆主城", 601, 99, 123 },
-                    desc = "完成修复轩辕剑（剧）\n进度：%s",
+                    desc = "沿着前置剧情完成轩辕剑修复，补足这一阶段的主线关键节点。\n<font color='#F4D179'>目标：</font>\n完成修复轩辕剑剧情\n<font color='#F4D179'>进度：</font>%s",
                 },
             },
             name = "融会贯通",
@@ -770,7 +770,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "三大陆主城", 55, 169, 230 },
-                    desc = "完成开辟仙府【重要】\n进度：%s",
+                    desc = "回到主城开启仙府系统，这是后续丹药、仙草与藏宝图玩法的核心前置。\n<font color='#F4D179'>目标：</font>完成仙府开启\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "踏入·虚妄山脉",
@@ -781,7 +781,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "灰界南部", 621, 229, 144 },
-                    desc = "击杀50只怪物\n进度：%s",
+                    desc = "初次踏入虚妄山脉，清理沿途敌人熟悉该区域环境。\n<font color='#F4D179'>目标：</font>击杀怪物50只\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "踏入·叹息旷野",
@@ -792,7 +792,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "灰界北部", 622, 41, 43 },
-                    desc = "击杀50只怪物\n进度：%s",
+                    desc = "深入叹息旷野，在新区域完成第一轮战斗试炼。\n<font color='#F4D179'>目标：</font>击杀怪物50只\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "踏入·鬼嘲深渊",
@@ -803,7 +803,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "灰界东部", 623, 10, 66 },
-                    desc = "击杀50只怪物\n进度：%s",
+                    desc = "向鬼嘲深渊推进，先完成区域清怪建立立足点。\n<font color='#F4D179'>目标：</font>击杀怪物50只\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "踏入·禁忌之海",
@@ -814,7 +814,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "灰界西部", 624, 21, 77 },
-                    desc = "击杀50只怪物\n进度：%s",
+                    desc = "从陆地转向海域冒险，先完成禁忌之海的基础清剿。\n<font color='#F4D179'>目标：</font>击杀怪物50只\n<font color='#F4D179'>进度：</font>%s",
                 },
             },
             name = "灰界开篇",
@@ -833,7 +833,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "三大陆主城", 44, 149, 225 },
-                    desc = "种植一次仙草\n进度：%s",
+                    desc = "在仙府中亲手种下一次仙草，为后续炼丹线做准备。\n<font color='#F4D179'>目标：</font>完成1次仙草种植\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "了解砍树",
@@ -843,7 +843,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "三大陆主城", 44, 149, 225 },
-                    desc = "开启自动砍树\n进度：%s",
+                    desc = "开启自动砍树功能，掌握仙府资源获取的另一条支线。\n<font color='#F4D179'>目标：</font>成功开启自动砍树\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "寻宝大师",
@@ -853,7 +853,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "三大陆主城", 47, 161, 225 },
-                    desc = "制作一次藏宝图\n进度：%s",
+                    desc = "在仙府中制作一次藏宝图，打通寻宝玩法入口。\n<font color='#F4D179'>目标：</font>完成1次藏宝图制作\n<font color='#F4D179'>进度：</font>%s",
                 },
             },
             name = "仙府功能",
@@ -881,7 +881,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "三大陆主城", 44, 149, 225 },
-                    desc = "炼制一次丹药\n进度：%s",
+                    desc = "在仙府丹炉中完成一次炼丹，为四灾试炼准备药物支持。\n<font color='#F4D179'>目标：</font>炼制任意丹药1次\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "讨伐嘲灾",
@@ -894,7 +894,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "鬼嘲深渊", 625, 174, 460 },
-                    desc = "讨伐嘲灾\n需要重要丹药",
+                    desc = "携带重要丹药前往讨伐嘲灾，完成四灾试炼的第一环。\n<font color='#F4D179'>要求：</font>需要重要丹药\n<font color='#F4D179'>完成：</font>击败嘲灾首领",
                 },
                 {
                     "讨伐忌灾",
@@ -907,7 +907,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "禁忌之海", 626, 74, 67 },
-                    desc = "讨伐忌灾\n需要重要丹药",
+                    desc = "携带重要丹药继续推进四灾试炼，讨伐第二位灾厄首领。\n<font color='#F4D179'>要求：</font>需要重要丹药\n<font color='#F4D179'>完成：</font>击败忌灾首领",
                 },
                 {
                     "讨伐息灾",
@@ -920,7 +920,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "叹息旷野", 627, 126, 209 },
-                    desc = "讨伐息灾\n需要重要丹药",
+                    desc = "带上炼制好的关键丹药，挑战第三位灾厄化身。\n<font color='#F4D179'>要求：</font>需要重要丹药\n<font color='#F4D179'>完成：</font>击败息灾首领",
                 },
                 {
                     "讨伐妄灾",
@@ -933,7 +933,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "虚妄山脉", 628, 107, 97 },
-                    desc = "讨伐妄灾\n需要重要丹药",
+                    desc = "完成四灾线最后一战，集齐全部灾厄讨伐记录。\n<font color='#F4D179'>要求：</font>需要重要丹药\n<font color='#F4D179'>完成：</font>击败妄灾首领",
                 },
             },
             name = "炼丹与讨伐",
@@ -953,7 +953,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "三大陆主城", 47, 161, 225 },
-                    desc = "击杀300只怪物\n进度：%s",
+                    desc = "在海域线前期进行大规模清怪，用持续战斗打开沉船支线。\n<font color='#F4D179'>目标：</font>击杀怪物300只\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "沉船之谜",
@@ -964,7 +964,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "千年沉船", 629, 44, 34 },
-                    desc = "提交\n船长室钥匙\n%s\n水手舱钥匙\n%s",
+                    desc = "前往沉船残骸搜集两把关键钥匙。\n<font color='#F4D179'>目标：</font>\n<font color='#F0B42A'>船长室钥匙</font>   %s\n<font color='#F0B42A'>水手舱钥匙</font>   %s",
                 },
                 {
                     "船长的宝藏",
@@ -977,7 +977,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "船长室", 630, 29, 34 },
-                    desc = "提交：宝藏碎片*10\n（累计3次）\n提交进度：%s\n背包拥有：%s",
+                    desc = "收集宝藏碎片并反复提交，逐步拼出沉船最终宝藏的全貌。\n<font color='#F4D179'>目标：</font>宝藏碎片×10，累计提交3次\n<font color='#F4D179'>提交进度：</font>%s\n<font color='#F4D179'>背包拥有：</font>%s",
                 },
                 {
                     "谁是内鬼",
@@ -990,7 +990,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "水手舱", 631, 30, 36 },
-                    desc = "审问水手\n（累计4次）\n确认进度：%s",
+                    desc = "通过多轮审问排查船上叛徒，确认真凶前需要反复调查。\n<font color='#F4D179'>目标：</font>\n累计完成4次审问/确认\n<font color='#F4D179'>确认进度：</font>%s",
                 },
             },
             name = "外海之旅",
@@ -1010,7 +1010,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "藏星内海", 635, 81, 166 },
-                    desc = "击杀50只怪物\n进度：%s",
+                    desc = "清理内海路线上的敌人，为后续海贼剧情腾出推进空间。\n<font color='#F4D179'>目标：</font>击杀怪物50只\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "热血的友情",
@@ -1021,7 +1021,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "七星岛", 636, 159, 408 },
-                    desc = "提交：热血的友情*10\n（累计3次）\n提交进度：%s",
+                    desc = "收集友情信物并多次上交，逐步唤醒海贼同伴之间的羁绊。\n<font color='#F4D179'>目标：</font>热血的友情×10，累计提交3次\n<font color='#F4D179'>提交进度：</font>%s",
                 },
                 {
                     "真正的海贼王",
@@ -1032,7 +1032,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "葬星城", 637, 110, 96 },
-                    desc = "提交\n路飞的帽子   %s\n索隆的刀   %s\n乌索普的弹弓   %s\n海贼意志   %s",
+                    desc = "集齐核心伙伴的象征物与海贼意志，证明你有资格继承王者名号。\n<font color='#F4D179'>目标：</font>\n<font color='#F0B42A'>路飞的帽子</font>   %s\n<font color='#F0B42A'>索隆的刀</font>   %s\n<font color='#F0B42A'>乌索普的弹弓</font>   %s\n<font color='#F0B42A'>海贼意志</font>   %s",
                 },
                 {
                     "海滩拾贝",
@@ -1043,7 +1043,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 0 },
-                    desc = "提交：贝壳*20\n进度：%s",
+                    desc = "在海域边缘搜集足量贝壳，作为海盗支线的基础材料。\n<font color='#F4D179'>目标：</font>提交贝壳×20\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "海盗宝藏",
@@ -1054,7 +1054,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 0 },
-                    desc = "提交：海盗头目信物",
+                    desc = "击败海盗头目后上交关键凭证，解锁后续更深层的藏宝线索。\n<font color='#F4D179'>目标：</font>提交海盗头目信物\n<font color='#F4D179'>状态：</font>完成后自动计入剧情",
                 },
             },
             name = "内海探秘",
@@ -1074,7 +1074,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "草药古深处", 638, 31, 51 },
-                    desc = "采集：仙草[任务]*20\n进度：%s",
+                    desc = "在草谷中反复采集任务仙草，为丹道线准备原料。\n<font color='#F4D179'>目标：</font>\n采集仙草[任务]×20\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "丹仙秘辛",
@@ -1085,7 +1085,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "丹道古藏", 639, 243, 97 },
-                    desc = "提交：\n丹仙秘辛残页*10\n进度：%s",
+                    desc = "搜集散落残页，拼凑丹仙一脉失传的秘辛真相。\n<font color='#F4D179'>目标：</font>\n提交丹仙秘辛残页×10\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "棋痴老王",
@@ -1096,7 +1096,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "苍云客栈", 640, 26, 58 },
-                    desc = "赢得五子棋残局",
+                    desc = "与棋痴老王对局并赢下残局，用技巧而不是战力推动剧情。\n<font color='#F4D179'>目标：</font>赢得五子棋残局\n<font color='#F4D179'>状态：</font>完成后自动计入剧情",
                 },
             },
             name = "草谷丹道",
@@ -1116,7 +1116,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "三大陆主城", 46, 157, 225 },
-                    desc = "完成四灾试炼\n讨伐嘲灾   %s\n讨伐忌灾   %s\n讨伐息灾   %s\n讨伐妄灾   %s",
+                    desc = "这是四灾试炼的总收束任务，必须四项灾厄讨伐全部达成。\n<font color='#F4D179'>目标：</font>\n<font color='#F0B42A'>讨伐嘲灾</font>   %s\n<font color='#F0B42A'>讨伐忌灾</font>   %s\n<font color='#F0B42A'>讨伐息灾</font>   %s\n<font color='#F0B42A'>讨伐妄灾</font>   %s",
                 },
                 {
                     "拥有1传说神石",
@@ -1126,7 +1126,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "三大陆主城", 53, 161, 230 },
-                    desc = "拥有传说神石\n进度：%s",
+                    desc = "获取任意一枚传说品质神石，证明当前神石养成已达到更高层级。\n<font color='#F4D179'>目标：</font>持有1枚传说神石\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "传说·斗笠",
@@ -1136,7 +1136,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "三大陆主城", 51, 153, 230 },
-                    desc = "制作传说·斗笠\n进度：%s",
+                    desc = "将斗笠成长线推进到传说层级，补齐三大陆关键成长节点。\n<font color='#F4D179'>目标：</font>制作传说·斗笠\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "神·酒葫芦",
@@ -1146,7 +1146,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "三大陆主城", 52, 157, 230 },
-                    desc = "制作神·酒葫芦\n进度：%s",
+                    desc = "把酒葫芦提升到神级品质，完成同阶段核心成长要求。\n<font color='#F4D179'>目标：</font>制作神·酒葫芦\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "高级淬体",
@@ -1157,7 +1157,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "三大陆主城", 53, 161, 230 },
-                    desc = "完成高级淬体五行锻体\n进度：%s",
+                    desc = "完成高级淬体中的五行锻体，正式迈入更高阶体魄强化。\n<font color='#F4D179'>目标：</font>\n完成高级淬体五行锻体\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "转生·三",
@@ -1167,7 +1167,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "xtc", 34, 136, 121 },
-                    desc = "转生达到三阶\n进度：%s",
+                    desc = "继续推进转生系统，将角色突破到第三阶段。\n<font color='#F4D179'>目标：</font>转生达到三阶\n<font color='#F4D179'>进度：</font>%s",
                 },
                 
             },
@@ -1189,7 +1189,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "四大陆主城", 64, 38, 27 },
-                    desc = "灵兽全部达到一星\n进度：%s",
+                    desc = "让当前全部灵兽至少达到一星，完成灵兽系统的基础培育。\n<font color='#F4D179'>目标：</font>全部灵兽达到一星\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "灵兽全二星",
@@ -1199,7 +1199,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "四大陆主城", 64, 38, 27 },
-                    desc = "灵兽全部达到二星\n进度：%s",
+                    desc = "继续培养全部灵兽，让队伍整体迈入二星阶段。\n<font color='#F4D179'>目标：</font>全部灵兽达到二星\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "灵兽全三星",
@@ -1209,7 +1209,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "四大陆主城", 64, 38, 27 },
-                    desc = "灵兽全部达到三星\n进度：%s",
+                    desc = "把全部灵兽提升至三星，完成更高一档的灵兽养成检定。\n<font color='#F4D179'>目标：</font>全部灵兽达到三星\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "唐代古玩",
@@ -1219,7 +1219,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "四大陆主城", 65, 41, 27 },
-                    desc = "鉴定出唐代古玩\n进度：%s",
+                    desc = "在古玩鉴定中成功获得一件唐代古玩，作为鉴宝线的阶段证明。\n<font color='#F4D179'>目标：</font>鉴定出唐代古玩\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "红色仙法",
@@ -1229,7 +1229,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "二大陆主城", 24, 101, 113 },
-                    desc = "获得红色仙法\n进度：%s",
+                    desc = "获得红色品质仙法，说明仙法系统已进入高阶阶段。\n<font color='#F4D179'>目标：</font>持有红色仙法\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "转生·四",
@@ -1239,7 +1239,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "xtc", 35, 140, 121 },
-                    desc = "转生达到四阶\n进度：%s",
+                    desc = "完成第四阶段转生，为后续高阶剧情做准备。\n<font color='#F4D179'>目标：</font>转生达到四阶\n<font color='#F4D179'>进度：</font>%s",
                 },
             },
             name = "若水秘闻",
@@ -1259,7 +1259,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "酆都鬼城", 666, 84, 50 },
-                    desc = "击杀100只怪物   %s\n提交亡者灵魂   %s",
+                    desc = "在鬼城中一边超度亡魂一边收集灵魂残片，属于击杀与提交并行任务。\n<font color='#F4D179'>目标：</font>\n<font color='#F0B42A'>击杀100只怪物</font>   %s\n<font color='#F0B42A'>提交亡者灵魂</font>   %s",
                 },
                 {
                     "买路钱",
@@ -1270,7 +1270,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "鬼门关", 667, 83, 95 },
-                    desc = "提交\n鬼界令牌   %s\n金币   %s",
+                    desc = "前往鬼门关缴纳通关代价，既要令牌也要准备足额金币。\n<font color='#F4D179'>目标：</font>\n<font color='#F0B42A'>鬼界令牌</font>   %s\n<font color='#F0B42A'>金币</font>   %s",
                 },
                 {
                     "思念之人",
@@ -1281,7 +1281,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 0 },
-                    desc = "提交\n彼岸花   %s\n金币   %s",
+                    desc = "以彼岸花与金币寄托执念，完成这段偏情感向的地府支线。\n<font color='#F4D179'>目标：</font>\n<font color='#F0B42A'>彼岸花</font>   %s\n<font color='#F0B42A'>金币</font>   %s",
                 },
                 {
                     "忘却前生情",
@@ -1292,7 +1292,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 0 },
-                    desc = "提交：\n孟婆汤*10\n进度：%s",
+                    desc = "收集孟婆汤并交付，让执念彻底放下并进入下一环。\n<font color='#F4D179'>目标：</font>提交孟婆汤×10\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "讨伐六天宫",
@@ -1303,7 +1303,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 0 },
-                    desc = "提交：\n六天宫残魂*10\n进度：%s",
+                    desc = "收集六天宫残魂后进行交付，作为更深层地府线的前置任务。\n<font color='#F4D179'>目标：</font>\n提交六天宫残魂×10\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "地狱使者",
@@ -1314,7 +1314,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 0 },
-                    desc = "通过地狱十八层挑战\n进度：%s",
+                    desc = "通过地狱十八层的连续挑战，证明自己具备深入地狱的资格。\n<font color='#F4D179'>目标：</font>\n通过地狱十八层挑战\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "轮回之路",
@@ -1325,7 +1325,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 0 },
-                    desc = "通过轮回六道试炼",
+                    desc = "完成六道轮回试炼，这是地府篇的重要收束节点。\n<font color='#F4D179'>目标：</font>通过轮回六道试炼\n<font color='#F4D179'>状态：</font>完成后自动计入剧情",
                 },
             },
             name = "地府探秘",
@@ -1345,7 +1345,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "大唐·长安城", 642, 35, 57 },
-                    desc = "击杀\n怪物   %s\nBOSS   %s",
+                    desc = "西游篇起点任务，需要同时处理普通敌人与BOSS，缺一不可。\n<font color='#F4D179'>目标：</font>\n<font color='#F0B42A'>怪物</font>   %s\n<font color='#F0B42A'>BOSS</font>   %s",
                 },
                 {
                     "龙王的噩梦",
@@ -1356,7 +1356,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 0 },
-                    desc = "提交\n虾兵的头颅   %s\n蟹将的头颅   %s",
+                    desc = "深入龙宫调查噩梦真相，先交齐虾兵与蟹将的头颅作为凭证。\n<font color='#F4D179'>目标：</font>\n<font color='#F0B42A'>虾兵的头颅</font>   %s\n<font color='#F0B42A'>蟹将的头颅</font>   %s",
                 },
                 {
                     "我的袈裟！",
@@ -1367,7 +1367,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 0 },
-                    desc = "击杀黑风大王   %s\n提交师傅的袈裟   %s",
+                    desc = "先击败黑风大王，再交回师傅的袈裟，是典型的击杀+提交双线任务。\n<font color='#F4D179'>目标：</font>\n<font color='#F0B42A'>击杀黑风大王</font>   %s\n<font color='#F0B42A'>提交师傅的袈裟</font>   %s",
                 },
                 {
                     "黄风大圣",
@@ -1378,7 +1378,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 0 },
-                    desc = "击杀黄风大圣   %s\n提交黄风谷特产   %s",
+                    desc = "挑战黄风大圣后再交付黄风谷特产，推进西行中的又一难关。\n<font color='#F4D179'>目标：</font>\n<font color='#F0B42A'>击杀黄风大圣</font>   %s\n<font color='#F0B42A'>提交黄风谷特产</font>   %s",
                 },
                 {
                     "你竟是女王？",
@@ -1389,7 +1389,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 0 },
-                    desc = "女儿国?",
+                    desc = "前往女儿国完成对应剧情事件，这一环更偏互动推进而非刷怪。\n<font color='#F4D179'>目标：</font>\n完成女儿国相关剧情\n<font color='#F4D179'>状态：</font>按任务提示推进即可",
                 },
                 {
                     "驮我过河",
@@ -1400,7 +1400,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 0 },
-                    desc = "按任务指引通过驮我过河",
+                    desc = "根据任务引导完成过河流程，这是路线型推进任务。\n<font color='#F4D179'>目标：</font>按指引通过驮我过河\n<font color='#F4D179'>状态：</font>跟随任务流程即可",
                 },
                 {
                     "大闹狮驼岭",
@@ -1411,7 +1411,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 0 },
-                    desc = "击杀\n★青狮★   %s\n★白象★   %s\n★大鹏★   %s",
+                    desc = "狮驼岭三王需要分别击败，每一只都单独统计。\n<font color='#F4D179'>目标：</font>\n<font color='#F0B42A'>★青狮★</font>   %s\n<font color='#F0B42A'>★白象★</font>   %s\n<font color='#F0B42A'>★大鹏★</font>   %s",
                 },
                 {
                     "真假经书",
@@ -1422,7 +1422,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 0 },
-                    desc = "鉴定经书",
+                    desc = "对经书进行鉴定与判定，完成真假辨别后才能拿到真正的西行成果。\n<font color='#F4D179'>目标：</font>完成经书鉴定\n<font color='#F4D179'>状态：</font>按任务流程推进",
                 },
                 {
                     "重走西游路",
@@ -1433,7 +1433,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "四大陆主城", 641, 37, 42 },
-                    desc = "重走西游路",
+                    desc = "完成整条西游支线的最终收束，补齐西行篇全部关键节点。\n<font color='#F4D179'>目标：</font>完成重走西游路\n<font color='#F4D179'>状态：</font>完成后自动计入剧情",
                 },
             },
             name = "重走西游",
@@ -1453,7 +1453,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 0 },
-                    desc = "回答天鼠谜题\n进度：%s",
+                    desc = "进入子鼠灵域回答谜题，偏解谜与判定类型。\n<font color='#F4D179'>目标：</font>完成天鼠谜题回答\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "天牛的游戏",
@@ -1464,7 +1464,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 0 },
-                    desc = "达成天牛试炼要求\n进度：%s",
+                    desc = "在丑牛灵域满足试炼条件，更偏规则判定而非单纯战斗。\n<font color='#F4D179'>目标：</font>达成天牛试炼要求\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "天虎的游戏",
@@ -1475,7 +1475,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 0 },
-                    desc = "击杀300只怪物\n进度：%s",
+                    desc = "在寅虎灵域以纯战斗形式完成试炼要求。\n<font color='#F4D179'>目标：</font>击杀怪物300只\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "天兔的游戏",
@@ -1486,7 +1486,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 0 },
-                    desc = "限时抵达终点\n进度：%s",
+                    desc = "在卯兔灵域于限制条件内抵达终点，考验路线与操作。\n<font color='#F4D179'>目标：</font>限时抵达终点\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "灵域使者·一",
@@ -1497,7 +1497,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 0 },
-                    desc = "通过\n天鼠/天牛/天虎/天兔试炼\n进度：%s",
+                    desc = "完成灵域第一层全部四项试炼后，回到使者处进行总确认。\n<font color='#F4D179'>目标：</font>\n天鼠/天牛/天虎/天兔试炼全部通过\n<font color='#F4D179'>进度：</font>%s",
                 },
             },
             name = "生肖守护[始]",
@@ -1517,7 +1517,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 0 },
-                    desc = "提交：龙珠",
+                    desc = "准备好龙珠后提交，是生肖守护中偏收集型的任务节点。\n<font color='#F4D179'>目标：</font>提交龙珠\n<font color='#F4D179'>状态：</font>满足条件后自动计入剧情",
                 },
                 {
                     "天蛇的游戏",
@@ -1528,7 +1528,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 0 },
-                    desc = "提交：蛇图腾碎片*1\n进度：%s",
+                    desc = "在巳蛇灵域提交蛇图腾碎片，完成收集验证。\n<font color='#F4D179'>目标：</font>提交蛇图腾碎片×1\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "天马的游戏",
@@ -1539,7 +1539,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 0 },
-                    desc = "提交：摸鱼能力卡*5\n进度：%s",
+                    desc = "准备足够的摸鱼能力卡后交付，完成午马试炼需求。\n<font color='#F4D179'>目标：</font>提交摸鱼能力卡×5\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "天羊的游戏",
@@ -1550,7 +1550,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 0 },
-                    desc = "击杀333只怪物\n进度：%s",
+                    desc = "未羊灵域的核心要求是持续清怪达标。\n<font color='#F4D179'>目标：</font>击杀333只怪物\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "灵域使者·二",
@@ -1561,7 +1561,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 0 },
-                    desc = "通过\n天龙/天蛇/天马/天羊试炼\n进度：%s",
+                    desc = "完成灵域第二层四项试炼后，再回使者处合并确认。\n<font color='#F4D179'>目标：</font>\n天龙/天蛇/天马/天羊试炼全部通过\n<font color='#F4D179'>进度：</font>%s",
                 },
             },
             name = "生肖守护[转]",
@@ -1581,7 +1581,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 0 },
-                    desc = "提交\n天猴的卡牌   %s\n元宝   %s",
+                    desc = "需要同时准备天猴的卡牌与元宝，是资源双重提交任务。\n<font color='#F4D179'>目标：</font>\n<font color='#F0B42A'>天猴的卡牌</font>   %s\n<font color='#F0B42A'>元宝</font>   %s",
                 },
                 {
                     "天鸡的游戏",
@@ -1592,7 +1592,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 0 },
-                    desc = "提交：\n凤凰的羽毛*10\n进度：%s",
+                    desc = "收集足够的凤凰羽毛后提交，完成酉鸡灵域试炼。\n<font color='#F4D179'>目标：</font>提交凤凰的羽毛×10\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "天狗的游戏",
@@ -1603,7 +1603,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 0 },
-                    desc = "击杀500只怪物\n进度：%s",
+                    desc = "戌狗灵域要求高强度战斗，坚持完成大量清怪。\n<font color='#F4D179'>目标：</font>击杀500只怪物\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "天猪的游戏",
@@ -1614,7 +1614,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 0 },
-                    desc = "达成天猪试炼要求\n进度：%s",
+                    desc = "亥猪灵域为条件判定类任务，按任务要求达成即可。\n<font color='#F4D179'>目标：</font>达成天猪试炼要求\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "灵域使者·三",
@@ -1625,7 +1625,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 0 },
-                    desc = "通过\n天猴/天鸡/天狗/天猪试炼\n进度：%s",
+                    desc = "灵域第三层四项试炼全部完成后，向最终使者汇总确认。\n<font color='#F4D179'>目标：</font>\n天猴/天鸡/天狗/天猪试炼全部通过\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "生肖守护",
@@ -1636,7 +1636,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "四大陆主城", 67, 47, 27 },
-                    desc = "通过十二生肖守护试炼\n进度：%s",
+                    desc = "十二生肖全部试炼通过后，回到主城完成整条生肖守护收束。\n<font color='#F4D179'>目标：</font>通过十二生肖守护试炼\n<font color='#F4D179'>进度：</font>%s",
                 },
             },
             name = "生肖守护[终]",
@@ -1656,7 +1656,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "盘古开天", 673, 67, 48 },
-                    desc = "通过八则传说试炼\n进度：%s",
+                    desc = "前往盘古场景唤醒盘古，开启传说修复局的第一则试炼。\n<font color='#F4D179'>目标：</font>叫醒盘古\n<font color='#F4D179'>状态：</font>按任务流程推进",
                 },
                 {
                     "盘古开天",
@@ -1667,7 +1667,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "羿射九日", 674, 355, 119 },
-                    desc = "叫醒盘古",
+                    desc = "收集洪荒真气并交给盘古，助他重新挥斧开天，完成传说修复的关键一步。\n<font color='#F4D179'>目标：</font>提交洪荒真气×3\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "羿射九日",
@@ -1678,7 +1678,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "不周山", 675, 75, 77 },
-                    desc = "射落九个太阳",
+                    desc = "备好逐日弓后不断收集箭矢，逐次完成射日，直到多余的太阳全部被射落。\n<font color='#F4D179'>目标：</font>持有逐日弓，并反复消耗箭矢完成九次射日\n当前箭矢：%s",
                 },
                 {
                     "共公怒触不周山",
@@ -1689,7 +1689,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "女娲补天", 676, 110, 58 },
-                    desc = "撞倒不周山",
+                    desc = "前往不周山持续清剿目标，重现共公怒触不周山后的崩裂战场，完成本段讨伐试炼。\n<font color='#F4D179'>目标：</font>\n击败不周山怪物×500\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "女娲补天",
@@ -1700,7 +1700,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "女娲补天", 677, 102, 58 },
-                    desc = "补天",
+                    desc = "搜集五彩石反复上交，逐步修补破碎天幕，直至女娲补天的整段传说彻底完成。\n<font color='#F4D179'>目标：</font>提交五彩石并持续推进补天流程\n当前五彩石：%s",
                 },
                 {
                     "后土娘娘",
@@ -1711,7 +1711,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "黑白无常", 678, 101, 57 },
-                    desc = "通过后土多阶段试炼",
+                    desc = "后土娘娘为多阶段传说试炼，需要依次准备判官笔、击败场景怪物、收集牛头鼻环与马面梳子\n<font color='#F4D179'>目标：</font>按阶段完成后土娘娘全部八步流程\n<font color='#F4D179'>状态：</font>%s",
                 },
                 {
                     "黑白无常",
@@ -1722,7 +1722,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "后土娘娘", 679, 152, 171 },
-                    desc = "提交：\n友情的力量*10\n进度：%s",
+                    desc = "收集友情的力量后交给黑白无常，完成这一段关于阴阳往返的传说分支。\n<font color='#F4D179'>目标：</font>\n提交友情的力量×10\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "真假玉帝",
@@ -1733,7 +1733,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 1, "真假玉帝", 680, 84, 93 },
-                    desc = "提交\n鱼竿   %s\n鱼饵   %s",
+                    desc = "真假玉帝需要同时准备鱼竿与鱼饵，两项都满足才可推进。\n<font color='#F4D179'>目标：</font>\n<font color='#F0B42A'>鱼竿</font>   %s\n<font color='#F0B42A'>鱼饵</font>   %s",
                 },
                 {
                     "白蛇传说",
@@ -1744,7 +1744,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "白蛇传说", 681, 216, 167 },
-                    desc = "提交：白蛇的礼物*1\n（累计100次）\n提交进度：%s\n背包拥有：%s",
+                    desc = "白蛇传说是超长累计提交任务，需要不断重复提交礼物完成整段剧情。\n<font color='#F4D179'>目标：</font>白蛇的礼物×1，累计提交100次\n<font color='#F4D179'>提交进度：</font>%s\n<font color='#F4D179'>背包拥有：</font>%s",
                 },
             },
             name = "修复传说",
@@ -1819,6 +1819,87 @@ local function _xyl_count_placeholders(desc)
     return n
 end
 
+local XYL_DESC_COLOR = {
+    ok = "#66FF66",
+    fail = "#FF6B6B",
+    doing = "#FFD166",
+    item = "#F0B42A",
+    system = "#63E6FF",
+    action = "#FF9A6A",
+}
+
+local function _xyl_wrap_color(text, color)
+    return string.format("<font color='%s'>%s</font>", tostring(color or "#FFFFFF"), tostring(text or ""))
+end
+
+local function _xyl_escape_pattern(text)
+    return tostring(text or ""):gsub("([%(%)%.%%%+%-%*%?%[%]%^%$])", "%%%1")
+end
+
+local function _xyl_apply_keyword_color(text, words, color, staged)
+    local content = tostring(text or "")
+    for _, word in ipairs(words or {}) do
+        local pattern = _xyl_escape_pattern(word)
+        content = content:gsub(pattern, function()
+            table.insert(staged, _xyl_wrap_color(word, color))
+            return "\3" .. tostring(#staged) .. "\4"
+        end)
+    end
+    return content
+end
+
+local function _xyl_beautify_desc_keywords(text)
+    local content = tostring(text or "")
+    if content == "" then
+        return content
+    end
+
+    local protected = {}
+    local staged = {}
+    content = content:gsub("(<font.-</font>)", function(tag)
+        table.insert(protected, tag)
+        return "\1" .. tostring(#protected) .. "\2"
+    end)
+
+    local systemWords = {
+        "天书界面", "装备强化界面", "幸运强化界面", "古玩鉴定", "气运占卜",
+        "灵根培养", "自动砍树", "藏宝图", "仙府", "转生",
+        "灵兽", "神石", "千年沉船", "四灾试炼", "西游篇",
+    }
+    local actionWords = {
+        "前往", "完成", "击杀", "提交", "收集", "挑战",
+        "调查", "开启", "制作", "提升", "通过", "击败",
+    }
+
+    content = _xyl_apply_keyword_color(content, systemWords, XYL_DESC_COLOR.system, staged)
+    content = _xyl_apply_keyword_color(content, actionWords, XYL_DESC_COLOR.action, staged)
+
+    content = content:gsub("\3(%d+)\4", function(idx)
+        return staged[tonumber(idx) or 0] or ""
+    end)
+
+    content = content:gsub("\1(%d+)\2", function(idx)
+        return protected[tonumber(idx) or 0] or ""
+    end)
+    return content
+end
+
+local function _xyl_status_rich_text(text)
+    local value = tostring(text or "")
+    if value == "已全部提交" or value == "已完成" or value == "已提交" or value == "已拥有" or value == "已激活"
+        or value == "已达成" or value == "已解锁" or value == "已通过" or value == "可领取" then
+        return _xyl_wrap_color(value, XYL_DESC_COLOR.ok)
+    end
+    if value == "进行中" then
+        return _xyl_wrap_color(value, XYL_DESC_COLOR.doing)
+    end
+    if value == "未完成" or value == "未提交" or value == "未拥有" or value == "未开始"
+        or value == "未激活" or value == "未达成" or value == "未解锁" or value == "未通过" then
+        return _xyl_wrap_color(value, XYL_DESC_COLOR.fail)
+    end
+    return value
+end
+
 local function _xyl_story_node_done(node)
     if node == nil then
         return false
@@ -1879,7 +1960,8 @@ local function _xyl_progress_pair_text(cur, need)
     if n > 0 and c > n then
         c = n
     end
-    return c, n, string.format("%d/%d", c, n)
+    local color = (n > 0 and c >= n) and XYL_DESC_COLOR.ok or XYL_DESC_COLOR.fail
+    return c, n, _xyl_wrap_color(string.format("%d/%d", c, n), color)
 end
 
 -- 备注：统一将进度节点转为数值，兼容 number/string/table 三种结构。
@@ -1979,7 +2061,7 @@ local function _xyl_get_split_submit_state_text(storyData, tk, idx, entry)
     local v = storyData[tostring(tk) .. suffix]
     local submitted = (v == true or tonumber(v or 0) == 1)
     if submitted then
-        return "已提交"
+        return _xyl_status_rich_text("已提交")
     end
 
     if type(entry) == "table" and entry[1] then
@@ -1987,13 +2069,13 @@ local function _xyl_get_split_submit_state_text(storyData, tk, idx, entry)
         local need = tonumber(entry[2]) or 1
         local cur = _xyl_get_item_count_by_name(itemName)
         if cur >= need then
-            return "未提交(已拥有)"
+            return _xyl_status_rich_text("已拥有")
         end
-        return "未提交(未拥有)"
+        return _xyl_status_rich_text("未拥有")
     end
 
     if tostring(tk) == "npc_629" then
-        return "未提交(未拥有)"
+        return _xyl_status_rich_text("未拥有")
     end
     return nil
 end
@@ -2004,7 +2086,14 @@ local function _xyl_get_task_progress_values(task, storyData)
     end
     local tk = task.tk and tostring(task.tk) or nil
     if not tk or tk == "" then
-        return nil, nil, nil
+        local checker = task.khdjy
+        if type(checker) == "function" then
+            local ok, done = pcall(checker, task)
+            if ok then
+                return nil, nil, _xyl_status_rich_text(done and "已完成" or "未完成")
+            end
+        end
+        return nil, nil, _xyl_status_rich_text("未完成")
     end
 
     local node = _xyl_get_story_node_by_tk(tk, storyData)
@@ -2028,12 +2117,12 @@ local function _xyl_get_task_progress_values(task, storyData)
         return _xyl_progress_pair_text(cur, need)
     end
     if _xyl_story_node_done(node) then
-        return cur, need, "已完成"
+        return cur, need, _xyl_status_rich_text("已完成")
     end
     if _xyl_story_node_started(node) then
-        return cur, need, "进行中"
+        return cur, need, _xyl_status_rich_text("进行中")
     end
-    return cur, need, "未开始"
+    return cur, need, _xyl_status_rich_text("未开始")
 end
 
 -- 备注：重复提交类任务进度（同源 tk 计数 + cfg.max_num），如 npc_630。
@@ -2101,7 +2190,7 @@ local function _xyl_get_task_progress_format_args(task, storyData, killData)
                     end
                 end
 
-                table.insert(args, done and "已完成" or "未完成")
+                table.insert(args, _xyl_status_rich_text(done and "已完成" or "未完成"))
             end
             return args
         end
@@ -2116,38 +2205,38 @@ local function _xyl_get_task_progress_format_args(task, storyData, killData)
             local entry = costEntries[1]
             if type(entry) == "table" and entry[1] then
                 local own = _xyl_get_item_count_by_name(entry[1])
-                table.insert(args, tostring(own))
+                table.insert(args, _xyl_wrap_color(tostring(own), XYL_DESC_COLOR.item))
             else
-                table.insert(args, "0")
+                table.insert(args, _xyl_wrap_color("0", XYL_DESC_COLOR.item))
             end
             if #args == 1 then
-                table.insert(args, "0")
+                table.insert(args, _xyl_wrap_color("0", XYL_DESC_COLOR.item))
             end
             return args
         end
         -- 特殊任务：热血的友情（npc_636）显示提交次数进度（0/3）。
         if tk == "npc_636" then
             local submitText = _xyl_get_repeat_submit_progress_text(storyData, tk, cfg)
-            table.insert(args, submitText or "0/3")
+            table.insert(args, submitText or _xyl_wrap_color("0/3", XYL_DESC_COLOR.fail))
             return args
         end
         -- 特殊任务：谁是内鬼（npc_631）显示“审问/确认次数进度（0/4）”。
         if tk == "npc_631" then
             local confirmText = _xyl_get_repeat_confirm_progress_text(storyData, tk, 4)
-            table.insert(args, confirmText or "0/4")
+            table.insert(args, confirmText or _xyl_wrap_color("0/4", XYL_DESC_COLOR.fail))
             return args
         end
         -- 特殊任务：白蛇传说（npc_681）显示累计提交进度（0/100）+ 背包拥有数量。
         if tk == "npc_681" then
             local submitText = _xyl_get_repeat_submit_progress_text(storyData, tk, cfg)
-            table.insert(args, submitText or "0/100")
+            table.insert(args, submitText or _xyl_wrap_color("0/100", XYL_DESC_COLOR.fail))
             local costEntries = _xyl_collect_cost_entries(cfg.cost)
             local entry = costEntries[1]
             if type(entry) == "table" and entry[1] then
                 local own = _xyl_get_item_count_by_name(entry[1])
-                table.insert(args, tostring(own))
+                table.insert(args, _xyl_wrap_color(tostring(own), XYL_DESC_COLOR.item))
             else
-                table.insert(args, "0")
+                table.insert(args, _xyl_wrap_color("0", XYL_DESC_COLOR.item))
             end
             return args
         end
@@ -2243,7 +2332,7 @@ local function _xyl_build_task_desc(task)
     local placeholderCount = _xyl_count_placeholders(desc)
     if placeholderCount > #args then
         for i = #args + 1, placeholderCount do
-            args[i] = summary ~= "" and summary or "未开始"
+            args[i] = summary ~= "" and summary or _xyl_status_rich_text("未开始")
         end
     end
 
@@ -2251,13 +2340,13 @@ local function _xyl_build_task_desc(task)
         return string.format(desc, unpack_fn(args))
     end)
     if ok and formatted then
-        return formatted
+        return _xyl_beautify_desc_keywords(formatted)
     end
     if string.find(desc, "进度：", 1, true) then
         local fallback = desc:gsub("进度：[^\n]*", "进度：" .. (summary ~= "" and summary or "未开始"), 1)
-        return fallback
+        return _xyl_beautify_desc_keywords(fallback)
     end
-    return desc .. "\n进度：" .. (summary ~= "" and summary or "未开始")
+    return _xyl_beautify_desc_keywords(desc .. "\n进度：" .. (summary ~= "" and summary or _xyl_status_rich_text("未开始")))
 end
 
 -- 备注：统一补齐“需领取”字段，默认 false；可在单任务里显式改为 true。
@@ -2290,20 +2379,6 @@ npc_xyl.build_task_desc = function(task)
     return _xyl_build_task_desc(task)
 end
 return npc_xyl
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

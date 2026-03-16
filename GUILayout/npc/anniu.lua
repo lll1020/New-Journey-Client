@@ -1673,6 +1673,7 @@ end
 ---伏妖录任务
 ----任务名,npcid,任务类型（1为主线任务,2为支线任务）,任务检测（1数字型,2数组型,3称号型）,任务结束标志和进度标志,任务传送地点,任务传送限制（{1,10}等级,{2,10}转生,{3,”称号“}所需称号）
 npc.xyl = SL:Require("GUILayout/Data/xyl.lua", true)
+local LUA_EVENT_YWL_CURRENT_TASK_CHANGE = "伏妖录当前任务变更"
 ---异闻录：章节任务界面（UIHelper 统一窗口）
 npc[11] = function(p2, p3, Data)
     local AUTO_GUIDE_TASKS = {
@@ -2164,7 +2165,7 @@ npc[11] = function(p2, p3, Data)
                         GUI:Text_setFontName(desc, "fonts/448.ttf")
                         GUI:Text_enableOutline(desc, "#000000", 2)
                         local okDesc, descNode = pcall(function()
-                            return GUI:RichText_Create(desc, "desc", 0, -5, taskDesc, 170, 17, "#f7f7de", 3, nil, nil)
+                            return GUI:RichText_Create(desc, "desc", 0, -5, taskDesc, 160, 15, "#f7f7de", 3, nil, nil)
 
                         end)
                         if okDesc and descNode then
@@ -2344,6 +2345,9 @@ npc[11] = function(p2, p3, Data)
             npc[11](0, 0, SL:JsonEncode(npc.data, false))
             return
         elseif p3 == 3 then
+            -- 备注：服务端可能直接下发单任务领奖完成，这里先兜底初始化，避免 npc.data 为空时报错。
+            npc.data = npc.data or {}
+            npc.data.ywl = npc.data.ywl or {}
             npc.data.ywl["jl_" .. data.i .. "_" .. data.j .. "_" .. data.z] = 1
             local img  = GUI:ui_delegate(GUI:ui_delegate(npc.node_11)["card" .. data.z]).img
             GUI:removeChildByName(img,"goBtn")
@@ -2360,6 +2364,10 @@ npc[11] = function(p2, p3, Data)
     elseif p2 == 3 then
         npc.data = SL:JsonDecode(Data, false)
         npc[11](0, 0, Data)
+    elseif p2 == 9 then
+        local currentTask = SL:JsonDecode(Data, false) or {}
+        npc.current_ywl_task = currentTask
+        SL:onLUAEvent(LUA_EVENT_YWL_CURRENT_TASK_CHANGE, currentTask)
     end
 end
 ---活动提示

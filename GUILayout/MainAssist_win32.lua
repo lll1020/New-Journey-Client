@@ -1,4 +1,4 @@
-MainAssist = {}
+﻿MainAssist = {}
 
 local tinsert = table.insert
 
@@ -7,6 +7,9 @@ MainAssist.MissionFontName = "fonts/font2.ttf"
 
 MainAssist._hideAssist = false
 MainAssist._missionCells = {}
+local MainAssistXylHelper = SL:Require("GUILayout/MainAssist_xyl_helper", true)
+
+MainAssistXylHelper.bind(MainAssist)
 
 function MainAssist.main()
     local parent = GUI:Attach_Parent()
@@ -35,6 +38,7 @@ function MainAssist.main()
     local ListView_mission = MainAssist._ui["ListView_mission"]
     MainAssist.ListView_mission = ListView_mission
     GUI:ListView_autoPaintItems(ListView_mission)
+    MainAssist.UpdateCurrentXylTaskWidget()
 
     -- reset pos PCAssistNearShow:是否显示附近按钮
     local isShow = (SL:GetMetaValue("GAME_DATA", "PCAssistNearShow") or 0) == 1
@@ -90,23 +94,44 @@ function MainAssist.onMissionItemTop(id)
     MainAssist.UpdateMissionCellsOrder()
 end
 
-function MainAssist.onMissionItemAdd(data)
-
-    if data.taskid == 22 then
-     
+-- 备注：伏妖录任务在任务栏中只保留当前进行中的一条，旧的同类任务直接移除。
+local function _remove_old_xyl_mission_cells(keepType)
+    for missionType, cell in pairs(MainAssist._missionCells or {}) do
+        if missionType ~= keepType and cell and type(cell.data) == "table" and tonumber(cell.data.taskid) == 22 then
+            local removeIndex = GUI:ListView_getItemIndex(MainAssist.ListView_mission, cell.quickUI.nativeUI)
+            if removeIndex and removeIndex >= 0 then
+                GUI:ListView_removeItemByIndex(MainAssist.ListView_mission, removeIndex)
+            end
+            MainAssist._missionCells[missionType] = nil
+        end
     end
+end
 
-
+function MainAssist.onMissionItemAdd(data)
+    if type(data) == "table" and tonumber(data.taskid) == 22 then
+        MainAssist.DebugXylTrace("任务增加", data)
+        _remove_old_xyl_mission_cells(data.type)
+    end
     local cell = MainAssist.CreateMissionCell(data)
     MainAssist._missionCells[data.type] = cell
     GUI:ListView_pushBackCustomItem(MainAssist.ListView_mission, cell.quickUI.nativeUI)
     MainAssist.UpdateMissionCellData(cell, data)
     MainAssist.UpdateMissionCellsOrder()
+    MainAssist.PrintXylTaskName(data)
+    MainAssist.UpdateCurrentXylTaskWidget()
 end
 
 function MainAssist.onMissionItemChange(data)
+    if type(data) == "table" and tonumber(data.taskid) == 22 then
+        MainAssist.DebugXylTrace("任务变化", data)
+        _remove_old_xyl_mission_cells(data.type)
+    end
+
     local cell = MainAssist._missionCells[data.type]
     if not cell then
+        if type(data) == "table" and tonumber(data.taskid) == 22 then
+            SL:release_print("[伏妖录调试] 收到任务变化，但任务栏里还没有对应 cell")
+        end
         return nil
     end
 
@@ -117,6 +142,8 @@ function MainAssist.onMissionItemChange(data)
     if needUpdate or lastOrder ~= cell.order then
         MainAssist.UpdateMissionCellsOrder()
     end
+    MainAssist.PrintXylTaskName(data)
+    MainAssist.UpdateCurrentXylTaskWidget()
 end
 
 function MainAssist.onMissionItemRemove(data)
@@ -130,10 +157,12 @@ function MainAssist.onMissionItemRemove(data)
     MainAssist._missionCells[data.type] = nil
 
     MainAssist.UpdateMissionCellsOrder()
+    MainAssist.UpdateCurrentXylTaskWidget()
 end
 
 function MainAssist.onMissionShow(data)
     GUI:setVisible(MainAssist.ListView_mission, data == nil or data == true)
+    MainAssist.UpdateCurrentXylTaskWidget()
 end
 
 function MainAssist.CreateMissionCell(data)
@@ -256,4 +285,11 @@ function MainAssist.RegisterEvent()
     SL:RegisterLUAEvent(LUA_EVENT_ASSIST_MISSION_CHANGE, "MainAssist", MainAssist.onMissionItemChange)
     SL:RegisterLUAEvent(LUA_EVENT_ASSIST_MISSION_REMOVE, "MainAssist", MainAssist.onMissionItemRemove)
     SL:RegisterLUAEvent(LUA_EVENT_ASSIST_MISSION_SHOW, "MainAssist", MainAssist.onMissionShow)
+    SL:RegisterLUAEvent(MainAssistXylHelper.EVENT_CURRENT_TASK_CHANGE, "MainAssist_XYL", MainAssist.RefreshXylTaskOnCurrentChange)
+    SL:RegisterLUAEvent(LUA_EVENT_SERVER_VALUE_CHANGE, "MainAssist_XYL_SERVER", MainAssist.RefreshXylOnServerValueChange)
+    SL:RegisterLUAEvent(LUA_EVENT_BAG_ITEM_CHANGE, "MainAssist_XYL_BAG_CHANGE", MainAssist.RefreshXylOnBagItemChange)
+    SL:RegisterLUAEvent(LUA_EVENT_REF_ITEM_LIST, "MainAssist_XYL_BAG_LIST", MainAssist.RefreshXylOnBagItemChange)
 end
+
+
+
