@@ -18,6 +18,9 @@ npc.xinjn32 = GUI:Win_FindParent(1003)--主界面最顶右下
 
 -- 顶部按钮缓存，用于红点/引导等后续逻辑
 npc.db_anniu = {} --按钮
+npc.db_shortcut_entries = {}
+npc._shortcut_collapsed = false
+local zbz = {}
 ---特殊任务描述
 npc.rw = {
 
@@ -175,16 +178,20 @@ local function ensureWindow(name, npcid, extraOpts)
 end
 
 -- 工具：创建顶部快捷按钮
-local function createShortcutButton(container, cfg, order, prefix)
+local function createShortcutButton(container, cfg, order, prefix, opts)
+    opts = opts or {}
     local btnName = string.format("%s_%d", prefix, order)
-    local button = GUI:Button_Create(container, btnName, 498 - 80 * order, 0, "res/wy/icon/top_" .. cfg[1] .. ".png")
+    local posX = tonumber(opts.x) or (498 - 80 * order)
+    local posY = tonumber(opts.y) or 0
+    local button = GUI:Button_Create(container, btnName, posX, posY, "res/wy/icon/top_" .. cfg[1] .. ".png")
     -- GUI:Text_Create(button, "tt", 0, 14, 14, "#ffffff", cfg[2])
-    GUI:setScale(button, 0.9)
+    GUI:setScale(button, tonumber(opts.scale) or 0.9)
     GUI:addOnClickEvent(button, function()
         SL:SendLuaNetMsg(101, cfg[3], 0, 0, "")
         GUI:removeAllChildren(button)
     end)
-    npc.db_anniu[""..cfg[4]] = button
+    local cacheMap = opts.cacheMap or npc.db_anniu
+    cacheMap[""..cfg[4]] = button
     return button
 end
 
@@ -460,26 +467,175 @@ local function _shortcut_should_show(cfg)
 end
 
 -- 根据 iconpx 配置重建顶部两排按钮
+local SHORTCUT_COLLAPSED_SHOW_COUNT = 4
+local SHORTCUT_COLLAPSED_PREVIEW_NPC = {
+    501, -- 首充礼包
+    511, -- 福利大厅
+    514, -- 世界地图
+    502, -- 在线充值
+}
+
+local function _get_visible_shortcut_list()
+    local result = {}
+    for _, row in ipairs(npc.iconpx or {}) do
+        for _, cfg in ipairs(row or {}) do
+            if _shortcut_should_show(cfg) then
+                table.insert(result, cfg)
+            end
+        end
+    end
+    return result
+end
+
+local function _get_collapsed_preview_shortcut_list()
+    local preview = {}
+    local used = {}
+
+    for _, targetNpcId in ipairs(SHORTCUT_COLLAPSED_PREVIEW_NPC) do
+        for _, row in ipairs(npc.iconpx or {}) do
+            for _, cfg in ipairs(row or {}) do
+                if tonumber(cfg and cfg[3]) == tonumber(targetNpcId) and not used[targetNpcId] then
+                    table.insert(preview, cfg)
+                    used[targetNpcId] = true
+                    break
+                end
+            end
+            if used[targetNpcId] then
+                break
+            end
+        end
+    end
+
+    if #preview >= SHORTCUT_COLLAPSED_SHOW_COUNT then
+        return preview
+    end
+
+    for _, cfg in ipairs(_get_visible_shortcut_list()) do
+        local npcid = tonumber(cfg and cfg[3])
+        if npcid and not used[npcid] then
+            table.insert(preview, cfg)
+            used[npcid] = true
+            if #preview >= SHORTCUT_COLLAPSED_SHOW_COUNT then
+                break
+            end
+        end
+    end
+
+    return preview
+end
+
+local function _get_collapsed_shortcut_target(index)
+    return {
+        x = 418 - (index - 1) * 80,
+        y = 70,
+    }
+end
+
+local function _set_shortcut_entry_visible(entry, visible)
+    if not (entry and entry.button) then
+        return
+    end
+    GUI:setVisible(entry.button, visible == true)
+    GUI:setTouchEnabled(entry.button, visible == true)
+end
+
+local function _refresh_shortcut_collapsed_state(withAnim)
+    if not npc.dbLayout or not npc.dbshousuo then
+        return
+    end
+
+    GUI:setFlippedX(npc.dbshousuo, npc._shortcut_collapsed == true)
+    GUI:setPosition(npc.dbLayout, zbz[1], zbz[2])
+
+    if npc._shortcut_collapsed then
+        local keepList = _get_collapsed_preview_shortcut_list()
+        local keepMap = {}
+        for index, cfg in ipairs(keepList) do
+            local key = tostring(cfg and cfg[4] or "")
+            if key ~= "" then
+                keepMap[key] = index
+            end
+        end
+
+        for _, entry in ipairs(npc.db_shortcut_entries or {}) do
+            local key = tostring(entry and entry.key or "")
+            local keepIndex = keepMap[key]
+            if keepIndex then
+                local target = _get_collapsed_shortcut_target(keepIndex)
+                _set_shortcut_entry_visible(entry, true)
+                GUI:stopAllActions(entry.button)
+                if withAnim ~= false then
+                    GUI:Timeline_EaseSineIn_MoveTo(entry.button, {x = target.x, y = target.y}, 0.2)
+                    GUI:Timeline_FadeIn(entry.button, 0.2)
+                else
+                    GUI:setPosition(entry.button, target.x, target.y)
+                    GUI:setOpacity(entry.button, 255)
+                end
+            else
+                GUI:stopAllActions(entry.button)
+                if withAnim ~= false then
+                    GUI:Timeline_EaseSineIn_MoveTo(entry.button, {x = entry.originX + 50, y = entry.originY}, 0.18)
+                    GUI:Timeline_FadeOut(entry.button, 0.18, function()
+                        _set_shortcut_entry_visible(entry, false)
+                        GUI:setPosition(entry.button, entry.originX, entry.originY)
+                        GUI:setOpacity(entry.button, 255)
+                    end)
+                else
+                    _set_shortcut_entry_visible(entry, false)
+                    GUI:setPosition(entry.button, entry.originX, entry.originY)
+                    GUI:setOpacity(entry.button, 255)
+                end
+            end
+        end
+    else
+        for _, entry in ipairs(npc.db_shortcut_entries or {}) do
+            _set_shortcut_entry_visible(entry, true)
+            GUI:stopAllActions(entry.button)
+            if withAnim ~= false then
+                GUI:Timeline_EaseSineIn_MoveTo(entry.button, {x = entry.originX, y = entry.originY}, 0.2)
+                GUI:Timeline_FadeIn(entry.button, 0.2)
+            else
+                GUI:setPosition(entry.button, entry.originX, entry.originY)
+                GUI:setOpacity(entry.button, 255)
+            end
+        end
+    end
+end
+
 local function rebuildShortcutButtons(filterKey)
     if not npc.dbLayout then
         return
     end
     GUI:removeAllChildren(npc.dbLayout)
-    npc.dbrqs = GUI:Layout_Create(npc.dbLayout, "Layout_s", 0.00, 70.00, 490.00, 80.00, false)
-    npc.dbrqx = GUI:Layout_Create(npc.dbLayout, "Layout_x", 0.00, -10.00, 490.00, 80.00, false)
+    npc.db_anniu = {}
+    npc.db_shortcut_entries = {}
 
-    local function renderRow(list, container, prefix)
+    local function renderRow(list, rowY, prefix)
         local order = 1
         for _, cfg in ipairs(list) do
             if _shortcut_should_show(cfg) then
-                createShortcutButton(container, cfg, order, prefix)
+                local posX = 498 - 80 * order
+                local posY = rowY
+                local button = createShortcutButton(npc.dbLayout, cfg, order, prefix, {
+                    x = posX,
+                    y = posY,
+                })
+                table.insert(npc.db_shortcut_entries, {
+                    key = cfg[4],
+                    cfg = cfg,
+                    button = button,
+                    originX = posX,
+                    originY = posY,
+                })
                 order = order + 1
             end
         end
     end
 
-    renderRow(npc.iconpx[1], npc.dbrqs, "anniu_1")
-    renderRow(npc.iconpx[2], npc.dbrqx, "anniu_2")
+    renderRow(npc.iconpx[1], 70, "anniu_1")
+    renderRow(npc.iconpx[2], -10, "anniu_2")
+
+    _refresh_shortcut_collapsed_state(false)
 end
 
 local function registerShortcutTitleRefresh()
@@ -506,7 +662,6 @@ end
 
 local UPGRADE_HELPER = SL:Require("GUILayout/npc/upgrade_helper", true)
 
-local zbz = {}
 if cogin.isWin32 then
     zbz = {-700, -150, 200, -180, -70}
 else
@@ -515,9 +670,9 @@ end
 
 -- ===== 指引/寻路相关工具 =====
 local function ensureTopPanelExpanded()
-    if npc.dbshousuo and GUI:getFlippedX(npc.dbshousuo) then
-        GUI:setFlippedX(npc.dbshousuo, false)
-        GUI:setPosition(npc.dbLayout, zbz[1], zbz[2])
+    if npc.dbshousuo and npc._shortcut_collapsed then
+        npc._shortcut_collapsed = false
+        _refresh_shortcut_collapsed_state(false)
     end
 end
 
@@ -878,13 +1033,8 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
             npc.dbshousuo = GUI:Button_Create(npc.RightTop, "shousuo", zbz[4], zbz[5], "res/wy/icon/s.png")
             GUI:setAnchorPoint(npc.dbshousuo, 0.5, 0)
             GUI:addOnClickEvent(npc.dbshousuo, function(self)
-                if GUI:getFlippedX(self) then
-                    GUI:setFlippedX(self, false)
-                    GUI:Timeline_EaseSineIn_MoveTo(npc.dbLayout, {x = zbz[1], y = zbz[2]}, 0.3)
-                else
-                    GUI:setFlippedX(self, true)
-                    GUI:Timeline_EaseSineIn_MoveTo(npc.dbLayout, {x = zbz[3], y = zbz[2]}, 0.3)
-                end
+                npc._shortcut_collapsed = not npc._shortcut_collapsed
+                _refresh_shortcut_collapsed_state(true)
             end)
             rebuildShortcutButtons("")
             registerShortcutTitleRefresh()
