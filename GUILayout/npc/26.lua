@@ -46,6 +46,15 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:Text_setFontName(GUI:Text_Create(node, "U_num",860,55, 25, "#00FF95", npc.data.U_num or 0)
         , "fonts/500.ttf")
 
+        local guaranteeText = "占卜 65 次必出帝王"
+        if SL:GetMetaValue("TITLE_DATA_BY_ID", SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.details[5])) then
+            guaranteeText = "已获得帝王之姿"
+        end
+        local guaranteeLabel = GUI:Text_Create(node, "guarantee_text", 48 + 668, 115, 25, "#F7DE91", guaranteeText)
+        GUI:setAnchorPoint(guaranteeLabel, 0, 0.5)
+        GUI:Text_setFontName(guaranteeLabel, "fonts/501.ttf")
+        GUI:Text_enableOutline(guaranteeLabel, "#000000", 2)
+
             
         GUI:setAnchorPoint(GUI:Image_Create(node, "wz", 520, 120.00, "res/custom/two_city/qyzb/wz.png")
         , 0.5, 0.5)

@@ -134,6 +134,14 @@ function BagItem:InitBagItemData(data)
     GUI:setVisible(self._ui["Button_icon"], bShowItem)
     GUI:setVisible(self._ui["Node_sfx_under"], bShowEffect)
     GUI:setVisible(self._ui["Node_sfx"], bShowEffect)
+    if itemData.StdMode == 31 then   --可以使用
+        if IsWinPlayMode then
+            GUI:Image_Create(self._parent, "use", 25, 25, "res/wy/public/useful.png")
+        else
+            GUI:Image_Create(self._parent, "use", 46, 40, "res/wy/public/useful.png")
+        end
+    end
+
 end 
 
 function BagItem:SetItemIndex()

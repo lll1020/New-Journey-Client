@@ -35,9 +35,9 @@ end
             local config = npc._config.config[npc.data.dj_num + 1]
             GUI:Text_setFontName(GUI:Text_Create(node, "desc1",490,353, 25, "#FB0000", npc.data.dj_num)
             , "fonts/500.ttf")
-            local desc2 = GUI:Text_Create(node, "desc2",490,305, 25, "#FF00FF", "人物切割："..npc._config.config[npc.data.dj_num].ratio.." -》"..npc._config.config[npc.data.dj_num + 1].ratio)
+            local desc2 = GUI:Text_Create(node, "desc2",490,305, 25, "#9DB9C8", "人物切割："..npc._config.config[npc.data.dj_num].ratio.." -》"..npc._config.config[npc.data.dj_num + 1].ratio)
             GUI:Text_setFontName(desc2, "fonts/501.ttf")
-            GUI:Text_enableOutline(desc2, "#FFFFFF", 2)
+            GUI:Text_enableOutline(desc2, "#000000", 2)
 
             
 

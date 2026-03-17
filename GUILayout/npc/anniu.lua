@@ -3,7 +3,7 @@
 ---顶部图标显示
 npc.iconpx = {
     {
-        {15, "天天省钱",509,1}, {3, "福利大厅",511,2}, {17, "游戏攻略",512,3},{4, "活动大厅",507,4},{14, "首充礼包",501,5},{16, "仙途奇缘",515,515},{18, "护体光环",23,23}
+        {15, "天天省钱",509,1}, {3, "福利大厅",511,2}, {17, "游戏攻略",512,3},{4, "活动大厅",507,4},{14, "首充礼包",501,5},{16, "仙途奇缘",515,515},{20, "护体光环",23,23}
     },
     {
         {19, "在线充值", 502,11}, {5, "交易行",510,12},{2, "解绑特权",504,13},{7, "狂暴之力",513,14},{12, "世界地图",514,15},{10, "免费赞助",516,16},{6, "聚宝盆",517,17},
@@ -185,7 +185,7 @@ local function createShortcutButton(container, cfg, order, prefix, opts)
     local posY = tonumber(opts.y) or 0
     local button = GUI:Button_Create(container, btnName, posX, posY, "res/wy/icon/top_" .. cfg[1] .. ".png")
     -- GUI:Text_Create(button, "tt", 0, 14, 14, "#ffffff", cfg[2])
-    GUI:setScale(button, tonumber(opts.scale) or 0.9)
+    -- GUI:setScale(button, tonumber(opts.scale) or 0.9)
     GUI:addOnClickEvent(button, function()
         SL:SendLuaNetMsg(101, cfg[3], 0, 0, "")
         GUI:removeAllChildren(button)

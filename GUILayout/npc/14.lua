@@ -41,12 +41,12 @@ end
             local l = GUI:Image_Create(cllist, "img_bj_l_"..v, 0, 0, 'res/custom/one_city/14_itme_'..v..'.png')
            
             GUI:setAnchorPoint(GUI:RichText_Create(l, "text_attr", 106, 160,
-                            "<font color='#FF00FF' size='18' >"..k.attr_desc.." + "..(npc.data.dj_data[""..v] or 0).."</font>"
+                            "<font color='#EF6B00' size='20' >"..k.attr_desc.." + "..(v == 5 and (k.ratio/100 .. "%") or k.ratio).."</font>"
             , 500, 30, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
             , 0.5, 0.5)
             
             GUI:setAnchorPoint(GUI:RichText_Create(l, "text_cs", 106, 20 + 68,
-                            SetCompletionProgress((npc.data.dj_data[""..v] or 0), k.max_level)
+                            "<font color='#00FF00' size='18' >（"..(npc.data.dj_data[""..v] or 0).."/"..k.max_level.."）</font>"
             , 500, 30, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
             , 0.5, 0.5)
 

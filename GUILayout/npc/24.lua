@@ -119,6 +119,24 @@ function npc.main(npcid, p2, p3, msgData)
                     
                     
                 end  
+
+                local tip = GUI:Image_Create(Label_node, "tip", 380 + 500, 350 - 187, "res/wy/public/xqh_tip.png")
+                if SL:GetMetaValue("WINPLAYMODE") then
+                    GUI:addMouseMoveEvent(tip, {onEnterFunc = function()
+                        local pos = GUI:getWorldPosition(tip)
+                        SL:OpenCommonDescTipsPop({str = "杀意值的积累需要击杀特定大陆的怪物", worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 0})
+                    end, onLeaveFunc = function()
+                        SL:CloseCommonDescTipsPop()
+                    end})
+                else
+                    GUI:setTouchEnabled(tip, true)
+                    GUI:addOnTouchEvent(tip, function(self)
+                        local pos = GUI:getWorldPosition(tip)
+                        SL:OpenCommonDescTipsPop({str = "杀意值的积累需要击杀特定大陆的怪物", worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 0})
+                    end)
+                end
+
+
             elseif idx == 2 then
                 -- local GUI_list = GUI:ListView_Create(Label_node, "GUI_list", 200, 100, 700, 270, 2)
                 -- for i = 1, 10 do

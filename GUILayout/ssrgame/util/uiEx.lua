@@ -498,9 +498,9 @@ function SetCompletionProgress(num1, num2)
     local str = ""
     if num1 >= num2 then
         num1 = num2
-        str = string.format("<font color='#00FF00' size='16' >(%d/%d)</font>",num1,num2)
+        str = string.format("<font color='#00FF00' size='16' >(</font><font color='#00FF00' size='16' >%d</font><font color='#00FF00' size='16' >/%d</font><font color='#00FF00' size='16' >)</font>",num1,num2)
     else
-       str = string.format("<font color='#FF0000' size='16' >(%d/%d)</font>",num1,num2)
+        str = string.format("<font color='#00FF00' size='16' >(</font><font color='#FF0000' size='16' >%d</font><font color='#00FF00' size='16' >/%d</font><font color='#00FF00' size='16' >)</font>",num1,num2)
     end
     return str
 end
@@ -509,9 +509,9 @@ function SetCompletionProgress_14(num1, num2)
     local str = ""
     if num1 >= num2 then
         num1 = num2
-        str = string.format("<font color='#00FF00' size='14' >(%d/%d)</font>",num1,num2)
+        str = string.format("<font color='#00FF00' size='14' >(</font><font color='#00FF00' size='14' >%d</font><font color='#00FF00' size='14' >/%d</font><font color='#00FF00' size='14' >)</font>",num1,num2)
     else
-       str = string.format("<font color='#FF0000' size='14' >(%d/%d)</font>",num1,num2)
+       str = string.format("<font color='#00FF00' size='14' >(</font><font color='#FF0000' size='14' >%d</font><font color='#00FF00' size='14' >/%d</font><font color='#00FF00' size='14' >)</font>",num1,num2)
     end
     return str
 end

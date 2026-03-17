@@ -37,8 +37,10 @@ function npc.main(npcid, p2, p3, msgData)
         if npc.data.dj_num > 0 then
             GUI:setAnchorPoint(GUI:RichText_Create(node, "new_attr_desc", 80, 330,  Player:showEquipAttr(SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.ch[npc.data.dj_num]))), 200, 17, "#f7f7de", 3,nil,nil)
             , 0, 1)
+        else
+            GUI:setAnchorPoint(GUI:RichText_Create(node, "new_attr_desc", 80, 330,  "<font color='#00FF00' size='18' >「墨纸未书，\n             侠名待启」</font>\n\n<font color='#00FFFF' size='16' >这张空白的宣纸，\n正等待你的故事。\n用文书与铜钱\n写下第一笔江湖印记，\n从此你的名字，\n将在这片大陆流传。</font>", 200, 17, "#f7f7de", 3,nil,nil)
+            , 0, 1)
         end
-
       
 
 

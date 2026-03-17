@@ -43,10 +43,10 @@ end
         GUI:setAnchorPoint(GUI:Image_Create(node, "tip_1", 778/2, 40, "res/custom/one_city/clyz/tip_1.png")
         , 0.5, 0.5)
 
-        GUI:setAnchorPoint(GUI:Image_Create(node, "tip_wz", 450, 360, "res/custom/one_city/clyz/tip_wz.png")
+        GUI:setAnchorPoint(GUI:Image_Create(node, "tip_wz", 430, 360, "res/custom/one_city/clyz/tip_wz.png")
         , 0.5, 0.5)
 
-        GUI:RichText_Create(node, "desc", 510, 348,
+        GUI:RichText_Create(node, "desc", 490, 348,
                 "<font color='#00FF00' size='20' >"..npc._config.xg_day - (npc.data.dh_num or 0).."</font>"
         , 500, 30, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
         
