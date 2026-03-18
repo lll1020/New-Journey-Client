@@ -313,7 +313,7 @@ function MainAssistXylHelper.bind(MainAssist)
 
         local rewardRoot = GUI:Node_Create(panel, "reward_root", 55, 45)
 
-        local detailBtn = GUI:Button_Create(panel, "detail_btn", -5, 19, "res/public/1900000660.png")
+        local detailBtn = GUI:Button_Create(panel, "detail_btn", 5, 19, "res/wy/public/kb_btn.png")
         GUI:setAnchorPoint(detailBtn, 0, 0.5)
         GUI:Button_setTitleText(detailBtn, "任务详情")
         GUI:Button_setTitleColor(detailBtn, "#F4E7B5")
@@ -327,7 +327,7 @@ function MainAssistXylHelper.bind(MainAssist)
             end
         end)
 
-        local goBtn = GUI:Button_Create(panel, "go_btn", 145, 19, "res/public/1900000660.png")
+        local goBtn = GUI:Button_Create(panel, "go_btn", 145, 19, "res/wy/public/kb_btn.png")
         GUI:setAnchorPoint(goBtn, 0.5, 0.5)
         GUI:Button_setTitleText(goBtn, "立即前往")
         GUI:Button_setTitleColor(goBtn, "#F4E7B5")

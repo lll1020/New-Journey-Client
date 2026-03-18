@@ -614,7 +614,7 @@ local function rebuildShortcutButtons(filterKey)
         local order = 1
         for _, cfg in ipairs(list) do
             if _shortcut_should_show(cfg) then
-                local posX = 498 - 80 * order
+                local posX = 498 - 70 * order
                 local posY = rowY
                 local button = createShortcutButton(npc.dbLayout, cfg, order, prefix, {
                     x = posX,
@@ -3749,7 +3749,7 @@ npc[507] = function(p2, p3, Data)
                 tostring(qmdk.score_tick_sec or 10),
                 tostring(qmdk.score_per_tick or 1),
                 tostring(tonumber(qmdkState.grjf or 0) or 0))
-            cfg.reward = "参与奖励：" .. makeRewardText(qmdk.join_reward) .. "\n榜一奖励：" .. makeRewardText(qmdk.rank_rewards and qmdk.rank_rewards[1] and qmdk.rank_rewards[1].items)
+            cfg.reward = "参与奖励：" .. makeRewardText(qmdk.join_reward)
         elseif i == 3 then
             local open = tonumber(qmdtState.open or 0) or 0
             local currentIdx = tonumber(qmdtState.current_idx or 0) or 0
@@ -3759,9 +3759,8 @@ npc[507] = function(p2, p3, Data)
             cfg.desc = "活动开启后通过当前入口参与答题，按题目序号提交答案。答对即可获得积分，最终按照总分排名发放奖励。"
             if open == 1 and currentIdx > 0 then
                 cfg.desc = cfg.desc .. string.format("\n当前正在进行第%s/%s题，剩余%s秒。", tostring(currentIdx), tostring(qmdt.question_count or 5), tostring(remain))
-                cfg.btnSkin = "res/custom/activity/btn_now.png"
             end
-            cfg.reward = "参与奖励：" .. makeRewardText(qmdt.join_reward) .. "\n榜一奖励：" .. makeRewardText(qmdt.rank_rewards and qmdt.rank_rewards[1] and qmdt.rank_rewards[1].items)
+            cfg.reward = "参与奖励：" .. makeRewardText(qmdt.join_reward)
         elseif i == 4 then
             cfg.title = "勇夺镖车"
             cfg.time = "当前暂未开放，开放后可通过本页直接参与"
@@ -3770,8 +3769,8 @@ npc[507] = function(p2, p3, Data)
         elseif i == 5 then
             cfg.title = "土城跑酷"
             cfg.time = "活动入口直达土城地图，具体开启时段以游戏公告为准"
-            cfg.desc = "活动开启后前往土城跑酷赛道，穿越障碍、抢占捷径并率先到达终点即可获得更高结算奖励。"
-            cfg.reward = "排名越高，奖励越丰厚"
+            cfg.desc = "活动开启后前往土城跑酷"
+            cfg.reward = "奖励丰厚"
         elseif i == 6 then
             cfg.title = "天才地宝"
             cfg.time = "当前暂未开放，开放后可通过本页直接参与"
@@ -3780,8 +3779,8 @@ npc[507] = function(p2, p3, Data)
         elseif i == 7 then
             cfg.title = "天选之人"
             cfg.time = table.concat(txzr.notice or {"30分钟一轮，共四轮开启"}, "；")
-            cfg.desc = "活动每轮会进行 roll 点排名，排名第一的玩家可获得额外奖励；若连续多轮第一，则不会重复获得同一件背包神器。"
-            cfg.reward = "参与奖励：" .. tostring((txzr.join_reward and txzr.join_reward.desc) or "8元真充") .. "\n额外奖励：每轮第一随机获得一件背包神器"
+            cfg.desc = "活动每轮会进行 roll 点排名，排名第一的玩家可获得额外奖励。"
+            cfg.reward = "查看具体页面可以预览奖励"
         elseif i == 8 then
             cfg.title = "正邪大战"
             cfg.time = "当前暂未开放，开放后可通过本页直接参与"
@@ -3801,7 +3800,7 @@ npc[507] = function(p2, p3, Data)
             cfg.title = "沙巴克"
             cfg.time = "请通过沙巴克专属入口参与攻城"
             cfg.desc = "沙巴克为大型行会攻城玩法，需要通过专属入口进入战场。争夺皇宫归属、守住核心据点即可拿下城主荣耀。"
-            cfg.reward = "行会奖励、城主特权与攻城专属收益"
+            cfg.reward = "行会奖励"
         elseif i == 12 then
             cfg.title = "讨伐BOSS"
             cfg.time = "当前暂未开放，开放后可通过本页直接参与"
@@ -3811,9 +3810,7 @@ npc[507] = function(p2, p3, Data)
             cfg.title = "随机夺宝"
             cfg.time = string.format("活动开启后在【%s】地图持续%s秒投放宝物", tostring(sjdb.map or "天降财宝"), tostring(sjdb.keep_sec or 300))
             cfg.desc = "宝物会以三圈形式投放：外圈覆盖范围最大、中圈奖励提升、内圈数量最少但价值最高，越靠近中心收益越高。"
-            cfg.reward = "外圈：" .. makeRewardText(sjdb.circles and sjdb.circles[1] and sjdb.circles[1].drops)
-                .. "\n中圈：" .. makeRewardText(sjdb.circles and sjdb.circles[2] and sjdb.circles[2].drops)
-                .. "\n内圈：" .. makeRewardText(sjdb.circles and sjdb.circles[3] and sjdb.circles[3].drops)
+            cfg.reward = "随机夺宝"
         elseif i == 14 then
             cfg.title = "黑暗禁地"
             cfg.time = "当前暂未开放，开放后可通过本页直接参与"
@@ -3838,8 +3835,8 @@ npc[507] = function(p2, p3, Data)
         GUI:Text_setFontName(title, "fonts/500.ttf")
         GUI:Text_enableOutline(title, "#100808", 2)
 
-        richText(label, "tip", 86, 252, 468, 18, "<font color='#f3e2b6' size='18'>" .. tostring(cfg.desc or "") .. "</font>")
-        richText(label, "time", 86, 153, 468, 18, "<font color='#9ff06b' size='18'>" .. tostring(cfg.time or "") .. "</font>")
+        richText(label, "tip", 60, 252 + 40, 468, 18, "<font color='#f3e2b6' size='16'>" .. tostring(cfg.desc or "") .. "</font>")
+        richText(label, "time", 60, 153 + 30, 468, 18, "<font color='#9ff06b' size='16'>" .. tostring(cfg.time or "") .. "</font>")
         richText(label, "reward", 86, 73, 468, 16, "<font color='#ffe07a' size='16'>" .. tostring(cfg.reward or "") .. "</font>")
     end
 

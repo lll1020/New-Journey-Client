@@ -55,6 +55,11 @@ function PlayerSuperEquip.main(data)
         SL:SendLuaNetMsg(105, 64, 64, 0, "")
     end)
 
+    Button= GUI:Button_Create(PlayerSuperEquip._ui.Panel_1, "Button6", 40 + 18 + 70, 10.00, "res/private/player_main_layer_ui/btn_6.png")
+    GUI:addOnClickEvent(Button, function()
+        SL:SendLuaNetMsg(105, 1002, 1002, 0, "")
+    end)
+
 
     Button = GUI:Button_Create(PlayerSuperEquip._ui.Panel_1, "Button12", 400 + 120 - 253 + 18, 50+363, "res/private/player_main_layer_ui/btn_12.png")
     GUI:addOnClickEvent(Button, function()
