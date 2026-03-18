@@ -2529,9 +2529,9 @@ npc[12] = function(p2, p3, Data) -- 活动提示
             npc.hdan = nil
         end
         if cogin.isWin32 then
-            npc.hdan = GUI:Button_Create(npc.RightTop, "hdan", -367, -260, "res/wy/icon/hd_l_"..p3..".png")
+            npc.hdan = GUI:Button_Create(npc.RightTop, "hdan", -367, -300, "res/custom/activity/"..p3..".png")
             GUI:addOnClickEvent(npc.hdan, function()
-                SL:SendLuaNetMsg(101, 507, npc.hd_data.kf, npc.hd_data.idx, "")
+                SL:SendLuaNetMsg(101, 507, 1, p3, "")
             end)
             npc.djs = GUI:Text_Create(npc.hdan, "djs", 32 + 130, 19, 16, "#F7F7DE", npc.hd_data.sk*60)
             GUI:setAnchorPoint(npc.djs, 0.5, 0.5)
@@ -2546,7 +2546,7 @@ npc[12] = function(p2, p3, Data) -- 活动提示
                 end
             end)
         else
-            npc.hdan = GUI:Button_Create(npc.RightTop, "hdan", -390 - 125 + 226 - 55, -240  - 61 -31, "res/wy/icon/hd_l_"..p3..".png")
+            npc.hdan = GUI:Button_Create(npc.RightTop, "hdan", -390 - 125 + 226 - 55 - 160, -240  - 61 -31 + 50, "res/custom/activity/"..p3..".png")
             GUI:addOnClickEvent(npc.hdan, function()
                 SL:SendLuaNetMsg(101, 507, npc.hd_data.kf, npc.hd_data.idx, "")
             end)
@@ -2563,6 +2563,30 @@ npc[12] = function(p2, p3, Data) -- 活动提示
                 end
             end)
         end
+        if p3 == 5 then
+                local txt = GUI:Text_Create(npc.hdan, "Text", 10 + 60, -22, 14, "#ffffff","勾选自动跑酷")
+                GUI:Text_enableOutline(txt, "#000000", 1)
+                local CheckBox = GUI:CheckBox_Create(npc.hdan, "CheckBox", -20 + 60, -22, "res/public/1900000550.png", "res/public/1900000551.png")
+                GUI:CheckBox_addOnEvent(CheckBox, function(self)
+                    if GUI:CheckBox_isSelected(self) then
+                        if SL:GetMetaValue("MAP_ID") == "xtc" then
+                            SL:SetMetaValue("BATTLE_MOVE_BEGIN", "xtc", math.random(128, 146), math.random(129, 147))
+                            SL:RegisterLUAEvent(LUA_EVENT_AUTOMOVEEND, "跑酷寻路结束", function()
+                                if not npc.hdan then
+                                    SL:UnRegisterLUAEvent(LUA_EVENT_AUTOMOVEEND, "跑酷寻路结束")
+                                end
+                                SL:SetMetaValue("BATTLE_MOVE_BEGIN", "xtc", math.random(128, 146), math.random(129, 147))
+                            end, txt)
+                        else
+                            GUI:CheckBox_setSelected(self, false)
+                            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#ff0500'>只能在土城才能使用</font></outline>")
+                        end
+                    else
+                        SL:UnRegisterLUAEvent(LUA_EVENT_AUTOMOVEEND, "跑酷寻路结束")
+                        SL:SetMetaValue("BATTLE_MOVE_END")
+                    end
+                end)
+            end
     elseif p2 == 4 then
         if npc.hdan then
             GUI:removeFromParent(npc.hdan)
@@ -3159,9 +3183,13 @@ end
 ---天人之战
 npc[498] = function(p2, p3, Data)
     -- 创建天人之战排行榜面板，并完成基本 UI 布局
+    local function hasRankingWindow()
+        return npc.tyec and GUI:getChildByName(MainAssist._ui["Panel_hide"], "tyec_bj")
+    end
+
     local function createRankingWindow()
-        if GUI:getChildByName(MainAssist._ui["Panel_hide"], "tyec_bj") then
-            GUI:removeChildByName(MainAssist._ui["Panel_hide"], "tyec_bj")
+        if hasRankingWindow() then
+            return
         end
         npc.tyec = GUI:Image_Create(MainAssist._ui["Panel_hide"], "tyec_bj", 18, 0.00, "res/wy/public/tycccc.png")
         GUI:setContentSize(npc.tyec, 260, 185)
@@ -3207,11 +3235,13 @@ npc[498] = function(p2, p3, Data)
 
     if p2 == 0 then
         npc.tyecsj = SL:JsonDecode(Data, false)
-        createRankingWindow()
+        if not hasRankingWindow() then
+            createRankingWindow()
+        end
         updateRankingWidgets(npc.tyecsj)
     elseif p2 == 1 then
         npc.tyecsj = SL:JsonDecode(Data, false)
-        if not npc.tyec then
+        if not hasRankingWindow() then
             createRankingWindow()
         end
         updateRankingWidgets(npc.tyecsj)
@@ -3650,47 +3680,177 @@ end
 
 ---游戏活动
 npc[507] = function(p2, p3, Data)
-    local function GUI_createLabel_507(label,i)
-        GUI:removeAllChildren(label)
-        GUI:Image_Create(label, "img_bj", 0, 350, "res/custom/activity/img/img_"..i..".png")
+    local activity_cfg = teshudata["anniu_507"] or {}
 
-        local btn = GUI:Button_Create(label, "btn", 350, 20, "res/custom/activity/btn.png")
+    local function richText(label, name, x, y, width, size, html)
+        local rich = GUI:RichText_Create(label, name, x, y, html, width, size, "#f7f7de", 0, nil, nil, {
+            outlineSize = 2,
+            outlineColor = SL:ConvertColorFromHexString("#100808")
+        })
+        GUI:setAnchorPoint(rich, 0, 1)
+        return rich
+    end
+
+    local function makeRewardText(items)
+        if type(items) ~= "table" or #items <= 0 then
+            return "奖励以活动实际结算为准"
+        end
+        local parts = {}
+        for _, one in ipairs(items) do
+            local name = one[1] or one.item or ""
+            local count = tonumber(one[2] or one.count or 0) or 0
+            if name ~= "" then
+                if count > 1 then
+                    parts[#parts + 1] = tostring(name) .. "x" .. tostring(count)
+                else
+                    parts[#parts + 1] = tostring(name)
+                end
+            end
+        end
+        if #parts <= 0 then
+            return "奖励以活动实际结算为准"
+        end
+        return table.concat(parts, "、")
+    end
+
+    local function getActivityDisplayCfg(i)
+        local qmdt = activity_cfg.qmdt or {}
+        local qmdk = activity_cfg.qmdk or {}
+        local sjdb = activity_cfg.sjdb or {}
+        local txzr = teshudata["anniu_506"] or {}
+        local qmdtState = (npc.data_507 and npc.data_507.qmdt) or {}
+        local qmdkState = (npc.data_507 and npc.data_507.qmdk) or {}
+        local detailCfg = nil
+        for _, one in ipairs(activity_cfg.details or {}) do
+            if tonumber(one.idx) == tonumber(i) then
+                detailCfg = one
+                break
+            end
+        end
+
+        local cfg = {
+            title = detailCfg and detailCfg.name or ("活动" .. tostring(i)),
+            time = "活动时间请关注游戏内公告",
+            desc = "该活动正在整理中，具体规则以服务端实际开启内容为准。",
+            reward = "奖励以活动实际结算为准",
+            btnSkin = "res/custom/activity/btn.png",
+        }
+
+        if i == 1 then
+            cfg.title = "保卫村庄"
+            cfg.time = "当前暂未开放，开放后可通过本页直接参与"
+            cfg.desc = "活动开启后，村庄周围会刷新多波入侵怪物。守住村庄核心并尽快清理怪群，坚持到结算即可完成守卫。"
+            cfg.reward = "开放后公布活动奖励"
+        elseif i == 2 then
+            cfg.title = "全民夺矿"
+            cfg.time = string.format("开服第%s分钟开启，持续%s分钟", tostring(qmdk.start_minute or 26), tostring(qmdk.duration_min or 8))
+            cfg.desc = string.format("进入【%s】地图后停留在矿区即可持续得分，每%s秒获得%s点积分；活动结束后按照积分排行发奖。当前个人积分：%s。",
+                tostring(qmdk.map or "全民夺矿"),
+                tostring(qmdk.score_tick_sec or 10),
+                tostring(qmdk.score_per_tick or 1),
+                tostring(tonumber(qmdkState.grjf or 0) or 0))
+            cfg.reward = "参与奖励：" .. makeRewardText(qmdk.join_reward) .. "\n榜一奖励：" .. makeRewardText(qmdk.rank_rewards and qmdk.rank_rewards[1] and qmdk.rank_rewards[1].items)
+        elseif i == 3 then
+            local open = tonumber(qmdtState.open or 0) or 0
+            local currentIdx = tonumber(qmdtState.current_idx or 0) or 0
+            local remain = tonumber(qmdtState.limit_sec or 0) or 0
+            cfg.title = "全民答题"
+            cfg.time = string.format("开服第%s分钟开启，持续%s分钟；共%s题，每题%s秒", tostring(qmdt.start_minute or 33), tostring(qmdt.duration_min or 5), tostring(qmdt.question_count or 5), tostring(qmdt.per_question_sec or 60))
+            cfg.desc = "活动开启后通过当前入口参与答题，按题目序号提交答案。答对即可获得积分，最终按照总分排名发放奖励。"
+            if open == 1 and currentIdx > 0 then
+                cfg.desc = cfg.desc .. string.format("\n当前正在进行第%s/%s题，剩余%s秒。", tostring(currentIdx), tostring(qmdt.question_count or 5), tostring(remain))
+                cfg.btnSkin = "res/custom/activity/btn_now.png"
+            end
+            cfg.reward = "参与奖励：" .. makeRewardText(qmdt.join_reward) .. "\n榜一奖励：" .. makeRewardText(qmdt.rank_rewards and qmdt.rank_rewards[1] and qmdt.rank_rewards[1].items)
+        elseif i == 4 then
+            cfg.title = "勇夺镖车"
+            cfg.time = "当前暂未开放，开放后可通过本页直接参与"
+            cfg.desc = "活动开启后护送或争夺镖车，安全将镖车送达终点即可获得高额收益，途中也可拦截其他玩家的镖车。"
+            cfg.reward = "开放后公布活动奖励"
+        elseif i == 5 then
+            cfg.title = "土城跑酷"
+            cfg.time = "活动入口直达土城地图，具体开启时段以游戏公告为准"
+            cfg.desc = "活动开启后前往土城跑酷赛道，穿越障碍、抢占捷径并率先到达终点即可获得更高结算奖励。"
+            cfg.reward = "排名越高，奖励越丰厚"
+        elseif i == 6 then
+            cfg.title = "天才地宝"
+            cfg.time = "当前暂未开放，开放后可通过本页直接参与"
+            cfg.desc = "活动开启后地图内将刷新稀有材料与宝物点位，率先找到并成功采集的玩家可带走当轮核心奖励。"
+            cfg.reward = "开放后公布活动奖励"
+        elseif i == 7 then
+            cfg.title = "天选之人"
+            cfg.time = table.concat(txzr.notice or {"30分钟一轮，共四轮开启"}, "；")
+            cfg.desc = "活动每轮会进行 roll 点排名，排名第一的玩家可获得额外奖励；若连续多轮第一，则不会重复获得同一件背包神器。"
+            cfg.reward = "参与奖励：" .. tostring((txzr.join_reward and txzr.join_reward.desc) or "8元真充") .. "\n额外奖励：每轮第一随机获得一件背包神器"
+        elseif i == 8 then
+            cfg.title = "正邪大战"
+            cfg.time = "当前暂未开放，开放后可通过本页直接参与"
+            cfg.desc = "活动开启后玩家将分为正邪两方进行阵营对抗，通过击杀、占点和团队推进累积优势，最终结算阵营胜负。"
+            cfg.reward = "开放后公布活动奖励"
+        elseif i == 9 then
+            cfg.title = "武林盟主"
+            cfg.time = "活动开启时可直接传送进入【比武大会】地图"
+            cfg.desc = "进入比武大会后进行全场混战，活动期间尽可能击败更多对手并保持生存，最终胜者可争夺武林盟主之位。"
+            cfg.reward = "胜者可获得盟主荣誉与活动结算奖励"
+        elseif i == 10 then
+            cfg.title = "敬请期待"
+            cfg.time = "该分页当前未启用"
+            cfg.desc = "该活动位目前仍为预留状态，后续有新活动接入时会直接补充到这里。"
+            cfg.reward = "暂无奖励信息"
+        elseif i == 11 then
+            cfg.title = "沙巴克"
+            cfg.time = "请通过沙巴克专属入口参与攻城"
+            cfg.desc = "沙巴克为大型行会攻城玩法，需要通过专属入口进入战场。争夺皇宫归属、守住核心据点即可拿下城主荣耀。"
+            cfg.reward = "行会奖励、城主特权与攻城专属收益"
+        elseif i == 12 then
+            cfg.title = "讨伐BOSS"
+            cfg.time = "当前暂未开放，开放后可通过本页直接参与"
+            cfg.desc = "活动开启后会投放特殊首领，玩家需要在限定时间内集火讨伐，按参与度与掉落归属结算奖励。"
+            cfg.reward = "开放后公布活动奖励"
+        elseif i == 13 then
+            cfg.title = "随机夺宝"
+            cfg.time = string.format("活动开启后在【%s】地图持续%s秒投放宝物", tostring(sjdb.map or "天降财宝"), tostring(sjdb.keep_sec or 300))
+            cfg.desc = "宝物会以三圈形式投放：外圈覆盖范围最大、中圈奖励提升、内圈数量最少但价值最高，越靠近中心收益越高。"
+            cfg.reward = "外圈：" .. makeRewardText(sjdb.circles and sjdb.circles[1] and sjdb.circles[1].drops)
+                .. "\n中圈：" .. makeRewardText(sjdb.circles and sjdb.circles[2] and sjdb.circles[2].drops)
+                .. "\n内圈：" .. makeRewardText(sjdb.circles and sjdb.circles[3] and sjdb.circles[3].drops)
+        elseif i == 14 then
+            cfg.title = "黑暗禁地"
+            cfg.time = "当前暂未开放，开放后可通过本页直接参与"
+            cfg.desc = "活动开启后可进入黑暗禁地探索高危区域，击败禁地怪物与首领，争夺更高阶的掉落与禁地专属收益。"
+            cfg.reward = "开放后公布活动奖励"
+        end
+
+        return cfg
+    end
+
+    local function GUI_createLabel_507(label, i)
+        GUI:removeAllChildren(label)
+        local cfg = getActivityDisplayCfg(i)
+        GUI:Image_Create(label, "img_bj", 6, 350, "res/custom/activity/img/img_" .. i .. ".png")
+
+        local btn = GUI:Button_Create(label, "btn", 340, 14, cfg.btnSkin or "res/custom/activity/btn.png")
         GUI:addOnClickEvent(btn, function()
             SL:SendLuaNetMsg(101, 507, 1, i, "")
         end)
-        local cfg = {
-            title = "活动名称",
-            map = "活动地图",
-            jl = {{"金币",1},{"天工之锤",1} ,{"金币",1},{"天工之锤",1} },
-            time = "活动时间",
-            tip = "活动具体规则说明",
-        }
 
-        local desc = GUI:RichText_Create(label, "time", 60, 180,
-                            "<font color='#00FF00' size='20' >"..cfg.time.."</font>\n"
-            , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-            GUI:setAnchorPoint(desc, 0.5, 1)
+        local title = GUI:Text_Create(label, "title", 22, 315, 24, "#F3E2B6", cfg.title or "")
+        GUI:Text_setFontName(title, "fonts/500.ttf")
+        GUI:Text_enableOutline(title, "#100808", 2)
 
-        local tip = GUI:RichText_Create(label, "tip", 60, 260,
-                            "<font color='#00FF00' size='20' >"..cfg.tip.."</font>\n"
-            , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-            GUI:setAnchorPoint(desc, 0, 1)
-
-        local jl = ItemNumByTable_img(cfg.jl, nil,GUI:Node_Create(label, "jl", 0, 0))
-            GUI:setPosition(jl, 90, 30)
-    
+        richText(label, "tip", 86, 252, 468, 18, "<font color='#f3e2b6' size='18'>" .. tostring(cfg.desc or "") .. "</font>")
+        richText(label, "time", 86, 153, 468, 18, "<font color='#9ff06b' size='18'>" .. tostring(cfg.time or "") .. "</font>")
+        richText(label, "reward", 86, 73, 468, 16, "<font color='#ffe07a' size='16'>" .. tostring(cfg.reward or "") .. "</font>")
     end
-    local titles = {"天选之人", "土城跑酷","随机夺宝","武林盟主"}
+
     local function renderActivity(node)
         GUI:removeAllChildren(node)
-
-
 
         npc.cbl_list = GUI:ListView_Create(node, "cbl_list", -20, 50, 300, 420, 1)
         GUI:ListView_setGravity(npc.cbl_list, 2)
         npc.Label = GUI:Node_Create(node, "Label", 250, 15)
 
-        npc.titles_sign = 1
+        npc.titles_sign = npc.titles_sign or 1
         for i = 1, 14 do
             local cbl_item = GUI:Button_Create(npc.cbl_list, "item" .. i, 0, 0, "res/custom/activity/list/"..(npc.titles_sign == i and "l" or "n").."/"..(npc.titles_sign == i and "l_" or "n_")..i..".png")
             GUI:setContentSize(cbl_item, GUI:getContentSize(cbl_item).width * 0.8, GUI:getContentSize(cbl_item).height * 0.8)
@@ -3713,7 +3873,7 @@ npc[507] = function(p2, p3, Data)
         -- GUI:setLocalZOrder(npc.title, 99)
         
         renderActivity(npc.node)
-        GUI_createLabel_507(npc.Label,1)
+        GUI_createLabel_507(npc.Label, npc.titles_sign or 1)
     end
 end
 
@@ -5288,46 +5448,22 @@ end
 
 ---主城跑酷面板
 npc[1000] = function(p2, p3, Data) -- 跑酷
-    if p2 == 1 then
-        local parent = GUI:GetWindow(nil, "npc_pkxjm")
-		if parent then
-			GUI:removeAllChildren(parent)
-			GUI:setPosition(parent, cogin.w / 2, cogin.h / 2)
-		else
-			parent = GUI:Win_Create("npc_pkxjm", cogin.w -350, cogin.h / 2, 0, 0, false, false, true, false, true, 0, 1)
-		end
-        npc.bg = GUI:Image_Create(parent, "img_bj", 0.00, 0.00, "res/wy/icon/hdtb_3.png")
-		GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
-		GUI:setTouchEnabled(npc.bg, true)
-		GUI:Timeline_Window3(npc.bg)
-        local txt = GUI:Text_Create(npc.bg, "Text", 10, -22, 14, "#ffffff","勾选自动跑酷")
-        GUI:Text_enableOutline(txt, "#000000", 1)
-        local CheckBox = GUI:CheckBox_Create(npc.bg, "CheckBox", -20, -22, "res/public/1900000550.png", "res/public/1900000551.png")
-        GUI:CheckBox_addOnEvent(CheckBox, function(self)
-            if GUI:CheckBox_isSelected(self) then
-                if SL:GetMetaValue("MAP_ID") == "xtc" then
-                    SL:SetMetaValue("BATTLE_MOVE_BEGIN", "xtc", math.random(128, 146), math.random(129, 147))
-                    SL:RegisterLUAEvent(LUA_EVENT_AUTOMOVEEND, "跑酷寻路结束", function()
-                        SL:SetMetaValue("BATTLE_MOVE_BEGIN", "xtc", math.random(128, 146), math.random(129, 147))
-                    end, parent)
-                else
-                    GUI:CheckBox_setSelected(self, false)
-                    SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#ff0500'>只能在土城才能使用</font></outline>")
-                end
-            else
-                SL:UnRegisterLUAEvent(LUA_EVENT_AUTOMOVEEND, "跑酷寻路结束")
-                SL:SetMetaValue("BATTLE_MOVE_END")
-            end
-        end)
-        SL:RegisterLUAEvent(LUA_EVENT_CLOSEWIN, "界面关闭_npc_paoku", function(winID)
-            if winID and winID == "npc_pkxjm" then
-                SL:UnRegisterLUAEvent(LUA_EVENT_AUTOMOVEEND, "跑酷寻路结束")
-                SL:UnRegisterLUAEvent(LUA_EVENT_CLOSEWIN, "界面关闭_npc_paoku")
-            end
-        end)
-    elseif p2 == 2 then
-        GUI:Win_CloseByID("npc_pkxjm")
-    end
+    -- if p2 == 1 then
+    --     local parent = GUI:GetWindow(nil, "npc_pkxjm")
+	-- 	if parent then
+	-- 		GUI:removeAllChildren(parent)
+	-- 		GUI:setPosition(parent, cogin.w / 2, cogin.h / 2)
+	-- 	else
+	-- 		parent = GUI:Win_Create("npc_pkxjm", cogin.w -350, cogin.h / 2, 0, 0, false, false, true, false, true, 0, 1)
+	-- 	end
+    --     npc.bg = GUI:Image_Create(parent, "img_bj", 0.00, 0.00, "res/wy/icon/hdtb_3.png")
+	-- 	GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
+	-- 	GUI:setTouchEnabled(npc.bg, true)
+	-- 	GUI:Timeline_Window3(npc.bg)
+        
+    -- elseif p2 == 2 then
+    --     GUI:Win_CloseByID("npc_pkxjm")
+    -- end
 end
 ---地图切换 --变暗
 npc[1002] = function(p2, p3, msgData) -- 地图切换
