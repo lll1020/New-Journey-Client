@@ -8,7 +8,7 @@
         <key>frame</key>
         <string>{{0,863},{416,262}}</string>
         <key>offset</key>
-        <string>{-154,89}</string>
+        <string>{-167,82}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
@@ -21,7 +21,7 @@
         <key>frame</key>
         <string>{{1656,0},{417,264}}</string>
         <key>offset</key>
-        <string>{-155,91}</string>
+        <string>{-168,84}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
@@ -34,7 +34,7 @@
         <key>frame</key>
         <string>{{1159,423},{419,263}}</string>
         <key>offset</key>
-        <string>{-160,90}</string>
+        <string>{-173,83}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
@@ -47,7 +47,7 @@
         <key>frame</key>
         <string>{{1656,419},{417,336}}</string>
         <key>offset</key>
-        <string>{-158,162}</string>
+        <string>{-171,155}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
@@ -60,7 +60,7 @@
         <key>frame</key>
         <string>{{1309,0},{419,345}}</string>
         <key>offset</key>
-        <string>{-159,171}</string>
+        <string>{-172,164}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
@@ -73,7 +73,7 @@
         <key>frame</key>
         <string>{{979,0},{421,328}}</string>
         <key>offset</key>
-        <string>{-161,154}</string>
+        <string>{-174,147}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
@@ -86,7 +86,7 @@
         <key>frame</key>
         <string>{{836,441},{427,321}}</string>
         <key>offset</key>
-        <string>{-167,148}</string>
+        <string>{-180,141}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
@@ -99,7 +99,7 @@
         <key>frame</key>
         <string>{{0,542},{519,319}}</string>
         <key>offset</key>
-        <string>{-165,146}</string>
+        <string>{-178,139}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
@@ -112,7 +112,7 @@
         <key>frame</key>
         <string>{{0,0},{540,338}}</string>
         <key>offset</key>
-        <string>{-151,137}</string>
+        <string>{-164,130}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
@@ -125,7 +125,7 @@
         <key>frame</key>
         <string>{{340,0},{479,333}}</string>
         <key>offset</key>
-        <string>{-91,112}</string>
+        <string>{-104,105}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
@@ -138,7 +138,7 @@
         <key>frame</key>
         <string>{{521,481},{463,313}}</string>
         <key>offset</key>
-        <string>{-77,90}</string>
+        <string>{-90,83}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
@@ -151,7 +151,7 @@
         <key>frame</key>
         <string>{{675,0},{439,302}}</string>
         <key>offset</key>
-        <string>{-62,85}</string>
+        <string>{-75,78}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
@@ -164,7 +164,7 @@
         <key>frame</key>
         <string>{{836,870},{335,260}}</string>
         <key>offset</key>
-        <string>{-70,85}</string>
+        <string>{-83,78}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
@@ -177,7 +177,7 @@
         <key>frame</key>
         <string>{{1159,844},{344,260}}</string>
         <key>offset</key>
-        <string>{-84,85}</string>
+        <string>{-97,78}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
@@ -190,7 +190,7 @@
         <key>frame</key>
         <string>{{1424,838},{361,263}}</string>
         <key>offset</key>
-        <string>{-101,86}</string>
+        <string>{-114,79}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>

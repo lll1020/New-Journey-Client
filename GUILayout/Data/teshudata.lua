@@ -1443,7 +1443,7 @@ teshudata = {
         name = "装扮",
         details = {
             sz = {
-                {name = "时装：首充", sEffect = 60037, shape = 1301,attr = {{244,18888}}},
+                {name = "时装：首充", sEffect = 60048, shape = 1312,attr = {{244,18888}}},
                 {name = "时装：虫豸", sEffect = 60038, shape = 1302,attr = {{244,18888}}},
                 {name = "时装：骷髅", sEffect = 60039, shape = 1303,attr = {{244,18888}}},
                 {name = "时装：4大陆", sEffect = 60040, shape = 1304,attr = {{244,18888}}},
@@ -2225,8 +2225,8 @@ teshudata = {
         ch = "头号玩家"
     },
     ["anniu_506"] = {
-        "128元真实充值","98元真实充值","88元真实充值","68元真实充值","58元真实充值","38元真实充值","28元真实充值","18元真实充值","10元真实充值","5元真实充值",
-        join_reward = {item = "1元真实充值", count = 8, desc = "8元真充"},
+        "120元真实充值","90元真实充值","80元真实充值","70元真实充值","60元真实充值","50元真实充值","40元真实充值","30元真实充值","20元真实充值","10元真实充值",
+        join_reward = {item = "5元真实充值", count = 1, desc = "5元真实充值"},
         shenqi = {
             {name = "天选之子", effect = "全属性+1%"},
             {name = "光速起步", effect = "杀怪经验+3%、杀怪爆率+5%"},
@@ -2264,10 +2264,12 @@ teshudata = {
         },
         -- 全民答题（答题提交走 npc[507]）
         qmdt = {
-            start_minute = 33,
-            duration_min = 5,
-            question_count = 5,
-            per_question_sec = 60,
+            start_minute = 33,           -- 活动开启分钟（开服后第几分钟）
+            duration_min = 8,            -- 活动总时长（分钟），至少覆盖全部题目
+            question_count = 4,          -- 题目数量，当前共 4 轮
+            per_question_sec = 120,      -- 每题答题时长（秒）
+            base_score = 100,            -- 每题答对基础积分
+            time_bonus_per_sec = 1,      -- 时间奖励系数（每剩余 1 秒额外奖励多少积分）
             mail_title = "全民答题",
             rank_rewards = {
                 {rank = 1, items = {{"元宝", 50000}, {"5元真实充值", 1}}},
@@ -2276,13 +2278,10 @@ teshudata = {
             },
             join_reward = {{"金币", 500000}},
             questions = {
-                {title = "传奇里通常用于补给血量的药品是?", options = {"魔法药", "太阳水", "毒药", "随机石"}, answer = 2, score = 10},
-                {title = "下列哪个更偏向提升打怪效率?", options = {"打怪爆率", "回城石", "聊天字体", "交易税"}, answer = 1, score = 10},
-                {title = "行会战中最关键的是?", options = {"个人单挑", "团队配合", "挂机观战", "只看战力"}, answer = 2, score = 10},
-                {title = "以下哪项通常属于货币类奖励?", options = {"元宝", "称号", "时装外观", "地图特效"}, answer = 1, score = 10},
-                {title = "活动期间提交答案应通过哪个入口?", options = {"npc[506]", "npc[507]", "npc[511]", "npc[9999]"}, answer = 2, score = 10},
-                {title = "随机夺宝投放的核心是?", options = {"固定单点", "三圈投放", "只发邮件", "只开传送"}, answer = 2, score = 10},
-                {title = "武林盟主活动当前使用的地图键是?", options = {"武林盟主", "比武大会", "阵营对抗", "天降财宝"}, answer = 2, score = 10},
+                {title = "传奇里通常用于补给血量的药品是?", options = {"魔法药", "太阳水", "毒药", "随机石"}, answer = 2, score = 100},
+                {title = "下列哪个更偏向提升打怪效率?", options = {"打怪爆率", "回城石", "聊天字体", "交易税"}, answer = 1, score = 100},
+                {title = "行会战中最关键的是?", options = {"个人单挑", "团队配合", "挂机观战", "只看战力"}, answer = 2, score = 100},
+                {title = "以下哪项通常属于货币类奖励?", options = {"元宝", "称号", "时装外观", "地图特效"}, answer = 1, score = 100},
             },
         },
         -- 全民夺矿（每日定时活动，支持 bot 触发）
@@ -2290,10 +2289,20 @@ teshudata = {
             start_minute = 26,
             duration_min = 8,
             map = "全民夺矿",
-            score_tick_sec = 10,
-            score_per_tick = 1,
+            score_tick_sec = 1,
             score_var_prefix = "全民夺矿",
-            panel_idx = 3,
+            prepare_sec = 10,
+            collect_sec = 3,
+            collect_range = 3,
+            ore_mob = "大矿石",
+            initial_ore_count = 20,
+            respawn_sec = 10,
+            spawn_try_count = 30,
+            spawn_radius = 20,
+            carry_buff = 20115,
+            deliver_pos = {21, 20},
+            deliver_range = 3,
+            deliver_score = 50,
             mail_title = "全民夺矿",
             rank_rewards = {
                 {rank = 1, items = {{"元宝", 50000}, {"5元真实充值", 1}}},

@@ -3321,6 +3321,7 @@ npc[501] = function(p2, p3, Data) -- 首冲礼包
         local rowItemStepX = 58
 
         GUI:Image_Create(node, "bg", 0, 0, "res/custom/top/shochong/bg.png")
+        GUI:Effect_Create(node, "eff", 500, 260, 0, 60048)
 
         for i = 1, max do
             local rowRewards = rewardList[i] and (rewardList[i].show or rewardList[i].jl) or {}
@@ -3369,6 +3370,8 @@ npc[501] = function(p2, p3, Data) -- 首冲礼包
         GUI:setAnchorPoint(tip, 0.5, 0.5)
         GUI:Text_setFontName(tip, "fonts/500.ttf")
         GUI:Text_enableOutline(tip, "#5a1d0c", 2)
+
+        
     end
 
     if p2 == 0 then
