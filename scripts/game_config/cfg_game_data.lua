@@ -121,7 +121,7 @@ local config = {
     },
     ["PCFontConfig"] = {
         k="PCFontConfig",
-        value="2#12",
+        value="1#12",
     },
     ["PCMainMiniMapSize"] = {
         k="PCMainMiniMapSize",
@@ -150,6 +150,10 @@ local config = {
     ["Redtips"] = {
         k="Redtips",
         value="res\\custom\\public\\btn_npcfh_04.png|res\\custom\\hl\\hl_ui\\icon_red_01.png",
+    },
+    ["SUI_FONT_PATH"] = {
+        value="fonts/font4.ttf",
+        k="SUI_FONT_PATH",
     },
     ["ShowBuffList"] = {
         k="ShowBuffList",
