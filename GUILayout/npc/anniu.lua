@@ -82,7 +82,7 @@ local WINDOW_STYLE = {
     chosen = {       -- 天选之人
         windowName = "npc_txzz",
         overlay = {skin = "res/public/1900000651_1.png"},
-        background = {skin = "res/wy/public/anniu_506_bj.png"},
+        background = {skin = "res/custom/activity/tx.png"},
         closeButton = {x = 800, y = 400, skin = "res/wy/public/close_red_big.png"},
     },
     activity = {     -- 游戏活动
@@ -3635,38 +3635,24 @@ npc[506] = function(p2, p3, Data)
 
         local bg = npc.bg
 
-        local dq = 1
         local Node = GUI:Node_Create(bg, "Node", 0, 0)
-        local function updatePage()
-            GUI:removeAllChildren(Node)
-            GUI:setAnchorPoint(GUI:Text_Create(Node, "ds", 810, 127, 20, "#E317B3", payload.T_txzr[dq]), 0.50, 0.50)
-            GUI:setAnchorPoint(GUI:Text_Create(Node, "kqfz", 810,100, 20, "#E317B3", payload.kqsj .. "分钟"), 0.50, 0.50)
-            local djs = GUI:Text_Create(Node, "djs", 810,73, 20, "#E317B3", 0)
-            GUI:setAnchorPoint(djs, 0.50, 0.50)
-            GUI:Text_COUNTDOWN(djs, ((payload.G_txzz_2 + 1) * 20 - payload.kqsj) * 60)
+        local function updatePage(dq)
             for i = 1, 10 do
-                GUI:setAnchorPoint(GUI:RichText_Create(Node, "jl"..i, 440, 360-(i-1)*22,  ItemNumByTable({{cogin.teshudata["anniu_506"][i],1}}), 500, 14, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")}), 0.50, 0.50)
-                local name = (payload.A_txzz and payload.A_txzz["md"..dq] and payload.A_txzz["md"..dq][i] and payload.A_txzz["md"..dq][i][1]) or "未开"
+                local name = (payload.A_txzz and payload.A_txzz["md"..dq] and payload.A_txzz["md"..dq][i] and payload.A_txzz["md"..dq][i][1]) or "未开奖"
                 local value = (payload.A_txzz and payload.A_txzz["md"..dq] and payload.A_txzz["md"..dq][i] and payload.A_txzz["md"..dq][i][2]) or "0"
-                local nameLabel = GUI:Text_Create(Node, "name"..i, 600, 360-(i-1)*22, 14, "#E317B3", name)
-                GUI:setAnchorPoint(nameLabel, 0.5, 0.5)
-                GUI:Text_enableOutline(nameLabel, "#000000", 1)
-                local valLabel = GUI:Text_Create(Node, "value"..i, 760, 360-(i-1)*22, 14, "#E317B3", value)
+                local nameLabel = GUI:ScrollText_Create(Node, "name"..dq..""..i, 600 - 474 + ((dq - 1) * 185), 360 - 70-(i-1)*20, 90, 12, "#E317B3", name, 10, nil)
+                GUI:setAnchorPoint(nameLabel, 0.5, 0.5)                
+                local valLabel = GUI:Text_Create(Node, "value"..dq..""..i, 760 - 562 + ((dq - 1) * 185), 360 - 70-(i-1)*20, 12, "#E317B3", value)
                 GUI:setAnchorPoint(valLabel, 0.5, 0.5)
                 GUI:Text_enableOutline(valLabel, "#000000", 1)
             end
         end
-
-        for i = 1, 4 do
-            local btn = GUI:Button_Create(bg, 'btn'..i, 200 + (i-1)*150, 400, "res/wy/public/anniu_506_l_"..i..".png")
-            GUI:addOnClickEvent(btn, function()
-                if i ~= dq then
-                    dq = i
-                    updatePage()
-                end
-            end)
-        end
-        updatePage()
+        updatePage(1)
+        updatePage(2)
+        updatePage(3)
+        updatePage(4)
+        
+        GUI:setPosition(ItemNumByTable_img_new({{"天选之子",1},{"光速起步",1},{"策划的手机",1},{"技术的电脑",1},}, nil,GUI:Node_Create(Node, "jl_show", 0, 0)), 400 + 111, 110 + 112 + 147)
     end
 
     if p3 == 0 then
