@@ -1,0 +1,776 @@
+local npc = {
+    currentTab = 1,
+    selectedMilestoneIdx = nil,
+}
+
+npc._config = teshudata["npc_101"]
+
+local WINDOW_OPTS = {
+    background = {skin = "res/custom/msfc/panel_bg.png"},
+    closeButton = {x = 782, y = 470},
+    title = {x = 80, y = 464, skin = "res/custom/msfc/title.png"},
+}
+
+local TAB_SKINS = {
+    [1] = {
+        light = "res/custom/msfc/tabs/tab1/state_2.png",
+        dark = "res/custom/msfc/tabs/tab1/state_1.png",
+    },
+    [2] = {
+        light = "res/custom/msfc/tabs/tab2/state_2.png",
+        dark = "res/custom/msfc/tabs/tab2/state_1.png",
+    },
+}
+
+local PAGE_BG_SKIN = {
+    [1] = "res/custom/msfc/page1/bg.png",
+    [2] = "res/custom/msfc/page2/bg.png",
+}
+
+local BOX_NAME = {
+    low = "低级材料自选箱",
+    high = "高级材料自选箱",
+    super = "特级材料自选箱",
+}
+
+local BOX_P2 = {
+    low = 1,
+    high = 2,
+    super = 3,
+}
+
+local UI_updata
+
+local function toNumber(value, defaultValue)
+    local num = tonumber(value)
+    if num == nil then
+        return defaultValue or 0
+    end
+    return num
+end
+
+local function safeDecode(msgData)
+    if type(msgData) ~= "string" or msgData == "" then
+        return nil
+    end
+    return SL:JsonDecode(msgData, false)
+end
+
+local function ensureData(data)
+    data = data or {}
+    data.T_data = data.T_data or {}
+    data.box_counts = data.box_counts or {}
+    data.logs = data.logs or {}
+    data.placeholder = data.placeholder or {}
+    data.T_data.claim_normal = data.T_data.claim_normal or {}
+    data.T_data.claim_crown = data.T_data.claim_crown or {}
+    data.T_data.box_counts = data.T_data.box_counts or {}
+    return data
+end
+
+local function getConfig()
+    return npc._config or {}
+end
+
+local function getConfigValue(field, defaultValue)
+    local cfg = getConfig()
+    local value = cfg[field]
+    if value == nil then
+        return defaultValue
+    end
+    return value
+end
+
+local function getTokenName()
+    return (npc.data and npc.data.token_name) or getConfigValue("token_name", getConfigValue("name", "抽奖次数"))
+end
+
+local function getDrawOnceCost()
+    return toNumber((npc.data and npc.data.draw_once_cost), toNumber(getConfigValue("draw_once_cost", 1), 1))
+end
+
+local function getDrawTenCost()
+    return toNumber((npc.data and npc.data.draw_ten_cost), toNumber(getConfigValue("draw_ten_cost", 10), 10))
+end
+
+local function getBuyCost()
+    return (npc.data and npc.data.buy_cost) or getConfigValue("buy_cost", {})
+end
+
+local function getBuyCostText()
+    local buyCost = getBuyCost()
+    if type(buyCost) == "table" and type(buyCost[1]) == "table" then
+        return tostring(toNumber(buyCost[1][2], 0))
+    end
+    return "0"
+end
+
+local function getDayCardConfig()
+    return getConfigValue("day_card", {}) or {}
+end
+
+local function getDayCardNeedCharge()
+    return toNumber((npc.data and npc.data.day_card_need_charge), toNumber(getDayCardConfig().need_charge, 28))
+end
+
+local function getDayCardTitleName()
+    return tostring((getDayCardConfig().title or "日卡"))
+end
+
+local function getExchangeNeed()
+    return toNumber((npc.data and npc.data.exchange_need), toNumber(getConfigValue("kill_per_exchange", 188), 188))
+end
+
+local function getExchangeLimit()
+    return toNumber((npc.data and npc.data.exchange_limit), toNumber(getConfigValue("exchange_daily_limit", 50), 50))
+end
+
+local function getBoxPool(boxType)
+    local cfg = getConfig()
+    local boxPool = cfg.box_pool or {}
+    return boxPool[boxType] or {}
+end
+
+local function getBoxCount(boxType)
+    local dataCounts = npc.data and npc.data.box_counts
+    if type(dataCounts) == "table" and dataCounts[boxType] ~= nil then
+        return toNumber(dataCounts[boxType], 0)
+    end
+    local tDataCounts = npc.data and npc.data.T_data and npc.data.T_data.box_counts
+    if type(tDataCounts) == "table" then
+        return toNumber(tDataCounts[boxType], 0)
+    end
+    return 0
+end
+
+local function getHasCrown()
+    if npc.data and npc.data.has_crown ~= nil then
+        return toNumber(npc.data.has_crown, 0) == 1
+    end
+    return false
+end
+
+local function getMilestones()
+    local milestones = {}
+    local src = getConfigValue("milestones", {})
+    for idx, cfg in pairs(src) do
+        if type(cfg) == "table" then
+            table.insert(milestones, {
+                idx = toNumber(idx, 0),
+                draw = toNumber(cfg.draw, 0),
+                normal = cfg.normal,
+                crown = cfg.crown,
+            })
+        end
+    end
+    table.sort(milestones, function(a, b)
+        return a.draw < b.draw
+    end)
+    return milestones
+end
+
+local function findMilestoneByIdx(targetIdx)
+    for _, cfg in ipairs(getMilestones()) do
+        if cfg.idx == targetIdx then
+            return cfg
+        end
+    end
+    return nil
+end
+
+local function getMilestoneImage(draw)
+    local skin = string.format("res/custom/msfc/page1/numbers/%s.png", tostring(draw))
+    if SL and SL.IsFileExist and SL:IsFileExist(skin) then
+        return skin
+    end
+    return nil
+end
+
+local function getRewardEntries(rewardPack)
+    local list = {}
+
+    local function pushEntry(name, count, label)
+        if type(name) ~= "string" or name == "" then
+            return
+        end
+
+        local realName = name
+        local itemIndex = toNumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", realName), 0)
+        if itemIndex <= 0 and not string.find(realName, "%[称号%]") then
+            local titleName = realName .. "[称号]"
+            local titleIndex = toNumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", titleName), 0)
+            if titleIndex > 0 then
+                realName = titleName
+                itemIndex = titleIndex
+            end
+        end
+
+        table.insert(list, {
+            name = realName,
+            count = toNumber(count, 1),
+            label = label or name,
+            index = itemIndex,
+        })
+    end
+
+    local function parseReward(reward)
+        if type(reward) ~= "table" then
+            return
+        end
+        local kind = tostring(reward.kind or "item")
+        if kind == "item" then
+            for _, give in ipairs(reward.give or {}) do
+                pushEntry(give[1], give[2], reward.label)
+            end
+        elseif kind == "title" then
+            pushEntry((reward.name or "") .. "[称号]", 1, reward.label or reward.name)
+        elseif kind == "fashion" or kind == "footstep" then
+            pushEntry(reward.name or reward.label or kind, 1, reward.label or reward.name or kind)
+        elseif kind == "box" then
+            pushEntry(reward.label or BOX_NAME[reward.box] or "自选箱", reward.num or 1, reward.label or BOX_NAME[reward.box])
+        elseif kind == "placeholder" then
+            pushEntry(reward.label or reward.name or "占位奖励", reward.num or 1, reward.label or reward.name)
+        end
+    end
+
+    if type(rewardPack) == "table" then
+        parseReward(rewardPack.main)
+        parseReward(rewardPack.extra)
+    end
+
+    return list
+end
+
+local function getTodayRechargeValue()
+    local candidates = {
+        npc.data and npc.data.today_charge,
+        npc.data and npc.data.day_recharge,
+        npc.data and npc.data.today_recharge,
+        npc.data and npc.data.rika_recharge,
+        npc.data and npc.data.daily_recharge,
+    }
+    for _, value in ipairs(candidates) do
+        if tonumber(value) then
+            return tonumber(value)
+        end
+    end
+    return toNumber(SL:GetMetaValue("TMONEY", "累计充值"), 0)
+end
+
+local function getDayCardRewards()
+    local cfg = getDayCardConfig()
+    local rewards = {}
+
+    local titleName = getDayCardTitleName()
+    if titleName ~= "" then
+        table.insert(rewards, {titleName .. "[称号]", 1})
+    end
+
+    for _, reward in ipairs(cfg.rewards or {}) do
+        if type(reward) == "table" and type(reward[1]) == "string" then
+            table.insert(rewards, {reward[1], toNumber(reward[2], 1)})
+        end
+    end
+
+    return rewards
+end
+
+local function getDayCardButtonState()
+    local claimed = toNumber(npc.data and (npc.data.day_card_claimed or npc.data.rika_claimed), 0) == 1
+    local canClaim = (not claimed) and getTodayRechargeValue() >= getDayCardNeedCharge()
+    return canClaim, claimed
+end
+
+local function isMilestoneClaimed(idx, isCrown)
+    local T_data = (npc.data and npc.data.T_data) or {}
+    local bucket = isCrown and (T_data.claim_crown or {}) or (T_data.claim_normal or {})
+    return toNumber(bucket[tostring(idx)], 0) == 1
+end
+
+local function canClaimMilestone(cfg, isCrown)
+    if not cfg then
+        return false
+    end
+    if isMilestoneClaimed(cfg.idx, isCrown) then
+        return false
+    end
+    if toNumber(npc.data and npc.data.draw_count, 0) < toNumber(cfg.draw, 0) then
+        return false
+    end
+    if isCrown and not getHasCrown() then
+        return false
+    end
+    return true
+end
+
+local function getHighestClaimableMilestone(isCrown)
+    local target = nil
+    for _, cfg in ipairs(getMilestones()) do
+        if canClaimMilestone(cfg, isCrown) then
+            target = cfg
+        end
+    end
+    return target
+end
+
+local function pickDefaultMilestone()
+    local milestones = getMilestones()
+    if #milestones == 0 then
+        npc.selectedMilestoneIdx = 1
+        return
+    end
+
+    if findMilestoneByIdx(npc.selectedMilestoneIdx) then
+        return
+    end
+
+    local highestNormal = getHighestClaimableMilestone(false)
+    local highestCrown = getHighestClaimableMilestone(true)
+    if highestNormal or highestCrown then
+        npc.selectedMilestoneIdx = (highestCrown and highestCrown.idx) or (highestNormal and highestNormal.idx)
+        return
+    end
+
+    for _, cfg in ipairs(milestones) do
+        if not isMilestoneClaimed(cfg.idx, false) or not isMilestoneClaimed(cfg.idx, true) then
+            npc.selectedMilestoneIdx = cfg.idx
+            return
+        end
+    end
+
+    npc.selectedMilestoneIdx = milestones[1].idx
+end
+
+local function setTextStyle(widget, outlineColor)
+    if not widget then
+        return
+    end
+    GUI:Text_setFontName(widget, "fonts/font4.ttf")
+    GUI:Text_enableOutline(widget, outlineColor or "#100808", 2)
+end
+
+local function createTopBar(parent, name, x, y, title, value, color, onClick)
+    local bar = GUI:Image_Create(parent, name, x, y, "res/custom/msfc/page1/top_bar.png")
+    GUI:setAnchorPoint(bar, 0, 0)
+    if onClick then
+        GUI:setTouchEnabled(bar, true)
+        GUI:addOnClickEvent(bar, onClick)
+    end
+
+    local titleText = GUI:Text_Create(bar, "title", 12, 0, 16, "#f3e8ce", tostring(title))
+    setTextStyle(titleText)
+    GUI:Text_setFontName(titleText, "fonts/font4.ttf")
+
+    local valueText = GUI:Text_Create(bar, "value", 160, 0, 16, color or "#ffe07a", tostring(value))
+    GUI:setAnchorPoint(valueText, 1, 0)
+    setTextStyle(valueText)
+    GUI:Text_setFontName(valueText, "fonts/font4.ttf")
+    return bar
+end
+
+local function createRewardCell(parent, name, x, y, rewardPack, stateText, stateColor, onClick)
+    local node = GUI:Node_Create(parent, name, x, y)
+    GUI:setContentSize(node, 50, 68)
+
+    local bg = GUI:Image_Create(node, "bg", 0, 14, "res/custom/msfc/page1/item_box.png")
+    GUI:setAnchorPoint(bg, 0, 0)
+    if onClick then
+        GUI:setTouchEnabled(bg, true)
+        GUI:addOnClickEvent(bg, onClick)
+    end
+
+    local entries = getRewardEntries(rewardPack)
+    local reward = entries[1]
+    if reward then
+        if reward.index > 0 then
+            local item = GUI:ItemShow_Create(bg, "item", 25, 26, {index = reward.index, look = true})
+            GUI:setAnchorPoint(item, 0.5, 0.5)
+        else
+            local rich = GUI:RichText_Create(bg, "label", 25, 27, reward.label or reward.name, 44, 11, "#f0c14b", 1, nil, nil)
+            GUI:setAnchorPoint(rich, 0.5, 0.5)
+        end
+
+        if reward.count > 1 then
+            local numText = GUI:Text_Create(bg, "num", 25, 1, 12, "#ffffff", tostring(reward.count))
+            GUI:setAnchorPoint(numText, 0.5, 0)
+            setTextStyle(numText, "#000000")
+        end
+    end
+
+    if stateText and stateText ~= "" then
+        local state = GUI:Text_Create(node, "state", 25, 0, 12, stateColor or "#ffe07a", stateText)
+        GUI:setAnchorPoint(state, 0.5, 0)
+        setTextStyle(state)
+    end
+
+    return node
+end
+
+local function closeBoxPopup()
+    if npc.boxPopup then
+        GUI:removeFromParent(npc.boxPopup)
+        npc.boxPopup = nil
+    end
+end
+
+local function openBoxPopup(boxType)
+    closeBoxPopup()
+
+    local boxPool = getBoxPool(boxType)
+    if #boxPool <= 0 then
+        SL:ShowSystemTips("当前没有可选奖励")
+        return
+    end
+
+    npc.boxPopup = GUI:Node_Create(npc.bg, "box_popup", 0, 0)
+
+    local overlay = GUI:Image_Create(npc.boxPopup, "overlay", 0, 0, "res/public/1900000651_1.png")
+    GUI:setAnchorPoint(overlay, 0, 0)
+    GUI:setContentSize(overlay, 818, 542)
+    GUI:setIgnoreContentAdaptWithSize(overlay, false)
+    GUI:setTouchEnabled(overlay, true)
+    GUI:addOnClickEvent(overlay, function()
+        closeBoxPopup()
+    end)
+
+    local panel = GUI:Image_Create(npc.boxPopup, "panel", 409, 271, "res/wy/public/500-300.png")
+    GUI:setAnchorPoint(panel, 0.5, 0.5)
+    GUI:setContentSize(panel, 460, 290)
+    GUI:setIgnoreContentAdaptWithSize(panel, false)
+    GUI:setTouchEnabled(panel, true)
+
+    local title = GUI:Text_Create(panel, "title", 230, 262, 22, "#ffe07a", BOX_NAME[boxType] or "材料自选箱")
+    GUI:setAnchorPoint(title, 0.5, 0.5)
+    setTextStyle(title)
+
+    local closeBtn = GUI:Button_Create(panel, "close", 432, 260, "res/wy/public/close_red_big.png")
+    GUI:addOnClickEvent(closeBtn, function()
+        closeBoxPopup()
+    end)
+
+    local list = GUI:ListView_Create(panel, "list", 26, 24, 408, 210, 2)
+    GUI:ListView_setItemsMargin(list, 12)
+    GUI:ListView_setBounceEnabled(list, true)
+
+    for idx, reward in ipairs(boxPool) do
+        local itemNode = GUI:Node_Create(list, "item_" .. tostring(idx), 0, 0)
+        GUI:setContentSize(itemNode, 124, 98)
+
+        local btn = GUI:Button_Create(itemNode, "btn", 0, 0, "res/public/1900000660.png")
+        GUI:setAnchorPoint(btn, 0, 0)
+        GUI:setContentSize(btn, 124, 98)
+        GUI:setIgnoreContentAdaptWithSize(btn, false)
+        GUI:addOnClickEvent(btn, function()
+            SL:SendLuaNetMsg(100, 101, 7, BOX_P2[boxType] or 0, SL:JsonEncode({
+                box_type = boxType,
+                idx = idx,
+            }, false))
+            closeBoxPopup()
+        end)
+
+        local rewardEntries = getRewardEntries({main = reward})
+        local entry = rewardEntries[1]
+        if entry and entry.index > 0 then
+            local item = GUI:ItemShow_Create(btn, "item", 62, 60, {index = entry.index, look = true})
+            GUI:setAnchorPoint(item, 0.5, 0.5)
+        end
+
+        local label = GUI:RichText_Create(btn, "label", 62, 18, reward.label or (entry and entry.label) or "选择", 110, 13, "#f7f7de", 1, nil, nil)
+        GUI:setAnchorPoint(label, 0.5, 0.5)
+    end
+end
+
+local function createTabs(node)
+    local tabY = {
+        [1] = 247,
+        [2] = 123,
+    }
+
+    for idx = 1, 2 do
+        local skin = (npc.currentTab == idx) and TAB_SKINS[idx].light or TAB_SKINS[idx].dark
+        local btn = GUI:Button_Create(node, "tab_" .. tostring(idx), 6, tabY[idx], skin)
+        GUI:setAnchorPoint(btn, 0, 0)
+        GUI:addOnClickEvent(btn, function()
+            if npc.currentTab ~= idx then
+                npc.currentTab = idx
+                closeBoxPopup()
+                if npc.node and UI_updata then
+                    UI_updata(npc.node)
+                end
+            end
+        end)
+    end
+end
+
+local function createMilestoneList(parent)
+    local list = GUI:ListView_Create(parent, "milestone_list", 524, 65, 252, 346, 1)
+    GUI:ListView_setItemsMargin(list, 8)
+    GUI:ListView_setBounceEnabled(list, true)
+
+    for order, cfg in ipairs(getMilestones()) do
+        local row = GUI:Node_Create(list, "row_" .. tostring(cfg.idx), 0, 0)
+        GUI:setContentSize(row, 244, 70)
+
+        local drawSkin = getMilestoneImage(cfg.draw)
+        if drawSkin then
+            local numImg = GUI:Image_Create(row, "draw", -20, 2, drawSkin)
+            GUI:setAnchorPoint(numImg, 0, 0)
+            GUI:setTouchEnabled(numImg, true)
+            GUI:addOnClickEvent(numImg, function()
+                npc.selectedMilestoneIdx = cfg.idx
+                if npc.node and UI_updata then
+                    UI_updata(npc.node)
+                end
+            end)
+        else
+            local drawText = GUI:Text_Create(row, "draw_text", 10, 18, 28, "#ffe07a", tostring(cfg.draw))
+            setTextStyle(drawText)
+        end
+
+        local normalStateText = nil
+        local normalStateColor = nil
+        if isMilestoneClaimed(cfg.idx, false) then
+            normalStateText = "已领"
+            normalStateColor = "#45ff93"
+        elseif canClaimMilestone(cfg, false) then
+            normalStateText = "可领"
+            normalStateColor = "#ffe07a"
+        end
+
+        local crownStateText = nil
+        local crownStateColor = nil
+        if isMilestoneClaimed(cfg.idx, true) then
+            crownStateText = "已领"
+            crownStateColor = "#45ff93"
+        elseif canClaimMilestone(cfg, true) then
+            crownStateText = "可领"
+            crownStateColor = "#ffe07a"
+        elseif not getHasCrown() then
+            crownStateText = "未冠名"
+            crownStateColor = "#ff6666"
+        end
+
+        createRewardCell(row, "normal_" .. tostring(cfg.idx), 118 + 15, 40, cfg.normal, normalStateText, normalStateColor, function()
+            npc.selectedMilestoneIdx = cfg.idx
+            if npc.node and UI_updata then
+                UI_updata(npc.node)
+            end
+        end)
+
+        createRewardCell(row, "crown_" .. tostring(cfg.idx), 188 + 37, 40, cfg.crown, crownStateText, crownStateColor, function()
+            npc.selectedMilestoneIdx = cfg.idx
+            if npc.node and UI_updata then
+                UI_updata(npc.node)
+            end
+        end)
+    end
+end
+
+function npc.renderFucai(node)
+    GUI:Image_Create(node, "page_bg", 64, 10, PAGE_BG_SKIN[1])
+
+    pickDefaultMilestone()
+
+    local tokenName = getTokenName()
+    createTopBar(node, "token_bar", 162 + 74, 458 + 8, tokenName, toNumber(npc.data and npc.data.token_count, 0), "#ffe07a")
+    createTopBar(node, "draw_bar", 162 + 264, 458 + 8, "累计抽取", toNumber(npc.data and npc.data.draw_count, 0), "#45ff93")
+    createTopBar(node, "crown_bar", 162 + 454, 458 + 8, getConfigValue("crown_title", "冠名") .. "状态", getHasCrown() and "已达成" or "未达成", getHasCrown() and "#45ff93" or "#ff6666")
+
+    local onceCost = GUI:Text_Create(node, "cost_once_value", 188, 135, 20, "#ffe07a", string.format("%sX%s", tokenName, tostring(getDrawOnceCost())))
+    setTextStyle(onceCost)
+    GUI:Text_enableUnderline(onceCost)
+    local tenCost = GUI:Text_Create(node, "cost_ten_value", 382, 135, 20, "#ffe07a", string.format("%sX%s", tokenName, tostring(getDrawTenCost())))
+    setTextStyle(tenCost)
+    GUI:Text_enableUnderline(tenCost)
+
+    local drawOnceBtn = GUI:Button_Create(node, "draw_once", 144 - 60, 82 - 25, "res/custom/msfc/page1/draw_once.png")
+    GUI:setAnchorPoint(drawOnceBtn, 0, 0)
+    GUI:addOnClickEvent(drawOnceBtn, function()
+        SL:SendLuaNetMsg(100, 101, 1, 0, "")
+    end)
+
+    local drawTenBtn = GUI:Button_Create(node, "draw_ten", 378 - 60, 82 - 25, "res/custom/msfc/page1/draw_ten.png")
+    GUI:setAnchorPoint(drawTenBtn, 0, 0)
+    GUI:addOnClickEvent(drawTenBtn, function()
+        SL:SendLuaNetMsg(100, 101, 2, 0, "")
+    end)
+
+    if toNumber(npc.data and npc.data.token_count, 0) < getDrawOnceCost() then
+        GUI:setOpacity(drawOnceBtn, 180)
+    end
+    if toNumber(npc.data and npc.data.token_count, 0) < getDrawTenCost() then
+        GUI:setOpacity(drawTenBtn, 180)
+    end
+
+    -- local exchangeRich = GUI:RichText_Create(node, "exchange_tips", 74, 30, string.format("每击杀<font color='#ff3030'>%s</font>只怪可兑换1个", tostring(getExchangeNeed())), 250, 18, "#f3e8ce", 0, nil, nil)
+    -- GUI:setAnchorPoint(exchangeRich, 0, 0.5)
+
+    -- local exchangeProgress = GUI:Text_Create(node, "exchange_progress", 74, 12, 16, "#8fd6ff",
+    --     string.format("当前进度：%s/%s  今日剩余可兑：%s/%s",
+    --         tostring(toNumber(npc.data and npc.data.exchange_progress, 0)),
+    --         tostring(getExchangeNeed()),
+    --         tostring(toNumber(npc.data and npc.data.exchange_available, 0)),
+    --         tostring(getExchangeLimit())
+    --     )
+    -- )
+    -- setTextStyle(exchangeProgress)
+
+    local exchangeBtn = GUI:Button_Create(node, "exchange", 322 - 90, 17, "res/custom/msfc/page1/action_1.png")
+    GUI:setAnchorPoint(exchangeBtn, 0, 0)
+    GUI:addOnClickEvent(exchangeBtn, function()
+        SL:SendLuaNetMsg(100, 101, 3, 1, SL:JsonEncode({count = 1}, false))
+    end)
+    if toNumber(npc.data and npc.data.exchange_available, 0) <= 0 then
+        GUI:setOpacity(exchangeBtn, 180)
+    end
+
+    -- local buyRich = GUI:RichText_Create(node, "buy_tips", 426, 30, string.format("<font color='#ff3030'>%s</font>灵石可购买1个", getBuyCostText()), 180, 18, "#f3e8ce", 0, nil, nil)
+    -- GUI:setAnchorPoint(buyRich, 0, 0.5)
+
+    local buyBtn = GUI:Button_Create(node, "buy", 608 - 180, 17, "res/custom/msfc/page1/action_2.png")
+    GUI:setAnchorPoint(buyBtn, 0, 0)
+    GUI:addOnClickEvent(buyBtn, function()
+        SL:SendLuaNetMsg(100, 101, 4, 1, SL:JsonEncode({count = 1}, false))
+    end)
+
+    createMilestoneList(node)
+
+    local selected = findMilestoneByIdx(npc.selectedMilestoneIdx) or getMilestones()[1]
+    local normalTarget = getHighestClaimableMilestone(false) or selected
+    local crownTarget = getHighestClaimableMilestone(true) or selected
+    local normalBtn = GUI:Button_Create(node, "claim_normal", 610, 18, "res/custom/msfc/page1/action_3.png")
+    GUI:setAnchorPoint(normalBtn, 0, 0)
+    GUI:addOnClickEvent(normalBtn, function()
+        if not normalTarget then
+            return
+        end
+        SL:SendLuaNetMsg(100, 101, 5, normalTarget.idx, SL:JsonEncode({idx = normalTarget.idx, draw = normalTarget.draw}, false))
+    end)
+
+    local crownBtn = GUI:Button_Create(node, "claim_crown", 706, 18, "res/custom/msfc/page1/action_3.png")
+    GUI:setAnchorPoint(crownBtn, 0, 0)
+    GUI:addOnClickEvent(crownBtn, function()
+        if not crownTarget then
+            return
+        end
+        SL:SendLuaNetMsg(100, 101, 6, crownTarget.idx, SL:JsonEncode({idx = crownTarget.idx, draw = crownTarget.draw}, false))
+    end)
+
+    if not normalTarget or not canClaimMilestone(normalTarget, false) then
+        GUI:setOpacity(normalBtn, 180)
+    end
+    if not crownTarget or not canClaimMilestone(crownTarget, true) then
+        GUI:setOpacity(crownBtn, 180)
+    end
+end
+
+function npc.renderRika(node)
+    GUI:Image_Create(node, "page_bg", 64, 10, PAGE_BG_SKIN[2])
+    local titleCharge = GUI:Image_Create(node, "title_charge", 410, 458, "res/custom/msfc/page2/today_recharge.png")
+    GUI:setAnchorPoint(titleCharge, 0.5, 0)
+
+    local rechargeValue = GUI:Text_Create(node, "recharge_value", 430, 465, 25, "#ff9696", tostring(getTodayRechargeValue()) .. "元")
+    GUI:setAnchorPoint(rechargeValue, 0, 0)
+    setTextStyle(rechargeValue)
+
+    -- local rich1 = GUI:RichText_Create(node, "rika_desc_1", 454, 340, string.format("每日仅需累充<font color='#ff3030'>%s元</font>！", tostring(getDayCardNeedCharge())), 260, 28, "#fff0c8", 0, nil, nil)
+    -- local rich2 = GUI:RichText_Create(node, "rika_desc_2", 438, 266, "日卡BUFF：<font color='#ff3030'>进入安全修炼地图</font>！", 300, 24, "#fff0c8", 0, nil, nil)
+    -- local rich3 = GUI:RichText_Create(node, "rika_desc_3", 438, 224, "日卡BUFF：<font color='#ff3030'>打怪爆率+10%</font>！", 300, 24, "#fff0c8", 0, nil, nil)
+    -- GUI:setAnchorPoint(rich1, 0, 0.5)
+    -- GUI:setAnchorPoint(rich2, 0, 0.5)
+    -- GUI:setAnchorPoint(rich3, 0, 0.5)
+
+    local rewards = getDayCardRewards()
+    local startX = 496
+    for idx = 1, 3 do
+        local box = GUI:Image_Create(node, "rika_box_" .. tostring(idx), startX + (idx - 1) * 70, 134, "res/custom/msfc/page2/item_box.png")
+        GUI:setAnchorPoint(box, 0, 0)
+
+        local reward = rewards[idx]
+        local rewardName = reward and reward[1] or nil
+        local rewardCount = reward and reward[2] or 1
+        local rewardIndex = toNumber(rewardName and SL:GetMetaValue("ITEM_INDEX_BY_NAME", rewardName) or 0, 0)
+        if rewardIndex > 0 then
+            local item = GUI:ItemShow_Create(box, "item", 25, 26, {index = rewardIndex, look = true})
+            GUI:setAnchorPoint(item, 0.5, 0.5)
+            if toNumber(rewardCount, 1) > 1 then
+                local countText = GUI:Text_Create(box, "num", 25, 1, 12, "#ffffff", tostring(rewardCount))
+                GUI:setAnchorPoint(countText, 0.5, 0)
+                setTextStyle(countText, "#000000")
+            end
+        elseif rewardName then
+            local label = GUI:RichText_Create(box, "label", 25, 27, tostring(rewardName), 44, 11, "#f0c14b", 1, nil, nil)
+            GUI:setAnchorPoint(label, 0.5, 0.5)
+        end
+    end
+
+    local canClaim, claimed = getDayCardButtonState()
+    local button = GUI:Button_Create(node, "rika_claim", 516, 30, "res/custom/msfc/page2/claim_now.png")
+    GUI:setAnchorPoint(button, 0, 0)
+    GUI:addOnClickEvent(button, function()
+        if claimed then
+            SL:ShowSystemTips("今日奖励已领取")
+            return
+        end
+        if canClaim then
+            SL:SendLuaNetMsg(100, 101, 8, 0, "")
+            return
+        end
+        SL:ShowSystemTips("当前未达到领取条件")
+    end)
+    if claimed or not canClaim then
+        GUI:setOpacity(button, 180)
+    end
+end
+
+local function ensureWindow(npcid)
+    local opts = {}
+    for key, value in pairs(WINDOW_OPTS) do
+        opts[key] = value
+    end
+    npc._window = NPC_UI_HELPER.ensureWindow(npc._window, npcid, opts)
+    npc.bg = npc._window.bg
+    npc.node = npc._window.node
+    return npc.node
+end
+
+UI_updata = function(node)
+    if not node then
+        return
+    end
+
+    closeBoxPopup()
+    GUI:removeAllChildren(node)
+    createTabs(node)
+
+    if npc.currentTab == 1 then
+        npc.renderFucai(node)
+    else
+        npc.renderRika(node)
+    end
+end
+
+function npc.main(npcid, p2, p3, msgData)
+    if p2 == 0 then
+        npc.currentTab = 1
+        npc.selectedMilestoneIdx = nil
+        npc.data = ensureData(safeDecode(msgData))
+        ensureWindow(npcid)
+        UI_updata(npc.node)
+        return
+    end
+
+    local data = safeDecode(msgData)
+    if data then
+        npc.data = ensureData(data)
+    else
+        npc.data = ensureData(npc.data)
+    end
+
+    if not npc.node then
+        ensureWindow(npcid)
+    end
+    UI_updata(npc.node)
+end
+
+return npc
