@@ -20,6 +20,7 @@ function npc.main(npcid, p2, p3, msgData)
         npc._window = NPC_UI_HELPER.ensureWindow(npc._window, npcid, opts)
         npc.bg = npc._window.bg
         npc.node = npc._window.node
+        GUI:Effect_Create(npc.bg, "eff", 160, 260, 0, 60455)
         return npc.node
     end
 

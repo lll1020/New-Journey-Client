@@ -298,6 +298,7 @@ local config = {
 	[20107] = { 
 		ID = 20107,
 		name = "九重天雷的目标",
+		front_sfx = 60451,
 		icon = 120006,
 		time = "10#0#0",
 		overlap = 10,
@@ -351,6 +352,13 @@ local config = {
 		dis_action = 15,
 		icon = 231,
 		time = "3#0#0",
+	},
+	[20115] = { 
+		ID = 20115,
+		name = "携带矿石",
+		dis_action = 64,
+		param = "243#-1000",
+		time = "0#0#0",
 	},
 }
 return config
