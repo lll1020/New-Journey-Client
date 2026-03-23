@@ -60,6 +60,7 @@ function npc.main(npcid, p2, p3, msgData)
                 --         , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
                 -- , 0, 1)
 
+                GUI:Effect_Create(Label_node, "eff", 400, 360, 0, 60449)
                 
                 local item = SL:GetMetaValue("EQUIP_DATA", npc._config.where)
                 if item then

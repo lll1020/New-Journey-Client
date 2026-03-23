@@ -117,6 +117,10 @@ local function getDayCardTitleName()
     return tostring((getDayCardConfig().title or "日卡"))
 end
 
+local function getDayCardTokenCount()
+    return toNumber(getDayCardConfig().token_count, 0)
+end
+
 local function getExchangeNeed()
     return toNumber((npc.data and npc.data.exchange_need), toNumber(getConfigValue("kill_per_exchange", 188), 188))
 end
@@ -254,7 +258,7 @@ local function getTodayRechargeValue()
             return tonumber(value)
         end
     end
-    return toNumber(SL:GetMetaValue("TMONEY", "累计充值"), 0)
+    return 0
 end
 
 local function getDayCardRewards()
@@ -262,7 +266,8 @@ local function getDayCardRewards()
     local rewards = {}
 
     local titleName = getDayCardTitleName()
-    if titleName ~= "" then
+    local hasTitle = toNumber(npc.data and npc.data.day_card_has_title, 0) == 1
+    if titleName ~= "" and not hasTitle then
         table.insert(rewards, {titleName .. "[称号]", 1})
     end
 
@@ -270,6 +275,11 @@ local function getDayCardRewards()
         if type(reward) == "table" and type(reward[1]) == "string" then
             table.insert(rewards, {reward[1], toNumber(reward[2], 1)})
         end
+    end
+
+    local tokenCount = getDayCardTokenCount()
+    if tokenCount > 0 then
+        table.insert(rewards, {getTokenName(), tokenCount})
     end
 
     return rewards
@@ -716,7 +726,7 @@ function npc.renderRika(node)
             SL:SendLuaNetMsg(100, 101, 8, 0, "")
             return
         end
-        SL:ShowSystemTips("当前未达到领取条件")
+        SL:ShowSystemTips(string.format("今日累计充值达到%s元后可领取", tostring(getDayCardNeedCharge())))
     end)
     if claimed or not canClaim then
         GUI:setOpacity(button, 180)
