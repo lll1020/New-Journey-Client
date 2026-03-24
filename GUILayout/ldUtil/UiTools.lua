@@ -978,7 +978,7 @@ function UiTools.showItemData(effNode, itemData)
     effNode:removeAllChildren()
     local contentSize = effNode:getContentSize()
     --展示物品
-    local itemShow = GUI:ItemShow_Create(effNode, "item", contentSize.width / 2, contentSize.height / 2, { itemData = itemData, look = true, bgVisible = false })
+    local itemShow = GUI:ItemShow_Create(effNode, "item", contentSize.width / 2, contentSize.height / 2, { itemData = itemData,count = 1, look = true, bgVisible = false })
     itemShow:setAnchorPoint(cc.p(0.5, 0.5))
     return itemShow
 end

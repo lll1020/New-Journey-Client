@@ -132,7 +132,7 @@ function UIHelper.ensureWindow(cache, npcid, opts)
     cache.title = opts.title
 
     if opts.titleText then
-        UIHelper.createTitle(bg, opts.titleText, opts.subTitle, opts.titleOptions)
+        UIHelper.createTitle(bg, opts.titleText, opts.subTitle, opts.titleOptions,name)
     end
 
     return cache
@@ -140,7 +140,7 @@ end
 
 -- ===== UI 构建工具 =====
 -- 标题生成：支持主/副标题 + 描边效果
-function UIHelper.createTitle(parent, text, subtitle, opts)
+function UIHelper.createTitle(parent, text, subtitle, opts,name)
     if not parent or not text then
         return nil
     end
@@ -149,7 +149,10 @@ function UIHelper.createTitle(parent, text, subtitle, opts)
     GUI:setAnchorPoint(node, 1, 0.5)
     local label = GUI:Text_Create(node, opts.labelName or 'title', 0, 0, opts.fontSize or 26, opts.color or '#ffe9c2', text)
     GUI:setAnchorPoint(label, 1, 0.5)
+    local name = GUI:Text_Create(node, name or 'name', 0, -40, opts.fontSize or 26, opts.color or '#ffe9c2', name)
+    GUI:setAnchorPoint(name, 1, 0.5)
     GUI:Text_enableOutline(label, opts.outlineColor or '#1d0f09', opts.outlineSize or 2)
+    GUI:Text_enableOutline(name, opts.outlineColor or '#1d0f09', opts.outlineSize or 2)
     if subtitle then
         local sub = GUI:Text_Create(node, opts.subtitleName or 'subtitle', 0, -28, opts.subtitleFontSize or 20, opts.subtitleColor or '#a0d8ff', subtitle)
         GUI:setAnchorPoint(sub, 1, 0.5)
