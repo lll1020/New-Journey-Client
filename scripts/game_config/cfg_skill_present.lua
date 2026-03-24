@@ -2665,6 +2665,8 @@ local config = {
 		hitPos = 0,
 		flySpeed = 0,
 		needTarget = 0,
+		linkSkill = -1,
+		skillgensui = 0,
 	},
 	[86] = { 
 		id = 86,

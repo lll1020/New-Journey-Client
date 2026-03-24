@@ -1955,7 +1955,9 @@ local config = {
 		maxDis_pc = 0,
 		skilltype = 0,
 		magiclock = 0,
+		replace = 0,
 		HeroMagicName = "白日门十步一杀",
+		forceDis = 0,
 		drivingreplace = 99,
 	},
 	[83] = { 
