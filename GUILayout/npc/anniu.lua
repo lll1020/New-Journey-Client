@@ -129,7 +129,7 @@ local WINDOW_STYLE = {
         windowName = "npc_anniu_516",
         overlay = {skin = "res/public/1900000651_1.png"},
         background = {skin = "res/custom/mfzz/bg.png"},
-        closeButton = {x = 740 + 176, y = 440, skin = "res/wy/public/close_red_big.png"},
+        closeButton = {x = 740 + 076, y = 410, skin = "res/wy/public/close_red_big.png"},
     },
     treasureBasin = { -- 聚宝盆
         windowName = "npc_anniu_517",
@@ -216,7 +216,8 @@ local function _shortcut_is_freesponsor_completed()
     if npc.data_516 and npc.data_516.T_data then
         local allDone = true
         for i = 1, #details do
-            if npc.data_516.T_data["zzlb_" .. i] ~= true then
+            local flag = npc.data_516.T_data["zzlb_" .. i]
+            if not (flag == true or tonumber(flag or 0) == 1) then
                 allDone = false
                 break
             end
@@ -3386,6 +3387,46 @@ end
 ---在线充值
 npc[502] = function(p2, p3, Data) -- 在线充值
     -- 界面渲染：自定义金额 + 多档快速充值按钮
+    local function create_502_item(parent, itemName, itemCount, itemKey)
+        local itemNode = GUI:Image_Create(parent, "itme" .. tostring(itemKey or itemName), 0, 0, "dev/res/wy/public/40-42.png")
+        local itemIndex = SL:GetMetaValue("ITEM_INDEX_BY_NAME", itemName)
+        if tonumber(itemIndex) and tonumber(itemIndex) > 0 then
+            local itemShow = GUI:ItemShow_Create(itemNode, "item", 40 / 2, 42 / 2, {index = itemIndex, look = true})
+            GUI:setAnchorPoint(itemShow, 0.5, 0.5)
+        end
+        if tonumber(itemCount or 0) > 1 then
+            GUI:setAnchorPoint(GUI:Text_Create(itemNode, "count", 40 / 2, 5, 13, "#FFFFFF", SL:GetSimpleNumber(itemCount, 0)), 0.5, 0.5)
+        end
+        return itemNode
+    end
+
+    local function get_502_show_list(cfg)
+        if type(cfg) ~= "table" then
+            return {}
+        end
+        local list = {}
+        for _, item in ipairs(cfg.give or {}) do
+            list[#list + 1] = {item[1], item[2]}
+        end
+        if cfg.ch then
+            list[#list + 1] = {cfg.ch .. "[称号]", 1}
+        end
+        if cfg.skill then
+            list[#list + 1] = {cfg.skill, 1}
+        end
+        if type(cfg.show) == "table" and #cfg.show > 0 then
+            for _, item in ipairs(cfg.show) do
+                list[#list + 1] = {item[1], item[2]}
+            end
+        end
+
+        if tonumber(cfg.token_count or 0) and tonumber(cfg.token_count or 0) > 0 then
+            local tokenName = ((teshudata["npc_101"] or {}).token_name) or "锄子"
+            list[#list + 1] = {tokenName, tonumber(cfg.token_count or 0)}
+        end
+        return list
+    end
+
     local function UI_updata(node)
         if not node then
             return
@@ -3428,22 +3469,9 @@ npc[502] = function(p2, p3, Data) -- 在线充值
             else
                 GUI:Image_Create(Button, "double",  100, 100, "res/custom/chongzhi/double.png")
                 local list = GUI:Layout_Create(Button, "list", 10,35, 40*4, 42)
-                for j=1,#teshudata["anniu_502"].jl[i].give do
-                    local itme = GUI:Image_Create(list, "itme"..j,  0, 0, "dev/res/wy/public/40-42.png")
-                    local show = GUI:ItemShow_Create(itme, "item", 40/2, 42/2, {index=SL:GetMetaValue("ITEM_INDEX_BY_NAME",teshudata["anniu_502"].jl[i].give[j][1]),look= true})
-                    GUI:setAnchorPoint(show, 0.5, 0.5)
-                    
-                    GUI:setAnchorPoint(GUI:Text_Create(itme, "count", 40/2, 5, 13, "#FFFFFF", SL:GetSimpleNumber(teshudata["anniu_502"].jl[i].give[j][2],0)), 0.5, 0.5)
-                end
-                if teshudata["anniu_502"].jl[i].ch then
-                    local itme = GUI:Image_Create(list, "ch",  0, 0, "dev/res/wy/public/40-42.png")
-                    local show = GUI:ItemShow_Create(itme, "item", 40/2, 42/2, {index=SL:GetMetaValue("ITEM_INDEX_BY_NAME",teshudata["anniu_502"].jl[i].ch.."[称号]"),look= true})
-                    GUI:setAnchorPoint(show, 0.5, 0.5)
-                end
-                if teshudata["anniu_502"].jl[i].skill then
-                    local itme = GUI:Image_Create(list, "skill",  0, 0, "dev/res/wy/public/40-42.png")
-                    local show = GUI:ItemShow_Create(itme, "item", 40/2, 42/2, {index=SL:GetMetaValue("ITEM_INDEX_BY_NAME",teshudata["anniu_502"].jl[i].skill),look= true})
-                    GUI:setAnchorPoint(show, 0.5, 0.5)
+                local rewardList = get_502_show_list(teshudata["anniu_502"].jl[i])
+                for j = 1, math.min(#rewardList, 4) do
+                    create_502_item(list, rewardList[j][1], rewardList[j][2], j)
                 end
                 GUI:UserUILayout(list, {dir=3,addDir=1,colnum = 4,gap = {x=0, y=0}})
             end
@@ -4676,10 +4704,85 @@ npc[515] = function(p2, p3, Data) -- 仙途奇缘
 end
 --免费赞助
 npc[516] = function(p2, p3, Data)
+    local function mfzz_get_details()
+        return (teshudata["anniu_516"] and teshudata["anniu_516"].details) or {}
+    end
+
+    local function mfzz_decode(data)
+        if type(data) == "string" and data ~= "" then
+            return SL:JsonDecode(data, false) or {}
+        end
+        return type(data) == "table" and data or {}
+    end
+
+    local function mfzz_get_data()
+        npc.data_516 = npc.data_516 or {}
+        npc.data_516.T_data = npc.data_516.T_data or {}
+        return npc.data_516
+    end
+
     local function mfzz_is_claimed(idx)
-        local tData = npc.data_516 and npc.data_516.T_data or {}
+        local tData = mfzz_get_data().T_data or {}
         local v = tData["zzlb_" .. idx]
         return v == true or tonumber(v or 0) == 1
+    end
+
+    local function mfzz_is_cz502_claimed(amount)
+        local tData = npc.data_502 and npc.data_502.T_data or {}
+        local v = tData["cz502_" .. tostring(amount or 0)]
+        return v == true or tonumber(v or 0) == 1
+    end
+
+    local function mfzz_get_reward_list(cfg)
+        local ret = {}
+        local function appendReward(src)
+            if type(src) ~= "table" then
+                return
+            end
+            if type(src[1]) == "table" then
+                for _, item in ipairs(src) do
+                    local itemName = tostring(item[1] or "")
+                    local itemCount = tonumber(item[2] or 1) or 1
+                    if itemName ~= "" then
+                        ret[#ret + 1] = {itemName, itemCount}
+                    end
+                end
+            elseif type(src[1]) == "string" then
+                local itemName = tostring(src[1] or "")
+                local itemCount = tonumber(src[2] or 1) or 1
+                if itemName ~= "" then
+                    ret[#ret + 1] = {itemName, itemCount}
+                end
+            end
+        end
+
+        local titleName = tostring((cfg or {}).ch or "")
+        if titleName ~= "" then
+            ret[#ret + 1] = {titleName .. "[称号]", 1}
+        end
+        appendReward(cfg and cfg.jl)
+        return ret
+    end
+
+    local function mfzz_get_condition_info(cfg)
+        cfg = cfg or {}
+        local needCz502 = tonumber(cfg.need_cz502 or 0) or 0
+        local needMoney23 = tonumber(cfg.need_money23 or 0) or 0
+        local needCharge = tonumber(cfg.need_charge or cfg.sgsl or 0) or 0
+        local curData = mfzz_get_data()
+        local totalCharge = tonumber(curData.charge or curData.sgsl or 0) or 0
+        local charge23 = tonumber(curData.money23 or 0) or 0
+
+        if needCz502 > 0 then
+            return string.format("需要：领取%s档在线充值礼包", tostring(needCz502)), mfzz_is_cz502_claimed(needCz502), true
+        end
+        if needMoney23 > 0 then
+            return string.format("充值%s元", tostring(needMoney23)), charge23 >= needMoney23, false
+        end
+        if needCharge > 0 then
+            return string.format("需要：累计充值%s元", tostring(needCharge)), totalCharge >= needCharge, false
+        end
+        return "免费领取", true, false
     end
 
     local function mfzz_can_claim(idx, cfg)
@@ -4689,22 +4792,10 @@ npc[516] = function(p2, p3, Data)
         if idx > 1 and not mfzz_is_claimed(idx - 1) then
             return false
         end
-        local killCount = tonumber(npc.data_516 and npc.data_516.sgsl) or 0
-        return killCount >= (tonumber(cfg.sgsl) or 0)
-    end
-    
-    -- 返回免费赞助列表中最小未领取档位；若全部已领取，则回落到最后一档（至少为 1）。
-    local function mfzz_get_min_unclaimed_index()
-        local details = teshudata["anniu_516"] and teshudata["anniu_516"].details or {}
-        for i = 1, #details do
-            if not mfzz_is_claimed(i) then
-                return i
-            end
-        end
-        return math.max(#details, 1)
+        local _, ok = mfzz_get_condition_info(cfg)
+        return ok
     end
 
-    -- 主线任务 2：免费赞助面板引导第 1 档领取按钮（每次进入界面都可触发）。
     local function mfzz_try_start_mainline_guide(button, guideParent, idx)
         local rwid = tonumber(cogin and cogin.sjtb and cogin.sjtb.rwid) or 0
         if rwid ~= 2 or tonumber(idx) ~= 1 then
@@ -4720,84 +4811,118 @@ npc[516] = function(p2, p3, Data)
         })
     end
 
-    local function UI_updata(node) --界面渲染
+    local function mfzz_render_item(parent, itemName, itemCount, posX, posY, key)
+        local slot = GUI:Image_Create(parent, "slot_" .. tostring(key), posX, posY, "dev/res/wy/public/40-42.png")
+        GUI:setAnchorPoint(slot, 0.5, 0.5)
+        local itemIndex = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", itemName)) or 0
+        if itemIndex <= 0 and not string.find(tostring(itemName), "%[称号%]") then
+            itemIndex = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", tostring(itemName) .. "[称号]")) or 0
+        end
+        if itemIndex > 0 then
+            local itemShow = GUI:ItemShow_Create(slot, "item", 20, 21, {index = itemIndex, look = true})
+            GUI:setAnchorPoint(itemShow, 0.5, 0.5)
+        end
+        if tonumber(itemCount or 0) > 1 then
+            local countText = GUI:Text_Create(slot, "count", 20, 3, 13, "#FFFFFF", SL:GetSimpleNumber(itemCount, 0))
+            GUI:setAnchorPoint(countText, 0.5, 0)
+            GUI:Text_enableOutline(countText, "#000000", 1)
+        end
+    end
+
+    local function mfzz_render_card(node, idx, cfg)
+        local posList = {
+            [1] = {x = 107 + 25, y = 64 + 30},
+            [2] = {x = 362, y = 64 + 30},
+            [3] = {x = 616 - 24, y = 64 + 30},
+        }
+        local cardPos = posList[idx] or posList[1]
+        local card = GUI:Layout_Create(node, "card_" .. idx, cardPos.x, cardPos.y, 165, 320)
+        GUI:setAnchorPoint(card, 0, 0)
+
+        local rewardList = mfzz_get_reward_list(cfg)
+        local gridPos = {
+            {35, 108}, {83, 108}, {131, 108},
+            {35, 66}, {83, 66}, {131, 66},
+        }
+        for j = 1, math.min(#rewardList, #gridPos) do
+            local pos = gridPos[j]
+            mfzz_render_item(card, rewardList[j][1], rewardList[j][2], pos[1] + 23, pos[2] + 10, idx .. "_" .. j)
+        end
+
+        local conditionText, conditionOk, needQuestion = mfzz_get_condition_info(cfg)
+        local conditionColor = conditionOk and "#57ff8d" or "#ff4636"
+        local conditionRich = nil
+        if idx == 2 then
+            conditionRich = GUI:RichText_Create(card, "condition", 95, 70, string.format("<font color='%s'>%s</font>", conditionColor, conditionText), 150, 18, "#f7f7de", 0, nil, nil, {outlineSize = 1, outlineColor = "#000000"})
+            GUI:setAnchorPoint(conditionRich, 0.5, 0.5)
+        end
+
+        if needQuestion then
+            local question = GUI:Button_Create(card, "question", 140, 70, "res/custom/mfzz/question.png")
+            GUI:setAnchorPoint(question, 0.5, 0.5)
+            GUI:addOnClickEvent(question, function()
+                SL:SendLuaNetMsg(101, 502, 0, 0, "")
+            end)
+        end
+
+        if mfzz_is_claimed(idx) then
+            local stateImg = GUI:Image_Create(card, "Button", 84, 6, "res/wy/public/9.png")
+            GUI:setAnchorPoint(stateImg, 0.5, 0)
+        else
+            local button = GUI:Button_Create(card, "Button", 84, 2, "res/custom/mfzz/claim.png")
+            GUI:setAnchorPoint(button, 0.5, 0)
+            GUI:addOnClickEvent(button, function()
+                SL:SendLuaNetMsg(101, 516, 1, idx, "")
+            end)
+            mfzz_try_start_mainline_guide(button, node, idx)
+            if mfzz_can_claim(idx, cfg) then
+                NPC_UI_HELPER.redpoint_create(button, {x = 148, y = 35})
+            end
+        end
+    end
+
+    local function UI_updata(node)
+        if not node then
+            return
+        end
         GUI:removeAllChildren(node)
 
-        local tipText = GUI:Text_Create(node, "lock_tip", 700,30, 22, "#FFFFFF", "当前击杀怪物："..npc.data_516.sgsl)
-        GUI:Text_setFontName(tipText, "fonts/500.ttf")
-        GUI:Text_enableOutline(tipText, "#000000", 2)
-        GUI:setAnchorPoint(tipText, 0.5, 0.5)
+        local curData = mfzz_get_data()
+        local totalCharge = tonumber(curData.charge or curData.sgsl or 0) or 0
+        local charge23 = tonumber(curData.money23 or 0) or 0
+        -- local topText = string.format("当前累计充值：%s    直充：%s", tostring(totalCharge), tostring(charge23))
+        -- local infoText = GUI:Text_Create(node, "info_text", 688, 18, 20, "#ffe7a8", topText)
+        -- GUI:setAnchorPoint(infoText, 0.5, 0.5)
+        -- GUI:Text_setFontName(infoText, "fonts/500.ttf")
+        -- GUI:Text_enableOutline(infoText, "#000000", 2)
 
+        local infoText = GUI:Text_Create(node, "info_text", 210, 18, 20, "#FFFFFF", "高级玩家档位可以使用真实充值卷积累")
+        GUI:Text_enableOutline(infoText, "#100808", 2)
+        GUI:Text_setFontName(infoText, "fonts/font4.ttf")
 
-
-        local list = GUI:ListView_Create(node, "list", 80,30, 800, 400,2)
-        GUI:ListView_setItemsMargin(list,5)
-        for k,v in ipairs(teshudata["anniu_516"].details) do
-            local item = GUI:Image_Create(list, "item"..k, 0, 0, 'res/custom/mfzz/itme_'..k..'.png')
-
-            -- GUI:Text_Create(item, "wz",10,400, 20, "#FF0000", v.ch)
-
-            GUI:setAnchorPoint(GUI:RichText_Create(item, "attr_desc_next", 50,320,  Player:showEquipAttr(SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",v.ch))), 200, 18, "#f7f7de", 3,nil,nil)
-            , 0, 1)
-            
-            local tipText = GUI:Text_Create(item, "lock_tip", 228/2,130, 22, "#FF0000", "击杀怪物："..v.sgsl)
-            GUI:Text_setFontName(tipText, "fonts/500.ttf")
-            GUI:Text_enableOutline(tipText, "#000000", 2)
-            GUI:setAnchorPoint(tipText, 0.5, 0.5)
-
-            if mfzz_is_claimed(k) then
-                
-                GUI:setAnchorPoint(GUI:Image_Create(item, "Button", 228/2, 80, 'res/wy/public/9.png'), 0.5, 0.5)
-            else
-                local Button= GUI:Button_Create(item, "Button", 228/2, 80, 'res/custom/mfzz/btn.png')
-                GUI:setAnchorPoint(Button, 0.5, 0.5)
-                GUI:addOnClickEvent(Button, function()
-                    SL:SendLuaNetMsg(101, 516, 1, k, "")
-                end)
-                -- 主线引导入口：仅主线任务 2 且第一档奖励时触发。
-                mfzz_try_start_mainline_guide(Button, list, k)
-                if mfzz_can_claim(k, v) then
-                    NPC_UI_HELPER.redpoint_create(Button, {x = 160, y = 35})
-                end
-            end
-
+        for idx, cfg in ipairs(mfzz_get_details()) do
+            mfzz_render_card(node, idx, cfg)
         end
-        GUI:ListView_jumpToItem(list, mfzz_get_min_unclaimed_index() - 2)
-
-
     end
 
     if p2 == 0 then
-        npc.data_516 = not Data and {} or SL:JsonDecode(Data, false)
+        npc.data_516 = mfzz_decode(Data)
         npc.data_516.T_data = npc.data_516.T_data or {}
-        local win = ensureWindow("freeSponsor", 516, {titleText = "免费赞助"})
+        local win = ensureWindow("freeSponsor", 516, {titleText = "至尊赞助"})
         npc.node_516 = win.node
         UI_updata(npc.node_516)
     elseif p2 == 1 then
-        npc.data_516 = npc.data_516 or {}
-        npc.data_516.T_data = npc.data_516.T_data or {}
-        npc.data_516.T_data["zzlb_"..p3] = true
-        local list = GUI:ui_delegate(npc.node_516)["list"]
-        local item = GUI:ui_delegate(list)["item"..p3]
-        GUI:removeChildByName(item,"Button")
-        GUI:setAnchorPoint(GUI:Image_Create(item, "Button", 228/2, 80, 'res/wy/public/9.png'), 0.5, 0.5)
-        local nextIdx = (tonumber(p3) or 0) + 1
-        local nextCfg = teshudata["anniu_516"].details[nextIdx]
-        if nextCfg then
-            local nextItem = GUI:ui_delegate(list)["item"..nextIdx]
-            local nextBtn = nextItem and GUI:ui_delegate(nextItem)["Button"] or nil
-            if nextBtn then
-                if mfzz_can_claim(nextIdx, nextCfg) then
-                    local nextBtnUi = GUI:ui_delegate(nextBtn)
-                    if not (nextBtnUi and nextBtnUi.redpoint) then
-                        NPC_UI_HELPER.redpoint_create(nextBtn, {x = 160, y = 35})
-                    end
-                else
-                    GUI:removeChildByName(nextBtn, "redpoint")
-                end
-            end
+        local newData = mfzz_decode(Data)
+        if next(newData or {}) then
+            npc.data_516 = newData
+        else
+            npc.data_516 = mfzz_get_data()
+            npc.data_516.T_data["zzlb_" .. tostring(p3 or 0)] = 1
         end
-        GUI:ListView_jumpToItem(list, mfzz_get_min_unclaimed_index()-2)
+        npc.data_516.T_data = npc.data_516.T_data or {}
+        if npc.node_516 then
+            UI_updata(npc.node_516)
+        end
     end
 end
 

@@ -59,6 +59,41 @@ local ATTR_PANEL_TEXT_ALIAS = {
     ["攻击力"] = "攻击",
     ["打怪暴率"] = "打怪爆率",
     ["打怪增伤"] = "对怪增伤",
+    ["强化不消耗道具几率"] = "强化免耗概率",
+}
+
+local RAW_ATTR_META = {
+    [1] = {label = "生命值"},
+    [2] = {label = "固定魔法"},
+    [21] = {label = "暴击几率", percent = true, scale = 100},
+    [22] = {label = "暴击伤害", percent = true, scale = 100},
+    [25] = {label = "攻击伤害", percent = true, scale = 100},
+    [27] = {label = "魔法伤害减少", percent = true, scale = 100},
+    [33] = {label = "死亡爆装概率", percent = true, sign = "-"},
+    [36] = {label = "防御加成", percent = true},
+    [67] = {label = "神力倍功", percent = true},
+    [76] = {label = "PK增伤", percent = true},
+    [77] = {label = "PK减伤", percent = true},
+    [79] = {label = "神圣一击概率", percent = true},
+    [200] = {label = "对怪攻速", percent = true},
+    [204] = {label = "金币回收", percent = true},
+    [206] = {label = "伤害吸收", percent = true},
+    [242] = {label = "打怪爆率", percent = true},
+    [243] = {label = "移动速度", percent = true, scale = 100},
+    [244] = {label = "对怪切割"},
+    [245] = {label = "对怪增伤", percent = true},
+    [248] = {label = "对怪固定吸血"},
+    [255] = {label = "怪物格挡"},
+    [282] = {label = "人物攻击", percent = true},
+}
+
+local SPECIAL_ATTR_META = {
+    realm_exp = {label = "修为"},
+    cross_mon_damage_up = {label = "跨服怪物额外增伤", percent = true},
+    popularity = {label = "人缘"},
+    charm = {label = "魅力"},
+    strength_free = {label = "强化免耗概率", percent = true},
+    hurt_taken_up = {label = "受到伤害", percent = true},
 }
 
 -- 服务端字段里 number/string/bool 会混用，这里统一兜底。
@@ -269,6 +304,14 @@ local function utf8SubsequenceMatch(source, key)
     return true
 end
 
+local function utf8Length(text)
+    local total = 0
+    for _ in string.gmatch(tostring(text or ""), "[%z\1-\127\194-\244][\128-\191]*") do
+        total = total + 1
+    end
+    return total
+end
+
 -- 搜索只匹配成就名字，不匹配条件和奖励文本。
 local function matchSearch(detail, key)
     if key == "" then
@@ -373,6 +416,197 @@ local function getAchievementIcon(detailOrName, detailId)
     return DEFAULT_ICON
 end
 
+local function cloneAttrShowEntry(info)
+    if type(info) ~= "table" then
+        return nil
+    end
+    local ret = {}
+    for key, value in pairs(info) do
+        ret[key] = value
+    end
+    return ret
+end
+
+local function buildRangeAttrEntry(label, minValue, maxValue)
+    minValue = toNumber(minValue, 0)
+    maxValue = toNumber(maxValue, 0)
+    if minValue <= 0 and maxValue <= 0 then
+        return nil
+    end
+    return {
+        label = label,
+        mode = "range",
+        min = minValue,
+        max = maxValue,
+    }
+end
+
+local function buildValueAttrEntry(label, value, meta, extraLabel, extraFormat)
+    local config = meta or {}
+    label = tostring(extraLabel or config.label or label or "")
+    value = toNumber(value, 0)
+    if label == "" or value <= 0 then
+        return nil
+    end
+    local scale = toNumber(config.scale, 1)
+    if scale <= 0 then
+        scale = 1
+    end
+    local isPercent = config.percent == true or tostring(extraFormat or "") == "percent"
+    return {
+        label = label,
+        value = value * scale,
+        percent = isPercent and 1 or nil,
+        sign = config.sign,
+        color = config.color,
+    }
+end
+
+local function matchComboAttr(detailAttrs, startIndex, expectIds)
+    local baseValue = nil
+    for offset, expectId in ipairs(expectIds) do
+        local info = detailAttrs[startIndex + offset - 1]
+        if type(info) ~= "table" or toNumber(info[1], 0) ~= expectId then
+            return nil
+        end
+        local value = toNumber(info[2], 0)
+        if value <= 0 then
+            return nil
+        end
+        if baseValue == nil then
+            baseValue = value
+        elseif baseValue ~= value then
+            return nil
+        end
+    end
+    return baseValue
+end
+
+-- 兼容旧 attr_show 和新 attr/jl，统一转成客户端现有展示结构。
+local function getDetailAttrShowEntries(detail)
+    if type(detail) ~= "table" then
+        return {}
+    end
+    if type(detail._attr_show_cache) == "table" then
+        return detail._attr_show_cache
+    end
+
+    local cached = {}
+    if type(detail.attr_show) == "table" then
+        for _, info in ipairs(detail.attr_show) do
+            local entry = cloneAttrShowEntry(info)
+            if entry then
+                cached[#cached + 1] = entry
+            end
+        end
+    end
+    if #cached > 0 then
+        detail._attr_show_cache = cached
+        return cached
+    end
+
+    local attrs = type(detail.attr) == "table" and detail.attr or {}
+    local idx = 1
+    while idx <= #attrs do
+        local info = attrs[idx]
+        local attrKey = type(info) == "table" and info[1] or nil
+        local attrValue = type(info) == "table" and info[2] or nil
+        local labelText = type(info) == "table" and info[3] or nil
+        local valueFormat = type(info) == "table" and info[4] or nil
+
+        local comboValue = matchComboAttr(attrs, idx, {3, 4, 5, 6, 7, 8})
+        if comboValue then
+            cached[#cached + 1] = {label = "攻魔道", value = comboValue}
+            idx = idx + 6
+        elseif toNumber(attrKey, 0) == 3 then
+            local nextInfo = attrs[idx + 1]
+            if type(nextInfo) == "table" and toNumber(nextInfo[1], 0) == 4 then
+                local entry = buildRangeAttrEntry("攻击", attrValue, nextInfo[2])
+                if entry then
+                    cached[#cached + 1] = entry
+                end
+                idx = idx + 2
+            else
+                local entry = buildRangeAttrEntry("攻击", attrValue, 0)
+                if entry then
+                    cached[#cached + 1] = entry
+                end
+                idx = idx + 1
+            end
+        elseif toNumber(attrKey, 0) == 4 then
+            local entry = buildRangeAttrEntry("攻击", 0, attrValue)
+            if entry then
+                cached[#cached + 1] = entry
+            end
+            idx = idx + 1
+        elseif toNumber(attrKey, 0) == 8 then
+            local nextInfo = attrs[idx + 1]
+            if type(nextInfo) == "table" and toNumber(nextInfo[1], 0) == 9 then
+                local entry = buildRangeAttrEntry("防御", attrValue, nextInfo[2])
+                if entry then
+                    cached[#cached + 1] = entry
+                end
+                idx = idx + 2
+            else
+                local entry = buildRangeAttrEntry("防御", attrValue, 0)
+                if entry then
+                    cached[#cached + 1] = entry
+                end
+                idx = idx + 1
+            end
+        elseif toNumber(attrKey, 0) == 9 then
+            local entry = buildRangeAttrEntry("防御", 0, attrValue)
+            if entry then
+                cached[#cached + 1] = entry
+            end
+            idx = idx + 1
+        elseif type(attrKey) == "number" then
+            local meta = RAW_ATTR_META[toNumber(attrKey, 0)]
+            local entry = buildValueAttrEntry(nil, attrValue, meta)
+            if entry then
+                cached[#cached + 1] = entry
+            end
+            idx = idx + 1
+        elseif type(attrKey) == "string" then
+            local meta = SPECIAL_ATTR_META[attrKey] or {}
+            local entry = buildValueAttrEntry(nil, attrValue, meta, labelText, valueFormat)
+            if entry then
+                cached[#cached + 1] = entry
+            end
+            idx = idx + 1
+        else
+            idx = idx + 1
+        end
+    end
+
+    detail._attr_show_cache = cached
+    return cached
+end
+
+local function getDetailRewardItems(detail)
+    if type(detail) ~= "table" then
+        return {}
+    end
+    if type(detail._reward_item_cache) == "table" then
+        return detail._reward_item_cache
+    end
+
+    local cached = {}
+    for _, item in ipairs(type(detail.jl) == "table" and detail.jl or {}) do
+        local itemName = tostring((type(item) == "table" and (item.name or item[1])) or "")
+        local itemCount = toNumber(type(item) == "table" and (item.count or item[2]) or 0, 0)
+        if itemName ~= "" then
+            cached[#cached + 1] = {
+                name = itemName,
+                count = math.max(1, itemCount),
+            }
+        end
+    end
+
+    detail._reward_item_cache = cached
+    return cached
+end
+
 -- 右侧汇总面板和弹窗属性展示共用格式化逻辑。
 local function formatAttrPanelText(text)
     text = tostring(text or "")
@@ -409,10 +643,10 @@ local function resolveSummaryColor(label, color, isPercent)
     return isPercent and "#ffe39a" or "#ffffff"
 end
 
--- 解锁弹窗内的奖励属性文案完全由本地 attr_show 生成。
+-- 解锁弹窗内的奖励属性统一从本地配置归一化结构生成。
 local function buildUnlockAttrText(detail)
     local lines = {}
-    for _, info in ipairs(detail and detail.attr_show or {}) do
+    for _, info in ipairs(getDetailAttrShowEntries(detail)) do
         local label = normalizeSummaryLabel(info.label or "")
         local sign = tostring(info.sign or "+")
         local mode = tostring(info.mode or "")
@@ -442,7 +676,42 @@ local function buildUnlockAttrText(detail)
     return table.concat(lines, "\n")
 end
 
--- 右侧属性汇总只统计已激活成就，并按配置中的 attr_show 聚合。
+local function buildUnlockItemText(detail)
+    local lines = {}
+    for _, item in ipairs(getDetailRewardItems(detail)) do
+        local text = tostring(item.name or "")
+        if toNumber(item.count, 1) > 1 then
+            text = string.format("%s*%s", text, tostring(item.count))
+        end
+        if text ~= "" then
+            lines[#lines + 1] = string.format("<font color='#ffe2a8'>%s</font>", text)
+        end
+    end
+    return table.concat(lines, "\n")
+end
+
+local function buildUnlockRewardText(detail, info)
+    local lines = {}
+    local attrText = buildUnlockAttrText(detail)
+    local itemText = buildUnlockItemText(detail)
+    if attrText ~= "" then
+        lines[#lines + 1] = attrText
+    end
+    if itemText ~= "" then
+        lines[#lines + 1] = itemText
+    end
+    if #lines > 0 then
+        return table.concat(lines, "\n")
+    end
+
+    local rawReward = tostring((detail and detail.reward) or (info and info.reward) or "")
+    if rawReward ~= "" then
+        return string.format("<font color='#8fe9ff'>%s</font>", rawReward)
+    end
+    return ""
+end
+
+-- 右侧属性汇总只统计已激活成就，并按本地配置归一化后的属性聚合。
 local function buildAttrSummaryText()
     local summaryMap = {}
     local order = {}
@@ -477,7 +746,7 @@ local function buildAttrSummaryText()
 
     for _, detail in ipairs(getAllDetails()) do
         if isDetailDone(detail.id) then
-            for _, info in ipairs(detail.attr_show or {}) do
+            for _, info in ipairs(getDetailAttrShowEntries(detail)) do
                 local sign = tostring(info.sign or "+")
                 if tostring(info.mode or "") == "range" then
                     local node = ensureNode(info.label, info.color, false, sign)
@@ -516,14 +785,33 @@ local function buildAttrSummaryText()
             end
         end
         if text ~= "" then
-            lines[#lines + 1] = string.format("<font color='%s'>%s</font>", node.color, text)
+            lines[#lines + 1] = {
+                text = text,
+                color = node.color,
+                label = node.label,
+                sortLen = utf8Length(node.label),
+            }
         end
     end
 
     if #lines == 0 then
         return "<font color='#7f8ca3'>暂未激活任何成就属性</font>"
     end
-    return table.concat(lines, "\n")
+    table.sort(lines, function(a, b)
+        if a.sortLen ~= b.sortLen then
+            return a.sortLen < b.sortLen
+        end
+        if tostring(a.label) ~= tostring(b.label) then
+            return tostring(a.label) < tostring(b.label)
+        end
+        return tostring(a.text) < tostring(b.text)
+    end)
+
+    local richLines = {}
+    for _, info in ipairs(lines) do
+        richLines[#richLines + 1] = string.format("<font color='%s'>%s</font>", info.color, info.text)
+    end
+    return table.concat(richLines, "\n")
 end
 
 -- 主窗口通过 UI_HELPER 统一创建，复用遮罩和关闭按钮逻辑。
@@ -821,11 +1109,9 @@ local function showUnlockToast(info, detailId)
     end
 
     local reward = tostring((detail and detail.reward) or info.reward or "")
-    if reward == "" then
-        reward = buildUnlockAttrText(detail)
-    end
-    if reward ~= "" then
-        local rewardText = GUI:RichText_Create(bg, "reward", 223, -18 + 46 + 17, string.format("<font color='#8ca2bf'>奖励：</font><font color='#8fe9ff'>%s</font>", reward), 230, 14, "#8fe9ff", 1, nil, nil, {outlineSize = 1, outlineColor = "#100808"})
+    local rewardRich = buildUnlockRewardText(detail, info)
+    if rewardRich ~= "" or reward ~= "" then
+        local rewardText = GUI:RichText_Create(bg, "reward", 223, -18 + 46 + 17, string.format("<font color='#8ca2bf'>奖励：</font>%s", rewardRich ~= "" and rewardRich or string.format("<font color='#8fe9ff'>%s</font>", reward)), 230, 14, "#8fe9ff", 1, nil, nil, {outlineSize = 1, outlineColor = "#100808"})
         GUI:setAnchorPoint(rewardText, 0.5, 0.5)
     end
 
