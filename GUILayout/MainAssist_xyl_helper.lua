@@ -274,6 +274,8 @@ function MainAssistXylHelper.bind(MainAssist)
         GUI:Text_enableUnderline(desc)
         GUI:Text_setFontName(desc, "fonts/448.ttf")
         GUI:Text_enableOutline(desc, "#000000", 2)
+        GUI:Text_Create(bg, "desc_wz_tip", 12 + 100, 82 + 71, 18, "#00FF00", "(可拖动)")
+
 
         MainAssist._xylDetailPopup = {
             root = root,
@@ -319,6 +321,7 @@ function MainAssistXylHelper.bind(MainAssist)
         GUI:Button_setTitleColor(detailBtn, "#F4E7B5")
         GUI:Button_setTitleFontSize(detailBtn, 14)
         GUI:Button_titleEnableOutline(detailBtn, "#110b05", 2)
+
         GUI:addOnClickEvent(detailBtn, function()
             if MainAssist._xylDetailPopup and MainAssist._xylDetailPopup.root then
                 _close_current_xyl_detail()

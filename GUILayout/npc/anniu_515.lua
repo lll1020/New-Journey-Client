@@ -1042,7 +1042,7 @@ local function renderDetailPage(node, groupName)
 
     local inputBg = GUI:Image_Create(panel, "search_bg", 400, 367, "res/custom/fairyFate/2/search_box.png")
     GUI:setAnchorPoint(inputBg, 0, 0)
-    local input = GUI:TextInput_Create(inputBg, "search_input", 34, 16, 190, 28, 18)
+    local input = GUI:TextInput_Create(inputBg, "search_input", 34, 16, 160, 28, 18)
     GUI:setAnchorPoint(input, 0, 0.5)
     GUI:TextInput_setString(input, npc.searchKey or "")
     GUI:TextInput_setPlaceHolder(input, "点击输入查找成就")
@@ -1115,7 +1115,7 @@ local function showUnlockToast(info, detailId)
         GUI:setAnchorPoint(rewardText, 0.5, 0.5)
     end
 
-    GUI:Timeline_DelayTime(bg, 3, function()
+    GUI:Timeline_DelayTime(bg, 5, function()
         local curParent = GUI:GetWindow(nil, windowName)
         if curParent then
             GUI:Win_Close(curParent)
