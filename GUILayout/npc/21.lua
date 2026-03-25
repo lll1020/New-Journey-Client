@@ -130,7 +130,7 @@ function npc.main(npcid, p2, p3, msgData)
                 SL:SendLuaNetMsg(100, npcid, 1, 0, "")
             end)
             NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, Button, GUI:getParent(GUI:getParent(Button)), npcid, 1, {
-                taskMap = {[21] = 19},
+                taskMap = {[21] = 20},
                 keyPrefix = "mainline_realm",
                 dir = 5,
                 isForce = false,

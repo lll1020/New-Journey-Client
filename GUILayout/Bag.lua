@@ -67,7 +67,7 @@ function Bag.main(page)
     end)
     
     local rwid = tonumber(cogin and cogin.sjtb and cogin.sjtb.rwid) or 0
-    if rwid == 5 then
+    if rwid == 10 then
         mainline_realm = SL:StartGuide({dir = 5, guideWidget = Bag._ui["HuiShouButton"], guideParent = Bag._ui["Image_bg"], guideDesc = "打开回收设置", isForce = false,hideMask = true})
     end
     

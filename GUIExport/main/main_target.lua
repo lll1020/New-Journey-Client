@@ -1,4 +1,5 @@
 local ui = {}
+
 function ui.init(parent)
 	-- Create Node
 	local Node = GUI:Node_Create(parent, "Node", 3.00, 190.00)
@@ -14,7 +15,7 @@ function ui.init(parent)
 	GUI:setTag(Panel_1, -1)
 
 	-- Create Button_eye
-	local Button_eye = GUI:Button_Create(Panel_1, "Button_eye", 175.00, 3.00, "res/custom/TouShi/eye.png")
+	local Button_eye = GUI:Button_Create(Panel_1, "Button_eye", 165.00, -35.00, "res/custom/TouShi/eye.png")
 	GUI:Button_setTitleText(Button_eye, "")
 	GUI:Button_setTitleColor(Button_eye, "#ffffff")
 	GUI:Button_setTitleFontSize(Button_eye, 14)
@@ -54,13 +55,11 @@ function ui.init(parent)
 
 	-- Create hpLoadingBar
 	local hpLoadingBar = GUI:LoadingBar_Create(Panel_1, "hpLoadingBar", 105.00, 8.00, "res/private/main/Target/1900012532.png", 0)
-	GUI:LoadingBar_setPercent(hpLoadingBar, 50)
 	GUI:LoadingBar_setColor(hpLoadingBar, "#ffffff")
 	GUI:setChineseName(hpLoadingBar, "选中目标_目标Hp")
 	GUI:setAnchorPoint(hpLoadingBar, 0.50, 0.50)
 	GUI:setTouchEnabled(hpLoadingBar, false)
 	GUI:setTag(hpLoadingBar, -1)
-
 	-- Create hpText
 	local hpText = GUI:Text_Create(Panel_1, "hpText", 105.00, 9.00, 16, "#ffffff", [[100%]])
 	GUI:setChineseName(hpText, "选中目标_目标Hp_%比")
@@ -70,7 +69,7 @@ function ui.init(parent)
 	GUI:Text_enableOutline(hpText, "#111111", 1)
 
 	-- Create cleanBtn
-	local cleanBtn = GUI:Button_Create(Panel_1, "cleanBtn", 271.00, 18.00, "res/private/main/Target/btn_gban_01.png")
+	local cleanBtn = GUI:Button_Create(Panel_1, "cleanBtn", 146.00, 26.00, "res/private/main/Target/btn_gban_01.png")
 	GUI:Button_setTitleText(cleanBtn, "")
 	GUI:Button_setTitleColor(cleanBtn, "#ffffff")
 	GUI:Button_setTitleFontSize(cleanBtn, 10)
@@ -87,7 +86,7 @@ function ui.init(parent)
 	GUI:setTag(LockPanel, -1)
 
 	-- Create LockBtn
-	local LockBtn = GUI:Button_Create(LockPanel, "LockBtn", 74.00, 19.00, "res/private/player_hero/btn_heji_05.png")
+	local LockBtn = GUI:Button_Create(LockPanel, "LockBtn", 68.00, 16.00, "res/private/player_hero/btn_heji_05.png")
 	GUI:Button_loadTexturePressed(LockBtn, "res/private/player_hero/btn_heji_05.png")
 	GUI:Button_loadTextureDisabled(LockBtn, "res/private/player_hero/btn_heji_05_1.png")
 	GUI:Button_setTitleText(LockBtn, "")
@@ -114,4 +113,5 @@ function ui.init(parent)
 	GUI:setTouchEnabled(ListView, true)
 	GUI:setTag(ListView, -1)
 end
+
 return ui

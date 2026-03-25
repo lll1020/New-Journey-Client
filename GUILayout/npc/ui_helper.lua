@@ -18,11 +18,14 @@ local DEFAULT_BUTTON = 'res/public/1900000660.png'     -- 默认主按钮皮肤
 local DEFAULT_OUTLINE = SL and SL:ConvertColorFromHexString('#100808') or '#100808'
 -- 主线引导映射：提升类 NPC 界面对应的主线任务号。
 local MAINLINE_TASK_BY_UPGRADE_NPC = {
-    [6] = 7,
-    [7] = 9,
-    [8] = 11,
-    [9] = 13,
-    [10] = 15,
+    [6] = 4,
+    [7] = 5,
+    [8] = 6,
+    [9] = 7,
+    [10] = 8,
+    [21] = 20,
+    [32] = 21,
+    [502] = 22,
 }
 
 -- ===== 基础工具函数 =====

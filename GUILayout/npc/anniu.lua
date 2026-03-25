@@ -1798,8 +1798,8 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
             end
         end)
         local rwid = tonumber(cogin and cogin.sjtb and cogin.sjtb.rwid) or 0
-        if rwid == 5 then
-            SL:StartGuide({dir = 5, guideWidget = Bag._ui["HuiShouButton"], guideParent = Bag._ui["Image_bg"], guideDesc = "打开回收设置", isForce = false,hideMask = true})
+        if rwid == 10 then
+            SL:StartGuide({dir = 5, guideWidget = npc.yjcz, guideParent = ty_node, guideDesc = "一键回收", isForce = false,hideMask = true})
         end
 
         new_hs_update()

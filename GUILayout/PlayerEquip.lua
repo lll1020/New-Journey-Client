@@ -95,9 +95,9 @@ function PlayerEquip.main(data)
             SL:CloseGuide(mainline_realm)
         end
     end)
-    -- 主线任务 19：在境界提升界面内引导点击升级按钮。
+    -- 主线任务 20：在境界提升界面内引导点击升级按钮。
     mainline_realm = NPC_UI_HELPER.tryStartMainlineUpgradeGuide(nil, Button, PlayerEquip._ui.Panel_1, 21, 1, {
-        taskMap = {[21] = 19},
+        taskMap = {[21] = 20},
         keyPrefix = "mainline_realm",
         dir = 5,
         hideMask = true,

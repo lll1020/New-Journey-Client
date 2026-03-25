@@ -250,7 +250,7 @@ function MainTarget.UpdateTargetTouShi()
         local cfg = MainTarget.config[name]
         if cfg then
             GUI:setVisible(MainTarget.UI.Button_eye, true)
-            GUI:setPositionX(MainTarget.UI.cleanBtn, 222)
+            GUI:setPositionX(MainTarget.UI.cleanBtn, 222 - 40)
             for i, v in ipairs(cfg.value) do
                 local image = GUI:Image_Create(MainTarget.UI.ListView, "Image_" .. i, 0, 0, "res/custom/TouShi/itembg.png")
                 GUI:setContentSize(image, 40, 40)
