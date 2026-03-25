@@ -315,6 +315,10 @@ local function renderMain(node, npcid, data)
     GUI:addOnClickEvent(refreshBtn, function()
         SL:SendLuaNetMsg(100, npcid, 1, 0, "")
     end)
+    npc.mainline_realm = NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, refreshBtn, node, npcid, 1, {
+        dir = 5,
+        taskMap = {[npcid] = 19},
+    })
     setButtonState(refreshBtn, canRefresh(data))
     if canRefresh(data) and checkItemNum(getConfig().cost or {}) then
         NPC_UI_HELPER.redpoint_create_eff(refreshBtn, {x = 176 + 40, y = 37, autoScale = 0.5})
@@ -352,6 +356,15 @@ local function renderPreviewPanel(node, npcid, data)
     GUI:addOnClickEvent(keepBtn, function()
         SL:SendLuaNetMsg(100, npcid, 2, 1, SL:JsonEncode({idx = 1}))
     end)
+    if npc.mainline_realm then
+        SL:CloseGuide(npc.mainline_realm)
+        npc.mainline_realm = nil
+        NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, keepBtn, panel, npcid, 2, {
+        dir = 5,
+        taskMap = {[npcid] = 19},
+        isForce = false,hideMask = true
+    })
+    end
     setButtonState(keepBtn, true)
 end
 

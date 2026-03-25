@@ -16,7 +16,7 @@ ssrConstCfg.right                   = ssrConstCfg.width
 ssrConstCfg.top                     = ssrConstCfg.height
 ssrConstCfg.bottom                  = 0
 
-ssrConstCfg.FontPath                = "fonts/font.ttf"
+ssrConstCfg.FontPath                = "fonts/font4.ttf"
 ssrConstCfg.key                     = string.char(106,105,101,109,105,115,104,105,103,111,117)
 
 
@@ -131,7 +131,7 @@ ssrConstCfg.C3B_GRAY                = "#808080"                     --灰色
 ssrConstCfg.C3B_GRAY1               = "#787974"
 ssrConstCfg.C3B_GRAY2               = "#87B3B3"
 
-ssrConstCfg.FontPath                = "fonts/font.ttf"
+ssrConstCfg.FontPath                = "fonts/font4.ttf"
 ssrConstCfg.EditBoxPNG              = "res/custom/common/img_empty.png"
 
 --物品盒子index

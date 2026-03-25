@@ -747,7 +747,7 @@ local function buildAttrSummaryText()
     for _, detail in ipairs(getAllDetails()) do
         if isDetailDone(detail.id) then
             for _, info in ipairs(getDetailAttrShowEntries(detail)) do
-                local sign = tostring(info.sign or "+")
+                local sign = tostring(info.sign or " + ")
                 if tostring(info.mode or "") == "range" then
                     local node = ensureNode(info.label, info.color, false, sign)
                     if node then
@@ -769,24 +769,25 @@ local function buildAttrSummaryText()
     local lines = {}
     for _, label in ipairs(order) do
         local node = summaryMap[label]
-        local text = ""
+        local valueText = ""
         if node.mode == "range" then
             if node.min > 0 and node.max > 0 and node.min ~= node.max then
-                text = string.format("%s%s%s-%s", node.label, node.sign, tostring(node.min), tostring(node.max))
+                valueText = string.format("%s%s-%s", node.sign, tostring(node.min), tostring(node.max))
             else
                 local showValue = math.max(node.min, node.max)
                 if showValue > 0 then
-                    text = string.format("%s%s%s", node.label, node.sign, tostring(showValue))
+                    valueText = string.format("%s%s", node.sign, tostring(showValue))
                 end
             end
         else
             if node.value > 0 then
-                text = string.format("%s%s%s", node.label, node.sign, node.percent and formatPanelPercent(node.value) or tostring(node.value))
+                valueText = string.format("%s%s", node.sign, node.percent and formatPanelPercent(node.value) or tostring(node.value))
             end
         end
-        if text ~= "" then
+        if valueText ~= "" then
             lines[#lines + 1] = {
-                text = text,
+                labelText = node.label,
+                valueText = valueText,
                 color = node.color,
                 label = node.label,
                 sortLen = utf8Length(node.label),
@@ -804,12 +805,17 @@ local function buildAttrSummaryText()
         if tostring(a.label) ~= tostring(b.label) then
             return tostring(a.label) < tostring(b.label)
         end
-        return tostring(a.text) < tostring(b.text)
+        return tostring(a.valueText) < tostring(b.valueText)
     end)
 
     local richLines = {}
     for _, info in ipairs(lines) do
-        richLines[#richLines + 1] = string.format("<font color='%s'>%s</font>", info.color, info.text)
+        richLines[#richLines + 1] = string.format(
+            "<font color='#ffffff'>%s</font><font color='%s'>%s</font>",
+            tostring(info.labelText or ""),
+            info.color,
+            tostring(info.valueText or "")
+        )
     end
     return table.concat(richLines, "\n")
 end

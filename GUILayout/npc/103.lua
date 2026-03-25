@@ -63,6 +63,12 @@ local WINDOW_OPTS = {
 }
 
 local OUTLINE_COLOR = "#100808"
+local MAINLINE_TASK_BY_SUBMIT_IDX = {
+    [1] = 11,
+    [2] = 13,
+    [3] = 15,
+    [4] = 17,
+}
 
 -- 客户端只负责界面布局和默认展示，运行态数据全部来自服务端消息。
 local function getConfig()
@@ -234,10 +240,7 @@ local function renderTopTip(node, ui, cfg)
     if tipText == "" then
         return
     end
-    local rich = GUI:RichText_Create(node, "top_tip", tipCfg.x or 108, tipCfg.y or 398, tipText, tipCfg.width or 560, tipCfg.size or 18, "#f7f7de", 1, nil, nil, {
-        outlineSize = 2,
-        outlineColor = SL:ConvertColorFromHexString(OUTLINE_COLOR),
-    })
+    local rich = GUI:RichText_Create(node, "top_tip", tipCfg.x or 108, tipCfg.y or 398, tipText, tipCfg.width or 560, tipCfg.size or 18, "#f7f7de", 1, nil, nil, {outlineSize = 2,outlineColor = SL:ConvertColorFromHexString(OUTLINE_COLOR),})
     GUI:setAnchorPoint(rich, 0, 0.5)
 end
 
@@ -282,6 +285,11 @@ local function renderMaterial(node, npcid, ui, materialCfg, materialData)
     GUI:addOnClickEvent(submitBtn, function()
         SL:SendLuaNetMsg(100, npcid, 1, state.idx, "")
     end)
+    NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, submitBtn, node, npcid, state.idx, {
+        dir = 5,
+        taskMap = {[npcid] = MAINLINE_TASK_BY_SUBMIT_IDX[state.idx]},
+        desc = string.format("提交%s", state.name),
+    })
 end
 
 -- 中心区域只处理副本状态、奖励展示和进入逻辑。
@@ -315,6 +323,14 @@ local function renderCenter(node, npcid, ui, cfg, data)
     GUI:addOnClickEvent(enterBtn, function()
         SL:SendLuaNetMsg(100, npcid, 2, 0, "")
     end)
+    SL:StartGuide({
+        dir = 5,
+        guideWidget = enterBtn,
+        guideParent = node,
+        guideDesc = "点击进入副本",
+        isForce = false,
+        hideMask = true
+    })
 end
 
 -- 每次网络刷新都整屏重绘，避免旧节点残留状态。
