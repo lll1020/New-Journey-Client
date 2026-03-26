@@ -3,8 +3,8 @@ local npc = {}
 npc._config = teshudata["npc_20"]
 
 local WINDOW_OPTS = {
-    background = {skin = "res/custom/one_city/20_bg.png", eff = true},
-    title = {x = 56, y = 464, skin = "res/custom/one_city/20_title.png"},
+    background = {skin = "res/custom/one_city/20_bg.png", eff = false},
+    closeButton = { x = 750, y = 50 + 327},
 }
 
 local function getPanelName(data)
@@ -50,7 +50,7 @@ function npc.main(npcid, p2, p3, msgData)
     local function createOutlinedText(parent, name, x, y, size, color, text, anchorX, anchorY)
         local label = GUI:Text_Create(parent, name, x, y, size, color, text)
         GUI:setAnchorPoint(label, anchorX or 0.5, anchorY or 0.5)
-        GUI:Text_setFontName(label, "fonts/500.ttf")
+        GUI:Text_setFontName(label, "fonts/font4.ttf")
         GUI:Text_enableOutline(label, "#1b0d07", 2)
         return label
     end
@@ -69,11 +69,16 @@ function npc.main(npcid, p2, p3, msgData)
         local hasTitle = hasPanelTitle(npc.data)
 
         -- createOutlinedText(node, "title_tip", 389, 357, 24, "#FFE8A3", "首位冠名玩家", 0.5, 0.5)
-        createOutlinedText(node, "player_name", 389, 308 - 270, 34, "#FFEDBF", nameText, 0.5, 0.5)
+        createOutlinedText(node, "player_name", 389 + 50 - 80, 303 - 270, 34, "#FFEDBF", nameText, 0, 0.5)
 
         local chargeColor = charge >= cost and "#7CFF7C" or "#FF8A7A"
-        createOutlinedText(node, "charge_tip", 389, 246 + 30, 22, "#D9C7A3", "当前充值", 0.5, 0.5)
-        createOutlinedText(node, "charge_value", 389, 214 + 30, 28, chargeColor, tostring(charge) .. " / " .. tostring(cost), 0.5, 0.5)
+        createOutlinedText(node, "charge_value", 380 + 244 + 44, 212 + 30 - 107, 22, chargeColor, tostring(charge) .. "/" .. tostring(cost), 1, 0.5)
+
+        GUI:Effect_Create(node, "sz", 60 + 176, 60 + 110, 4, teshudata["npc_1002"].details.sz[7].shape, 0, 0, 3, 1)
+        GUI:Effect_Create(node, "ch", 60 + 176, 60 + 110, 0, teshudata["npc_1002"].details.ch[1].sEffect, 0, 0, 3, 1)
+
+        local cost_show = ItemNumByTable_img_new({{"冠名时装",1},{"冠名[称号]",1}}, nil,GUI:Node_Create(node, "cost_show", 0, 0))
+        GUI:setPosition(cost_show, 450 + 40 + 40, 100 + 50)
 
         -- local stateText = hasTitle and "已拥有冠名称号" or "达到条件后可领取冠名称号"
         -- local stateColor = hasTitle and "#7CFF7C" or "#FFD27A"

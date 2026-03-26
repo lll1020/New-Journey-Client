@@ -3,7 +3,7 @@
 ---顶部图标显示
 npc.iconpx = {
     {
-        {15, "天天省钱",509,1}, {3, "福利大厅",511,2}, {17, "游戏攻略",512,3},{4, "活动大厅",507,4},{14, "首充礼包",501,5},{16, "仙途奇缘",515,515},{20, "护体光环",23,23}
+        {15, "天天省钱",509,1}, {3, "福利大厅",511,2}, {17, "游戏攻略",512,3},{4, "活动大厅",507,4},{14, "首充礼包",501,5},{16, "仙途奇缘",515,515},{20, "护体光环",23,23},{21, "马上发财",31,31}
     },
     {
         {19, "在线充值", 502,11}, {5, "交易行",510,12},{2, "解绑特权",504,13},{7, "狂暴之力",513,14},{12, "世界地图",514,15},{10, "免费赞助",516,16},{6, "聚宝盆",517,17},
@@ -1054,7 +1054,7 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
         end
     elseif p2 == 10 then -- 红点
         if npc.db_anniu[""..p3] and not GUI:ui_delegate(npc.db_anniu[""..p3]).redpoint then
-            NPC_UI_HELPER.redpoint_create_eff(npc.db_anniu[""..p3], {x = 85,y = 65})
+            NPC_UI_HELPER.redpoint_create_eff(npc.db_anniu[""..p3], {x = 80,y = 60})
         end
     end
 end
@@ -1851,6 +1851,13 @@ npc[11] = function(p2, p3, Data)
         return nil, nil
     end
 
+    local function _ywl_is_valid_gui_node(node)
+        if not node then
+            return false
+        end
+        return not tolua.isnull(node)
+    end
+
     local function _ywl_story_node_done(node)
         if node == nil then
             return false
@@ -2500,10 +2507,18 @@ npc[11] = function(p2, p3, Data)
             npc.data = npc.data or {}
             npc.data.ywl = npc.data.ywl or {}
             npc.data.ywl["jl_" .. data.i .. "_" .. data.j .. "_" .. data.z] = 1
-            local img  = GUI:ui_delegate(GUI:ui_delegate(npc.node_11)["card" .. data.z]).img
-            GUI:removeChildByName(img,"goBtn")
-            GUI:setAnchorPoint(GUI:Image_Create(img, "ylq", 232/2, 90, 'res/custom/ywl/ylq.png')
-            , 0.5, 0.5)
+            local img = nil
+            if _ywl_is_valid_gui_node(npc.node_11) then
+                local card = GUI:getChildByName(npc.node_11, "card" .. data.z)
+                if _ywl_is_valid_gui_node(card) then
+                    img = GUI:getChildByName(card, "img")
+                end
+            end
+            if _ywl_is_valid_gui_node(img) then
+                GUI:removeChildByName(img, "goBtn")
+                GUI:setAnchorPoint(GUI:Image_Create(img, "ylq", 232 / 2, 90, 'res/custom/ywl/ylq.png')
+                , 0.5, 0.5)
+            end
         end
         -- if npc.data and npc.data.ywl then
         --     npc.data.ywl["jl_" .. p3] = 1
@@ -4049,6 +4064,44 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
         return false
     end
 
+    local function fldt_get_reward_state(stateTable, idx)
+        if type(stateTable) ~= "table" then
+            return 0
+        end
+        return tonumber(stateTable[tostring(idx)] or stateTable[idx] or 0) or 0
+    end
+
+    local function fldt_build_state_rows(stateKey, stateTable)
+        local cfg = fldt_data_cfg[stateKey] or {}
+        local rows = {}
+        for idx, entry in pairs(cfg) do
+            rows[#rows + 1] = {
+                idx = idx,
+                state = fldt_get_reward_state(stateTable, idx),
+                name = entry.name,
+            }
+        end
+        sort_by_state(rows)
+        return rows
+    end
+
+    local function fldt_apply_state_button(button, state)
+        local info = state_info[state] or state_info[0]
+        local canClick = state == 1
+        GUI:Button_setTitleText(button, info.text)
+        GUI:Button_setTitleColor(button, info.color)
+        GUI:Button_setTitleFontSize(button, 14)
+        GUI:setTouchEnabled(button, canClick)
+        GUI:Button_setBright(button, canClick)
+    end
+
+    local function fldt_get_qqsb_owner_name(idx)
+        if type(npc.T_qqsb) ~= "table" then
+            return ""
+        end
+        return tostring(npc.T_qqsb[tostring(idx)] or npc.T_qqsb[idx] or "")
+    end
+
     local function fldt_section_has_claimable(idx)
         if idx == 1 then
             local tqrbq = fldt_get_state()
@@ -4473,45 +4526,43 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
             , 0.5, 0.5)
         elseif idx == 6 then
             local Label_list = GUI:ListView_Create(Label_node, "Label_list", 0, 55, 600, 280, 1)
-            local qqsb = {}
-
-            for v,k in pairs(teshudata["fldt"]["qqsb"]) do
-                if npc.ts_data[""..v] == nil then
-                    table.insert(qqsb, {idx = v, state = 0,name = k.name})
-                else
-                    table.insert(qqsb, {idx = v, state = npc.ts_data[""..v],name = teshudata["fldt"]["qqsb"][tonumber(v)].name})
-                end
-            end
-
+            local qqsb = fldt_build_state_rows("qqsb", npc.ts_data)
             sort_by_state(qqsb)
             local totalPage = math.max(1, math.ceil(#qqsb/7))
 
             for i = (npc.sign-1)*7 + 1, (npc.sign-1)*7 + 7 do
                 if not qqsb[i] then break end
                 local v = qqsb[i]
+                local cfg = teshudata["fldt"]["qqsb"][v.idx]
                 local l = GUI:Image_Create(Label_list, "img_bj_l_"..i, 0, 0, 'res/custom/fulitating/list_fgx_'..(v.idx%2 == 1 and 1 or 2)..'.png')
                 GUI:setContentSize(l, 500, 40)
 
                 GUI:Text_Create(l, "wz",35,5, 20, "#FF0000", v.name)
-                GUI:RichText_Create(l, "jl", 220, 5,  ItemNumByTable(teshudata["fldt"]["qqsb"][v.idx].give), 500, 18, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-
-                local Button= GUI:Button_Create(l, "Button", 436, -2, "res/public/1900000660.png")
-                GUI:Button_setTitleText(Button, state_info[v.state].text)
-                GUI:Button_setTitleColor(Button, state_info[v.state].color)
-                GUI:Button_setTitleFontSize(Button, 14)
-
-                GUI:addOnClickEvent(Button, function()
-                    SL:SendLuaNetMsg(101, 511, 1, 6, '{"qqsb":"'..(v.idx)..'"}')
-                end)
+                GUI:RichText_Create(l, "jl", 220, 5,  ItemNumByTable(cfg.give), 500, 18, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+                local ownerName = fldt_get_qqsb_owner_name(v.idx)
+                if v.state == 1 then
+                    local Button= GUI:Button_Create(l, "Button", 436, -2, "res/public/1900000660.png")
+                    fldt_apply_state_button(Button, v.state)
+                    GUI:addOnClickEvent(Button, function()
+                        SL:SendLuaNetMsg(101, 511, 1, 6, '{"qqsb":"'..(v.idx)..'"}')
+                    end)
+                elseif ownerName ~= "" then
+                    GUI:Text_Create(l, "owner_" .. i, 438, 8, 18, "#00FF00", ownerName)
+                end
             end
 
             local Button_all = GUI:Button_Create(Label_node, "qqsb_all", 500, 0, "res/public/1900000660.png")
             GUI:setAnchorPoint(Button_all, 0.5, 0)
             GUI:Button_setTitleText(Button_all, "一键领取")
             GUI:Button_setTitleFontSize(Button_all, 14)
-            GUI:addOnClickEvent(Button_all, function()
-                SL:SendLuaNetMsg(101, 511, 1, 6, '{"isall":1}')
-            end)
+            local qqsbCanClaim = fldt_has_claimable_by_state_key("qqsb", npc.ts_data)
+            GUI:setTouchEnabled(Button_all, qqsbCanClaim)
+            GUI:Button_setBright(Button_all, qqsbCanClaim)
+            if qqsbCanClaim then
+                GUI:addOnClickEvent(Button_all, function()
+                    SL:SendLuaNetMsg(101, 511, 1, 6, '{"isall":1}')
+                end)
+            end
 
             local Button= GUI:Button_Create(Label_node, "next", 350, 0, "res/public/1900000660.png")
             GUI:setAnchorPoint(Button, 0.5, 0)
@@ -4613,6 +4664,8 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
         end
         GUI_createLabel(npc.Label,p3)
         fldt_refresh_side_redpoints()
+    elseif p2 == 10 then
+        npc.T_qqsb = fldt_decode_json(Data)
     end
 
 end

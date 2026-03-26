@@ -4,6 +4,7 @@ local MainAssistXylHelper = {}
 MainAssistXylHelper.EVENT_CURRENT_TASK_CHANGE = "伏妖录当前任务变更"
 
 local DETAIL_POPUP_DEFAULT_POS = {x = 220, y = 0}
+local XYL_DYNAMIC_REFRESH_DELAY = 0.2
 
 -- 备注：给任务栏挂载伏妖录当前任务的通用逻辑。
 function MainAssistXylHelper.bind(MainAssist)
@@ -21,9 +22,21 @@ function MainAssistXylHelper.bind(MainAssist)
     MainAssist._xylTaskData = nil
     MainAssist._xylCurrentTask = nil
     MainAssist._xylDetailPopupPos = nil
+    MainAssist._xylDynamicRefreshTimer = nil
+    MainAssist._xylLastTraceKey = nil
+    MainAssist._xylLastPrintTaskKey = nil
 
     -- 备注：伏妖录任务联调用日志，便于确认任务事件和服务端变量是否真正触发。
     local function _debug_xyl_trace(tag, data)
+        local dq = ""
+        if type(data) == "table" then
+            dq = tostring(data.dq or (type(data.ywl) == "table" and data.ywl.dq) or "")
+        end
+        local cacheKey = tostring(tag or "") .. "|" .. dq
+        if MainAssist._xylLastTraceKey == cacheKey then
+            return
+        end
+        MainAssist._xylLastTraceKey = cacheKey
         local msg = {
             tag = tag,
             key = type(data) == "table" and tostring(data.key) or "nil",
@@ -177,6 +190,63 @@ function MainAssistXylHelper.bind(MainAssist)
         return nil
     end
 
+    -- 备注：当前任务按钮既可能是“立即前往”，也可能是“领取奖励”。
+    -- 这里与异闻录主界面的 khdDone 判定保持一致。
+    local function _get_xyl_current_task_action_text(info)
+        local task = type(info) == "table" and info.task or nil
+        local canClaim = (type(task) == "table" and task.id == 999 and task.khdjy) and (task.khdjy(task) == true) or false
+        return canClaim and "领取奖励" or "立即前往"
+    end
+
+    -- 备注：生成当前伏妖录任务的稳定标识，用于判断弹层内容是否真的变化。
+    local function _get_xyl_current_task_cache_key(data, info)
+        info = info or _get_xyl_current_task_info(data)
+        if type(info) == "table" and info.i and info.j and info.z then
+            return string.format("%s_%s_%s", tostring(info.i), tostring(info.j), tostring(info.z))
+        end
+
+        local dq = _get_xyl_task_dq(data)
+        if dq and dq ~= "" then
+            return dq
+        end
+
+        local taskId = _get_xyl_task_id(data)
+        if taskId then
+            return "taskid_" .. tostring(taskId)
+        end
+
+        return ""
+    end
+
+    local function _flush_xyl_dynamic_content()
+        MainAssist._xylDynamicRefreshTimer = nil
+        if not MainAssist._xylCurrentTask then
+            return
+        end
+
+        MainAssist.UpdateCurrentXylTaskWidget()
+
+        if MainAssist._xylDetailPopup and MainAssist._xylDetailPopup.root then
+            _refresh_xyl_detail_popup_content()
+        end
+    end
+
+    local function _request_xyl_dynamic_refresh()
+        if MainAssist._xylDynamicRefreshTimer then
+            return
+        end
+
+        local schedulerNode = MainAssist._ui and MainAssist._ui["Panel_assist"]
+        if not schedulerNode then
+            _flush_xyl_dynamic_content()
+            return
+        end
+
+        MainAssist._xylDynamicRefreshTimer = SL:scheduleOnce(schedulerNode, function()
+            _flush_xyl_dynamic_content()
+        end, XYL_DYNAMIC_REFRESH_DELAY)
+    end
+
     -- 备注：点击“立即前往”时复用伏妖录原本的前往逻辑。
     local function _go_to_current_xyl_task()
         local info = _get_xyl_current_task_info(MainAssist._xylCurrentTask)
@@ -233,6 +303,11 @@ function MainAssistXylHelper.bind(MainAssist)
         end
 
         local taskDesc = _get_xyl_current_task_desc(info.task)
+        local cacheKey = _get_xyl_current_task_cache_key(MainAssist._xylCurrentTask, info)
+        if popup.descCacheKey == cacheKey and popup.descCacheText == taskDesc then
+            return
+        end
+
         GUI:removeAllChildren(popup.descHost)
 
         local okDesc, descNode = pcall(function()
@@ -244,6 +319,9 @@ function MainAssistXylHelper.bind(MainAssist)
             local plain = GUI:Text_Create(popup.descHost, "desc_plain", 0, -6, 16, "#f7f7de", taskDesc)
             GUI:setAnchorPoint(plain, 0, 1)
         end
+
+        popup.descCacheKey = cacheKey
+        popup.descCacheText = taskDesc
     end
 
     -- 备注：点击“任务详情”时显示类似 ensure_cover 的任务介绍层。
@@ -281,6 +359,8 @@ function MainAssistXylHelper.bind(MainAssist)
             root = root,
             bg = bg,
             descHost = desc,
+            descCacheKey = nil,
+            descCacheText = nil,
         }
         _refresh_xyl_detail_popup_content()
     end
@@ -375,6 +455,7 @@ function MainAssistXylHelper.bind(MainAssist)
         end
 
         GUI:Text_setString(widget.nameText, tostring(info.name))
+        GUI:Button_setTitleText(widget.goBtn, _get_xyl_current_task_action_text(info))
         if widget.rewardNode then
             GUI:removeFromParent(widget.rewardNode)
             widget.rewardNode = nil
@@ -404,9 +485,13 @@ function MainAssistXylHelper.bind(MainAssist)
             return
         end
 
-        _debug_xyl_trace("打印当前任务", data)
         local xylNameMap, xylDqMap = _build_xyl_task_maps()
         local xylTaskId = _get_xyl_task_id(data)
+        local xylTaskDq = _get_xyl_task_dq(data)
+        local printKey = tostring(xylTaskId or "") .. "|" .. tostring(xylTaskDq or "")
+        if MainAssist._xylLastPrintTaskKey == printKey then
+            return
+        end
 
         local taskName = xylTaskId and xylNameMap[xylTaskId] or nil
         if not taskName and xylTaskId then
@@ -414,7 +499,6 @@ function MainAssistXylHelper.bind(MainAssist)
             taskName = cfg and cfg.name or ("npc_" .. tostring(xylTaskId))
         end
 
-        local xylTaskDq = _get_xyl_task_dq(data)
         if not taskName and xylTaskDq then
             taskName = xylDqMap[xylTaskDq]
         end
@@ -423,6 +507,8 @@ function MainAssistXylHelper.bind(MainAssist)
             SL:release_print(string.format("[伏妖录调试] 未匹配到任务名 taskId=%s dq=%s", tostring(xylTaskId), tostring(xylTaskDq)))
             return
         end
+
+        MainAssist._xylLastPrintTaskKey = printKey
 
         if xylTaskId then
             SL:release_print(string.format("[伏妖录] 当前任务：%s（%d）", tostring(taskName), xylTaskId))
@@ -436,15 +522,20 @@ function MainAssistXylHelper.bind(MainAssist)
         if type(data) ~= "table" then
             return
         end
+        local oldKey = _get_xyl_current_task_cache_key(MainAssist._xylCurrentTask)
         MainAssist._xylCurrentTask = data
-        _close_current_xyl_detail()
         _debug_xyl_trace("当前任务变更", data)
         MainAssist.UpdateCurrentXylTaskWidget()
-        for _, cell in pairs(MainAssist._missionCells or {}) do
-            if cell and type(cell.data) == "table" and tonumber(cell.data.taskid) == 22 then
-                SL:release_print("[伏妖录调试] 命中任务栏中的 taskid=22，开始刷新")
-                MainAssist.PrintXylTaskName(cell.data)
-                break
+        if MainAssist._xylDetailPopup and MainAssist._xylDetailPopup.root then
+            _refresh_xyl_detail_popup_content()
+        end
+        local newKey = _get_xyl_current_task_cache_key(MainAssist._xylCurrentTask)
+        if oldKey ~= newKey then
+            for _, cell in pairs(MainAssist._missionCells or {}) do
+                if cell and type(cell.data) == "table" and tonumber(cell.data.taskid) == 22 then
+                    MainAssist.PrintXylTaskName(cell.data)
+                    break
+                end
             end
         end
     end
@@ -452,15 +543,7 @@ function MainAssistXylHelper.bind(MainAssist)
     -- 备注：刷新伏妖录任务的动态展示。
     -- 用于处理服务端变量、背包道具变化后，任务描述和奖励需要实时重算的情况。
     function MainAssist.RefreshXylDynamicContent()
-        if not MainAssist._xylCurrentTask then
-            return
-        end
-
-        MainAssist.UpdateCurrentXylTaskWidget()
-
-        if MainAssist._xylDetailPopup and MainAssist._xylDetailPopup.root then
-            _refresh_xyl_detail_popup_content()
-        end
+        _request_xyl_dynamic_refresh()
     end
 
     -- 备注：服务端变量变化后，伏妖录任务描述可能发生变化，这里统一刷新。

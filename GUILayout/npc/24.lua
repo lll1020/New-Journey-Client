@@ -15,6 +15,53 @@ local level_coler = {
     [5] = "#FF0000",
 }
 
+local function _ywl_vertical_text(text)
+                    if not text then
+                        return ""
+                    end
+                    local s = tostring(text)
+                    local out = {}
+                    local i = 1
+                    while i <= #s do
+                        local c = string.byte(s, i)
+                        local len = 1
+                        if c >= 0xF0 then
+                            len = 4
+                        elseif c >= 0xE0 then
+                            len = 3
+                        elseif c >= 0xC0 then
+                            len = 2
+                        end
+                        local ch = string.sub(s, i, i + len - 1)
+                        if ch == "（" or ch == "(" then
+                            local close = (ch == "（") and "）" or ")"
+                            local j = i + len
+                            while j <= #s do
+                                local cb = string.byte(s, j)
+                                local clen = 1
+                                if cb >= 0xF0 then
+                                    clen = 4
+                                elseif cb >= 0xE0 then
+                                    clen = 3
+                                elseif cb >= 0xC0 then
+                                    clen = 2
+                                end
+                                local cj = string.sub(s, j, j + clen - 1)
+                                if cj == close then
+                                    j = j + clen
+                                    break
+                                end
+                                j = j + clen
+                            end
+                            i = j
+                        else
+                            table.insert(out, ch)
+                            i = i + len
+                        end
+                    end
+                    return table.concat(out, "\n")
+                end
+
 
 function npc.main(npcid, p2, p3, msgData)
 
@@ -338,6 +385,56 @@ function npc.main(npcid, p2, p3, msgData)
     elseif p2 == 2 then
         npc.data = SL:JsonDecode(msgData,false)
         GUI_createLabel(npc.Label,npc.titles_sign)
+    elseif p2 == 10 then
+        local data = SL:JsonDecode(msgData,false)
+        local parent = GUI:GetWindow(nil, "xf_xjm")
+        if parent then
+            GUI:removeAllChildren(parent)
+        else
+            parent = GUI:Win_Create("xf_xjm", 0, 0, 0, 0, false, false, true, true, true, nil, 24)
+        end
+        
+        local overlay = GUI:Image_Create(parent, 'bjt', 0, 0, 'res/public/1900000651_1.png')
+        GUI:setAnchorPoint(overlay, 0.5, 0.5)
+        GUI:setContentSize(overlay, (cogin.w + 100), (cogin.h + 100))
+        GUI:setTouchEnabled(overlay, true)
+
+        local bg = GUI:Frames_Create(parent, "bg", cogin.w/2,  cogin.h/2, "res/custom/tianshu/xf/eff/eff_", ".png", 1, 158,
+                { speed = 50, count = 158, loop = 1,callback = function(self)
+
+                    local tit = GUI:Image_Create(parent, "tit", 150, cogin.h/2, "res/custom/tianshu/xf/l_".. data.group ..".png")
+                    GUI:setAnchorPoint(tit, 0.5, 0.5)
+                    GUI:setOpacity(tit, 0)
+                    GUI:Timeline_FadeIn(tit, 1,nil)
+
+                    local cfg = npc._config.details[2]
+                    local cfg_details = cfg.details
+                    local info = cfg_details[data.group] and cfg_details[data.group][data.idx]
+                    -- info.name, level_coler[group] or "#FFFFFF", info.wz
+
+                    local name = GUI:Text_Create(parent, "name", cogin.w/2,  cogin.h/2 + 30, 50, level_coler[data.group] or "#FFFFFF", info.name)
+                    GUI:setAnchorPoint(name, 0.5, 0)
+                    GUI:Text_setFontName(name, "fonts/448.ttf")
+                    GUI:Text_enableOutline(name, "#000000", 2)
+                    GUI:setOpacity(name, 0)
+                    GUI:Timeline_FadeIn(name, 1,nil)
+
+                    local attr_desc = GUI:RichText_Create(parent, "attr_desc", cogin.w/2,  cogin.h/2,  info.wz, 310, 17, "#f7f7de", 3,nil,nil)
+                    GUI:setAnchorPoint(attr_desc, 0.5, 1)
+                    GUI:setOpacity(attr_desc, 0)
+                    GUI:Timeline_FadeIn(attr_desc, 1,nil)
+
+                    local closeBtn = GUI:Button_Create(parent, "close", cogin.w - 100 ,cogin.h - 100, 'res/wy/public/close_red_big.png')
+                    GUI:setLocalZOrder(closeBtn, 100)
+                    GUI:addOnClickEvent(closeBtn, function()
+                        GUI:Win_Close(parent)
+                    end)
+                end})
+        GUI:setContentSize(bg, cogin.w, cogin.h)
+        GUI:setAnchorPoint(bg, 0.5, 0.5)
+        GUI:setTouchEnabled(bg, true)
+
+
     end
 end
 

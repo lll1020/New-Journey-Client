@@ -97,21 +97,22 @@ end
 
         local EquipShow_16 = GUI:EquipShow_Create(
             node
-        , "EquipShow_16", 180, 90, 16, false, {look = true, movable = true, bgVisible = false, doubleTakeOff = true})
+        , "EquipShow_16", 180, 90, 16, false, {look = true, movable = true, bgVisible = false, doubleTakeOff = false})
         GUI:EquipShow_setAutoUpdate(EquipShow_16)
         GUI:setAnchorPoint(EquipShow_16, 0.5, 0.5)
 
 
-        local Button= GUI:Button_Create(node, "Button", 310, 30, "res/wy/public/an_tongyong.png")
-        local Button_wz = GUI:Text_Create(Button, "desc",116,52, 25, "#FFFBF0", "一键全部饮用")
-        GUI:setAnchorPoint(Button_wz, 0.5, 0.5)
-        GUI:Text_setFontName(Button_wz, "fonts/500.ttf")
-        GUI:Text_enableOutline(Button_wz, "#CA352C", 2)
-
+        local Button = GUI:Button_Create(node, "Button", 310 + 557, 40, "res/wy/public/kb_btn.png")
         GUI:setAnchorPoint(Button, 0.5, 0.5)
+        GUI:Button_setTitleText(Button, "全部饮用")
+        GUI:Button_setTitleColor(Button, "#F4E7B5")
+        GUI:Button_setTitleFontSize(Button, 14)
+        GUI:Button_titleEnableOutline(Button, "#110b05", 2)
         GUI:addOnClickEvent(Button, function()
             SL:SendLuaNetMsg(100, npcid, 2, 0, "")
         end)
+
+
 
         local kuang = GUI:Image_Create(node, "kuang2", 720, 0, "res/wy/public/70_70_k.png")
         UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.title.."[称号]")))
@@ -130,15 +131,15 @@ end
             
             local l = GUI:ui_delegate(cllist)["img_bj_l_"..v]
             GUI:removeChildByName(l, "text_cs")
-            GUI:removeChildByName(l, "text_attr")
+            -- GUI:removeChildByName(l, "text_attr")
             GUI:setAnchorPoint(GUI:RichText_Create(l, "text_cs", 106, 20 + 68,
                             SetCompletionProgress((npc.data.dj_data[""..v] or 0), k.max_level)
             , 500, 30, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
             , 0.5, 0.5)
-            GUI:setAnchorPoint(GUI:RichText_Create(l, "text_attr", 106, 160,
-                            "<font color='#FF00FF' size='18' >"..k.attr_desc.." + "..(npc.data.dj_data[""..v] or 0).."</font>"
-            , 500, 30, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-            , 0.5, 0.5)
+            -- GUI:setAnchorPoint(GUI:RichText_Create(l, "text_attr", 106, 160,
+            --                 "<font color='#FF00FF' size='18' >"..k.attr_desc.." + "..(npc.data.dj_data[""..v] or 0).."</font>"
+            -- , 500, 30, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+            -- , 0.5, 0.5)
         end
 
     end

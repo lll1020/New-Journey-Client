@@ -411,7 +411,6 @@ end
 -- 备注：剧情点验证入口（优先特殊逻辑，其次剧情完成）
 local function _xyl_check_task(name)
     local key = _xyl_norm_name(name)
-    SL:release_print(key)
     local special = {
         ["天书强化"] = _xyl_has_tianshu_level,
         ["初识仙法"] = _xyl_has_any_xianfa,
@@ -561,7 +560,7 @@ local npc_xyl = {
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
                     need_receive = false,
-                    yd = { 1, "二大陆主城", 24, 101, 113 },
+                    yd = { 1, "二大陆主城", 24, 100, 106 },
                     desc = "前往天书界面完成首次强化，让天书正式发挥作用。\n<font color='#F4D179'>目标：</font>将天书提升至1级\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
@@ -571,7 +570,7 @@ local npc_xyl = {
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
                     need_receive = false,
-                    yd = { 1, "二大陆主城", 24, 101, 113 },
+                    yd = { 1, "二大陆主城", 24, 100, 106 },
                     desc = "在天书中学习并装配第一个仙法，正式掌握仙法力量。\n<font color='#F4D179'>目标：</font>已获得任意仙法\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
@@ -608,21 +607,21 @@ local npc_xyl = {
                 {
                     "幸运增幅",
                     id = 999,
-                    jl = { { "剧情点", 1 }, { "灵石", 100 } },
+                    jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
                     need_receive = false,
-                    yd = { 1, "二大陆主城", 25, 105, 113 },
+                    yd = { 1, "二大陆主城", 25, 105, 106 },
                     desc = "前往幸运强化界面完成首次提升，补齐基础成长线。\n<font color='#F4D179'>目标：</font>幸运强化达到1级\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "气运占卜",
                     id = 999,
-                    jl = { { "剧情点", 1 }, { "灵石", 100 } },
+                    jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
                     need_receive = false,
-                    yd = { 1, "二大陆主城", 26, 109, 113 },
+                    yd = { 1, "二大陆主城", 26, 110, 106 },
                     desc = "进行一次气运占卜，开启命格与气运加成的第一步。\n<font color='#F4D179'>目标：</font>完成1次气运占卜\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
@@ -852,7 +851,7 @@ local npc_xyl = {
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
                     need_receive = false,
-                    yd = { 1, "三大陆主城", 47, 161, 225 },
+                    yd = { 1, "藏星外海", 634, 69, 132 },
                     desc = "在仙府中制作一次藏宝图，打通寻宝玩法入口。\n<font color='#F4D179'>目标：</font>完成1次藏宝图制作\n<font color='#F4D179'>进度：</font>%s",
                 },
             },
@@ -952,7 +951,7 @@ local npc_xyl = {
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
                     need_receive = true,
-                    yd = { 1, "三大陆主城", 47, 161, 225 },
+                    yd = { 1, "藏星外海", 634, 69, 132 },
                     desc = "在海域线前期进行大规模清怪，用持续战斗打开沉船支线。\n<font color='#F4D179'>目标：</font>击杀怪物300只\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
@@ -1218,7 +1217,7 @@ local npc_xyl = {
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
                     need_receive = false,
-                    yd = { 1, "四大陆主城", 65, 41, 27 },
+                    yd = { 1, "四大陆主城", 65, 28, 23 },
                     desc = "在古玩鉴定中成功获得一件唐代古玩，作为鉴宝线的阶段证明。\n<font color='#F4D179'>目标：</font>鉴定出唐代古玩\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
@@ -1228,7 +1227,7 @@ local npc_xyl = {
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
                     need_receive = false,
-                    yd = { 1, "二大陆主城", 24, 101, 113 },
+                    yd = { 1, "二大陆主城", 24, 100, 106 },
                     desc = "获得红色品质仙法，说明仙法系统已进入高阶阶段。\n<font color='#F4D179'>目标：</font>持有红色仙法\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
@@ -1635,7 +1634,7 @@ local npc_xyl = {
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
                     need_receive = false,
-                    yd = { 1, "四大陆主城", 67, 47, 27 },
+                    yd = { 1, "四大陆主城", 67, 36, 23 },
                     desc = "十二生肖全部试炼通过后，回到主城完成整条生肖守护收束。\n<font color='#F4D179'>目标：</font>通过十二生肖守护试炼\n<font color='#F4D179'>进度：</font>%s",
                 },
             },
