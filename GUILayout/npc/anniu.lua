@@ -37,7 +37,7 @@ local WINDOW_STYLE = {
     recycle = {      -- 装备回收
         windowName = "npc_huishou",
         overlay = {skin = "res/public/1900000651_1.png"},
-        background = {skin = "res/wy/public/hs_bj.png"},
+        background = {x = -100,skin = "res/wy/public/hs_bj.png"},
         closeButton = {x = 840 - 293, y = 490 - 150, skin = "res/wy/public/red_close.png"},
     },
     welfare = {      -- 福利大厅
@@ -1555,7 +1555,7 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
                     npc.hs_xbj = nil
                 end
 
-                npc.hs_xbj = GUI:Image_Create(jm_node, "bj", 258, 318, "res/private/item_tips/bg_tipszy_05.png")
+                npc.hs_xbj = GUI:Image_Create(jm_node, "bj", 258 + 329, 318, "res/private/item_tips/bg_tipszy_05.png")
                 GUI:setAnchorPoint(npc.hs_xbj, 0, 1)
                 GUI:setTouchEnabled(npc.hs_xbj, true)
                 GUI:setContentSize(npc.hs_xbj, 252, 300)
