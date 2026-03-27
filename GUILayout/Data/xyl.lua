@@ -415,7 +415,7 @@ local function _xyl_check_task(name)
         ["天书强化"] = _xyl_has_tianshu_level,
         ["初识仙法"] = _xyl_has_any_xianfa,
         ["装备强化"] = _xyl_has_equip_strength,
-        ["喂养灵根"] = _xyl_has_linggen_feed,
+        ["升级灵根"] = _xyl_has_linggen_feed,
         ["幸运增幅"] = _xyl_has_lucky_upgrade,
         ["气运占卜"] = _xyl_has_divination,
         ["转生·二"] = function() return _xyl_has_rebirth(20) end,
@@ -698,7 +698,7 @@ local npc_xyl = {
         {
             jq = {
                 {
-                    "喂养灵根",
+                    "升级灵根",
                     id = 999,
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
@@ -762,7 +762,7 @@ local npc_xyl = {
         {
             jq = {
                 {
-                    "开辟仙府（主城NPC）",
+                    "开辟仙府",
                     id = 999,
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
@@ -864,7 +864,7 @@ local npc_xyl = {
                     zj = 1,
                     idx = 1,
                     lock_tip = "章节未解锁",
-                    tip = "解锁条件：必须完成「开辟仙府（主城NPC）」",
+                    tip = "解锁条件：必须完成「开辟仙府」",
                 },
             },
 

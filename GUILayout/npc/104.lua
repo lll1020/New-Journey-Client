@@ -318,6 +318,7 @@ local function renderMain(node, npcid, data)
     npc.mainline_realm = NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, refreshBtn, node, npcid, 1, {
         dir = 5,
         taskMap = {[npcid] = 19},
+        desc = "点击洗练先天词条",
     })
     setButtonState(refreshBtn, canRefresh(data))
     if canRefresh(data) and checkItemNum(getConfig().cost or {}) then
@@ -362,7 +363,8 @@ local function renderPreviewPanel(node, npcid, data)
         NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, keepBtn, panel, npcid, 2, {
         dir = 5,
         taskMap = {[npcid] = 19},
-        isForce = false,hideMask = true
+        isForce = false,hideMask = true,
+        desc = "点击替换先天词条",
     })
     end
     setButtonState(keepBtn, true)

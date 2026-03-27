@@ -89,7 +89,7 @@ function LeftAttrOBJ:onAttrChange()
     GUI:Text_setString(self.ui.qieGe, qieGe)
     GUI:Text_setString(self.ui.baoLv, baoLv .. "%")
     GUI:Text_setString(self.ui.gongSu, gongSu .. "%")
-    GUI:Text_setString(self.ui.beiGong, beiGong .. "%")
+    GUI:Text_setString(self.ui.beiGong, string.format("%.3f倍", (beiGong + 100) / 100))
 
     local rwid = SL:GetMetaValue("MAIN_ACTOR_ID")
     local hb16 = tonumber(SL:GetMetaValue("MONEY",16))

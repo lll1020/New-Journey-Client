@@ -350,9 +350,9 @@ function MainAssistXylHelper.bind(MainAssist)
 
         local desc = GUI:Text_Create(bg, "desc_wz", 12, 82 + 71, 18, "#FFFFFF", "任务简介")
         GUI:Text_enableUnderline(desc)
-        GUI:Text_setFontName(desc, "fonts/448.ttf")
+        GUI:Text_setFontName(desc, "fonts/font4.ttf")
         GUI:Text_enableOutline(desc, "#000000", 2)
-        GUI:Text_Create(bg, "desc_wz_tip", 12 + 100, 82 + 71, 18, "#00FF00", "(可拖动)")
+        GUI:Text_Create(bg, "desc_wz_tip", 12 + 100, 82 + 71, 18, "#00FF00", "[可拖动]")
 
 
         MainAssist._xylDetailPopup = {
@@ -389,7 +389,7 @@ function MainAssistXylHelper.bind(MainAssist)
         GUI:setAnchorPoint(nameText, 0, 0.5)
         GUI:Text_enableOutline(nameText, "#110b05", 2)
 
-        local rewardTitle = GUI:Text_Create(panel, "reward", 0, 70, 16, "#FF00FF", "剧情\n奖励")
+        local rewardTitle = GUI:Text_Create(panel, "reward", 0, 70, 16, "#00FB00", "剧情\n奖励")
         GUI:setAnchorPoint(rewardTitle, 0, 0.5)
         GUI:Text_enableOutline(rewardTitle, "#110b05", 2)
 

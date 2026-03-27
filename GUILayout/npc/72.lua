@@ -9,17 +9,59 @@ local WINDOW_OPTS = {
     title = {x = 56, y = 464, skin = "res/custom/five_city/sgshz/title.png"},
 }
 
-function Progress(num1, num2)
-    local str = ""
-    if num1 >= num2 then
-        num1 = num2
-        str = string.format("<font color='#FF0000' size='20' >(%d/%d)</font>",num1,num2)
+local ATTR_PERCENT_SCALE = {
+    [22] = 1,
+    [23] = 1,
+    [34] = 100,
+    [35] = 100,
+    [36] = 100,
+    [79] = 100,
+    [80] = 100,
+    [81] = 100,
+    [245] = 100,
+}
 
-    else
-        str = string.format("<font color='#00FF00' size='20' >(%d/%d)</font>",num1,num2)
-
+local function buildProgressText(num1, num2)
+    num1 = tonumber(num1 or 0) or 0
+    num2 = tonumber(num2 or 0) or 0
+    if num1 >= num2 and num2 > 0 then
+        return "<font color='#FF0000' size='20' >已满级</font>"
     end
-    return str
+    return string.format("<font color='#00FF00' size='20' >进度 %d/%d</font>", num1, num2)
+end
+
+local function formatAttrValue(cfg, value)
+    local scale = ATTR_PERCENT_SCALE[cfg.attrID]
+    if scale then
+        local num = value / scale
+        if num == math.floor(num) then
+            return string.format("%d%%", num)
+        end
+        return string.format("%.2f%%", num)
+    end
+    return tostring(value)
+end
+
+local function buildAttrValueText(cfg, level)
+    if not cfg then
+        return ""
+    end
+    level = tonumber(level or 0) or 0
+    local maxLevel = tonumber(cfg.max_level or 0) or 0
+    if maxLevel > 0 and level > maxLevel then
+        level = maxLevel
+    end
+
+    local ratio = tonumber(cfg.ratio or 0) or 0
+    local value = level * ratio
+    local isMax = maxLevel > 0 and level >= maxLevel
+    local valueColor = isMax and "#CA352C" or "#00B4FF"
+    return string.format(
+        "<font color='#FFFFFF' size='18' >%s+</font><font color='%s' size='18' >%s</font>",
+        tostring(cfg.attr_desc or "当前属性"),
+        valueColor,
+        formatAttrValue(cfg, value)
+    )
 end
 
 
@@ -64,10 +106,13 @@ function npc.main(npcid, p2, p3, msgData)
                 GUI:Text_setFontName(GUI:Text_Create(box_node, "attr_desc",220,10, 25, "#FF00FF", npc._config.config[i].attr_desc), "fonts/501.ttf")
 
                 GUI:setAnchorPoint(
-                    GUI:RichText_Create(box_node, "num", 460, 10,
-                        Progress((npc.data.dj_data[""..i] or 0), npc._config.config[i].max_level).."%"
-                    , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-                ,0.5, 0)
+                    GUI:RichText_Create(box_node, "attr_value", 380, 10,
+                        buildAttrValueText(npc._config.config[i], (npc.data.dj_data[""..i] or 0))
+                    , 180, 18, "#f7f7de", 1,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+                ,0, 0)
+                -- local attr_desc = GUI:Text_Create(box_node, "attr_value",460, -2, 25, "#FF00FF", buildAttrValueText(npc._config.config[i], (npc.data.dj_data[""..i] or 0)))
+                -- GUI:Text_setFontName(attr_desc, "fonts/font4.ttf")
+                -- GUI:setAnchorPoint(attr_desc ,0.5, 0)
                 local Button= GUI:Button_Create(box_node, "Button", 560, 4, "res/custom/five_city/sgshz/btn.png")
                 GUI:addOnClickEvent(Button, function() 
                     SL:SendLuaNetMsg(100, npcid, 1, 0, SL:JsonEncode({idx = i}, false))
@@ -91,14 +136,14 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data = SL:JsonDecode(msgData,false)
         
         for i=1,10 do
-            
-            
-            GUI:removeChildByName(GUI:ui_delegate(GUI:ui_delegate(npc.node).list)["box_node"..i], "num")
+            local boxNode = GUI:ui_delegate(GUI:ui_delegate(npc.node).list)["box_node"..i]
+            GUI:removeChildByName(boxNode, "num")
+            GUI:removeChildByName(boxNode, "attr_value")
             GUI:setAnchorPoint(
-                GUI:RichText_Create(GUI:ui_delegate(GUI:ui_delegate(npc.node).list)["box_node"..i], "num", 460, 10,
-                    Progress((npc.data.dj_data[""..i] or 0), npc._config.config[i].max_level).."%"
-                , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-            ,0.5, 0)
+                GUI:RichText_Create(boxNode, "attr_value", 380, 10,
+                    buildAttrValueText(npc._config.config[i], (npc.data.dj_data[""..i] or 0))
+                , 180, 18, "#f7f7de", 1,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+            ,0, 0)
 
         end
     end

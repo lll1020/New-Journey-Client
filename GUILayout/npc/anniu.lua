@@ -1829,7 +1829,7 @@ local LUA_EVENT_YWL_CURRENT_TASK_CHANGE = "伏妖录当前任务变更"
 npc[11] = function(p2, p3, Data)
     local AUTO_GUIDE_TASKS = {
         ["天书强化"] = true,
-        ["开辟仙府（主城NPC）"] = true,
+        ["开辟仙府"] = true,
         ["寻宝大师"] = true,
     }
 
@@ -1917,7 +1917,7 @@ npc[11] = function(p2, p3, Data)
             return true
         end
 
-        if taskName == "开辟仙府（主城NPC）" then
+        if taskName == "开辟仙府" then
             if _ywl_story_node_started(storyData["npc_55"]) or _ywl_story_node_started(storyData["npc_55"]) then
                 return true
             end
@@ -1972,8 +1972,8 @@ npc[11] = function(p2, p3, Data)
         npc.bg = win.bg
         npc.node_11 = win.node
 
-        local tipText = GUI:Text_Create(npc.bg, "lock_tip", 700,510, 22, "#FFFFFF", "点击任务卡片可以查看具体的任务详情")
-        GUI:Text_setFontName(tipText, "fonts/500.ttf")
+        local tipText = GUI:Text_Create(npc.bg, "lock_tip", 650,510, 20, "#EFAD21", "TIP:点击任务卡片可以查看具体的任务详情")
+        GUI:Text_setFontName(tipText, "fonts/font4.ttf")
         GUI:Text_enableOutline(tipText, "#000000", 2)
         GUI:setAnchorPoint(tipText, 0.5, 0.5)
 
@@ -2021,7 +2021,7 @@ npc[11] = function(p2, p3, Data)
                     tip = lackJqd and string.format("剧情点不足：%d/%d", curJqd, need) or "章节未解锁"
                 end
                 local tipText = GUI:Text_Create(node, "lock_tip", 588, 160, 24, "#FFFFFF", tip)
-                GUI:Text_setFontName(tipText, "fonts/500.ttf")
+                GUI:Text_setFontName(tipText, "fonts/font4.ttf")
                 GUI:Text_enableOutline(tipText, "#000000", 2)
                 GUI:setAnchorPoint(tipText, 0.5, 0.5)
                 for i, txt in ipairs(lockExtTips) do
@@ -2302,14 +2302,14 @@ npc[11] = function(p2, p3, Data)
                             _toggle_task_slot(cardSlot)
                         end)
 
-                        local title = GUI:Text_Create(cover, "title_wz", 10, 310, 25, "#FF00FF", taskTitle)
-                        GUI:Text_setFontName(title, "fonts/448.ttf")
+                        local title = GUI:Text_Create(cover, "title_wz", 10, 310, 20, "#FF00FF", taskTitle)
+                        GUI:Text_setFontName(title, "fonts/font4.ttf")
                         GUI:Text_enableOutline(title, "#000000", 2)
                         -- GUI:Text_Create(cover, "title", 10, 275, 18, "#FF00FF", taskTitle)
 
-                        local jl = GUI:Text_Create(cover, "jl_wz", 10, 280, 25, "#FFFFFF", "完成奖励")
+                        local jl = GUI:Text_Create(cover, "jl_wz", 10, 280, 20, "#10FF00", "完成奖励")
                         GUI:Text_enableUnderline(jl)
-                        GUI:Text_setFontName(jl, "fonts/448.ttf")
+                        GUI:Text_setFontName(jl, "fonts/font4.ttf")
                         GUI:Text_enableOutline(jl, "#000000", 2)
                         local okReward, rewardNode = pcall(function()
                             return ItemNumByTable_img_new(rewardData, nil, jl)
@@ -2318,9 +2318,9 @@ npc[11] = function(p2, p3, Data)
                             GUI:setPosition(rewardNode, 0, -60)
                         end
 
-                        local desc = GUI:Text_Create(cover, "desc_wz", 10, 172, 30, "#FFFFFF", "任务简介")
+                        local desc = GUI:Text_Create(cover, "desc_wz", 10, 172, 20, "#FFFFFF", "任务简介")
                         GUI:Text_enableUnderline(desc)
-                        GUI:Text_setFontName(desc, "fonts/448.ttf")
+                        GUI:Text_setFontName(desc, "fonts/font4.ttf")
                         GUI:Text_enableOutline(desc, "#000000", 2)
                         local okDesc, descNode = pcall(function()
                             return GUI:RichText_Create(desc, "desc", 0, -5, taskDesc, 160, 15, "#f7f7de", 3, nil, nil)
@@ -2350,7 +2350,7 @@ npc[11] = function(p2, p3, Data)
                     local title = GUI:Text_Create(GUI:Image_Create(img, "name_kuang", 150, 200, "res/custom/ywl/name_kuang.png"), "title",38, 190, 30, "#FFFFFF", _ywl_vertical_text(taskName))
                     GUI:setLocalZOrder(title, 100)
                     GUI:setAnchorPoint(title, 0.5, 1)
-                    GUI:Text_setFontName(title, "fonts/448.ttf")
+                    GUI:Text_setFontName(title, "fonts/font4.ttf")
                     GUI:Text_enableOutline(title, "#000000", 2)
                     -- GUI:setAnchorPoint(GUI:RichText_Create(card, "desc", 100, 180, "任务描述:" .. (task.desc or "可在任务界面查看"), 150, 16, "#00FFFF", 1, nil, nil, { outlineSize = 2, outlineColor = SL:ConvertColorFromHexString("#100808") }), 0.5, 1)
 
@@ -2422,7 +2422,7 @@ npc[11] = function(p2, p3, Data)
 
             
             local TMONEY = GUI:Text_Create(node, "TMONEY",50 + 278,40 + 9, 25, "#FF0000", SL:GetMetaValue("TMONEY", "剧情点"))
-            GUI:Text_setFontName(TMONEY, "fonts/500.ttf")
+            GUI:Text_setFontName(TMONEY, "fonts/font4.ttf")
             GUI:setAnchorPoint(TMONEY, 0.5, 0.5)
 
         end
@@ -2449,7 +2449,7 @@ npc[11] = function(p2, p3, Data)
                         local x_btn = GUI:Button_Create(x_chap, "x_chap", 84/2, 40/2, 'res/custom/ywl/list/xz.png')
                         GUI:setAnchorPoint(x_btn, 0.5, 0.5)
                         local zj_name = GUI:Text_Create(x_chap, "wz", 84/2, 40/2, 23, "#FFFFFF", npc.xyl[npc.l][y].name)
-                        GUI:Text_setFontName(zj_name, "fonts/500.ttf")
+                        GUI:Text_setFontName(zj_name, "fonts/font4.ttf")
                         GUI:Text_enableOutline(zj_name, "#000000", 2)
                         GUI:setAnchorPoint(zj_name, 0.5, 0.5)
                         GUI:addOnClickEvent(x_btn, function()
@@ -4723,11 +4723,12 @@ end
 npc[514] = function(p2, p3, Data)
     local pos = {
         {100 + 123,100 + 267},
-        {200 + 211,100 + 354},
+        {200 + 211,100 + 354 - 90},
+        {600 - 48,100 + 363 - 90},
         {300 - 196,100 + 91},
-        {400 + 79,100 + 268},
         {500 - 212,100 + 151},
-        {600 - 48,100 + 363},
+        {400 + 79,100 + 268 - 128},
+        
     }
     local function renderWorldMap(node)
         GUI:removeAllChildren(node)

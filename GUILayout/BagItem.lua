@@ -136,9 +136,13 @@ function BagItem:InitBagItemData(data)
     GUI:setVisible(self._ui["Node_sfx"], bShowEffect)
     if itemData.StdMode == 31 then   --可以使用
         if IsWinPlayMode then
-            GUI:Image_Create(self._parent, "use", 25, 25, "res/wy/public/useful.png")
+            local eff = GUI:Frames_Create(self._parent, "use", 15, 15, "res/wy/icon/hongdian/eff_", ".png", 1, 15,
+            { speed = 75, count = 15, loop = -1})
+            GUI:setScale(eff, 0.4)
         else
-            GUI:Image_Create(self._parent, "use", 46, 40, "res/wy/public/useful.png")
+            local eff = GUI:Frames_Create(self._parent, "use", 40, 35, "res/wy/icon/hongdian/eff_", ".png", 1, 15,
+            { speed = 75, count = 15, loop = -1})
+            GUI:setScale(eff, 0.4)
         end
     end
 
