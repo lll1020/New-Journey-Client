@@ -2045,7 +2045,7 @@ npc[11] = function(p2, p3, Data)
                 local taskCardWidth = 232
                 local taskCardGapX = 0
                 local taskCardStepX = taskCardWidth + taskCardGapX
-                local layoutWidth = taskCount * taskCardStepX + taskCardStepX
+                local layoutWidth = taskCount * taskCardStepX + taskCardStepX - 70
                 GUI:ScrollView_setInnerContainerSize(scroll, layoutWidth, 414)
                 local layout = GUI:Layout_Create(scroll, "task_layout", 0, 0, layoutWidth, 414, false)
                 local autoGuideWidget = nil
@@ -2213,6 +2213,25 @@ npc[11] = function(p2, p3, Data)
                     ))
                 end
 
+                -- 默认展开首个任务卡片，避免首次进入时还需要额外点一次详情。
+                local function _expand_task_slot_immediately(slot)
+                    local slotUi = _slot_state(slot)
+                    if not slotUi then
+                        return
+                    end
+                    local cover = slotUi.ensure_cover and slotUi.ensure_cover() or slotUi.cover
+                    if not cover then
+                        return
+                    end
+                    _set_task_slot_open(slot, slotUi, true)
+                    GUI:stopAllActions(cover)
+                    GUI:setPosition(cover, slotUi.cover_end_x, slotUi.cover_y)
+                    GUI:setVisible(cover, true)
+                    slotUi.cover_open = true
+                    slotUi.cover_anim = false
+                    expandedSlot = slot
+                end
+
                 -- 任务槽位折叠/展开切换：同一时刻仅允许一个展开。
                 local function _toggle_task_slot(slot)
                     local slotUi = _slot_state(slot)
@@ -2376,6 +2395,11 @@ npc[11] = function(p2, p3, Data)
                             GUI:addOnClickEvent(goBtn, function()
                                 SL:SendLuaNetMsg(101, 11, enable and 3 or 1, 0,
                                     string.format('{"i":%d,"j":%d,"k":0,"z":%d}', npc.l, npc.zj, idx))
+                                if enable then
+                                    GUI:removeFromParent(goBtn)
+                                    GUI:setAnchorPoint(GUI:Image_Create(img, "ylq", 232/2, 90, 'res/custom/ywl/ylq.png')
+                                    , 0.5, 0.5)
+                                end
                             end)
                             if AUTO_GUIDE_TASKS[taskName] and not autoGuideWidget then
                                 if not chapterDone and not taskDoneByReward and not khdDone and not storyStarted then
@@ -2386,6 +2410,9 @@ npc[11] = function(p2, p3, Data)
                         end
                     end
                     
+                end
+                if #taskSlots > 0 then
+                    _expand_task_slot_immediately(taskSlots[1])
                 end
                 _relayout_task_cards(false)
                 GUI:Image_Create(node, "wz1", 340, 100, 'res/custom/ywl/wz.png')
@@ -2507,18 +2534,12 @@ npc[11] = function(p2, p3, Data)
             npc.data = npc.data or {}
             npc.data.ywl = npc.data.ywl or {}
             npc.data.ywl["jl_" .. data.i .. "_" .. data.j .. "_" .. data.z] = 1
-            local img = nil
-            if _ywl_is_valid_gui_node(npc.node_11) then
-                local card = GUI:getChildByName(npc.node_11, "card" .. data.z)
-                if _ywl_is_valid_gui_node(card) then
-                    img = GUI:getChildByName(card, "img")
-                end
-            end
-            if _ywl_is_valid_gui_node(img) then
-                GUI:removeChildByName(img, "goBtn")
-                GUI:setAnchorPoint(GUI:Image_Create(img, "ylq", 232 / 2, 90, 'res/custom/ywl/ylq.png')
-                , 0.5, 0.5)
-            end
+            npc.l = tonumber(data.i) or npc.l
+            npc.zj = tonumber(data.j) or npc.zj
+            -- if _ywl_is_valid_gui_node(npc.node_11) then
+            --     npc[11](0, 0, SL:JsonEncode(npc.data, false))
+            --     return
+            -- end
         end
         -- if npc.data and npc.data.ywl then
         --     npc.data.ywl["jl_" .. p3] = 1
