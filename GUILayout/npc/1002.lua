@@ -51,20 +51,11 @@ function npc.main(npcid, p2, p3, msgData)
                     GUI:setAnchorPoint(GUI:Image_Create(kuang, "wjs", 166/2, 30, "res/custom/one_city/shape/bz1.png")
                     , 0.5, 0.5)
                 end
-                if SL:GetMetaValue("WINPLAYMODE") then
-                    GUI:addMouseMoveEvent(kuang, {onEnterFunc = function()
-                        local pos = GUI:getWorldPosition(kuang)
-                        SL:OpenCommonDescTipsPop({str = Player:showAttr(v.attr), worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 0})
-                    end, onLeaveFunc = function()
-                        SL:CloseCommonDescTipsPop()
-                    end})
-                else
-                    GUI:setTouchEnabled(kuang, true)
-                    GUI:addOnTouchEvent(kuang, function(self)
-                        local pos = GUI:getWorldPosition(kuang)
-                        SL:OpenCommonDescTipsPop({str = Player:showAttr(v.attr), worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 0})
-                    end)
-                end
+                GUI:setTouchEnabled(kuang, true)
+                GUI:addOnTouchEvent(kuang, function(self)
+                    local pos = GUI:getWorldPosition(kuang)
+                    SL:OpenItemTips({typeId = SL:GetMetaValue("ITEM_INDEX_BY_NAME",v.name), pos = {x = pos.x, y = pos.y}})
+                end)
             end
             GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 3,gap = {x=0, y=0}})
             
@@ -122,20 +113,11 @@ function npc.main(npcid, p2, p3, msgData)
                     GUI:setAnchorPoint(GUI:Image_Create(kuang, "wjs", 166/2, 30, "res/custom/one_city/shape/bz1.png")
                     , 0.5, 0.5)
                 end
-                if SL:GetMetaValue("WINPLAYMODE") then
-                    GUI:addMouseMoveEvent(kuang, {onEnterFunc = function()
-                        local pos = GUI:getWorldPosition(kuang)
-                        SL:OpenCommonDescTipsPop({str = Player:showAttr(v.attr), worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 0})
-                    end, onLeaveFunc = function()
-                        SL:CloseCommonDescTipsPop()
-                    end})
-                else
-                    GUI:setTouchEnabled(kuang, true)
-                    GUI:addOnTouchEvent(kuang, function(self)
-                        local pos = GUI:getWorldPosition(kuang)
-                        SL:OpenCommonDescTipsPop({str = Player:showAttr(v.attr), worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 0})
-                    end)
-                end
+                GUI:setTouchEnabled(kuang, true)
+                GUI:addOnTouchEvent(kuang, function(self)
+                    local pos = GUI:getWorldPosition(kuang)
+                    SL:OpenItemTips({typeId = SL:GetMetaValue("ITEM_INDEX_BY_NAME",v.name), pos = {x = pos.x, y = pos.y}})
+                end)
             end
             GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 3,gap = {x=0, y=0}})
             

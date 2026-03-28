@@ -21,6 +21,60 @@ local color = {
     "#704214",
 }
 
+local function _lg_base_ratio()
+    return tonumber((npc._config or {}).base_ratio or 0.4) or 0.4
+end
+
+local function _lg_has_root(idx)
+    local levelMap = npc.data and npc.data.T_data and npc.data.T_data.level or {}
+    return idx and levelMap and levelMap[tostring(idx)] ~= nil
+end
+
+local function _lg_level_value(idx)
+    local levelMap = npc.data and npc.data.T_data and npc.data.T_data.level or {}
+    return tonumber(levelMap[tostring(idx)] or 0) or 0
+end
+
+local function _lg_effect_scale(idx, extraLevel)
+    if not _lg_has_root(idx) then
+        return 0
+    end
+    return _lg_level_value(idx) + (tonumber(extraLevel or 0) or 0) + _lg_base_ratio()
+end
+
+local function _lg_round_value(value)
+    value = tonumber(value) or 0
+    if value <= 0 then
+        return 0
+    end
+    local ret = math.floor(value + 0.5)
+    if ret <= 0 then
+        ret = 1
+    end
+    return ret
+end
+
+local function _lg_build_attr_list(idx, extraLevel)
+    local cfg = npc._config and npc._config.main_r and npc._config.main_r[idx]
+    local scale = _lg_effect_scale(idx, extraLevel)
+    local attrList = {}
+    if not cfg or scale <= 0 then
+        return attrList
+    end
+    for _, one in ipairs(cfg.attr or {}) do
+        table.insert(attrList, {one[1], _lg_round_value((tonumber(one[2]) or 0) * scale)})
+    end
+    return attrList
+end
+
+local function _lg_format_scale_text(idx, extraLevel)
+    local scale = _lg_effect_scale(idx, extraLevel)
+    if scale <= 0 then
+        return "0.0"
+    end
+    return string.format("%.1f", scale)
+end
+
 function npc.main(npcid, p2, p3, msgData)
 
 
@@ -44,13 +98,15 @@ function npc.main(npcid, p2, p3, msgData)
         local showItem = GUI:Image_Create(x_node, "item", 464/2, 276, "res/custom/linggen/itme_"..npc.current_idx..".png")
         GUI:setAnchorPoint(showItem, 0.5, 0.5)
 
-        local attr = deepCopy(npc._config.main_r[npc.current_idx].attr)
-        for v,k in pairs(attr) do
+        local currentAttrs = _lg_build_attr_list(npc.current_idx, 0)
+        local nextAttrs = _lg_build_attr_list(npc.current_idx, 1)
+        for v, k in pairs(currentAttrs) do
             local kuang = GUI:Image_Create(x_node, "kuang"..v, 10 + 110, 175 - (v-1)*20, "res/custom/tianshu/qh/tip.png")
-            -- k[2] = k[2] * npc.data.T_data.level[""..npc.current_idx]
-            GUI:RichText_Create(kuang, "attr_desc", 20, 0, Player:showAttr({{k[1],k[2] * npc.data.T_data.level[""..npc.current_idx]}}), 200, 17, "#f7f7de", 3,nil,nil)
+            GUI:RichText_Create(kuang, "attr_desc", 20, 0, Player:showAttr({k}), 200, 17, "#f7f7de", 3,nil,nil)
             GUI:Image_Create(kuang, "jt", 128, 0, "res/custom/tianshu/qh/jt.png")
-            GUI:Text_Create(kuang, "old_attr_v",160,3, 17, "#00FFFF", (npc.data.T_data.level[""..npc.current_idx] and npc.data.T_data.level[""..npc.current_idx] < npc._config.main_updata.max_level) and (k[2] * (npc.data.T_data.level[""..npc.current_idx] + 1)) or "已满级")
+            local nextOne = nextAttrs[v]
+            GUI:Text_Create(kuang, "old_attr_v",160,3, 17, "#00FFFF",
+                (_lg_level_value(npc.current_idx) < npc._config.main_updata.max_level and nextOne) and nextOne[2] or "已满级")
         end
 
         -- for v,k in pairs(attr) do
@@ -117,13 +173,8 @@ function npc.main(npcid, p2, p3, msgData)
         local up_num = GUI:Text_Create(scrollView, "up_num", 130, 285 + yOffset, 20, "#FFFFFF", "lv." .. level)
         local effect = GUI:Frames_Create(scrollView,opts.effectNodeName or "jcsx_eff",10,250 + yOffset,opts.effectPrefix or "res/private/item_tips/eff/jcsx/eff_",".png",1,15,{speed = 75, count = 15, loop = -1})
 
-        local attr = deepCopy(cfg.attr)
-        for _, k in pairs(attr) do
-            k[2] = k[2] * level
-        end
-
         local cursorY = 240 + yOffset
-        local attr_desc = GUI:RichText_Create(scrollView, "attr_desc", 30, cursorY, Player:showAttr(attr), 200, 17, "#f7f7de", 3, nil, nil)
+        local attr_desc = GUI:RichText_Create(scrollView, "attr_desc", 30, cursorY, Player:showAttr(_lg_build_attr_list(idx, 0)), 200, 17, "#f7f7de", 3, nil, nil)
         GUI:setAnchorPoint(attr_desc, 0, 1)
         cursorY = cursorY - GUI:getBoundingBox(attr_desc).height - 35
 
@@ -138,7 +189,7 @@ function npc.main(npcid, p2, p3, msgData)
             "main_desc",
             10,
             cursorY-20,
-            string.format(cfg.wz1, cfg.value1, level .. "(灵根等级)"),
+            string.format(cfg.wz1, cfg.value1, _lg_format_scale_text(idx, 0)),
             200,
             17,
             "#f7f7de",
@@ -157,7 +208,7 @@ function npc.main(npcid, p2, p3, msgData)
             "other_desc",
             10,
             cursorY-30,
-            string.format(cfg.wz2, cfg.value2, level .. "(灵根等级)"),
+            string.format(cfg.wz2, cfg.value2, _lg_format_scale_text(idx, 0)),
             200,
             17,
             "#f7f7de",

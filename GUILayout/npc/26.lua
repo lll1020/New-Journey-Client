@@ -28,6 +28,7 @@ function npc.main(npcid, p2, p3, msgData)
         if not node then
             return
         end
+        local isFirstFree = tonumber(npc.data and npc.data.U_num or 0) <= 0
 
         GUI:removeAllChildren(node)
         for v,k in ipairs(npc._config.details) do
@@ -46,13 +47,13 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:Text_setFontName(GUI:Text_Create(node, "U_num",860,55, 25, "#00FF95", npc.data.U_num or 0)
         , "fonts/500.ttf")
 
-        local guaranteeText = "占卜 65 次必出帝王"
+        local guaranteeText = "[占卜65次必出帝王]"
         if SL:GetMetaValue("TITLE_DATA_BY_ID", SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.details[5])) then
             guaranteeText = "已获得帝王之姿"
         end
         local guaranteeLabel = GUI:Text_Create(node, "guarantee_text", 48 + 668, 115, 25, "#F7DE91", guaranteeText)
         GUI:setAnchorPoint(guaranteeLabel, 0, 0.5)
-        GUI:Text_setFontName(guaranteeLabel, "fonts/501.ttf")
+        GUI:Text_setFontName(guaranteeLabel, "fonts/font4.ttf")
         GUI:Text_enableOutline(guaranteeLabel, "#000000", 2)
 
             
@@ -66,9 +67,16 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 1, 0, "")
             end)
-            if checkItemNum(npc._config.cost) then
+            if isFirstFree or checkItemNum(npc._config.cost) then
                 NPC_UI_HELPER.redpoint_create(Button,{x = 185,y = 47,autoScale = 1})
             end
+
+            if isFirstFree or true then
+                local freeLabel = GUI:Text_Create(node, "free_label", 250, 80, 25, "#FF0000", "第一次占卜是免费的哦！！！")
+                GUI:setAnchorPoint(freeLabel, 0.5, 0.5)
+                GUI:Text_setFontName(freeLabel, "fonts/font4.ttf")
+                GUI:Text_enableOutline(freeLabel, "#000000", 2)
+            end 
             
             
         end

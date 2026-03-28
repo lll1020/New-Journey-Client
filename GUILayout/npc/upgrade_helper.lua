@@ -354,6 +354,9 @@ local function _upgrade_check_qiyun_26()
     if #details > 0 and _upgrade_has_title(details[#details]) then
         return false
     end
+    if _upgrade_get_server_num("U31") <= 0 then
+        return true
+    end
     if cfg.cost and not _upgrade_can_pay(cfg.cost) then
         return false
     end
