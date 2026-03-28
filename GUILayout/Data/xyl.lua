@@ -211,9 +211,28 @@ local function _xyl_has_linggen_feed()
     return false
 end
 
--- 备注：幸运强化次数是否大于 0
-local function _xyl_has_lucky_upgrade()
-    return _xyl_get_num("U30") > 0
+-- 备注：是否已获得任意江湖称号
+local function _xyl_has_jianghu_title()
+    local cfg = teshudata and teshudata["npc_43"]
+    local titleList = cfg and cfg.ch or {}
+    for _, titleName in pairs(titleList) do
+        if _xyl_has_title(titleName) then
+            return true
+        end
+    end
+    return false
+end
+
+-- 备注：是否已装配主灵根
+local function _xyl_has_main_linggen()
+    local data = _xyl_get_json("T41")
+    return (tonumber(data.main or (data.T_data and data.T_data.main)) or 0) > 0
+end
+
+-- 备注：是否已装配副灵根
+local function _xyl_has_other_linggen()
+    local data = _xyl_get_json("T41")
+    return (tonumber(data.other or (data.T_data and data.T_data.other)) or 0) > 0
 end
 
 -- 备注：气运占卜次数是否大于 0
@@ -416,7 +435,9 @@ local function _xyl_check_task(name)
         ["初识仙法"] = _xyl_has_any_xianfa,
         ["装备强化"] = _xyl_has_equip_strength,
         ["升级灵根"] = _xyl_has_linggen_feed,
-        ["幸运增幅"] = _xyl_has_lucky_upgrade,
+        ["获取江湖称号"] = _xyl_has_jianghu_title,
+        ["装配主灵根"] = _xyl_has_main_linggen,
+        ["装配副灵根"] = _xyl_has_other_linggen,
         ["气运占卜"] = _xyl_has_divination,
         ["转生·二"] = function() return _xyl_has_rebirth(20) end,
         ["转生·三"] = function() return _xyl_has_rebirth(30) end,
@@ -605,14 +626,23 @@ local npc_xyl = {
         {
             jq = {
                 {
-                    "幸运增幅",
+                    "装配主灵根",
+                    id = 999,
+                    fwdjy = nil,
+                    khdjy = _xyl_khdjy,
+                    need_receive = false,
+                    yd = { 1, "二大陆主城", 22, 95, 106 },
+                    desc = "前往灵根界面装配主灵根，掌握第一道灵根之力。\n<font color='#F4D179'>目标：</font>已装配主灵根\n<font color='#F4D179'>进度：</font>%s",
+                },
+                {
+                    "获取江湖称号",
                     id = 999,
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
                     need_receive = false,
-                    yd = { 1, "二大陆主城", 25, 105, 106 },
-                    desc = "前往幸运强化界面完成首次提升，补齐基础成长线。\n<font color='#F4D179'>目标：</font>幸运强化达到1级\n<font color='#F4D179'>进度：</font>%s",
+                    yd = { 1, "二大陆主城", 43, 119, 122 },
+                    desc = "前往江湖称号界面领取第一阶称号，踏出江湖第一步。\n<font color='#F4D179'>目标：</font>获得任意江湖称号\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "气运占卜",
@@ -656,14 +686,22 @@ local npc_xyl = {
         {
             jq = {
                 {
+                    "装配副灵根",
+                    id = 999,
+                    fwdjy = nil,
+                    khdjy = _xyl_khdjy,
+                    need_receive = false,
+                    yd = { 1, "二大陆主城", 22, 95, 106 },
+                    desc = "返回灵根界面装配副灵根，补全第二道灵根之力。\n<font color='#F4D179'>目标：</font>已装配副灵根\n<font color='#F4D179'>进度：</font>%s",
+                },
+                {
                     "装备强化",
-                    -- tk = "npc_28",
                     id = 999,
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
                     need_receive = false,
-                    yd = { 1, "二大陆主城", 28, 117, 113 },
+                    yd = { 1, "二大陆主城", 28, 115, 106 },
                     desc = "前往装备强化界面完成一次强化，让角色拥有更稳定的正向成长。\n<font color='#F4D179'>目标：</font>\n完成任意部位装备强化\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
@@ -1861,13 +1899,13 @@ local function _xyl_beautify_desc_keywords(text)
     end)
 
     local systemWords = {
-        "天书界面", "装备强化界面", "幸运强化界面", "古玩鉴定", "气运占卜",
+        "天书界面", "装备强化界面", "幸运强化界面", "江湖称号界面", "灵根界面", "古玩鉴定", "气运占卜",
         "灵根培养", "自动砍树", "藏宝图", "仙府", "转生",
         "灵兽", "神石", "千年沉船", "四灾试炼", "西游篇",
     }
     local actionWords = {
         "前往", "完成", "击杀", "提交", "收集", "挑战",
-        "调查", "开启", "制作", "提升", "通过", "击败",
+        "调查", "开启", "制作", "提升", "通过", "击败", "装配", "领取",
     }
 
     content = _xyl_apply_keyword_color(content, systemWords, XYL_DESC_COLOR.system, staged)

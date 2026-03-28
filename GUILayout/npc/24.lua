@@ -65,6 +65,30 @@ local function _ywl_vertical_text(text)
 
 function npc.main(npcid, p2, p3, msgData)
 
+    local function _has_any_xianfa_equipped()
+        local T_data = npc.data and npc.data.T_data or {}
+        local caowei = T_data.caowei or {}
+        for i = 1, 10 do
+            if type(caowei[tostring(i)]) == "table" then
+                return true
+            end
+        end
+        return false
+    end
+
+    local function _get_default_tianshu_tab()
+        local taskName = tostring(rawget(_G, "XYL_CURRENT_TASK_NAME") or "")
+        SL:release_print("当前任务", taskName)
+        if taskName == "初识仙法" or taskName == "查看仙法" then
+            return 2
+        end
+        local tianshuLevel = tonumber(npc.data and npc.data.T_data and npc.data.T_data.level or 0) or 0
+        if tianshuLevel >= 1 and not _has_any_xianfa_equipped() then
+            return 2
+        end
+        return 1
+    end
+
 
     local function ensureWindow(npcid)
         local opts = {}
@@ -346,8 +370,7 @@ function npc.main(npcid, p2, p3, msgData)
         end
 
 
-
-        npc.titles_sign = 1
+        npc.titles_sign = tonumber(npc.titles_sign) or _get_default_tianshu_tab()
         npc.Label = GUI:Node_Create(node, "Label", 0, 0)
 
         for i = 1, #titles do
@@ -377,6 +400,7 @@ function npc.main(npcid, p2, p3, msgData)
 
     if p2 == 0 then--界面
         npc.data = SL:JsonDecode(msgData,false)
+        npc.titles_sign = nil
         ensureWindow(npcid)
         UI_updata(npc.node)
     elseif p2 == 1 then

@@ -1833,6 +1833,26 @@ npc[11] = function(p2, p3, Data)
         ["寻宝大师"] = true,
     }
 
+    local function _ywl_get_task_name_from_current_task(currentTask)
+        if type(currentTask) ~= "table" then
+            return ""
+        end
+        local taskName = tostring(currentTask.name or currentTask.task_name or currentTask.taskName or "")
+        if taskName ~= "" then
+            return taskName
+        end
+        local dq = tostring(currentTask.dq or currentTask.current_xyl_dq or currentTask.currentXylDq or "")
+        local i, j, z = string.match(dq, "^(%d+)_(%d+)_(%d+)$")
+        i = tonumber(i)
+        j = tonumber(j)
+        z = tonumber(z)
+        local task = i and j and z and npc.xyl and npc.xyl[i] and npc.xyl[i][j] and npc.xyl[i][j].jq and npc.xyl[i][j].jq[z]
+        if type(task) == "table" then
+            return tostring(task[1] or task.title or "")
+        end
+        return ""
+    end
+
     local function _ywl_find_next_chapter(curL, curZj)
         local startL = tonumber(curL) or 2
         local startZj = tonumber(curZj) or 0
@@ -1923,6 +1943,132 @@ npc[11] = function(p2, p3, Data)
             end
         end
         return false
+    end
+
+    local function _ywl_append_reward_entries(outList, rewardList, seenMap)
+        if type(rewardList) ~= "table" then
+            return
+        end
+        for _, entry in ipairs(rewardList) do
+            if type(entry) == "table" and entry[1] ~= nil and entry[2] ~= nil then
+                local key = tostring(entry[1])
+                local count = tonumber(entry[2]) or 0
+                if key ~= "" and count > 0 then
+                    local pos = seenMap[key]
+                    if pos then
+                        outList[pos][2] = (tonumber(outList[pos][2]) or 0) + count
+                    else
+                        table.insert(outList, {entry[1], count})
+                        seenMap[key] = #outList
+                    end
+                end
+            end
+        end
+    end
+
+    local function _ywl_normalize_title_reward_name(titleName)
+        if type(titleName) ~= "string" then
+            return ""
+        end
+        local rewardName = string.gsub(titleName, "^%s+", "")
+        rewardName = string.gsub(rewardName, "%s+$", "")
+        if rewardName == "" then
+            return ""
+        end
+        local oldTitleName = string.match(rewardName, "^称号%[(.-)%]$")
+        if type(oldTitleName) == "string" and oldTitleName ~= "" then
+            rewardName = oldTitleName
+        else
+            rewardName = string.gsub(rewardName, "%[称号%]$", "")
+        end
+        return rewardName .. "[称号]"
+    end
+
+    local function _ywl_append_title_reward(outList, titleName, seenMap)
+        local rewardName = _ywl_normalize_title_reward_name(titleName)
+        if rewardName == "" then
+            return
+        end
+        local pos = seenMap[rewardName]
+        if pos then
+            outList[pos][2] = math.max(tonumber(outList[pos][2]) or 0, 1)
+        else
+            table.insert(outList, {rewardName, 1})
+            seenMap[rewardName] = #outList
+        end
+    end
+
+    local function _ywl_is_title_reward_name(name)
+        return type(name) == "string"
+            and (string.find(name, "%[称号%]") ~= nil or string.match(name, "^称号%[.+%]$") ~= nil)
+    end
+
+    local function _ywl_trim_reward_display(rewardList)
+        if type(rewardList) ~= "table" or #rewardList <= 0 then
+            return {}
+        end
+
+        local titleRewards = {}
+        local otherRewards = {}
+        for _, entry in ipairs(rewardList) do
+            if type(entry) == "table" and _ywl_is_title_reward_name(entry[1]) then
+                table.insert(titleRewards, entry)
+            else
+                table.insert(otherRewards, entry)
+            end
+        end
+
+        local merged = {}
+        for _, entry in ipairs(titleRewards) do
+            table.insert(merged, entry)
+        end
+        for _, entry in ipairs(otherRewards) do
+            table.insert(merged, entry)
+        end
+
+        local result = {}
+        for i = 1, math.min(2, #merged) do
+            result[i] = merged[i]
+        end
+        return result
+    end
+
+    local function _ywl_collect_task_rewards(task)
+        if type(task) ~= "table" then
+            return {}
+        end
+
+        local rewardList = {}
+        local seenMap = {}
+        _ywl_append_reward_entries(rewardList, task.jl, seenMap)
+        _ywl_append_reward_entries(rewardList, task.rwjl, seenMap)
+        _ywl_append_reward_entries(rewardList, task.give, seenMap)
+        _ywl_append_title_reward(rewardList, task.ch, seenMap)
+
+        local handledNpcIds = {}
+        local function appendNpcReward(npcId)
+            npcId = tonumber(npcId)
+            if not npcId or npcId <= 0 or handledNpcIds[npcId] then
+                return
+            end
+            handledNpcIds[npcId] = true
+            local cfg = teshudata and teshudata["npc_" .. tostring(npcId)]
+            if type(cfg) == "table" then
+                _ywl_append_reward_entries(rewardList, cfg.rwjl, seenMap)
+                _ywl_append_reward_entries(rewardList, cfg.jl, seenMap)
+                _ywl_append_reward_entries(rewardList, cfg.give, seenMap)
+                _ywl_append_title_reward(rewardList, cfg.ch, seenMap)
+            end
+        end
+
+        if type(task.tk) == "string" then
+            appendNpcReward(task.tk:match("^npc_(%d+)$"))
+        end
+        if type(task.yd) == "table" then
+            appendNpcReward(task.yd[3])
+        end
+
+        return _ywl_trim_reward_display(rewardList)
     end
 
     if p2 == 0 then
@@ -2299,7 +2445,7 @@ npc[11] = function(p2, p3, Data)
                         end
                         local taskTitle = task[1] or task.title or "任务"
                         local taskDesc = _ywl_build_task_desc(task)
-                        local rewardData = (type(task.jl) == "table") and task.jl or {}
+                        local rewardData = _ywl_collect_task_rewards(task)
                         local size = GUI:getContentSize(img)
                         local imgPos = GUI:getPosition(img)
                         local coverWidth = size.width - 50
@@ -2554,6 +2700,8 @@ npc[11] = function(p2, p3, Data)
     elseif p2 == 9 then
         local currentTask = SL:JsonDecode(Data, false) or {}
         npc.current_ywl_task = currentTask
+        -- 缓存当前异闻录任务名，给独立界面决定默认页签使用。
+        rawset(_G, "XYL_CURRENT_TASK_NAME", _ywl_get_task_name_from_current_task(currentTask))
         SL:onLUAEvent(LUA_EVENT_YWL_CURRENT_TASK_CHANGE, currentTask)
     end
 end

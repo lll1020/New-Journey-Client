@@ -280,6 +280,131 @@ function MainAssistXylHelper.bind(MainAssist)
         return tostring(task.desc or task.wz or "暂无任务简介")
     end
 
+    local function _xyl_append_reward_entries(outList, rewardList, seenMap)
+        if type(rewardList) ~= "table" then
+            return
+        end
+        for _, entry in ipairs(rewardList) do
+            if type(entry) == "table" and entry[1] ~= nil and entry[2] ~= nil then
+                local key = tostring(entry[1])
+                local count = tonumber(entry[2]) or 0
+                if key ~= "" and count > 0 then
+                    local pos = seenMap[key]
+                    if pos then
+                        outList[pos][2] = (tonumber(outList[pos][2]) or 0) + count
+                    else
+                        table.insert(outList, {entry[1], count})
+                        seenMap[key] = #outList
+                    end
+                end
+            end
+        end
+    end
+
+    local function _xyl_normalize_title_reward_name(titleName)
+        if type(titleName) ~= "string" then
+            return ""
+        end
+        local rewardName = string.gsub(titleName, "^%s+", "")
+        rewardName = string.gsub(rewardName, "%s+$", "")
+        if rewardName == "" then
+            return ""
+        end
+        local oldTitleName = string.match(rewardName, "^称号%[(.-)%]$")
+        if type(oldTitleName) == "string" and oldTitleName ~= "" then
+            rewardName = oldTitleName
+        else
+            rewardName = string.gsub(rewardName, "%[称号%]$", "")
+        end
+        return rewardName .. "[称号]"
+    end
+
+    local function _xyl_append_title_reward(outList, titleName, seenMap)
+        local rewardName = _xyl_normalize_title_reward_name(titleName)
+        if rewardName == "" then
+            return
+        end
+        local pos = seenMap[rewardName]
+        if pos then
+            outList[pos][2] = math.max(tonumber(outList[pos][2]) or 0, 1)
+        else
+            table.insert(outList, {rewardName, 1})
+            seenMap[rewardName] = #outList
+        end
+    end
+
+    local function _xyl_is_title_reward_name(name)
+        return type(name) == "string"
+            and (string.find(name, "%[称号%]") ~= nil or string.match(name, "^称号%[.+%]$") ~= nil)
+    end
+
+    local function _xyl_trim_reward_display(rewardList)
+        if type(rewardList) ~= "table" or #rewardList <= 0 then
+            return {}
+        end
+
+        local titleRewards = {}
+        local otherRewards = {}
+        for _, entry in ipairs(rewardList) do
+            if type(entry) == "table" and _xyl_is_title_reward_name(entry[1]) then
+                table.insert(titleRewards, entry)
+            else
+                table.insert(otherRewards, entry)
+            end
+        end
+
+        local merged = {}
+        for _, entry in ipairs(titleRewards) do
+            table.insert(merged, entry)
+        end
+        for _, entry in ipairs(otherRewards) do
+            table.insert(merged, entry)
+        end
+
+        local result = {}
+        for i = 1, math.min(2, #merged) do
+            result[i] = merged[i]
+        end
+        return result
+    end
+
+    local function _xyl_collect_task_reward_data(task)
+        if type(task) ~= "table" then
+            return {}
+        end
+
+        local rewardList = {}
+        local seenMap = {}
+        _xyl_append_reward_entries(rewardList, task.jl, seenMap)
+        _xyl_append_reward_entries(rewardList, task.rwjl, seenMap)
+        _xyl_append_reward_entries(rewardList, task.give, seenMap)
+        _xyl_append_title_reward(rewardList, task.ch, seenMap)
+
+        local relatedNpcIds = {}
+        local function appendNpcId(npcId)
+            npcId = tonumber(npcId)
+            if npcId and npcId > 0 and not relatedNpcIds[npcId] then
+                relatedNpcIds[npcId] = true
+                local cfg = teshudata and teshudata["npc_" .. tostring(npcId)]
+                if type(cfg) == "table" then
+                    _xyl_append_reward_entries(rewardList, cfg.rwjl, seenMap)
+                    _xyl_append_reward_entries(rewardList, cfg.jl, seenMap)
+                    _xyl_append_reward_entries(rewardList, cfg.give, seenMap)
+                    _xyl_append_title_reward(rewardList, cfg.ch, seenMap)
+                end
+            end
+        end
+
+        if type(task.tk) == "string" then
+            appendNpcId(task.tk:match("^npc_(%d+)$"))
+        end
+        if type(task.yd) == "table" then
+            appendNpcId(task.yd[3])
+        end
+
+        return _xyl_trim_reward_display(rewardList)
+    end
+
     -- 备注：关闭当前任务详情弹层。
     local function _close_current_xyl_detail()
         if MainAssist._xylDetailPopup and MainAssist._xylDetailPopup.root then
@@ -461,7 +586,7 @@ function MainAssistXylHelper.bind(MainAssist)
             widget.rewardNode = nil
         end
 
-        local rewardData = (type(info.task) == "table" and type(info.task.jl) == "table") and info.task.jl or {}
+        local rewardData = _xyl_collect_task_reward_data(info.task)
         if #rewardData > 0 then
             local okReward, rewardNode = pcall(function()
                 return ItemNumByTable_img_new(rewardData, nil, widget.rewardRoot)
