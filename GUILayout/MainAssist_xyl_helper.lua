@@ -968,7 +968,7 @@ function MainAssistXylHelper.bind(MainAssist)
         MainAssist._xylDetailPopup = nil
     end
 
-    local function _refresh_xyl_detail_popup_content()
+    function _refresh_xyl_detail_popup_content()
         local popup = MainAssist._xylDetailPopup
         if not (popup and popup.root and popup.descHost) then
             return
