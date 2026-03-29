@@ -39,6 +39,7 @@ function MainAssist.main()
     MainAssist.ListView_mission = ListView_mission
     GUI:ListView_autoPaintItems(ListView_mission)
     MainAssist.UpdateCurrentXylTaskWidget()
+    MainAssist.RequestGrayWorldTaskIconRefresh()
 
     -- reset pos PCAssistNearShow:是否显示附近按钮
     local isShow = (SL:GetMetaValue("GAME_DATA", "PCAssistNearShow") or 0) == 1
@@ -84,6 +85,7 @@ function MainAssist.ChangeHideStatus(status)
         GUI:Timeline_EaseSineIn_MoveTo(MainAssist._Panel_assist, {x = assitX, y = assitY}, 0.2, function()
             SL:SetMetaValue("GUIDE_EVENT_BEGAN", 110, true)
         end)
+        MainAssist.RequestGrayWorldTaskIconRefresh()
         SL:onLUAEvent(LUA_EVENT_ASSIST_HIDESTATUS_CHANGE, {assistSize = assistSize, bHide = false})
     end
 end
@@ -285,6 +287,15 @@ function MainAssist.RegisterEvent()
     SL:RegisterLUAEvent(LUA_EVENT_ASSIST_MISSION_CHANGE, "MainAssist", MainAssist.onMissionItemChange)
     SL:RegisterLUAEvent(LUA_EVENT_ASSIST_MISSION_REMOVE, "MainAssist", MainAssist.onMissionItemRemove)
     SL:RegisterLUAEvent(LUA_EVENT_ASSIST_MISSION_SHOW, "MainAssist", MainAssist.onMissionShow)
+    SL:RegisterLUAEvent(LUA_EVENT_ENTER_WORLD, "MainAssist_GRAY_WORLD_ENTER", function(data)
+        MainAssist.RequestGrayWorldTaskIconRefresh(data)
+    end)
+    SL:RegisterLUAEvent(LUA_EVENT_CHANGESCENE, "MainAssist_GRAY_WORLD_SCENE", function(data)
+        MainAssist.RequestGrayWorldTaskIconRefresh(data)
+    end)
+    SL:RegisterLUAEvent(LUA_EVENT_MAPINFOCHANGE, "MainAssist_GRAY_WORLD_MAPINFO", function(data)
+        MainAssist.RequestGrayWorldTaskIconRefresh(data)
+    end)
     SL:RegisterLUAEvent(MainAssistXylHelper.EVENT_CURRENT_TASK_CHANGE, "MainAssist_XYL", MainAssist.RefreshXylTaskOnCurrentChange)
     SL:RegisterLUAEvent(LUA_EVENT_SERVER_VALUE_CHANGE, "MainAssist_XYL_SERVER", MainAssist.RefreshXylOnServerValueChange)
     SL:RegisterLUAEvent(LUA_EVENT_BAG_ITEM_CHANGE, "MainAssist_XYL_BAG_CHANGE", MainAssist.RefreshXylOnBagItemChange)

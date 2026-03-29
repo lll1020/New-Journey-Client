@@ -492,6 +492,78 @@ local function _xyl_get_chapter_cfg(taskData, l, zj)
     return lCfg[zj]
 end
 
+local function _xyl_get_task_reward_jqd(task)
+    local total = 0
+    local rewards = type(task) == "table" and task.jl or nil
+    if type(rewards) ~= "table" then
+        return 0
+    end
+    for _, reward in ipairs(rewards) do
+        if type(reward) == "table" and reward[1] == "剧情点" then
+            total = total + (tonumber(reward[2]) or 0)
+        end
+    end
+    return total
+end
+
+local function _xyl_is_task_done_for_jqd(task)
+    if type(task) ~= "table" then
+        return false
+    end
+    local checker = task.khdjy
+    if type(checker) ~= "function" then
+        return false
+    end
+    local ok, done = pcall(checker, task)
+    return ok and done == true
+end
+
+local function _xyl_get_completed_chapter_reward_jqd(taskData, l, zj)
+    local cfg = _xyl_get_chapter_cfg(taskData, l, zj)
+    local tasks = cfg and cfg.jq
+    if type(tasks) ~= "table" then
+        return 0
+    end
+
+    local total = 0
+    local hasFinishedTask = false
+    for _, task in ipairs(tasks) do
+        if _xyl_is_task_done_for_jqd(task) then
+            total = total + _xyl_get_task_reward_jqd(task)
+            hasFinishedTask = true
+        end
+    end
+
+    if not hasFinishedTask then
+        return 0
+    end
+    return total
+end
+
+local function _xyl_should_ignore_ruoshui_jqd(l, zj)
+    l = tonumber(l) or 0
+    zj = tonumber(zj) or 0
+    return l > 3 or (l == 3 and zj >= 2)
+end
+
+local function _xyl_adjust_unlock_jqd(taskData, l, zj, curJqd)
+    local nowJqd = tonumber(curJqd) or 0
+    if not _xyl_should_ignore_ruoshui_jqd(l, zj) then
+        return nowJqd
+    end
+
+    local ruoshuiJqd = _xyl_get_completed_chapter_reward_jqd(taskData, 3, 1)
+    if ruoshuiJqd <= 0 then
+        return nowJqd
+    end
+
+    nowJqd = nowJqd - ruoshuiJqd
+    if nowJqd < 0 then
+        nowJqd = 0
+    end
+    return nowJqd
+end
+
 local function _xyl_to_pre_list(pre)
     if type(pre) ~= "table" then
         return nil
@@ -535,7 +607,7 @@ local function _xyl_get_chapter_lock_info(taskData, l, zj, curJqd)
         return { locked = false, tip = "", ext_tips = {}, cur_jqd = tonumber(curJqd) or 0, need_jqd = 0, lack_jqd = false }
     end
 
-    local nowJqd = tonumber(curJqd) or 0
+    local nowJqd = _xyl_adjust_unlock_jqd(taskData, l, zj, curJqd)
     local needJqd = tonumber(cfg.jqd) or 0
     local lackJqd = cfg.jqd and nowJqd < needJqd
     local locked = lackJqd and true or false
@@ -785,7 +857,7 @@ local npc_xyl = {
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
                     need_receive = false,
-                    yd = { 1, "二大陆主城", 601, 99, 123 },
+                    yd = { 1, "二大陆主城", 601, 91, 116 },
                     desc = "沿着前置剧情完成轩辕剑修复，补足这一阶段的主线关键节点。\n<font color='#F4D179'>目标：</font>\n完成修复轩辕剑剧情\n<font color='#F4D179'>进度：</font>%s",
                 },
             },
@@ -805,60 +877,71 @@ local npc_xyl = {
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    need_receive = true,
-                    yd = { 1, "三大陆主城", 55, 169, 230 },
-                    desc = "回到主城开启仙府系统，这是后续丹药、仙草与藏宝图玩法的核心前置。\n<font color='#F4D179'>目标：</font>完成仙府开启\n<font color='#F4D179'>进度：</font>%s",
+                    need_receive = false,
+                    yd = { 1, "灰界", 55, 197, 196 },
+                    desc = "开辟仙府，正式踏入灰界后的修行之路。\n<font color='#F4D179'>目标：</font>成功开启仙府\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
-                    "踏入·虚妄山脉",
-                    tk = "npc_621",
+                    "讨伐嘲灾",
+                    tk = "npc_625",
                     id = 999,
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    need_receive = true,
-                    yd = { 1, "灰界南部", 621, 229, 144 },
-                    desc = "初次踏入虚妄山脉，清理沿途敌人熟悉该区域环境。\n<font color='#F4D179'>目标：</font>击杀怪物50只\n<font color='#F4D179'>进度：</font>%s",
+                    need_receive = false,
+                    yd = { 1, "鬼嘲深渊", 625, 174, 460 },
+                    desc = "前往灾厄入口，进入嘲灾讨伐线。\n<font color='#F4D179'>目标：</font>完成讨伐嘲灾\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
-                    "踏入·叹息旷野",
-                    tk = "npc_622",
+                    "讨伐息灾",
+                    tk = "npc_627",
                     id = 999,
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    need_receive = true,
-                    yd = { 1, "灰界北部", 622, 41, 43 },
-                    desc = "深入叹息旷野，在新区域完成第一轮战斗试炼。\n<font color='#F4D179'>目标：</font>击杀怪物50只\n<font color='#F4D179'>进度：</font>%s",
+                    need_receive = false,
+                    yd = { 1, "叹息旷野", 627, 85, 126 },
+                    desc = "前往灾厄入口，进入息灾讨伐线。\n<font color='#F4D179'>目标：</font>完成讨伐息灾\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
-                    "踏入·鬼嘲深渊",
-                    tk = "npc_623",
+                    "讨伐忌灾",
+                    tk = "npc_626",
                     id = 999,
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    need_receive = true,
-                    yd = { 1, "灰界东部", 623, 10, 66 },
-                    desc = "向鬼嘲深渊推进，先完成区域清怪建立立足点。\n<font color='#F4D179'>目标：</font>击杀怪物50只\n<font color='#F4D179'>进度：</font>%s",
+                    need_receive = false,
+                    yd = { 1, "禁忌之海", 626, 74, 67 },
+                    desc = "前往灾厄入口，进入忌灾讨伐线。\n<font color='#F4D179'>目标：</font>完成讨伐忌灾\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
-                    "踏入·禁忌之海",
-                    tk = "npc_624",
+                    "讨伐妄灾",
+                    tk = "npc_628",
                     id = 999,
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
-                    need_receive = true,
-                    yd = { 1, "灰界西部", 624, 21, 77 },
-                    desc = "从陆地转向海域冒险，先完成禁忌之海的基础清剿。\n<font color='#F4D179'>目标：</font>击杀怪物50只\n<font color='#F4D179'>进度：</font>%s",
+                    need_receive = false,
+                    yd = { 1, "虚妄山脉", 628, 107, 97 },
+                    desc = "前往灾厄入口，进入妄灾讨伐线。\n<font color='#F4D179'>目标：</font>完成讨伐妄灾\n<font color='#F4D179'>进度：</font>%s",
+                },
+                {
+                    "灾厄入侵",
+                    tk = "npc_46",
+                    id = 999,
+                    jl = { { "剧情点", 2 } },
+                    fwdjy = nil,
+                    khdjy = _xyl_khdjy,
+                    need_receive = false,
+                    yd = { 1, "灰界", 46, 205, 196 },
+                    desc = "完成四线讨伐后，回到灾厄入口提交总任务。\n<font color='#F4D179'>目标：</font>\n<font color='#F0B42A'>讨伐嘲灾</font>   %s\n<font color='#F0B42A'>讨伐忌灾</font>   %s\n<font color='#F0B42A'>讨伐息灾</font>   %s\n<font color='#F0B42A'>讨伐妄灾</font>   %s",
                 },
             },
             name = "灰界开篇",
 
-            jqd = 15,
+            jqd = 11,
 
-            jl = {{ "1元真实充值", 2 }, { "藏宝图碎片", 10 }},
+            jl = { { "1元真实充值", 1 }, { "藏宝图碎片", 10 } },
         },
         {
             jq = {
@@ -869,7 +952,7 @@ local npc_xyl = {
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
                     need_receive = false,
-                    yd = { 1, "三大陆主城", 44, 149, 225 },
+                    yd = { 3, 14 },
                     desc = "在仙府中亲手种下一次仙草，为后续炼丹线做准备。\n<font color='#F4D179'>目标：</font>完成1次仙草种植\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
@@ -879,7 +962,7 @@ local npc_xyl = {
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
                     need_receive = false,
-                    yd = { 1, "三大陆主城", 44, 149, 225 },
+                    yd = { 3, 14 },
                     desc = "开启自动砍树功能，掌握仙府资源获取的另一条支线。\n<font color='#F4D179'>目标：</font>成功开启自动砍树\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
@@ -889,95 +972,15 @@ local npc_xyl = {
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
                     need_receive = false,
-                    yd = { 1, "藏星外海", 634, 69, 132 },
+                    yd = { 1, "三大陆主城", 47, 154, 223 },
                     desc = "在仙府中制作一次藏宝图，打通寻宝玩法入口。\n<font color='#F4D179'>目标：</font>完成1次藏宝图制作\n<font color='#F4D179'>进度：</font>%s",
                 },
             },
             name = "仙府功能",
 
-            jqd = 18,
-            pre = {
-                {
-                    l = 3,
-                    zj = 1,
-                    idx = 1,
-                    lock_tip = "章节未解锁",
-                    tip = "解锁条件：必须完成「开辟仙府」",
-                },
-            },
+            jqd = 17,
 
-            jl = {{ "1元真实充值", 2 }, { "激活金灵根", 1 }},
-        },
-        {
-            jq = {
-                {
-                    "炼制丹药",
-                    id = 999,
-                    jl = { { "剧情点", 1 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    need_receive = false,
-                    yd = { 1, "三大陆主城", 44, 149, 225 },
-                    desc = "在仙府丹炉中完成一次炼丹，为四灾试炼准备药物支持。\n<font color='#F4D179'>目标：</font>炼制任意丹药1次\n<font color='#F4D179'>进度：</font>%s",
-                },
-                {
-                    "讨伐嘲灾",
-                    tk = "npc_625",
-                    ydtk = "npc_623",
-                    ydtip = "踏入·鬼嘲深渊",
-                    id = 999,
-                    jl = { { "剧情点", 2 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    need_receive = true,
-                    yd = { 1, "鬼嘲深渊", 625, 174, 460 },
-                    desc = "携带重要丹药前往讨伐嘲灾，完成四灾试炼的第一环。\n<font color='#F4D179'>要求：</font>需要重要丹药\n<font color='#F4D179'>完成：</font>击败嘲灾首领",
-                },
-                {
-                    "讨伐忌灾",
-                    tk = "npc_626",
-                    ydtk = "npc_624",
-                    ydtip = "踏入·禁忌之海",
-                    id = 999,
-                    jl = { { "剧情点", 2 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    need_receive = true,
-                    yd = { 1, "禁忌之海", 626, 74, 67 },
-                    desc = "携带重要丹药继续推进四灾试炼，讨伐第二位灾厄首领。\n<font color='#F4D179'>要求：</font>需要重要丹药\n<font color='#F4D179'>完成：</font>击败忌灾首领",
-                },
-                {
-                    "讨伐息灾",
-                    tk = "npc_627",
-                    ydtk = "npc_622",
-                    ydtip = "踏入·叹息旷野",
-                    id = 999,
-                    jl = { { "剧情点", 2 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    need_receive = true,
-                    yd = { 1, "叹息旷野", 627, 126, 209 },
-                    desc = "带上炼制好的关键丹药，挑战第三位灾厄化身。\n<font color='#F4D179'>要求：</font>需要重要丹药\n<font color='#F4D179'>完成：</font>击败息灾首领",
-                },
-                {
-                    "讨伐妄灾",
-                    tk = "npc_628",
-                    ydtk = "npc_621",
-                    ydtip = "踏入·虚妄山脉",
-                    id = 999,
-                    jl = { { "剧情点", 2 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    need_receive = true,
-                    yd = { 1, "虚妄山脉", 628, 107, 97 },
-                    desc = "完成四灾线最后一战，集齐全部灾厄讨伐记录。\n<font color='#F4D179'>要求：</font>需要重要丹药\n<font color='#F4D179'>完成：</font>击败妄灾首领",
-                },
-            },
-            name = "炼丹与讨伐",
-
-            jqd = 22,
-
-            jl = {{ "1元真实充值", 2 }, { "神石宝箱钥匙", 1 }},
+            jl = {{ "1元真实充值", 2 }, { "激活火灵根", 1 }},
         },
         {
             jq = {
@@ -1032,7 +1035,7 @@ local npc_xyl = {
             },
             name = "外海之旅",
 
-            jqd = 22,
+            jqd = 21,
 
             jl = {{ "1元真实充值", 2 }, { "激活土灵根", 1 }},
         },
@@ -1096,7 +1099,7 @@ local npc_xyl = {
             },
             name = "内海探秘",
 
-            jqd = 30,
+            jqd = 29,
 
             jl = {{ "1元真实充值", 2 }, { "神石宝箱钥匙", 1 }},
         },
@@ -1138,23 +1141,12 @@ local npc_xyl = {
             },
             name = "草谷丹道",
 
-            jqd = 34,
+            jqd = 33,
 
             jl = {{ "1元真实充值", 2 }, { "神石宝箱钥匙", 1 }},
         },
         {
             jq = {
-                {
-                    "灾厄入侵",
-                    tk = "npc_46",
-                    id = 999,
-                    jl = {},
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    need_receive = false,
-                    yd = { 1, "三大陆主城", 46, 157, 225 },
-                    desc = "这是四灾试炼的总收束任务，必须四项灾厄讨伐全部达成。\n<font color='#F4D179'>目标：</font>\n<font color='#F0B42A'>讨伐嘲灾</font>   %s\n<font color='#F0B42A'>讨伐忌灾</font>   %s\n<font color='#F0B42A'>讨伐息灾</font>   %s\n<font color='#F0B42A'>讨伐妄灾</font>   %s",
-                },
                 {
                     "拥有1传说神石",
                     id = 999,
@@ -1210,7 +1202,7 @@ local npc_xyl = {
             },
             name = "三大陆毕业章",
 
-            jqd = 37,
+            jqd = 36,
 
             jl = {{ "1元真实充值", 5 }, { "等级卷轴", 5 }},
         },
@@ -1281,7 +1273,7 @@ local npc_xyl = {
             },
             name = "若水秘闻",
 
-            jqd = 50,
+            jqd = 42,
 
             jl = { { "等级卷轴", 20 }, { "1元真实充值", 25 } },
         },
@@ -1367,7 +1359,7 @@ local npc_xyl = {
             },
             name = "地府探秘",
 
-            jqd = 50,
+            jqd = 42,
 
             jl = { { "等级卷轴", 5 }, { "1元真实充值", 8 } },
         },
@@ -1475,7 +1467,7 @@ local npc_xyl = {
             },
             name = "重走西游",
 
-            jqd = 60,
+            jqd = 55,
 
             jl = { { "等级卷轴", 10 }, { "1元真实充值", 15 } },
         },
@@ -1539,7 +1531,7 @@ local npc_xyl = {
             },
             name = "生肖守护[始]",
 
-            jqd = 75,
+            jqd = 70,
 
             jl = { { "等级卷轴", 5 }, { "1元真实充值", 8 } },
         },
@@ -1603,7 +1595,7 @@ local npc_xyl = {
             },
             name = "生肖守护[转]",
 
-            jqd = 82,
+            jqd = 77,
 
             jl = { { "等级卷轴", 5 }, { "1元真实充值", 8 } },
         },
@@ -1678,7 +1670,7 @@ local npc_xyl = {
             },
             name = "生肖守护[终]",
 
-            jqd = 80,
+            jqd = 85,
 
             jl = { { "等级卷轴", 5 }, { "1元真实充值", 8 } },
         },
@@ -1785,7 +1777,7 @@ local npc_xyl = {
                 },
             },
             name = "修复传说",
-            jqd = 89,
+            jqd = 99,
             jl = { { "等级卷轴", 10 }, { "1元真实充值", 15 } },
         },
     },

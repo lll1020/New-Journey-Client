@@ -48,7 +48,7 @@ local MENU_TABS_LIST = {
 -- UI 文本及按钮常用配色，集中管理方便整体调色。
 
 local MENU_PERMISSIONS = {
-    self = {overview = true, farm = true, inventory = true, social = true, shop = true, refine = true, pet = true, rank = true, system = true, shape = true},
+    self = {overview = true, farm = true, inventory = true, social = true, shop = true, refine = true, pet = true, system = true, shape = true},
     guest = {farm = true, social = true},
 }
 
@@ -123,6 +123,53 @@ local function getSnapshot()
     return state.snapshot or {}
 end
 
+local function buildLocalSnapshotCfg()
+    local cfg = npc._config or {}
+    return {
+        plant = cfg.PlantCfg or {},
+        steal = cfg.StealCfg or {},
+        like = cfg.LikeCfg or {},
+        refine = cfg.RefineCfg or {},
+        decorate = cfg.DecorateCfg or {},
+        pet = cfg.PetCfg or {},
+        shop = cfg.ShopCfg or {},
+    }
+end
+
+local function ensureSnapshotCompat(data)
+    if type(data) ~= 'table' then
+        data = {}
+    end
+    data.player = data.player or {}
+    local localCfg = buildLocalSnapshotCfg()
+    if type(data.cfg) ~= 'table' then
+        data.cfg = localCfg
+    else
+        for key, value in pairs(localCfg) do
+            if type(data.cfg[key]) ~= 'table' then
+                data.cfg[key] = value
+            end
+        end
+    end
+    if type(data.rank) ~= 'table' then
+        data.rank = {}
+    end
+    return data
+end
+
+local function hasRefinePermit(refineCfg)
+    local needEquip = refineCfg and refineCfg.needEquip
+    if not needEquip or needEquip == '' then
+        return true
+    end
+    for pos = 0, 20 do
+        if Player:getEquipNameByPos(pos) == needEquip then
+            return true
+        end
+    end
+    return false
+end
+
 local function wrapGuestSnapshot(target)
     if not target then
         return nil
@@ -144,10 +191,10 @@ local function wrapGuestSnapshot(target)
             pet = target.pet or {},
             visitor = target.visitor or {},
         },
-        cfg = (base and base.cfg) or {},
+        cfg = (base and base.cfg) or buildLocalSnapshotCfg(),
         rank = base and base.rank or {},
     }
-    return wrapped
+    return ensureSnapshotCompat(wrapped)
 end
 
 local function isGuestMode()
@@ -196,9 +243,9 @@ local function updateSnapshot(data)
         return
     end
     local state = ensureState()
-    state.snapshot = data
+    state.snapshot = ensureSnapshotCompat(data)
     state.lastSyncAt = serverNow()
-    local fields = (data.player and data.player.fields) or {}
+    local fields = (state.snapshot.player and state.snapshot.player.fields) or {}
     if state.selectedPlot then
         local slot = fields[state.selectedPlot]
         if not slot then
@@ -1147,49 +1194,45 @@ local function drawVisitorLog(node, snapshot, npcid)
         GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 1,gap = {x=0, y=0}})
 
 
-        local btn = NPC_UI_HELPER.createPrimaryButton(Label_node, 'btn_rank', 550, 80, "", function()
-            npc.xxjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
-                windowName = "npc_anniu_44_xxjm",
-                overlay = {skin = "res/custom/treasureBasin/x.png"},
-                background = {skin = "res/custom/three_city/xianfu/baifang/rank/bg.png"},
-                closeButton = {x = 300 + 504, y = 180 + 140 + 119, skin = "res/wy/public/close_red_big.png"},
-            })
-            npc.xxjm_node = npc.xxjm_window.node
-            npc.xx_Label = GUI:Node_Create(npc.xxjm_node, "Label", 0, 0)
-            local list = snapshot.rank or {}
+        local rankList = snapshot.rank or {}
+        if #rankList > 0 then
+            local btn = NPC_UI_HELPER.createPrimaryButton(Label_node, 'btn_rank', 550, 80, "", function()
+                npc.xxjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
+                    windowName = "npc_anniu_44_xxjm",
+                    overlay = {skin = "res/custom/treasureBasin/x.png"},
+                    background = {skin = "res/custom/three_city/xianfu/baifang/rank/bg.png"},
+                    closeButton = {x = 300 + 504, y = 180 + 140 + 119, skin = "res/wy/public/close_red_big.png"},
+                })
+                npc.xxjm_node = npc.xxjm_window.node
+                npc.xx_Label = GUI:Node_Create(npc.xxjm_node, "Label", 0, 0)
+                local list = snapshot.rank or {}
 
+                local innerHeight = math.max(295, 38 * math.max(#list, 1))
+                local ScrollView = GUI:ScrollView_Create(npc.xx_Label, "ScrollView", 100, 140, 736, 295, 1)
+                GUI:ScrollView_setBounceEnabled(ScrollView, true)
+                GUI:ScrollView_setInnerContainerSize(ScrollView, 736, innerHeight)
+                local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 10, 0, 736, innerHeight)
 
-            local ScrollView = GUI:ScrollView_Create(npc.xx_Label, "ScrollView", 45 + 55, 40 + 100, 736, 295, 1)
-            GUI:ScrollView_setBounceEnabled(ScrollView, true)
-            GUI:ScrollView_setInnerContainerSize(ScrollView, 736, ((38) * math.ceil(#list)) > (295) and ((38) * math.ceil(#list)) or (295))
-            local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 10,0, 736, (((38) * math.ceil(#list)) > 295 and ((38) * math.ceil(#list)) or 295))
-
-            --SL:dump(list,"listlistlistlistlistlistlistlist")
-            if #list == 0 then
-                local kuang = GUI:Image_Create(dbLayout, "kuang"..k, 0, 0, "res/custom/three_city/xianfu/baifang/rank/k1.png")
-                GUI:Text_Create(kuang, 'rank_empty', 0, 20, 18, colors.muted, '暂无排行数据')
-
-                return
-            end
-            for i, entry in ipairs(list) do
-                if i > 10 then
-                    break
+                if #list == 0 then
+                    local kuang = GUI:Image_Create(dbLayout, "kuang_empty", 0, 0, "res/custom/three_city/xianfu/baifang/rank/k1.png")
+                    GUI:Text_Create(kuang, 'rank_empty', 0, 20, 18, colors.muted, '暂无排行数据')
+                    return
                 end
-                local kuang = GUI:Image_Create(dbLayout, "kuang"..i, 0, 0, "res/custom/three_city/xianfu/baifang/rank/k"..(i%2 == 1 and 1 or 2)..".png")
-
-                local color = (i == 1) and colors.warning or colors.primary
-
-                GUI:setAnchorPoint(GUI:Text_Create(kuang, 'i', 60, 19, 18, color, tostring(i)), 0.5, 0.5)
-                GUI:setAnchorPoint(GUI:Text_Create(kuang, 'name', 266, 19, 18, color, tostring(entry.name)), 0.5, 0.5)
-                GUI:setAnchorPoint(GUI:Text_Create(kuang, 'value', 640, 19, 18, color, tostring(entry.value or 0)), 0.5, 0.5)
-                GUI:setAnchorPoint(GUI:Text_Create(kuang, 'likenum', 480, 19, 18, color, tostring(entry.likenum or 0)), 0.5, 0.5)
-            
-
-            end
-            GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 1,gap = {x=0, y=0}})
-
-        end,{skin = "res/custom/three_city/xianfu/baifang/Visitor/btn_rank.png"})
-        GUI:setAnchorPoint(btn, 0.5, 0.5)
+                for i, entry in ipairs(list) do
+                    if i > 10 then
+                        break
+                    end
+                    local kuang = GUI:Image_Create(dbLayout, "kuang"..i, 0, 0, "res/custom/three_city/xianfu/baifang/rank/k"..(i%2 == 1 and 1 or 2)..".png")
+                    local color = (i == 1) and colors.warning or colors.primary
+                    GUI:setAnchorPoint(GUI:Text_Create(kuang, 'i', 60, 19, 18, color, tostring(i)), 0.5, 0.5)
+                    GUI:setAnchorPoint(GUI:Text_Create(kuang, 'name', 266, 19, 18, color, tostring(entry.name)), 0.5, 0.5)
+                    GUI:setAnchorPoint(GUI:Text_Create(kuang, 'value', 640, 19, 18, color, tostring(entry.value or 0)), 0.5, 0.5)
+                    GUI:setAnchorPoint(GUI:Text_Create(kuang, 'likenum', 480, 19, 18, color, tostring(entry.likenum or 0)), 0.5, 0.5)
+                end
+                GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 1,gap = {x=0, y=0}})
+            end,{skin = "res/custom/three_city/xianfu/baifang/Visitor/btn_rank.png"})
+            GUI:setAnchorPoint(btn, 0.5, 0.5)
+        end
 
     end
 
@@ -1693,41 +1736,70 @@ local function drawRefine(node, snapshot, npcid)
     local function GUI_Refine_createLabel(Label_node,titles_sign)
         GUI:removeAllChildren(Label_node)
 
-        local cfg = snapshot.cfg or {}
-        local recipes = cfg.refine and cfg.refine.recipes or {}
+        local cfg = snapshot.cfg or buildLocalSnapshotCfg()
+        local refineCfg = cfg.refine or {}
+        local recipes = refineCfg.recipes or {}
         local player = snapshot.player or {}
-        local herbs = player.herbs or {}
-        local plantCfg = cfg.plant or {}
         local lastTime = (player.refine or {}).lastTime or 0
-        local cd = (cfg.refine and cfg.refine.furnaceCd) or 0
+        local cd = refineCfg.furnaceCd or 0
         local remainCd = math.max(0, (lastTime + cd) - serverNow())
         local ready = remainCd <= 0
-        local rowIndex = 0
         local collection = player.refine and player.refine.collection or {}
-        npc.name_sign = npc.name_sign or recipes and next(recipes) and next(recipes) or nil
-        -- --SL:dump(recipes, "recipes")
-        -- --SL:dump(npc.name_sign, "name_sign")
+        local recipeNames = {}
+        for recipeName in pairs(recipes) do
+            recipeNames[#recipeNames + 1] = recipeName
+        end
+        table.sort(recipeNames, function(a, b)
+            local aid = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", a)) or 0
+            local bid = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", b)) or 0
+            if aid == bid then
+                return tostring(a) < tostring(b)
+            end
+            return aid < bid
+        end)
+        if #recipeNames == 0 then
+            local emptyText = GUI:Text_Create(Label_node, "empty_recipe", 375, 210, 20, colors.warning, "当前暂无可炼制丹方")
+            GUI:setAnchorPoint(emptyText, 0.5, 0.5)
+            GUI:Text_enableOutline(emptyText, "#1d0f09", 1)
+            return
+        end
+        if not recipes[npc.name_sign] then
+            npc.name_sign = recipeNames[1]
+        end
+        local selectedRecipe = recipes[npc.name_sign] or {}
+        local selectedCost = selectedRecipe.cost or {}
+        local needEquip = refineCfg.needEquip or ""
+        local permitReady = hasRefinePermit(refineCfg)
 
-        
-        -- GUI:Text_Create(Label_node, 'remainCd', 568, 300, 18, colors.primary, string.format('冷却 %s', formatSeconds(remainCd)))
-        
+        if needEquip ~= "" then
+            local permitText = permitReady and string.format("已装备：%s", needEquip) or string.format("炼丹前需装备：%s", needEquip)
+            local permitLabel = GUI:Text_Create(Label_node, "permit_tip", 375, 340, 18, permitReady and colors.detail or colors.warning, permitText)
+            GUI:setAnchorPoint(permitLabel, 0.5, 0.5)
+            GUI:Text_enableOutline(permitLabel, "#1d0f09", 1)
+        end
+        if not ready then
+            local cdLabel = GUI:Text_Create(Label_node, "remainCd", 375, 312, 18, colors.primary, string.format("冷却中：%s", formatSeconds(remainCd)))
+            GUI:setAnchorPoint(cdLabel, 0.5, 0.5)
+            GUI:Text_enableOutline(cdLabel, "#1d0f09", 1)
+        end
 
-        for k,v in ipairs(recipes[npc.name_sign].cost) do
+        for k, v in ipairs(selectedCost) do
             local kuang = GUI:Image_Create(Label_node, "cost_"..k, 115, 300.00 - (k-1)*60, "res/custom/three_city/xianfu/ldl/kuang.png")
             GUI:setAnchorPoint(
                 GUI:ItemShow_Create(kuang, "item", 48 / 2, 52 / 2, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME",v[1]),count = v[2], look = true, bgVisible = false })
             , 0.5, 0.5)
         end
-        
 
-        
         GUI:Image_Create(Label_node, "cost", 80, 140.00, "res/custom/three_city/xianfu/ldl/cost.png")
-        
 
         local btn = NPC_UI_HELPER.createPrimaryButton(Label_node, 'btn_make', 750/2, 80, "", function()
             sendAction(npcid, 'refine', {recipeId = npc.name_sign})
         end,{skin = "res/custom/three_city/xianfu/ldl/btn_make.png"})
         GUI:setAnchorPoint(btn, 0.5, 0.5)
+        if (not permitReady) or (not ready) then
+            GUI:setTouchEnabled(btn, false)
+            GUI:Button_setBright(btn, false)
+        end
 
         btn = NPC_UI_HELPER.createPrimaryButton(Label_node, 'btn_tj', 750/2 - 230, 80, "", function()
             npc.xxjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
@@ -1742,24 +1814,24 @@ local function drawRefine(node, snapshot, npcid)
 
             local ScrollView = GUI:ScrollView_Create(npc.xx_Label, "ScrollView", 10, 0, 720, 370, 1)
             GUI:ScrollView_setBounceEnabled(ScrollView, true)
-            GUI:ScrollView_setInnerContainerSize(ScrollView, 720, ((190) * math.ceil(#recipes/6)) > 370 and ((190) * math.ceil(#recipes/6)) or 370)
-            local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 0,0, 720, ((190) * math.ceil(#recipes/6)) > 370 and ((190) * math.ceil(#recipes/6)) or 370)
-            local num = 0
-            for k,v in pairs(recipes) do
-                local kuang = GUI:Image_Create(dbLayout, "kuang"..k, 0, 0, "res/custom/three_city/xianfu/ldl/tj/kuang.png")
-                local wz5 = GUI:Text_Create(kuang, "wz5",121/2, 155, 18, "#FF0000", k)
+            local gridHeight = math.max(370, 190 * math.ceil(#recipeNames / 6))
+            GUI:ScrollView_setInnerContainerSize(ScrollView, 720, gridHeight)
+            local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 0, 0, 720, gridHeight)
+            for _, recipeName in ipairs(recipeNames) do
+                local kuang = GUI:Image_Create(dbLayout, "kuang"..recipeName, 0, 0, "res/custom/three_city/xianfu/ldl/tj/kuang.png")
+                local wz5 = GUI:Text_Create(kuang, "wz5",121/2, 155, 18, "#FF0000", recipeName)
                 GUI:setAnchorPoint(wz5, 0.5, 0.5)
 
                 local itme_kuang = GUI:Image_Create(kuang, "xz_kuang", 121/2, 105.00, "res/custom/three_city/xianfu/ldl/kuang.png")
                 GUI:setAnchorPoint(itme_kuang, 0.5, 0.5)
-                UiTools.showItemData(itme_kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",k)))
+                UiTools.showItemData(itme_kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",recipeName)))
 
-                if collection and collection[k] then
+                if collection and collection[recipeName] then
                     GUI:setAnchorPoint(GUI:Image_Create(kuang, "ok", 121/2, 55, "res/custom/three_city/xianfu/ldl/tj/ydl.png")
                     , 0.5, 0.5)
                 else
                     local btn = NPC_UI_HELPER.createPrimaryButton(kuang, 'btn', 121/2, 55, "", function()
-                        npc.name_sign = k
+                        npc.name_sign = recipeName
                         GUI_Refine_createLabel(npc.Label,npc.name_sign)
                         local parent = GUI:GetWindow(nil, "npc_anniu_44_xxjm")
                         if parent then
@@ -1785,21 +1857,22 @@ local function drawRefine(node, snapshot, npcid)
 
             local ScrollView = GUI:ScrollView_Create(npc.xx_Label, "ScrollView", 45, 40, 280, 240, 1)
             GUI:ScrollView_setBounceEnabled(ScrollView, true)
-            GUI:ScrollView_setInnerContainerSize(ScrollView, 280, ((52 + 70) * math.ceil(#recipes/4)) > (240 + 70) and ((52 + 70) * math.ceil(#recipes/4)) or (240 + 70))
-            local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 10,0, 280, 70 + (((52 + 70) * math.ceil(#recipes/4)) > 240 and ((52 + 70) * math.ceil(#recipes/4)) or 240))
-            for k,v in pairs(recipes) do
-                local kuang = GUI:Image_Create(dbLayout, "kuang"..k, 0, 0, "res/custom/three_city/xianfu/ldl/kuang.png")
+            local iconHeight = math.max(240, (52 + 70) * math.ceil(#recipeNames / 4))
+            GUI:ScrollView_setInnerContainerSize(ScrollView, 280, iconHeight + 70)
+            local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 10, 0, 280, iconHeight + 70)
+            for _, recipeName in ipairs(recipeNames) do
+                local kuang = GUI:Image_Create(dbLayout, "kuang"..recipeName, 0, 0, "res/custom/three_city/xianfu/ldl/kuang.png")
 
-                local itemShow = GUI:ItemShow_Create(kuang, "item", 48 / 2, 52 / 2, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME",k), look = true, bgVisible = false })
+                local itemShow = GUI:ItemShow_Create(kuang, "item", 48 / 2, 52 / 2, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME",recipeName), look = true, bgVisible = false })
                 GUI:setAnchorPoint(itemShow, 0.5, 0.5)
 
-                local desc = GUI:Text_Create(kuang, "desc",48 / 2,-10, 20, "#808080", k)
+                local desc = GUI:Text_Create(kuang, "desc",48 / 2,-10, 20, "#808080", recipeName)
                 GUI:setAnchorPoint(desc, 0.5, 0.5)
                 GUI:Text_setFontName(desc, "fonts/500.ttf")
                 GUI:Text_enableOutline(desc, "#00FFFF", 2)
 
                 local btn = NPC_UI_HELPER.createPrimaryButton(kuang, 'btn', 25, -40, "", function()
-                    npc.name_sign = k
+                    npc.name_sign = recipeName
                     GUI_Refine_createLabel(npc.Label,npc.name_sign)
                     local parent = GUI:GetWindow(nil, "npc_anniu_44_xxjm")
                     if parent then

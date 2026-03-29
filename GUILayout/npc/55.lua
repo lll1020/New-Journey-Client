@@ -54,8 +54,12 @@ function npc.main(npcid, p2, p3, msgData)
         elseif npc.data.jq_data["npc_55"] and npc.data.jq_data["npc_55"] == 1 then
 
             local desc = GUI:Text_Create(node, "desc",500,200, 20, "#808080", "当前击杀："..(npc.data.sg_data.npc_55 or 0))
-            GUI:Text_setFontName(desc, "fonts/500.ttf")
+            GUI:Text_setFontName(desc, "fonts/font4.ttf")
             GUI:Text_enableOutline(desc, "#00FFFF", 2)
+
+            local tip = GUI:Text_Create(node, "tip",470,285, 20, "#FF0000", "[灰界]系列地图即可完成任务")
+            GUI:Text_setFontName(tip, "fonts/font4.ttf")
+            GUI:Text_enableOutline(tip, "#000000", 2)
 
 
             local Button= GUI:Button_Create(node, "Button2", 450, 0.00, "res/custom/three_city/xfts/btn.png")

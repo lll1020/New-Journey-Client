@@ -1,10 +1,77 @@
-local MainAssistXylHelper = {}
+﻿local MainAssistXylHelper = {}
 
 -- 备注：伏妖录当前任务变更事件名。
 MainAssistXylHelper.EVENT_CURRENT_TASK_CHANGE = "伏妖录当前任务变更"
 
 local DETAIL_POPUP_DEFAULT_POS = {x = 220, y = 0}
 local XYL_DYNAMIC_REFRESH_DELAY = 0.2
+local GRAY_WORLD_PANEL_POS = {x = 40, y = 0}
+local GRAY_WORLD_BG_PATH = "res/wy/eff/npc_but_bj_1.png"
+local GRAY_WORLD_PANEL_SIZE = {width = 200, height = 190}
+local GRAY_WORLD_LINE_SCALE = 0.41
+local GRAY_WORLD_LINES = {
+    {idx = 1, skin = "res/wy/public/bigkuang.png"},
+    {idx = 2, skin = "res/wy/public/bigkuang.png"},
+    {idx = 3, skin = "res/wy/public/bigkuang.png"},
+    {idx = 4, skin = "res/wy/public/bigkuang.png"},
+}
+local GRAY_WORLD_TOUCH_SKIN = "res/public/0.png"
+local GRAY_WORLD_TOUCH_REGIONS = {
+    {idx = 1, x = 2, y = 122, width = 194, height = 28, btnX = 97, btnY = 14, btnWidth = 250, btnHeight = 34, rotation = -16},
+    {idx = 2, x = 2, y = 96,  width = 194, height = 28, btnX = 97, btnY = 14, btnWidth = 250, btnHeight = 34, rotation = -16},
+    {idx = 3, x = 2, y = 70,  width = 194, height = 28, btnX = 97, btnY = 14, btnWidth = 250, btnHeight = 34, rotation = -16},
+    {idx = 4, x = 2, y = 44,  width = 194, height = 28, btnX = 97, btnY = 14, btnWidth = 250, btnHeight = 34, rotation = -16},
+}
+local GRAY_WORLD_ROUTE_CONFIGS = {
+    {idx = 1, step = "npc_623", boss = "npc_625", order = 1},
+    {idx = 2, step = "npc_622", boss = "npc_627", order = 2},
+    {idx = 3, step = "npc_624", boss = "npc_626", order = 3},
+    {idx = 4, step = "npc_621", boss = "npc_628", order = 4},
+}
+local GRAY_WORLD_PREP_ITEM_KEYS = {
+    "npc_626",
+    "npc_627",
+    "npc_628",
+}
+local GRAY_WORLD_TEXT_POS = {x = 3, y = 48}
+local GRAY_WORLD_TEXT_SECONDARY_X = 19
+local GRAY_WORLD_TOP_TEXT_POS = {x = 70, y = 48}
+local GRAY_WORLD_TOP_TEXT_SECONDARY_X = 83
+local GRAY_WORLD_REDPOINT_POS = {
+    [1] = {x = 94 + 6, y = 84 + 6},
+    [2] = {x = 94 + 6, y = 84 + 6},
+    [3] = {x = 94, y = 84},
+    [4] = {x = 94, y = 64},
+}
+local GRAY_WORLD_MAP_NAMES = {
+    ["灰界"] = true,
+    ["灰界南部"] = true,
+    ["灰界北部"] = true,
+    ["灰界东部"] = true,
+    ["灰界西部"] = true,
+    ["虚妄山脉"] = true,
+    ["鬼嘲深渊"] = true,
+    ["叹息旷野"] = true,
+    ["禁忌之海"] = true,
+    ["讨伐嘲灾"] = true,
+    ["讨伐忌灾"] = true,
+    ["讨伐息灾"] = true,
+    ["讨伐妄灾"] = true,
+}
+local GRAY_WORLD_MAP_IDS = {
+    ["212"] = true,
+    ["300"] = true,
+    ["301"] = true,
+    ["302"] = true,
+    ["303"] = true,
+}
+local GRAY_WORLD_MAP_KEYWORDS = {"灰界", "虚妄山脉", "鬼嘲深渊", "叹息旷野", "禁忌之海", "讨伐嘲灾", "讨伐忌灾", "讨伐息灾", "讨伐妄灾"}
+local GRAY_WORLD_MAP_SUFFIXES = {
+    "_npc625",
+    "_npc626",
+    "_npc627",
+    "_npc628",
+}
 
 -- 备注：给任务栏挂载伏妖录当前任务的通用逻辑。
 function MainAssistXylHelper.bind(MainAssist)
@@ -26,43 +93,14 @@ function MainAssistXylHelper.bind(MainAssist)
     MainAssist._xylLastTraceKey = nil
     MainAssist._xylLastPrintTaskKey = nil
 
-    -- 备注：伏妖录任务联调用日志，便于确认任务事件和服务端变量是否真正触发。
     local function _debug_xyl_trace(tag, data)
-        local dq = ""
-        if type(data) == "table" then
-            dq = tostring(data.dq or (type(data.ywl) == "table" and data.ywl.dq) or "")
-        end
-        local cacheKey = tostring(tag or "") .. "|" .. dq
-        if MainAssist._xylLastTraceKey == cacheKey then
-            return
-        end
-        MainAssist._xylLastTraceKey = cacheKey
-        local msg = {
-            tag = tag,
-            key = type(data) == "table" and tostring(data.key) or "nil",
-            type = type(data) == "table" and tostring(data.type) or "nil",
-            taskid = type(data) == "table" and tostring(data.taskid) or "nil",
-            dq = type(data) == "table" and tostring(data.dq or (type(data.ywl) == "table" and data.ywl.dq) or "") or "",
-            dq_id = type(data) == "table" and tostring(data.dq_id or "") or "",
-        }
-        SL:release_print(string.format(
-            "[伏妖录调试] %s key=%s type=%s taskid=%s dq=%s dq_id=%s",
-            msg.tag,
-            msg.key,
-            msg.type,
-            msg.taskid,
-            msg.dq,
-            msg.dq_id
-        ))
+        return
     end
 
     function MainAssist.DebugXylTrace(tag, data)
         _debug_xyl_trace(tag, data)
     end
 
-    -- 备注：构建伏妖录任务映射。
-    -- nameMap：任务 ID -> 伏妖录显示名。
-    -- dqMap：服务端当前任务标记 dq(i_j_z) -> 伏妖录显示名。
     local function _build_xyl_task_maps()
         if MainAssist._xylTaskNameMap and MainAssist._xylTaskDqMap and MainAssist._xylTaskInfoMap then
             return MainAssist._xylTaskNameMap, MainAssist._xylTaskDqMap, MainAssist._xylTaskInfoMap
@@ -117,8 +155,6 @@ function MainAssistXylHelper.bind(MainAssist)
         return nameMap, dqMap, infoMap
     end
 
-    -- 备注：读取服务端下发的当前伏妖录任务 dq 标记。
-    -- 优先读取任务数据本身；若任务数据未携带，则读取最近一次 101,11,9 广播缓存。
     local function _get_xyl_task_dq(data)
         if type(data) ~= "table" then
             data = {}
@@ -147,8 +183,6 @@ function MainAssistXylHelper.bind(MainAssist)
         return dq
     end
 
-    -- 备注：读取当前伏妖录任务 ID。
-    -- 优先使用任务数据本身；若任务数据里没有，则读取最近一次 101,11,9 广播缓存。
     local function _get_xyl_task_id(data)
         if type(data) ~= "table" then
             data = {}
@@ -180,7 +214,6 @@ function MainAssistXylHelper.bind(MainAssist)
         )
     end
 
-    -- 备注：解析当前伏妖录任务配置，供任务名显示与“立即前往”按钮复用。
     local function _get_xyl_current_task_info(data)
         local _, _, infoMap = _build_xyl_task_maps()
         local dq = _get_xyl_task_dq(data)
@@ -190,15 +223,12 @@ function MainAssistXylHelper.bind(MainAssist)
         return nil
     end
 
-    -- 备注：当前任务按钮既可能是“立即前往”，也可能是“领取奖励”。
-    -- 这里与异闻录主界面的 khdDone 判定保持一致。
     local function _get_xyl_current_task_action_text(info)
         local task = type(info) == "table" and info.task or nil
         local canClaim = (type(task) == "table" and task.id == 999 and task.khdjy) and (task.khdjy(task) == true) or false
         return canClaim and "领取奖励" or "立即前往"
     end
 
-    -- 备注：生成当前伏妖录任务的稳定标识，用于判断弹层内容是否真的变化。
     local function _get_xyl_current_task_cache_key(data, info)
         info = info or _get_xyl_current_task_info(data)
         if type(info) == "table" and info.i and info.j and info.z then
@@ -212,7 +242,7 @@ function MainAssistXylHelper.bind(MainAssist)
 
         local taskId = _get_xyl_task_id(data)
         if taskId then
-            return "taskid_" .. tostring(taskId)
+            return "暂无任务简介"
         end
 
         return ""
@@ -247,7 +277,533 @@ function MainAssistXylHelper.bind(MainAssist)
         end, XYL_DYNAMIC_REFRESH_DELAY)
     end
 
-    -- 备注：点击“立即前往”时复用伏妖录原本的前往逻辑。
+    local function _is_gray_world_map(eventData)
+        local mapId = tostring(SL:GetMetaValue("MAP_ID") or "")
+        if mapId == "" and type(eventData) == "table" then
+            mapId = tostring(eventData.mapID or "")
+        end
+        if mapId ~= "" and GRAY_WORLD_MAP_IDS[mapId] then
+            return true
+        end
+
+        local mapName = tostring(SL:GetMetaValue("MAP_NAME") or "")
+        if mapName == "" then
+            if type(eventData) == "table" then
+                MainAssist._grayWorldLastMapEvent = {
+                    mapID = tostring(eventData.mapID or ""),
+                    lastMapID = tostring(eventData.lastMapID or ""),
+                }
+            end
+            return false
+        end
+        if GRAY_WORLD_MAP_NAMES[mapName] then
+            return true
+        end
+        for _, keyword in ipairs(GRAY_WORLD_MAP_KEYWORDS) do
+            if string.find(mapName, keyword, 1, true) ~= nil then
+                return true
+            end
+        end
+        local currentPlayerName = tostring(SL:GetMetaValue("REAL_USER_NAME") or SL:GetMetaValue("USER_NAME") or "")
+        if currentPlayerName ~= "" then
+            for _, suffix in ipairs(GRAY_WORLD_MAP_SUFFIXES) do
+                if mapName == currentPlayerName .. suffix then
+                    return true
+                end
+            end
+        end
+        for _, suffix in ipairs(GRAY_WORLD_MAP_SUFFIXES) do
+            if string.find(mapName, suffix, 1, true) ~= nil then
+                return true
+            end
+        end
+        return false
+    end
+
+    local function _gray_world_to_num(value, defaultValue)
+        local num = tonumber(value)
+        if num == nil then
+            return defaultValue or 0
+        end
+        return num
+    end
+
+    local function _gray_world_parse_server_json(varName)
+        local raw = SL:GetMetaValue("SERVER_VALUE", varName)
+        if type(raw) ~= "string" or raw == "" then
+            return {}
+        end
+        local ok, data = pcall(function()
+            return SL:JsonDecode(raw, false)
+        end)
+        if not ok or type(data) ~= "table" then
+            return {}
+        end
+        return data
+    end
+
+    local function _gray_world_get_runtime_data()
+        return _gray_world_parse_server_json("T13"), _gray_world_parse_server_json("T35")
+    end
+
+    local function _gray_world_get_cfg(key)
+        local data = rawget(_G, "teshudata")
+        if type(data) ~= "table" then
+            return {}
+        end
+        local cfg = data[key]
+        if type(cfg) ~= "table" then
+            return {}
+        end
+        return cfg
+    end
+
+    local function _gray_world_get_bag_count(itemName)
+        if type(itemName) ~= "string" or itemName == "" then
+            return 0
+        end
+        return _gray_world_to_num(SL:GetMetaValue("ITEM_COUNT", itemName), 0)
+    end
+
+    local function _gray_world_is_step_claimable(stepCfg, taskState, sgData, taskKey)
+        if taskState <= 0 then
+            return true
+        end
+        if taskState ~= 1 then
+            return false
+        end
+        local needNum = _gray_world_to_num(stepCfg.num, 0)
+        if needNum <= 0 then
+            return false
+        end
+        return _gray_world_to_num(sgData[taskKey], 0) >= needNum
+    end
+
+    local function _gray_world_is_boss_prep_claimable(bossCfg, prepState, sgData, bossKey)
+        if prepState <= 0 then
+            return true
+        end
+        if prepState ~= 1 then
+            return false
+        end
+
+        local prepCfg = type(bossCfg.prep_task) == "table" and bossCfg.prep_task or {}
+        if bossKey == "npc_625" then
+            return _gray_world_to_num(sgData[bossKey .. "_rw"], 0) >= 50
+        end
+        if bossKey == "npc_626" or bossKey == "npc_627" then
+            return _gray_world_get_bag_count(prepCfg.item_name) >= _gray_world_to_num(prepCfg.need, 0)
+        end
+        if bossKey == "npc_628" then
+            return _gray_world_get_bag_count(prepCfg.left_name) >= 1 and _gray_world_get_bag_count(prepCfg.right_name) >= 1
+        end
+        return false
+    end
+
+    local function _gray_world_build_route_state(routeCfg, jqData, sgData)
+        local stepCfg = _gray_world_get_cfg(routeCfg.step)
+        local bossCfg = _gray_world_get_cfg(routeCfg.boss)
+        local stepState = _gray_world_to_num(jqData[routeCfg.step], 0)
+        local bossState = _gray_world_to_num(jqData[routeCfg.boss], 0)
+        local prepState = _gray_world_to_num(jqData[routeCfg.boss .. "_rw"], 0)
+
+        if bossState >= 2 then
+            return {
+                idx = routeCfg.idx,
+                order = routeCfg.order,
+                statusText = "已完成",
+                canJump = false,
+                showRedPoint = false,
+                completed = true,
+            }
+        end
+
+        if stepState < 2 then
+            return {
+                idx = routeCfg.idx,
+                order = routeCfg.order,
+                statusText = tostring(stepCfg.name or routeCfg.step),
+                canJump = true,
+                showRedPoint = _gray_world_is_step_claimable(stepCfg, stepState, sgData, routeCfg.step),
+                completed = false,
+            }
+        end
+
+        return {
+            idx = routeCfg.idx,
+            order = routeCfg.order,
+            statusText = tostring(bossCfg.name or routeCfg.boss),
+            canJump = true,
+            showRedPoint = _gray_world_is_boss_prep_claimable(bossCfg, prepState, sgData, routeCfg.boss),
+            completed = false,
+        }
+    end
+
+    local function _gray_world_build_route_state_key(routeState)
+        return table.concat({
+            tostring(routeState.idx or 0),
+            tostring(routeState.statusText or ""),
+            routeState.canJump and "1" or "0",
+            routeState.showRedPoint and "1" or "0",
+            routeState.completed and "1" or "0",
+        }, "|")
+    end
+
+    local function _gray_world_build_runtime_cache_key()
+        local parts = {
+            tostring(SL:GetMetaValue("SERVER_VALUE", "T13") or ""),
+            tostring(SL:GetMetaValue("SERVER_VALUE", "T35") or ""),
+        }
+
+        for _, npcKey in ipairs(GRAY_WORLD_PREP_ITEM_KEYS) do
+            local prepCfg = _gray_world_get_cfg(npcKey).prep_task or {}
+            if prepCfg.item_name and prepCfg.item_name ~= "" then
+                parts[#parts + 1] = npcKey .. ":" .. prepCfg.item_name .. "=" .. tostring(_gray_world_get_bag_count(prepCfg.item_name))
+            end
+            if prepCfg.left_name and prepCfg.left_name ~= "" then
+                parts[#parts + 1] = npcKey .. ":" .. prepCfg.left_name .. "=" .. tostring(_gray_world_get_bag_count(prepCfg.left_name))
+            end
+            if prepCfg.right_name and prepCfg.right_name ~= "" then
+                parts[#parts + 1] = npcKey .. ":" .. prepCfg.right_name .. "=" .. tostring(_gray_world_get_bag_count(prepCfg.right_name))
+            end
+        end
+
+        return table.concat(parts, "||")
+    end
+
+    local function _gray_world_vertical_text(text)
+        text = tostring(text or "")
+        if text == "" then
+            return ""
+        end
+
+        local chars = {}
+        local i = 1
+        local len = #text
+        while i <= len do
+            local c = string.byte(text, i)
+            local step = 1
+            if c >= 240 then
+                step = 4
+            elseif c >= 224 then
+                step = 3
+            elseif c >= 192 then
+                step = 2
+            end
+            chars[#chars + 1] = string.sub(text, i, i + step - 1)
+            i = i + step
+        end
+
+        return table.concat(chars, "\n")
+    end
+
+    local function _gray_world_split_step_text(text)
+        text = tostring(text or "")
+        local prefix, suffix = string.match(text, "^(踏入)·(.+)$")
+        if prefix and suffix and suffix ~= "" then
+            return prefix, suffix
+        end
+        return nil, "    "..text
+    end
+
+    local function _gray_world_get_text_color(routeState)
+        local text = tostring(routeState and routeState.statusText or "")
+        if routeState and routeState.completed then
+            return "#00FF00"
+        end
+        if string.match(text, "^踏入") then
+            return "#FFFF00"
+        end
+        if string.match(text, "^讨伐") then
+            return "#FF0000"
+        end
+        return "#FFFFFF"
+    end
+
+    local function _gray_world_get_text_layout(routeIdx)
+        if routeIdx == 1 or routeIdx == 2 then
+            return {
+                primaryX = GRAY_WORLD_TOP_TEXT_POS.x,
+                primaryY = GRAY_WORLD_TOP_TEXT_POS.y + 25,
+                secondaryX = GRAY_WORLD_TOP_TEXT_SECONDARY_X,
+                secondaryY = GRAY_WORLD_TOP_TEXT_POS.y - 10,
+            }
+        end
+
+        return {
+            primaryX = GRAY_WORLD_TEXT_POS.x,
+            primaryY = GRAY_WORLD_TEXT_POS.y + 25,
+            secondaryX = GRAY_WORLD_TEXT_SECONDARY_X,
+            secondaryY = GRAY_WORLD_TEXT_POS.y - 10,
+        }
+    end
+
+    local function _gray_world_get_redpoint_pos(routeIdx)
+        local pos = GRAY_WORLD_REDPOINT_POS[routeIdx]
+        if type(pos) == "table" then
+            return pos
+        end
+        return {x = 94, y = 84}
+    end
+
+    local function _gray_world_update_line(panel, routeState)
+        local line = GUI:getChildByName(panel, "line_" .. tostring(routeState.idx))
+        if not line then
+            return
+        end
+
+        local prefixText, suffixText = _gray_world_split_step_text(routeState.statusText or "")
+        local lineText = GUI:getChildByName(line, "status_text")
+        local lineText2 = GUI:getChildByName(line, "status_text_2")
+        local textColor = _gray_world_get_text_color(routeState)
+        local textLayout = _gray_world_get_text_layout(routeState.idx)
+
+        if not lineText then
+            lineText = GUI:Text_Create(line, "status_text", textLayout.primaryX, textLayout.primaryY, 12, "#FFFFFF", "")
+            GUI:setAnchorPoint(lineText, 0, 0.5)
+            GUI:Text_setFontName(lineText, "fonts/font4.ttf")
+            GUI:Text_enableOutline(lineText, "#000000", 2)
+        else
+            GUI:setPosition(lineText, textLayout.primaryX, textLayout.primaryY)
+        end
+
+        if prefixText then
+            if not lineText2 then
+                lineText2 = GUI:Text_Create(line, "status_text_2", textLayout.secondaryX, textLayout.secondaryY, 12, "#FFFFFF", "")
+                GUI:setAnchorPoint(lineText2, 0, 0.5)
+                GUI:Text_setFontName(lineText2, "fonts/font4.ttf")
+                GUI:Text_enableOutline(lineText2, "#000000", 2)
+            else
+                GUI:setPosition(lineText2, textLayout.secondaryX, textLayout.secondaryY)
+            end
+            GUI:Text_setString(lineText, _gray_world_vertical_text(prefixText))
+            GUI:Text_setString(lineText2, _gray_world_vertical_text(suffixText))
+            GUI:Text_setTextColor(lineText, textColor)
+            GUI:Text_setTextColor(lineText2, textColor)
+            GUI:setVisible(lineText2, true)
+        else
+            GUI:Text_setString(lineText, _gray_world_vertical_text(suffixText))
+            GUI:Text_setTextColor(lineText, textColor)
+            if lineText2 then
+                GUI:setVisible(lineText2, false)
+            end
+        end
+
+        -- GUI:Image_setGrey(line, routeState.completed == true)
+        -- GUI:setOpacity(line, routeState.completed and 210 or 255)
+
+        local touchBtn = GUI:getChildByName(line, "touch_btn")
+        if not touchBtn then
+            touchBtn = GUI:Button_Create(line, "touch_btn", 50, 47, GRAY_WORLD_TOUCH_SKIN)
+            GUI:setAnchorPoint(touchBtn, 0.5, 0.5)
+            GUI:setContentSize(touchBtn, 100, 95)
+            GUI:addOnClickEvent(touchBtn, function()
+                if touchBtn._grayWorldCompleted then
+                    return
+                end
+                SL:SendLuaNetMsg(100, 46, 2, touchBtn._grayWorldRouteIdx or 0, "")
+            end)
+        end
+        touchBtn._grayWorldRouteIdx = routeState.idx
+        touchBtn._grayWorldCompleted = routeState.completed == true
+        GUI:setTouchEnabled(touchBtn, routeState.canJump == true)
+        GUI:Button_setBright(touchBtn, routeState.canJump == true)
+
+        local redPoint = GUI:getChildByName(line, "redpoint")
+        if routeState.showRedPoint then
+            if not redPoint then
+                local pos = _gray_world_get_redpoint_pos(routeState.idx)
+                redPoint = NPC_UI_HELPER.redpoint_create(line, {
+                    name = "redpoint",
+                    x = pos.x,
+                    y = pos.y,
+                    anchorX = 1,
+                    anchorY = 1,
+                })
+            end
+            if redPoint then
+                GUI:setVisible(redPoint, true)
+                local pos = _gray_world_get_redpoint_pos(routeState.idx)
+                GUI:setPosition(redPoint, pos.x, pos.y)
+            end
+        elseif redPoint then
+            GUI:setVisible(redPoint, false)
+        end
+    end
+
+    local function _gray_world_refresh_panel(panel)
+        if not panel then
+            return
+        end
+        local runtimeCacheKey = _gray_world_build_runtime_cache_key()
+        if panel._grayWorldRuntimeCacheKey == runtimeCacheKey then
+            return
+        end
+
+        local jqData, sgData = _gray_world_get_runtime_data()
+        panel._grayWorldRouteStateCache = panel._grayWorldRouteStateCache or {}
+        local routeStates = {}
+        for _, routeCfg in ipairs(GRAY_WORLD_ROUTE_CONFIGS) do
+            routeStates[#routeStates + 1] = _gray_world_build_route_state(routeCfg, jqData, sgData)
+        end
+
+        table.sort(routeStates, function(a, b)
+            return _gray_world_to_num(a.order, 999) < _gray_world_to_num(b.order, 999)
+        end)
+
+        local allowRedPoint = true
+        local allowClick = true
+        for _, routeState in ipairs(routeStates) do
+            if not allowClick then
+                routeState.canJump = false
+            end
+            if not allowRedPoint then
+                routeState.showRedPoint = false
+            end
+            if not routeState.completed then
+                allowClick = false
+                allowRedPoint = false
+            end
+        end
+
+        local firstRedPointIdx = nil
+        for _, routeState in ipairs(routeStates) do
+            if routeState.showRedPoint then
+                firstRedPointIdx = routeState.idx
+                break
+            end
+        end
+
+        for _, routeState in ipairs(routeStates) do
+            routeState.showRedPoint = routeState.showRedPoint and routeState.idx == firstRedPointIdx
+            local routeStateKey = _gray_world_build_route_state_key(routeState)
+            if panel._grayWorldRouteStateCache[routeState.idx] ~= routeStateKey then
+                _gray_world_update_line(panel, routeState)
+                panel._grayWorldRouteStateCache[routeState.idx] = routeStateKey
+            end
+        end
+        panel._grayWorldRuntimeCacheKey = runtimeCacheKey
+    end
+
+    local function _ensure_gray_world_icon()
+        if MainAssist._grayWorldTaskIcon then
+            return MainAssist._grayWorldTaskIcon
+        end
+
+        local parent = MainAssist._ui and MainAssist._ui["Panel_assist"]
+        if not parent then
+            return nil
+        end
+
+        local panel = GUI:Layout_Create(parent, "Panel_gray_world_task", GRAY_WORLD_PANEL_POS.x, GRAY_WORLD_PANEL_POS.y, GRAY_WORLD_PANEL_SIZE.width, GRAY_WORLD_PANEL_SIZE.height, false)
+        if not panel then
+            return nil
+        end
+
+        GUI:setLocalZOrder(panel, 1001)
+        GUI:setTouchEnabled(panel, true)
+        panel._grayWorldRuntimeCacheKey = nil
+        panel._grayWorldRouteStateCache = {}
+
+        local bg = GUI:Image_Create(panel, "bg", 0, 0, GRAY_WORLD_BG_PATH)
+        if bg then
+            GUI:setAnchorPoint(bg, 0, 0)
+            local bgSize = GUI:getContentSize(bg)
+            if bgSize and bgSize.width > 0 and bgSize.height > 0 then
+                GUI:setScaleX(bg, GRAY_WORLD_PANEL_SIZE.width / bgSize.width)
+                GUI:setScaleY(bg, GRAY_WORLD_PANEL_SIZE.height / bgSize.height)
+            end
+        end
+        local line2 = GUI:Layout_Create(panel, "line_" .. 2, 100, 95, 100, 95, false)
+        local line3 = GUI:Layout_Create(panel, "line_" .. 3, 0, 0, 100, 95, false)
+        local line4 = GUI:Layout_Create(panel, "line_" .. 4, 100, 0, 100, 95, false)
+        local line1 = GUI:Layout_Create(panel, "line_" .. 1, 0, 95, 100, 95, false)
+
+        GUI:setContentSize(line1, 100, 95)
+        GUI:setContentSize(line2, 100, 95)
+        GUI:setContentSize(line3, 100, 95)
+        GUI:setContentSize(line4, 100, 95)
+        
+        GUI:setAnchorPoint(GUI:Image_Create(line1, "zg", 0, 95, "res/custom/three_city/zerq/1.png"), 0, 1)
+        GUI:setAnchorPoint(GUI:Image_Create(line2, "zg", 100, 95, "res/custom/three_city/zerq/2.png"), 1, 1)
+        GUI:setAnchorPoint(GUI:Image_Create(line3, "zg", 0, 0, "res/custom/three_city/zerq/3.png"), 0, 0)
+        GUI:setAnchorPoint(GUI:Image_Create(line4, "zg", 100, 0, "res/custom/three_city/zerq/4.png"), 1, 0)
+
+        -- local lineY = 136
+        -- for _, cfg in ipairs(GRAY_WORLD_LINES) do
+        --     local lineImg = GUI:Image_Create(panel, "line_" .. tostring(cfg.idx), 6, lineY, cfg.skin)
+        --     if lineImg then
+        --         GUI:setAnchorPoint(lineImg, 0, 0.5)
+        --         GUI:setScale(lineImg, GRAY_WORLD_LINE_SCALE)
+        --     end
+        --     lineY = lineY - 26
+        -- end
+
+        -- for _, region in ipairs(GRAY_WORLD_TOUCH_REGIONS) do
+        --     local touchRoot = GUI:Layout_Create(panel, "line_touch_root_" .. tostring(region.idx), region.x, region.y, region.width, region.height, true)
+        --     if touchRoot then
+        --         GUI:setAnchorPoint(touchRoot, 0, 0)
+        --         GUI:setTouchEnabled(touchRoot, false)
+
+        --         local btn = GUI:Button_Create(touchRoot, "line_touch_" .. tostring(region.idx), region.btnX, region.btnY, GRAY_WORLD_TOUCH_SKIN)
+        --         if btn then
+        --             GUI:setAnchorPoint(btn, 0.5, 0.5)
+        --             GUI:setRotation(btn, region.rotation or 0)
+        --             GUI:setContentSize(btn, region.btnWidth, region.btnHeight)
+        --             GUI:addOnClickEvent(btn, function()
+        --                 SL:SendLuaNetMsg(100, 46, 2, region.idx, "")
+        --             end)
+        --         end
+        --     end
+        -- end
+
+        MainAssist._grayWorldTaskIcon = panel
+        return panel
+    end
+
+
+    function MainAssist.UpdateGrayWorldTaskIcon(eventData)
+        if type(eventData) == "table" then
+            MainAssist._grayWorldLastMapEvent = {
+                mapID = tostring(eventData.mapID or ""),
+                lastMapID = tostring(eventData.lastMapID or ""),
+            }
+        end
+        local panel = _ensure_gray_world_icon()
+        if not panel then
+            MainAssist._grayWorldTaskIconPendingRefresh = true
+            return
+        end
+        MainAssist._grayWorldTaskIconPendingRefresh = false
+        _gray_world_refresh_panel(panel)
+        GUI:setVisible(panel, _is_gray_world_map(eventData or MainAssist._grayWorldLastMapEvent))
+    end
+
+    function MainAssist.RequestGrayWorldTaskIconRefresh(eventData)
+        if type(eventData) == "table" then
+            MainAssist._grayWorldLastMapEvent = {
+                mapID = tostring(eventData.mapID or ""),
+                lastMapID = tostring(eventData.lastMapID or ""),
+            }
+        end
+
+        if MainAssist._grayWorldTaskIconTimer then
+            return
+        end
+
+        local schedulerNode = MainAssist._ui and MainAssist._ui["Panel_assist"]
+        if not schedulerNode then
+            MainAssist._grayWorldTaskIconPendingRefresh = true
+            MainAssist.UpdateGrayWorldTaskIcon(eventData or MainAssist._grayWorldLastMapEvent)
+            return
+        end
+
+        MainAssist._grayWorldTaskIconTimer = SL:scheduleOnce(schedulerNode, function()
+            MainAssist._grayWorldTaskIconTimer = nil
+            MainAssist.UpdateGrayWorldTaskIcon(MainAssist._grayWorldLastMapEvent)
+        end, 0.05)
+    end
+
     local function _go_to_current_xyl_task()
         local info = _get_xyl_current_task_info(MainAssist._xylCurrentTask)
         if not info then
@@ -261,7 +817,6 @@ function MainAssistXylHelper.bind(MainAssist)
             string.format('{"i":%d,"j":%d,"k":0,"z":%d}', info.i, info.j, info.z))
     end
 
-    -- 备注：获取当前伏妖录任务的简介文本，保持与伏妖录配置同源。
     local function _get_xyl_current_task_desc(task)
         if type(task) ~= "table" then
             return "暂无任务简介"
@@ -405,7 +960,6 @@ function MainAssistXylHelper.bind(MainAssist)
         return _xyl_trim_reward_display(rewardList)
     end
 
-    -- 备注：关闭当前任务详情弹层。
     local function _close_current_xyl_detail()
         if MainAssist._xylDetailPopup and MainAssist._xylDetailPopup.root then
             MainAssist._xylDetailPopupPos = GUI:getPosition(MainAssist._xylDetailPopup.root)
@@ -414,7 +968,6 @@ function MainAssistXylHelper.bind(MainAssist)
         MainAssist._xylDetailPopup = nil
     end
 
-    -- 备注：局部刷新当前伏妖录任务详情弹层内容，避免整层重建。
     local function _refresh_xyl_detail_popup_content()
         local popup = MainAssist._xylDetailPopup
         if not (popup and popup.root and popup.descHost) then
@@ -449,7 +1002,6 @@ function MainAssistXylHelper.bind(MainAssist)
         popup.descCacheText = taskDesc
     end
 
-    -- 备注：点击“任务详情”时显示类似 ensure_cover 的任务介绍层。
     local function _open_current_xyl_detail()
         local info = _get_xyl_current_task_info(MainAssist._xylCurrentTask)
         if not info then
@@ -490,7 +1042,6 @@ function MainAssistXylHelper.bind(MainAssist)
         _refresh_xyl_detail_popup_content()
     end
 
-    -- 备注：在任务栏底部显示当前伏妖录任务名、“任务详情”和“立即前往”按钮。
     local function _ensure_xyl_current_widget()
         if MainAssist._xylCurrentWidget then
             return MainAssist._xylCurrentWidget
@@ -556,12 +1107,13 @@ function MainAssistXylHelper.bind(MainAssist)
         return MainAssist._xylCurrentWidget
     end
 
-    -- 备注：刷新任务栏底部的当前伏妖录任务显示。
     function MainAssist.UpdateCurrentXylTaskWidget()
         local widget = _ensure_xyl_current_widget()
         if not widget then
             return
         end
+
+        MainAssist.UpdateGrayWorldTaskIcon()
 
         local info = _get_xyl_current_task_info(MainAssist._xylCurrentTask)
         local hasTask = info and info.name and info.name ~= ""
@@ -603,8 +1155,6 @@ function MainAssistXylHelper.bind(MainAssist)
         end
     end
 
-    -- 备注：主任务 22 为异闻录时，打印当前进行中的伏妖录任务名，方便联调。
-    -- 判定顺序：优先读显式任务 ID；若服务端仍使用 dq，则按 dq 反查伏妖录配置。
     function MainAssist.PrintXylTaskName(data)
         if type(data) ~= "table" or tonumber(data.taskid) ~= 22 then
             return
@@ -629,20 +1179,14 @@ function MainAssistXylHelper.bind(MainAssist)
         end
 
         if not taskName then
-            SL:release_print(string.format("[伏妖录调试] 未匹配到任务名 taskId=%s dq=%s", tostring(xylTaskId), tostring(xylTaskDq)))
             return
         end
 
         MainAssist._xylLastPrintTaskKey = printKey
 
-        if xylTaskId then
-            SL:release_print(string.format("[伏妖录] 当前任务：%s（%d）", tostring(taskName), xylTaskId))
-        elseif xylTaskDq then
-            SL:release_print(string.format("[伏妖录] 当前任务：%s（%s）", tostring(taskName), xylTaskDq))
-        end
+        return
     end
 
-    -- 备注：收到服务端 101,11,9 下发的当前伏妖录任务后，缓存并刷新任务栏显示。
     function MainAssist.RefreshXylTaskOnCurrentChange(data)
         if type(data) ~= "table" then
             return
@@ -665,20 +1209,18 @@ function MainAssistXylHelper.bind(MainAssist)
         end
     end
 
-    -- 备注：刷新伏妖录任务的动态展示。
-    -- 用于处理服务端变量、背包道具变化后，任务描述和奖励需要实时重算的情况。
     function MainAssist.RefreshXylDynamicContent()
         _request_xyl_dynamic_refresh()
     end
 
-    -- 备注：服务端变量变化后，伏妖录任务描述可能发生变化，这里统一刷新。
     function MainAssist.RefreshXylOnServerValueChange()
         MainAssist.RefreshXylDynamicContent()
+        MainAssist.RequestGrayWorldTaskIconRefresh()
     end
 
-    -- 备注：背包道具变化后，伏妖录任务描述和奖励条件可能发生变化，这里统一刷新。
     function MainAssist.RefreshXylOnBagItemChange()
         MainAssist.RefreshXylDynamicContent()
+        MainAssist.RequestGrayWorldTaskIconRefresh()
     end
 end
 

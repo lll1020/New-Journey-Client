@@ -585,6 +585,18 @@ local function _upgrade_is_npc_55_completed()
     return _upgrade_is_story_done("npc_55") or _upgrade_is_story_done("npc_55")
 end
 
+local function _upgrade_has_third_continent_half_entry()
+    if _upgrade_is_npc_55_completed() then
+        return true
+    end
+    local xianfuData = _upgrade_get_server_json("T47")
+    return type(xianfuData) == "table" and next(xianfuData) ~= nil
+end
+
+local function _upgrade_has_third_continent_full_entry()
+    return _upgrade_is_story_done("npc_46") or _upgrade_is_story_done("npc_46")
+end
+
 local function _upgrade_has_required_equip_for_70()
     local cfg = teshudata and teshudata["npc_70"]
     if not cfg then
@@ -652,9 +664,14 @@ local OPEN_BTN_LIST = {
     {id = 28, label = "装备强化", npcid = 28, continent = 2},
     {id = 25, label = "幸运强化", npcid = 25, continent = 2},
 
-    {id = 54, label = "高级淬体[★]", npcid = 54, continent = 3, precondition = _upgrade_is_cuiti_11_completed},
-    {id = 27, label = "技能强化", npcid = 27, continent = 3},
-    {id = 4401, label = "仙草成熟", npcid = 44, continent = 3, precondition = _upgrade_is_npc_55_completed},
+    -- 三大陆现在区分半进入/真进入：
+    -- 半进入：完成 npc_55 后进入灰界/仙府线，可使用 npc_44
+    -- 真进入：完成 npc_46【灾厄入侵】后才算进入三大陆主城功能区
+    {id = 54, label = "高级淬体[★]", npcid = 54, continent = 3, entryMode = "full", precondition = function()
+        return _upgrade_is_cuiti_11_completed() and _upgrade_has_third_continent_full_entry()
+    end},
+    {id = 27, label = "技能强化", npcid = 27, continent = 3, entryMode = "full", precondition = _upgrade_has_third_continent_full_entry},
+    {id = 4401, label = "仙草成熟", npcid = 44, continent = 3, entryMode = "half", precondition = _upgrade_has_third_continent_half_entry},
 
     {id = 64, label = "灵兽", npcid = 64, continent = 4},
     {id = 65, label = "古玩鉴定", npcid = 65, continent = 4},
@@ -708,7 +725,18 @@ local function _check_precondition(cfg)
         return false
     end
 
-    if not _is_continent_open(cfg.continent) then
+    if _upgrade_to_num(cfg.continent, 0) == 3 then
+        local entryMode = tostring(cfg.entryMode or "half")
+        if entryMode == "full" then
+            if not _upgrade_has_third_continent_full_entry() then
+                return false
+            end
+        else
+            if not _upgrade_has_third_continent_half_entry() then
+                return false
+            end
+        end
+    elseif not _is_continent_open(cfg.continent) then
         return false
     end
     if not _upgrade_check_mainline_unlock(cfg.npcid) then

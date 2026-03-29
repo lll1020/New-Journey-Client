@@ -20,6 +20,15 @@ local state_info = {
     }
 }
 
+local route_info = {
+    [1] = {step = "npc_623", boss = "npc_625"},
+    [2] = {step = "npc_622", boss = "npc_627"},
+    [3] = {step = "npc_624", boss = "npc_626"},
+    [4] = {step = "npc_621", boss = "npc_628"},
+}
+
+local need_keys = {"npc_621", "npc_622", "npc_623", "npc_624", "npc_625", "npc_626", "npc_627", "npc_628"}
+
 function npc.main(npcid, p2, p3, msgData)
 
 
@@ -70,22 +79,44 @@ function npc.main(npcid, p2, p3, msgData)
             -- GUI:Text_Create(label_node, "kz",460,293 - 44 - 44 - 44, 20, "#FF0000", config.kz)
             local state = npc.data.T_data[key] >= 2 and 2 or 1
             GUI:Text_Create(label_node, "state",460,293 - 44 - 44 - 44 - 44, 20, state_info[state].color, state_info[state].text)
+
+            local route = route_info[idx]
+            if route then
+                local stepDone = (npc.data.T_data[route.step] or 0) >= 2
+                local bossDone = (npc.data.T_data[route.boss] or 0) >= 2
+                local statusText = bossDone and "当前阶段：已完成" or (stepDone and "当前阶段：可前往讨伐" or "当前阶段：先完成前置")
+                local statusColor = bossDone and "#7CFF7C" or (stepDone and "#FFE46C" or "#FF6666")
+                local  route_status = GUI:Text_Create(label_node, "route_status", 200, 78, 20, statusColor, statusText)
+                GUI:Text_setFontName(route_status, "fonts/font4.ttf")
+                if not bossDone then
+                    NPC_UI_HELPER.createPrimaryButton(label_node, "goto_btn", 570, 30, "", function()
+                        SL:SendLuaNetMsg(100, npcid, 2, idx, "")
+                    end, {fontSize = 18,skin = "res/wy/public/an_ljqw.png"})
+                end
+            end
             
         end
 
+        local canClaim = true
+        for _, taskKey in ipairs(need_keys) do
+            if (npc.data.T_data[taskKey] or 0) < 2 then
+                canClaim = false
+                break
+            end
+        end
 
         local kuang = GUI:Image_Create(node, "kuang2", 320 + 140, 15, "res/wy/public/70_70_k.png")
         UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.ch.."[称号]")))
 
         npc.Label = GUI:Node_Create(node, "Label", 0, 0)
 
-        if SL:GetMetaValue("TITLE_DATA_BY_ID", SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.ch)) then
-            
-        else
+        if (not SL:GetMetaValue("TITLE_DATA_BY_ID", SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.ch))) and canClaim then
             local Button= GUI:Button_Create(node, "Button_all", 540, 10.00, "res/custom/three_city/zerq/btn.png")
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 1, 0, "")
             end)
+        elseif not canClaim then
+            -- GUI:Text_Create(node, "claim_lock", 485, 18, 18, "#ff7676", "需完成全部灰界与四灾任务后领取")
         end
         
 
@@ -113,7 +144,8 @@ function npc.main(npcid, p2, p3, msgData)
 
 
     if p2 == 0 then--界面
-        npc.data = SL:JsonDecode(msgData,false)
+        npc.data = SL:JsonDecode(msgData,false) or {}
+        npc.data.T_data = npc.data.T_data or {}
         npc.data.T_data["npc_46"] = npc.data.T_data["npc_46"] or {}
         ensureWindow(npcid)
         UI_updata(npc.node)
