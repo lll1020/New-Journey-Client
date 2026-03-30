@@ -1938,8 +1938,12 @@ npc[11] = function(p2, p3, Data)
         end
 
         if taskName == "开辟仙府" then
-            if _ywl_story_node_started(storyData["npc_55"]) or _ywl_story_node_started(storyData["npc_55"]) then
-                return true
+            local xianfuRaw = Player:getServerVar("T47")
+            if xianfuRaw and xianfuRaw ~= "" then
+                local xianfuOk, xianfuData = pcall(function()
+                    return Player:JsonToTbl(xianfuRaw)
+                end)
+                return xianfuOk and type(xianfuData) == "table" and next(xianfuData) ~= nil
             end
         end
         return false
@@ -1965,7 +1969,7 @@ npc[11] = function(p2, p3, Data)
             local ok, storyData = pcall(function()
                 return Player:JsonToTbl(raw)
             end)
-            if ok and type(storyData) == "table" and _ywl_story_node_done(storyData["npc_55"]) then
+            if ok and type(storyData) == "table" and _ywl_story_node_done(storyData["npc_46"]) then
                 return true
             end
         end

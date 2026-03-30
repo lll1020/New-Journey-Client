@@ -581,12 +581,12 @@ local function _upgrade_is_cuiti_11_completed()
     return false
 end
 
-local function _upgrade_is_npc_55_completed()
-    return _upgrade_is_story_done("npc_55") or _upgrade_is_story_done("npc_55")
+local function _upgrade_is_npc_46_completed()
+    return _upgrade_is_story_done("npc_46")
 end
 
 local function _upgrade_has_third_continent_half_entry()
-    if _upgrade_is_npc_55_completed() then
+    if _upgrade_is_npc_46_completed() then
         return true
     end
     local xianfuData = _upgrade_get_server_json("T47")
@@ -665,7 +665,7 @@ local OPEN_BTN_LIST = {
     {id = 25, label = "幸运强化", npcid = 25, continent = 2},
 
     -- 三大陆现在区分半进入/真进入：
-    -- 半进入：完成 npc_55 后进入灰界/仙府线，可使用 npc_44
+    -- 半进入：完成 npc_46 后进入灰界/仙府线，可使用 npc_44
     -- 真进入：完成 npc_46【灾厄入侵】后才算进入三大陆主城功能区
     {id = 54, label = "高级淬体[★]", npcid = 54, continent = 3, entryMode = "full", precondition = function()
         return _upgrade_is_cuiti_11_completed() and _upgrade_has_third_continent_full_entry()
