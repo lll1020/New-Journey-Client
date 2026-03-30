@@ -211,8 +211,11 @@ local function _xyl_has_linggen_feed()
     return false
 end
 
--- 备注：是否已获得任意江湖称号
+-- 备注：是否已查看江湖称号
 local function _xyl_has_jianghu_title()
+    if rawget(_G, "XYL_VIEW_JH_TITLE") then
+        return true
+    end
     local cfg = teshudata and teshudata["npc_43"]
     local titleList = cfg and cfg.ch or {}
     for _, titleName in pairs(titleList) do
@@ -435,7 +438,7 @@ local function _xyl_check_task(name)
         ["初识仙法"] = _xyl_has_any_xianfa,
         ["装备强化"] = _xyl_has_equip_strength,
         ["升级灵根"] = _xyl_has_linggen_feed,
-        ["获取江湖称号"] = _xyl_has_jianghu_title,
+        ["查看江湖称号"] = _xyl_has_jianghu_title,
         ["装配主灵根"] = _xyl_has_main_linggen,
         ["装配副灵根"] = _xyl_has_other_linggen,
         ["气运占卜"] = _xyl_has_divination,
@@ -707,14 +710,14 @@ local npc_xyl = {
                     desc = "前往灵根界面装配主灵根，掌握第一道灵根之力。\n<font color='#F4D179'>目标：</font>已装配主灵根\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
-                    "获取江湖称号",
+                    "查看江湖称号",
                     id = 999,
                     jl = { { "剧情点", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "二大陆主城", 43, 119, 122 },
-                    desc = "前往江湖称号界面领取第一阶称号，踏出江湖第一步。\n<font color='#F4D179'>目标：</font>获得任意江湖称号\n<font color='#F4D179'>进度：</font>%s",
+                    desc = "前往江湖称号界面查看称号信息，踏出江湖第一步。\n<font color='#F4D179'>目标：</font>查看江湖称号\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "气运占卜",

@@ -77,7 +77,7 @@ function npc.main(npcid, p2, p3, msgData)
         local kill_need = tonumber(task_cfg.kill_count or 0) or 0
         if kill_need > 0 and state > 0 then
             local t = GUI:Text_Create(node, "progress", 620, 250, 23, "#000000", string.format("当前击杀进度 %d/%d", kill_cur, kill_need))
-            GUI:Text_setFontName(t, "fonts/501.ttf")
+            GUI:Text_setFontName(t, "fonts/font4.ttf")
             GUI:Text_enableOutline(t, "#FFFFFF", 2)
         end
 

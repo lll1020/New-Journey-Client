@@ -59,7 +59,7 @@ function npc.main(npcid, p2, p3, msgData)
         end
         
         local desc = GUI:Text_Create(node, "desc",180,130, 20, "#808080", "当前击杀："..(npc.data.sg_data[key] or 0).."可搜查次数："..math.floor((npc.data.sg_data[key] or 0)/npc._config.jl_num) - #npc.data.T_dljq[key.."_s"])
-        GUI:Text_setFontName(desc, "fonts/500.ttf")
+        GUI:Text_setFontName(desc, "fonts/font4.ttf")
         GUI:Text_enableOutline(desc, "#00FFFF", 2)
 
         local ch_kuang = GUI:Image_Create(node, "ch_kuang", 240 + 320, 145, "res/wy/public/70_70_k.png")

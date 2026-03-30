@@ -37,6 +37,28 @@ local GRAY_WORLD_TEXT_POS = {x = 3, y = 48}
 local GRAY_WORLD_TEXT_SECONDARY_X = 19
 local GRAY_WORLD_TOP_TEXT_POS = {x = 70, y = 48}
 local GRAY_WORLD_TOP_TEXT_SECONDARY_X = 83
+local GRAY_WORLD_SINGLE_TEXT_POS = {x = 6, y = 220}
+local GRAY_WORLD_SINGLE_STEP_TEXT_Y = 170
+local GRAY_WORLD_SINGLE_TAOFA_TEXT_Y = 170
+local GRAY_WORLD_SINGLE_TEXT_SECONDARY_X = 30
+local GRAY_WORLD_SINGLE_TEXT_FONT_SIZE = 20
+local GRAY_WORLD_SINGLE_REDPOINT_POS = {x = 194, y = 184}
+local GRAY_WORLD_LINE_MAP_ALIASES = {
+    ["虚妄山脉"] = 4,
+    ["叹息旷野"] = 2,
+    ["鬼嘲深渊"] = 1,
+    ["禁忌之海"] = 3,
+    ["讨伐嘲灾"] = 1,
+    ["讨伐息灾"] = 2,
+    ["讨伐忌灾"] = 3,
+    ["讨伐妄灾"] = 4,
+}
+local GRAY_WORLD_LINE_SUFFIX_ALIASES = {
+    ["_npc625"] = 1,
+    ["_npc626"] = 2,
+    ["_npc627"] = 3,
+    ["_npc628"] = 4,
+}
 local GRAY_WORLD_REDPOINT_POS = {
     [1] = {x = 94 + 6, y = 84 + 6},
     [2] = {x = 94 + 6, y = 84 + 6},
@@ -72,6 +94,7 @@ local GRAY_WORLD_MAP_SUFFIXES = {
     "_npc627",
     "_npc628",
 }
+local GRAY_WORLD_LINE_MAP_CACHE = nil
 
 -- 备注：给任务栏挂载伏妖录当前任务的通用逻辑。
 function MainAssistXylHelper.bind(MainAssist)
@@ -248,6 +271,8 @@ function MainAssistXylHelper.bind(MainAssist)
         return ""
     end
 
+    local _refresh_xyl_detail_popup_content
+
     local function _flush_xyl_dynamic_content()
         MainAssist._xylDynamicRefreshTimer = nil
         if not MainAssist._xylCurrentTask then
@@ -256,7 +281,7 @@ function MainAssistXylHelper.bind(MainAssist)
 
         MainAssist.UpdateCurrentXylTaskWidget()
 
-        if MainAssist._xylDetailPopup and MainAssist._xylDetailPopup.root then
+        if MainAssist._xylDetailPopup and MainAssist._xylDetailPopup.root and _refresh_xyl_detail_popup_content then
             _refresh_xyl_detail_popup_content()
         end
     end
@@ -327,6 +352,84 @@ function MainAssistXylHelper.bind(MainAssist)
         end
         return num
     end
+    local _gray_world_get_cfg
+
+    local function _gray_world_get_current_map_name()
+        local mapName = tostring(SL:GetMetaValue("MAP_NAME") or "")
+        if mapName ~= "" then
+            return mapName
+        end
+        local eventData = MainAssist._grayWorldLastMapEvent
+        if type(eventData) == "table" and type(eventData.mapName) == "string" then
+            return eventData.mapName
+        end
+        return ""
+    end
+
+    local function _gray_world_build_line_map_cache()
+        if GRAY_WORLD_LINE_MAP_CACHE then
+            return GRAY_WORLD_LINE_MAP_CACHE
+        end
+        local mapCache = {}
+        for _, routeCfg in ipairs(GRAY_WORLD_ROUTE_CONFIGS) do
+            local stepCfg = _gray_world_get_cfg(routeCfg.step)
+            local mapName = stepCfg and stepCfg.map
+            if type(mapName) == "string" and mapName ~= "" then
+                mapCache[mapName] = routeCfg.idx
+            end
+        end
+        GRAY_WORLD_LINE_MAP_CACHE = mapCache
+        return mapCache
+    end
+
+    local function _gray_world_get_line_idx_by_map(mapName)
+        mapName = tostring(mapName or "")
+        if mapName == "" then
+            return nil
+        end
+        local aliasIdx = GRAY_WORLD_LINE_MAP_ALIASES[mapName]
+        if aliasIdx then
+            return aliasIdx
+        end
+        for _, suffix in ipairs(GRAY_WORLD_MAP_SUFFIXES) do
+            if string.find(mapName, suffix, 1, true) ~= nil then
+                local alias = GRAY_WORLD_LINE_SUFFIX_ALIASES[suffix]
+                if alias then
+                    return alias
+                end
+                local npcKey = "npc_" .. string.sub(suffix, 5)
+                for _, routeCfg in ipairs(GRAY_WORLD_ROUTE_CONFIGS) do
+                    if routeCfg.boss == npcKey then
+                        return routeCfg.idx
+                    end
+                end
+            end
+        end
+        local mapCache = _gray_world_build_line_map_cache()
+        local idx = mapCache[mapName]
+        if idx then
+            return idx
+        end
+        for key, value in pairs(mapCache) do
+            if string.find(mapName, key, 1, true) ~= nil then
+                return value
+            end
+        end
+        return nil
+    end
+
+    local function _gray_world_is_suffix_map(mapName)
+        mapName = tostring(mapName or "")
+        if mapName == "" then
+            return false
+        end
+        for _, suffix in ipairs(GRAY_WORLD_MAP_SUFFIXES) do
+            if string.find(mapName, suffix, 1, true) ~= nil then
+                return true
+            end
+        end
+        return false
+    end
 
     local function _gray_world_parse_server_json(varName)
         local raw = SL:GetMetaValue("SERVER_VALUE", varName)
@@ -346,7 +449,7 @@ function MainAssistXylHelper.bind(MainAssist)
         return _gray_world_parse_server_json("T13"), _gray_world_parse_server_json("T35")
     end
 
-    local function _gray_world_get_cfg(key)
+    _gray_world_get_cfg = function(key)
         local data = rawget(_G, "teshudata")
         if type(data) ~= "table" then
             return {}
@@ -400,7 +503,7 @@ function MainAssistXylHelper.bind(MainAssist)
         return false
     end
 
-    local function _gray_world_build_route_state(routeCfg, jqData, sgData)
+    local function _gray_world_build_route_state(routeCfg, jqData, sgData, mapName, mapFile)
         local stepCfg = _gray_world_get_cfg(routeCfg.step)
         local bossCfg = _gray_world_get_cfg(routeCfg.boss)
         local stepState = _gray_world_to_num(jqData[routeCfg.step], 0)
@@ -411,19 +514,27 @@ function MainAssistXylHelper.bind(MainAssist)
             return {
                 idx = routeCfg.idx,
                 order = routeCfg.order,
-                statusText = "已完成",
+                statusText = "已讨伐",
                 canJump = false,
                 showRedPoint = false,
                 completed = true,
             }
         end
 
+        mapName = tostring(mapName or "")
+        mapFile = tostring(mapFile or "")
+        local fbMap = bossCfg and tostring(bossCfg.fb_map or "") or ""
+        local inFbMap = fbMap ~= "" and (
+            string.find(mapName, fbMap, 1, true) ~= nil
+            or string.find(mapFile, fbMap, 1, true) ~= nil
+        )
+
         if stepState < 2 then
             return {
                 idx = routeCfg.idx,
                 order = routeCfg.order,
                 statusText = tostring(stepCfg.name or routeCfg.step),
-                canJump = true,
+                canJump = not inFbMap,
                 showRedPoint = _gray_world_is_step_claimable(stepCfg, stepState, sgData, routeCfg.step),
                 completed = false,
             }
@@ -433,7 +544,7 @@ function MainAssistXylHelper.bind(MainAssist)
             idx = routeCfg.idx,
             order = routeCfg.order,
             statusText = tostring(bossCfg.name or routeCfg.boss),
-            canJump = true,
+            canJump = not inFbMap,
             showRedPoint = _gray_world_is_boss_prep_claimable(bossCfg, prepState, sgData, routeCfg.boss),
             completed = false,
         }
@@ -503,7 +614,7 @@ function MainAssistXylHelper.bind(MainAssist)
         if prefix and suffix and suffix ~= "" then
             return prefix, suffix
         end
-        return nil, "    "..text
+        return nil, text
     end
 
     local function _gray_world_get_text_color(routeState)
@@ -524,7 +635,7 @@ function MainAssistXylHelper.bind(MainAssist)
         if routeIdx == 1 or routeIdx == 2 then
             return {
                 primaryX = GRAY_WORLD_TOP_TEXT_POS.x,
-                primaryY = GRAY_WORLD_TOP_TEXT_POS.y + 25,
+                primaryY = GRAY_WORLD_TOP_TEXT_POS.y,
                 secondaryX = GRAY_WORLD_TOP_TEXT_SECONDARY_X,
                 secondaryY = GRAY_WORLD_TOP_TEXT_POS.y - 10,
             }
@@ -532,7 +643,7 @@ function MainAssistXylHelper.bind(MainAssist)
 
         return {
             primaryX = GRAY_WORLD_TEXT_POS.x,
-            primaryY = GRAY_WORLD_TEXT_POS.y + 25,
+            primaryY = GRAY_WORLD_TEXT_POS.y,
             secondaryX = GRAY_WORLD_TEXT_SECONDARY_X,
             secondaryY = GRAY_WORLD_TEXT_POS.y - 10,
         }
@@ -544,6 +655,124 @@ function MainAssistXylHelper.bind(MainAssist)
             return pos
         end
         return {x = 94, y = 84}
+    end
+
+    local function _gray_world_update_panel_bg(panel, path)
+        if not panel then
+            return
+        end
+        local bg = GUI:getChildByName(panel, "bg")
+        if not bg then
+            return
+        end
+        path = tostring(path or "")
+        if path == "" or panel._grayWorldBgPath == path then
+            return
+        end
+        GUI:Image_loadTexture(bg, path)
+        local bgSize = GUI:getContentSize(bg)
+        if bgSize and bgSize.width > 0 and bgSize.height > 0 then
+            GUI:setScaleX(bg, GRAY_WORLD_PANEL_SIZE.width / bgSize.width)
+            GUI:setScaleY(bg, GRAY_WORLD_PANEL_SIZE.height / bgSize.height)
+        end
+        panel._grayWorldBgPath = path
+    end
+
+    local function _gray_world_update_single_text(panel, routeState)
+        if not panel then
+            return
+        end
+        local prefixText, suffixText = _gray_world_split_step_text(routeState.statusText or "")
+        local textColor = _gray_world_get_text_color(routeState)
+
+        local text1 = GUI:getChildByName(panel, "single_status_text")
+        local text2 = GUI:getChildByName(panel, "single_status_text_2")
+
+        if not text1 then
+            text1 = GUI:Text_Create(panel, "single_status_text", GRAY_WORLD_SINGLE_TEXT_POS.x, GRAY_WORLD_SINGLE_STEP_TEXT_Y, GRAY_WORLD_SINGLE_TEXT_FONT_SIZE, "#FFFFFF", "")
+            GUI:setAnchorPoint(text1, 0, 1)
+            GUI:Text_setFontName(text1, "fonts/502.ttf")
+            GUI:Text_enableOutline(text1, "#000000", 2)
+        else
+            GUI:setPosition(text1, GRAY_WORLD_SINGLE_TEXT_POS.x, GRAY_WORLD_SINGLE_STEP_TEXT_Y)
+            GUI:Text_setFontName(text1, "fonts/502.ttf")
+            GUI:Text_setFontSize(text1, GRAY_WORLD_SINGLE_TEXT_FONT_SIZE)
+        end
+
+        if prefixText then
+            if not text2 then
+                text2 = GUI:Text_Create(panel, "single_status_text_2", GRAY_WORLD_SINGLE_TEXT_SECONDARY_X, GRAY_WORLD_SINGLE_TEXT_POS.y, GRAY_WORLD_SINGLE_TEXT_FONT_SIZE, "#FFFFFF", "")
+                GUI:setAnchorPoint(text2, 0, 1)
+                GUI:Text_setFontName(text2, "fonts/502.ttf")
+                GUI:Text_enableOutline(text2, "#000000", 2)
+            else
+                GUI:setPosition(text2, GRAY_WORLD_SINGLE_TEXT_SECONDARY_X, GRAY_WORLD_SINGLE_TEXT_POS.y)
+                GUI:Text_setFontName(text2, "fonts/502.ttf")
+                GUI:Text_setFontSize(text2, GRAY_WORLD_SINGLE_TEXT_FONT_SIZE)
+            end
+            local textTop = string.match(prefixText, "^讨伐") and prefixText or suffixText
+            local textBottom = textTop == prefixText and suffixText or prefixText
+            local isStepPrefix = string.match(prefixText, "^踏入") ~= nil
+            local topY = isStepPrefix and GRAY_WORLD_SINGLE_STEP_TEXT_Y or GRAY_WORLD_SINGLE_TAOFA_TEXT_Y
+            GUI:setPosition(text2, GRAY_WORLD_SINGLE_TEXT_SECONDARY_X, topY)
+            GUI:setPosition(text1, GRAY_WORLD_SINGLE_TEXT_POS.x, GRAY_WORLD_SINGLE_STEP_TEXT_Y)
+            GUI:Text_setString(text2, _gray_world_vertical_text(textTop))
+            GUI:Text_setString(text1, _gray_world_vertical_text(textBottom))
+            GUI:Text_setTextColor(text1, _gray_world_get_text_color({statusText = textBottom, completed = routeState.completed}))
+            GUI:Text_setTextColor(text2, _gray_world_get_text_color({statusText = textTop, completed = routeState.completed}))
+            GUI:setVisible(text2, true)
+        else
+            if string.match(suffixText, "^讨伐") then
+                if not text2 then
+                    text2 = GUI:Text_Create(panel, "single_status_text_2", GRAY_WORLD_SINGLE_TEXT_SECONDARY_X, GRAY_WORLD_SINGLE_TAOFA_TEXT_Y, GRAY_WORLD_SINGLE_TEXT_FONT_SIZE, "#FFFFFF", "")
+                    GUI:setAnchorPoint(text2, 0, 1)
+                    GUI:Text_setFontName(text2, "fonts/502.ttf")
+                    GUI:Text_enableOutline(text2, "#000000", 2)
+                else
+                    GUI:setPosition(text2, GRAY_WORLD_SINGLE_TEXT_SECONDARY_X, GRAY_WORLD_SINGLE_TAOFA_TEXT_Y)
+                    GUI:Text_setFontName(text2, "fonts/502.ttf")
+                    GUI:Text_setFontSize(text2, GRAY_WORLD_SINGLE_TEXT_FONT_SIZE)
+                end
+                GUI:Text_setString(text2, _gray_world_vertical_text(suffixText))
+                GUI:Text_setTextColor(text2, textColor)
+                GUI:setVisible(text2, true)
+                if text1 then
+                    GUI:setVisible(text1, false)
+                end
+            else
+                GUI:Text_setString(text1, _gray_world_vertical_text(suffixText))
+                GUI:Text_setTextColor(text1, textColor)
+                if text2 then
+                    GUI:setVisible(text2, false)
+                end
+            end
+        end
+
+        GUI:setVisible(text1, true)
+    end
+
+    local function _gray_world_update_single_redpoint(panel, routeState)
+        if not panel then
+            return
+        end
+        local redPoint = GUI:getChildByName(panel, "single_redpoint")
+        if routeState.showRedPoint then
+            if not redPoint then
+                redPoint = NPC_UI_HELPER.redpoint_create(panel, {
+                    name = "single_redpoint",
+                    x = GRAY_WORLD_SINGLE_REDPOINT_POS.x,
+                    y = GRAY_WORLD_SINGLE_REDPOINT_POS.y,
+                    anchorX = 1,
+                    anchorY = 1,
+                })
+            end
+            if redPoint then
+                GUI:setVisible(redPoint, true)
+                GUI:setPosition(redPoint, GRAY_WORLD_SINGLE_REDPOINT_POS.x, GRAY_WORLD_SINGLE_REDPOINT_POS.y)
+            end
+        elseif redPoint then
+            GUI:setVisible(redPoint, false)
+        end
     end
 
     local function _gray_world_update_line(panel, routeState)
@@ -566,6 +795,7 @@ function MainAssistXylHelper.bind(MainAssist)
         else
             GUI:setPosition(lineText, textLayout.primaryX, textLayout.primaryY)
         end
+        GUI:setVisible(lineText, true)
 
         if prefixText then
             if not lineText2 then
@@ -589,8 +819,10 @@ function MainAssistXylHelper.bind(MainAssist)
             end
         end
 
-        -- GUI:Image_setGrey(line, routeState.completed == true)
-        -- GUI:setOpacity(line, routeState.completed and 210 or 255)
+        local lineImg = GUI:getChildByName(line, "zg")
+        if lineImg then
+            GUI:Image_setGrey(lineImg, routeState.completed == true)
+        end
 
         local touchBtn = GUI:getChildByName(line, "touch_btn")
         if not touchBtn then
@@ -636,15 +868,20 @@ function MainAssistXylHelper.bind(MainAssist)
             return
         end
         local runtimeCacheKey = _gray_world_build_runtime_cache_key()
-        if panel._grayWorldRuntimeCacheKey == runtimeCacheKey then
+        local mapName = _gray_world_get_current_map_name()
+        local lineIdx = _gray_world_get_line_idx_by_map(mapName)
+        local viewKey = tostring(mapName) .. "|" .. tostring(lineIdx or "")
+        if panel._grayWorldRuntimeCacheKey == runtimeCacheKey and panel._grayWorldViewKey == viewKey then
             return
         end
 
         local jqData, sgData = _gray_world_get_runtime_data()
+        local mapFile = tostring(SL:GetMetaValue("MINIMAP_FILE") or "")
+        local isSuffixMap = _gray_world_is_suffix_map(mapName)
         panel._grayWorldRouteStateCache = panel._grayWorldRouteStateCache or {}
         local routeStates = {}
         for _, routeCfg in ipairs(GRAY_WORLD_ROUTE_CONFIGS) do
-            routeStates[#routeStates + 1] = _gray_world_build_route_state(routeCfg, jqData, sgData)
+            routeStates[#routeStates + 1] = _gray_world_build_route_state(routeCfg, jqData, sgData, mapName, mapFile)
         end
 
         table.sort(routeStates, function(a, b)
@@ -660,6 +897,9 @@ function MainAssistXylHelper.bind(MainAssist)
             if not allowRedPoint then
                 routeState.showRedPoint = false
             end
+            if isSuffixMap then
+                routeState.canJump = false
+            end
             if not routeState.completed then
                 allowClick = false
                 allowRedPoint = false
@@ -674,15 +914,130 @@ function MainAssistXylHelper.bind(MainAssist)
             end
         end
 
+        local singleLineMode = false
+        if lineIdx then
+            for _, routeState in ipairs(routeStates) do
+                if routeState.idx == lineIdx then
+                    singleLineMode = not routeState.completed
+                    break
+                end
+            end
+        end
+
+        local zgNode = GUI:getChildByName(panel, "zg")
+        if zgNode then
+            GUI:setVisible(zgNode, not singleLineMode)
+        end
+        if singleLineMode and lineIdx then
+            _gray_world_update_panel_bg(panel, string.format("res/custom/three_city/zerq/x_%d.png", lineIdx))
+        else
+            _gray_world_update_panel_bg(panel, GRAY_WORLD_BG_PATH)
+        end
+        if singleLineMode and lineIdx then
+            local lineState = nil
+            for _, routeState in ipairs(routeStates) do
+                if routeState.idx == lineIdx then
+                    lineState = routeState
+                    break
+                end
+            end
+            if lineState then
+                local routeStateKey = _gray_world_build_route_state_key(lineState)
+                if panel._grayWorldSingleTextKey ~= routeStateKey or panel._grayWorldViewKey ~= viewKey then
+                    _gray_world_update_single_text(panel, lineState)
+                    panel._grayWorldSingleTextKey = routeStateKey
+                end
+                _gray_world_update_single_redpoint(panel, lineState)
+                local bgNode = GUI:getChildByName(panel, "bg")
+                if bgNode then
+                    GUI:Image_setGrey(bgNode, lineState.completed == true)
+                end
+                local singleBtn = GUI:getChildByName(panel, "single_touch_btn")
+                if not singleBtn then
+                    singleBtn = GUI:Button_Create(panel, "single_touch_btn", 0, 0, GRAY_WORLD_TOUCH_SKIN)
+                    GUI:setAnchorPoint(singleBtn, 0, 0)
+                    GUI:setContentSize(singleBtn, GRAY_WORLD_PANEL_SIZE.width, GRAY_WORLD_PANEL_SIZE.height)
+                    GUI:addOnClickEvent(singleBtn, function()
+                        if singleBtn._grayWorldCompleted then
+                            return
+                        end
+                        SL:SendLuaNetMsg(100, 46, 2, singleBtn._grayWorldRouteIdx or 0, "")
+                    end)
+                end
+                singleBtn._grayWorldRouteIdx = lineState.idx
+                singleBtn._grayWorldCompleted = lineState.completed == true
+                GUI:setTouchEnabled(singleBtn, lineState.canJump == true)
+                GUI:Button_setBright(singleBtn, lineState.canJump == true)
+                GUI:setVisible(singleBtn, true)
+            end
+        else
+            local text1 = GUI:getChildByName(panel, "single_status_text")
+            local text2 = GUI:getChildByName(panel, "single_status_text_2")
+            if text1 then
+                GUI:setVisible(text1, false)
+            end
+            if text2 then
+                GUI:setVisible(text2, false)
+            end
+            local singleRed = GUI:getChildByName(panel, "single_redpoint")
+            if singleRed then
+                GUI:setVisible(singleRed, false)
+            end
+            local bgNode = GUI:getChildByName(panel, "bg")
+            if bgNode then
+                GUI:Image_setGrey(bgNode, false)
+            end
+            local singleBtn = GUI:getChildByName(panel, "single_touch_btn")
+            if singleBtn then
+                GUI:setVisible(singleBtn, false)
+            end
+            panel._grayWorldSingleTextKey = nil
+        end
+
         for _, routeState in ipairs(routeStates) do
-            routeState.showRedPoint = routeState.showRedPoint and routeState.idx == firstRedPointIdx
-            local routeStateKey = _gray_world_build_route_state_key(routeState)
-            if panel._grayWorldRouteStateCache[routeState.idx] ~= routeStateKey then
-                _gray_world_update_line(panel, routeState)
-                panel._grayWorldRouteStateCache[routeState.idx] = routeStateKey
+            local lineNode = GUI:getChildByName(panel, "line_" .. tostring(routeState.idx))
+            if singleLineMode and routeState.idx ~= lineIdx then
+                if lineNode then
+                    GUI:setVisible(lineNode, false)
+                end
+            else
+                if lineNode then
+                    GUI:setVisible(lineNode, true)
+                end
+                routeState.showRedPoint = routeState.showRedPoint and routeState.idx == firstRedPointIdx
+                local routeStateKey = _gray_world_build_route_state_key(routeState)
+                if panel._grayWorldRouteStateCache[routeState.idx] ~= routeStateKey or panel._grayWorldViewKey ~= viewKey then
+                    _gray_world_update_line(panel, routeState)
+                    panel._grayWorldRouteStateCache[routeState.idx] = routeStateKey
+                end
+                if lineNode then
+                    local lineImg = GUI:getChildByName(lineNode, "zg")
+                    if singleLineMode and routeState.idx == lineIdx then
+                        if lineImg then
+                            GUI:setVisible(lineImg, false)
+                        end
+                    elseif lineImg then
+                        GUI:setVisible(lineImg, true)
+                    end
+                end
+                if singleLineMode and routeState.idx == lineIdx and lineNode then
+                    local lineText = GUI:getChildByName(lineNode, "status_text")
+                    local lineText2 = GUI:getChildByName(lineNode, "status_text_2")
+                    if lineText then
+                        GUI:setVisible(lineText, false)
+                    end
+                    if lineText2 then
+                        GUI:setVisible(lineText2, false)
+                    end
+                    local lineRed = GUI:getChildByName(lineNode, "redpoint")
+                    if lineRed then
+                        GUI:setVisible(lineRed, false)
+                    end
+                end
             end
         end
         panel._grayWorldRuntimeCacheKey = runtimeCacheKey
+        panel._grayWorldViewKey = viewKey
     end
 
     local function _ensure_gray_world_icon()
@@ -706,6 +1061,7 @@ function MainAssistXylHelper.bind(MainAssist)
         panel._grayWorldRouteStateCache = {}
 
         local bg = GUI:Image_Create(panel, "bg", 0, 0, GRAY_WORLD_BG_PATH)
+        GUI:addMouseOverTips(bg, "", {x = 0, y = 0}, {x = 0, y = 0})
         if bg then
             GUI:setAnchorPoint(bg, 0, 0)
             local bgSize = GUI:getContentSize(bg)
@@ -718,6 +1074,8 @@ function MainAssistXylHelper.bind(MainAssist)
         local line3 = GUI:Layout_Create(panel, "line_" .. 3, 0, 0, 100, 95, false)
         local line4 = GUI:Layout_Create(panel, "line_" .. 4, 100, 0, 100, 95, false)
         local line1 = GUI:Layout_Create(panel, "line_" .. 1, 0, 95, 100, 95, false)
+
+        GUI:setAnchorPoint(GUI:Image_Create(panel, "zg", 0, 0, "res/custom/three_city/zerq/line.png"), 0, 0)
 
         GUI:setContentSize(line1, 100, 95)
         GUI:setContentSize(line2, 100, 95)
@@ -968,7 +1326,7 @@ function MainAssistXylHelper.bind(MainAssist)
         MainAssist._xylDetailPopup = nil
     end
 
-    function _refresh_xyl_detail_popup_content()
+    _refresh_xyl_detail_popup_content = function()
         local popup = MainAssist._xylDetailPopup
         if not (popup and popup.root and popup.descHost) then
             return

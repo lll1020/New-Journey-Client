@@ -48,7 +48,7 @@ function npc.main(npcid, p2, p3, msgData)
             end)
         elseif npc.data.jq_data[key] == 1 then
             local desc = GUI:Text_Create(node, "desc",300,220, 20, "#808080", "当前击杀："..(npc.data.sg_data[key] or 0))
-            GUI:Text_setFontName(desc, "fonts/500.ttf")
+            GUI:Text_setFontName(desc, "fonts/font4.ttf")
             GUI:Text_enableOutline(desc, "#00FFFF", 2)
             
             local Button= GUI:Button_Create(node, "Button", btn_pos[1], btn_pos[2], "res/custom/all_story_mission/2/btn_give.png")

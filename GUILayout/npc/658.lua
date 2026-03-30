@@ -48,7 +48,7 @@ function npc.main(npcid, p2, p3, msgData)
             end)
         elseif npc.data.T_dljq[key] == 1 then --领取奖励
             local desc = GUI:Text_Create(node, "desc",500,180, 20, "#808080", "当前击杀："..(npc.data.sg_data[key] or 0))
-            GUI:Text_setFontName(desc, "fonts/500.ttf")
+            GUI:Text_setFontName(desc, "fonts/font4.ttf")
             GUI:Text_enableOutline(desc, "#00FFFF", 2)
 
             if (npc.data.sg_data[key] or 0) > npc._config.num then

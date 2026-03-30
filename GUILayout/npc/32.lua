@@ -77,8 +77,8 @@ function npc.main(npcid, p2, p3, msgData)
             
             GUI:setContentSize(GUI:Image_Create(node, "rw_tb_bj", 50 + 160 - 5,40 + 145, "res/wy/public/tycccc.png"), 165, 110)
 
-            GUI:Text_setFontName(GUI:Text_Create(node, "tip",50 + 160,40 + 220, 25, "#f7f7de", "转生获得属性:")
-            , "fonts/500.ttf")
+            GUI:Text_setFontName(GUI:Text_Create(node, "tip",50 + 160,40 + 220, 20, "#f7f7de", "下级转生属性:")
+            , "fonts/font4.ttf")
             local attr_desc = GUI:RichText_Create(node, "attr_desc", 50 + 160,40 + 220 - 5,  Player:showAttr(config.attr), 200, 17, "#f7f7de", 3,nil,nil)
             GUI:setAnchorPoint(attr_desc, 0, 1)
 

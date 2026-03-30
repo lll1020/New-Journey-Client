@@ -47,7 +47,7 @@ function npc.main(npcid, p2, p3, msgData)
             end)
         elseif npc.data.jq_data[key] == 1 then
             local desc = GUI:Text_Create(node, "desc",300,140, 20, "#808080", "当前击杀："..(npc.data.sg_data[key.."_a"] or 0).."       "..(npc.data.sg_data[key.."_b"] or 0))
-            GUI:Text_setFontName(desc, "fonts/500.ttf")
+            GUI:Text_setFontName(desc, "fonts/font4.ttf")
             GUI:Text_enableOutline(desc, "#FFFF00", 2)
 
 

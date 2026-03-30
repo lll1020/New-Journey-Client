@@ -1945,6 +1945,48 @@ npc[11] = function(p2, p3, Data)
         return false
     end
 
+    local function _ywl_has_third_continent_full_entry()
+        local raw = Player:getServerVar("T13")
+        if not raw or raw == "" then
+            return false
+        end
+        local ok, storyData = pcall(function()
+            return Player:JsonToTbl(raw)
+        end)
+        if not ok or type(storyData) ~= "table" then
+            return false
+        end
+        return _ywl_story_node_done(storyData["npc_46"])
+    end
+
+    local function _ywl_has_third_continent_half_entry()
+        local raw = Player:getServerVar("T13")
+        if raw and raw ~= "" then
+            local ok, storyData = pcall(function()
+                return Player:JsonToTbl(raw)
+            end)
+            if ok and type(storyData) == "table" and _ywl_story_node_done(storyData["npc_55"]) then
+                return true
+            end
+        end
+
+        local xianfuRaw = Player:getServerVar("T47")
+        if not xianfuRaw or xianfuRaw == "" then
+            return false
+        end
+        local ok, xianfuData = pcall(function()
+            return Player:JsonToTbl(xianfuRaw)
+        end)
+        return ok and type(xianfuData) == "table" and next(xianfuData) ~= nil
+    end
+
+    local function _ywl_is_third_continent_half_chapter(name)
+        if not name or name == "" then
+            return false
+        end
+        return name == "灰界开篇" or name == "仙府功能"
+    end
+
     local function _ywl_append_reward_entries(outList, rewardList, seenMap)
         if type(rewardList) ~= "table" then
             return
@@ -2606,7 +2648,12 @@ npc[11] = function(p2, p3, Data)
             for i = 2, #npc.xyl do
                 local btn = GUI:Button_Create(chapterList, "chap_" .. i, 0, 0, 'res/custom/ywl/list/dl_' .. i .. '.png')
                 GUI:addOnClickEvent(btn, function()
-                    if dl_sz and not dl_sz(i) then
+                    if i == 3 then
+                        if not _ywl_has_third_continent_half_entry() then
+                            SL:ShowSystemTips("<font color='#FF0000'>灾厄还未消退，不能进行三大陆剧情任务，可以通过传送门进入灰界</font>")
+                            return
+                        end
+                    elseif dl_sz and not dl_sz(i) then
                         SL:ShowSystemTips("<font color='#FF0000'>还未解锁该大章节</font>")
                         return
                     end
@@ -2626,6 +2673,12 @@ npc[11] = function(p2, p3, Data)
                         GUI:Text_enableOutline(zj_name, "#000000", 2)
                         GUI:setAnchorPoint(zj_name, 0.5, 0.5)
                         GUI:addOnClickEvent(x_btn, function()
+                            if npc.l == 3 and not _ywl_is_third_continent_half_chapter(npc.xyl[npc.l][y].name) then
+                                if not _ywl_has_third_continent_full_entry() then
+                                    SL:ShowSystemTips("<font color='#FF0000'>需要完成灾厄入侵后才能进入该章节</font>")
+                                    return
+                                end
+                            end
                             GUI:Text_setTextColor(GUI:ui_delegate(GUI:ui_delegate(chapterList)["x_chap_" .. npc.zj]).wz, "#FFFFFF")
                             npc.zj = y
                             -- renderChapterList()

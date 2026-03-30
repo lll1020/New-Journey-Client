@@ -39,7 +39,7 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:setPosition(jl, 175, 110)
 
         local desc = GUI:Text_Create(node, "time",280,216, 20, "#808080", (npc._config.time).."秒")
-        GUI:Text_setFontName(desc, "fonts/500.ttf")
+        GUI:Text_setFontName(desc, "fonts/font4.ttf")
         GUI:Text_enableOutline(desc, "#00FFFF", 2)
 
         
@@ -52,7 +52,7 @@ function npc.main(npcid, p2, p3, msgData)
             end)
         elseif npc.data.T_dljq[key] == 1 then --领取奖励
             local desc = GUI:Text_Create(node, "desc",500,180, 20, "#808080", "当前击杀："..(npc.data.sg_data[key] or 0))
-            GUI:Text_setFontName(desc, "fonts/500.ttf")
+            GUI:Text_setFontName(desc, "fonts/font4.ttf")
             GUI:Text_enableOutline(desc, "#00FFFF", 2)
         
             
