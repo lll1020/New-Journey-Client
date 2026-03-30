@@ -42,7 +42,7 @@ function npc.main(npcid, p2, p3, msgData)
         UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.syw_ch.."[称号]")))
 
         -- 
-        local cost = checkItemNumByTable_img_kuang({{npc._config.config.ls[npc.titles_sign].syw,1},{"元宝",1880000}}, nil,Label_node)
+        local cost = checkItemNumByTable_img_kuang({{npc._config.config.ls[npc.titles_sign].syw,1}}, nil,Label_node)
         GUI:setPosition(cost, 470, 110)
         npc.data.T_data.syw = npc.data.T_data.syw or {}
 
