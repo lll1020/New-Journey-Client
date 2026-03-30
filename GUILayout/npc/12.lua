@@ -67,6 +67,7 @@ end
             local name = GUI:Text_Create(l, "name",90,190, 25, "#FF0000", k.give)
             GUI:Text_setFontName(name, "fonts/500.ttf")
             GUI:setAnchorPoint(name, 0.5, 0.5)
+            GUI:Text_enableOutline(name, "#000000", 2)
 
             local Button= GUI:Button_Create(l, "Button", 90, -30, "res/custom/one_city/clyz/btn.png")
             GUI:setAnchorPoint(Button, 0.5, 0.5)

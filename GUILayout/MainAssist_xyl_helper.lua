@@ -43,6 +43,11 @@ local GRAY_WORLD_SINGLE_TAOFA_TEXT_Y = 170
 local GRAY_WORLD_SINGLE_TEXT_SECONDARY_X = 30
 local GRAY_WORLD_SINGLE_TEXT_FONT_SIZE = 20
 local GRAY_WORLD_SINGLE_REDPOINT_POS = {x = 194, y = 184}
+local GRAY_WORLD_SINGLE_FLOW_POS = {x = 56, y = 176}
+local GRAY_WORLD_SINGLE_FLOW_WIDTH = 136
+local GRAY_WORLD_SINGLE_FLOW_FONT_SIZE = 13
+local GRAY_WORLD_FINAL_BTN_POS = {x = 100, y = 95}
+local GRAY_WORLD_FINAL_BTN_TEXT = ""
 local GRAY_WORLD_LINE_MAP_ALIASES = {
     ["虚妄山脉"] = 4,
     ["叹息旷野"] = 2,
@@ -509,6 +514,7 @@ function MainAssistXylHelper.bind(MainAssist)
         local stepState = _gray_world_to_num(jqData[routeCfg.step], 0)
         local bossState = _gray_world_to_num(jqData[routeCfg.boss], 0)
         local prepState = _gray_world_to_num(jqData[routeCfg.boss .. "_rw"], 0)
+        local prepCfg = type(bossCfg.prep_task) == "table" and bossCfg.prep_task or {}
 
         if bossState >= 2 then
             return {
@@ -518,6 +524,14 @@ function MainAssistXylHelper.bind(MainAssist)
                 canJump = false,
                 showRedPoint = false,
                 completed = true,
+                stepTitle = tostring(stepCfg.name or routeCfg.step),
+                stepState = stepState,
+                stepCurrent = _gray_world_to_num(sgData[routeCfg.step], 0),
+                stepNeed = _gray_world_to_num(stepCfg.num, 0),
+                prepTitle = tostring(prepCfg.name or ""),
+                prepState = prepState,
+                bossTitle = tostring(bossCfg.name or routeCfg.boss),
+                bossState = bossState,
             }
         end
 
@@ -537,6 +551,14 @@ function MainAssistXylHelper.bind(MainAssist)
                 canJump = not inFbMap,
                 showRedPoint = _gray_world_is_step_claimable(stepCfg, stepState, sgData, routeCfg.step),
                 completed = false,
+                stepTitle = tostring(stepCfg.name or routeCfg.step),
+                stepState = stepState,
+                stepCurrent = _gray_world_to_num(sgData[routeCfg.step], 0),
+                stepNeed = _gray_world_to_num(stepCfg.num, 0),
+                prepTitle = tostring(prepCfg.name or ""),
+                prepState = prepState,
+                bossTitle = tostring(bossCfg.name or routeCfg.boss),
+                bossState = bossState,
             }
         end
 
@@ -547,7 +569,133 @@ function MainAssistXylHelper.bind(MainAssist)
             canJump = not inFbMap,
             showRedPoint = _gray_world_is_boss_prep_claimable(bossCfg, prepState, sgData, routeCfg.boss),
             completed = false,
+            stepTitle = tostring(stepCfg.name or routeCfg.step),
+            stepState = stepState,
+            stepCurrent = _gray_world_to_num(sgData[routeCfg.step], 0),
+            stepNeed = _gray_world_to_num(stepCfg.num, 0),
+            prepTitle = tostring(prepCfg.name or ""),
+            prepState = prepState,
+            bossTitle = tostring(bossCfg.name or routeCfg.boss),
+            bossState = bossState,
         }
+    end
+
+    local function _gray_world_get_route_cfg_by_idx(routeIdx)
+        for _, routeCfg in ipairs(GRAY_WORLD_ROUTE_CONFIGS) do
+            if routeCfg.idx == routeIdx then
+                return routeCfg
+            end
+        end
+        return nil
+    end
+
+    local function _gray_world_get_prep_progress_desc(routeCfg, routeState, sgData)
+        local bossCfg = _gray_world_get_cfg(routeCfg.boss)
+        local prepCfg = type(bossCfg.prep_task) == "table" and bossCfg.prep_task or {}
+        local prepDone = routeState.bossState >= 2 or routeState.prepState >= 2
+        local baseName = tostring(prepCfg.name or routeState.prepTitle or "")
+
+        if routeCfg.boss == "npc_625" then
+            local progressName = tostring(prepCfg.progress_name or baseName)
+            local current = _gray_world_to_num((sgData or {})[routeCfg.boss .. "_rw"], 0)
+            local need = _gray_world_to_num(prepCfg.need, 0)
+            return {
+                title = baseName ~= "" and baseName or "关键任务",
+                desc = string.format("完成%s", progressName ~= "" and progressName or baseName),
+                progress = need > 0 and string.format("%d/%d", current, need) or tostring(current),
+                completed = prepDone,
+            }
+        end
+
+        if routeCfg.boss == "npc_626" or routeCfg.boss == "npc_627" then
+            local itemName = tostring(prepCfg.item_name or baseName)
+            local current = _gray_world_get_bag_count(itemName)
+            local need = _gray_world_to_num(prepCfg.need, 0)
+            return {
+                title = baseName ~= "" and baseName or "关键任务",
+                desc = string.format("收集%s", itemName ~= "" and itemName or baseName),
+                progress = need > 0 and string.format("%d/%d", current, need) or tostring(current),
+                completed = prepDone,
+            }
+        end
+
+        if routeCfg.boss == "npc_628" then
+            local leftName = tostring(prepCfg.left_name or "")
+            local rightName = tostring(prepCfg.right_name or "")
+            local leftCurrent = _gray_world_get_bag_count(leftName)
+            local rightCurrent = _gray_world_get_bag_count(rightName)
+            local leftNeed = _gray_world_to_num(prepCfg.left_need, 0)
+            local rightNeed = _gray_world_to_num(prepCfg.right_need, 0)
+            return {
+                title = baseName ~= "" and baseName or "关键任务",
+                desc = string.format("收集%s", baseName ~= "" and baseName or "关键任务"),
+                progress = string.format("左%s 右%s", leftCurrent > 1 and "x" or "√", rightCurrent > 1 and "x" or "√"),
+                completed = prepDone,
+            }
+        end
+
+        return {
+            title = baseName ~= "" and baseName or "关键任务",
+            desc = baseName ~= "" and baseName or "关键任务",
+            progress = "",
+            completed = prepDone,
+        }
+    end
+
+    local function _gray_world_is_task46_done(jqData)
+        local task46 = type(jqData) == "table" and jqData["npc_46"] or nil
+        if type(task46) == "table" then
+            return _gray_world_to_num(task46.wc, 0) >= 1
+        end
+        return _gray_world_to_num(task46, 0) >= 1
+    end
+
+    local function _gray_world_build_single_flow_html(routeState)
+        local routeCfg = _gray_world_get_route_cfg_by_idx(routeState.idx)
+        if not routeCfg then
+            return ""
+        end
+
+        local _, sgData = _gray_world_get_runtime_data()
+        local prepDesc = _gray_world_get_prep_progress_desc(routeCfg, routeState, sgData)
+
+        local stepTitle = tostring(routeState.stepTitle or "")
+        local stepNeed = _gray_world_to_num(routeState.stepNeed, 0)
+        local stepCurrent = _gray_world_to_num(routeState.stepCurrent, 0)
+        local stepCompleted = routeState.stepState >= 2
+        local stepStatus
+        if stepCompleted then
+            stepStatus = "<font color='#00FF00'>[已完成]</font>"
+        elseif _gray_world_to_num(routeState.stepState, 0) <= 0 then
+            stepStatus = "<font color='#ff3030'>[未领取任务]</font>"
+        else
+            stepStatus = string.format("<font color='#f7f7de'>当前进度：</font><font color='#ffe066'>%d/%d</font>", stepCurrent, stepNeed)
+        end
+
+        local prepStatus
+        if prepDesc.completed then
+            prepStatus = "<font color='#00FF00'>[已完成]</font>"
+        elseif _gray_world_to_num(routeState.prepState, 0) <= 0 then
+            prepStatus = string.format("<font color='#f7f7de'>%s</font>\n<font color='#ff3030'>[未领取任务]</font>", tostring(prepDesc.desc or ""))
+        else
+            prepStatus = string.format("<font color='#f7f7de'>%s</font>\n<font color='#f7f7de'>当前进度：</font><font color='#ffe066'>%s</font>", tostring(prepDesc.desc or ""), tostring(prepDesc.progress or "0/0"))
+        end
+
+        local bossTitle = tostring(routeState.bossTitle or routeState.statusText or "")
+        local bossStatus = routeState.bossState >= 2
+            and "<font color='#00FF00'>[已讨伐]</font>"
+            or "<font color='#ff3030'>[未讨伐]</font>"
+
+        return table.concat({
+            string.format("<font color='#fff3a6'>[%s]</font>", stepTitle),
+            stepStatus,
+            "",
+            "<font color='#FF00FF'>[关键任务]</font>",
+            prepStatus,
+            "",
+            string.format("<font color='#00FFFF'>[%s]</font>", bossTitle),
+            bossStatus,
+        }, "\n")
     end
 
     local function _gray_world_build_route_state_key(routeState)
@@ -557,6 +705,14 @@ function MainAssistXylHelper.bind(MainAssist)
             routeState.canJump and "1" or "0",
             routeState.showRedPoint and "1" or "0",
             routeState.completed and "1" or "0",
+            tostring(routeState.stepTitle or ""),
+            tostring(routeState.stepState or 0),
+            tostring(routeState.stepCurrent or 0),
+            tostring(routeState.stepNeed or 0),
+            tostring(routeState.prepTitle or ""),
+            tostring(routeState.prepState or 0),
+            tostring(routeState.bossTitle or ""),
+            tostring(routeState.bossState or 0),
         }, "|")
     end
 
@@ -682,73 +838,70 @@ function MainAssistXylHelper.bind(MainAssist)
         if not panel then
             return
         end
-        local prefixText, suffixText = _gray_world_split_step_text(routeState.statusText or "")
-        local textColor = _gray_world_get_text_color(routeState)
-
         local text1 = GUI:getChildByName(panel, "single_status_text")
         local text2 = GUI:getChildByName(panel, "single_status_text_2")
+        local rich = GUI:getChildByName(panel, "single_flow_text")
+        local html = _gray_world_build_single_flow_html(routeState)
+        local prefixText, suffixText = _gray_world_split_step_text(routeState.statusText or "")
+        local textColor = _gray_world_get_text_color(routeState)
+        local titleY = string.match(tostring(routeState.statusText or ""), "^讨伐") and GRAY_WORLD_SINGLE_TAOFA_TEXT_Y or GRAY_WORLD_SINGLE_STEP_TEXT_Y
 
         if not text1 then
-            text1 = GUI:Text_Create(panel, "single_status_text", GRAY_WORLD_SINGLE_TEXT_POS.x, GRAY_WORLD_SINGLE_STEP_TEXT_Y, GRAY_WORLD_SINGLE_TEXT_FONT_SIZE, "#FFFFFF", "")
+            text1 = GUI:Text_Create(panel, "single_status_text", GRAY_WORLD_SINGLE_TEXT_POS.x, titleY, GRAY_WORLD_SINGLE_TEXT_FONT_SIZE, "#FFFFFF", "")
             GUI:setAnchorPoint(text1, 0, 1)
-            GUI:Text_setFontName(text1, "fonts/502.ttf")
+            GUI:Text_setFontName(text1, "fonts/font4.ttf")
             GUI:Text_enableOutline(text1, "#000000", 2)
-        else
-            GUI:setPosition(text1, GRAY_WORLD_SINGLE_TEXT_POS.x, GRAY_WORLD_SINGLE_STEP_TEXT_Y)
-            GUI:Text_setFontName(text1, "fonts/502.ttf")
-            GUI:Text_setFontSize(text1, GRAY_WORLD_SINGLE_TEXT_FONT_SIZE)
+        end
+        if not text2 then
+            text2 = GUI:Text_Create(panel, "single_status_text_2", GRAY_WORLD_SINGLE_TEXT_SECONDARY_X, titleY, GRAY_WORLD_SINGLE_TEXT_FONT_SIZE, "#FFFFFF", "")
+            GUI:setAnchorPoint(text2, 0, 1)
+            GUI:Text_setFontName(text2, "fonts/font4.ttf")
+            GUI:Text_enableOutline(text2, "#000000", 2)
+        end
+
+        if text1 then
+            GUI:setPosition(text1, GRAY_WORLD_SINGLE_TEXT_POS.x, titleY)
+            GUI:Text_setTextColor(text1, textColor)
+            GUI:setVisible(text1, prefixText ~= nil)
+        end
+        if text2 then
+            GUI:setPosition(text2, GRAY_WORLD_SINGLE_TEXT_SECONDARY_X, titleY)
+            GUI:Text_setTextColor(text2, textColor)
+            GUI:setVisible(text2, true)
         end
 
         if prefixText then
-            if not text2 then
-                text2 = GUI:Text_Create(panel, "single_status_text_2", GRAY_WORLD_SINGLE_TEXT_SECONDARY_X, GRAY_WORLD_SINGLE_TEXT_POS.y, GRAY_WORLD_SINGLE_TEXT_FONT_SIZE, "#FFFFFF", "")
-                GUI:setAnchorPoint(text2, 0, 1)
-                GUI:Text_setFontName(text2, "fonts/502.ttf")
-                GUI:Text_enableOutline(text2, "#000000", 2)
-            else
-                GUI:setPosition(text2, GRAY_WORLD_SINGLE_TEXT_SECONDARY_X, GRAY_WORLD_SINGLE_TEXT_POS.y)
-                GUI:Text_setFontName(text2, "fonts/502.ttf")
-                GUI:Text_setFontSize(text2, GRAY_WORLD_SINGLE_TEXT_FONT_SIZE)
-            end
-            local textTop = string.match(prefixText, "^讨伐") and prefixText or suffixText
-            local textBottom = textTop == prefixText and suffixText or prefixText
-            local isStepPrefix = string.match(prefixText, "^踏入") ~= nil
-            local topY = isStepPrefix and GRAY_WORLD_SINGLE_STEP_TEXT_Y or GRAY_WORLD_SINGLE_TAOFA_TEXT_Y
-            GUI:setPosition(text2, GRAY_WORLD_SINGLE_TEXT_SECONDARY_X, topY)
-            GUI:setPosition(text1, GRAY_WORLD_SINGLE_TEXT_POS.x, GRAY_WORLD_SINGLE_STEP_TEXT_Y)
-            GUI:Text_setString(text2, _gray_world_vertical_text(textTop))
-            GUI:Text_setString(text1, _gray_world_vertical_text(textBottom))
-            GUI:Text_setTextColor(text1, _gray_world_get_text_color({statusText = textBottom, completed = routeState.completed}))
-            GUI:Text_setTextColor(text2, _gray_world_get_text_color({statusText = textTop, completed = routeState.completed}))
-            GUI:setVisible(text2, true)
+            GUI:Text_setString(text1, _gray_world_vertical_text(prefixText))
+            GUI:Text_setString(text2, _gray_world_vertical_text(suffixText))
         else
-            if string.match(suffixText, "^讨伐") then
-                if not text2 then
-                    text2 = GUI:Text_Create(panel, "single_status_text_2", GRAY_WORLD_SINGLE_TEXT_SECONDARY_X, GRAY_WORLD_SINGLE_TAOFA_TEXT_Y, GRAY_WORLD_SINGLE_TEXT_FONT_SIZE, "#FFFFFF", "")
-                    GUI:setAnchorPoint(text2, 0, 1)
-                    GUI:Text_setFontName(text2, "fonts/502.ttf")
-                    GUI:Text_enableOutline(text2, "#000000", 2)
-                else
-                    GUI:setPosition(text2, GRAY_WORLD_SINGLE_TEXT_SECONDARY_X, GRAY_WORLD_SINGLE_TAOFA_TEXT_Y)
-                    GUI:Text_setFontName(text2, "fonts/502.ttf")
-                    GUI:Text_setFontSize(text2, GRAY_WORLD_SINGLE_TEXT_FONT_SIZE)
-                end
-                GUI:Text_setString(text2, _gray_world_vertical_text(suffixText))
-                GUI:Text_setTextColor(text2, textColor)
-                GUI:setVisible(text2, true)
-                if text1 then
-                    GUI:setVisible(text1, false)
-                end
-            else
-                GUI:Text_setString(text1, _gray_world_vertical_text(suffixText))
-                GUI:Text_setTextColor(text1, textColor)
-                if text2 then
-                    GUI:setVisible(text2, false)
-                end
+            if text1 then
+                GUI:Text_setString(text1, "")
             end
+            GUI:Text_setString(text2, _gray_world_vertical_text(tostring(routeState.statusText or "")))
         end
 
-        GUI:setVisible(text1, true)
+        if rich then
+            GUI:removeFromParent(rich)
+        end
+
+        rich = GUI:RichText_Create(
+            panel,
+            "single_flow_text",
+            GRAY_WORLD_SINGLE_FLOW_POS.x,
+            GRAY_WORLD_SINGLE_FLOW_POS.y,
+            html,
+            GRAY_WORLD_SINGLE_FLOW_WIDTH,
+            GRAY_WORLD_SINGLE_FLOW_FONT_SIZE,
+            "#f7f7de",
+            4,
+            nil,
+            nil,
+            -- "fonts/font4.ttf",
+            {outlineSize = 2, outlineColor = "#000000"}
+        )
+        if rich then
+            GUI:setAnchorPoint(rich, 0, 1)
+        end
     end
 
     local function _gray_world_update_single_redpoint(panel, routeState)
@@ -772,6 +925,37 @@ function MainAssistXylHelper.bind(MainAssist)
             end
         elseif redPoint then
             GUI:setVisible(redPoint, false)
+        end
+    end
+
+    local function _gray_world_update_final_guide_btn(panel, show)
+        if not panel then
+            return
+        end
+        local btn = GUI:getChildByName(panel, "gray_world_final_btn")
+        if show then
+            if not btn then
+                btn = NPC_UI_HELPER.createPrimaryButton(panel, "gray_world_final_btn", GRAY_WORLD_FINAL_BTN_POS.x, GRAY_WORLD_FINAL_BTN_POS.y, GRAY_WORLD_FINAL_BTN_TEXT, function()
+                    SL:SendLuaNetMsg(100, 46, 2, 5, "")
+                end, {
+                    skin = "res/custom/all_story_mission/5/689/list/l/4.png",
+                    fontSize = 14,
+                    color = "#F4E7B5",
+                })
+                GUI:setAnchorPoint(btn, 0.5, 0.5)
+                -- 去除迷雾前往苍云大陆
+                local tipText = GUI:Text_Create(btn, "lock_tip", 162/2,164/2, 20, "#FF0000", "    去除迷雾\n前往苍云大陆")
+                GUI:setAnchorPoint(tipText, 0.5, 0.5)
+                GUI:Text_setFontName(tipText, "fonts/502.ttf")
+                GUI:Text_enableOutline(tipText, "#000000", 2)
+        
+            end
+            if btn then
+                GUI:setVisible(btn, true)
+                GUI:setPosition(btn, GRAY_WORLD_FINAL_BTN_POS.x, GRAY_WORLD_FINAL_BTN_POS.y)
+            end
+        elseif btn then
+            GUI:setVisible(btn, false)
         end
     end
 
@@ -914,6 +1098,15 @@ function MainAssistXylHelper.bind(MainAssist)
             end
         end
 
+        local allRoutesCompleted = true
+        for _, routeState in ipairs(routeStates) do
+            if not routeState.completed then
+                allRoutesCompleted = false
+                break
+            end
+        end
+        local finalGuideMode = allRoutesCompleted and not _gray_world_is_task46_done(jqData)
+
         local singleLineMode = false
         if lineIdx then
             for _, routeState in ipairs(routeStates) do
@@ -926,13 +1119,16 @@ function MainAssistXylHelper.bind(MainAssist)
 
         local zgNode = GUI:getChildByName(panel, "zg")
         if zgNode then
-            GUI:setVisible(zgNode, not singleLineMode)
+            GUI:setVisible(zgNode, (not singleLineMode) and (not finalGuideMode))
         end
-        if singleLineMode and lineIdx then
+        if finalGuideMode then
+            _gray_world_update_panel_bg(panel, GRAY_WORLD_BG_PATH)
+        elseif singleLineMode and lineIdx then
             _gray_world_update_panel_bg(panel, string.format("res/custom/three_city/zerq/x_%d.png", lineIdx))
         else
             _gray_world_update_panel_bg(panel, GRAY_WORLD_BG_PATH)
         end
+        _gray_world_update_final_guide_btn(panel, finalGuideMode)
         if singleLineMode and lineIdx then
             local lineState = nil
             for _, routeState in ipairs(routeStates) do
@@ -943,9 +1139,10 @@ function MainAssistXylHelper.bind(MainAssist)
             end
             if lineState then
                 local routeStateKey = _gray_world_build_route_state_key(lineState)
-                if panel._grayWorldSingleTextKey ~= routeStateKey or panel._grayWorldViewKey ~= viewKey then
+                local singleTextKey = routeStateKey .. "|" .. runtimeCacheKey
+                if panel._grayWorldSingleTextKey ~= singleTextKey or panel._grayWorldViewKey ~= viewKey then
                     _gray_world_update_single_text(panel, lineState)
-                    panel._grayWorldSingleTextKey = routeStateKey
+                    panel._grayWorldSingleTextKey = singleTextKey
                 end
                 _gray_world_update_single_redpoint(panel, lineState)
                 local bgNode = GUI:getChildByName(panel, "bg")
@@ -979,6 +1176,10 @@ function MainAssistXylHelper.bind(MainAssist)
             if text2 then
                 GUI:setVisible(text2, false)
             end
+            local flowRich = GUI:getChildByName(panel, "single_flow_text")
+            if flowRich then
+                GUI:removeFromParent(flowRich)
+            end
             local singleRed = GUI:getChildByName(panel, "single_redpoint")
             if singleRed then
                 GUI:setVisible(singleRed, false)
@@ -996,7 +1197,11 @@ function MainAssistXylHelper.bind(MainAssist)
 
         for _, routeState in ipairs(routeStates) do
             local lineNode = GUI:getChildByName(panel, "line_" .. tostring(routeState.idx))
-            if singleLineMode and routeState.idx ~= lineIdx then
+            if finalGuideMode then
+                if lineNode then
+                    GUI:setVisible(lineNode, false)
+                end
+            elseif singleLineMode and routeState.idx ~= lineIdx then
                 if lineNode then
                     GUI:setVisible(lineNode, false)
                 end

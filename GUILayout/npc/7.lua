@@ -43,8 +43,11 @@ function npc.main(npcid, p2, p3, msgData)
        
 
         if item then
-             GUI:setAnchorPoint(GUI:RichText_Create(node, "attr_desc", 370, 320,  Player:showEquipBaseAttr(item), 200, 17, "#f7f7de", 3,nil,nil)
-            , 0, 1)
+            local attrDesc = GUI:RichText_Create(node, "attr_desc", 370, 320, Player:showEquipBaseAttr(item), 200, 17, "#f7f7de", 3, nil, nil, {
+                outlineSize = 2,
+                outlineColor = SL:ConvertColorFromHexString("#000000"),
+            })
+            GUI:setAnchorPoint(attrDesc, 0, 1)
             local equipLevel = Player:getEquipFieldByIndex(item.Index, 1)
             equipLevel = tonumber(equipLevel)
 
@@ -60,8 +63,11 @@ function npc.main(npcid, p2, p3, msgData)
                 local cost_show = checkItemNumByTable_img_kuang(config.cost, nil,GUI:Node_Create(node, "cost_show", 0, 0))
                 GUI:setPosition(cost_show, 450, 100)
 
-                GUI:setAnchorPoint(GUI:RichText_Create(node, "attr_desc_next", 370 + 350, 320,  Player:showEquipBaseAttr(SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",config.give))), 200, 17, "#f7f7de", 3,nil,nil)
-                , 1, 1)
+                local attrDescNext = GUI:RichText_Create(node, "attr_desc_next", 370 + 350, 320, Player:showEquipBaseAttr(SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",config.give))), 200, 17, "#f7f7de", 3, nil, nil, {
+                    outlineSize = 2,
+                    outlineColor = SL:ConvertColorFromHexString("#000000"),
+                })
+                GUI:setAnchorPoint(attrDescNext, 1, 1)
                 local Button= GUI:Button_Create(node, "Button", 450, 10.00, "res/custom/one_city/btn_1.png")
                 GUI:addOnClickEvent(Button, function()
                     SL:SendLuaNetMsg(100, npcid, 1, 0, "")
@@ -71,8 +77,9 @@ function npc.main(npcid, p2, p3, msgData)
                     NPC_UI_HELPER.redpoint_create(Button)
                 end
             else
-                GUI:Text_setFontName(GUI:Text_Create(node, "tip_max",450,100, 30, "#FF0000", "已达最高等级")
-                , "fonts/500.ttf")
+                local tipMax = GUI:Text_Create(node, "tip_max",450,100, 30, "#FF0000", "已达最高等级")
+                GUI:Text_setFontName(tipMax, "fonts/500.ttf")
+                GUI:Text_enableOutline(tipMax, "#000000", 2)
             end
         end
         

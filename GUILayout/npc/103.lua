@@ -69,6 +69,7 @@ local MAINLINE_TASK_BY_SUBMIT_IDX = {
     [3] = 15,
     [4] = 17,
 }
+local CLAIM_BUTTON_SKIN = "res/public/1900000660.png"
 
 -- 客户端只负责界面布局和默认展示，运行态数据全部来自服务端消息。
 local function getConfig()
@@ -111,6 +112,7 @@ local function normalizeData(data)
     data.reward = type(data.reward) == "table" and data.reward or {}
     data.unlock = tonumber(data.unlock or data.T_data.unlock) or 0
     data.finish = tonumber(data.finish or data.T_data.finish) or 0
+    data.claimed = tonumber(data.claimed or data.T_data.claimed) or 0
     data.in_fb = tonumber(data.in_fb) or 0
     return data
 end
@@ -172,6 +174,21 @@ local function createCenterRich(parent, name, x, y, width, size, content, color)
     return rich
 end
 
+local function buildAttrDescRich(desc)
+    desc = tostring(desc or "")
+    if desc == "" then
+        return "<font color='#9fe7ff'>提交后激活属性</font>"
+    end
+
+    local prefix, suffix = string.match(desc, "^(.-)([+-].+)$")
+    if not prefix or not suffix then
+        return string.format("<font color='#f6e39a'>%s</font>", desc)
+    end
+
+    suffix = string.gsub(suffix, "^([+-])", "%1 ")
+    return string.format("<font color='#f6e39a'>%s </font><font color='#7dff9b'>%s</font>", prefix, suffix)
+end
+
 local function getItemDataByName(name)
     if not name or name == "" then
         return nil
@@ -222,6 +239,9 @@ end
 
 -- 中间状态文案只描述副本当前阶段，不参与玩法判断。
 local function getStatusText(data)
+    if tonumber(data.finish) == 1 and tonumber(data.claimed) ~= 1 then
+        return "挑战完成，请领取天书", "#7dff9b"
+    end
     if tonumber(data.finish) == 1 then
         return "本轮试炼已完成", "#7dff9b"
     end
@@ -229,9 +249,9 @@ local function getStatusText(data)
         return "试炼进行中", "#ffd36e"
     end
     if tonumber(data.unlock) == 1 then
-        return "已解锁副本", "#7dff9b"
+        return "已解锁副本，可进入挑战", "#7dff9b"
     end
-    return "提交四种材料后可进入副本", "#9fe7ff"
+    return "材料未提交完，暂时无法进入副本", "#ff7e7e"
 end
 
 local function renderTopTip(node, ui, cfg)
@@ -273,8 +293,7 @@ local function renderMaterial(node, npcid, ui, materialCfg, materialData)
         countText = "<font color='#7dff9b'>已提交</font>"
     end
     createCenterRich(node, "item_count_" .. state.idx, countX, countY, 150, 18, countText, "#f7f7de")
-    createCenterRich(node, "item_desc_" .. state.idx, descX, descY, 170, 16,
-    string.format("<font color='#9fe7ff'>%s</font>", state.desc ~= "" and state.desc or "提交后激活属性"), "#9fe7ff")
+    createCenterRich(node, "item_desc_" .. state.idx, descX, descY, 190, 16, buildAttrDescRich(state.desc), "#f7f7de")
 
     if state.submit == 1 then
         -- createStrokeText(node, "submit_mark_" .. state.idx, (iconPos.x or 0) + 26, (iconPos.y or 0) + 26, 24, "#7dff9b", "√", 0.5, 0.5, "fonts/500.ttf")
@@ -301,21 +320,27 @@ local function renderCenter(node, npcid, ui, cfg, data)
     local rewardPos = ui.reward or {}
     local enterPos = ui.enter or {}
 
-    
     GUI:setScale(GUI:Effect_Create(node, "eff", 400, 220, 0, 60449), 0.7)
+    -- createCenterRich(node, "boss_text", bossPos.x or 388, bossPos.y or 220, 260, 18,
+    --     string.format("<font color='#ffe4ae'>挑战目标：</font><font color='#ffb85c'>%s</font>", data.boss or cfg.boss or serverCfg.boss or ""),
+    --     "#f7f7de")
+    -- local statusText, statusColor = getStatusText(data)
+    -- createStrokeText(node, "status_text", statusPos.x or 388, statusPos.y or 148, 19, statusColor, statusText, 0.5, 0.5, "fonts/500.ttf")
+    -- createStrokeText(node, "reward_label", rewardLabelPos.x or 388, rewardLabelPos.y or 118, 18, "#ffe4ae", "通关奖励", 0.5, 0.5, "fonts/500.ttf")
 
-    -- createCenterRich(node, "boss_text", bossPos.x or 388, bossPos.y or 246, 260, 18,
-    --     string.format("<font color='#ffe4ae'>挑战目标：</font><font color='#ffb85c'>%s</font>", data.boss or cfg.boss or serverCfg.boss or ""), "#f7f7de")
+    local rewardNode = GUI:Node_Create(node, "reward_node", rewardPos.x or 360, rewardPos.y or 62)
+    ItemNumByTable_img((data.reward and #data.reward > 0) and data.reward or cfg.reward or serverCfg.reward or {}, nil, rewardNode)
 
-    local statusText = getStatusText(data)
-    -- createStrokeText(node, "status_text", statusPos.x or 388, statusPos.y or 178, 19, statusColor, statusText, 0.5, 0.5, "fonts/500.ttf")
-    -- createStrokeText(node, "reward_label", rewardLabelPos.x or 388, rewardLabelPos.y or 146, 18, "#ffe4ae", "通关奖励", 0.5, 0.5, "fonts/500.ttf")
-
-    -- local rewardNode = GUI:Node_Create(node, "reward_node", rewardPos.x or 360, rewardPos.y or 90)
-    -- ItemNumByTable_img((data.reward and #data.reward > 0) and data.reward or cfg.reward or serverCfg.reward or {}, nil, rewardNode)
-
-    local canEnter = tonumber(data.unlock) == 1 and tonumber(data.in_fb) ~= 1
-    if tonumber(data.finish) == 1 or not canEnter then
+    if tonumber(data.finish) == 1 then
+        if tonumber(data.claimed) ~= 1 then
+            local claimBtn = GUI:Button_Create(node, "claim_btn", enterPos.x or 266, enterPos.y or 18, CLAIM_BUTTON_SKIN)
+            GUI:Button_setTitleText(claimBtn, "领取天书")
+            GUI:addOnClickEvent(claimBtn, function()
+                SL:SendLuaNetMsg(100, npcid, 3, 0, "")
+            end)
+        else
+            GUI:Image_Create(node, "done_flag", enterPos.x or 266, enterPos.y or 18, "res/wy/public/7_1.png")
+        end
         return
     end
 
@@ -323,14 +348,17 @@ local function renderCenter(node, npcid, ui, cfg, data)
     GUI:addOnClickEvent(enterBtn, function()
         SL:SendLuaNetMsg(100, npcid, 2, 0, "")
     end)
-    SL:StartGuide({
-        dir = 5,
-        guideWidget = enterBtn,
-        guideParent = node,
-        guideDesc = "点击进入副本",
-        isForce = false,
-        hideMask = true
-    })
+
+    if tonumber(data.unlock) == 1 and tonumber(data.in_fb) ~= 1 then
+        SL:StartGuide({
+            dir = 5,
+            guideWidget = enterBtn,
+            guideParent = node,
+            guideDesc = "点击进入副本",
+            isForce = false,
+            hideMask = true
+        })
+    end
 end
 
 -- 每次网络刷新都整屏重绘，避免旧节点残留状态。
@@ -369,6 +397,8 @@ function npc.main(npcid, p2, p3, msgData)
         SL:ShowSystemTips("天书试炼挑战完成")
     elseif p2 == 4 then
         SL:ShowSystemTips("天书试炼已结束")
+    elseif p2 == 5 then
+        SL:ShowSystemTips("已领取天书")
     end
 end
 

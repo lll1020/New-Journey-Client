@@ -104,16 +104,26 @@ function npc.main(npcid, p2, p3, msgData)
                 break
             end
         end
+        local task46Data = npc.data.T_data["npc_46"]
+        local task46Done = (type(task46Data) == "table" and tonumber(task46Data.wc or 0) or tonumber(task46Data or 0) or 0) >= 1
+        local hasTitleReward = SL:GetMetaValue("TITLE_DATA_BY_ID", SL:GetMetaValue("ITEM_INDEX_BY_NAME", npc._config.ch))
 
         local kuang = GUI:Image_Create(node, "kuang2", 320 + 140, 15, "res/wy/public/70_70_k.png")
         UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.ch.."[称号]")))
 
         npc.Label = GUI:Node_Create(node, "Label", 0, 0)
 
-        if (not SL:GetMetaValue("TITLE_DATA_BY_ID", SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.ch))) and canClaim then
+        if (not hasTitleReward) and canClaim then
             local Button= GUI:Button_Create(node, "Button_all", 540, 10.00, "res/custom/three_city/zerq/btn.png")
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 1, 0, "")
+            end)
+        elseif task46Done or hasTitleReward then
+            local gotoBtn = GUI:Button_Create(node, "Button_go_dl3", 540 + 30, 30.00, "res/wy/public/an_ljqw.png")
+            GUI:Button_setTitleColor(gotoBtn, "#F4E7B5")
+            GUI:Button_titleEnableOutline(gotoBtn, "#110b05", 2)
+            GUI:addOnClickEvent(gotoBtn, function()
+                SL:SendLuaNetMsg(100, 503, 1, 0, "")
             end)
         elseif not canClaim then
             -- GUI:Text_Create(node, "claim_lock", 485, 18, 18, "#ff7676", "需完成全部灰界与四灾任务后领取")
