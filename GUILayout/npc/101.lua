@@ -1,4 +1,4 @@
-local npc = {
+﻿local npc = {
     currentTab = 1,
     selectedMilestoneIdx = nil,
 }
@@ -586,20 +586,38 @@ function npc.renderFucai(node)
     createTopBar(node, "draw_bar", 162 + 264, 458 + 8, "累计抽取", toNumber(npc.data and npc.data.draw_count, 0), "#45ff93")
     createTopBar(node, "crown_bar", 162 + 454, 458 + 8, getConfigValue("crown_title", "冠名") .. "状态", getHasCrown() and "已达成" or "未达成", getHasCrown() and "#45ff93" or "#ff6666")
 
-    local onceCost = GUI:Text_Create(node, "cost_once_value", 188, 135, 20, "#ffe07a", string.format("%sX%s", tokenName, tostring(getDrawOnceCost())))
-    setTextStyle(onceCost)
-    GUI:Text_enableUnderline(onceCost)
-    local tenCost = GUI:Text_Create(node, "cost_ten_value", 382, 135, 20, "#ffe07a", string.format("%sX%s", tokenName, tostring(getDrawTenCost())))
-    setTextStyle(tenCost)
-    GUI:Text_enableUnderline(tenCost)
+    -- local onceCost = GUI:Text_Create(node, "cost_once_value", 188, 135, 20, "#ffe07a", string.format("%sX%s", tokenName, tostring(getDrawOnceCost())))
+    -- setTextStyle(onceCost)
+    -- GUI:Text_enableUnderline(onceCost)
+    -- local tenCost = GUI:Text_Create(node, "cost_ten_value", 382, 135, 20, "#ffe07a", string.format("%sX%s", tokenName, tostring(getDrawTenCost())))
+    -- setTextStyle(tenCost)
+    -- GUI:Text_enableUnderline(tenCost)
+    local guang = GUI:Image_Create(node, "cost_once_value_img", 144 - 60, 82 - 25 + 78, "res/wy/public/guang.png")
+    GUI:setContentSize(guang, 180, 30)
+    
+    GUI:setScale(GUI:ItemShow_Create(guang, "icon", 105, 5, {index = SL:GetMetaValue("ITEM_INDEX_BY_NAME","锄子")}), 0.6)
+    local currentTokenCount = toNumber(npc.data and npc.data.token_count, 0)
+    local drawOnceCost = getDrawOnceCost()
+    local currentTokenColor = currentTokenCount >= drawOnceCost and "#45ff93" or "#ff6666"
+    GUI:RichText_Create(guang, "text", 130, 5, string.format("<font color='%s'>%s</font><font color='#FFFFFF'>/%s</font>", currentTokenColor, tostring(currentTokenCount), tostring(drawOnceCost)), 150, 16, "#FFFFFF", 0, nil, nil)
 
-    local drawOnceBtn = GUI:Button_Create(node, "draw_once", 144 - 60, 82 - 25, "res/custom/msfc/page1/draw_once.png")
+    local guang = GUI:Image_Create(node, "cost_ten_value_img", 144 - 60 + 190, 82 - 25 + 78, "res/wy/public/guang.png")
+    GUI:setContentSize(guang, 180, 30)
+    
+    GUI:setScale(GUI:ItemShow_Create(guang, "icon", 105, 5, {index = SL:GetMetaValue("ITEM_INDEX_BY_NAME","锄子")}), 0.6)
+    local currentTokenCount = toNumber(npc.data and npc.data.token_count, 0)
+    local drawTenCost = getDrawTenCost()
+    local currentTokenColor = currentTokenCount >= drawTenCost and "#45ff93" or "#ff6666"
+    GUI:RichText_Create(guang, "text", 130, 5, string.format("<font color='%s'>%s</font><font color='#FFFFFF'>/%s</font>", currentTokenColor, tostring(currentTokenCount), tostring(drawTenCost)), 150, 16, "#FFFFFF", 0, nil, nil)
+
+
+    local drawOnceBtn = GUI:Button_Create(node, "draw_once", 144 - 60 - 16, 82 - 25, "res/custom/msfc/page1/draw_once.png")
     GUI:setAnchorPoint(drawOnceBtn, 0, 0)
     GUI:addOnClickEvent(drawOnceBtn, function()
         SL:SendLuaNetMsg(100, 101, 1, 0, "")
     end)
 
-    local drawTenBtn = GUI:Button_Create(node, "draw_ten", 378 - 60, 82 - 25, "res/custom/msfc/page1/draw_ten.png")
+    local drawTenBtn = GUI:Button_Create(node, "draw_ten", 378 - 60 - 55, 82 - 25, "res/custom/msfc/page1/draw_ten.png")
     GUI:setAnchorPoint(drawTenBtn, 0, 0)
     GUI:addOnClickEvent(drawTenBtn, function()
         SL:SendLuaNetMsg(100, 101, 2, 0, "")

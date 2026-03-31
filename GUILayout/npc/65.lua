@@ -111,7 +111,7 @@ function npc.main(npcid, p2, p3, msgData)
         if SL:GetMetaValue("WINPLAYMODE") then
             GUI:addMouseMoveEvent(tip, {onEnterFunc = function()
                 local pos = GUI:getWorldPosition(tip)
-                SL:OpenCommonDescTipsPop({str = "<古玩鉴定：/FCOLOR=243>\\<消耗未鉴定的古玩： /FCOLOR=249>\\<可以获得各个年代的古玩，越是珍贵的古玩，属性越是强大 /FCOLOR=249>", worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 0})
+                SL:OpenCommonDescTipsPop({str = "<古玩鉴定：/FCOLOR=243>\\<消耗未鉴定的古玩： /FCOLOR=249>\\<可以获得各个年代的古玩，年代越久远的古玩，属性越是强大 /FCOLOR=249>", worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 0})
             end, onLeaveFunc = function()
                 SL:CloseCommonDescTipsPop()
             end})
@@ -119,7 +119,7 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:setTouchEnabled(tip, true)
             GUI:addOnTouchEvent(tip, function(self)
                 local pos = GUI:getWorldPosition(tip)
-                SL:OpenCommonDescTipsPop({str = "<古玩鉴定：/FCOLOR=243>\\<消耗未鉴定的古玩： /FCOLOR=249>\\<可以获得各个年代的古玩，越是珍贵的古玩，属性越是强大 /FCOLOR=249>", worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 0})
+                SL:OpenCommonDescTipsPop({str = "<古玩鉴定：/FCOLOR=243>\\<消耗未鉴定的古玩： /FCOLOR=249>\\<可以获得各个年代的古玩，年代越久远的古玩，属性越是强大 /FCOLOR=249>", worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 0})
             end)
         end
     

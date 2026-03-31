@@ -292,12 +292,14 @@ local function renderMaterial(node, npcid, ui, materialCfg, materialData)
     if state.submit == 1 then
         countText = "<font color='#7dff9b'>已提交</font>"
     end
-    createCenterRich(node, "item_count_" .. state.idx, countX, countY, 150, 18, countText, "#f7f7de")
+    local txt = createCenterRich(node, "item_count_" .. state.idx, countX, countY, 150, 18, countText, "#f7f7de")
+    if state.submit == 1 then
+        
+    end
     createCenterRich(node, "item_desc_" .. state.idx, descX, descY, 190, 16, buildAttrDescRich(state.desc), "#f7f7de")
 
     if state.submit == 1 then
-        -- createStrokeText(node, "submit_mark_" .. state.idx, (iconPos.x or 0) + 26, (iconPos.y or 0) + 26, 24, "#7dff9b", "√", 0.5, 0.5, "fonts/500.ttf")
-        return
+        GUI:setPosition(txt, buttonX + 41 , buttonY + 18)
     end
 
     local submitBtn = GUI:Button_Create(node, "submit_btn_" .. state.idx, buttonX, buttonY, ui.submit_button or "res/custom/one_city/103/submit.png")
@@ -333,11 +335,21 @@ local function renderCenter(node, npcid, ui, cfg, data)
 
     if tonumber(data.finish) == 1 then
         if tonumber(data.claimed) ~= 1 then
-            local claimBtn = GUI:Button_Create(node, "claim_btn", enterPos.x or 266, enterPos.y or 18, CLAIM_BUTTON_SKIN)
-            GUI:Button_setTitleText(claimBtn, "领取天书")
-            GUI:addOnClickEvent(claimBtn, function()
-                SL:SendLuaNetMsg(100, npcid, 3, 0, "")
+            local claimBtn= GUI:Frames_Create(node, "Button2", 284, -50 + 166, "res/custom/treasureBasin/btn_eff/eff_", ".png", 1, 75,
+                { speed = 75, count = 75, loop = -1})
+            GUI:setAnchorPoint(Button, 0.5, 0.5)
+            GUI:setTouchEnabled(Button, true)
+            GUI:addOnClickEvent(Button, function()
+                SL:SendLuaNetMsg(100, npcid, 5, 0, "")
             end)
+            SL:StartGuide({
+                dir = 5,
+                guideWidget = claimBtn,
+                guideParent = node,
+                guideDesc = "点击领取天书",
+                isForce = false,
+                hideMask = true
+            })
         else
             GUI:Image_Create(node, "done_flag", enterPos.x or 266, enterPos.y or 18, "res/wy/public/7_1.png")
         end

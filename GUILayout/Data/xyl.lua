@@ -652,7 +652,7 @@ local npc_xyl = {
                 {
                     "天书强化",
                     id = 999,
-                    jl = { { "剧情点", 1 } },
+                    jl = { { "剧情点", 1 }, { "仙法卷轴", 1 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
                     need_receive = false,
@@ -868,7 +868,7 @@ local npc_xyl = {
 
             jqd = 11,
 
-            jl = { { "1元真实充值", 1 }, { "仙品仙法卷轴", 1 } },
+            jl = { { "1元真实充值", 1 }, { "仙法卷轴", 1 } },
         },
     },
     {

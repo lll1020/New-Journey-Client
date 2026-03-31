@@ -526,7 +526,7 @@ local function buildTopOverview(node, snapshot, baseSnapshot, npcid)
     local wz2 = GUI:Image_Create(top_img, 'wz2', cogin.w - 300, 10, "res/custom/three_city/xianfu/wz2.png")
 
 
-    local titleFmt = guestMode and '拜访：%s' or '仙府主：%s'
+    local titleFmt = guestMode and '[%s]的仙府' or '[%s]的仙府'
     local topText = string.format(titleFmt, player.name)
     local label = GUI:Text_Create(top_img, 'top_main', 20, 15, 22, colors.primary, topText)
     GUI:setAnchorPoint(label, 0, 0)

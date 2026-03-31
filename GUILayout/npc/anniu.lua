@@ -704,7 +704,7 @@ end
 local function openBagGuide(desc, pcWidget, mobileWidget)
     SL:RefreshBagPos()
     if cogin.isWin32 then
-        SL:StartGuide({dir = 1, guideWidget = pcWidget, guideParent = MainProperty._ui.Panel_act, guideDesc = desc, isForce = false,hideMask = true})
+        SL:StartGuide({dir = 2, guideWidget = pcWidget, guideParent = MainProperty._ui.Panel_act, guideDesc = desc, isForce = false,hideMask = true})
         GUI:Timeline_FadeIn(pcWidget, 0.2)
     else
         SL:StartGuide({dir = 1, guideWidget = mobileWidget, guideParent = npc.RightTop, guideDesc = desc, isForce = false,hideMask = true})

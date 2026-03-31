@@ -243,8 +243,20 @@ function npc.main(npcid, p2, p3, msgData)
                 local cfg_details = cfg.details
                 local unlock_lv = cfg.unlock_lv or {}
                 local cur_lv = npc.data.T_data.level or 0
+                local xianfa_all_unlock = tonumber(npc.data and npc.data.xianfa_all_unlock or 0) == 1
                 local label_delegate = GUI:ui_delegate(Label_node)
                 local layout_delegate = GUI:ui_delegate(dbLayout)
+
+                local function is_slot_unlocked(slot, slot_data)
+                    if slot_data then
+                        return true
+                    end
+                    if xianfa_all_unlock then
+                        return true
+                    end
+                    local need_lv = unlock_lv[slot] or 1
+                    return cur_lv >= need_lv
+                end
 
                 local function get_slot_info(slot, slot_data)
                     if slot_data then
@@ -254,6 +266,9 @@ function npc.main(npcid, p2, p3, msgData)
                         if info then
                             return info.name, level_coler[group] or "#FFFFFF", info.wz
                         end
+                    end
+                    if xianfa_all_unlock then
+                        return "已解锁", "#00FF00", nil
                     end
                     local need_lv = unlock_lv[slot] or 1
                     if cur_lv >= need_lv then
@@ -279,12 +294,41 @@ function npc.main(npcid, p2, p3, msgData)
                         GUI:setAnchorPoint(GUI:RichText_Create(npc.xf_node, "attr_desc_next", 50 + 549,16 + 480,  wz, 310, 17, "#f7f7de", 3,nil,nil)
                         , 0, 1)
                     else
-                        local need_lv = unlock_lv[slot] or 1
-                        local text = (cur_lv >= need_lv) and "已解锁,首次刷新免费" or ("解锁天书等级："..need_lv)
-                        GUI:setAnchorPoint(GUI:Text_Create(npc.xf_node, "wz5",50 + 549,16 + 480, 20, "#A0A0A4", text), 0, 1)
+                        local text = nil
+                        local color = "#A0A0A4"
+                        if xianfa_all_unlock then
+                            text = "已解锁"
+                            color = "#00FF00"
+                        else
+                            local need_lv = unlock_lv[slot] or 1
+                            if cur_lv >= need_lv then
+                                text = "已解锁"
+                                color = "#00FF00"
+                            else
+                                text = "解锁天书等级："..need_lv
+                            end
+                        end
+                        GUI:setAnchorPoint(GUI:Text_Create(npc.xf_node, "wz5",50 + 549,16 + 480, 20, color, text), 0, 1)
                     end
+                    local guang = GUI:Image_Create(npc.xf_node, "cost_once_value_img", 50 + 549 + 70, 150, "res/wy/public/guang.png")
+                    GUI:setContentSize(guang, 180, 30)
+                    GUI:setContentSize(GUI:Image_Create(guang, "img1", 0, 0, "res/wy/public/input.png"), 180, 30)
+                    GUI:setContentSize(GUI:Image_Create(guang, "img2", 0, 0, "res/wy/public/jdtk_1.png"), 100, 30)
+                    GUI:Text_Create(guang, "text", 5, 5, 18, "#FFFFFF", "刷新消耗：")
+                    
+                    GUI:setScale(GUI:ItemShow_Create(guang, "icon",105, 5, {index = SL:GetMetaValue("ITEM_INDEX_BY_NAME","仙法卷轴")}), 0.6)
+                    local currentTokenCount = SL:GetMetaValue("ITEM_COUNT", SL:GetMetaValue("ITEM_INDEX_BY_NAME","仙法卷轴"))
+                    local drawOnceCost = 1
+                    local currentTokenColor = currentTokenCount >= drawOnceCost and "#45ff93" or "#ff6666"
+                    GUI:RichText_Create(guang, "num", 130, 5, string.format("<font color='%s'>%s</font><font color='#FFFFFF'>/%s</font>", currentTokenColor, tostring(currentTokenCount), tostring(drawOnceCost)), 150, 16, "#FFFFFF", 0, nil, nil)
 
-                    local Button = GUI:Button_Create(npc.xf_node, "Button", 50 + 549 + 76,100, "res/custom/tianshu/xf/btn_up.png")
+
+                    local Button = GUI:Button_Create(npc.xf_node, "Button", 50 + 549 + 76,80, "res/custom/tianshu/xf/btn_up.png")
+                    local slot_unlocked = is_slot_unlocked(slot, slot_data)
+                    if not slot_unlocked then
+                        GUI:setOpacity(Button, 120)
+                        GUI:setTouchEnabled(Button, false)
+                    end
                     -- if checkItemNum({{"仙品仙法卷轴",1}}) then
                     --     NPC_UI_HELPER.redpoint_create(Button)
                     -- end
@@ -303,6 +347,9 @@ function npc.main(npcid, p2, p3, msgData)
                         
                     end
                     GUI:addOnClickEvent(Button, function()
+                        if not slot_unlocked then
+                            return
+                        end
                         local cur_quality = slot_data and slot_data[1] or 0
                         if cur_quality >= 4 then
                             SL:OpenCommonTipsPop({str="当前已是仙品仙法，是否继续刷新？",btnType=2,callback=function(atype,param)
@@ -417,13 +464,35 @@ function npc.main(npcid, p2, p3, msgData)
         else
             parent = GUI:Win_Create("xf_xjm", 0, 0, 0, 0, false, false, true, true, true, nil, 24)
         end
+        npc._xf_skip_anim = npc._xf_skip_anim == true
+        local startFrame = npc._xf_skip_anim and 104 or 1
+        local endFrame = 158
+
+        local function close_popup()
+            GUI:Win_Close(parent)
+        end
+
+        local function do_refresh_current_slot()
+            local slot = tonumber(npc.xf_sign) or 1
+            if checkItemNum({{"仙品仙法卷轴",1}}) then
+                SL:OpenCommonTipsPop({str="是否要使用仙品仙法卷轴，必可得到仙品仙法！",btnType=2,callback=function(atype,param)
+                    if atype == 1 then
+                        SL:SendLuaNetMsg(100, npcid, 2, 2, SL:JsonEncode({caowei = slot}))
+                    else
+                        SL:SendLuaNetMsg(100, npcid, 2, 0, SL:JsonEncode({caowei = slot}))
+                    end
+                end})
+            else
+                SL:SendLuaNetMsg(100, npcid, 2, 0, SL:JsonEncode({caowei = slot}))
+            end
+        end
         
         local overlay = GUI:Image_Create(parent, 'bjt', 0, 0, 'res/public/1900000651_1.png')
         GUI:setAnchorPoint(overlay, 0.5, 0.5)
         GUI:setContentSize(overlay, (cogin.w + 100), (cogin.h + 100))
         GUI:setTouchEnabled(overlay, true)
 
-        local bg = GUI:Frames_Create(parent, "bg", cogin.w/2,  cogin.h/2, "res/custom/tianshu/xf/eff/eff_", ".png", 1, 158,
+        local bg = GUI:Frames_Create(parent, "bg", cogin.w/2,  cogin.h/2, "res/custom/tianshu/xf/eff/eff_", ".png", startFrame, endFrame,
                 { speed = 50, count = 158, loop = 1,callback = function(self)
 
                     local tit = GUI:Image_Create(parent, "tit", 150, cogin.h/2, "res/custom/tianshu/xf/l_".. data.group ..".png")
@@ -448,10 +517,31 @@ function npc.main(npcid, p2, p3, msgData)
                     GUI:setOpacity(attr_desc, 0)
                     GUI:Timeline_FadeIn(attr_desc, 1,nil)
 
-                    local closeBtn = GUI:Button_Create(parent, "close", cogin.w - 100 ,cogin.h - 100, 'res/wy/public/close_red_big.png')
-                    GUI:setLocalZOrder(closeBtn, 100)
-                    GUI:addOnClickEvent(closeBtn, function()
-                        GUI:Win_Close(parent)
+                    local skipLabel = GUI:Text_Create(parent, "skip_label", cogin.w/2 - 60, 80, 20, "#FFFFFF", "是否跳过动画")
+                    GUI:Text_enableOutline(skipLabel, "#000000", 1)
+                    local skipCheck = GUI:CheckBox_Create(parent, "skip_anim", cogin.w/2 + 75, 80, "res/wy/public/xz_1.png", "res/wy/public/xz_0.png")
+                    GUI:CheckBox_setSelected(skipCheck, npc._xf_skip_anim)
+                    GUI:CheckBox_addOnEvent(skipCheck, function(sender)
+                        npc._xf_skip_anim = GUI:CheckBox_isSelected(sender)
+                    end)
+
+                    local knowBtn = GUI:Button_Create(parent, "know_btn", cogin.w/2 - 110, 150, "res/wy/public/kb_btn.png")
+                    GUI:setAnchorPoint(knowBtn, 0.5, 0)
+                    GUI:Button_setTitleText(knowBtn, "我知道了")
+                    GUI:Button_setTitleFontSize(knowBtn, 18)
+                    GUI:setLocalZOrder(knowBtn, 100)
+                    GUI:addOnClickEvent(knowBtn, function()
+                        close_popup()
+                    end)
+
+                    local refreshBtn = GUI:Button_Create(parent, "refresh_btn", cogin.w/2 + 110, 150, "res/wy/public/kb_btn.png")
+                    GUI:setAnchorPoint(refreshBtn, 0.5, 0)
+                    GUI:Button_setTitleText(refreshBtn, "再次刷新")
+                    GUI:Button_setTitleFontSize(refreshBtn, 18)
+                    GUI:setLocalZOrder(refreshBtn, 100)
+                    GUI:addOnClickEvent(refreshBtn, function()
+                        close_popup()
+                        do_refresh_current_slot()
                     end)
                 end})
         GUI:setContentSize(bg, cogin.w, cogin.h)
