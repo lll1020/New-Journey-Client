@@ -1853,6 +1853,53 @@ npc[11] = function(p2, p3, Data)
         return ""
     end
 
+    local function _ywl_is_chapter_reward_ready(i, j)
+        local lCfg = npc.xyl and npc.xyl[i]
+        local zjCfg = type(lCfg) == "table" and lCfg[j] or nil
+        local tasks = zjCfg and zjCfg.jq or nil
+        if type(tasks) ~= "table" or #tasks <= 0 then
+            return false
+        end
+        local ywlData = npc.data and npc.data.ywl or {}
+        if ywlData["jl_" .. i .. "_" .. j] == 1 then
+            return false
+        end
+        for idx = 1, #tasks do
+            if ywlData["jl_" .. i .. "_" .. j .. "_" .. idx] ~= 1 then
+                return false
+            end
+        end
+        return true
+    end
+
+    local function _ywl_try_start_chapter_reward_guide(guideParent, force)
+        if not npc.jl then
+            return false
+        end
+        local i = tonumber(npc.l) or 0
+        local j = tonumber(npc.zj) or 0
+        if i <= 0 or j <= 0 then
+            return false
+        end
+        if not _ywl_is_chapter_reward_ready(i, j) then
+            return false
+        end
+        local guideKey = string.format("%s_%s_reward", tostring(i), tostring(j))
+        if not force and npc._ywl_auto_guided_reward_key == guideKey then
+            return false
+        end
+        npc._ywl_auto_guided_reward_key = guideKey
+        SL:StartGuide({
+            dir = 3,
+            guideWidget = npc.jl,
+            guideParent = guideParent or GUI:getParent(npc.jl),
+            guideDesc = "点击领取章节奖励",
+            isForce = false,
+            hideMask = true
+        })
+        return true
+    end
+
     local function _ywl_find_next_chapter(curL, curZj)
         local startL = tonumber(curL) or 2
         local startZj = tonumber(curZj) or 0
@@ -2164,10 +2211,10 @@ npc[11] = function(p2, p3, Data)
         npc.bg = win.bg
         npc.node_11 = win.node
 
-        local tipText = GUI:Text_Create(npc.bg, "lock_tip", 650,510, 20, "#EFAD21", "TIP:点击任务卡片可以查看具体的任务详情")
-        GUI:Text_setFontName(tipText, "fonts/font4.ttf")
-        GUI:Text_enableOutline(tipText, "#000000", 2)
-        GUI:setAnchorPoint(tipText, 0.5, 0.5)
+        -- local tipText = GUI:Text_Create(npc.bg, "lock_tip", 650,510, 20, "#EFAD21", "TIP:点击任务卡片可以查看具体的任务详情")
+        -- GUI:Text_setFontName(tipText, "fonts/font4.ttf")
+        -- GUI:Text_enableOutline(tipText, "#000000", 2)
+        -- GUI:setAnchorPoint(tipText, 0.5, 0.5)
 
 
         -- 左侧章节列表
@@ -2620,6 +2667,10 @@ npc[11] = function(p2, p3, Data)
                     GUI:addOnClickEvent(npc.jl, function()
                         SL:SendLuaNetMsg(101, 11, 2, 0, string.format('{"i":%d,"j":%d,"k":0}', npc.l, npc.zj))
                     end)
+                    if not autoGuideWidget and _ywl_is_chapter_reward_ready(npc.l, npc.zj) then
+                        autoGuideWidget = npc.jl
+                        autoGuideDesc = "点击领取章节奖励"
+                    end
                 end
 
                 local chapterKey = tostring(npc.l) .. "_" .. tostring(npc.zj)
@@ -2637,6 +2688,7 @@ npc[11] = function(p2, p3, Data)
                         })
                     end
                 end
+                _ywl_try_start_chapter_reward_guide(node, false)
             end
 
             
@@ -2741,8 +2793,14 @@ npc[11] = function(p2, p3, Data)
             npc.zj = tonumber(data.j) or npc.zj
             -- if _ywl_is_valid_gui_node(npc.node_11) then
             --     npc[11](0, 0, SL:JsonEncode(npc.data, false))
+            --     SL:ScheduleOnce(function()
+            --         _ywl_try_start_chapter_reward_guide(npc.node_11, true)
+            --     end, 0.05)
             --     return
             -- end
+            -- SL:ScheduleOnce(function()
+            --     _ywl_try_start_chapter_reward_guide(npc.node_11, true)
+            -- end, 0.05)
         end
         -- if npc.data and npc.data.ywl then
         --     npc.data.ywl["jl_" .. p3] = 1
@@ -2942,21 +3000,14 @@ npc[18] = function(p2, p3, Data)
             SL:SendLuaNetMsg(101, 18, 1, 0, "")
         end)
         -- 主线任务 1：引导点击新手礼包领取按钮（仅触发一次）。
-        local rwid = tonumber(cogin and cogin.sjtb and cogin.sjtb.rwid) or 0
-        if rwid == 1 then
-            local guideKey = "mainline_newbie_gift_1"
-            if npc._mainline_newbie_guide_key ~= guideKey then
-                npc._mainline_newbie_guide_key = guideKey
-                SL:StartGuide({
-                    dir = 5,
-                    guideWidget = btn,
-                    guideParent = node,
-                    guideDesc = "点击领取",
-                    isForce = false,
-                    hideMask = true
-                })
-            end
-        end
+        SL:StartGuide({
+            dir = 5,
+            guideWidget = btn,
+            guideParent = node,
+            guideDesc = "点击领取",
+            isForce = false,
+            hideMask = true
+        })
     end
 
     if p2 == 0 then
@@ -3334,6 +3385,7 @@ npc[30] = function(p2, p3, Data)
         GUI:addOnClickEvent(btn_knashu, function()
             SL:SendLuaNetMsg(101, 30, 2, 2, '')
         end)
+
         npc.node = GUI:Node_Create(bg, "node", 0, 0)
 
         -- SL:dump((config.updata[1].details[npc.data_30.T_data.axe].ratio * config.updata[2].details[npc.data_30.T_data.auto].ratio * config.base_time))
@@ -3370,6 +3422,11 @@ npc[30] = function(p2, p3, Data)
             NPC_UI_HELPER.redpoint_create(open_auto)
             GUI:addOnClickEvent(open_auto, function()  SL:SendLuaNetMsg(101, 30, 3, 1, '')  end)
             GUI:setVisible(btn_updata_2, false)
+            NPC_UI_HELPER.tryStartXylGuide(npc, btn_knashu, bg, "woodcut_start", {
+                taskName = "了解砍树",
+                dir = 5,
+                desc = "开启自动砍树",
+            })
         end
 
         local closeBtn = GUI:Button_Create(bg, 'close', cogin.w - 100,  cogin.h - 70, 'res/wy/public/anniu_4_x_close.png')
@@ -5852,6 +5909,7 @@ npc[9999] = function(p2, p3, msgData) -- 通用关闭
     end
 end
 return npc
+
 
 
 

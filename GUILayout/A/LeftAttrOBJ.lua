@@ -1,4 +1,4 @@
-LeftAttrOBJ = {}
+﻿LeftAttrOBJ = {}
 LeftAttrOBJ.__cname = "LeftAttrOBJ"
 LeftAttrOBJ.scheduleID = nil
 if ssrConstCfg.isPc then
@@ -104,6 +104,8 @@ function LeftAttrOBJ:onAttrChange()
 
 end
 
+
+-- 优先加载界面
 --重载初始化
 function LeftAttrOBJ:reloadInit()
     if not self.ui then
@@ -111,7 +113,6 @@ function LeftAttrOBJ:reloadInit()
     end
 end
 
--- 优先加载界面
 local function onEnterGameWorld()
     LeftAttrOBJ.isInit = true
     createLeftPanel()

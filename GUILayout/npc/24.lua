@@ -180,8 +180,14 @@ function npc.main(npcid, p2, p3, msgData)
                         GUI:addOnClickEvent(Button, function()
                             SL:SendLuaNetMsg(100, npcid, 1, 0, "")
                         end)
+                        
                         if new_config and (not new_config.cost or checkItemNum(new_config.cost)) and (not new_config.jf or (npc.data.T_data.jf or 0) >= new_config.jf) then
                             NPC_UI_HELPER.redpoint_create_eff(Button,{x = 219,y = 35,autoScale = 1})
+                            NPC_UI_HELPER.tryStartXylGuide(npc, Button, Label_node, "tianshu_upgrade", {
+                                taskName = "天书强化",
+                                dir = 5,
+                                desc = "点击强化天书",
+                            })
                         end
                     else
                         GUI:Image_Create(Label_node, "Button", 660, 100.00, "res/wy/public/15.png")
@@ -361,6 +367,13 @@ function npc.main(npcid, p2, p3, msgData)
                             do_refresh()
                         end
                     end)
+                    NPC_UI_HELPER.tryStartXylGuide(npc, Button, npc.xf_node, "tianshu_xianfa_" .. tostring(slot), {
+                        idx = 1,
+                        once = true,
+                        taskNames = {"初识仙法"},
+                        dir = 5,
+                        desc = "点击刷新仙法",
+                    })
                 end
 
                 for i = 1, 10 do

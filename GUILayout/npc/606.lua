@@ -11,6 +11,17 @@ local WINDOW_OPTS = {
 local key = "npc_606"
 local btn_pos = {462, 70}
 
+local function getDisplayRewardList()
+    local rewardList = {}
+    for _, entry in ipairs(npc._config.rwjl or {}) do
+        rewardList[#rewardList + 1] = entry
+    end
+    if npc._config.ch and npc._config.ch ~= "" then
+        rewardList[#rewardList + 1] = {tostring(npc._config.ch) .. "[称号]", 1}
+    end
+    return rewardList
+end
+
 function npc.main(npcid, p2, p3, msgData)
 
 
@@ -34,7 +45,7 @@ function npc.main(npcid, p2, p3, msgData)
 
         GUI:removeAllChildren(node)
 
-        local jl = ItemNumByTable_img_new(npc._config.rwjl, nil,GUI:Node_Create(node, "jl", 0, 0))
+        local jl = ItemNumByTable_img_new(getDisplayRewardList(), nil,GUI:Node_Create(node, "jl", 0, 0))
         GUI:setPosition(jl, 390 + 190, 115 + 106)
         npc.data.jq_data[key] = (npc.data.jq_data and npc.data.jq_data[key]) and npc.data.jq_data[key] or 0
 

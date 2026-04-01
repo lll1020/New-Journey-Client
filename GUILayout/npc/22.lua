@@ -137,9 +137,15 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:addOnClickEvent(btn_upup, function()
             SL:SendLuaNetMsg(100, npcid, 5, npc.current_idx, "")
         end)
+        
         local xjmNextCost = npc._config.main_updata.details[npc.current_idx <= 5 and "low" or "up"][npc.data.T_data.level[""..npc.current_idx] + 1].cost
         if xjmNextCost and checkItemNum(xjmNextCost) then
             NPC_UI_HELPER.redpoint_create(btn_upup,{x = 185,y = 35})
+            NPC_UI_HELPER.tryStartXylGuide(npc, btn_upup, x_node, "linggen_upgrade_" .. tostring(npc.current_idx or 0), {
+                taskName = "升级灵根",
+                dir = 5,
+                desc = "点击升级灵根",
+            })
         end
     
     end

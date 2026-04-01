@@ -249,6 +249,94 @@ function UIHelper.tryStartMainlineUpgradeGuide(guideCache, button, guideParent, 
     })
 end
 
+local function _normalizeXylTaskName(name)
+    local value = tostring(name or "")
+    value = value:gsub("%s+", "")
+    value = value:gsub("（.-）", "")
+    value = value:gsub("%(.-%)", "")
+    return value
+end
+
+local function _closeXylGuideList()
+    local guideList = UIHelper._xylGuideList
+    if type(guideList) ~= "table" then
+        UIHelper._xylGuideList = {}
+        return
+    end
+    for idx, mainline_realm in ipairs(guideList) do
+        if mainline_realm then
+            pcall(function()
+                SL:CloseGuide(mainline_realm)
+            end)
+            guideList[idx] = nil
+        end
+    end
+end
+
+-- 当 xyl 当前任务匹配时，为指定按钮触发引导。
+-- opts:
+--   taskName  = "查看仙法"
+--   taskNames = {"查看仙法", "初识仙法"}
+--   match     = function(currentTaskName) return true end
+--   idx       = 1  -- 同任务下的引导步骤序号
+--   once      = true -- 是否仅引导一次（按 task + idx 记录）
+function UIHelper.tryStartXylGuide(guideCache, button, guideParent, marker, opts)
+    if not button then
+        return false
+    end
+    opts = opts or {}
+
+    local currentTaskName = tostring(opts.currentTaskName or rawget(_G, "XYL_CURRENT_TASK_NAME") or "")
+    if currentTaskName == "" then
+        return false
+    end
+    local currentTaskNorm = _normalizeXylTaskName(currentTaskName)
+
+    local matched = false
+    if type(opts.match) == "function" then
+        local ok, result = pcall(opts.match, currentTaskName, currentTaskNorm)
+        matched = ok and result == true
+    elseif type(opts.taskNames) == "table" then
+        for _, taskName in ipairs(opts.taskNames) do
+            if currentTaskNorm == _normalizeXylTaskName(taskName) then
+                matched = true
+                break 
+            end
+        end
+    elseif opts.taskName then
+        matched = currentTaskNorm == _normalizeXylTaskName(opts.taskName)
+    end
+
+    if not matched then
+        return false
+    end
+
+    if opts.once == true then
+        local idx = tonumber(opts.idx) or 0
+        local onceKey = string.format("%s_%s", currentTaskNorm, tostring(idx))
+        guideCache = guideCache or UIHelper
+        guideCache._xylGuideOnceMap = guideCache._xylGuideOnceMap or {}
+        if guideCache._xylGuideOnceMap[onceKey] then
+            return false
+        end
+        guideCache._xylGuideOnceMap[onceKey] = true
+    end
+
+    _closeXylGuideList()
+
+    local guideResult = SL:StartGuide({
+        dir = opts.dir or 3,
+        guideWidget = button,
+        guideParent = guideParent,
+        guideDesc = opts.desc or ("点击" .. currentTaskName),
+        isForce = opts.isForce == true,
+        hideMask = opts.hideMask or true
+    })
+    UIHelper._xylGuideList = UIHelper._xylGuideList or {}
+    table.insert(UIHelper._xylGuideList, guideResult)
+    return guideResult
+end
+
 -- 格式化 NPC 标题，例如：NPC 17 (兑换使者)
 function UIHelper.formatNpcTitle(npcid, config)
     local parts = { 'NPC', tostring(npcid or '?') }

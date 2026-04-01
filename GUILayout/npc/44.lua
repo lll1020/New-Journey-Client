@@ -897,6 +897,11 @@ local function drawPlotDetail(node, snapshot, npcid)
             queuePlotAdvance('plant', gridId)
             sendAction(npcid, 'plant', {gridId = gridId, seedId = 'Low'})
         end)
+        NPC_UI_HELPER.tryStartXylGuide(state, btn_seed, panel, "xianfu_plant_" .. tostring(plot.gridId or selected or 0), {
+            taskName = "种植仙草",
+            dir = 5,
+            desc = "点击种植仙草",
+        })
 
         
 
@@ -2162,6 +2167,11 @@ function npc.render()
     GUI:addOnClickEvent(btn_knashu, function()
         SL:SendLuaNetMsg(101, 30, 0, 0, '')
     end)
+    NPC_UI_HELPER.tryStartXylGuide(npc, btn_knashu, npc.node, "woodcut_start", {
+        taskName = "了解砍树",
+        dir = 5,
+        desc = "开启砍树界面",
+    })
     renderSection(state.menuTab or 'overview', displaySnapshot, baseSnapshot, npcid)
 end
 

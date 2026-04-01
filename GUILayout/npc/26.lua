@@ -67,8 +67,14 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 1, 0, "")
             end)
+
             if isFirstFree or checkItemNum(npc._config.cost) then
                 NPC_UI_HELPER.redpoint_create(Button,{x = 185,y = 47,autoScale = 1})
+                NPC_UI_HELPER.tryStartXylGuide(npc, Button, node, "fortune_divination", {
+                    taskName = "气运占卜",
+                    dir = 5,
+                    desc = "点击进行气运占卜",
+                })
             end
 
             if isFirstFree or true then

@@ -1617,7 +1617,7 @@ function MainAssistXylHelper.bind(MainAssist)
         end
 
         local panel = GUI:Layout_Create(parent, "Panel_ywl_current", 1, 2, 200, 38, false)
-        GUI:setLocalZOrder(panel, 999)
+        GUI:setLocalZOrder(panel, 998)
         GUI:setTouchEnabled(panel, true)
 
         local title = GUI:Text_Create(panel, "title", -5, 114, 16, "#F4E7B5", "当前任务：")
@@ -1632,7 +1632,9 @@ function MainAssistXylHelper.bind(MainAssist)
         GUI:setAnchorPoint(rewardTitle, 0, 0.5)
         GUI:Text_enableOutline(rewardTitle, "#110b05", 2)
 
-        local rewardRoot = GUI:Node_Create(panel, "reward_root", 55, 45)
+        local rewardRoot = GUI:Node_Create(panel, "reward_root", 50, 45)
+        GUI:setLocalZOrder(rewardRoot, 999)
+
 
         local detailBtn = GUI:Button_Create(panel, "detail_btn", 5, 19, "res/wy/public/kb_btn.png")
         GUI:setAnchorPoint(detailBtn, 0, 0.5)

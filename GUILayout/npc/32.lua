@@ -1,4 +1,4 @@
-local npc = {}
+﻿local npc = {}
 
 npc._config = teshudata["npc_32"]
 
@@ -96,6 +96,11 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 1, 0, "")
             end)
+            NPC_UI_HELPER.tryStartXylGuide(npc, Button, node, "rebirth_two", {
+                taskName = "转生·二",
+                dir = 5,
+                desc = "点击进行转生",
+            })
         else
             GUI:Image_Create(node, "Button", 750 - 469, 20.00, "res/wy/public/15.png")
 
@@ -116,3 +121,4 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
+

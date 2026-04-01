@@ -100,8 +100,14 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 1, npc.idx, "")
             end)
+
             if checkItemNum(config.cost) then
                 NPC_UI_HELPER.redpoint_create(Button)
+                NPC_UI_HELPER.tryStartXylGuide(npc, Button, node, "equip_strengthen", {
+                    taskName = "装备强化",
+                    dir = 5,
+                    desc = "点击强化装备",
+                })
             end
         else
             GUI:Text_setFontName(GUI:Text_Create(node, "tip_max",750 - 375, 50, 30, "#FF0000", "已达最高等级")

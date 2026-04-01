@@ -86,6 +86,11 @@ function PlayerEquip.main(data)
     GUI:addOnClickEvent(Button, function()
         SL:SendLuaNetMsg(105, 24, 24, 0, "")
     end)
+    NPC_UI_HELPER.tryStartXylGuide(nil, Button, PlayerEquip._ui.Panel_1, "tianshu_divination", {
+        taskNames = {"初识仙法","天书强化"},
+        dir = 5,
+        desc = "打开天书界面",
+    })
     local mainline_realm
 
     Button= GUI:Button_Create(PlayerEquip._ui.Panel_1, "Button2", 110, 10.00, "res/private/player_main_layer_ui/btn_2.png")
@@ -107,6 +112,13 @@ function PlayerEquip.main(data)
     GUI:addOnClickEvent(Button, function()
         SL:SendLuaNetMsg(105, 22, 22, 0, "")
     end)
+    NPC_UI_HELPER.tryStartXylGuide(nil, Button, PlayerEquip._ui.Panel_1, "tianshu_divination", {
+        taskNames = {"升级灵根","装配主灵根","装配副灵根"},
+        dir = 5,
+        desc = "打开灵根界面",
+    })
+    
+
     Button= GUI:Button_Create(PlayerEquip._ui.Panel_1, "Button4", 250, 10.00, "res/private/player_main_layer_ui/btn_4.png")
     GUI:addOnClickEvent(Button, function()
         SL:SendLuaNetMsg(105, 44, 44, 0, "")

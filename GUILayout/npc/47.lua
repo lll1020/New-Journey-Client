@@ -57,6 +57,11 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:addOnClickEvent(Button, function()
             SL:SendLuaNetMsg(100, npcid, 1, 0, "")
         end)
+        NPC_UI_HELPER.tryStartXylGuide(npc, Button, node, "treasure_master", {
+            taskName = "寻宝大师",
+            dir = 5,
+            desc = "点击合成藏宝图",
+        })
 
         -- Button= GUI:Button_Create(node, "btn", 520, 10.00, "res/custom/three_city/cbt/btn.png")
         -- GUI:addOnClickEvent(Button, function()
