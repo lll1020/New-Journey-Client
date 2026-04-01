@@ -52,6 +52,49 @@ local function addCloseHandler(widget, handler)
     GUI:addOnClickEvent(widget, handler or noop)
 end
 
+local function isValidGuideNode(node)
+    if not node then
+        return false
+    end
+    if tolua and tolua.isnull then
+        return not tolua.isnull(node)
+    end
+    return true
+end
+
+-- 统一引导入口：便于后续排查 guideWidget / guideParent / 旧引导残留问题。
+function UIHelper.startGuide(opts)
+    opts = opts or {}
+    local guideWidget = opts.guideWidget
+    if not isValidGuideNode(guideWidget) then
+        return nil
+    end
+    local guideParent = isValidGuideNode(opts.guideParent) and opts.guideParent or guideWidget
+    local guideArgs = {
+        dir = opts.dir or 3,
+        guideWidget = guideWidget,
+        guideParent = guideParent,
+        guideDesc = opts.guideDesc or "点击继续",
+        isForce = opts.isForce == true,
+        hideMask = opts.hideMask
+    }
+    if guideArgs.hideMask == nil then
+        guideArgs.hideMask = true
+    end
+    -- return SL:StartGuide(guideArgs)
+    return SL:StartGuide(guideArgs)
+end
+
+-- 统一关闭引导入口：避免各处直接 pcall + CloseGuide。
+function UIHelper.closeGuide(guideHandle)
+    if not guideHandle then
+        return
+    end
+    pcall(function()
+        -- SL:CloseGuide(guideHandle)
+    end)
+end
+
 -- ===== 核心方法：窗口创建/复用 =====
 -- cache  : windowCache[name]，复用时传入旧引用
 -- npcid  : 当前 NPC ID，仅用于默认 windowName
@@ -217,36 +260,78 @@ end
 
 -- 当主线步骤匹配时，为提升按钮触发引导（同 key 只触发一次）。
 -- guideCache 通常传 npc 表，用于缓存 `_guide_key` 防止重复弹窗。
+local function _closeMainlineGuide()
+    if UIHelper._mainlineGuideHandle then
+        UIHelper.closeGuide(UIHelper._mainlineGuideHandle)
+        UIHelper._mainlineGuideHandle = nil
+    end
+    UIHelper._mainlineGuideKey = nil
+end
+
+local function _setMainlineGuideHandle(guideKey, guideHandle)
+    if not guideHandle then
+        return false
+    end
+    UIHelper._mainlineGuideKey = guideKey
+    UIHelper._mainlineGuideHandle = guideHandle
+    return guideHandle
+end
+
 function UIHelper.tryStartMainlineUpgradeGuide(guideCache, button, guideParent, npcid, marker, opts)
-    if not button then
+    if not isValidGuideNode(button) then
         return false
     end
     opts = opts or {}
     local rwid = tonumber(cogin and cogin.sjtb and cogin.sjtb.rwid) or 0
     local taskMap = opts.taskMap or MAINLINE_TASK_BY_UPGRADE_NPC
     local targetTask = taskMap[npcid]
+    SL:release_print('NPC_UI_HELPER: tryStartMainlineUpgradeGuide', rwid, targetTask, npcid)
     if rwid ~= (tonumber(targetTask) or -1) then
         return false
     end
 
     local keyPrefix = opts.keyPrefix or "mainline_upgrade"
     local guideKey = string.format("%s_%s_%s_%s", keyPrefix, tostring(rwid), tostring(npcid), tostring(marker or 0))
-    if guideCache and guideCache._guide_key == guideKey then
-        -- return false
+    if UIHelper._mainlineGuideKey == guideKey and UIHelper._mainlineGuideHandle then
+        return UIHelper._mainlineGuideHandle
     end
     if guideCache then
         guideCache._guide_key = guideKey
     end
+    SL:release_print('NPC_UI_HELPER: tryStartMainlineUpgradeGuide', guideKey)
+    _closeMainlineGuide()
 
-    
-    return SL:StartGuide({
+    local guideResult = UIHelper.startGuide({
         dir = opts.dir or 3,
         guideWidget = button,
         guideParent = guideParent,
         guideDesc = opts.desc or "点击提升",
         isForce = opts.isForce == true,
-        hideMask = opts.hideMask or true
+        hideMask = opts.hideMask
     })
+    if guideResult then
+        return _setMainlineGuideHandle(guideKey, guideResult)
+    end
+
+    SL:ScheduleOnce(function()
+        if UIHelper._mainlineGuideKey and UIHelper._mainlineGuideKey ~= guideKey then
+            return
+        end
+        if not isValidGuideNode(button) then
+            return
+        end
+        local retryGuideResult = UIHelper.startGuide({
+            dir = opts.dir or 3,
+            guideWidget = button,
+            guideParent = guideParent,
+            guideDesc = opts.desc or "点击提升",
+            isForce = opts.isForce == true,
+            hideMask = opts.hideMask
+        })
+        SL:release_print('NPC_UI_HELPER: tryStartMainlineUpgradeGuide retry', guideKey, retryGuideResult and 1 or 0)
+        _setMainlineGuideHandle(guideKey, retryGuideResult)
+    end, tonumber(opts.delay) or 0)
+    return false
 end
 
 local function _normalizeXylTaskName(name)
@@ -265,9 +350,7 @@ local function _closeXylGuideList()
     end
     for idx, mainline_realm in ipairs(guideList) do
         if mainline_realm then
-            pcall(function()
-                SL:CloseGuide(mainline_realm)
-            end)
+            UIHelper.closeGuide(mainline_realm)
             guideList[idx] = nil
         end
     end
@@ -281,7 +364,7 @@ end
 --   idx       = 1  -- 同任务下的引导步骤序号
 --   once      = true -- 是否仅引导一次（按 task + idx 记录）
 function UIHelper.tryStartXylGuide(guideCache, button, guideParent, marker, opts)
-    if not button then
+    if not isValidGuideNode(button) then
         return false
     end
     opts = opts or {}
@@ -324,14 +407,17 @@ function UIHelper.tryStartXylGuide(guideCache, button, guideParent, marker, opts
 
     _closeXylGuideList()
 
-    local guideResult = SL:StartGuide({
+    local guideResult = UIHelper.startGuide({
         dir = opts.dir or 3,
         guideWidget = button,
         guideParent = guideParent,
         guideDesc = opts.desc or ("点击" .. currentTaskName),
         isForce = opts.isForce == true,
-        hideMask = opts.hideMask or true
+        hideMask = opts.hideMask
     })
+    if not guideResult then
+        return false
+    end
     UIHelper._xylGuideList = UIHelper._xylGuideList or {}
     table.insert(UIHelper._xylGuideList, guideResult)
     return guideResult

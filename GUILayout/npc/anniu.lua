@@ -683,7 +683,8 @@ local function startGuideOnButton(data)
     if not target then
         return
     end
-    SL:StartGuide({
+    SL:release_print("startGuideOnButton", data.an, target and "found" or "not found")
+    NPC_UI_HELPER.startGuide({
         dir = data.fx,
         guideWidget = target,
         guideParent = npc.dbLayout,
@@ -704,19 +705,19 @@ end
 local function openBagGuide(desc, pcWidget, mobileWidget)
     SL:RefreshBagPos()
     if cogin.isWin32 then
-        SL:StartGuide({dir = 2, guideWidget = pcWidget, guideParent = MainProperty._ui.Panel_act, guideDesc = desc, isForce = false,hideMask = true})
+        NPC_UI_HELPER.startGuide({dir = 2, guideWidget = pcWidget, guideParent = MainProperty._ui.Panel_act, guideDesc = desc, isForce = false,hideMask = true})
         GUI:Timeline_FadeIn(pcWidget, 0.2)
     else
-        SL:StartGuide({dir = 1, guideWidget = mobileWidget, guideParent = npc.RightTop, guideDesc = desc, isForce = false,hideMask = true})
+        NPC_UI_HELPER.startGuide({dir = 1, guideWidget = mobileWidget, guideParent = npc.RightTop, guideDesc = desc, isForce = false,hideMask = true})
     end
 end
 
 local function openRoleGuide()
     if cogin.isWin32 then
-        SL:StartGuide({dir = 2, guideWidget = MainProperty._ui.Button_role, guideParent = MainProperty._ui.Panel_act, guideDesc = "打开人物界面", isForce = false,hideMask = true})
+        NPC_UI_HELPER.startGuide({dir = 2, guideWidget = MainProperty._ui.Button_role, guideParent = MainProperty._ui.Panel_act, guideDesc = "打开人物界面", isForce = false,hideMask = true})
         GUI:Timeline_FadeIn(MainProperty._ui.Button_role, 0.2)
     else
-        SL:StartGuide({dir = 1, guideWidget = npc.jueshe, guideParent = npc.RightTop, guideDesc = "打开人物界面", isForce = false,hideMask = true})
+        NPC_UI_HELPER.startGuide({dir = 1, guideWidget = npc.jueshe, guideParent = npc.RightTop, guideDesc = "打开人物界面", isForce = false,hideMask = true})
     end
 end
 
@@ -1799,7 +1800,7 @@ npc[2] = function(p2, p3, msgData) -- 回收面板
         end)
         local rwid = tonumber(cogin and cogin.sjtb and cogin.sjtb.rwid) or 0
         if rwid == 10 then
-            SL:StartGuide({dir = 5, guideWidget = npc.yjcz, guideParent = ty_node, guideDesc = "一键回收", isForce = false,hideMask = true})
+            NPC_UI_HELPER.startGuide({dir = 5, guideWidget = npc.yjcz, guideParent = ty_node, guideDesc = "一键回收", isForce = false,hideMask = true})
         end
 
         new_hs_update()
@@ -1889,7 +1890,7 @@ npc[11] = function(p2, p3, Data)
             return false
         end
         npc._ywl_auto_guided_reward_key = guideKey
-        SL:StartGuide({
+        NPC_UI_HELPER.startGuide({
             dir = 3,
             guideWidget = npc.jl,
             guideParent = guideParent or GUI:getParent(npc.jl),
@@ -2678,7 +2679,7 @@ npc[11] = function(p2, p3, Data)
                     npc._ywl_auto_guided_chapter = chapterKey
                     if autoGuideWidget then
                         local guideParent = GUI:getParent(autoGuideWidget) or node
-                        SL:StartGuide({
+                        NPC_UI_HELPER.startGuide({
                             dir = 3,
                             guideWidget = autoGuideWidget,
                             guideParent = guideParent,
@@ -3000,7 +3001,7 @@ npc[18] = function(p2, p3, Data)
             SL:SendLuaNetMsg(101, 18, 1, 0, "")
         end)
         -- 主线任务 1：引导点击新手礼包领取按钮（仅触发一次）。
-        SL:StartGuide({
+        NPC_UI_HELPER.startGuide({
             dir = 5,
             guideWidget = btn,
             guideParent = node,
@@ -3545,8 +3546,12 @@ npc[498] = function(p2, p3, Data)
         end
         updateRankingWidgets(npc.tyecsj)
     elseif p2 == 2 then
-        GUI:removeChildByName(MainAssist._ui["Panel_hide"], "tyec_bj")
-        npc.tyec = nil
+        if GUI:getChildByName(MainAssist._ui["Panel_hide"], "tyec_bj") then
+            GUI:removeChildByName(MainAssist._ui["Panel_hide"], "tyec_bj")
+            npc.tyec = nil
+        end
+
+        
     end
 end
 
@@ -5138,7 +5143,7 @@ npc[516] = function(p2, p3, Data)
         if rwid ~= 2 or tonumber(idx) ~= 1 then
             return
         end
-        SL:StartGuide({
+        NPC_UI_HELPER.startGuide({
             dir = 5,
             guideWidget = button,
             guideParent = guideParent,

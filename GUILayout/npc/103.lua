@@ -299,18 +299,23 @@ local function renderMaterial(node, npcid, ui, materialCfg, materialData)
     createCenterRich(node, "item_desc_" .. state.idx, descX, descY, 190, 16, buildAttrDescRich(state.desc), "#f7f7de")
 
     if state.submit == 1 then
-        GUI:setPosition(txt, buttonX + 41 , buttonY + 18)
+        GUI:setPosition(txt, buttonX + 50 , buttonY + 25)
+    else
+        local submitBtn = GUI:Button_Create(node, "submit_btn_" .. state.idx, buttonX, buttonY, ui.submit_button or "res/custom/one_city/103/submit.png")
+        GUI:addOnClickEvent(submitBtn, function()
+            SL:SendLuaNetMsg(100, npcid, 1, state.idx, "")
+        end)
+        NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, submitBtn, node, npcid, state.idx, {
+            dir = 5,
+            taskMap = {[npcid] = MAINLINE_TASK_BY_SUBMIT_IDX[state.idx]},
+            desc = string.format("提交%s", state.name),
+            isForce = false
+        })
+
     end
 
-    local submitBtn = GUI:Button_Create(node, "submit_btn_" .. state.idx, buttonX, buttonY, ui.submit_button or "res/custom/one_city/103/submit.png")
-    GUI:addOnClickEvent(submitBtn, function()
-        SL:SendLuaNetMsg(100, npcid, 1, state.idx, "")
-    end)
-    NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, submitBtn, node, npcid, state.idx, {
-        dir = 5,
-        taskMap = {[npcid] = MAINLINE_TASK_BY_SUBMIT_IDX[state.idx]},
-        desc = string.format("提交%s", state.name),
-    })
+    
+    
 end
 
 -- 中心区域只处理副本状态、奖励展示和进入逻辑。
@@ -337,12 +342,11 @@ local function renderCenter(node, npcid, ui, cfg, data)
         if tonumber(data.claimed) ~= 1 then
             local claimBtn= GUI:Frames_Create(node, "Button2", 284, -50 + 166, "res/custom/treasureBasin/btn_eff/eff_", ".png", 1, 75,
                 { speed = 75, count = 75, loop = -1})
-            GUI:setAnchorPoint(Button, 0.5, 0.5)
-            GUI:setTouchEnabled(Button, true)
-            GUI:addOnClickEvent(Button, function()
+            GUI:setTouchEnabled(claimBtn, true)
+            GUI:addOnClickEvent(claimBtn, function()
                 SL:SendLuaNetMsg(100, npcid, 5, 0, "")
             end)
-            SL:StartGuide({
+            NPC_UI_HELPER.startGuide({
                 dir = 5,
                 guideWidget = claimBtn,
                 guideParent = node,
@@ -362,7 +366,7 @@ local function renderCenter(node, npcid, ui, cfg, data)
     end)
 
     if tonumber(data.unlock) == 1 and tonumber(data.in_fb) ~= 1 then
-        SL:StartGuide({
+        NPC_UI_HELPER.startGuide({
             dir = 5,
             guideWidget = enterBtn,
             guideParent = node,

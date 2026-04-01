@@ -358,7 +358,7 @@ local function renderPreviewPanel(node, npcid, data)
         SL:SendLuaNetMsg(100, npcid, 2, 1, SL:JsonEncode({idx = 1}))
     end)
     if npc.mainline_realm then
-        SL:CloseGuide(npc.mainline_realm)
+        NPC_UI_HELPER.closeGuide(npc.mainline_realm)
         npc.mainline_realm = nil
         NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, keepBtn, panel, npcid, 2, {
         dir = 5,

@@ -1,4 +1,6 @@
-﻿local MainAssistXylHelper = {}
+local NPC_UI_HELPER = SL:Require('GUILayout/npc/ui_helper', true)
+
+local MainAssistXylHelper = {}
 
 -- 备注：伏妖录当前任务变更事件名。
 MainAssistXylHelper.EVENT_CURRENT_TASK_CHANGE = "伏妖录当前任务变更"
@@ -967,9 +969,7 @@ function MainAssistXylHelper.bind(MainAssist)
 
     local function _gray_world_close_guide()
         if MainAssist._grayWorldGuideHandle then
-            pcall(function()
-                SL:CloseGuide(MainAssist._grayWorldGuideHandle)
-            end)
+            NPC_UI_HELPER.closeGuide(MainAssist._grayWorldGuideHandle)
             MainAssist._grayWorldGuideHandle = nil
         end
     end
@@ -982,7 +982,7 @@ function MainAssistXylHelper.bind(MainAssist)
             return false
         end
         _gray_world_close_guide()
-        MainAssist._grayWorldGuideHandle = SL:StartGuide({
+        MainAssist._grayWorldGuideHandle = NPC_UI_HELPER.startGuide({
             dir = 7,
             guideWidget = widget,
             guideParent = guideParent or widget,

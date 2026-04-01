@@ -1,4 +1,6 @@
-﻿Bag = {}
+local NPC_UI_HELPER = SL:Require('GUILayout/npc/ui_helper', true)
+
+Bag = {}
 function Bag.Init(isWin32)
     -- 网格配置
     Bag._ScrollHeight = isWin32 and 214 or 320     -- 容器滚动区域高度
@@ -62,13 +64,13 @@ function Bag.main(page)
     GUI:addOnClickEvent(Bag._ui["HuiShouButton"], function()
         SL:SendLuaNetMsg(101, 2, 0, 0, "")
         if mainline_realm then
-            SL:CloseGuide(mainline_realm)
+            NPC_UI_HELPER.closeGuide(mainline_realm)
         end
     end)
     
     local rwid = tonumber(cogin and cogin.sjtb and cogin.sjtb.rwid) or 0
     if rwid == 10 then
-        mainline_realm = SL:StartGuide({dir = 5, guideWidget = Bag._ui["HuiShouButton"], guideParent = Bag._ui["Image_bg"], guideDesc = "打开回收设置", isForce = false,hideMask = true})
+        mainline_realm = NPC_UI_HELPER.startGuide({dir = 5, guideWidget = Bag._ui["HuiShouButton"], guideParent = Bag._ui["Image_bg"], guideDesc = "打开回收设置", isForce = false,hideMask = true})
     end
     
 
