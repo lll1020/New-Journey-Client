@@ -50,7 +50,7 @@ function npc.main(npcid, p2, p3, msgData)
             , 200, 16, "#f7f7de", 0,nil,nil)
         , 0, 1)
 
-        GUI:setAnchorPoint(GUI:RichText_Create(label, "ex_attr_desc", 440 + 150, 290, Player:showAttr(npc._config.config[npc.titles_sign].ex_attr).."<font color='#FF00FF'>(随机*0.5-3)</font>\n", 200, 16, "#f7f7de", 0,nil,nil)
+        GUI:setAnchorPoint(GUI:RichText_Create(label, "ex_attr_desc", 440 + 150, 290, Player:showAttr(npc._config.config[npc.titles_sign].ex_attr).."\n<font color='#FF00FF'>(随机*0.5-3)</font>\n", 200, 16, "#f7f7de", 0,nil,nil)
         , 0, 1)
 
         local cost = checkItemNumByTable_img_kuang(npc._config.config[npc.titles_sign].cost, nil,label)
