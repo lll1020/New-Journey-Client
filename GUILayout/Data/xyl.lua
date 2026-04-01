@@ -279,34 +279,26 @@ end
 
 -- 备注：传说斗笠（装备或背包）是否拥有（上位斗笠也视为完成）
 local function _xyl_has_legendary_hat()
-    local cfg = teshudata and teshudata["npc_51"]
-    if cfg and cfg.where and cfg.give then
-        local equipName = Player:getEquipNameByPos(cfg.where)
-        if equipName == cfg.give then
-            return true
-        end
-        if equipName and equipName:find("斗笠") and not _xyl_is_lower_hat_name(equipName) then
-            return true
-        end
-        return _xyl_has_item(cfg.give, 1)
+    local item = SL:GetMetaValue("EQUIP_DATA", 13)
+    if item then
+        local equipLevel = Player:getEquipFieldByIndex(item.Index, 1)
+        equipLevel = tonumber(equipLevel)
+        return equipLevel and equipLevel >= 13
+    else
+        return false
     end
-    return false
 end
 
 -- 备注：神酒葫芦（装备或背包）是否拥有（上位葫芦也视为完成）
 local function _xyl_has_god_gourd()
-    local cfg = teshudata and teshudata["npc_52"]
-    if cfg and cfg.where and cfg.give then
-        local equipName = Player:getEquipNameByPos(cfg.where)
-        if equipName == cfg.give then
-            return true
-        end
-        if equipName and equipName:find("葫芦") and not _xyl_is_lower_gourd_name(equipName) then
-            return true
-        end
-        return _xyl_has_item(cfg.give, 1)
+    local item = SL:GetMetaValue("EQUIP_DATA", 16)
+    if item then
+        local equipLevel = Player:getEquipFieldByIndex(item.Index, 1)
+        equipLevel = tonumber(equipLevel)
+        return equipLevel and equipLevel >= 13
+    else
+        return false
     end
-    return false
 end
 
 -- 备注：高级淬体是否全完成（或已有称号）
@@ -376,7 +368,7 @@ end
 
 -- 备注：藏宝图累计完成次数 > 0
 local function _xyl_has_treasure()
-    return _xyl_get_num("J2") > 0
+    return _xyl_get_num("U46") > 0
 end
 
 -- 备注：灵兽全星级是否达到指定等级
