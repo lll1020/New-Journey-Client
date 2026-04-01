@@ -81,7 +81,6 @@ function UIHelper.startGuide(opts)
     if guideArgs.hideMask == nil then
         guideArgs.hideMask = true
     end
-    -- return SL:StartGuide(guideArgs)
     return SL:StartGuide(guideArgs)
 end
 
@@ -91,7 +90,7 @@ function UIHelper.closeGuide(guideHandle)
         return
     end
     pcall(function()
-        -- SL:CloseGuide(guideHandle)
+        SL:CloseGuide(guideHandle)
     end)
 end
 

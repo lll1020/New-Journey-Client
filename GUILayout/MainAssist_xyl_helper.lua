@@ -1,6 +1,4 @@
-local NPC_UI_HELPER = SL:Require('GUILayout/npc/ui_helper', true)
-
-local MainAssistXylHelper = {}
+﻿local MainAssistXylHelper = {}
 
 -- 备注：伏妖录当前任务变更事件名。
 MainAssistXylHelper.EVENT_CURRENT_TASK_CHANGE = "伏妖录当前任务变更"
@@ -967,77 +965,6 @@ function MainAssistXylHelper.bind(MainAssist)
         end
     end
 
-    local function _gray_world_close_guide()
-        if MainAssist._grayWorldGuideHandle then
-            NPC_UI_HELPER.closeGuide(MainAssist._grayWorldGuideHandle)
-            MainAssist._grayWorldGuideHandle = nil
-        end
-    end
-
-    local function _gray_world_start_guide(widget, guideParent, guideKey, guideDesc)
-        if not widget then
-            return false
-        end
-        if MainAssist._grayWorldGuideKey == guideKey and MainAssist._grayWorldGuideHandle then
-            return false
-        end
-        _gray_world_close_guide()
-        MainAssist._grayWorldGuideHandle = NPC_UI_HELPER.startGuide({
-            dir = 7,
-            guideWidget = widget,
-            guideParent = guideParent or widget,
-            guideDesc = guideDesc or "点击继续任务",
-            isForce = false,
-            hideMask = true
-        })
-        MainAssist._grayWorldGuideKey = guideKey
-        return MainAssist._grayWorldGuideHandle ~= nil
-    end
-
-    local function _gray_world_try_refresh_guide(panel, firstRedPointIdx, finalGuideMode, singleLineMode, lineIdx, firstPendingIdx)
-        if not panel then
-            return
-        end
-
-        if finalGuideMode then
-            local finalBtn = GUI:getChildByName(panel, "gray_world_final_btn")
-            if finalBtn then
-                _gray_world_start_guide(finalBtn, panel, "gray_world_final_btn", "点击去除迷雾")
-                return
-            end
-        end
-
-        if firstRedPointIdx then
-            if singleLineMode and lineIdx and lineIdx == firstRedPointIdx then
-                local singleBtn = GUI:getChildByName(panel, "single_touch_btn")
-                if singleBtn then
-                    _gray_world_start_guide(singleBtn, panel, "gray_world_single_" .. tostring(firstRedPointIdx), "点击当前任务")
-                    return
-                end
-            else
-                local lineNode = GUI:getChildByName(panel, "line_" .. tostring(firstRedPointIdx))
-                local touchBtn = lineNode and GUI:getChildByName(lineNode, "touch_btn") or nil
-                if touchBtn then
-                    _gray_world_start_guide(touchBtn, panel, "gray_world_line_" .. tostring(firstRedPointIdx), "点击当前任务")
-                    return
-                end
-            end
-        end
-
-        if MainAssist._grayWorldFirstEnterGuidePending and (not singleLineMode) and (not finalGuideMode) and firstPendingIdx then
-            local lineNode = GUI:getChildByName(panel, "line_" .. tostring(firstPendingIdx))
-            local touchBtn = lineNode and GUI:getChildByName(lineNode, "touch_btn") or nil
-            if touchBtn then
-                MainAssist._grayWorldFirstEnterGuidePending = false
-                _gray_world_start_guide(touchBtn, panel, "gray_world_first_enter_" .. tostring(firstPendingIdx), "点击当前线任务")
-                return
-            end
-        end
-
-        _gray_world_close_guide()
-        MainAssist._grayWorldGuideKey = nil
-    end
-
     local function _gray_world_update_line(panel, routeState)
         local line = GUI:getChildByName(panel, "line_" .. tostring(routeState.idx))
         if not line then
@@ -1173,14 +1100,6 @@ function MainAssistXylHelper.bind(MainAssist)
         for _, routeState in ipairs(routeStates) do
             if routeState.showRedPoint then
                 firstRedPointIdx = routeState.idx
-                break
-            end
-        end
-
-        local firstPendingIdx = nil
-        for _, routeState in ipairs(routeStates) do
-            if not routeState.completed then
-                firstPendingIdx = routeState.idx
                 break
             end
         end
@@ -1328,7 +1247,6 @@ function MainAssistXylHelper.bind(MainAssist)
                 end
             end
         end
-        _gray_world_try_refresh_guide(panel, firstRedPointIdx, finalGuideMode, singleLineMode, lineIdx, firstPendingIdx)
         panel._grayWorldRuntimeCacheKey = runtimeCacheKey
         panel._grayWorldViewKey = viewKey
     end
@@ -1426,21 +1344,8 @@ function MainAssistXylHelper.bind(MainAssist)
             return
         end
         MainAssist._grayWorldTaskIconPendingRefresh = false
-        local shouldShow = _is_gray_world_map(eventData or MainAssist._grayWorldLastMapEvent)
-        local wasShow = MainAssist._grayWorldPanelVisible == true
-        if shouldShow and not wasShow then
-            MainAssist._grayWorldFirstEnterGuidePending = true
-            MainAssist._grayWorldGuideKey = nil
-            panel._grayWorldRuntimeCacheKey = nil
-            panel._grayWorldViewKey = nil
-        elseif (not shouldShow) and wasShow then
-            MainAssist._grayWorldFirstEnterGuidePending = false
-            MainAssist._grayWorldGuideKey = nil
-            _gray_world_close_guide()
-        end
-        MainAssist._grayWorldPanelVisible = shouldShow
         _gray_world_refresh_panel(panel)
-        GUI:setVisible(panel, shouldShow)
+        GUI:setVisible(panel, _is_gray_world_map(eventData or MainAssist._grayWorldLastMapEvent))
     end
 
     function MainAssist.RequestGrayWorldTaskIconRefresh(eventData)
