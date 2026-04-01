@@ -350,6 +350,14 @@ function MainAssistXylHelper.bind(MainAssist)
         return false
     end
 
+    local function _gray_world_is_gray_map_id(mapId)
+        mapId = tostring(mapId or "")
+        if mapId == "" then
+            return false
+        end
+        return GRAY_WORLD_MAP_IDS[mapId] == true
+    end
+
     local function _gray_world_to_num(value, defaultValue)
         local num = tonumber(value)
         if num == nil then
@@ -1053,6 +1061,111 @@ function MainAssistXylHelper.bind(MainAssist)
         end
     end
 
+    local function _gray_world_has_started_route(routeState)
+        if type(routeState) ~= "table" or routeState.completed == true then
+            return false
+        end
+        if _gray_world_to_num(routeState.stepState, 0) >= 1 and _gray_world_to_num(routeState.stepState, 0) < 2 then
+            return true
+        end
+        if _gray_world_to_num(routeState.stepState, 0) >= 2 and _gray_world_to_num(routeState.bossState, 0) < 2 then
+            return true
+        end
+        return false
+    end
+
+    local function _gray_world_request_guide(panel, routeStates, lineIdx, singleLineMode, finalGuideMode, firstRedPointIdx, isSuffixMap)
+        if not panel then
+            return false
+        end
+
+        if isSuffixMap then
+            return NPC_UI_HELPER.closeGuideByDomain("gray_world")
+        end
+
+        if finalGuideMode then
+            local finalBtn = GUI:getChildByName(panel, "gray_world_final_btn")
+            if finalBtn and GUI:getVisible(finalBtn) then
+                return NPC_UI_HELPER.requestGuide("gray_world", "gray_world_final_clear_fog", {
+                    dir = 7,
+                    guideWidget = finalBtn,
+                    guideParent = panel,
+                    guideDesc = "点击去除迷雾",
+                    isForce = false,
+                    hideMask = true,
+                })
+            end
+            return NPC_UI_HELPER.closeGuideByDomain("gray_world")
+        end
+
+        if singleLineMode and lineIdx then
+            local lineState = nil
+            for _, routeState in ipairs(routeStates or {}) do
+                if routeState.idx == lineIdx then
+                    lineState = routeState
+                    break
+                end
+            end
+            if lineState and _gray_world_has_started_route(lineState) then
+                return NPC_UI_HELPER.closeGuideByDomain("gray_world")
+            end
+            local singleBtn = GUI:getChildByName(panel, "single_touch_btn")
+            if lineState and singleBtn and lineState.canJump == true and lineState.completed ~= true and MainAssist._grayWorldAllowOverviewGuide == true then
+                local singleGuideKey = string.format("gray_world_line_%s_single", tostring(lineState.idx))
+                return NPC_UI_HELPER.requestGuide("gray_world", singleGuideKey, {
+                    dir = 7,
+                    guideWidget = singleBtn,
+                    guideParent = panel,
+                    guideDesc = "当前任务",
+                    isForce = false,
+                    hideMask = true,
+                })
+            end
+            return NPC_UI_HELPER.closeGuideByDomain("gray_world")
+        end
+
+        local targetIdx = firstRedPointIdx
+        if not targetIdx then
+            for _, routeState in ipairs(routeStates or {}) do
+                if routeState.completed ~= true then
+                    targetIdx = routeState.idx
+                    break
+                end
+            end
+        end
+        if not targetIdx then
+            return NPC_UI_HELPER.closeGuideByDomain("gray_world")
+        end
+
+        local lineNode = GUI:getChildByName(panel, "line_" .. tostring(targetIdx))
+        local targetState = nil
+        for _, routeState in ipairs(routeStates or {}) do
+            if routeState.idx == targetIdx then
+                targetState = routeState
+                break
+            end
+        end
+        if lineIdx and targetState and lineIdx == targetIdx and _gray_world_has_started_route(targetState) then
+            return NPC_UI_HELPER.closeGuideByDomain("gray_world")
+        end
+        if MainAssist._grayWorldAllowOverviewGuide ~= true then
+            return NPC_UI_HELPER.closeGuideByDomain("gray_world")
+        end
+        local touchBtn = lineNode and GUI:getChildByName(lineNode, "touch_btn") or nil
+        if touchBtn and GUI:getVisible(lineNode) then
+            local overviewGuideKey = string.format("gray_world_line_%s_overview", tostring(targetIdx))
+            return NPC_UI_HELPER.requestGuide("gray_world", overviewGuideKey, {
+                dir = 7,
+                guideWidget = touchBtn,
+                guideParent = panel,
+                guideDesc = "点击当前线任务",
+                isForce = false,
+                hideMask = true,
+            })
+        end
+        return NPC_UI_HELPER.closeGuideByDomain("gray_world")
+    end
+
     local function _gray_world_refresh_panel(panel)
         if not panel then
             return
@@ -1247,6 +1360,7 @@ function MainAssistXylHelper.bind(MainAssist)
                 end
             end
         end
+        _gray_world_request_guide(panel, routeStates, lineIdx, singleLineMode, finalGuideMode, firstRedPointIdx, isSuffixMap)
         panel._grayWorldRuntimeCacheKey = runtimeCacheKey
         panel._grayWorldViewKey = viewKey
     end
@@ -1338,14 +1452,30 @@ function MainAssistXylHelper.bind(MainAssist)
                 lastMapID = tostring(eventData.lastMapID or ""),
             }
         end
+        local currentEvent = eventData or MainAssist._grayWorldLastMapEvent
+        local isGrayWorldMap = _is_gray_world_map(currentEvent)
+        local currentMapName = _gray_world_get_current_map_name()
+        local currentLineIdx = _gray_world_get_line_idx_by_map(currentMapName)
+        local isOverviewMap = isGrayWorldMap and not currentLineIdx
+        local lastIsGrayWorldMap = MainAssist._grayWorldPrevIsGrayMap == true
+        if type(currentEvent) == "table" and tostring(currentEvent.lastMapID or "") ~= "" then
+            lastIsGrayWorldMap = _gray_world_is_gray_map_id(currentEvent.lastMapID) or lastIsGrayWorldMap
+        end
+        MainAssist._grayWorldAllowOverviewGuide = type(eventData) == "table" and isOverviewMap and (not lastIsGrayWorldMap)
+
         local panel = _ensure_gray_world_icon()
         if not panel then
             MainAssist._grayWorldTaskIconPendingRefresh = true
+            MainAssist._grayWorldPrevIsGrayMap = isGrayWorldMap
             return
         end
         MainAssist._grayWorldTaskIconPendingRefresh = false
         _gray_world_refresh_panel(panel)
-        GUI:setVisible(panel, _is_gray_world_map(eventData or MainAssist._grayWorldLastMapEvent))
+        GUI:setVisible(panel, isGrayWorldMap)
+        if not isGrayWorldMap then
+            NPC_UI_HELPER.closeGuideByDomain("gray_world")
+        end
+        MainAssist._grayWorldPrevIsGrayMap = isGrayWorldMap
     end
 
     function MainAssist.RequestGrayWorldTaskIconRefresh(eventData)

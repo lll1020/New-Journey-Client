@@ -16,6 +16,12 @@ local DEFAULT_BG = 'res/wy/public/tongyong_0.png'              -- 背景面板�
 local DEFAULT_CLOSE = 'res/wy/public/close_red_big.png'        -- 默认关闭按钮
 local DEFAULT_BUTTON = 'res/public/1900000660.png'     -- 默认主按钮皮肤
 local DEFAULT_OUTLINE = SL and SL:ConvertColorFromHexString('#100808') or '#100808'
+local GUIDE_DOMAIN_PRIORITY = {
+    mainline = 300,
+    xyl = 200,
+    gray_world = 100,
+    default = 0,
+}
 -- 主线引导映射：提升类 NPC 界面对应的主线任务号。
 local MAINLINE_TASK_BY_UPGRADE_NPC = {
     [6] = 4,
@@ -82,6 +88,114 @@ function UIHelper.startGuide(opts)
         guideArgs.hideMask = true
     end
     return SL:StartGuide(guideArgs)
+end
+
+local function getGuidePriority(domain, opts)
+    if opts and opts.priority ~= nil then
+        return tonumber(opts.priority) or 0
+    end
+    return GUIDE_DOMAIN_PRIORITY[tostring(domain or "default")] or GUIDE_DOMAIN_PRIORITY.default
+end
+
+local function isSameGuideRequest(activeDomain, activeKey, domain, guideKey)
+    return tostring(activeDomain or "") == tostring(domain or "")
+        and tostring(activeKey or "") == tostring(guideKey or "")
+end
+
+local function closeActiveGuide()
+    if UIHelper._guideActiveHandle then
+        UIHelper.closeGuide(UIHelper._guideActiveHandle)
+    end
+    UIHelper._guideActiveHandle = nil
+    UIHelper._guideActiveDomain = nil
+    UIHelper._guideActiveKey = nil
+    UIHelper._guideActivePriority = nil
+end
+
+local function pickBestGuideRequest()
+    local requestMap = UIHelper._guideRequestMap
+    if type(requestMap) ~= "table" then
+        return nil, nil
+    end
+    local bestDomain = nil
+    local bestRequest = nil
+    for domain, request in pairs(requestMap) do
+        if type(request) == "table" then
+            local opts = request.opts or {}
+            if isValidGuideNode(opts.guideWidget) then
+                if (not bestRequest) or (request.priority > bestRequest.priority) then
+                    bestDomain = domain
+                    bestRequest = request
+                end
+            end
+        end
+    end
+    return bestDomain, bestRequest
+end
+
+local function activateGuideRequest(domain, request)
+    if type(request) ~= "table" then
+        return false
+    end
+    local opts = request.opts or {}
+    if not isValidGuideNode(opts.guideWidget) then
+        return false
+    end
+    if isSameGuideRequest(UIHelper._guideActiveDomain, UIHelper._guideActiveKey, domain, request.key)
+        and UIHelper._guideActiveHandle then
+        return UIHelper._guideActiveHandle
+    end
+    closeActiveGuide()
+    local guideHandle = UIHelper.startGuide(opts)
+    if not guideHandle then
+        return false
+    end
+    UIHelper._guideActiveDomain = domain
+    UIHelper._guideActiveKey = request.key
+    UIHelper._guideActivePriority = request.priority
+    UIHelper._guideActiveHandle = guideHandle
+    return guideHandle
+end
+
+local function refreshGuideArbitration()
+    local bestDomain, bestRequest = pickBestGuideRequest()
+    if not bestRequest then
+        closeActiveGuide()
+        return false
+    end
+    return activateGuideRequest(bestDomain, bestRequest)
+end
+
+function UIHelper.requestGuide(domain, guideKey, opts)
+    domain = tostring(domain or "default")
+    opts = opts or {}
+    if not isValidGuideNode(opts.guideWidget) then
+        return false
+    end
+    UIHelper._guideRequestMap = UIHelper._guideRequestMap or {}
+    UIHelper._guideRequestMap[domain] = {
+        key = tostring(guideKey or ""),
+        priority = getGuidePriority(domain, opts),
+        opts = opts,
+    }
+    return refreshGuideArbitration()
+end
+
+function UIHelper.closeGuideByDomain(domain, guideKey)
+    domain = tostring(domain or "default")
+    local requestMap = UIHelper._guideRequestMap
+    local request = type(requestMap) == "table" and requestMap[domain] or nil
+    if request and guideKey ~= nil and tostring(request.key or "") ~= tostring(guideKey or "") then
+        return false
+    end
+    if requestMap then
+        requestMap[domain] = nil
+    end
+    if domain == UIHelper._guideActiveDomain and (guideKey == nil or tostring(UIHelper._guideActiveKey or "") == tostring(guideKey or "")) then
+        closeActiveGuide()
+        return refreshGuideArbitration()
+    end
+    return true
 end
 
 -- 统一关闭引导入口：避免各处直接 pcall + CloseGuide。
@@ -260,20 +374,7 @@ end
 -- 当主线步骤匹配时，为提升按钮触发引导（同 key 只触发一次）。
 -- guideCache 通常传 npc 表，用于缓存 `_guide_key` 防止重复弹窗。
 local function _closeMainlineGuide()
-    if UIHelper._mainlineGuideHandle then
-        UIHelper.closeGuide(UIHelper._mainlineGuideHandle)
-        UIHelper._mainlineGuideHandle = nil
-    end
-    UIHelper._mainlineGuideKey = nil
-end
-
-local function _setMainlineGuideHandle(guideKey, guideHandle)
-    if not guideHandle then
-        return false
-    end
-    UIHelper._mainlineGuideKey = guideKey
-    UIHelper._mainlineGuideHandle = guideHandle
-    return guideHandle
+    return UIHelper.closeGuideByDomain("mainline")
 end
 
 function UIHelper.tryStartMainlineUpgradeGuide(guideCache, button, guideParent, npcid, marker, opts)
@@ -291,44 +392,38 @@ function UIHelper.tryStartMainlineUpgradeGuide(guideCache, button, guideParent, 
 
     local keyPrefix = opts.keyPrefix or "mainline_upgrade"
     local guideKey = string.format("%s_%s_%s_%s", keyPrefix, tostring(rwid), tostring(npcid), tostring(marker or 0))
-    if UIHelper._mainlineGuideKey == guideKey and UIHelper._mainlineGuideHandle then
-        return UIHelper._mainlineGuideHandle
-    end
     if guideCache then
         guideCache._guide_key = guideKey
     end
     SL:release_print('NPC_UI_HELPER: tryStartMainlineUpgradeGuide', guideKey)
-    _closeMainlineGuide()
 
-    local guideResult = UIHelper.startGuide({
+    local guideResult = UIHelper.requestGuide("mainline", guideKey, {
         dir = opts.dir or 3,
         guideWidget = button,
         guideParent = guideParent,
         guideDesc = opts.desc or "点击提升",
         isForce = opts.isForce == true,
-        hideMask = opts.hideMask
+        hideMask = opts.hideMask,
+        priority = opts.priority
     })
     if guideResult then
-        return _setMainlineGuideHandle(guideKey, guideResult)
+        return guideResult
     end
 
     SL:ScheduleOnce(function()
-        if UIHelper._mainlineGuideKey and UIHelper._mainlineGuideKey ~= guideKey then
-            return
-        end
         if not isValidGuideNode(button) then
             return
         end
-        local retryGuideResult = UIHelper.startGuide({
+        local retryGuideResult = UIHelper.requestGuide("mainline", guideKey, {
             dir = opts.dir or 3,
             guideWidget = button,
             guideParent = guideParent,
             guideDesc = opts.desc or "点击提升",
             isForce = opts.isForce == true,
-            hideMask = opts.hideMask
+            hideMask = opts.hideMask,
+            priority = opts.priority
         })
         SL:release_print('NPC_UI_HELPER: tryStartMainlineUpgradeGuide retry', guideKey, retryGuideResult and 1 or 0)
-        _setMainlineGuideHandle(guideKey, retryGuideResult)
     end, tonumber(opts.delay) or 0)
     return false
 end
@@ -342,17 +437,7 @@ local function _normalizeXylTaskName(name)
 end
 
 local function _closeXylGuideList()
-    local guideList = UIHelper._xylGuideList
-    if type(guideList) ~= "table" then
-        UIHelper._xylGuideList = {}
-        return
-    end
-    for idx, mainline_realm in ipairs(guideList) do
-        if mainline_realm then
-            UIHelper.closeGuide(mainline_realm)
-            guideList[idx] = nil
-        end
-    end
+    return UIHelper.closeGuideByDomain("xyl")
 end
 
 -- 当 xyl 当前任务匹配时，为指定按钮触发引导。
@@ -404,21 +489,19 @@ function UIHelper.tryStartXylGuide(guideCache, button, guideParent, marker, opts
         guideCache._xylGuideOnceMap[onceKey] = true
     end
 
-    _closeXylGuideList()
-
-    local guideResult = UIHelper.startGuide({
+    local guideKey = string.format("xyl_%s_%s", currentTaskNorm, tostring(marker or opts.idx or 0))
+    local guideResult = UIHelper.requestGuide("xyl", guideKey, {
         dir = opts.dir or 3,
         guideWidget = button,
         guideParent = guideParent,
         guideDesc = opts.desc or ("点击" .. currentTaskName),
         isForce = opts.isForce == true,
-        hideMask = opts.hideMask
+        hideMask = opts.hideMask,
+        priority = opts.priority
     })
     if not guideResult then
         return false
     end
-    UIHelper._xylGuideList = UIHelper._xylGuideList or {}
-    table.insert(UIHelper._xylGuideList, guideResult)
     return guideResult
 end
 
