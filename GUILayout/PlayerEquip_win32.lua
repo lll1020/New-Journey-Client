@@ -123,6 +123,11 @@ function PlayerEquip.main(data)
     GUI:addOnClickEvent(Button, function()
         SL:SendLuaNetMsg(105, 44, 44, 0, "")
     end)
+    NPC_UI_HELPER.tryStartXylGuide(nil, Button, PlayerEquip._ui.Panel_1, "tianshu_divination", {
+        taskNames = {"种植仙草","了解砍树"},
+        dir = 5,
+        desc = "打开仙府",
+    })
 
 
     Button = GUI:Button_Create(PlayerEquip._ui.Panel_1, "Button11", 400 + 120 - 253, 50+363, "res/private/player_main_layer_ui/btn_11.png")

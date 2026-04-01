@@ -559,13 +559,14 @@ function MainAssistXylHelper.bind(MainAssist)
                 prepState = prepState,
                 bossTitle = tostring(bossCfg.name or routeCfg.boss),
                 bossState = bossState,
+                inBossMap = inFbMap,
             }
         end
 
         return {
             idx = routeCfg.idx,
             order = routeCfg.order,
-            statusText = tostring(bossCfg.name or routeCfg.boss),
+            statusText = inFbMap and "[讨伐中]" or tostring(bossCfg.name or routeCfg.boss),
             canJump = not inFbMap,
             showRedPoint = _gray_world_is_boss_prep_claimable(bossCfg, prepState, sgData, routeCfg.boss),
             completed = false,
@@ -577,6 +578,7 @@ function MainAssistXylHelper.bind(MainAssist)
             prepState = prepState,
             bossTitle = tostring(bossCfg.name or routeCfg.boss),
             bossState = bossState,
+            inBossMap = inFbMap,
         }
     end
 
@@ -629,7 +631,7 @@ function MainAssistXylHelper.bind(MainAssist)
             return {
                 title = baseName ~= "" and baseName or "关键任务",
                 desc = string.format("收集%s", baseName ~= "" and baseName or "关键任务"),
-                progress = string.format("左%s 右%s", leftCurrent > 1 and "x" or "√", rightCurrent > 1 and "x" or "√"),
+                progress = string.format("左%s 右%s", leftCurrent < 1 and "口" or "■", rightCurrent < 1 and "口" or "■"),
                 completed = prepDone,
             }
         end
@@ -684,7 +686,7 @@ function MainAssistXylHelper.bind(MainAssist)
         local bossTitle = tostring(routeState.bossTitle or routeState.statusText or "")
         local bossStatus = routeState.bossState >= 2
             and "<font color='#00FF00'>[已讨伐]</font>"
-            or "<font color='#ff3030'>[未讨伐]</font>"
+            or (routeState.inBossMap and "<font color='#FFFF00'>[讨伐中]</font>" or "<font color='#ff3030'>[未讨伐]</font>")
 
         return table.concat({
             string.format("<font color='#fff3a6'>[%s]</font>", stepTitle),
@@ -713,6 +715,7 @@ function MainAssistXylHelper.bind(MainAssist)
             tostring(routeState.prepState or 0),
             tostring(routeState.bossTitle or ""),
             tostring(routeState.bossState or 0),
+            routeState.inBossMap and "1" or "0",
         }, "|")
     end
 
@@ -777,6 +780,9 @@ function MainAssistXylHelper.bind(MainAssist)
         local text = tostring(routeState and routeState.statusText or "")
         if routeState and routeState.completed then
             return "#00FF00"
+        end
+        if text == "[讨伐中]" then
+            return "#FFFF00"
         end
         if string.match(text, "^踏入") then
             return "#FFFF00"
@@ -959,6 +965,79 @@ function MainAssistXylHelper.bind(MainAssist)
         end
     end
 
+    local function _gray_world_close_guide()
+        if MainAssist._grayWorldGuideHandle then
+            pcall(function()
+                SL:CloseGuide(MainAssist._grayWorldGuideHandle)
+            end)
+            MainAssist._grayWorldGuideHandle = nil
+        end
+    end
+
+    local function _gray_world_start_guide(widget, guideParent, guideKey, guideDesc)
+        if not widget then
+            return false
+        end
+        if MainAssist._grayWorldGuideKey == guideKey and MainAssist._grayWorldGuideHandle then
+            return false
+        end
+        _gray_world_close_guide()
+        MainAssist._grayWorldGuideHandle = SL:StartGuide({
+            dir = 7,
+            guideWidget = widget,
+            guideParent = guideParent or widget,
+            guideDesc = guideDesc or "点击继续任务",
+            isForce = false,
+            hideMask = true
+        })
+        MainAssist._grayWorldGuideKey = guideKey
+        return MainAssist._grayWorldGuideHandle ~= nil
+    end
+
+    local function _gray_world_try_refresh_guide(panel, firstRedPointIdx, finalGuideMode, singleLineMode, lineIdx, firstPendingIdx)
+        if not panel then
+            return
+        end
+
+        if finalGuideMode then
+            local finalBtn = GUI:getChildByName(panel, "gray_world_final_btn")
+            if finalBtn then
+                _gray_world_start_guide(finalBtn, panel, "gray_world_final_btn", "点击去除迷雾")
+                return
+            end
+        end
+
+        if firstRedPointIdx then
+            if singleLineMode and lineIdx and lineIdx == firstRedPointIdx then
+                local singleBtn = GUI:getChildByName(panel, "single_touch_btn")
+                if singleBtn then
+                    _gray_world_start_guide(singleBtn, panel, "gray_world_single_" .. tostring(firstRedPointIdx), "点击当前任务")
+                    return
+                end
+            else
+                local lineNode = GUI:getChildByName(panel, "line_" .. tostring(firstRedPointIdx))
+                local touchBtn = lineNode and GUI:getChildByName(lineNode, "touch_btn") or nil
+                if touchBtn then
+                    _gray_world_start_guide(touchBtn, panel, "gray_world_line_" .. tostring(firstRedPointIdx), "点击当前任务")
+                    return
+                end
+            end
+        end
+
+        if MainAssist._grayWorldFirstEnterGuidePending and (not singleLineMode) and (not finalGuideMode) and firstPendingIdx then
+            local lineNode = GUI:getChildByName(panel, "line_" .. tostring(firstPendingIdx))
+            local touchBtn = lineNode and GUI:getChildByName(lineNode, "touch_btn") or nil
+            if touchBtn then
+                MainAssist._grayWorldFirstEnterGuidePending = false
+                _gray_world_start_guide(touchBtn, panel, "gray_world_first_enter_" .. tostring(firstPendingIdx), "点击当前线任务")
+                return
+            end
+        end
+
+        _gray_world_close_guide()
+        MainAssist._grayWorldGuideKey = nil
+    end
+
     local function _gray_world_update_line(panel, routeState)
         local line = GUI:getChildByName(panel, "line_" .. tostring(routeState.idx))
         if not line then
@@ -1094,6 +1173,14 @@ function MainAssistXylHelper.bind(MainAssist)
         for _, routeState in ipairs(routeStates) do
             if routeState.showRedPoint then
                 firstRedPointIdx = routeState.idx
+                break
+            end
+        end
+
+        local firstPendingIdx = nil
+        for _, routeState in ipairs(routeStates) do
+            if not routeState.completed then
+                firstPendingIdx = routeState.idx
                 break
             end
         end
@@ -1241,6 +1328,7 @@ function MainAssistXylHelper.bind(MainAssist)
                 end
             end
         end
+        _gray_world_try_refresh_guide(panel, firstRedPointIdx, finalGuideMode, singleLineMode, lineIdx, firstPendingIdx)
         panel._grayWorldRuntimeCacheKey = runtimeCacheKey
         panel._grayWorldViewKey = viewKey
     end
@@ -1338,8 +1426,21 @@ function MainAssistXylHelper.bind(MainAssist)
             return
         end
         MainAssist._grayWorldTaskIconPendingRefresh = false
+        local shouldShow = _is_gray_world_map(eventData or MainAssist._grayWorldLastMapEvent)
+        local wasShow = MainAssist._grayWorldPanelVisible == true
+        if shouldShow and not wasShow then
+            MainAssist._grayWorldFirstEnterGuidePending = true
+            MainAssist._grayWorldGuideKey = nil
+            panel._grayWorldRuntimeCacheKey = nil
+            panel._grayWorldViewKey = nil
+        elseif (not shouldShow) and wasShow then
+            MainAssist._grayWorldFirstEnterGuidePending = false
+            MainAssist._grayWorldGuideKey = nil
+            _gray_world_close_guide()
+        end
+        MainAssist._grayWorldPanelVisible = shouldShow
         _gray_world_refresh_panel(panel)
-        GUI:setVisible(panel, _is_gray_world_map(eventData or MainAssist._grayWorldLastMapEvent))
+        GUI:setVisible(panel, shouldShow)
     end
 
     function MainAssist.RequestGrayWorldTaskIconRefresh(eventData)

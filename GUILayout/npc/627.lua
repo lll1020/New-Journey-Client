@@ -15,6 +15,7 @@ local PREP_POS = {600, 80}
 local CHALLENGE_POS = {300, 80}
 local CHALLENGE_TIP = "进入后双击【定身符】可压制息灾逃离，否则会持续受到额外伤害。"
 local OPTIONAL_PREP_TIP = "前置任务为独立可选线路，可直接挑战讨伐。"
+local GUIDE_TASK_NAME = "讨伐息灾"
 
 local function ensureWindow(npcid)
     local opts = {}
@@ -57,6 +58,15 @@ local function createActionButton(parent, name, x, y, skin, callback)
     return button
 end
 
+local function tryGuideAction(button, marker, desc)
+    return NPC_UI_HELPER.tryStartXylGuide(npc, button, npc.node, marker, {
+        currentTaskName  = GUIDE_TASK_NAME,
+        taskName = GUIDE_TASK_NAME,
+        desc = desc,
+        dir = 5,
+    })
+end
+
 local function renderReward(node, reward)
     if type(reward) ~= "table" or #reward == 0 then
         return
@@ -83,19 +93,28 @@ local function renderPrepSection(node, npcid, cfg, data, key)
     local prepKey = key .. "_rw"
     local prepState = safeState(data, prepKey)
     local prep = cfg.prep_task or {}
+    local need = tonumber(prep.need or 0) or 0
+    local current = bagCount(prep.item_name)
     local lines = getPrepLines(cfg)
     -- for idx, line in ipairs(lines) do
     --     createOutlineText(node, "prep_line_" .. idx, 455 + 170, 240 - (idx - 1) * 30, line, "#FF0000", 20)
     -- end
 
-    createActionButton(node, "prep_btn", PREP_POS[1], PREP_POS[2], prepState == 0 and TAKE_BUTTON_SKIN or PREP_BUTTON_SKIN, function()
+    local prepBtn = createActionButton(node, "prep_btn", PREP_POS[1], PREP_POS[2], prepState == 0 and TAKE_BUTTON_SKIN or PREP_BUTTON_SKIN, function()
         SL:SendLuaNetMsg(100, npcid, 2, 0, "")
     end)
+    local canSubmit = prepState == 1 and current >= need
+    if canSubmit then
+        tryGuideAction(prepBtn, "627_submit", "点击提交任务")
+    elseif prepState == 0 then
+        tryGuideAction(prepBtn, "627_take", "点击领取任务")
+    end
     return false
 end
 
 local function renderChallengeSection(node, npcid, data, key, prepDone)
     local mainState = safeState(data, key)
+    local prepState = safeState(data, key .. "_rw")
     if mainState >= 2 then
         GUI:setAnchorPoint(GUI:Image_Create(node, "main_finish", CHALLENGE_POS[1], CHALLENGE_POS[2], COMPLETE_SKIN), 0.5, 0.5)
         return
@@ -104,9 +123,12 @@ local function renderChallengeSection(node, npcid, data, key, prepDone)
     local rewardNode = checkItemNumByTable_img_kuang({{"定身符碎片",10}}, nil, GUI:Node_Create(node, "rewardNode", 0, 0))
     GUI:setPosition(rewardNode, 330 + 135 + 65, 120 + 40 - 30 + 110)
 
-    createActionButton(node, "challenge_btn", CHALLENGE_POS[1], CHALLENGE_POS[2], CHALLENGE_SKIN, function()
+    local challengeBtn = createActionButton(node, "challenge_btn", CHALLENGE_POS[1], CHALLENGE_POS[2], CHALLENGE_SKIN, function()
         SL:SendLuaNetMsg(100, npcid, 1, 0, "")
     end)
+    if prepState >= 2 then
+        tryGuideAction(challengeBtn, "627_challenge", "点击进入副本")
+    end
 end
 
 local function updateUI(npcid, node)
