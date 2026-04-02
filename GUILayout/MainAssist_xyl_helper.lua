@@ -1667,6 +1667,10 @@ function MainAssistXylHelper.bind(MainAssist)
         MainAssist._xylDetailPopup = nil
     end
 
+    local function _should_hide_xyl_detail_popup()
+        return _is_gray_world_map(MainAssist._grayWorldLastMapEvent) == true
+    end
+
     _refresh_xyl_detail_popup_content = function()
         local popup = MainAssist._xylDetailPopup
         if not (popup and popup.root and popup.descHost) then
@@ -1675,7 +1679,6 @@ function MainAssistXylHelper.bind(MainAssist)
 
         local info = _get_xyl_current_task_info(MainAssist._xylCurrentTask)
         if not info then
-            _close_current_xyl_detail()
             return
         end
 
@@ -1702,6 +1705,11 @@ function MainAssistXylHelper.bind(MainAssist)
     end
 
     local function _open_current_xyl_detail()
+        MainAssist._xylDetailPopupOpened = true
+        if _should_hide_xyl_detail_popup() then
+            _close_current_xyl_detail()
+            return
+        end
         local info = _get_xyl_current_task_info(MainAssist._xylCurrentTask)
         if not info then
             SL:ShowSystemTips("当前没有可查看的伏妖录任务")
@@ -1781,6 +1789,7 @@ function MainAssistXylHelper.bind(MainAssist)
 
         GUI:addOnClickEvent(detailBtn, function()
             if MainAssist._xylDetailPopup and MainAssist._xylDetailPopup.root then
+                MainAssist._xylDetailPopupOpened = false
                 _close_current_xyl_detail()
             else
                 _open_current_xyl_detail()
@@ -1820,7 +1829,6 @@ function MainAssistXylHelper.bind(MainAssist)
         local hasTask = info and info.name and info.name ~= ""
         GUI:setVisible(widget.panel, hasTask)
         if not hasTask then
-            _close_current_xyl_detail()
             if widget.rewardNode then
                 GUI:removeFromParent(widget.rewardNode)
                 widget.rewardNode = nil
@@ -1853,6 +1861,18 @@ function MainAssistXylHelper.bind(MainAssist)
         if MainAssist.ListView_mission then
             GUI:setContentSize(MainAssist.ListView_mission, 200, 145)
             GUI:setPosition(MainAssist.ListView_mission, 101, 114)
+        end
+
+        if MainAssist._xylDetailPopupOpened then
+            if _should_hide_xyl_detail_popup() then
+                _close_current_xyl_detail()
+            elseif not (MainAssist._xylDetailPopup and MainAssist._xylDetailPopup.root) then
+                _open_current_xyl_detail()
+            else
+                _refresh_xyl_detail_popup_content()
+            end
+        else
+            _close_current_xyl_detail()
         end
     end
 
