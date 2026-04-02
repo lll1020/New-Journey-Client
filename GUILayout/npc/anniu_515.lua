@@ -1120,7 +1120,10 @@ local function showUnlockToast(info, detailId)
         local rewardText = GUI:RichText_Create(bg, "reward", 223, -18 + 46 + 17, string.format("<font color='#8ca2bf'>奖励：</font>%s", rewardRich ~= "" and rewardRich or string.format("<font color='#8fe9ff'>%s</font>", reward)), 230, 14, "#8fe9ff", 1, nil, nil, {outlineSize = 1, outlineColor = "#100808"})
         GUI:setAnchorPoint(rewardText, 0.5, 0.5)
     end
-
+    local closeBtn = GUI:Button_Create(bg, 'close', 740 - 380, 90, "res/public/1900000511.png")
+    GUI:addOnClickEvent(closeBtn, function()
+        GUI:Win_Close(parent)
+    end)
     GUI:Timeline_DelayTime(bg, 5, function()
         local curParent = GUI:GetWindow(nil, windowName)
         if curParent then

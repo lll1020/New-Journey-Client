@@ -189,6 +189,47 @@ local function _lg_level_value(idx)
     return tonumber(levelMap[tostring(idx)] or 0) or 0
 end
 
+-- 返回第一个已激活的灵根，用于主灵根未装配时的默认选中。
+local function _lg_first_active_idx()
+    for idx, _ in ipairs(npc._config.main_r or {}) do
+        if _lg_has_root(idx) then
+            return idx
+        end
+    end
+    return 0
+end
+
+-- 进入界面时默认优先选中主灵根，否则选中当前已激活的灵根。
+local function _lg_default_selected_idx()
+    local mainIdx = tonumber(npc.data and npc.data.T_data and npc.data.T_data.main or 0) or 0
+    if mainIdx > 0 then
+        return mainIdx
+    end
+    local otherIdx = tonumber(npc.data and npc.data.T_data and npc.data.T_data.other or 0) or 0
+    if otherIdx > 0 then
+        return otherIdx
+    end
+    local activeIdx = _lg_first_active_idx()
+    if activeIdx > 0 then
+        return activeIdx
+    end
+    return 1
+end
+
+local function _lg_get_current_xyl_task_name()
+    return tostring(rawget(_G, "XYL_CURRENT_TASK_NAME") or "")
+end
+
+local function _lg_first_active_other_idx(mainIdx)
+    mainIdx = tonumber(mainIdx or 0) or 0
+    for idx, _ in ipairs(npc._config.main_r or {}) do
+        if idx ~= mainIdx and _lg_has_root(idx) then
+            return idx
+        end
+    end
+    return 0
+end
+
 -- 计算灵根效果倍率：当前等级 + 预览增量 + 基础倍率。
 local function _lg_effect_scale(idx, extraLevel)
     if not _lg_has_root(idx) then
@@ -572,7 +613,7 @@ local function _lg_refresh_main_page(npcid, node)
 
     local selectedIdx = tonumber(npc.current_idx or 0) or 0
     if selectedIdx <= 0 then
-        selectedIdx = npc.data and npc.data.T_data and (npc.data.T_data.main or npc.data.T_data.other) or 0
+        selectedIdx = _lg_default_selected_idx()
         npc.current_idx = selectedIdx
     end
 
@@ -639,12 +680,20 @@ local function _lg_refresh_main_page(npcid, node)
 
     _lg_render_skill_icons(node)
 
-    if selectedIdx > 0 and (not mainIdx or mainIdx <= 0) then
+    local currentTaskName = _lg_get_current_xyl_task_name()
+    local canEquipOtherSelected = selectedIdx > 0 and _lg_has_root(selectedIdx) and selectedIdx ~= (tonumber(mainIdx or 0) or 0)
+
+    if selectedIdx > 0 and _lg_has_root(selectedIdx) and (not mainIdx or mainIdx <= 0) then
         local btnEquipMain = GUI:Button_Create(node, "btn_equip_main", MAIN_EQUIP_BTN_POS.x, MAIN_EQUIP_BTN_POS.y, "res/custom/linggen/new/main/btn_equip.png")
         GUI:setAnchorPoint(btnEquipMain, 0.5, 0.5)
         GUI:addOnClickEvent(btnEquipMain, function()
             SL:SendLuaNetMsg(100, npcid, 2, selectedIdx, "")
         end)
+        NPC_UI_HELPER.tryStartXylGuide(npc, btnEquipMain, node, "linggen_equip_main", {
+            taskName = "装配主灵根",
+            dir = 5,
+            desc = "点击装配主灵根",
+        })
     elseif mainIdx and mainIdx > 0 then
         local btnUnequipMain = GUI:Button_Create(node, "btn_unequip_main", MAIN_EQUIP_BTN_POS.x, MAIN_EQUIP_BTN_POS.y, "res/custom/linggen/new/main/btn_unequip.png")
         GUI:setAnchorPoint(btnUnequipMain, 0.5, 0.5)
@@ -652,12 +701,28 @@ local function _lg_refresh_main_page(npcid, node)
             SL:SendLuaNetMsg(100, npcid, 2, 0, "")
         end)
     end
-    if selectedIdx > 0 and (not otherIdx or otherIdx <= 0) then
+    if currentTaskName == "装配副灵根" and (not otherIdx or otherIdx <= 0) and not canEquipOtherSelected then
+        local guideIdx = _lg_first_active_other_idx(mainIdx)
+        local guideSlot = guideIdx > 0 and GUI:getChildByName(node, "root_slot_" .. tostring(guideIdx)) or nil
+        if guideSlot then
+            NPC_UI_HELPER.tryStartXylGuide(npc, guideSlot, node, "linggen_select_other_root", {
+                taskName = "装配副灵根",
+                dir = 5,
+                desc = "点击灵根",
+            })
+        end
+    end
+    if canEquipOtherSelected and (not otherIdx or otherIdx <= 0) then
         local btnEquipOther = GUI:Button_Create(node, "btn_equip_other", OTHER_EQUIP_BTN_POS.x, OTHER_EQUIP_BTN_POS.y, "res/custom/linggen/new/main/btn_equip.png")
         GUI:setAnchorPoint(btnEquipOther, 0.5, 0.5)
         GUI:addOnClickEvent(btnEquipOther, function()
             SL:SendLuaNetMsg(100, npcid, 3, selectedIdx, "")
         end)
+        NPC_UI_HELPER.tryStartXylGuide(npc, btnEquipOther, node, "linggen_equip_other", {
+            taskName = "装配副灵根",
+            dir = 5,
+            desc = "点击装配副灵根",
+        })
     elseif otherIdx and otherIdx > 0 then
         local btnUnequipOther = GUI:Button_Create(node, "btn_unequip_other", OTHER_EQUIP_BTN_POS.x, OTHER_EQUIP_BTN_POS.y, "res/custom/linggen/new/main/btn_unequip.png")
         GUI:setAnchorPoint(btnUnequipOther, 0.5, 0.5)
@@ -674,6 +739,14 @@ local function _lg_refresh_main_page(npcid, node)
             _lg_refresh_upgrade_window(npcid, xNode)
         end
     end)
+    if selectedIdx > 0 and _lg_has_root(selectedIdx) then
+        NPC_UI_HELPER.tryStartXylGuide(npc, btnUpgradePage, node, "linggen_upgrade_open", {
+            taskName = "升级灵根",
+            dir = 5,
+            idx = 1,
+            desc = "点击打开灵根升级",
+        })
+    end
 
     npc.out_moveWidget = _lg_create_unequip_drag_area(node)
 
@@ -712,7 +785,7 @@ _lg_refresh_upgrade_window = function(npcid, xNode)
     GUI:removeAllChildren(xNode)
     local idx = tonumber(npc.current_idx or 0) or 0
     if idx <= 0 then
-        idx = npc.data and npc.data.T_data and (npc.data.T_data.main or npc.data.T_data.other) or 1
+        idx = _lg_default_selected_idx()
         npc.current_idx = idx
     end
 
@@ -745,6 +818,7 @@ _lg_refresh_upgrade_window = function(npcid, xNode)
         NPC_UI_HELPER.redpoint_create(btn, {x = 120, y = 46})
         NPC_UI_HELPER.tryStartXylGuide(npc, btn, xNode, "linggen_upgrade_" .. tostring(idx), {
             taskName = "升级灵根",
+            idx = 2,
             dir = 5,
             desc = "点击升级灵根",
         })
@@ -754,10 +828,14 @@ end
 function npc.main(npcid, p2, p3, msgData)
     if p2 == 0 then
         npc.data = SL:JsonDecode(msgData, false) or {}
+        npc.current_idx = _lg_default_selected_idx()
         ensureMainWindow(npcid)
         _lg_refresh_main_page(npcid, npc.node)
     elseif p2 == 1 then
         npc.data = SL:JsonDecode(msgData, false) or npc.data or {}
+        if tonumber(npc.current_idx or 0) <= 0 then
+            npc.current_idx = _lg_default_selected_idx()
+        end
         ensureMainWindow(npcid)
         _lg_refresh_main_page(npcid, npc.node)
         if npc.xjm_node then

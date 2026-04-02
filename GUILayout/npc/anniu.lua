@@ -798,7 +798,7 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
                 -- GUI:setVisible(dalucs,false)
 
                 ---测试使用
-                if SL:GetMetaValue("USER_NAME") == "玩家名字k" then
+                if SL:GetMetaValue("USER_NAME") == "玩家名字k" or SL:GetMetaValue("USER_NAME") == "玩家名字" then
                     local Button_1 = GUI:Button_Create(npc.RightBottom, "Button_1", -150, 340 + 100, "res/private/player_main_layer_ui/player_main_layer_ui_win32/1900015011.png")
                     GUI:Button_setTitleText(Button_1, "测试")
                     GUI:addOnClickEvent(Button_1, function()
