@@ -288,6 +288,9 @@ function Player:showEquipAttr(item)
         if color and color > 0 then
             -- SL:release_print(string.format("<font color='%s'>%s</font>", SL:GetHexColorByStyleId(color), oneStr))
             attr_desc = attr_desc .. string.format("<font color='%s'>%s</font>", SL:GetHexColorByStyleId(color), oneStr)
+            if #attList >= 2 then
+                attr_desc = attr_desc .. "\n"
+            end
         end
     end
     return attr_desc

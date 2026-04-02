@@ -2707,7 +2707,8 @@ npc[11] = function(p2, p3, Data)
                 GUI:addOnClickEvent(btn, function()
                     if i == 3 then
                         if not _ywl_has_third_continent_half_entry() then
-                            SL:ShowSystemTips("<font color='#FF0000'>灾厄还未消退，不能进行三大陆剧情任务，可以通过传送门进入灰界</font>")
+                            SL:ShowSystemTips("<font color='#FF0000'>灾厄还未消退，不能展开三大陆剧情任务</font>")
+                            SL:SendLuaNetMsg(100, 503, 1, 0, "")
                             return
                         end
                     elseif dl_sz and not dl_sz(i) then
