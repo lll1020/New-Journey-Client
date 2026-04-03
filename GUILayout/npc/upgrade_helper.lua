@@ -264,6 +264,35 @@ local function _upgrade_check_linggen()
     return false
 end
 
+local function _upgrade_check_realm_21()
+    local cfg = teshudata and teshudata["npc_21"]
+    if not cfg then
+        return true
+    end
+
+    local level = _upgrade_get_server_num("U28")
+    local exp = _upgrade_get_server_num("U29")
+    local maxLevel = _upgrade_to_num(cfg.max_level, 0)
+    if maxLevel > 0 and level >= maxLevel then
+        return false
+    end
+
+    local nextCfg = cfg.details and cfg.details[level + 1]
+    if not nextCfg then
+        return false
+    end
+
+    if exp < _upgrade_to_num(nextCfg.need_xxz, 0) then
+        return false
+    end
+
+    if nextCfg.cost and not _upgrade_can_pay(nextCfg.cost) then
+        return false
+    end
+
+    return true
+end
+
 local function _upgrade_check_haogandu()
     local cfg = teshudata and teshudata["npc_13"]
     if not cfg then
@@ -624,6 +653,7 @@ local function _upgrade_has_required_equip_for_70()
 end
 
 local UPGRADE_CHECKERS = {
+    [21] = _upgrade_check_realm_21,
     [6] = function() return _upgrade_check_simple_equip(6) end,
     [7] = function() return _upgrade_check_simple_equip(7) end,
     [8] = function() return _upgrade_check_simple_equip(8) end,
@@ -659,6 +689,7 @@ local OPEN_BTN_LIST = {
 
     {id = 24, label = "天书[★]", npcid = 24, continent = 2},
     {id = 22, label = "灵根[★]", npcid = 22, continent = 2},
+    {id = 21, label = "境界修为[★]", npcid = 21, continent = 2},
     {id = 43, label = "江湖称号[★]", npcid = 43, continent = 2},
     {id = 26, label = "气运占卜", npcid = 26, continent = 2},
     {id = 28, label = "装备强化", npcid = 28, continent = 2},
