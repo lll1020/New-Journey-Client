@@ -8,7 +8,7 @@ local WINDOW_OPTS = {
 }
 local key = "npc_692"
 local btn_pos = {620, 80}
-local reward_pos = {360, 120}
+local reward_pos = {360 - 70, 80}
 local cost_pos = {520, 200}
 local MAIN_BTN_SKIN = "res/public/1900000660.png"
 local MAIN_BTN_SKIN_TAKE = nil
