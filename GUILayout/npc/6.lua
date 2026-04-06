@@ -31,8 +31,8 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:removeAllChildren(node)
         local item = SL:GetMetaValue("EQUIP_DATA", npc._config.where)
 
-        local tipText = GUI:Text_Create(node, "lock_tip", 50,40, 25, "#FF0000", "满级后获得称号")
-        GUI:Text_setFontName(tipText, "fonts/500.ttf")
+        local tipText = GUI:Text_Create(node, "lock_tip", 50,40, 25, "#FF0000", "满级后获得称号:")
+        GUI:Text_setFontName(tipText, "fonts/font4.ttf")
         GUI:Text_enableOutline(tipText, "#000000", 2)
         
         local ch_kuang = GUI:Image_Create(node, "ch_kuang", 240, 20, "res/wy/public/70_70_k.png")
@@ -61,7 +61,7 @@ function npc.main(npcid, p2, p3, msgData)
                 local cost_show = checkItemNumByTable_img_kuang(config.cost, nil,GUI:Node_Create(node, "cost_show", 0, 0))
                 GUI:setPosition(cost_show, 450, 100)
 
-                GUI:setAnchorPoint(GUI:RichText_Create(node, "attr_desc_next", 370 + 350, 320,  Player:showEquipBaseAttr(SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",config.give))), 200, 17, "#f7f7de", 3,nil,nil)
+                GUI:setAnchorPoint(GUI:RichText_Create(node, "attr_desc_next", 360 + 350, 320,  Player:showEquipBaseAttr(SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",config.give))), 200, 17, "#f7f7de", 3,nil,nil)
                 , 1, 1)
 
                 local Button= GUI:Button_Create(node, "Button", 450, 10.00, "res/custom/one_city/btn_1.png")

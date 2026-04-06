@@ -33,7 +33,7 @@ function ui.init(parent)
 	local Panel_pos17 = GUI:Layout_Create(Panel_1, "Panel_pos17", 198.00, 268.00, 103.50, 144.00, false)
 	GUI:setChineseName(Panel_pos17, "玩家时装_衣服位置")
 	GUI:setAnchorPoint(Panel_pos17, 0.50, 0.50)
-	GUI:setTouchEnabled(Panel_pos17, true)
+	GUI:setTouchEnabled(Panel_pos17, false)
 	GUI:setTag(Panel_pos17, 140)
 
 	-- Create Panel_pos18
@@ -538,7 +538,7 @@ function ui.init(parent)
 	GUI:setTag(CheckBox_shizhuang, 350)
 
 	-- Create EquipShow
-	local EquipShow = GUI:EquipShow_Create(Panel_1, "EquipShow", 296.00, 335.00, 21, false, {starLv = true, look = true, movable = true, doubleTakeOff = true, bgVisible = false})
+	local EquipShow = GUI:EquipShow_Create(Panel_1, "EquipShow", 296.00, 335.00, 21, false, {doubleTakeOff = true, look = true, movable = true, starLv = true, bgVisible = false})
 	GUI:setTag(EquipShow, -1)
 	GUI:EquipShow_setAutoUpdate(EquipShow)
 end

@@ -45,7 +45,7 @@ function npc.main(npcid, p2, p3, msgData)
                             SetCompletionProgress((npc.data.dj_data[""..v] or 0), npc._config.max_level)
             , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
             local cost_show = ItemNumByTable_img(npc._config.cost, nil,GUI:Node_Create(l, "cost_show", 0, 0))
-            GUI:setPosition(cost_show, 93, 2)
+            GUI:setPosition(cost_show, 60, 2)
             if (npc.data.dj_data[""..v] or 0) >= npc._config.max_level then
                 GUI:Image_Create(l, "Button", 350, 5, "res/wy/public/rwjd_3.png")
             else

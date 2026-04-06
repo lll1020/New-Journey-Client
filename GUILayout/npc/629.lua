@@ -42,8 +42,8 @@ function npc.main(npcid, p2, p3, msgData)
             cost = checkItemNumByTable_img_kuang(npc._config.cost[2], nil,GUI:Node_Create(node, "cost2", 0, 0))
             GUI:setPosition(cost, cost_pos[1] + 120, cost_pos[2])
         end
-        local desc = GUI:Text_Create(node, "desc1",100,70, 20, "#ffffff", "解锁船长室")
-        GUI:Text_setFontName(desc, "fonts/500.ttf")
+        local desc = GUI:Text_Create(node, "desc1",100,70, 20, "#ffffff", "[解锁船长室]")
+        GUI:Text_setFontName(desc, "fonts/font4.ttf")
         GUI:Text_enableOutline(desc, "#000000", 2)
 
         if npc.data.T_dljq[key.."_a"] and npc.data.T_dljq[key.."_a"] == 1 then
@@ -57,8 +57,8 @@ function npc.main(npcid, p2, p3, msgData)
             end)
         end
 
-        desc = GUI:Text_Create(node, "desc2",300 + 170,70, 20, "#ffffff", "解锁水手室")
-        GUI:Text_setFontName(desc, "fonts/500.ttf")
+        desc = GUI:Text_Create(node, "desc2",300 + 170,70, 20, "#ffffff", "[解锁水手室]")
+        GUI:Text_setFontName(desc, "fonts/font4.ttf")
         GUI:Text_enableOutline(desc, "#000000", 2)
 
         if npc.data.T_dljq[key.."_b"] and npc.data.T_dljq[key.."_b"] == 1 then

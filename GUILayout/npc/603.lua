@@ -60,9 +60,9 @@ function npc.main(npcid, p2, p3, msgData)
                 SL:SendLuaNetMsg(100, npcid, 1, 0, "")
             end)
         elseif npc.data.jq_data[key] == 1 then --领取奖励
-            local desc = GUI:Text_Create(node, "desc",500,200, 20, "#808080", "当前击杀："..(npc.data.sg_data[key] or 0))
+            local desc = GUI:Text_Create(node, "desc",500,200, 20, "#FFFFFF", "当前击杀："..(npc.data.sg_data[key] or 0))
             GUI:Text_setFontName(desc, "fonts/font4.ttf")
-            GUI:Text_enableOutline(desc, "#00FFFF", 2)
+            GUI:Text_enableOutline(desc, "#CA352C", 2)
         
             
             local Button= GUI:Button_Create(node, "Button", btn_pos[1], btn_pos[2], "res/custom/all_story_mission/2/btn_give.png")

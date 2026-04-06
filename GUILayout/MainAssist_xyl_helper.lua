@@ -1386,7 +1386,7 @@ function MainAssistXylHelper.bind(MainAssist)
         panel._grayWorldRouteStateCache = {}
 
         local bg = GUI:Image_Create(panel, "bg", 0, 0, GRAY_WORLD_BG_PATH)
-        GUI:addMouseOverTips(bg, "", {x = 0, y = 0}, {x = 0, y = 0})
+        -- GUI:addMouseOverTips(bg, "", {x = 0, y = 0}, {x = 0, y = 0})
         if bg then
             GUI:setAnchorPoint(bg, 0, 0)
             local bgSize = GUI:getContentSize(bg)
@@ -1762,7 +1762,7 @@ function MainAssistXylHelper.bind(MainAssist)
 
         local panel = GUI:Layout_Create(parent, "Panel_ywl_current", 1, 2, 200, 38, false)
         GUI:setLocalZOrder(panel, 998)
-        GUI:setTouchEnabled(panel, true)
+        -- GUI:setTouchEnabled(panel, true)
 
         local title = GUI:Text_Create(panel, "title", -5, 114, 16, "#F4E7B5", "当前任务：")
         GUI:setAnchorPoint(title, 0, 0.5)
@@ -1777,7 +1777,7 @@ function MainAssistXylHelper.bind(MainAssist)
         GUI:Text_enableOutline(rewardTitle, "#110b05", 2)
 
         local rewardRoot = GUI:Node_Create(panel, "reward_root", 50, 45)
-        GUI:setLocalZOrder(rewardRoot, 999)
+        -- GUI:setLocalZOrder(rewardRoot, 999)
 
 
         local detailBtn = GUI:Button_Create(panel, "detail_btn", 5, 19, "res/wy/public/kb_btn.png")

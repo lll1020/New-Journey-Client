@@ -11,6 +11,62 @@ local WINDOW_OPTS = {
 
 function npc.main(npcid, p2, p3, msgData)
 
+    local function buildAccumulatedAttr(level)
+        local details = npc._config and npc._config.details or {}
+        local attrMap = {}
+        local attrOrder = {}
+
+        for i = 1, math.max(tonumber(level) or 0, 0) do
+            local cfg = details[i]
+            local attrs = cfg and cfg.attr
+            if type(attrs) == "table" then
+                for _, one in ipairs(attrs) do
+                    local attrId = tonumber(one[1]) or 0
+                    local attrValue = tonumber(one[2]) or 0
+                    if attrId > 0 and attrValue ~= 0 then
+                        if not attrMap[attrId] then
+                            attrMap[attrId] = {attrId, 0, one[3]}
+                            table.insert(attrOrder, attrId)
+                        end
+                        attrMap[attrId][2] = (tonumber(attrMap[attrId][2]) or 0) + attrValue
+                        if one[3] and not attrMap[attrId][3] then
+                            attrMap[attrId][3] = one[3]
+                        end
+                    end
+                end
+            end
+        end
+
+        local result = {}
+        for _, attrId in ipairs(attrOrder) do
+            table.insert(result, attrMap[attrId])
+        end
+        return result
+    end
+
+    local function buildCurrentAttrTips(level)
+        local attrs = buildAccumulatedAttr(level)
+        if #attrs <= 0 then
+            return "<font color='#F4D179'>当前已获得属性</font><br><font color='#FFFFFF'>暂未完成转生</font>"
+        end
+        return string.format(
+            "<font color='#F4D179'>当前已获得属性</font><br>%s",
+            Player:showAttr(attrs)
+        )
+    end
+
+    local function openCurrentAttrTips(tip)
+        if not tip then
+            return
+        end
+        local pos = GUI:getWorldPosition(tip)
+        SL:OpenCommonDescTipsPop({
+            str = buildCurrentAttrTips(npc.data and npc.data.level or 0),
+            worldPos = {x = pos.x, y = pos.y},
+            anchorPoint = {x = 0, y = 0},
+            formatWay = 1
+        })
+    end
 
     local function ensureWindow(npcid)
         local opts = {}
@@ -81,6 +137,22 @@ function npc.main(npcid, p2, p3, msgData)
             , "fonts/font4.ttf")
             local attr_desc = GUI:RichText_Create(node, "attr_desc", 50 + 160,40 + 220 - 5,  Player:showAttr(config.attr), 200, 17, "#f7f7de", 3,nil,nil)
             GUI:setAnchorPoint(attr_desc, 0, 1)
+
+            --可以展示当前以获取属性
+            local tip = GUI:Image_Create(node, "tip2", 380 + 60 + 218, 350 + 30 - 260, "res/custom/msfc/page1/wenhao.png")
+            if SL:GetMetaValue("WINPLAYMODE") then
+                GUI:addMouseMoveEvent(tip, {onEnterFunc = function()
+                    openCurrentAttrTips(tip)
+                end, onLeaveFunc = function()
+                    SL:CloseCommonDescTipsPop()
+                end})
+            else
+                GUI:setTouchEnabled(tip, true)
+                GUI:addOnTouchEvent(tip, function(self)
+                    openCurrentAttrTips(tip)
+                end)
+            end
+
 
             
 

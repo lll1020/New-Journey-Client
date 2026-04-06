@@ -44,8 +44,9 @@ function npc.main(npcid, p2, p3, msgData)
         end
 
         npc.data.T_dljq[key] = (npc.data.T_dljq and npc.data.T_dljq[key]) and npc.data.T_dljq[key] or 0
+        npc.data.T_dljq[key.."_num"] = (npc.data.T_dljq and npc.data.T_dljq[key.."_num"]) and npc.data.T_dljq[key.."_num"] or 0
 
-        local desc = GUI:Text_Create(node, "desc",500,150, 25, "#808080", "当前剩余挖宝次数："..npc._config.max_num - npc.data.T_dljq[key])
+        local desc = GUI:Text_Create(node, "desc",500,150, 25, "#808080", "当前剩余挖宝次数："..npc._config.max_num - npc.data.T_dljq[key.."_num"])
         GUI:Text_setFontName(desc, "fonts/500.ttf")
         GUI:Text_enableOutline(desc, "#00FFFF", 2)
 

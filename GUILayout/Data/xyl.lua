@@ -70,6 +70,11 @@ local function _xyl_check_story(name)
     end
     local jq_data = _xyl_get_json("T13")
     local node = jq_data[key]
+    -- 特殊验证
+    if key == "npc_633" then
+        return node >= 2
+    end
+    -- SL:release_print("check story", name, key, node, max_num)
     if type(node) == "number" then
         if max_num and max_num > 0 then
             return node >= max_num
@@ -273,7 +278,8 @@ end
 -- 备注：是否拥有传说神石类道具
 local function _xyl_has_legendary_stone()
     local cfg = teshudata and teshudata["npc_53"]
-    local list = cfg and cfg.cost and cfg.cost[3]
+    local list = cfg and cfg.cost and cfg.cost[4]
+    SL:dump(list, "legendary stone list")
     return _xyl_has_any_item(list)
 end
 

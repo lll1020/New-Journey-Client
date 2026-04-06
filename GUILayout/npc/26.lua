@@ -77,7 +77,7 @@ function npc.main(npcid, p2, p3, msgData)
                 })
             end
 
-            if isFirstFree or true then
+            if isFirstFree then
                 local freeLabel = GUI:Text_Create(node, "free_label", 250, 80, 25, "#FF0000", "第一次占卜是免费的哦！！！")
                 GUI:setAnchorPoint(freeLabel, 0.5, 0.5)
                 GUI:Text_setFontName(freeLabel, "fonts/font4.ttf")

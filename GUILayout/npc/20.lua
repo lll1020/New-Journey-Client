@@ -74,8 +74,8 @@ function npc.main(npcid, p2, p3, msgData)
         local chargeColor = charge >= cost and "#7CFF7C" or "#FF8A7A"
         createOutlinedText(node, "charge_value", 380 + 244 + 44, 212 + 30 - 107, 22, chargeColor, tostring(charge) .. "/" .. tostring(cost), 1, 0.5)
 
-        GUI:Effect_Create(node, "sz", 60 + 176, 60 + 110, 4, teshudata["npc_1002"].details.sz[7].shape, 0, 0, 3, 1)
-        GUI:Effect_Create(node, "ch", 60 + 176, 60 + 110, 0, teshudata["npc_1002"].details.ch[1].sEffect, 0, 0, 3, 1)
+        GUI:Effect_Create(node, "sz", 176, 60 + 110 + 117, 0, teshudata["npc_1002"].details.sz[7].sEffect, 0, 0, 3, 1)
+        -- GUI:Effect_Create(node, "ch", 60 + 176, 60 + 110, 0, teshudata["npc_1002"].details.ch[1].sEffect, 0, 0, 3, 1)
 
         local cost_show = ItemNumByTable_img_new({{"冠名时装",1},{"冠名[称号]",1}}, nil,GUI:Node_Create(node, "cost_show", 0, 0))
         GUI:setPosition(cost_show, 450 + 40 + 40, 100 + 50)

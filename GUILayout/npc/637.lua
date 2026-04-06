@@ -48,7 +48,7 @@ function npc.main(npcid, p2, p3, msgData)
             local Button= GUI:Button_Create(node, "Button", btn_pos[1], btn_pos[2], "res/custom/all_story_mission/2/btn_give.png")
             GUI:setAnchorPoint(Button, 0.5, 0.5)
             GUI:addOnClickEvent(Button, function()
-                SL:SendLuaNetMsg(100, npcid, 2, 0, "")
+                SL:SendLuaNetMsg(100, npcid, 1, 0, "")
             end)
         elseif npc.data.T_dljq[key] == 2 then
             GUI:Image_Create(node, "Button", btn_pos[1], btn_pos[2], "res/wy/public/7_1.png")

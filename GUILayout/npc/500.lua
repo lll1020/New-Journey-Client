@@ -29,11 +29,11 @@ local function getEnterNeedText(dl)
     elseif dl == 2 then
         return "进入条件：完成主线引导"
     elseif dl == 3 then
-        return "进入条件：完成二大陆转生 + 剧情点15"
+        return "进入条件：完成二大陆转生 + 剧情点11"
     elseif dl == 4 then
-        return "进入条件：完成三大陆转生 + 剧情点50"
+        return "进入条件：完成三大陆转生 + 剧情点40"
     elseif dl == 5 then
-        return "进入条件：完成四大陆转生 + 剧情点100"
+        return "进入条件：完成四大陆转生 + 剧情点90"
     end
     return "进入条件：请按主线推进"
 end

@@ -9,8 +9,8 @@ local WINDOW_OPTS = {
     closeButton = {x = 747, y = 380},
 }
 local key = "npc_607"
-local btn_pos = {462, 70}
-local cost_pos = {507 - 20, 202 + 60}
+local btn_pos = {600, 100}
+local cost_pos = {507 - 20, 202 + 45}
 
 local function getDisplayRewardList()
     local rewardList = {}

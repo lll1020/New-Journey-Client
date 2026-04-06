@@ -17,7 +17,8 @@ local equipFramePosList = {20, 26, 22, 23, 24, 25, 27, 28, --1017, 1018, 1019, 1
 }
 function PlayerSuperEquip_Look.main(data)
     PlayerSuperEquip_Look.posSetting = {
-        17, 18, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 43, 45, --1017, 1018, 1019, 1021
+        -- 17, 
+        18, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 43, 45, --1017, 1018, 1019, 1021
     }
     local parent = GUI:Attach_Parent()
     local path = "player_look/player_super_equip_node"

@@ -129,6 +129,44 @@ local function getExchangeLimit()
     return toNumber((npc.data and npc.data.exchange_limit), toNumber(getConfigValue("exchange_daily_limit", 50), 50))
 end
 
+local function getExchangeUsedCount()
+    local candidates = {
+        npc.data and npc.data.exchange_used,
+        npc.data and npc.data.exchange_today_used,
+        npc.data and npc.data.today_exchange_used,
+        npc.data and npc.data.exchange_count,
+        npc.data and npc.data.today_exchange_count,
+    }
+    for _, value in ipairs(candidates) do
+        if tonumber(value) then
+            return tonumber(value)
+        end
+    end
+
+    local limit = getExchangeLimit()
+    local available = toNumber(npc.data and npc.data.exchange_available, 0)
+    if limit > 0 then
+        return math.max(limit - available, 0)
+    end
+    return 0
+end
+
+local function getDailyKillCount()
+    local candidates = {
+        npc.data and npc.data.daily_kill_count,
+        npc.data and npc.data.today_kill_count,
+        npc.data and npc.data.kill_count,
+        npc.data and npc.data.today_kill,
+        npc.data and npc.data.exchange_progress,
+    }
+    for _, value in ipairs(candidates) do
+        if tonumber(value) then
+            return tonumber(value)
+        end
+    end
+    return 0
+end
+
 local function getBoxPool(boxType)
     local cfg = getConfig()
     local boxPool = cfg.box_pool or {}
@@ -359,22 +397,26 @@ local function setTextStyle(widget, outlineColor)
     GUI:Text_enableOutline(widget, outlineColor or "#100808", 2)
 end
 
-local function createTopBar(parent, name, x, y, title, value, color, onClick)
-    local bar = GUI:Image_Create(parent, name, x, y, "res/custom/msfc/page1/top_bar.png")
-    GUI:setAnchorPoint(bar, 0, 0)
-    if onClick then
-        GUI:setTouchEnabled(bar, true)
-        GUI:addOnClickEvent(bar, onClick)
-    end
+local function createTopStatBar(parent, name, x, y, width, title, valueText, valueColor)
+    local bar = GUI:Layout_Create(parent, name, x, y, width, 30, false)
+    GUI:setTouchEnabled(bar, false)
 
-    local titleText = GUI:Text_Create(bar, "title", 12, 0, 16, "#f3e8ce", tostring(title))
-    setTextStyle(titleText)
-    GUI:Text_setFontName(titleText, "fonts/font4.ttf")
-
-    local valueText = GUI:Text_Create(bar, "value", 160, 0, 16, color or "#ffe07a", tostring(value))
-    GUI:setAnchorPoint(valueText, 1, 0)
-    setTextStyle(valueText)
-    GUI:Text_setFontName(valueText, "fonts/font4.ttf")
+    local rich = GUI:RichText_Create(
+        bar,
+        "rich",
+        9,
+        15,
+        string.format("<font color='#F3E8CE'>%s:</font><font color='%s'>%s</font>", tostring(title), valueColor or "#45ff93", tostring(valueText)),
+        width - 18,
+        16,
+        "#F3E8CE",
+        0,
+        nil,
+        nil,
+        {outlineSize = 1, outlineColor = "#100808"}
+    )
+    GUI:setAnchorPoint(rich, 0, 0.5)
+    -- GUI:RichText_setFontName(rich, "fonts/font4.ttf")
     return bar
 end
 
@@ -513,17 +555,21 @@ local function createTabs(node)
 end
 
 local function createMilestoneList(parent)
-    local list = GUI:ListView_Create(parent, "milestone_list", 524, 65, 252, 346, 1)
+    local list = GUI:ListView_Create(parent, "milestone_list", 524, 65, 270, 346, 1)
     GUI:ListView_setItemsMargin(list, 8)
     GUI:ListView_setBounceEnabled(list, true)
-
+    -- 
     for order, cfg in ipairs(getMilestones()) do
         local row = GUI:Node_Create(list, "row_" .. tostring(cfg.idx), 0, 0)
         GUI:setContentSize(row, 244, 70)
 
+        GUI:setContentSize(GUI:Image_Create(row, "draw1", 0, -8, "res/wy/public/pick.png"), 90, 70 + 8)
+        GUI:setContentSize(GUI:Image_Create(row, "draw2", 90, -8, "res/wy/public/pick.png"), 90, 70 + 8)
+        GUI:setContentSize(GUI:Image_Create(row, "draw3", 90 + 90, -8, "res/wy/public/pick.png"), 90, 70 + 8)
+
         local drawSkin = getMilestoneImage(cfg.draw)
         if drawSkin then
-            local numImg = GUI:Image_Create(row, "draw", -20, 2, drawSkin)
+            local numImg = GUI:Image_Create(row, "draw", -20, -8, drawSkin)
             GUI:setAnchorPoint(numImg, 0, 0)
             GUI:setTouchEnabled(numImg, true)
             GUI:addOnClickEvent(numImg, function()
@@ -560,31 +606,30 @@ local function createMilestoneList(parent)
             crownStateColor = "#ff6666"
         end
 
-        createRewardCell(row, "normal_" .. tostring(cfg.idx), 118 + 15, 40, cfg.normal, normalStateText, normalStateColor, function()
+        createRewardCell(row, "normal_" .. tostring(cfg.idx), 118 + 15, 25, cfg.normal, normalStateText, normalStateColor, function()
             npc.selectedMilestoneIdx = cfg.idx
             if npc.node and UI_updata then
                 UI_updata(npc.node)
             end
         end)
 
-        createRewardCell(row, "crown_" .. tostring(cfg.idx), 188 + 37, 40, cfg.crown, crownStateText, crownStateColor, function()
+        createRewardCell(row, "crown_" .. tostring(cfg.idx), 188 + 37, 25, cfg.crown, crownStateText, crownStateColor, function()
             npc.selectedMilestoneIdx = cfg.idx
             if npc.node and UI_updata then
                 UI_updata(npc.node)
             end
         end)
     end
+    GUI:Node_Create(list, "row_end", 0, 0)
 end
 
 function npc.renderFucai(node)
     GUI:Image_Create(node, "page_bg", 64, 10, PAGE_BG_SKIN[1])
 
     pickDefaultMilestone()
-
-    local tokenName = getTokenName()
-    createTopBar(node, "token_bar", 162 + 74, 458 + 8, tokenName, toNumber(npc.data and npc.data.token_count, 0), "#ffe07a")
-    createTopBar(node, "draw_bar", 162 + 264, 458 + 8, "累计抽取", toNumber(npc.data and npc.data.draw_count, 0), "#45ff93")
-    createTopBar(node, "crown_bar", 162 + 454, 458 + 8, getConfigValue("crown_title", "冠名") .. "状态", getHasCrown() and "已达成" or "未达成", getHasCrown() and "#45ff93" or "#ff6666")
+    createTopStatBar(    node,    "exchange_top_bar",    162 + 74, 458 + 5,    200,    "每日杀怪兑换",    string.format("%s/%s次", tostring(getExchangeUsedCount()), tostring(getExchangeLimit())),    "#45ff93")
+    createTopStatBar(    node,    "kill_top_bar",    162 + 264, 458 + 5,    160,    "每日杀怪数",    string.format("%s只", tostring(getDailyKillCount())),    "#45ff93")
+    createTopStatBar(    node,    "draw_top_bar",    162 + 430, 458 + 5,    160,    "已抽取次数",    string.format("%s次", tostring(toNumber(npc.data and npc.data.draw_count, 0))),    "#45ff93")
 
     -- local onceCost = GUI:Text_Create(node, "cost_once_value", 188, 135, 20, "#ffe07a", string.format("%sX%s", tokenName, tostring(getDrawOnceCost())))
     -- setTextStyle(onceCost)
@@ -594,7 +639,37 @@ function npc.renderFucai(node)
     -- GUI:Text_enableUnderline(tenCost)
     local guang = GUI:Image_Create(node, "cost_once_value_img", 144 - 60, 82 - 25 + 78, "res/wy/public/guang.png")
     GUI:setContentSize(guang, 180, 30)
+
+    local tip = GUI:Image_Create(node, "tip", 380 + 60, 350 + 30, "res/custom/msfc/page1/wenhao.png")
+    if SL:GetMetaValue("WINPLAYMODE") then
+        GUI:addMouseMoveEvent(tip, {onEnterFunc = function()
+            local pos = GUI:getWorldPosition(tip)
+            SL:OpenCommonDescTipsPop({str = "<font color='#ffffff'>金币*38w	      80%</font><br><font color='#ffffff'>千年玄铁*5	      10%</font><br><font color='#ffffff'>辉耀水晶*1	      5%</font><br><font color='#ffffff'>仙法卷轴残页*5	4.50%</font><br><font color='#ffffff'>时装1	            0.5%</font><br><font color='#ffffff'>时装2	            0.5%</font><br><font color='#ffffff'>时装3	            0.5%</font><br><font color='#ffffff'>时装4	            0.5%</font><br><font color='#ffffff'>时装5	            0.25%</font><br><font color='#ffffff'>时装6	            0.25%</font><br><font color='#ffffff'>每抽200次必出一个时装</font><br><font color='#ffffff'>每18抽必得:  低级材料自选箱*1</font><br><font color='#ffffff'>每66抽必得:  高级材料自选箱*1</font><br><font color='#ffffff'>每100抽必得：特级材料自选箱*1</font>", worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 1})
+        end, onLeaveFunc = function()
+            SL:CloseCommonDescTipsPop()
+        end})
+    else
+        GUI:setTouchEnabled(tip, true)
+        GUI:addOnTouchEvent(tip, function(self)
+            local pos = GUI:getWorldPosition(tip)
+            SL:OpenCommonDescTipsPop({str = "<font color='#ffffff'>金币*38w	      80%</font><br><font color='#ffffff'>千年玄铁*5	      10%</font><br><font color='#ffffff'>辉耀水晶*1	      5%</font><br><font color='#ffffff'>仙法卷轴残页*5	4.50%</font><br><font color='#ffffff'>时装1	            0.5%</font><br><font color='#ffffff'>时装2	            0.5%</font><br><font color='#ffffff'>时装3	            0.5%</font><br><font color='#ffffff'>时装4	            0.5%</font><br><font color='#ffffff'>时装5	            0.25%</font><br><font color='#ffffff'>时装6	            0.25%</font><br><font color='#ffffff'>每抽200次必出一个时装</font><br><font color='#ffffff'>每18抽必得:  低级材料自选箱*1</font><br><font color='#ffffff'>每66抽必得:  高级材料自选箱*1</font><br><font color='#ffffff'>每100抽必得：特级材料自选箱*1</font>", worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 1})
+        end)
+    end
+    -- 
+    GUI:Effect_Create(node, "sz", 176, 60 + 110 + 117, 0, 14191)
+    GUI:RichText_Create(node, "jl1", 98 - 10,314 + 3,  "<a href='jump#item_tips#"..SL:GetMetaValue("ITEM_INDEX_BY_NAME", npc._config.pool[1].give[1][1]).."'>["..npc._config.pool[1].label.."]</a>", 500, 14, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+    GUI:RichText_Create(node, "jl2", 400 + 20,314,  "<a href='jump#item_tips#"..SL:GetMetaValue("ITEM_INDEX_BY_NAME", npc._config.pool[2].give[1][1]).."'>["..npc._config.pool[2].label.."]</a>", 500, 14, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+    GUI:RichText_Create(node, "jl3", 98 - 20,200,  "<a href='jump#item_tips#"..SL:GetMetaValue("ITEM_INDEX_BY_NAME", npc._config.pool[3].give[1][1]).."'>["..npc._config.pool[3].label.."]</a>", 500, 14, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+    GUI:RichText_Create(node, "jl4", 350 - 20,200,  "<a href='jump#item_tips#"..SL:GetMetaValue("ITEM_INDEX_BY_NAME", npc._config.pool[4].give[1][1]).."'>["..npc._config.pool[4].label.."]</a>", 500, 14, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+
+    GUI:RichText_Create(node, "jlsz1", 98,250,  "<a href='jump#item_tips#"..SL:GetMetaValue("ITEM_INDEX_BY_NAME", "时装：累抽1").."'>[".."时装：累抽1".."]</a>", 500, 14, "#FF0000", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+    GUI:RichText_Create(node, "jlsz2", 210 + 30,250,  "<a href='jump#item_tips#"..SL:GetMetaValue("ITEM_INDEX_BY_NAME", "时装：累抽2").."'>[".."时装：累抽2".."]</a>", 500, 14, "#FF0000", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+    GUI:RichText_Create(node, "jlsz3", 400,250,  "<a href='jump#item_tips#"..SL:GetMetaValue("ITEM_INDEX_BY_NAME", "时装：累抽3").."'>[".."时装：累抽3".."]</a>", 500, 14, "#FF0000", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+    GUI:RichText_Create(node, "jlsz4", 98 - 30,280,  "<a href='jump#item_tips#"..SL:GetMetaValue("ITEM_INDEX_BY_NAME", "时装：累抽4").."'>[".."时装：累抽4".."]</a>", 500, 14, "#FF0000", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+    GUI:RichText_Create(node, "jlsz5", 210,200,  "<a href='jump#item_tips#"..SL:GetMetaValue("ITEM_INDEX_BY_NAME", "时装：累抽5").."'>[".."时装：累抽5".."]</a>", 500, 14, "#FF0000", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+    GUI:RichText_Create(node, "jlsz6", 400,280,  "<a href='jump#item_tips#"..SL:GetMetaValue("ITEM_INDEX_BY_NAME", "时装：累抽6").."'>[".."时装：累抽6".."]</a>", 500, 14, "#FF0000", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
     
+
     GUI:setScale(GUI:ItemShow_Create(guang, "icon", 105, 5, {index = SL:GetMetaValue("ITEM_INDEX_BY_NAME","锄子")}), 0.6)
     local currentTokenCount = toNumber(npc.data and npc.data.token_count, 0)
     local drawOnceCost = getDrawOnceCost()

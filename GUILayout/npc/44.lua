@@ -1472,6 +1472,8 @@ local function drawShop(node, snapshot, npcid)
         SL:ShowSystemTips("<font color='#FF0000'>拜访模式不可使用商城与装扮功能，请返回自宅后再尝试。</font>")
         return
     end
+    
+    GUI:Text_Create(npc.xjm_node, "t_money", 170 + 200, 440 + 28, 18, "#f7f7de", string.format("当前仙府币：%s", SL:GetMetaValue("TMONEY", "仙府币")), nil, nil, {outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
 
     npc.cbl_list = GUI:ListView_Create(npc.xjm_node, "cbl_list", -5, 10, 170, 440, 1)
     GUI:ListView_setGravity(npc.cbl_list, 1)
@@ -1480,17 +1482,20 @@ local function drawShop(node, snapshot, npcid)
 
     npc.titles_sign = npc.titles_sign or 1
     for i = 1, 4 do
-        local cbl_item = GUI:Button_Create(npc.cbl_list, "item" .. i, 0, 0, "res/custom/three_city/xianfu/shop/list/"..(npc.titles_sign == i and "l" or "n").."/"..i..".png")
-        -- GUI:Button_setTitleText(cbl_item, titles[i])
-        -- GUI:Button_setTitleFontSize(cbl_item, 14)
-        GUI:Image_Create(npc.cbl_list, "fgx"..i, 0, 0, "res/custom/fulitating/list/fgx.png")
-        GUI:addOnClickEvent(cbl_item, function()
-            GUI:Button_loadTextureNormal(GUI:ui_delegate(npc.cbl_list)["item" .. npc.titles_sign], "res/custom/three_city/xianfu/shop/list/n/"..npc.titles_sign..".png")
-            npc.titles_sign = i
-            GUI_Shop_createLabel(npc.Label,i)
+        if not (i == 2 or i == 3) then
+            local cbl_item = GUI:Button_Create(npc.cbl_list, "item" .. i, 0, 0, "res/custom/three_city/xianfu/shop/list/"..(npc.titles_sign == i and "l" or "n").."/"..i..".png")
+            -- GUI:Button_setTitleText(cbl_item, titles[i])
+            -- GUI:Button_setTitleFontSize(cbl_item, 14)
+            GUI:Image_Create(npc.cbl_list, "fgx"..i, 0, 0, "res/custom/fulitating/list/fgx.png")
+            GUI:addOnClickEvent(cbl_item, function()
+                GUI:Button_loadTextureNormal(GUI:ui_delegate(npc.cbl_list)["item" .. npc.titles_sign], "res/custom/three_city/xianfu/shop/list/n/"..npc.titles_sign..".png")
+                npc.titles_sign = i
+                GUI_Shop_createLabel(npc.Label,i)
 
-            GUI:Button_loadTextureNormal(GUI:ui_delegate(npc.cbl_list)["item" .. npc.titles_sign], "res/custom/three_city/xianfu/shop/list/l/"..npc.titles_sign..".png")
-        end)
+                GUI:Button_loadTextureNormal(GUI:ui_delegate(npc.cbl_list)["item" .. npc.titles_sign], "res/custom/three_city/xianfu/shop/list/l/"..npc.titles_sign..".png")
+            end)
+        end
+        
     end
     GUI_Shop_createLabel(npc.Label,npc.titles_sign)
 
@@ -1806,49 +1811,49 @@ local function drawRefine(node, snapshot, npcid)
             GUI:Button_setBright(btn, false)
         end
 
-        btn = NPC_UI_HELPER.createPrimaryButton(Label_node, 'btn_tj', 750/2 - 230, 80, "", function()
-            npc.xxjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
-                windowName = "npc_anniu_44_xxjm",
-                overlay = {skin = "res/custom/treasureBasin/x.png"},
-                background = {skin = "res/custom/three_city/xianfu/ldl/tj/bg.png"},
-                title = {x = 56, y = 464, skin = "res/custom/three_city/xianfu/ldl/tj/title.png"},
-                closeButton = {x = 330 + 220 + 185, y = 180 + 180 + 103, skin = "res/wy/public/close_red_big.png"},
-            })
-            npc.xxjm_node = npc.xxjm_window.node
-            npc.xx_Label = GUI:Node_Create(npc.xxjm_node, "Label", 15, 15 + 75)
+        -- btn = NPC_UI_HELPER.createPrimaryButton(Label_node, 'btn_tj', 750/2 - 230, 80, "", function()
+        --     npc.xxjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
+        --         windowName = "npc_anniu_44_xxjm",
+        --         overlay = {skin = "res/custom/treasureBasin/x.png"},
+        --         background = {skin = "res/custom/three_city/xianfu/ldl/tj/bg.png"},
+        --         title = {x = 56, y = 464, skin = "res/custom/three_city/xianfu/ldl/tj/title.png"},
+        --         closeButton = {x = 330 + 220 + 185, y = 180 + 180 + 103, skin = "res/wy/public/close_red_big.png"},
+        --     })
+        --     npc.xxjm_node = npc.xxjm_window.node
+        --     npc.xx_Label = GUI:Node_Create(npc.xxjm_node, "Label", 15, 15 + 75)
 
-            local ScrollView = GUI:ScrollView_Create(npc.xx_Label, "ScrollView", 10, 0, 720, 370, 1)
-            GUI:ScrollView_setBounceEnabled(ScrollView, true)
-            local gridHeight = math.max(370, 190 * math.ceil(#recipeNames / 6))
-            GUI:ScrollView_setInnerContainerSize(ScrollView, 720, gridHeight)
-            local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 0, 0, 720, gridHeight)
-            for _, recipeName in ipairs(recipeNames) do
-                local kuang = GUI:Image_Create(dbLayout, "kuang"..recipeName, 0, 0, "res/custom/three_city/xianfu/ldl/tj/kuang.png")
-                local wz5 = GUI:Text_Create(kuang, "wz5",121/2, 155, 18, "#FF0000", recipeName)
-                GUI:setAnchorPoint(wz5, 0.5, 0.5)
+        --     local ScrollView = GUI:ScrollView_Create(npc.xx_Label, "ScrollView", 10, 0, 720, 370, 1)
+        --     GUI:ScrollView_setBounceEnabled(ScrollView, true)
+        --     local gridHeight = math.max(370, 190 * math.ceil(#recipeNames / 6))
+        --     GUI:ScrollView_setInnerContainerSize(ScrollView, 720, gridHeight)
+        --     local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 0, 0, 720, gridHeight)
+        --     for _, recipeName in ipairs(recipeNames) do
+        --         local kuang = GUI:Image_Create(dbLayout, "kuang"..recipeName, 0, 0, "res/custom/three_city/xianfu/ldl/tj/kuang.png")
+        --         local wz5 = GUI:Text_Create(kuang, "wz5",121/2, 155, 18, "#FF0000", recipeName)
+        --         GUI:setAnchorPoint(wz5, 0.5, 0.5)
 
-                local itme_kuang = GUI:Image_Create(kuang, "xz_kuang", 121/2, 105.00, "res/custom/three_city/xianfu/ldl/kuang.png")
-                GUI:setAnchorPoint(itme_kuang, 0.5, 0.5)
-                UiTools.showItemData(itme_kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",recipeName)))
+        --         local itme_kuang = GUI:Image_Create(kuang, "xz_kuang", 121/2, 105.00, "res/custom/three_city/xianfu/ldl/kuang.png")
+        --         GUI:setAnchorPoint(itme_kuang, 0.5, 0.5)
+        --         UiTools.showItemData(itme_kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",recipeName)))
 
-                if collection and collection[recipeName] then
-                    GUI:setAnchorPoint(GUI:Image_Create(kuang, "ok", 121/2, 55, "res/custom/three_city/xianfu/ldl/tj/ydl.png")
-                    , 0.5, 0.5)
-                else
-                    local btn = NPC_UI_HELPER.createPrimaryButton(kuang, 'btn', 121/2, 55, "", function()
-                        npc.name_sign = recipeName
-                        GUI_Refine_createLabel(npc.Label,npc.name_sign)
-                        local parent = GUI:GetWindow(nil, "npc_anniu_44_xxjm")
-                        if parent then
-                            GUI:Win_Close(parent)
-                        end
-                    end,{skin = "res/custom/three_city/xianfu/ldl/tj/bntn_lz.png"})
-                    GUI:setAnchorPoint(btn, 0.5, 0.5)
-                end 
-            end
-            GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 6,gap = {x=0, y=0}})
-        end,{skin = "res/custom/three_city/xianfu/ldl/btn_tj.png"})
-        GUI:setAnchorPoint(btn, 0.5, 0.5)
+        --         if collection and collection[recipeName] then
+        --             GUI:setAnchorPoint(GUI:Image_Create(kuang, "ok", 121/2, 55, "res/custom/three_city/xianfu/ldl/tj/ydl.png")
+        --             , 0.5, 0.5)
+        --         else
+        --             local btn = NPC_UI_HELPER.createPrimaryButton(kuang, 'btn', 121/2, 55, "", function()
+        --                 npc.name_sign = recipeName
+        --                 GUI_Refine_createLabel(npc.Label,npc.name_sign)
+        --                 local parent = GUI:GetWindow(nil, "npc_anniu_44_xxjm")
+        --                 if parent then
+        --                     GUI:Win_Close(parent)
+        --                 end
+        --             end,{skin = "res/custom/three_city/xianfu/ldl/tj/bntn_lz.png"})
+        --             GUI:setAnchorPoint(btn, 0.5, 0.5)
+        --         end 
+        --     end
+        --     GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 6,gap = {x=0, y=0}})
+        -- end,{skin = "res/custom/three_city/xianfu/ldl/btn_tj.png"})
+        -- GUI:setAnchorPoint(btn, 0.5, 0.5)
 
         btn = NPC_UI_HELPER.createPrimaryButton(Label_node, 'btn_xz', 750/2 + 230, 80, "", function()
             npc.xxjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {

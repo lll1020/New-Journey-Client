@@ -33,8 +33,8 @@ end
         GUI:removeAllChildren(node)
         if npc.data.dj_num < npc._config.max_level then
             local config = npc._config.config[npc.data.dj_num + 1]
-            GUI:Text_setFontName(GUI:Text_Create(node, "desc1",490,353, 25, "#FB0000", npc.data.dj_num)
-            , "fonts/500.ttf")
+            GUI:Text_setFontName(GUI:Text_Create(node, "desc1",500,351, 25, "#FB0000", npc.data.dj_num)
+            , "fonts/font4.ttf")
             local desc2 = GUI:Text_Create(node, "desc2",490,305, 25, "#9DB9C8", "人物切割："..npc._config.config[npc.data.dj_num].ratio.." -》"..npc._config.config[npc.data.dj_num + 1].ratio)
             GUI:Text_setFontName(desc2, "fonts/501.ttf")
             GUI:Text_enableOutline(desc2, "#000000", 2)
@@ -45,8 +45,8 @@ end
             GUI:setPosition(cost_show, 750 - 250, 120)
 
             if npc.data.dj_num <= 5 then
-                GUI:Text_setFontName(GUI:Text_Create(node, "tip_max",400,250, 30, "#FF0000", "到达好感度5级时：")
-                , "fonts/502.ttf")
+                GUI:Text_setFontName(GUI:Text_Create(node, "tip_max",400,240, 30, "#FF0000", "到达好感度5级时：")
+                , "fonts/font4.ttf")
                 local kuang = GUI:Image_Create(node, "kuang10", 850 - 240 + 30, 220, "res/wy/public/70_70_k.png")
                 UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.half_give)))
             end
@@ -61,14 +61,14 @@ end
         else
 
             GUI:Text_setFontName(GUI:Text_Create(node, "desc1",490,353, 25, "#ffffff", "10")
-            , "fonts/500.ttf")
+            , "fonts/font4.ttf")
 
             GUI:Text_setFontName(GUI:Text_Create(node, "desc2",490,305, 25, "#ffffff", "人物切割："..npc._config.config[npc.data.dj_num].ratio)
-            , "fonts/500.ttf")
+            , "fonts/font4.ttf")
 
 
             GUI:Text_setFontName(GUI:Text_Create(node, "tip_max",400,250, 30, "#FF0000", "好感度已达最高等级")
-            , "fonts/500.ttf")
+            , "fonts/font4.ttf")
     
         end
 

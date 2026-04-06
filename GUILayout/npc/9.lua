@@ -160,7 +160,7 @@ function npc.main(npcid, p2, p3, msgData)
                 bgVisible = false,
             }), 0.5, 0.5)
         else
-            local tip = GUI:Text_Create(node, "wear_tip", 248, 128, 22, "#A5A5A5", "请先穿戴")
+            local tip = GUI:Text_Create(node, "wear_tip", 248, 128, 25, "#A5A5A5", "请先穿戴")
             GUI:setAnchorPoint(tip, 0.5, 0.5)
             GUI:Text_setFontName(tip, "fonts/font4.ttf")
             GUI:Text_enableOutline(tip, "#000000", 2)
@@ -183,8 +183,8 @@ function npc.main(npcid, p2, p3, msgData)
         if nextConfig and nextConfig.cost then
             for costIdx = 1, math.min(2, #nextConfig.cost) do
                 local entry = nextConfig.cost[costIdx]
-                local costNode = ItemNumByTable_img({entry}, nil, GUI:Node_Create(node, "cost_node_" .. costIdx, 0, 0))
-                GUI:setPosition(costNode, (costIdx == 1) and 93 + 20 or 93 + 20 + 221, 122 + 27)
+                local costNode = checkItemNumByTable_img_kuang({entry}, nil, GUI:Node_Create(node, "cost_node_" .. costIdx, 0, 0))
+                GUI:setPosition(costNode, (costIdx == 1) and 85 or 85 + 220, 122 + 20)
             end
         end
 

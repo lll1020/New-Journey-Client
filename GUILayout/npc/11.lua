@@ -71,7 +71,7 @@ function npc.main(npcid, p2, p3, msgData)
             end
 
             local cost_show = checkItemNumByTable_img_kuang(npc._config.cost, nil,GUI:Node_Create(label_node, "cost_show", 0, 0))
-            GUI:setPosition(cost_show, 750 - 250 - 60, 350 - 200)
+            GUI:setPosition(cost_show, 750 - 250, 350 - 200)
 
             
             local Button= GUI:Button_Create(label_node, "Button", 490, 70, "res/custom/one_city/cuiti/btn.png")
@@ -127,7 +127,7 @@ function npc.main(npcid, p2, p3, msgData)
 
     if p2 == 0 then--界面
         npc.data = SL:JsonDecode(msgData,false)
-        npc.titles_sign = 1
+        npc.titles_sign = npc.titles_sign or 1
         ensureWindow(npcid)
         UI_updata(npc.node)
     elseif p2 == 1 then
