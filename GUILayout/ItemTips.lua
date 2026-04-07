@@ -320,6 +320,67 @@ function ItemTips.CreateIntervalPanel(parent, height, line)
     return pLine
 end
 
+local function pushDiffEquipHeader(contentPanel, itemData, richWidth)
+    if not itemData then
+        return
+    end
+
+    local huishou_jc_list = cogin and cogin.huishou_jc_list or nil
+    local cfg = huishou_jc_list and huishou_jc_list[itemData.Index] or nil
+    if type(cfg) ~= "table" then
+        return
+    end
+
+    local function formatRecycleReward(recycleCfg)
+        local groupType = tonumber(recycleCfg.gl or recycleCfg[1] or 0) or 0
+        local countA = tonumber(recycleCfg[4] or 0) or 0
+        local countB = tonumber(recycleCfg[5] or 0) or 0
+        local countC = tonumber(recycleCfg[6] or 0) or 0
+
+        if groupType == 2 then
+            if countB == 1 and countA > 0 then
+                return "辉耀水晶*" .. tostring(countA)
+            end
+            if countC == 1 and countA > 0 then
+                return "幻灵石*" .. tostring(countA)
+            end
+            return nil
+        end
+
+        local rewards = {}
+        if countA > 0 then
+            table.insert(rewards, "金币*" .. tostring(countA))
+        end
+        if countB > 0 then
+            table.insert(rewards, "元宝*" .. tostring(countB))
+        end
+
+        if #rewards > 0 then
+            return table.concat(rewards, " ")
+        end
+        return nil
+    end
+
+    local rewardText = formatRecycleReward(cfg)
+    if not rewardText or rewardText == "" then
+        return
+    end
+
+    local rich = GUI:RichText_Create(
+        contentPanel,
+        "huishou_wz",
+        0,
+        0,
+        string.format("[可回收:%s]", rewardText),
+        richWidth,
+        12,
+        "#28EF01",
+        vspace,
+        nil
+    )
+    ItemTips.PushItem(contentPanel, rich)
+end
+
 -- 获取备注图片/特效 param: table  {res= 图片资源/特效id   x= 位置x  y = 位置y}
 function ItemTips.GetNodeImage(parent, param, index)
     if not parent then
@@ -2859,6 +2920,9 @@ function ItemTips.CreateEquipPanel(data, itemData, isWear, panelInsertIndex)
     --     maxWidth = math.max(maxWidth, modeSize.width + size.width + 20)
     --     icon_bg._itemWid = math.max(icon_bg._itemWid, modeSize.width + size.width + 20)
     -- end
+    --回收详情
+    pushDiffEquipHeader(contentPanel, itemData, richWidth)
+
     local mode_img = GUI:Image_Create(GUI:ItemShow_GetLayoutExtra(item), "mode_img", size.width - 50, iconMoveY - 15, "res/private/item_tips/mode/mode_"..(Player:getEquipFieldByIndex(itemData.Index, 2) ~= "" and Player:getEquipFieldByIndex(itemData.Index, 2) or 9)..".png")
     GUI:RefPosByParent(mode_img)
     local modeSize = GUI:getContentSize(mode_img)
