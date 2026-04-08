@@ -1107,7 +1107,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "葬星城", 637, 110, 96 },
-                    desc = "集齐核心伙伴的象征物与海贼意志，证明你有资格继承王者名号。\n<font color='#F4D179'>目标：</font>\n<font color='#F0B42A'>路飞的帽子</font>   %s\n<font color='#F0B42A'>索隆的刀</font>   %s\n<font color='#F0B42A'>乌索普的弹弓</font>   %s\n<font color='#F0B42A'>海贼意志</font>   %s",
+                    desc = "集齐核心伙伴的象征物与海贼意志。\n<font color='#F4D179'>目标：</font>\n<font color='#F0B42A'>路飞的帽子</font>   %s\n<font color='#F0B42A'>索隆的刀</font>   %s\n<font color='#F0B42A'>乌索普的弹弓</font>   %s\n<font color='#F0B42A'>海贼意志</font>   %s",
                 },
                 {
                     "海滩拾贝",

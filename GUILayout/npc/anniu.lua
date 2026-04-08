@@ -2242,9 +2242,9 @@ npc[11] = function(p2, p3, Data)
             local need = tonumber(zjCfg.jqd) or 0
             local lackJqd = zjCfg.jqd and curJqd < need
             local lockInfo = nil
-            if npc.xyl and npc.xyl.get_chapter_lock_info then
-                lockInfo = npc.xyl.get_chapter_lock_info(npc.l, npc.zj, curJqd)
-            end
+            -- if npc.xyl and npc.xyl.get_chapter_lock_info then
+            --     lockInfo = npc.xyl.get_chapter_lock_info(npc.l, npc.zj, curJqd)
+            -- end
             local lockExtTips = {}
             if lockInfo then
                 need = tonumber(lockInfo.need_jqd) or need
@@ -2697,6 +2697,7 @@ npc[11] = function(p2, p3, Data)
 
             
             local TMONEY = GUI:Text_Create(node, "TMONEY",50 + 278,40 + 9, 25, "#FF0000", SL:GetMetaValue("TMONEY", "剧情点"))
+            SL:release_print("当前剧情点", SL:GetMetaValue("TMONEY", "剧情点"))
             GUI:Text_setFontName(TMONEY, "fonts/font4.ttf")
             GUI:setAnchorPoint(TMONEY, 0.5, 0.5)
 
