@@ -153,6 +153,9 @@ end
 
 local function getDailyKillCount()
     local candidates = {
+        npc.data and npc.data.today_kills,
+        npc.data and npc.data.total_kills,
+        npc.data and npc.data.U_sgsl,
         npc.data and npc.data.daily_kill_count,
         npc.data and npc.data.today_kill_count,
         npc.data and npc.data.kill_count,

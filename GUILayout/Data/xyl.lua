@@ -72,7 +72,7 @@ local function _xyl_check_story(name)
     local node = jq_data[key]
     -- 特殊验证
     if key == "npc_633" then
-        return node >= 2
+        return (tonumber(node) or 0) >= 2
     end
     -- SL:release_print("check story", name, key, node, max_num)
     if type(node) == "number" then
@@ -2206,13 +2206,24 @@ local function _xyl_collect_cost_entries(cost, out)
     if type(cost) ~= "table" then
         return out
     end
-    for _, v in pairs(cost) do
+
+    local function appendEntry(v)
         if type(v) == "table" then
             if type(v[1]) == "string" and tonumber(v[2]) then
                 table.insert(out, { v[1], tonumber(v[2]) })
             else
                 _xyl_collect_cost_entries(v, out)
             end
+        end
+    end
+
+    for i, v in ipairs(cost) do
+        appendEntry(v)
+    end
+
+    for k, v in pairs(cost) do
+        if type(k) ~= "number" or k < 1 or k > #cost or k % 1 ~= 0 then
+            appendEntry(v)
         end
     end
     return out
@@ -2455,6 +2466,14 @@ local function _xyl_get_item_count_by_name(itemName)
     return tonumber(SL:GetMetaValue("ITEM_COUNT", itemIdx)) or 0
 end
 
+local function _xyl_has_item_exact(itemName, needCount)
+    if not itemName or itemName == "" then
+        return false
+    end
+    local miss = Player:checkItemNumByTable({{itemName, needCount or 1}})
+    return not miss
+end
+
 -- 备注：读取“分项提交”状态（同源服务端 T_dljq 的 tk_a/tk_b/tk_c 标记）。
 -- 未提交时补充显示“是否已拥有对应道具”。
 local function _xyl_get_split_submit_state_text(storyData, tk, idx, entry)
@@ -2475,8 +2494,7 @@ local function _xyl_get_split_submit_state_text(storyData, tk, idx, entry)
     if type(entry) == "table" and entry[1] then
         local itemName = entry[1]
         local need = tonumber(entry[2]) or 1
-        local cur = _xyl_get_item_count_by_name(itemName)
-        if cur >= need then
+        if _xyl_has_item_exact(itemName, need) then
             return _xyl_status_rich_text("已拥有")
         end
         return _xyl_status_rich_text("未拥有")

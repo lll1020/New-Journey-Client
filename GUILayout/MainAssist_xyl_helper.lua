@@ -1833,6 +1833,8 @@ function MainAssistXylHelper.bind(MainAssist)
                 GUI:removeFromParent(widget.rewardNode)
                 widget.rewardNode = nil
             end
+            MainAssist._xylDetailPopupOpened = false
+            _close_current_xyl_detail()
             if MainAssist.ListView_mission then
                 GUI:setContentSize(MainAssist.ListView_mission, 200, 185)
                 GUI:setPosition(MainAssist.ListView_mission, 101, 94)
