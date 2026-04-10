@@ -2923,13 +2923,13 @@ function ItemTips.CreateEquipPanel(data, itemData, isWear, panelInsertIndex)
     --回收详情
     pushDiffEquipHeader(contentPanel, itemData, richWidth)
 
-    local mode_img = GUI:Image_Create(GUI:ItemShow_GetLayoutExtra(item), "mode_img", size.width - 50, iconMoveY - 15, "res/private/item_tips/mode/mode_"..(Player:getEquipFieldByIndex(itemData.Index, 2) ~= "" and Player:getEquipFieldByIndex(itemData.Index, 2) or 9)..".png")
+    local mode_img = GUI:Image_Create(GUI:ItemShow_GetLayoutExtra(item), "mode_img", size.width - 35, iconMoveY - 15, "res/private/item_tips/mode/mode_"..(Player:getEquipFieldByIndex(itemData.Index, 2) ~= "" and Player:getEquipFieldByIndex(itemData.Index, 2) or 9)..".png")
     GUI:RefPosByParent(mode_img)
     local modeSize = GUI:getContentSize(mode_img)
     maxWidth = math.max(maxWidth, modeSize.width + size.width - 80)
     icon_bg._itemWid = math.max(icon_bg._itemWid, modeSize.width + size.width - 80)
     if Player:getEquipFieldByIndex(itemData.Index, 2) == "11" then
-        GUI:Image_Create(mode_img, "level", 105, 60, "res/private/item_tips/level/"..Player:getEquipFieldByIndex(itemData.Index, 1)..".png")
+        GUI:Image_Create(mode_img, "level", 30, 40, "res/private/item_tips/level/"..Player:getEquipFieldByIndex(itemData.Index, 1)..".png")
     end
 
 

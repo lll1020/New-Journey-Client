@@ -3880,8 +3880,8 @@ npc[504] = function(p2, p3, Data) -- 解绑特权
         GUI:Image_Create(npc.bg, "img_4", 150, 20, "res/custom/top/kryb/img_4.png")
         -- GUI:Image_Create(npc.bg, "anniu_504_5", 800, 0, "res/wy/public/anniu_504_5.png")
 
-        -- local jl_node = ItemNumByTable_img(npc.s_show[504].show,nil,npc.bg)
-        -- GUI:setPosition(jl_node, 500, 130)
+        local jl_node = ItemNumByTable_img_new(teshudata["anniu_504"].show,nil,npc.bg)
+        GUI:setPosition(jl_node, 500, 70)
 
         local close = GUI:Button_Create(npc.bg, 'close', 850, 450, 'res/wy/public/close.png')
         GUI:addOnClickEvent(close, function()
@@ -3889,12 +3889,12 @@ npc[504] = function(p2, p3, Data) -- 解绑特权
         end)
 
         if npc.kryb.mztq == 0 then
-            npc.Button = GUI:Button_Create(npc.bg, "Button", 470, 20, "res/custom/top/kryb/btn.png")
+            npc.Button = GUI:Button_Create(npc.bg, "Button", 470, -80, "res/custom/top/kryb/btn.png")
             GUI:addOnClickEvent(npc.Button, function()
                 SL:SendLuaNetMsg(101, 504, 1, 0, "")
             end)
         else
-            GUI:Image_Create(npc.bg, "img_bj1", 457, 46, "res/wy/public/6.png")
+            GUI:Image_Create(npc.bg, "img_bj1", 457, -50, "res/wy/public/6.png")
         end
 	end
 end
