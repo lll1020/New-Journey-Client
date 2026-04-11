@@ -930,6 +930,21 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
                 --醉酒狂魔舞
                 local zjkmw = GUI:Button_Create(npc.RightBottom, "zjkmw", -80, 550 - 135, "res/custom/five_city/zjkmw/img.png")
                 GUI:addOnClickEvent(zjkmw, function()
+                    
+                    local item = SL:GetMetaValue("EQUIP_DATA", 16)
+                    if item then
+                        local equipLevel = Player:getEquipFieldByIndex(item.Index, 1)
+                        equipLevel = tonumber(equipLevel)
+                        if equipLevel < 13 then
+                            --谈提示
+                            SL:ShowSystemTips("需要先进入满醉意值状态")
+                            return
+                        end
+                    else
+                        SL:ShowSystemTips("需要先进入满醉意值状态")
+                        return
+                    end
+                    
 
                     if GUI:getChildByName(zjkmw, "img_bj") then
                         GUI:removeChildByName(zjkmw, "img_bj")
