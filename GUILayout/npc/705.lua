@@ -1,218 +1,241 @@
-local npc = {}
+local npc = {
+    choice = 0,
+}
 
 npc._config = teshudata["npc_705"]
 
 local WINDOW_OPTS = {
-    background = {skin = "res/custom/all_story_mission/5/705_bg.png"},
-    closeButton = {x = 747, y = 380},
+    background = {skin = "res/custom/all_story_mission/5/705/0.png"},
+    closeButton = {x = 340, y = 120},
 }
-local key = "npc_705"
-local btn_pos = {620, 80}
-local reward_pos = {360, 120}
-local cost_pos = {520, 200}
-local MAIN_BTN_SKIN = "res/custom/all_story_mission/5/705/1.png"
-local MAIN_BTN_SKIN_TAKE = nil
-local MAIN_BTN_SKIN_DOING = nil
-local EXTRA_BTN_SKIN = {}
-local ACTIONS = {1}
-local ACTION_LABEL = { [1] = "挑战" }
 
--- 合并任务奖励与称号奖励，确保称号在奖励区可见。
-local function buildRewardWithTitle(cfg)
-    local reward_cfg = nil
-    if type(cfg and cfg.rwjl) == "table" and #(cfg.rwjl) > 0 then
-        reward_cfg = cfg.rwjl
-    elseif type(cfg and cfg.jl) == "table" and #(cfg.jl) > 0 then
-        reward_cfg = cfg.jl
+local BG_ACCEPT = "res/custom/all_story_mission/5/705/story_bg_1.png"
+local BG_CHOICE = "res/custom/all_story_mission/5/705/story_bg_2.png"
+local BTN_ACCEPT = "res/custom/all_story_mission/5/705/btn_accept_task.png"
+local BTN_MAKE = "res/custom/all_story_mission/5/705/btn_make_flower_cake.png"
+local QUESTION_SKIN = "res/custom/all_story_mission/5/705/icon_question.png"
+
+local LEFT_REWARD_POS = {
+    {x = 212 - 350 + 10, y = 120 - 220},
+    {x = 285 - 400, y = 120 - 220},
+}
+
+local RIGHT_REWARD_POS = {
+    {x = 510 - 350 + 10, y = 120 - 220},
+    {x = 583, y = 120},
+}
+
+local function ensureWindow(id)
+    local opts = {}
+    for k, v in pairs(WINDOW_OPTS) do
+        opts[k] = v
     end
-
-    local merged = {}
-    local seen = {}
-
-    local function pushReward(entry)
-        if type(entry) ~= "table" or type(entry[1]) ~= "string" then
-            return
-        end
-        local name = entry[1]
-        if seen[name] then
-            return
-        end
-        seen[name] = true
-        local count = tonumber(entry[2] or 1) or 1
-        table.insert(merged, {name, count})
-    end
-
-    if type(reward_cfg) == "table" then
-        for _, entry in ipairs(reward_cfg) do
-            pushReward(entry)
-        end
-    end
-
-    local function pushTitle(name)
-        if type(name) ~= "string" or name == "" then
-            return
-        end
-        local titleName = string.find(name, "%[称号%]") and name or (name .. "[称号]")
-        pushReward({titleName, 1})
-    end
-
-    local ch = cfg and cfg.ch
-    if type(ch) == "table" then
-        for _, name in ipairs(ch) do
-            pushTitle(name)
-        end
-    else
-        pushTitle(ch)
-    end
-
-    if #merged > 0 then
-        return merged
-    end
-    return nil
+    opts.titleText = NPC_UI_HELPER.formatNpcTitle(id, npc._config)
+    npc._window = NPC_UI_HELPER.ensureWindow(npc._window, id, opts)
+    npc.bg = npc._window.bg
+    npc.node = npc._window.node
+    return npc.node
 end
-function npc.main(npcid, p2, p3, msgData)
 
-    local function ensureWindow(npcid)
-        local opts = {}
-        for k, v in pairs(WINDOW_OPTS) do
-            opts[k] = v
-        end
-        opts.titleText = NPC_UI_HELPER.formatNpcTitle(npcid, npc._config)
-        opts.subTitle = npc._config and npc._config.title
-        npc._window = NPC_UI_HELPER.ensureWindow(npc._window, npcid, opts)
-        npc.bg = npc._window.bg
-        npc.node = npc._window.node
-        return npc.node
+local function getStoryState()
+    local data = npc.data and npc.data.T_dljq or {}
+    return tonumber(data["npc_705"] or 0) or 0
+end
+
+local function getChoice()
+    local data = npc.data and npc.data.T_dljq or {}
+    local choice = tonumber(data["npc_705_choice"] or npc.choice or 0) or 0
+    if choice == 1 or choice == 2 then
+        return choice
     end
-    -- 操作按钮渲染：主按钮按任务状态切换，副按钮按动作号映射。
-    local function createActionButtons(node, state)
-        local function resolveMainSkin()
-            if state <= 0 and MAIN_BTN_SKIN_TAKE then
-                return MAIN_BTN_SKIN_TAKE
-            end
-            if state == 1 and MAIN_BTN_SKIN_DOING then
-                return MAIN_BTN_SKIN_DOING
-            end
-            if MAIN_BTN_SKIN == "res/public/1900000660.png" then
-                return (state <= 0) and "res/custom/all_story_mission/2/btn_take.png" or "res/custom/all_story_mission/2/btn_give.png"
-            end
-            return MAIN_BTN_SKIN
-        end
+    return 0
+end
 
-        local function createExtraButton(nodeName, x, y, ew)
-            local skin = EXTRA_BTN_SKIN[ew] or "res/public/1900000660.png"
-            local btn = GUI:Button_Create(node, nodeName, x, y, skin)
-            GUI:setAnchorPoint(btn, 0.5, 0.5)
-            if skin == "res/public/1900000660.png" then
-                GUI:Button_setTitleText(btn, ACTION_LABEL[ew] or ("操作" .. tostring(ew)))
-                GUI:Button_setTitleFontSize(btn, 16)
-            end
+local function getStep()
+    local data = npc.data and npc.data.T_dljq or {}
+    return tonumber(data["npc_705_step"] or 0) or 0
+end
+
+local function getKillProgress()
+    local sg = npc.data and npc.data.sg_data or {}
+    return {
+        small = tonumber(sg["npc_705_small"] or 0) or 0,
+        boss = tonumber(sg["npc_705_boss"] or 0) or 0,
+    }
+end
+
+local function isStageOneDone()
+    local cfg = npc._config and npc._config.task_cfg or {}
+    local progress = getKillProgress()
+    local needSmall = tonumber(cfg.kill_small or 0) or 0
+    local needBoss = tonumber(cfg.kill_boss or 0) or 0
+    return progress.small >= needSmall and progress.boss >= needBoss
+end
+
+local function createTitleReward(parent, name, x, y)
+    if not name or name == "" then
+        return
+    end
+    local itemName = string.find(name, "%[称号%]") and name or (name .. "[称号]")
+    local node = ItemNumByTable_img_new({{itemName, 1}}, nil, GUI:Node_Create(parent, "reward_" .. tostring(x) .. "_" .. tostring(y), 0, 0))
+    GUI:setPosition(node, x, y)
+end
+
+local function createJqdReward(parent, x, y, amount)
+    local frame = GUI:Image_Create(parent, "jqd_frame_" .. tostring(x) .. "_" .. tostring(y), x, y, "res/wy/public/58-60.png")
+    local text = GUI:Text_Create(frame, "jqd_text", 29, 30, 18, "#4AE74A", "剧情点+" .. tostring(amount or 2))
+    GUI:setAnchorPoint(text, 0.5, 0.5)
+    GUI:Text_setFontName(text, "fonts/font4.ttf")
+    GUI:Text_enableOutline(text, "#000000", 1)
+end
+
+local function renderChoiceRewards(node)
+    local titles = npc._config and npc._config.ch or {}
+    createTitleReward(node, titles[1], LEFT_REWARD_POS[1].x, LEFT_REWARD_POS[1].y)
+    -- createJqdReward(node, LEFT_REWARD_POS[2].x, LEFT_REWARD_POS[2].y, 2)
+    createTitleReward(node, titles[2], RIGHT_REWARD_POS[1].x, RIGHT_REWARD_POS[1].y)
+    -- createJqdReward(node, RIGHT_REWARD_POS[2].x, RIGHT_REWARD_POS[2].y, 2)
+end
+
+local function renderAcceptStage(node, state)
+    
+    GUI:setAnchorPoint(GUI:Image_Create(node, "panel_bg", 0, 0, BG_ACCEPT), 0.5, 0.5)
+
+    local progress = getKillProgress()
+    local cfg = npc._config and npc._config.task_cfg or {}
+    local needBoss = tonumber(cfg.kill_boss or 0) or 0
+    local needSmall = tonumber(cfg.kill_small or 0) or 0
+
+
+    local step = getStep()
+    if state <= 0 then
+        local btn = GUI:Button_Create(node, "btn_accept", 0, -250, BTN_ACCEPT)
+        GUI:addOnClickEvent(btn, function()
+            SL:SendLuaNetMsg(100, npc.npcid, 1, 0, "")
+        end)
+    else
+        
+        local progressText = string.format("当前进度：BOSS %d/%d  小怪 %d/%d",
+            progress.boss, needBoss, progress.small, needSmall)
+        local rich = GUI:RichText_Create(node, "progress", 0, -130, progressText, 360, 20, "#FFFFFF", 0, nil, nil, {outlineSize = 1, outlineColor = "#000000"})
+        GUI:setAnchorPoint(rich, 0.5, 0.5)
+        if isStageOneDone() and step < 1 then
+            local btn = GUI:Button_Create(node, "btn_submit_step1", 0, -250, "res/custom/public/btn_tijiao.png")
             GUI:addOnClickEvent(btn, function()
-                SL:SendLuaNetMsg(100, npcid, ew, 0, "")
+                SL:SendLuaNetMsg(100, npc.npcid, 1, 0, "")
             end)
-        end
-
-        local ew1 = ACTIONS[1]
-        if ew1 then
-            if state >= 2 then
-                GUI:Image_Create(node, "done", btn_pos[1], btn_pos[2], "res/wy/public/7_1.png")
-            else
-                local skin = resolveMainSkin()
-                local b1 = GUI:Button_Create(node, "btn_action_1", btn_pos[1], btn_pos[2], skin)
-                GUI:setAnchorPoint(b1, 0.5, 0.5)
-                if skin == "res/public/1900000660.png" then
-                    GUI:Button_setTitleText(b1, ACTION_LABEL[ew1] or ("操作" .. tostring(ew1)))
-                    GUI:Button_setTitleFontSize(b1, 16)
-                end
-                GUI:addOnClickEvent(b1, function()
-                    SL:SendLuaNetMsg(100, npcid, ew1, 0, "")
-                end)
-            end
-        end
-
-        local extraStartX = 260
-        local extraY = 40
-        local extraStep = 120
-
-        local ew2 = ACTIONS[2]
-        if ew2 then
-            createExtraButton("btn_action_2", extraStartX, extraY, ew2)
-        end
-
-        local ew3 = ACTIONS[3]
-        if ew3 then
-            createExtraButton("btn_action_3", extraStartX + extraStep, extraY, ew3)
-        end
-
-        local ew4 = ACTIONS[4]
-        if ew4 then
-            createExtraButton("btn_action_4", extraStartX + extraStep * 2, extraY, ew4)
-        end
-
-        local ew5 = ACTIONS[5]
-        if ew5 then
-            createExtraButton("btn_action_5", extraStartX + extraStep * 3, extraY, ew5)
+            -- local tip = GUI:Text_Create(node, "done_tip", 400, 82, 20, "#4AE74A", "已完成击杀，请先提交委托")
+            -- GUI:setAnchorPoint(tip, 0.5, 0.5)
+            -- GUI:Text_setFontName(tip, "fonts/font4.ttf")
+            -- GUI:Text_enableOutline(tip, "#000000", 1)
+        else
+            local tip = GUI:Text_Create(node, "doing_tip", 0, -200, 22, isStageOneDone() and "#4AE74A" or "#F4D179", isStageOneDone() and "委托已提交，继续下方流程" or "委托进行中")
+            GUI:setAnchorPoint(tip, 0.5, 0.5)
+            GUI:Text_setFontName(tip, "fonts/font4.ttf")
+            GUI:Text_enableOutline(tip, "#000000", 1)
         end
     end
-    local function UI_updata(node)
-        if not node then
-            return
-        end
+end
 
-        GUI:removeAllChildren(node)
+local function renderChoiceButton(node, name, x, y, choice, done)
+    if done then
+        local doneNode = GUI:Image_Create(node, "done_" .. choice, x, y, "res/wy/public/7_1.png")
+        GUI:setAnchorPoint(doneNode, 0.5, 0.5)
+        return
+    end
+    local btn = GUI:Button_Create(node, "btn_choice_" .. choice, x, y, BTN_MAKE)
+    GUI:addOnClickEvent(btn, function()
+        npc.choice = choice
+        SL:SendLuaNetMsg(100, npc.npcid, 1, choice, "")
+    end)
+end
 
-        npc.data = npc.data or {}
-        npc.data.T_dljq = npc.data.T_dljq or {}
-        npc.data.sg_data = npc.data.sg_data or {}
+local function renderChoiceStage(node, state)
+    
+    GUI:setAnchorPoint(GUI:Image_Create(node, "panel_bg", 0, 0, BG_CHOICE), 0.5, 0.5)
+    renderChoiceRewards(node)
 
-        npc.data.T_dljq[key] = (npc.data.T_dljq and npc.data.T_dljq[key]) and npc.data.T_dljq[key] or 0
-        npc.data.T_dljq[key .. "_a"] = (npc.data.T_dljq and npc.data.T_dljq[key .. "_a"]) and npc.data.T_dljq[key .. "_a"] or 0
-
-        local task_cfg = npc._config and npc._config.task_cfg or {}
-        local max_num = tonumber(task_cfg.max_submit_times or task_cfg.max_reward_round or npc._config.max_num or 1) or 1
-        local state = tonumber(npc.data.T_dljq[key] or 0) or 0
-        local progress = tonumber(npc.data.T_dljq[key .. "_a"] or 0) or 0
-        local reward_cfg = buildRewardWithTitle(npc._config)
-        if reward_cfg and #reward_cfg > 0 then
-            local jl = ItemNumByTable_img_new(reward_cfg, nil, GUI:Node_Create(node, "jl", 0, 0))
-            GUI:setPosition(jl, reward_pos[1], reward_pos[2])
-        end
-
-        local kill_cur = tonumber(npc.data.sg_data[key] or 0) or 0
-        local kill_need = tonumber(task_cfg.kill_count or 0) or 0
-        if kill_need > 0 then
-            local t = GUI:Text_Create(node, "progress", 470, 200, 20, "#808080", string.format("击杀 %d/%d", kill_cur, kill_need))
-            GUI:Text_setFontName(t, "fonts/500.ttf")
-            GUI:Text_enableOutline(t, "#00FFFF", 2)
-        end
-
-        createActionButtons(node, state)
+    local leftCost = npc._config and npc._config.task_cfg and npc._config.task_cfg.submit_a or nil
+    if leftCost then
+        local nodeA = checkItemNumByTable_img_kuang(leftCost, nil, GUI:Node_Create(node, "cost_a", 0, 0))
+        GUI:setPosition(nodeA, 200 - 357, 120 - 290)
     end
 
+    local rightCost = npc._config and npc._config.task_cfg and npc._config.task_cfg.submit_b or nil
+    if rightCost then
+        local nodeB = checkItemNumByTable_img_kuang(rightCost, nil, GUI:Node_Create(node, "cost_b", 0, 0))
+        GUI:setPosition(nodeB, 500 - 357, 120 - 290)
+    end
+    local choice = getChoice()
+    if isStageOneDone() and getStep() >= 1 then
+        renderChoiceButton(node, "left", 235  - 450, 36 - 280, 2, state >= 2 and choice == 2)
+        renderChoiceButton(node, "right", 538  - 450, 36 - 280, 1, state >= 2 and choice == 1)
+    end
+    if state >= 2 then
+        GUI:Image_Create(node, "done", 400 - 434, 36 - 305, "res/wy/public/7_1.png")
+    end
+
+    -- local tip = GUI:Image_Create(node, "question", 676, 166, QUESTION_SKIN)
+    -- GUI:setTouchEnabled(tip, true)
+    -- GUI:addOnTouchEvent(tip, function()
+    --     local pos = GUI:getWorldPosition(tip)
+    --     SL:OpenCommonDescTipsPop({
+    --         str = "<制作说明/FCOLOR=243>\\<左侧提交紫梦花×5，获得称号[以貌取人]。/FCOLOR=249>\\<右侧提交赤血花×5，获得称号[迟来的清醒]。/FCOLOR=249>",
+    --         worldPos = {x = pos.x, y = pos.y},
+    --         anchorPoint = {x = 0, y = 0},
+    --         formatWay = 0
+    --     })
+    -- end)
+end
+
+local function render(node)
+    if not node then
+        return
+    end
+    GUI:removeAllChildren(node)
+
+    local state = getStoryState()
+    if state >= 1  then
+        renderChoiceStage(node, state)
+        return
+    end
+    renderAcceptStage(node, state)
+end
+
+function npc.main(npcid, p2, p3, msgData)
     if p2 == 0 then
-        npc._config = teshudata[key]
+        npc._config = teshudata["npc_705"]
         npc.data = SL:JsonDecode(msgData, false) or {}
         npc.data.T_dljq = npc.data.T_dljq or {}
         npc.data.sg_data = npc.data.sg_data or {}
+        npc.npcid = npcid
         ensureWindow(npcid)
-        UI_updata(npc.node)
-    elseif p2 == 1 then
-        npc._config = teshudata[key]
-        npc.data = npc.data or {}
-        npc.data.T_dljq = npc.data.T_dljq or {}
-        npc.data.sg_data = npc.data.sg_data or {}
-        npc.data.T_dljq[key .. "_a"] = tonumber(p3 or 0) or 0
-
-        local task_cfg = npc._config and npc._config.task_cfg or {}
-        local max_num = tonumber(task_cfg.max_submit_times or task_cfg.max_reward_round or npc._config.max_num or 1) or 1
-        if npc.data.T_dljq[key .. "_a"] >= max_num then
-            npc.data.T_dljq[key] = 2
-        elseif (tonumber(npc.data.T_dljq[key] or 0) or 0) < 1 then
-            npc.data.T_dljq[key] = 1
-        end
-
-        UI_updata(npc.node)
+        render(npc.node)
+        return
     end
+
+    npc.data = npc.data or {}
+    npc.data.T_dljq = npc.data.T_dljq or {}
+    npc.data.sg_data = npc.data.sg_data or {}
+
+    local state = getStoryState()
+    if state < 1 then
+        npc.data.T_dljq["npc_705"] = 1
+    elseif getStep() < 1 then
+        npc.data.T_dljq["npc_705_step"] = 1
+    else
+        npc.data.T_dljq["npc_705"] = 2
+        if npc.choice == 1 or npc.choice == 2 then
+            npc.data.T_dljq["npc_705_choice"] = npc.choice
+        end
+        npc.data.T_dljq["npc_705_step"] = nil
+    end
+
+    if not npc.node then
+        ensureWindow(npcid)
+    end
+    npc.npcid = npcid
+    render(npc.node)
 end
 
 return npc

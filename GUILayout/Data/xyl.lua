@@ -2059,14 +2059,42 @@ local npc_xyl = {
                 },
                 {
                     "是非难辨",
-                    tk = "npc_705",
+                    tk = "npc_720",
                     id = 999,
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "罗刹海市", 705, 71, 31 },
-                    desc = "是非难辨，见证真相。\n<font color='#F4D179'>目标：</font>是非难辨\n<font color='#F4D179'>进度：</font>%s",
+                    desc = function(task, storyData, killData)
+                        local intro = "罗刹海市疑云重重，先查明真相，再完成后续委托。\n"
+                        local story = type(storyData) == "table" and storyData or {}
+                        local state705 = tonumber(story["npc_705"] or 0) or 0
+                        local state720 = tonumber(story["npc_720"] or 0) or 0
+                        local step705 = tonumber(story["npc_705_step"] or 0) or 0
+                        local small = _xyl_get_kill_progress_value(killData, "npc_705", {shaguai_id = 705}, "_small")
+                        local boss = _xyl_get_kill_progress_value(killData, "npc_705", {shaguai_id = 705}, "_boss")
+                        local killDone = small >= 200 and boss >= 2
+                        if state720 >= 2 then
+                            return intro .. "是非难辨，见证真相。\n<font color='#F4D179'>目标：</font>为村长安葬\n<font color='#F4D179'>进度：</font>" .. _xyl_status_rich_text("已完成")
+                        end
+                        if state705 >= 2 then
+                            local now = _xyl_get_item_count_by_name("金币")
+                            local _, _, txt = _xyl_progress_pair_text(now, 880000)
+                            return intro .. "是非难辨，见证真相。\n<font color='#F4D179'>目标：</font>筹集安葬费并为村长安葬\n<font color='#F4D179'>进度：</font>" .. txt
+                        end
+                        if step705 >= 1 then
+                            local _, _, flowerATxt = _xyl_progress_pair_text(_xyl_get_item_count_by_name("紫梦花"), 5)
+                            local _, _, flowerBTxt = _xyl_progress_pair_text(_xyl_get_item_count_by_name("赤血花"), 5)
+                            return intro .. "是非难辨，见证真相。\n<font color='#F4D179'>目标：</font>采集鲜花制作鲜花饼\n<font color='#F4D179'>紫梦花：</font>" .. flowerATxt .. "\n<font color='#F4D179'>赤血花：</font>" .. flowerBTxt
+                        end
+                        if killDone then
+                            return intro .. "是非难辨，见证真相。\n<font color='#F4D179'>目标：</font>击杀完成后先提交委托\n<font color='#F4D179'>进度：</font>" .. _xyl_status_rich_text("待提交")
+                        end
+                        local _, _, smallTxt = _xyl_progress_pair_text(small, 200)
+                        local _, _, bossTxt = _xyl_progress_pair_text(boss, 2)
+                        return intro .. "是非难辨，见证真相。\n<font color='#F4D179'>目标：</font>击杀2只BOSS和200只小怪，并提交委托\n<font color='#F4D179'>进度：</font>BOSS " .. bossTxt .. "    \n小怪 " .. smallTxt
+                    end,
                 },
             },
             name = "聊斋志异",
@@ -2303,7 +2331,7 @@ local function _xyl_beautify_desc_keywords(text)
     return content
 end
 
-local function _xyl_status_rich_text(text)
+function _xyl_status_rich_text(text)
     local value = tostring(text or "")
     if value == "已全部提交" or value == "已完成" or value == "已提交" or value == "已拥有" or value == "已激活"
         or value == "已达成" or value == "已解锁" or value == "已通过" or value == "可领取" then
@@ -2373,7 +2401,7 @@ local function _xyl_get_story_node_by_tk(tk, storyData)
     return node
 end
 
-local function _xyl_progress_pair_text(cur, need)
+function _xyl_progress_pair_text(cur, need)
     local c = tonumber(cur) or 0
     local n = tonumber(need) or 0
     if n > 0 and c > n then
@@ -2398,7 +2426,7 @@ local function _xyl_node_to_number(node)
 end
 
 -- 备注：读取杀怪进度，兼容 tk / 去下划线 tk / shaguai_id 等不同存储键名。
-local function _xyl_get_kill_progress_value(sg, tk, cfg, suffix)
+function _xyl_get_kill_progress_value(sg, tk, cfg, suffix)
     if type(sg) ~= "table" then
         return 0
     end
@@ -2452,7 +2480,7 @@ local function _xyl_get_kill_progress_value(sg, tk, cfg, suffix)
     return best
 end
 
-local function _xyl_get_item_count_by_name(itemName)
+function _xyl_get_item_count_by_name(itemName)
     if not itemName or itemName == "" then
         return 0
     end
@@ -2745,12 +2773,20 @@ end
 
 local function _xyl_build_task_desc(task)
     local desc = (type(task) == "table" and (task.desc or task.wz)) or nil
-    if not desc or desc == "" then
-        desc = "暂无任务简介"
-    end
 
     local storyData = _xyl_get_json("T13")
     local killData = _xyl_get_json("T35")
+    if type(desc) == "function" then
+        local ok, built = pcall(desc, task, storyData, killData)
+        if ok and type(built) == "string" and built ~= "" then
+            desc = built
+        else
+            desc = nil
+        end
+    end
+    if not desc or desc == "" then
+        desc = "暂无任务简介"
+    end
     local args = _xyl_get_task_progress_format_args(task, storyData, killData)
     local summary = table.concat(args, " ")
     local unpack_fn = table.unpack or unpack

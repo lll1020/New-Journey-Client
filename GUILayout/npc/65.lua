@@ -529,7 +529,7 @@ local function renderStageOne(node)
     local identifyBtn = GUI:Button_Create(node, "identify_btn", 674 - 51, 100, BTN_IDENTIFY)
     GUI:setAnchorPoint(identifyBtn, 0, 0)
     GUI:addOnClickEvent(identifyBtn, function()
-        SL:SendLuaNetMsg(100, npc._window.npcid, 1, 0, SL:JsonEncode({idx = npc.selectedIdx}, false))
+        SL:SendLuaNetMsg(100, npc.npcid, 1, 0, SL:JsonEncode({idx = npc.selectedIdx}, false))
     end)
 
     local tip = GUI:Image_Create(node, "rule_tip", 340, 76, QUESTION_SKIN)
@@ -548,7 +548,7 @@ local function getStage2Banner()
 end
 
 local function sendStageAction(ew, stateIdx, useProtect)
-    SL:SendLuaNetMsg(100, npc._window.npcid, ew, 0, SL:JsonEncode({
+    SL:SendLuaNetMsg(100, npc.npcid, ew, 0, SL:JsonEncode({
         idx = stateIdx,
         use_protect = useProtect and 1 or 0
     }, false))
@@ -717,9 +717,7 @@ function npc.main(npcid, p2, p3, msgData)
             npc.selectedIdx = tonumber(npc.state.idx)
         end
         ensureWindow(npcid)
-        if npc._window then
-            npc._window.npcid = npcid
-        end
+        npc.npcid = npcid
         render(npc.node)
         return
     end
@@ -747,10 +745,8 @@ function npc.main(npcid, p2, p3, msgData)
 
     if not npc.node then
         ensureWindow(npcid)
-        if npc._window then
-            npc._window.npcid = npcid
-        end
     end
+    npc.npcid = npcid
     render(npc.node)
 end
 
