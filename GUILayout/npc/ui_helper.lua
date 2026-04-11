@@ -583,6 +583,29 @@ function UIHelper.redpoint_create(parent, opts)
     GUI:setAnchorPoint(eff, opts.anchorX or 1, opts.anchorY or 0.5)
     return eff
 end
+function UIHelper.guochang_3()
+    local parent = GUI:GetWindow(nil, "guochang_3")
+    if parent then
+        GUI:removeAllChildren(parent)
+    else
+        parent = GUI:Win_Create("guochang_3", 0, 0, 0, 0, false, false, true, true, true, nil, 1)
+    end
+    local bjt = GUI:Image_Create(parent, "bjt", cogin.w / 2, cogin.h / 2, "res/wy/eff/3_guochang/bg_1/eff_1.png")
+    GUI:setAnchorPoint(bjt, 0.5, 0.5)
+    GUI:setContentSize(bjt, cogin.w, cogin.h)
+    GUI:setTouchEnabled(bjt, true)
+    GUI:addMouseOverTips(bjt, "", {x = 0, y = 0}, {x = 0, y = 0})
+
+    local bg = GUI:Frames_Create(bjt, "bg", cogin.w/2,  cogin.h/2, "res/wy/eff/3_guochang/eff_", ".jpg", 1, 1092,
+            { speed = 1, count = 1092, loop = 1,callback = function()
+                SL:SendLuaNetMsg(100, 503, 1, 0, "")
+                SL:ShowSystemTips("<font color='#FF0000'>灾厄还未消退，不能展开三大陆剧情任务</font>")
+                GUI:Win_Close(parent)
+            end})
+    GUI:setContentSize(bg, cogin.w, cogin.h)
+    GUI:setAnchorPoint(bg, 0.5, 0.5)
+end
+
 
 _G.NPC_UI_HELPER = UIHelper
 return UIHelper

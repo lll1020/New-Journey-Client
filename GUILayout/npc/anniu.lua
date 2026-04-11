@@ -2029,7 +2029,7 @@ npc[11] = function(p2, p3, Data)
         return _ywl_story_node_done(storyData["npc_46"])
     end
 
-    local function _ywl_has_third_continent_half_entry()
+    function _ywl_has_third_continent_half_entry()
         local raw = Player:getServerVar("T13")
         if raw and raw ~= "" then
             local ok, storyData = pcall(function()
@@ -2726,8 +2726,7 @@ npc[11] = function(p2, p3, Data)
                 GUI:addOnClickEvent(btn, function()
                     if i == 3 then
                         if not _ywl_has_third_continent_half_entry() then
-                            SL:ShowSystemTips("<font color='#FF0000'>灾厄还未消退，不能展开三大陆剧情任务</font>")
-                            SL:SendLuaNetMsg(100, 503, 1, 0, "")
+                            NPC_UI_HELPER.guochang_3()
                             return
                         end
                     elseif dl_sz and not dl_sz(i) then
@@ -5049,6 +5048,13 @@ npc[514] = function(p2, p3, Data)
             -- GUI:Button_setTitleText(btn, teshudata["sjdt"][500 + i][1])
             -- GUI:Button_setTitleFontSize(btn, 14)
             GUI:addOnClickEvent(btn, function()
+
+                if i == 3 then
+                    if not _ywl_has_third_continent_half_entry() then
+                        NPC_UI_HELPER.guochang_3()
+                        return
+                    end
+                end
                 SL:SendLuaNetMsg(100, 500 + i, 1, 0, "")
             end)
         end
