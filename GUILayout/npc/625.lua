@@ -88,7 +88,8 @@ local function renderPrepSection(node, npcid, cfg, data, key)
     local prep = cfg.prep_task or {}
     local need = tonumber(prep.need or 50) or 50
     local killCount = safeKill(data, key .. "_rw")
-    createOutlineText(node, "prep_line_1", 455 + 170, 240, string.format("当前击杀：%d/%d", killCount, need), "#FF0000", 20)
+    local prepLine = createOutlineText(node, "prep_line_1", 455 + 170, 240, string.format("当前击杀：%d/%d", killCount, need), "#FFFFFF", 20)
+    GUI:Text_enableOutline(prepLine, "#CA352C", 2)
 
     -- if prepState >= 2 then
     --     createOutlineText(node, "prep_done", 455, 150, string.format("前置已完成：%s", prep.name or "已完成"), "#7CFF7C", 20)

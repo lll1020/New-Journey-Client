@@ -116,6 +116,14 @@ function npc.main(npcid, p2, p3, msgData)
                 UI_updata(npc.node)
             end
         end)
+
+        local item = getEquipItem(cfgIdx)
+        local equipLevel = getEquipLevel(item)
+        local nextConfig = (item and equipLevel < (npc._config.max_level or 0)) and getNextConfig(cfgIdx, equipLevel) or nil
+        local canPay = nextConfig and nextConfig.cost and checkItemNum(nextConfig.cost)
+        if canPay then
+            NPC_UI_HELPER.redpoint_create(tab, {x = 120, y = 110, autoScale = 0.9})
+        end
     end
 
     UI_updata = function(node)

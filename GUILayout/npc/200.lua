@@ -120,6 +120,15 @@ local WINDOW_OPTS = {
 local dropCache = {} -- 缓存怪物掉落解析结果
 local MONSTER_MODEL_SIZE = {width = 260, height = 240}
 local MINI_MAP_SIZE = {width = 390, height = 222}
+local DEFAULT_DROP_NAMES = {
+    "青天怒斩",
+    "青天战幻甲",
+    "青天战幻盔",
+    "青天战幻链",
+    "青天战幻镯",
+    "青天战幻戒",
+}
+local defaultDropItems = nil
 
 local function getContinentLabel(continent)
     return CONTINENT_LABELS[continent] or string.format("第%s大陆", continent or "?")
@@ -146,6 +155,21 @@ local function resolveItemIndex(entry)
     return nil
 end
 
+local function getDefaultDropItems()
+    if defaultDropItems then
+        return defaultDropItems
+    end
+    local list = {}
+    for _, itemName in ipairs(DEFAULT_DROP_NAMES) do
+        local idx = SL:GetMetaValue("ITEM_INDEX_BY_NAME", itemName)
+        if idx then
+            list[#list + 1] = {index = idx, name = itemName, count = 1}
+        end
+    end
+    defaultDropItems = list
+    return defaultDropItems
+end
+
 -- 返回该怪物的掉落清单：优先服务器下发的数据，其次 cfg_TouShi
 local function getDropItems(monsterName, data)
     if data and type(data.drops) == "table" then
@@ -165,15 +189,15 @@ local function getDropItems(monsterName, data)
         end
     end
     if not monsterName or monsterName == "" then
-        return nil
+        return getDefaultDropItems()
     end
     if dropCache[monsterName] ~= nil then
-        return dropCache[monsterName] ~= false and dropCache[monsterName] or nil
+        return dropCache[monsterName] ~= false and dropCache[monsterName] or getDefaultDropItems()
     end
     local cfg = npc.dlconfig and npc.dlconfig[monsterName]
     if not cfg or type(cfg.value) ~= "table" then
         dropCache[monsterName] = false
-        return nil
+        return getDefaultDropItems()
     end
     local list = {}
     for _, itemName in ipairs(cfg.value) do
@@ -185,7 +209,7 @@ local function getDropItems(monsterName, data)
         end
     end
     dropCache[monsterName] = (#list > 0) and list or false
-    return dropCache[monsterName] ~= false and dropCache[monsterName] or nil
+    return dropCache[monsterName] ~= false and dropCache[monsterName] or getDefaultDropItems()
 end
 
 local function createLabel(parent, name, x, y, size, color, text)

@@ -93,6 +93,12 @@ function npc.main(npcid, p2, p3, msgData)
                 SL:ShowSystemTips("当前条件未满足，暂时无法进入")
                 return
             end
+            if npcid == 503 then
+                if not _ywl_has_third_continent_half_entry() then
+                    NPC_UI_HELPER.guochang_3()
+                    return
+                end
+            end
             SL:SendLuaNetMsg(100, npcid, 1, 0, "")
         end)
     end

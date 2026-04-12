@@ -99,6 +99,8 @@ function npc.main(npcid, p2, p3, msgData)
             local wz_1 = GUI:Image_Create(node, "wz_1", 410, 100.00, "res/custom/jingjie/wz_1.png")
             local wz_4 = GUI:Image_Create(node, "wz_4", 410 + 155, 100.00, "res/custom/jingjie/wz_4.png")
             local config = npc._config.details[npc.data.level + 1]
+            local canPay = config and config.cost and checkItemNum(config.cost)
+            local canGuideUpgrade = (tonumber(npc.data.exp or 0) or 0) >= (tonumber(config and config.need_xxz or 0) or 0) and canPay
             local cost = checkItemNumByTable_img_kuang(config.cost, nil,GUI:Node_Create(wz_1, "cost", 0, 0))
             GUI:setPosition(cost, 75, -10)
 
@@ -129,17 +131,22 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 1, 0, "")
             end)
-            NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, Button, GUI:getParent(GUI:getParent(Button)), npcid, 1, {
-                taskMap = {[21] = 20},
-                keyPrefix = "mainline_realm",
-                dir = 5,
-                isForce = false,
-                hideMask = true,
-            })
+            if canGuideUpgrade then
+                NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, Button, GUI:getParent(GUI:getParent(Button)), npcid, 1, {
+                    taskMap = {[21] = 20},
+                    keyPrefix = "mainline_realm",
+                    dir = 5,
+                    isForce = false,
+                    hideMask = true,
+                })
+            else
+                NPC_UI_HELPER.closeGuideByDomain("mainline")
+            end
 
             
         else
             GUI:Image_Create(node, "Button", 460, 10.00, "res/wy/public/15.png")
+            NPC_UI_HELPER.closeGuideByDomain("mainline")
 
         end
 

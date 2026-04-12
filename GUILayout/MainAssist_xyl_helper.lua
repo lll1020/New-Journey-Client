@@ -1706,6 +1706,7 @@ function MainAssistXylHelper.bind(MainAssist)
 
     local function _open_current_xyl_detail()
         MainAssist._xylDetailPopupOpened = true
+        MainAssist._xylDetailPopupAutoResume = true
         if _should_hide_xyl_detail_popup() then
             _close_current_xyl_detail()
             return
@@ -1790,9 +1791,12 @@ function MainAssistXylHelper.bind(MainAssist)
         GUI:addOnClickEvent(detailBtn, function()
             if MainAssist._xylDetailPopup and MainAssist._xylDetailPopup.root then
                 MainAssist._xylDetailPopupOpened = false
+                MainAssist._xylDetailPopupAutoResume = false
                 _close_current_xyl_detail()
+                GUI:Button_setTitleText(detailBtn, "任务详情")
             else
                 _open_current_xyl_detail()
+                GUI:Button_setTitleText(detailBtn, "关闭详情")
             end
         end)
 
@@ -1833,7 +1837,6 @@ function MainAssistXylHelper.bind(MainAssist)
                 GUI:removeFromParent(widget.rewardNode)
                 widget.rewardNode = nil
             end
-            MainAssist._xylDetailPopupOpened = false
             _close_current_xyl_detail()
             if MainAssist.ListView_mission then
                 GUI:setContentSize(MainAssist.ListView_mission, 200, 185)
@@ -1844,6 +1847,7 @@ function MainAssistXylHelper.bind(MainAssist)
 
         GUI:Text_setString(widget.nameText, tostring(info.name))
         GUI:Button_setTitleText(widget.goBtn, _get_xyl_current_task_action_text(info))
+        GUI:Button_setTitleText(widget.detailBtn, MainAssist._xylDetailPopupOpened and "关闭详情" or "任务详情")
         if widget.rewardNode then
             GUI:removeFromParent(widget.rewardNode)
             widget.rewardNode = nil
@@ -1873,9 +1877,16 @@ function MainAssistXylHelper.bind(MainAssist)
             else
                 _refresh_xyl_detail_popup_content()
             end
+        elseif MainAssist._xylDetailPopupAutoResume then
+            if _should_hide_xyl_detail_popup() then
+                _close_current_xyl_detail()
+            else
+                _open_current_xyl_detail()
+            end
         else
             _close_current_xyl_detail()
         end
+        GUI:Button_setTitleText(widget.detailBtn, MainAssist._xylDetailPopupOpened and "关闭详情" or "任务详情")
     end
 
     function MainAssist.PrintXylTaskName(data)

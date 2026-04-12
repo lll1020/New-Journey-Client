@@ -121,10 +121,12 @@ function npc.main(npcid, p2, p3, msgData)
 
         if level < npc._config.max_level then
             local config = npc._config.details[level + 1]
+            local canPay = config and config.cost and checkItemNum(config.cost)
+            local canGuideRebirth = (tonumber(npc.data.exp or 0) or 0) >= (tonumber(config and config.need_xxz or 0) or 0) and canPay
 
             if config and config.req_desc and config.req_desc ~= "" then
-                local desc = GUI:Text_Create(node, "desc",386, 160, 20, "#00FB00", config.req_desc)
-                GUI:Text_setFontName(desc, "fonts/500.ttf")
+                local desc = GUI:Text_Create(node, "desc",386, 160, 20, "#ffffff", config.req_desc)
+                GUI:Text_setFontName(desc, "fonts/font4.ttf")
                 GUI:Text_enableOutline(desc, "#F03022", 2)
                 GUI:setAnchorPoint(desc, 0.5, 0.5)
             end
@@ -168,6 +170,17 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 1, 0, "")
             end)
+            if canGuideRebirth then
+                NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, Button, node, npcid, 1, {
+                    keyPrefix = "mainline_rebirth",
+                    dir = 5,
+                    isForce = false,
+                    hideMask = true,
+                    desc = "点击进行转生",
+                })
+            else
+                NPC_UI_HELPER.closeGuideByDomain("mainline")
+            end
             NPC_UI_HELPER.tryStartXylGuide(npc, Button, node, "rebirth_two", {
                 taskName = "转生·二",
                 dir = 5,
@@ -175,6 +188,7 @@ function npc.main(npcid, p2, p3, msgData)
             })
         else
             GUI:Image_Create(node, "Button", 750 - 469, 20.00, "res/wy/public/15.png")
+            NPC_UI_HELPER.closeGuideByDomain("mainline")
 
 
         end

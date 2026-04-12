@@ -1,4 +1,4 @@
-﻿local npc = {}
+local npc = {}
 
 npc._config = teshudata["npc_608"]
 
@@ -58,9 +58,9 @@ function npc.main(npcid, p2, p3, msgData)
                 SL:SendLuaNetMsg(100, npcid, 1, 0, "")
             end)
         elseif npc.data.jq_data[key] == 1 then
-            local desc = GUI:Text_Create(node, "desc",300,130, 20, "#808080", "当前击杀："..(npc.data.sg_data[key] or 0))
+            local desc = GUI:Text_Create(node, "desc",300,130, 20, "#FFFFFF", "当前击杀："..(npc.data.sg_data[key] or 0))
             GUI:Text_setFontName(desc, "fonts/font4.ttf")
-            GUI:Text_enableOutline(desc, "#00FFFF", 2)
+            GUI:Text_enableOutline(desc, "#CA352C", 2)
             
             local Button= GUI:Button_Create(node, "Button", btn_pos[1], btn_pos[2], "res/custom/all_story_mission/2/btn_give.png")
             GUI:setAnchorPoint(Button, 0.5, 0.5)

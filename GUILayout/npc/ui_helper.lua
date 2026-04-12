@@ -110,6 +110,8 @@ local function closeActiveGuide()
     UIHelper._guideActiveDomain = nil
     UIHelper._guideActiveKey = nil
     UIHelper._guideActivePriority = nil
+    UIHelper._guideActiveWidget = nil
+    UIHelper._guideActiveParent = nil
 end
 
 local function pickBestGuideRequest()
@@ -141,9 +143,16 @@ local function activateGuideRequest(domain, request)
     if not isValidGuideNode(opts.guideWidget) then
         return false
     end
+    local guideParent = isValidGuideNode(opts.guideParent) and opts.guideParent or opts.guideWidget
     if isSameGuideRequest(UIHelper._guideActiveDomain, UIHelper._guideActiveKey, domain, request.key)
         and UIHelper._guideActiveHandle then
-        return UIHelper._guideActiveHandle
+        local sameWidget = UIHelper._guideActiveWidget == opts.guideWidget
+        local sameParent = UIHelper._guideActiveParent == guideParent
+        local activeWidgetValid = isValidGuideNode(UIHelper._guideActiveWidget)
+        local activeParentValid = isValidGuideNode(UIHelper._guideActiveParent)
+        if sameWidget and sameParent and activeWidgetValid and activeParentValid then
+            return UIHelper._guideActiveHandle
+        end
     end
     closeActiveGuide()
     local guideHandle = UIHelper.startGuide(opts)
@@ -154,6 +163,8 @@ local function activateGuideRequest(domain, request)
     UIHelper._guideActiveKey = request.key
     UIHelper._guideActivePriority = request.priority
     UIHelper._guideActiveHandle = guideHandle
+    UIHelper._guideActiveWidget = opts.guideWidget
+    UIHelper._guideActiveParent = guideParent
     return guideHandle
 end
 
