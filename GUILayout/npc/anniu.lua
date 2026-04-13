@@ -714,7 +714,7 @@ end
 
 local function openRoleGuide()
     if cogin.isWin32 then
-        NPC_UI_HELPER.startGuide({dir = 2, guideWidget = MainProperty._ui.Button_role, guideParent = MainProperty._ui.Panel_act, guideDesc = "打开人物界面", isForce = false,hideMask = true})
+        NPC_UI_HELPER.startGuide({dir = 3, guideWidget = MainProperty._ui.Button_role, guideParent = MainProperty._ui.Panel_act, guideDesc = "打开人物界面", isForce = false,hideMask = true})
         GUI:Timeline_FadeIn(MainProperty._ui.Button_role, 0.2)
     else
         NPC_UI_HELPER.startGuide({dir = 1, guideWidget = npc.jueshe, guideParent = npc.RightTop, guideDesc = "打开人物界面", isForce = false,hideMask = true})
@@ -806,7 +806,7 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
                     end)
                 end
                 
-                npc.an_cbl = GUI:Button_Create(npc.RightBottom, "an_cbl", -70, 320, "res/private/main/bottom/1900012580.png")
+                npc.an_cbl = GUI:Button_Create(npc.RightBottom, "an_cbl", -70, 320 - 70, "res/private/main/bottom/1900012580.png")
                 -- GUI:Button_loadTexturePressed(npc.an_cbl, "res/private/main/bottom/1900012580.png")
                 -- GUI:setAnchorPoint(GUI:Image_Create(npc.an_cbl, "ts", 86/2, 86/2, "res/private/main/bottom/1900012538.png")
                 -- , 0.5, 0.5)
@@ -916,7 +916,7 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
                 end)
 
                 --移动各位刺杀开关
-                local gwcs = GUI:Button_Create(npc.RightBottom, "gwcs", -130, 210, "res/wy/icon/gwcs.png")
+                local gwcs = GUI:Button_Create(npc.RightBottom, "gwcs", -80, 500 - 85 - 85, "res/wy/icon/gwcs.png")
                 GUI:Button_setGrey(gwcs,  SL:GetMetaValue("SETTING_VALUE", 56)[1] ~= 1)
                 GUI:addOnClickEvent(gwcs, function()
                     if SL:GetMetaValue("SETTING_VALUE", 56)[1] == 1 then
@@ -928,7 +928,7 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
                     end
                 end)
                 --醉酒狂魔舞
-                local zjkmw = GUI:Button_Create(npc.RightBottom, "zjkmw", -80, 550 - 135, "res/custom/five_city/zjkmw/img.png")
+                local zjkmw = GUI:Button_Create(npc.RightBottom, "zjkmw", -80, 500 - 85, "res/custom/five_city/zjkmw/img.png")
                 GUI:addOnClickEvent(zjkmw, function()
                     
                     local item = SL:GetMetaValue("EQUIP_DATA", 16)
@@ -4841,20 +4841,21 @@ npc[511] = function(p2, p3, Data) -- 福利大厅
                 if not qqsb[i] then break end
                 local v = qqsb[i]
                 local cfg = teshudata["fldt"]["qqsb"][v.idx]
-                local l = GUI:Image_Create(Label_list, "img_bj_l_"..i, 0, 0, 'res/custom/fulitating/list_fgx_'..(v.idx%2 == 1 and 1 or 2)..'.png')
+                local l = GUI:Image_Create(Label_list, "img_bj_l_"..i, 0, 0, 'res/custom/fulitating/list_fgx_'..(i%2 == 1 and 1 or 2)..'.png')
                 GUI:setContentSize(l, 500, 40)
 
-                GUI:Text_Create(l, "wz",35,5, 20, "#FF0000", v.name)
-                GUI:RichText_Create(l, "jl", 220, 5,  ItemNumByTable(cfg.give), 500, 18, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+                GUI:Text_Create(l, "wz",20,5, 20, "#FF0000", v.name)
+                GUI:RichText_Create(l, "jl", 220 - 78, 5,  ItemNumByTable(cfg.give), 500, 18, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
                 local ownerName = fldt_get_qqsb_owner_name(v.idx)
+                GUI:Text_Create(l, "owner_" .. i, 300, 8, 18, "#00FF00", ownerName)
                 if v.state == 1 then
-                    local Button= GUI:Button_Create(l, "Button", 436, -2, "res/public/1900000660.png")
+                    local Button= GUI:Button_Create(l, "Button", 450, -2, "res/public/1900000660.png")
                     fldt_apply_state_button(Button, v.state)
                     GUI:addOnClickEvent(Button, function()
                         SL:SendLuaNetMsg(101, 511, 1, 6, '{"qqsb":"'..(v.idx)..'"}')
                     end)
                 elseif ownerName ~= "" then
-                    GUI:Text_Create(l, "owner_" .. i, 438, 8, 18, "#00FF00", ownerName)
+                    
                 end
             end
 
