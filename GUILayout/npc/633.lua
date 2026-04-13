@@ -45,6 +45,7 @@ function npc.main(npcid, p2, p3, msgData)
 
         npc.data.T_dljq[key] = (npc.data.T_dljq and npc.data.T_dljq[key]) and npc.data.T_dljq[key] or 0
         npc.data.T_dljq[key.."_num"] = (npc.data.T_dljq and npc.data.T_dljq[key.."_num"]) and npc.data.T_dljq[key.."_num"] or 0
+        local showFirstOpenTake = NPC_UI_HELPER.shouldShowFirstOpenTakeButton(key, npc._config.cost, npc.data.T_dljq[key.."_num"])
 
         local desc = GUI:Text_Create(node, "desc",500,150, 25, "#808080", "当前剩余挖宝次数："..npc._config.max_num - npc.data.T_dljq[key.."_num"])
         GUI:Text_setFontName(desc, "fonts/500.ttf")
@@ -53,9 +54,13 @@ function npc.main(npcid, p2, p3, msgData)
 
 
         if npc.data.T_dljq[key] < npc._config.max_num then
-            local Button= GUI:Button_Create(node, "Button", btn_pos[1], btn_pos[2], "res/custom/all_story_mission/3/btn_630.png")
+            local Button= GUI:Button_Create(node, "Button", btn_pos[1], btn_pos[2], showFirstOpenTake and "res/custom/all_story_mission/2/btn_take.png" or "res/custom/all_story_mission/3/btn_630.png")
             GUI:setAnchorPoint(Button, 0.5, 0.5)
             GUI:addOnClickEvent(Button, function()
+                if showFirstOpenTake then
+                    NPC_UI_HELPER.handleFirstOpenTakeButton(npc._window)
+                    return
+                end
                 SL:SendLuaNetMsg(100, npcid, 1, 0, "")
             end)
         else

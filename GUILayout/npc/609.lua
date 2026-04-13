@@ -56,11 +56,16 @@ function npc.main(npcid, p2, p3, msgData)
         end
 
         npc.data.jq_data[key] = (npc.data.jq_data and npc.data.jq_data[key]) and npc.data.jq_data[key] or 0
+        local showFirstOpenTake = NPC_UI_HELPER.shouldShowFirstOpenTakeButton(key, npc._config.cost, 0)
 
         if npc.data.jq_data[key] == 1 or npc.data.jq_data[key] == 0 then
-            local Button= GUI:Button_Create(node, "Button", btn_pos[1], btn_pos[2], "res/custom/all_story_mission/2/btn_give.png")
+            local Button= GUI:Button_Create(node, "Button", btn_pos[1], btn_pos[2], showFirstOpenTake and "res/custom/all_story_mission/2/btn_take.png" or "res/custom/all_story_mission/2/btn_give.png")
             GUI:setAnchorPoint(Button, 0.5, 0.5)
             GUI:addOnClickEvent(Button, function()
+                if showFirstOpenTake then
+                    NPC_UI_HELPER.handleFirstOpenTakeButton(npc._window)
+                    return
+                end
                 SL:SendLuaNetMsg(100, npcid, 2, 0, "")
             end)
         elseif npc.data.jq_data[key] == 2 then

@@ -219,6 +219,43 @@ function UIHelper.closeGuide(guideHandle)
     end)
 end
 
+-- 登录期内第一次打开纯提交任务页时，若材料不足则先显示“领取任务”按钮。
+-- repeatCount > 0 表示已提交过至少一次，此时不再走首次引导按钮逻辑。
+function UIHelper.shouldShowFirstOpenTakeButton(taskKey, cost, repeatCount)
+    if type(taskKey) ~= "string" or taskKey == "" then
+        return false
+    end
+    if type(cost) ~= "table" or #cost <= 0 then
+        return false
+    end
+    if (tonumber(repeatCount) or 0) > 0 then
+        return false
+    end
+
+    UIHelper._firstOpenSubmitTaskMap = UIHelper._firstOpenSubmitTaskMap or {}
+    local hasOpened = UIHelper._firstOpenSubmitTaskMap[taskKey] == true
+    if not hasOpened then
+        UIHelper._firstOpenSubmitTaskMap[taskKey] = true
+    end
+    if hasOpened then
+        return false
+    end
+
+    local hasEnough = true
+    if type(checkItemNum) == "function" then
+        hasEnough = checkItemNum(cost) == true
+    end
+    return hasEnough ~= true
+end
+
+function UIHelper.handleFirstOpenTakeButton(windowCache)
+    local parent = windowCache and windowCache.parent
+    if parent then
+        GUI:Win_Close(parent)
+    end
+    SL:SetMetaValue("BATTLE_AFK_BEGIN")
+end
+
 -- ===== 核心方法：窗口创建/复用 =====
 -- cache  : windowCache[name]，复用时传入旧引用
 -- npcid  : 当前 NPC ID，仅用于默认 windowName

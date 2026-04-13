@@ -1224,6 +1224,7 @@ function MainAssistXylHelper.bind(MainAssist)
                 break
             end
         end
+        panel._grayWorldAllRoutesCompleted = allRoutesCompleted == true
         local finalGuideMode = allRoutesCompleted and not _gray_world_is_task46_done(jqData)
 
         local singleLineMode = false
@@ -1471,8 +1472,9 @@ function MainAssistXylHelper.bind(MainAssist)
         end
         MainAssist._grayWorldTaskIconPendingRefresh = false
         _gray_world_refresh_panel(panel)
-        GUI:setVisible(panel, isGrayWorldMap)
-        if not isGrayWorldMap then
+        local shouldShowPanel = isGrayWorldMap and panel._grayWorldAllRoutesCompleted ~= true
+        GUI:setVisible(panel, shouldShowPanel)
+        if not shouldShowPanel then
             NPC_UI_HELPER.closeGuideByDomain("gray_world")
         end
         MainAssist._grayWorldPrevIsGrayMap = isGrayWorldMap

@@ -30,7 +30,7 @@ function ui.init(parent)
 	GUI:setTag(ItemBg, -1)
 
 	-- Create ItemNode
-	local ItemNode = GUI:Layout_Create(PPopUI, "ItemNode", 66.00, 117.00, 0.00, 0.00, false)
+	local ItemNode = GUI:Layout_Create(PPopUI, "ItemNode", 69.00, 116.00, 0.00, 0.00, false)
 	GUI:setChineseName(ItemNode, "快捷使用_物品_节点")
 	GUI:setAnchorPoint(ItemNode, 0.50, 0.50)
 	GUI:setTouchEnabled(ItemNode, false)
