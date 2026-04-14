@@ -202,15 +202,15 @@ function npc.main(npcid, p2, p3, msgData)
                 if SL:GetMetaValue("WINPLAYMODE") then
                     GUI:addMouseMoveEvent(tip, {onEnterFunc = function()
                         local pos = GUI:getWorldPosition(tip)
-                        SL:OpenCommonDescTipsPop({str = "杀意值的积累需要击杀特定大陆的怪物", worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 0})
+                        SL:OpenItemTips({itemData = item,pos = {x = pos.x, y = pos.y}})
                     end, onLeaveFunc = function()
-                        SL:CloseCommonDescTipsPop()
+                        SL:CloseItemTips()
                     end})
                 else
                     GUI:setTouchEnabled(tip, true)
                     GUI:addOnTouchEvent(tip, function(self)
                         local pos = GUI:getWorldPosition(tip)
-                        SL:OpenCommonDescTipsPop({str = "杀意值的积累需要击杀特定大陆的怪物", worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 0})
+                        SL:OpenItemTips({itemData = item,pos = {x = pos.x, y = pos.y}})
                     end)
                 end
 
@@ -297,7 +297,10 @@ function npc.main(npcid, p2, p3, msgData)
 
                     if wz then
                         -- GUI:setAnchorPoint(GUI:Text_Create(npc.xf_node, "wz5",50 + 549,16 + 480, 20, "#FF0000", wz), 0, 1)
-                        GUI:setAnchorPoint(GUI:RichText_Create(npc.xf_node, "attr_desc_next", 50 + 549,16 + 480,  wz, 310, 17, "#f7f7de", 3,nil,nil)
+                        
+                        GUI:setAnchorPoint(GUI:Image_Create(npc.xf_node, "wz5", 30 + 549, 16 + 480 + 50, "res/custom/tianshu/xf/l_"..slot_data[1]..".png")
+                        , 0, 1)
+                        GUI:setAnchorPoint(GUI:RichText_Create(npc.xf_node, "attr_desc_next", 50 + 549 + 60,16 + 480,  wz, 310 - 40, 17, level_coler[slot_data[1]], 3,nil,nil)
                         , 0, 1)
                     else
                         local text = nil
@@ -328,8 +331,16 @@ function npc.main(npcid, p2, p3, msgData)
                     local currentTokenColor = currentTokenCount >= drawOnceCost and "#45ff93" or "#ff6666"
                     GUI:RichText_Create(guang, "num", 130, 5, string.format("<font color='%s'>%s</font><font color='#FFFFFF'>/%s</font>", currentTokenColor, tostring(currentTokenCount), tostring(drawOnceCost)), 150, 16, "#FFFFFF", 0, nil, nil)
 
+                    npc._xf_skip_anim = npc._xf_skip_anim == true
+                    local skipLabel = GUI:Text_Create(npc.xf_node, "skip_label", 50 + 549 + 20 - 20, 52 + 18 + 50, 18, "#FFFFFF", "是否跳过动画")
+                    GUI:Text_enableOutline(skipLabel, "#000000", 1)
+                    local skipCheck = GUI:CheckBox_Create(npc.xf_node, "skip_anim", 50 + 549 + 140 - 20, 53 + 18 + 52, "res/wy/public/xz_1.png", "res/wy/public/xz_0.png")
+                    GUI:CheckBox_setSelected(skipCheck, npc._xf_skip_anim)
+                    GUI:CheckBox_addOnEvent(skipCheck, function(sender)
+                        npc._xf_skip_anim = GUI:CheckBox_isSelected(sender)
+                    end)
 
-                    local Button = GUI:Button_Create(npc.xf_node, "Button", 50 + 549 + 76,80, "res/custom/tianshu/xf/btn_up.png")
+                    local Button = GUI:Button_Create(npc.xf_node, "Button", 50 + 549 + 76 + 80,80, "res/custom/tianshu/xf/btn_up.png")
                     local slot_unlocked = is_slot_unlocked(slot, slot_data)
                     if not slot_unlocked then
                         GUI:setOpacity(Button, 120)

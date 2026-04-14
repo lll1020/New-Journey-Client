@@ -537,8 +537,8 @@ end
 
 local function createTabs(node)
     local tabY = {
-        [1] = 247,
-        [2] = 123,
+        [1] = 247 + 50,
+        [2] = 123 + 50,
     }
 
     for idx = 1, 2 do

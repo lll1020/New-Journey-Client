@@ -3046,13 +3046,14 @@ npc[23] = function(p2, p3, Data)  --护体光环
         GUI:Text_enableOutline(textObj, outlineColor or "#081800", 1)
         GUI:setAnchorPoint(textObj, 0.5, 0.5)
     end
+    local eff = {11501,11506,11505}
 
     local function renderCard(node, state)
         local idx = state.idx
         local card = GUI:Image_Create(node, "huti_card_" .. idx, cardPosX[idx], 34, "res/custom/htgh/item_" .. idx .. ".png")
         GUI:setAnchorPoint(card, 0, 0)
         
-        GUI:setScale(GUI:Effect_Create(card, "effect", 115, 320, 0, 11501 + idx, 0, 0, 0, 1), 1)
+        GUI:setScale(GUI:Effect_Create(card, "effect", 115, 320, 0, eff[idx], 0, 0, 0, 1), 1)
         GUI:Effect_Create(card, "rw1", 115, 320, 4, SL:GetMetaValue("EQUIP_DATA", 0) and SL:GetMetaValue("EQUIP_DATA", 0).Shape or 1300, 0, 0, 2, 0.8)
 
         -- local effectTitle = GUI:Text_Create(card, "effect_title_" .. idx, 133, 176, 24, "#FFE07D", "光环效果")

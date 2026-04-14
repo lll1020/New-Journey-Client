@@ -84,13 +84,18 @@ function Bag.main(page)
             GUI:setVisible(Bag._ui["FuWuJieMian"], true)
         end
     end)
+    GUI:setVisible(Bag._ui["ListView_Equip"], true)
+    GUI:setGrey(Bag._ui["bbsqbtn"],GUI:getVisible(Bag._ui["ListView_Equip"]) and true or false)
         -- 服务按钮：打开背包神器
     GUI:addOnClickEvent(Bag._ui["bbsqbtn"], function()
         local isShow = GUI:getVisible(Bag._ui["ListView_Equip"])
         if isShow then
+
             GUI:setVisible(Bag._ui["ListView_Equip"], false)
+            GUI:setGrey(Bag._ui["bbsqbtn"], false)
         else
             GUI:setVisible(Bag._ui["ListView_Equip"], true)
+            GUI:setGrey(Bag._ui["bbsqbtn"], true)
         end
     end)
 
