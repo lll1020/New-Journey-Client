@@ -788,7 +788,7 @@ function npc.renderRika(node)
 
     local rewards = getDayCardRewards()
     local startX = 496
-    for idx = 1, 3 do
+    for idx = 1, 4 do
         local box = GUI:Image_Create(node, "rika_box_" .. tostring(idx), startX + (idx - 1) * 70, 134, "res/custom/msfc/page2/item_box.png")
         GUI:setAnchorPoint(box, 0, 0)
 

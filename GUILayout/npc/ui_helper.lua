@@ -643,15 +643,49 @@ function UIHelper.guochang_3()
     GUI:setContentSize(bjt, cogin.w, cogin.h)
     GUI:setTouchEnabled(bjt, true)
     GUI:addMouseOverTips(bjt, "", {x = 0, y = 0}, {x = 0, y = 0})
-
-    local bg = GUI:Frames_Create(bjt, "bg", cogin.w/2,  cogin.h/2, "res/wy/eff/3_guochang/eff_", ".jpg", 1, 1092,
-            { speed = 1, count = 1092, loop = 1,callback = function()
-                SL:SendLuaNetMsg(100, 503, 1, 0, "")
-                SL:ShowSystemTips("<font color='#FF0000'>灾厄还未消退，不能展开三大陆剧情任务</font>")
-                GUI:Win_Close(parent)
-            end})
-    GUI:setContentSize(bg, cogin.w, cogin.h)
-    GUI:setAnchorPoint(bg, 0.5, 0.5)
+    if not UIHelper._firstOpen3 then
+        local x_bjt = GUI:Image_Create(parent, "x_bjt", cogin.w / 2, cogin.h / 2, "res/custom/three_city/zerq/xx_bg2.png")
+        GUI:setAnchorPoint(x_bjt, 0.5, 0.5)
+        GUI:setContentSize(x_bjt, cogin.w, cogin.h)
+        GUI:setTouchEnabled(x_bjt, true)
+        local wz = GUI:Frames_Create(x_bjt, "wz", cogin.w/2,  cogin.h/2 -300, "res/custom/three_city/zerq/eff/eff_", ".png", 1, 30,
+                { speed = 100, count = 30, loop = -1})
+        GUI:setAnchorPoint(wz, 0.5, 0.5)
+        GUI:addOnClickEvent(x_bjt, function(widget)
+            local bg = GUI:Frames_Create(x_bjt, "bg", cogin.w/2,  cogin.h/2, "res/wy/eff/3_guochang/eff_", ".jpg", 1, 1092,
+                { speed = 1, count = 1092, loop = 1,callback = function()
+                    SL:SendLuaNetMsg(100, 503, 1, 0, "")
+                    SL:ShowSystemTips("<font color='#FF0000'>灾厄还未消退，不能展开三大陆剧情任务</font>")
+                    local xx_bjt = GUI:Image_Create(parent, "xx_bjt", cogin.w / 2, cogin.h / 2, "res/custom/three_city/zerq/xx_bg1.png")
+                    GUI:setAnchorPoint(xx_bjt, 0.5, 0.5)
+                    GUI:setContentSize(xx_bjt, cogin.w, cogin.h)
+                    GUI:setTouchEnabled(xx_bjt, true)
+                    local wz = GUI:Frames_Create(xx_bjt, "wz", cogin.w/2,  cogin.h/2 -300, "res/custom/three_city/zerq/eff/eff_", ".png", 1, 30,
+                        { speed = 100, count = 30, loop = -1})
+                    GUI:setAnchorPoint(wz, 0.5, 0.5)
+                    GUI:addOnClickEvent(xx_bjt, function(widget)
+                        GUI:Win_Close(parent)
+                    end)
+                end})
+            GUI:setContentSize(bg, cogin.w, cogin.h)
+            GUI:setAnchorPoint(bg, 0.5, 0.5)
+            GUI:setTouchEnabled(x_bjt, false)
+        end)
+        UIHelper._firstOpen3 = true
+    else
+        local x_bjt = GUI:Image_Create(parent, "x_bjt", cogin.w / 2, cogin.h / 2, "res/custom/three_city/zerq/xx_bg3.png")
+        GUI:setAnchorPoint(x_bjt, 0.5, 0.5)
+        GUI:setContentSize(x_bjt, cogin.w, cogin.h)
+        GUI:setTouchEnabled(x_bjt, true)
+        GUI:addOnClickEvent(x_bjt, function(widget)
+            SL:SendLuaNetMsg(100, 503, 1, 0, "")
+            SL:ShowSystemTips("<font color='#FF0000'>灾厄还未消退，不能展开三大陆剧情任务</font>")
+            GUI:Win_Close(parent)
+        end)
+        local wz = GUI:Frames_Create(x_bjt, "wz", cogin.w/2,  cogin.h/2 -300, "res/custom/three_city/zerq/eff/eff_", ".png", 1, 30,
+            { speed = 100, count = 30, loop = -1})
+        GUI:setAnchorPoint(wz, 0.5, 0.5)
+    end
 end
 
 
