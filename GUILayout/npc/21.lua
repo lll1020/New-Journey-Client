@@ -12,6 +12,21 @@ local WINDOW_OPTS = {
 
 function npc.main(npcid, p2, p3, msgData)
 
+    local function format_attr_value(attrIdx, value)
+        local num = tonumber(value) or 0
+        if attrIdx == 5 or attrIdx == 7 or attrIdx == 8 or attrIdx == 9 or attrIdx == 10 then
+            local percent = num / 100
+            if math.floor(percent) == percent then
+                return string.format("%d%%", percent)
+            end
+            return (string.format("%.2f", percent):gsub("%.?0+$", "")) .. "%"
+        end
+        if attrIdx == 11 then
+            return string.format("%d%%", num)
+        end
+        return tostring(num)
+    end
+
 
     local function ensureWindow(npcid)
         local opts = {}
@@ -81,10 +96,10 @@ function npc.main(npcid, p2, p3, msgData)
             , "fonts/502.ttf")
             local old_config = npc._config.details[level] or nil
             local new_config = npc._config.details[level + 1] or nil
-            GUI:Text_setFontName(GUI:Text_Create(kuang, "new_attr_v",125,-2, 20, "##00FFFF", (old_config and old_config.attr[k.idx]) and old_config.attr[k.idx][2] or 0)
+            GUI:Text_setFontName(GUI:Text_Create(kuang, "new_attr_v",125,-2, 20, "##00FFFF", format_attr_value(k.idx, (old_config and old_config.attr[k.idx]) and old_config.attr[k.idx][2] or 0))
             , "fonts/502.ttf")
             GUI:Image_Create(kuang, "jt", 170, -2, "res/custom/tianshu/qh/jt.png")
-            GUI:Text_setFontName(GUI:Text_Create(kuang, "old_attr_v",215,-2, 20, "##109C18", new_config and ((new_config.attr[k.idx]) and new_config.attr[k.idx][2] or 0) or "已满级")
+            GUI:Text_setFontName(GUI:Text_Create(kuang, "old_attr_v",215,-2, 20, "##109C18", new_config and format_attr_value(k.idx, (new_config.attr[k.idx]) and new_config.attr[k.idx][2] or 0) or "已满级")
             , "fonts/502.ttf")
             -- GUI:Image_Create(kuang, "up", 290, 3, "res/custom/tianshu/qh/up.png")
 

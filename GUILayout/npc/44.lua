@@ -1781,17 +1781,17 @@ local function drawRefine(node, snapshot, npcid)
         local needEquip = refineCfg.needEquip or ""
         local permitReady = hasRefinePermit(refineCfg)
 
-        if needEquip ~= "" then
-            local permitText = permitReady and string.format("已装备：%s", needEquip) or string.format("炼丹前需装备：%s", needEquip)
-            local permitLabel = GUI:Text_Create(Label_node, "permit_tip", 375, 340, 18, permitReady and colors.detail or colors.warning, permitText)
-            GUI:setAnchorPoint(permitLabel, 0.5, 0.5)
-            GUI:Text_enableOutline(permitLabel, "#1d0f09", 1)
-        end
-        if not ready then
-            local cdLabel = GUI:Text_Create(Label_node, "remainCd", 375, 312, 18, colors.primary, string.format("冷却中：%s", formatSeconds(remainCd)))
-            GUI:setAnchorPoint(cdLabel, 0.5, 0.5)
-            GUI:Text_enableOutline(cdLabel, "#1d0f09", 1)
-        end
+        -- if needEquip ~= "" then
+        --     local permitText = permitReady and string.format("已装备：%s", needEquip) or string.format("炼丹前需装备：%s", needEquip)
+        --     local permitLabel = GUI:Text_Create(Label_node, "permit_tip", 375, 340, 18, permitReady and colors.detail or colors.warning, permitText)
+        --     GUI:setAnchorPoint(permitLabel, 0.5, 0.5)
+        --     GUI:Text_enableOutline(permitLabel, "#1d0f09", 1)
+        -- end
+        -- if not ready then
+        --     local cdLabel = GUI:Text_Create(Label_node, "remainCd", 375, 312, 18, colors.primary, string.format("冷却中：%s", formatSeconds(remainCd)))
+        --     GUI:setAnchorPoint(cdLabel, 0.5, 0.5)
+        --     GUI:Text_enableOutline(cdLabel, "#1d0f09", 1)
+        -- end
 
         for k, v in ipairs(selectedCost) do
             local kuang = GUI:Image_Create(Label_node, "cost_"..k, 115, 300.00 - (k-1)*60, "res/custom/three_city/xianfu/ldl/kuang.png")
@@ -1806,10 +1806,10 @@ local function drawRefine(node, snapshot, npcid)
             sendAction(npcid, 'refine', {recipeId = npc.name_sign})
         end,{skin = "res/custom/three_city/xianfu/ldl/btn_make.png"})
         GUI:setAnchorPoint(btn, 0.5, 0.5)
-        if (not permitReady) or (not ready) then
-            GUI:setTouchEnabled(btn, false)
-            GUI:Button_setBright(btn, false)
-        end
+        -- if (not permitReady) or (not ready) then
+        --     GUI:setTouchEnabled(btn, false)
+        --     GUI:Button_setBright(btn, false)
+        -- end
 
         -- btn = NPC_UI_HELPER.createPrimaryButton(Label_node, 'btn_tj', 750/2 - 230, 80, "", function()
         --     npc.xxjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
