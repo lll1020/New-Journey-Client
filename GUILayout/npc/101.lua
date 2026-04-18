@@ -440,6 +440,8 @@ local function createRewardCell(parent, name, x, y, rewardPack, stateText, state
         if reward.index > 0 then
             local item = GUI:ItemShow_Create(bg, "item", 25, 26, {index = reward.index, look = true})
             GUI:setAnchorPoint(item, 0.5, 0.5)
+            if "未冠名" == stateText then
+            end
         else
             local rich = GUI:RichText_Create(bg, "label", 25, 27, reward.label or reward.name, 44, 11, "#f0c14b", 1, nil, nil)
             GUI:setAnchorPoint(rich, 0.5, 0.5)

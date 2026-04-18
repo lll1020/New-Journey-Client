@@ -690,7 +690,7 @@ local function startGuideOnButton(data)
         guideParent = npc.dbLayout,
         guideDesc = data.ms,
         isForce = false,
-        hideMask = true
+        hideMask = false
     })
 end
 
@@ -705,19 +705,19 @@ end
 local function openBagGuide(desc, pcWidget, mobileWidget)
     SL:RefreshBagPos()
     if cogin.isWin32 then
-        NPC_UI_HELPER.startGuide({dir = 2, guideWidget = pcWidget, guideParent = MainProperty._ui.Panel_act, guideDesc = desc, isForce = false,hideMask = true})
+        NPC_UI_HELPER.startGuide({dir = 2, guideWidget = pcWidget, guideParent = MainProperty._ui.Panel_act, guideDesc = desc, isForce = false,hideMask = false})
         GUI:Timeline_FadeIn(pcWidget, 0.2)
     else
-        NPC_UI_HELPER.startGuide({dir = 1, guideWidget = mobileWidget, guideParent = npc.RightTop, guideDesc = desc, isForce = false,hideMask = true})
+        NPC_UI_HELPER.startGuide({dir = 1, guideWidget = mobileWidget, guideParent = npc.RightTop, guideDesc = desc, isForce = false,hideMask = false})
     end
 end
 
 local function openRoleGuide()
     if cogin.isWin32 then
-        NPC_UI_HELPER.startGuide({dir = 3, guideWidget = MainProperty._ui.Button_role, guideParent = MainProperty._ui.Panel_act, guideDesc = "打开人物界面", isForce = false,hideMask = true})
+        NPC_UI_HELPER.startGuide({dir = 3, guideWidget = MainProperty._ui.Button_role, guideParent = MainProperty._ui.Panel_act, guideDesc = "打开人物界面", isForce = false,hideMask = false})
         GUI:Timeline_FadeIn(MainProperty._ui.Button_role, 0.2)
     else
-        NPC_UI_HELPER.startGuide({dir = 1, guideWidget = npc.jueshe, guideParent = npc.RightTop, guideDesc = "打开人物界面", isForce = false,hideMask = true})
+        NPC_UI_HELPER.startGuide({dir = 1, guideWidget = npc.jueshe, guideParent = npc.RightTop, guideDesc = "打开人物界面", isForce = false,hideMask = false})
     end
 end
 
@@ -798,7 +798,7 @@ npc[1] = function(p2, p3, msgData) -- 初始化按钮
                 -- GUI:setVisible(dalucs,false)
 
                 ---测试使用
-                if SL:GetMetaValue("USER_NAME") == "玩家名字k" or SL:GetMetaValue("USER_NAME") == "玩家名字" then
+                if SL:GetMetaValue("USER_NAME") == "玩家名字k" or SL:GetMetaValue("USER_NAME") == "玩家名字" or true then
                     local Button_1 = GUI:Button_Create(npc.RightBottom, "Button_1", -150, 340 + 100, "res/private/player_main_layer_ui/player_main_layer_ui_win32/1900015011.png")
                     GUI:Button_setTitleText(Button_1, "测试")
                     GUI:addOnClickEvent(Button_1, function()
@@ -2931,7 +2931,7 @@ npc[13] = function(p2, p3, msgData)
         GUI:removeAllChildren(node)
 
         npc.recordStoneLabels = {}
-        local scroll = GUI:ScrollView_Create(node, "scroll", 6, 57, 458, 341, 1)
+        local scroll = GUI:ScrollView_Create(node, "scroll", 56, 37, 458, 347, 1)
         GUI:ScrollView_setInnerContainerSize(scroll, 458, 495)
         local content = GUI:Image_Create(scroll, "content", 0, 0.5, "res/wy/public/jys_wz.png")
 
@@ -3230,7 +3230,7 @@ end
 ---法宝
 npc[22] = function(p2, p3, Data)  --法宝
 -- 时光之杖[未激活]
--- 首切法宝[未激活]
+-- 雷霆双子剑[未激活]
 -- 秘宝·万鬼啸【鬼】[未激活]
 -- 秘宝·破龙吟【兵】[未激活]
 -- 酒仙剑[未激活]
@@ -3243,7 +3243,7 @@ npc[22] = function(p2, p3, Data)  --法宝
         local metaKey = idx == 1 and "L.M.EQUIP_DATA" or "EQUIP_DATA"
         local items = {
             {id = 71, x = 138, y = 131, name = "时光之杖[未激活]"},
-            {id = 72, x = 246, y = 94, name = "首切法宝[未激活]"},
+            {id = 72, x = 246, y = 94, name = "雷霆双子剑[未激活]"},
             {id = 73, x = 65, y = 60, name = "秘宝·万鬼啸【鬼】[未激活]"},
             {id = 74, x = 65, y = 131, name = "秘宝·破龙吟【兵】[未激活]"},
             {id = 75, x = 138, y = 60, name = "酒仙剑[未激活]"},
@@ -5313,6 +5313,26 @@ npc[517] = function(p2, p3, Data)
         return cs < maxCs and jf >= needJf
     end
 
+    local function jbp_can_upgrade()
+        local data = npc.data_517 or {}
+        local tData = data.T_data or {}
+        local level = tonumber(tData.level) or 1
+        if level >= #(teshudata["anniu_517"] and teshudata["anniu_517"].details or {}) then
+            return false
+        end
+        if level == 1 then
+            local firstChargeData = (npc.data_501 and npc.data_501.T_data) or {}
+            return tonumber(firstChargeData["首充"] or 0) == 1
+        elseif level == 2 then
+            return _shortcut_is_unbind_completed()
+        elseif level == 3 then
+            return (tonumber(SL:GetMetaValue("MONEY", 23) or 0) or 0) >= 200
+        elseif level == 4 then
+            return (tonumber(SL:GetMetaValue("MONEY", 23) or 0) or 0) >= 300
+        end
+        return false
+    end
+
     local function xjm_UI_updata(node) --界面渲染
         GUI:removeAllChildren(node)
         local no = GUI:Image_Create(node, "no", 20, 20, "res/custom/treasureBasin/itme_1.png")
@@ -5340,6 +5360,9 @@ npc[517] = function(p2, p3, Data)
         GUI:addOnClickEvent(Button, function()
             SL:SendLuaNetMsg(101, 517, 1, 0, '')
         end)
+        if jbp_can_upgrade() or true then
+            NPC_UI_HELPER.redpoint_create_eff(Button, {x = 72 + 152, y = 36 + 13, autoScale = 0.8})
+        end
        
     end
 
@@ -5396,6 +5419,9 @@ npc[517] = function(p2, p3, Data)
                 npc.xjm_node = npc.xjm_window.node
                 xjm_UI_updata(npc.xjm_node)
         end)
+        if jbp_can_upgrade() or true then
+            NPC_UI_HELPER.redpoint_create_eff(Button, {x = 10 + 123, y = 20 + 79, autoScale = 0.8})
+        end
 
         Button= GUI:Frames_Create(node, "Button2", 0, -50, "res/custom/treasureBasin/btn_eff/eff_", ".png", 1, 75,
             { speed = 75, count = 75, loop = -1})
