@@ -860,7 +860,7 @@ teshudata = {
         -- },
         ShopCfg = {                                -- 仙府商城
             seeds = {
-                {id = "Low", seed = "仙草种子", name = "仙草种子", cost = {{"仙府币", 10000}}},
+                {id = "Low", seed = "仙草种子", name = "仙草种子", cost = {{"仙府币", 1000}}},
                 -- {id = "High", seed = "高阶灵草种子", name = "高阶灵草种子", cost = {{"元宝", 100}}},
             },
             -- eggs = {
