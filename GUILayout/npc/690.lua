@@ -78,6 +78,23 @@ local function buildRewardWithTitle(cfg)
     end
     return nil
 end
+
+local function buildTaskRewardText(cfg)
+    local rewardList = buildRewardWithTitle(cfg)
+    if type(rewardList) ~= "table" or #rewardList <= 0 then
+        return ""
+    end
+    local parts = {}
+    for _, entry in ipairs(rewardList) do
+        local name = tostring(entry[1] or "")
+        local count = tonumber(entry[2] or 1) or 1
+        if name ~= "" then
+            parts[#parts + 1] = string.format("%s*%d", name, count)
+        end
+    end
+    return table.concat(parts, "  ")
+end
+
 function npc.main(npcid, p2, p3, msgData)
 
     local function ensureWindow(npcid)
@@ -198,10 +215,14 @@ function npc.main(npcid, p2, p3, msgData)
 
             local cfg = teshudata[info.key] or {}
             local taskName = cfg.name or info.name
+            local rewardText = buildTaskRewardText(cfg)
             local taskState = tonumber(npc.data.T_dljq[info.key] or 0) or 0
             local jdSkin = (taskState >= 2 and "rwjd_3") or (taskState >= 1 and "rwjd_2") or "rwjd_1"
 
             GUI:Text_setFontName(GUI:Text_Create(row, "name", 15, 10, 24, "#00FFFF", taskName), "fonts/501.ttf")
+            local reward = GUI:Text_Create(row, "reward", 195, 10, 16, "#F4D179", rewardText)
+            GUI:Text_setFontName(reward, "fonts/font4.ttf")
+            GUI:Text_enableOutline(reward, "#000000", 1)
             GUI:Image_Create(row, "state", 430, 0, "res/wy/public/" .. jdSkin .. ".png")
         end
 

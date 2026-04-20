@@ -443,7 +443,7 @@ local config = {
         k="isSingleSex",
     },
     ["itemSacle"] = {
-        value="0.9|1",
+        value="1|1",
         k="itemSacle",
     },
     ["itemShowModel"] = {

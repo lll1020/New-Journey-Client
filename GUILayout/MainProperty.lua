@@ -101,10 +101,17 @@ function MainProperty.InitQuickUseShow()
                 showNum = showNum + 1
             end
             if i == 6 then
-                local jls = GUI:Button_Create(layout, "jls", 5, 3, "res/wy/icon/jys.png")
+                local jls = GUI:Button_Create(layout, "jls", 5 - 4, 3 - 4, "res/wy/icon/jys.png")
                 GUI:setLocalZOrder(jls, 99)
                 GUI:addOnClickEvent(jls, function()
                     Npclib["anniu"][13](0)
+                end)
+            end
+            if i == 5 then
+                local jls = GUI:Button_Create(layout, "znzh",  5 - 4, 3 - 4, "res/wy/icon/znzh.png")
+                GUI:setLocalZOrder(jls, 99)
+                GUI:addOnClickEvent(jls, function()
+                    SL:SendLuaNetMsg(101, 505, 1, 0, "")
                 end)
             end
         end

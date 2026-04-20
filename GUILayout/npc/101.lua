@@ -791,7 +791,7 @@ function npc.renderRika(node)
     local rewards = getDayCardRewards()
     local startX = 496
     for idx = 1, 4 do
-        local box = GUI:Image_Create(node, "rika_box_" .. tostring(idx), startX + (idx - 1) * 70, 134, "res/custom/msfc/page2/item_box.png")
+        local box = GUI:Image_Create(node, "rika_box_" .. tostring(idx), startX + (idx - 1) * 70, 108, "res/custom/msfc/page2/item_box.png")
         GUI:setAnchorPoint(box, 0, 0)
 
         local reward = rewards[idx]
@@ -813,7 +813,7 @@ function npc.renderRika(node)
     end
 
     local canClaim, claimed = getDayCardButtonState()
-    local button = GUI:Button_Create(node, "rika_claim", 516, 30, "res/custom/msfc/page2/claim_now.png")
+    local button = GUI:Button_Create(node, "rika_claim", 516, 10, "res/custom/msfc/page2/claim_now.png")
     GUI:setAnchorPoint(button, 0, 0)
     GUI:addOnClickEvent(button, function()
         if claimed then

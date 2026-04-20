@@ -79,6 +79,7 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data = SL:JsonDecode(msgData,false)
         ensureWindow(npcid)
         UI_updata(npc.node)
+        rawset(_G, "XYL_VIEW_JH_TITLE", true)
     elseif p2 == 1 then
         npc.data.dj_num = npc.data.dj_num + 1
         UI_updata(npc.node)

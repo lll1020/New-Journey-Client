@@ -732,7 +732,8 @@ local guideDispatch = {
         end, 0.2)
     end,
     [3] = function(data)--指定背包引导
-        openBagGuide("打开背包", MainProperty._ui.Button_bag, npc.sjbeibao)
+        SL:JumpTo(7)
+        -- openBagGuide("打开背包", MainProperty._ui.Button_bag, npc.sjbeibao)
         if data.rwid then
             cogin.sjtb.zxrwid = data.rwid
         end
@@ -745,7 +746,8 @@ local guideDispatch = {
         end, 0.2)
     end,
     [14] = function() ---打开人物界面
-        openRoleGuide()
+        SL:JumpTo(1)
+        -- openRoleGuide()
     end,
 }
 
@@ -3924,7 +3926,7 @@ npc[505] = function(p2, p3, Data) -- 巡航挂机
         local panel = win.node
         GUI:setPosition(panel, 150, 50)
 
-        npc.ksgj = GUI:Button_Create(panel, "ksgj", 439.00, 22.00, "res/public/1900000660.png")
+        npc.ksgj = GUI:Button_Create(panel, "ksgj", 439.00 - 130, 22.00, "res/public/1900000660.png")
         GUI:Button_setTitleText(npc.ksgj, data.gjkg and "停止挂机" or "开始挂机")
         GUI:Button_setTitleColor(npc.ksgj, "#ffffff")
         GUI:Button_setTitleFontSize(npc.ksgj, 14)
@@ -3933,7 +3935,7 @@ npc[505] = function(p2, p3, Data) -- 巡航挂机
             SL:SendLuaNetMsg(101, 505, 4, 0, "")
         end)
 
-        local listView = GUI:ListView_Create(panel, "ListView", 26.00, 22.00, 300.00, 372.00, 1)
+        local listView = GUI:ListView_Create(panel, "ListView", 26.00 - 134, 22.00 - 57, 300.00, 445.00, 1)
         GUI:ListView_setGravity(listView, 5)
         GUI:ListView_setItemsMargin(listView, 10)
         npc.fu_gx = {}
@@ -3950,7 +3952,7 @@ npc[505] = function(p2, p3, Data) -- 巡航挂机
         end
 
         for i, label in ipairs(guaji_ms) do
-            local toggle = GUI:CheckBox_Create(panel, "zhu_gx" .. i, 345.00, 340 - (i - 1) * 80, "res/public/btn_sifud_04.png", "res/public/btn_sifud_05.png")
+            local toggle = GUI:CheckBox_Create(panel, "zhu_gx" .. i, 345.00 - 130, 340 - (i - 1) * 80, "res/public/btn_sifud_04.png", "res/public/btn_sifud_05.png")
             GUI:CheckBox_setSelected(toggle, data["zgx" .. (i == 3 and 4 or i == 4 and 5 or i)])
             GUI:Text_Create(toggle, "Text", 48.00, 15.00, 16, "#ffffff", label)
             GUI:CheckBox_addOnEvent(toggle, function()
