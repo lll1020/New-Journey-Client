@@ -91,7 +91,7 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:ListView_setItemsMargin(npc.cbl_list, 5)
         npc.Label = GUI:Node_Create(node, "Label", 0, 0)
 
-        if SL:GetMetaValue("TITLE_DATA_BY_ID", SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.title)) then
+        if SL:GetMetaValue("TITLE_DATA_BY_ID", SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.title)) or SL:GetMetaValue("TITLE_DATA_BY_ID", SL:GetMetaValue("ITEM_INDEX_BY_NAME",teshudata["npc_54"].title)) then
             
         else
             local Button= GUI:Button_Create(node, "Button_all", 480, 20.00, "res/custom/one_city/cuiti/btn_all.png")

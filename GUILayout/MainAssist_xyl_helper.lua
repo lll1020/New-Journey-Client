@@ -1848,7 +1848,15 @@ function MainAssistXylHelper.bind(MainAssist)
         end
 
         GUI:Text_setString(widget.nameText, tostring(info.name))
-        GUI:Button_setTitleText(widget.goBtn, _get_xyl_current_task_action_text(info))
+        local wz = _get_xyl_current_task_action_text(info)
+        GUI:Button_setTitleText(widget.goBtn, wz)
+        if wz == "领取奖励" then
+            GUI:removeAllChildren(widget.goBtn)
+            NPC_UI_HELPER.redpoint_create(widget.goBtn, {anchorX = 0.5, x = 180, y = 32})
+        else
+            GUI:removeAllChildren(widget.goBtn)
+        end
+
         GUI:Button_setTitleText(widget.detailBtn, MainAssist._xylDetailPopupOpened and "关闭详情" or "任务详情")
         if widget.rewardNode then
             GUI:removeFromParent(widget.rewardNode)

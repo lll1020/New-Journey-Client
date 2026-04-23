@@ -468,9 +468,9 @@ local function _shortcut_should_show(cfg)
 end
 
 -- 根据 iconpx 配置重建顶部两排按钮
-local SHORTCUT_COLLAPSED_SHOW_COUNT = 4
+local SHORTCUT_COLLAPSED_SHOW_COUNT = 3
 local SHORTCUT_COLLAPSED_PREVIEW_NPC = {
-    501, -- 首充礼包
+    -- 501, -- 首充礼包
     511, -- 福利大厅
     514, -- 世界地图
     502, -- 在线充值
@@ -5033,12 +5033,14 @@ end
 ---世界地图
 npc[514] = function(p2, p3, Data)
     local pos = {
-        {100 + 123,100 + 267},
-        {200 + 211,100 + 354 - 90},
-        {600 - 48,100 + 363 - 90},
+        {100 + 123 - 58,100 + 267},
+        {200 + 211 - 58,100 + 354 - 90},
+        {600 - 48 - 58,100 + 363 - 90},
+        {600 - 48 - 58 + 80,100 + 363 - 90},
         {300 - 196,100 + 91},
-        {500 - 212,100 + 151},
-        {400 + 79,100 + 268 - 128},
+        {500 - 212,100 + 91},
+        {400 + 79,100 + 91},
+        {400 + 79 + 100,100 + 91},
         
     }
     local function renderWorldMap(node)
@@ -5047,7 +5049,7 @@ npc[514] = function(p2, p3, Data)
             { speed = 75, count = 8, loop = -1})
         GUI:setAnchorPoint(bg, 0.5, 0.5)
         
-        for i = 1, 6 do
+        for i = 1, 8 do
             local btn = GUI:Button_Create(bg, 'btn' .. i, pos[i][1], pos[i][2], 'res/custom/sjdt/dl/l/'..i..'.png')
             -- GUI:Button_setTitleText(btn, teshudata["sjdt"][500 + i][1])
             -- GUI:Button_setTitleFontSize(btn, 14)

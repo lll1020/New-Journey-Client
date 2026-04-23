@@ -148,15 +148,15 @@ function ui.init(parent)
 	GUI:setTag(bbsqbtn, -1)
 
 	-- Create duihuanbtn
-	local duihuanbtn = GUI:Button_Create(Image_bg, "duihuanbtn", 260.00, 17.00, "res/custom/bag/duihuan_btn.png")
-	GUI:Button_setTitleText(duihuanbtn, "")
-	GUI:Button_setTitleColor(duihuanbtn, "#ffffff")
-	GUI:Button_setTitleFontSize(duihuanbtn, 10)
-	GUI:Button_titleEnableOutline(duihuanbtn, "#000000", 1)
-	GUI:Win_SetParam(duihuanbtn, {grey = 1}, "Button")
-	GUI:setChineseName(duihuanbtn, "背包_兑换")
-	GUI:setTouchEnabled(duihuanbtn, true)
-	GUI:setTag(duihuanbtn, -1)
+	-- local duihuanbtn = GUI:Button_Create(Image_bg, "duihuanbtn", 260.00, 17.00, "res/custom/bag/duihuan_btn.png")
+	-- GUI:Button_setTitleText(duihuanbtn, "")
+	-- GUI:Button_setTitleColor(duihuanbtn, "#ffffff")
+	-- GUI:Button_setTitleFontSize(duihuanbtn, 10)
+	-- GUI:Button_titleEnableOutline(duihuanbtn, "#000000", 1)
+	-- GUI:Win_SetParam(duihuanbtn, {grey = 1}, "Button")
+	-- GUI:setChineseName(duihuanbtn, "背包_兑换")
+	-- GUI:setTouchEnabled(duihuanbtn, true)
+	-- GUI:setTag(duihuanbtn, -1)
 
 	-- Create Button_page1
 	local Button_page1 = GUI:Button_Create(Panel_1, "Button_page1", -4.00, 436.00, "res/public_win32/1900000683_1_f.png")
@@ -409,7 +409,7 @@ function ui.init(parent)
 	GUI:setVisible(FuWuJieMian, false)
 
 	-- Create FuWuJieMian_feijian
-	local FuWuJieMian_feijian = GUI:Button_Create(FuWuJieMian, "FuWuJieMian_feijian", 8.00, 70.00, "res/custom/bag/btn_feijiankaiguan.png")
+	local FuWuJieMian_feijian = GUI:Button_Create(FuWuJieMian, "FuWuJieMian_feijian", 8.00, 70.00, "res/custom/bag/duihuan_btn1.png")
 	GUI:Button_setTitleText(FuWuJieMian_feijian, "")
 	GUI:Button_setTitleColor(FuWuJieMian_feijian, "#ffffff")
 	GUI:Button_setTitleFontSize(FuWuJieMian_feijian, 10)

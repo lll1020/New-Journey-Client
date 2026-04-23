@@ -608,7 +608,7 @@ local function createMilestoneList(parent)
             crownStateColor = "#ffe07a"
         elseif not getHasCrown() then
             crownStateText = "未冠名"
-            crownStateColor = "#ff6666"
+            crownStateColor = "#808080"
         end
 
         createRewardCell(row, "normal_" .. tostring(cfg.idx), 118 + 15, 25, cfg.normal, normalStateText, normalStateColor, function()
@@ -810,6 +810,10 @@ function npc.renderRika(node)
             local label = GUI:RichText_Create(box, "label", 25, 27, tostring(rewardName), 44, 11, "#f0c14b", 1, nil, nil)
             GUI:setAnchorPoint(label, 0.5, 0.5)
         end
+        if idx > 1 then
+            GUI:Image_Create(box, "tip_give" , 20, 20, "res/wy/public/tip_give.png")
+        end
+
     end
 
     local canClaim, claimed = getDayCardButtonState()

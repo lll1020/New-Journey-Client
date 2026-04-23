@@ -4,7 +4,7 @@
 
 local RAW_MAP_CONFIG = {
     -- {地图名, x, y, 限制fun, 提示文本, 大陆ID, mob_name = "", mob_shape = 0, min_map = ""}
-     [201] = {"山庄",0,0,nil,nil,1, mob_name = "枯灯客", mob_shape = 631, min_map = "000100"},
+    [201] = {"山庄",0,0,nil,nil,1, mob_name = "枯灯客", mob_shape = 631, min_map = "000100"},
     [202] = {"幽谷",0,0,nil,nil,1, mob_name = "青苔妖", mob_shape = 200, min_map = "000100"},
     [203] = {"洞穴",0,0,nil,nil,1, mob_name = "石牙兽", mob_shape = 45, min_map = "000100"},
     [204] = {"古殿",0,0,nil,nil,1, mob_name = "破面俑", mob_shape = 12052, min_map = "000100"},
@@ -12,13 +12,13 @@ local RAW_MAP_CONFIG = {
     -- [205] = {"隐藏地图二",0,0,nil,nil,2, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
     [206] = {"野火帮",100,100,nil,nil,2, mob_name = "「焚骨统领·赤狱」", mob_shape = 16236, min_map = "000100"},
     [207] = {"极光城郊",100,100,nil,nil,2, mob_name = "「辉域守护者·冰霄」", mob_shape = 12015, min_map = "000100"},
-    [208] = {"杀伐道场",100,100,nil,nil,2, mob_name = "古兵执戟者", mob_shape = 16192, min_map = "000100"},
+    [208] = {"杀伐道场",100,100,nil,nil,2, mob_name = "古兵执戟者", mob_shape = 16192, min_map = "000100",other_name = "兵道古藏"},
     [209] = {"夜魔洞",100,100,nil,nil,2, mob_name = "「深夜魔君·漆渊」", mob_shape = 12011, min_map = "000100"},
     -- [210] = {"特殊秘境副本二",0,0,nil,nil,2, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
 
     -- [211] = {"隐藏地图三",0,0,nil,nil,3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
-    [212] = {"灰界",100,100,nil,nil,3, mob_name = "灰纹·潜噬者", mob_shape = 12033, min_map = "000100"},
-    [213] = {"藏星海",100,100,nil,nil,3, mob_name = "≮群星渊皇≯", mob_shape = 16206, min_map = "000100"},
+    [212] = {"灰界",201,199,nil,nil,3, mob_name = "灰纹·潜噬者", mob_shape = 12033, min_map = "000100"},
+    [213] = {"藏星海",100,100,nil,nil,3, mob_name = "≮群星渊皇≯", mob_shape = 16206, min_map = "000100",other_name = "葬星海"},
     [214] = {"苍云城",100,100,nil,nil,3, mob_name = "「红幕法皇」[咆哮]", mob_shape = 12054, min_map = "000100"},
     -- [215] = {"无主深渊",100,100,nil,nil,3, mob_name = "银爪收割者", mob_shape = 221, min_map = "000100"},
     [216] = {"草药谷",100,100,nil,nil,3, mob_name = "☆仙草大妖☆", mob_shape = 12079, min_map = "000100"},
@@ -83,7 +83,7 @@ npc._continents = {}
 for id, value in pairs(RAW_MAP_CONFIG) do
     local cfg = {
         id = id,
-        mapName = value[1],
+        mapName = value.other_name or value[1],
         x = value[2] or 0,
         y = value[3] or 0,
         limitFunc = value[4],

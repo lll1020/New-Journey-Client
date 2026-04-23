@@ -39,7 +39,7 @@ function npc.main(npcid, p2, p3, msgData)
         local cost = checkItemNumByTable_img_kuang(npc._config.cost, nil,GUI:Node_Create(node, "cost_show", 0, 0))
         GUI:setPosition(cost, 400, 110)
 
-        cost = ItemNumByTable_img_new({{"元宝",1},{"金币",1},{"灵石",1}}, nil,GUI:Node_Create(node, "jl_show", 0, 0))
+        cost = ItemNumByTable_img_new({{"天道命石",1},{"时光鉴定石",1}}, nil,GUI:Node_Create(node, "jl_show", 0, 0))
         GUI:setPosition(cost, 400, 110 + 115)
 
         local Button = GUI:Button_Create(node, "Button", 620, 0.00, "res/custom/five_city/dysy/btn.png")
