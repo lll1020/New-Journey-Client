@@ -1,4 +1,4 @@
-﻿local npc = {}
+local npc = {}
 
 npc._config = teshudata["npc_680"]
 

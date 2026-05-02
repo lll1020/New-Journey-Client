@@ -31,4 +31,3 @@ function ProgressBar.startProgress()
     SL:schedule(ProgressBar._ui.LoadingBar_1, callback, 0.1)
     callback()
 end
-

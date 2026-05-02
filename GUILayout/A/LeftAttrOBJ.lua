@@ -1,4 +1,4 @@
-﻿LeftAttrOBJ = {}
+LeftAttrOBJ = {}
 LeftAttrOBJ.__cname = "LeftAttrOBJ"
 LeftAttrOBJ.scheduleID = nil
 if ssrConstCfg.isPc then

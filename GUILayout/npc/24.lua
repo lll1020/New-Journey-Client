@@ -1,8 +1,5 @@
-﻿local npc = {}
-
+local npc = {}
 npc._config = teshudata["npc_24"]
-
-
 local WINDOW_OPTS = {
     background = {skin = "res/wy/public/*.png"},
     closeButton = {x = 400, y = 200, skin = "res/wy/public/close_red_big.png"},
@@ -14,7 +11,6 @@ local level_coler = {
     [4] = "#EFAD21",
     [5] = "#FF0000",
 }
-
 local function _ywl_vertical_text(text)
                     if not text then
                         return ""
@@ -61,10 +57,7 @@ local function _ywl_vertical_text(text)
                     end
                     return table.concat(out, "\n")
                 end
-
-
 function npc.main(npcid, p2, p3, msgData)
-
     local function _has_any_xianfa_equipped()
         local T_data = npc.data and npc.data.T_data or {}
         local caowei = T_data.caowei or {}
@@ -75,11 +68,10 @@ function npc.main(npcid, p2, p3, msgData)
         end
         return false
     end
-
     local function _get_default_tianshu_tab()
         local taskName = tostring(rawget(_G, "XYL_CURRENT_TASK_NAME") or "")
         SL:release_print("当前任务", taskName)
-        if taskName == "初识仙法" or taskName == "查看仙法" then
+        if taskName == "初识仙法" or taskName == "查看仙法" or taskName == "进行天书仙法抽取" then
             return 2
         end
         local tianshuLevel = tonumber(npc.data and npc.data.T_data and npc.data.T_data.level or 0) or 0
@@ -88,8 +80,6 @@ function npc.main(npcid, p2, p3, msgData)
         end
         return 1
     end
-
-
     local function ensureWindow(npcid)
         local opts = {}
         for k, v in pairs(WINDOW_OPTS) do
@@ -99,26 +89,20 @@ function npc.main(npcid, p2, p3, msgData)
         opts.subTitle = npc._config and npc._config.title
         npc._window = NPC_UI_HELPER.ensureWindow(npc._window, npcid, opts)
         npc.bg = npc._window.bg
-
         npc.bg = GUI:Frames_Create(npc.bg, "eff", 0, 0, "res/custom/tianshu/bg/bg_", ".png", 1, 15,
             { speed = 100, count = 15, loop = -1})
         GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
         GUI:setTouchEnabled(npc.bg, true)
-
         GUI:setLocalZOrder(npc._window.node, 99)
         npc.node = GUI:Node_Create(npc.bg, 'node', 0, 0)
         return npc.node
     end
-
-
     local function UI_updata(node) --界面渲染
         if not node then
             return
         end
         local titles = {"qh", "xf", "ws"}
         GUI:removeAllChildren(node)
-
-
         function GUI_createLabel(Label_node,idx) --主界面渲染
             GUI:removeAllChildren(Label_node)
             local tt = GUI:Image_Create(Label_node, "tt", 60, 30, "res/custom/tianshu/title/title_"..idx..".png")
@@ -130,47 +114,36 @@ function npc.main(npcid, p2, p3, msgData)
                 --                 "<font color='#00FF00' size='20' >当前天书等级："..(npc.data.T_data.level or 0).."</font>"
                 --         , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
                 -- , 0, 1)
-
                 GUI:Effect_Create(Label_node, "eff", 400, 360, 0, 60449)
-                
                 local item = SL:GetMetaValue("EQUIP_DATA", npc._config.where)
                 if item then
                     local level = GUI:Text_Create(Label_node, "level",30 + 288,40 + 93, 30, "#FF0000", "天书【lv."..(npc.data.T_data.level or 0).."】")
                     GUI:Text_setFontName(level, "fonts/501.ttf")
-
                     local new_config = npc._config.details[1].details[(npc.data.T_data.level or 0) + 1]
                     local old_config = npc._config.details[1].details[(npc.data.T_data.level or 0)]
-
                     local jdt = GUI:LoadingBar_Create(Label_node, "jdt", 726,227,"res/custom/tianshu/qh/jdt.png", 0)
                     GUI:LoadingBar_setPercent(jdt, (npc.data.T_data.jf or 0) / (new_config and new_config.jf or 0) * 100)
-
                     GUI:RichText_Create(Label_node, "text_name", 795,224,
                         SetCompletionProgress_14((npc.data.T_data.jf or 0), (new_config and new_config.jf or 0))
                     , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
                     -- local kuang = GUI:Image_Create(Label_node, "kuang", 200, 250, "res/wy/public/70_70_k.png")
                     -- UiTools.showItemData(kuang, item)
-
                     local dbLayout = GUI:Layout_Create(Label_node, "dbLayout", 610,484, 315, 150)
                     local attr = {
                             {attr_name = "生命魔法", idx = 1},
                             {attr_name = "攻  魔  道", idx = 4},
                             {attr_name = "人物防御", idx = 10},
                     }
-
-
                     for v,k in pairs(attr) do
                         local kuang = GUI:Image_Create(dbLayout, "kuang"..v, 0, 0, "res/custom/tianshu/qh/tip.png")
                         GUI:Text_setFontName(GUI:Text_Create(kuang, "attr_name",25,-2, 20, "##00FFFF", k.attr_name.." +")
                         , "fonts/502.ttf")
-                        
                         GUI:Text_setFontName(GUI:Text_Create(kuang, "new_attr_v",125,-2, 20, "##00FFFF", old_config and old_config.attr[k.idx][2] or 0)
                         , "fonts/502.ttf")
                         GUI:Image_Create(kuang, "jt", 170, -2, "res/custom/tianshu/qh/jt.png")
                         GUI:Text_setFontName(GUI:Text_Create(kuang, "old_attr_v",215,-2, 20, "##109C18", new_config and ("+"..new_config.attr[k.idx][2]) or "已满级")
                         , "fonts/502.ttf")
                         GUI:Image_Create(kuang, "up", 290, 3, "res/custom/tianshu/qh/up.png")
-
-            
                     end
                     GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 1,gap = {x=40, y=10}})
                     GUI:setAnchorPoint(dbLayout, 0, 1)
@@ -180,11 +153,10 @@ function npc.main(npcid, p2, p3, msgData)
                         GUI:addOnClickEvent(Button, function()
                             SL:SendLuaNetMsg(100, npcid, 1, 0, "")
                         end)
-                        
                         if new_config and (not new_config.cost or checkItemNum(new_config.cost)) and (not new_config.jf or (npc.data.T_data.jf or 0) >= new_config.jf) then
                             NPC_UI_HELPER.redpoint_create_eff(Button,{x = 219,y = 35,autoScale = 1})
                             NPC_UI_HELPER.tryStartXylGuide(npc, Button, Label_node, "tianshu_upgrade", {
-                                taskName = "天书强化",
+                                taskNames = {"天书强化", "进行天书强化1次"},
                                 dir = 5,
                                 desc = "点击强化天书",
                             })
@@ -192,12 +164,7 @@ function npc.main(npcid, p2, p3, msgData)
                     else
                         GUI:Image_Create(Label_node, "Button", 660, 100.00, "res/wy/public/15.png")
                     end
-
-
-                    
-                    
-                end  
-
+                end
                 local tip = GUI:Image_Create(Label_node, "tip", 380 + 500, 350 - 187, "res/wy/public/xqh_tip.png")
                 if SL:GetMetaValue("WINPLAYMODE") then
                     GUI:addMouseMoveEvent(tip, {onEnterFunc = function()
@@ -213,8 +180,6 @@ function npc.main(npcid, p2, p3, msgData)
                         SL:OpenItemTips({itemData = item,pos = {x = pos.x, y = pos.y}})
                     end)
                 end
-
-
             elseif idx == 2 then
                 -- local GUI_list = GUI:ListView_Create(Label_node, "GUI_list", 200, 100, 700, 270, 2)
                 -- for i = 1, 10 do
@@ -232,13 +197,10 @@ function npc.main(npcid, p2, p3, msgData)
                 --     GUI:setAnchorPoint(Button, 0.5, 0.5)
                 --     GUI:Button_setTitleText(Button, "洗练")
                 --     GUI:Button_setTitleFontSize(Button, 14)
-
                 --     GUI:addOnClickEvent(Button, function()
                 --         SL:SendLuaNetMsg(100, npcid, 2, 0, SL:JsonEncode({caowei = i}))
                 --     end)
-
                 -- end
-
                 local ScrollView = GUI:ScrollView_Create(Label_node, "ScrollView", 240, 110, 312, 346, 1)
                 GUI:ScrollView_setBounceEnabled(ScrollView, true)
                 GUI:ScrollView_setInnerContainerSize(ScrollView, 312, ((36 + 10) * 10))
@@ -252,7 +214,6 @@ function npc.main(npcid, p2, p3, msgData)
                 local xianfa_all_unlock = tonumber(npc.data and npc.data.xianfa_all_unlock or 0) == 1
                 local label_delegate = GUI:ui_delegate(Label_node)
                 local layout_delegate = GUI:ui_delegate(dbLayout)
-
                 local function is_slot_unlocked(slot, slot_data)
                     if slot_data then
                         return true
@@ -263,7 +224,6 @@ function npc.main(npcid, p2, p3, msgData)
                     local need_lv = unlock_lv[slot] or 1
                     return cur_lv >= need_lv
                 end
-
                 local function get_slot_info(slot, slot_data)
                     if slot_data then
                         local group = slot_data[1]
@@ -282,22 +242,18 @@ function npc.main(npcid, p2, p3, msgData)
                     end
                     return "解锁天书等级："..need_lv, "#A0A0A4", nil
                 end
-
                 local function render_slot_detail(slot)
                     local slot_key = ""..slot
                     local slot_data = caowei[slot_key]
                     local _, _, wz = get_slot_info(slot, slot_data)
-
                     npc.xf_node = label_delegate["xf_node"]
                     if npc.xf_node then
                         GUI:removeAllChildren(npc.xf_node)
                     else
                         npc.xf_node = GUI:Node_Create(Label_node, "xf_node", 0, 0)
                     end
-
                     if wz then
                         -- GUI:setAnchorPoint(GUI:Text_Create(npc.xf_node, "wz5",50 + 549,16 + 480, 20, "#FF0000", wz), 0, 1)
-                        
                         GUI:setAnchorPoint(GUI:Image_Create(npc.xf_node, "wz5", 30 + 549, 16 + 480 + 50, "res/custom/tianshu/xf/l_"..slot_data[1]..".png")
                         , 0, 1)
                         GUI:setAnchorPoint(GUI:RichText_Create(npc.xf_node, "attr_desc_next", 50 + 549 + 60,16 + 480,  wz, 310 - 40, 17, level_coler[slot_data[1]], 3,nil,nil)
@@ -324,13 +280,11 @@ function npc.main(npcid, p2, p3, msgData)
                     GUI:setContentSize(GUI:Image_Create(guang, "img1", 0, 0, "res/wy/public/input.png"), 180, 30)
                     GUI:setContentSize(GUI:Image_Create(guang, "img2", 0, 0, "res/wy/public/jdtk_1.png"), 100, 30)
                     GUI:Text_Create(guang, "text", 5, 5, 18, "#FFFFFF", "刷新消耗：")
-                    
                     GUI:setScale(GUI:ItemShow_Create(guang, "icon",105, 5, {index = SL:GetMetaValue("ITEM_INDEX_BY_NAME","仙法卷轴")}), 0.6)
                     local currentTokenCount = SL:GetMetaValue("ITEM_COUNT", SL:GetMetaValue("ITEM_INDEX_BY_NAME","仙法卷轴"))
                     local drawOnceCost = 1
                     local currentTokenColor = currentTokenCount >= drawOnceCost and "#45ff93" or "#ff6666"
                     GUI:RichText_Create(guang, "num", 130, 5, string.format("<font color='%s'>%s</font><font color='#FFFFFF'>/%s</font>", currentTokenColor, tostring(currentTokenCount), tostring(drawOnceCost)), 150, 16, "#FFFFFF", 0, nil, nil)
-
                     npc._xf_skip_anim = npc._xf_skip_anim == true
                     local skipLabel = GUI:Text_Create(npc.xf_node, "skip_label", 50 + 549 + 20 - 20, 52 + 18 + 50, 18, "#FFFFFF", "是否跳过动画")
                     GUI:Text_enableOutline(skipLabel, "#000000", 1)
@@ -339,7 +293,6 @@ function npc.main(npcid, p2, p3, msgData)
                     GUI:CheckBox_addOnEvent(skipCheck, function(sender)
                         npc._xf_skip_anim = GUI:CheckBox_isSelected(sender)
                     end)
-
                     local Button = GUI:Button_Create(npc.xf_node, "Button", 50 + 549 + 76 + 80,80, "res/custom/tianshu/xf/btn_up.png")
                     local slot_unlocked = is_slot_unlocked(slot, slot_data)
                     if not slot_unlocked then
@@ -350,8 +303,8 @@ function npc.main(npcid, p2, p3, msgData)
                     --     NPC_UI_HELPER.redpoint_create(Button)
                     -- end
                     local function do_refresh()
-                        if checkItemNum({{"仙品仙法卷轴",1}}) then
-                            SL:OpenCommonTipsPop({str="是否要使用仙品仙法卷轴，必可得到仙品仙法！",btnType=2,callback=function(atype,param)
+                        if checkItemNum({{"极品仙法卷轴",1}}) then
+                            SL:OpenCommonTipsPop({str="是否要使用极品仙法卷轴，必可得到帝品仙法！",btnType=2,callback=function(atype,param)
                                 if atype == 1 then
                                     SL:SendLuaNetMsg(100, npcid, 2, 2, SL:JsonEncode({caowei = slot}))
                                 else
@@ -361,7 +314,6 @@ function npc.main(npcid, p2, p3, msgData)
                         else
                             SL:SendLuaNetMsg(100, npcid, 2, 0, SL:JsonEncode({caowei = slot}))
                         end
-                        
                     end
                     GUI:addOnClickEvent(Button, function()
                         if not slot_unlocked then
@@ -381,12 +333,11 @@ function npc.main(npcid, p2, p3, msgData)
                     NPC_UI_HELPER.tryStartXylGuide(npc, Button, npc.xf_node, "tianshu_xianfa_" .. tostring(slot), {
                         idx = 1,
                         once = true,
-                        taskNames = {"初识仙法"},
+                        taskNames = {"初识仙法", "进行天书仙法抽取"},
                         dir = 5,
                         desc = "点击刷新仙法",
                     })
                 end
-
                 for i = 1, 10 do
                     local kuang = GUI:Image_Create(dbLayout, "kuang"..i, 0, 0, "res/custom/tianshu/xf/k_0.png")
                     GUI:setTouchEnabled(kuang, true)
@@ -399,7 +350,6 @@ function npc.main(npcid, p2, p3, msgData)
                             { speed = 100, count = 15, loop = -1})
                         render_slot_detail(i)
                     end)
-
                     local slot_key = ""..i
                     local slot_data = caowei[slot_key]
                     local name, color = get_slot_info(i, slot_data)
@@ -408,7 +358,6 @@ function npc.main(npcid, p2, p3, msgData)
                     GUI:Image_loadTexture(kuang, "res/custom/tianshu/xf/k_"..level..".png")
                 end
                 GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 1,gap = {x=40, y=10}})
-
                 npc.xf_sign = npc.xf_sign or 1
                 if npc.xf_sign >= 1 and npc.xf_sign <= 10 then
                     local kuang = layout_delegate["kuang"..npc.xf_sign]
@@ -420,13 +369,11 @@ function npc.main(npcid, p2, p3, msgData)
                 end
             elseif idx == 3 then
                 npc.data.T_data.wangshi = npc.data.T_data.wangshi or {}
-                
                 local ScrollView = GUI:ScrollView_Create(Label_node, "ScrollView", 220, 110, 333, 346, 1)
                 GUI:ScrollView_setBounceEnabled(ScrollView, true)
                 GUI:ScrollView_setInnerContainerSize(ScrollView, 333, ((157 + 10) * #npc._config.details[3]))
                 local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 0,0, 312, ((157 + 10) * #npc._config.details[3]))
                 npc.data.T_data.caowei = npc.data.T_data.caowei or {}
-
                 for i = 1, #npc._config.details[3] do
                     local config = npc._config.details[3][i]
                     local kuang = GUI:Image_Create(dbLayout, "kuang"..i, 0, 0, "res/custom/tianshu/ws/xnj_bg.png")
@@ -439,11 +386,8 @@ function npc.main(npcid, p2, p3, msgData)
                 GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 1,gap = {x=40, y=10}})
             end
         end
-
-
         npc.titles_sign = tonumber(npc.titles_sign) or _get_default_tianshu_tab()
         npc.Label = GUI:Node_Create(node, "Label", 0, 0)
-
         for i = 1, #titles do
             local cbl_item = GUI:Frames_Create(node, "item" .. i, 100+(i-1)*170, -20, "res/custom/tianshu/"..titles[i].."/btn_", ".png", 1, 15,
             { speed = 100, count = 15, loop = -1})
@@ -465,10 +409,7 @@ function npc.main(npcid, p2, p3, msgData)
             end)
         end
         GUI_createLabel(npc.Label,npc.titles_sign)
-
     end
-
-
     if p2 == 0 then--界面
         npc.data = SL:JsonDecode(msgData,false)
         npc.titles_sign = nil
@@ -477,6 +418,10 @@ function npc.main(npcid, p2, p3, msgData)
     elseif p2 == 1 then
         npc.data = SL:JsonDecode(msgData,false)
         UI_updata(npc.node)
+        if NPC_UI_HELPER.isCurrentXylTask({"天书强化", "进行天书强化1次"})
+            and (tonumber(npc.data and npc.data.T_data and npc.data.T_data.level or 0) or 0) >= 1 then
+            NPC_UI_HELPER.closeWindow(npc._window)
+        end
     elseif p2 == 2 then
         npc.data = SL:JsonDecode(msgData,false)
         GUI_createLabel(npc.Label,npc.titles_sign)
@@ -491,15 +436,13 @@ function npc.main(npcid, p2, p3, msgData)
         npc._xf_skip_anim = npc._xf_skip_anim == true
         local startFrame = npc._xf_skip_anim and 104 or 1
         local endFrame = 158
-
         local function close_popup()
             GUI:Win_Close(parent)
         end
-
         local function do_refresh_current_slot()
             local slot = tonumber(npc.xf_sign) or 1
-            if checkItemNum({{"仙品仙法卷轴",1}}) then
-                SL:OpenCommonTipsPop({str="是否要使用仙品仙法卷轴，必可得到仙品仙法！",btnType=2,callback=function(atype,param)
+            if checkItemNum({{"极品仙法卷轴",1}}) then
+                SL:OpenCommonTipsPop({str="是否要使用极品仙法卷轴，必可得到帝品仙法！",btnType=2,callback=function(atype,param)
                     if atype == 1 then
                         SL:SendLuaNetMsg(100, npcid, 2, 2, SL:JsonEncode({caowei = slot}))
                     else
@@ -510,37 +453,30 @@ function npc.main(npcid, p2, p3, msgData)
                 SL:SendLuaNetMsg(100, npcid, 2, 0, SL:JsonEncode({caowei = slot}))
             end
         end
-        
         local overlay = GUI:Image_Create(parent, 'bjt', 0, 0, 'res/public/1900000651_1.png')
         GUI:setAnchorPoint(overlay, 0.5, 0.5)
         GUI:setContentSize(overlay, (cogin.w + 100), (cogin.h + 100))
         GUI:setTouchEnabled(overlay, true)
-
         local bg = GUI:Frames_Create(parent, "bg", cogin.w/2,  cogin.h/2, "res/custom/tianshu/xf/eff/eff_", ".png", startFrame, endFrame,
                 { speed = 50, count = 158, loop = 1,callback = function(self)
-
                     local tit = GUI:Image_Create(parent, "tit", 150, cogin.h/2, "res/custom/tianshu/xf/l_".. data.group ..".png")
                     GUI:setAnchorPoint(tit, 0.5, 0.5)
                     GUI:setOpacity(tit, 0)
                     GUI:Timeline_FadeIn(tit, 1,nil)
-
                     local cfg = npc._config.details[2]
                     local cfg_details = cfg.details
                     local info = cfg_details[data.group] and cfg_details[data.group][data.idx]
                     -- info.name, level_coler[group] or "#FFFFFF", info.wz
-
                     local name = GUI:Text_Create(parent, "name", cogin.w/2,  cogin.h/2 + 30, 50, level_coler[data.group] or "#FFFFFF", info.name)
                     GUI:setAnchorPoint(name, 0.5, 0)
                     GUI:Text_setFontName(name, "fonts/448.ttf")
                     GUI:Text_enableOutline(name, "#000000", 2)
                     GUI:setOpacity(name, 0)
                     GUI:Timeline_FadeIn(name, 1,nil)
-
                     local attr_desc = GUI:RichText_Create(parent, "attr_desc", cogin.w/2,  cogin.h/2,  info.wz, 310, 17, "#f7f7de", 3,nil,nil)
                     GUI:setAnchorPoint(attr_desc, 0.5, 1)
                     GUI:setOpacity(attr_desc, 0)
                     GUI:Timeline_FadeIn(attr_desc, 1,nil)
-
                     local skipLabel = GUI:Text_Create(parent, "skip_label", cogin.w/2 - 60, 80, 20, "#FFFFFF", "是否跳过动画")
                     GUI:Text_enableOutline(skipLabel, "#000000", 1)
                     local skipCheck = GUI:CheckBox_Create(parent, "skip_anim", cogin.w/2 + 75, 80, "res/wy/public/xz_1.png", "res/wy/public/xz_0.png")
@@ -548,7 +484,6 @@ function npc.main(npcid, p2, p3, msgData)
                     GUI:CheckBox_addOnEvent(skipCheck, function(sender)
                         npc._xf_skip_anim = GUI:CheckBox_isSelected(sender)
                     end)
-
                     local knowBtn = GUI:Button_Create(parent, "know_btn", cogin.w/2 - 110, 150, "res/wy/public/kb_btn.png")
                     GUI:setAnchorPoint(knowBtn, 0.5, 0)
                     GUI:Button_setTitleText(knowBtn, "我知道了")
@@ -557,7 +492,6 @@ function npc.main(npcid, p2, p3, msgData)
                     GUI:addOnClickEvent(knowBtn, function()
                         close_popup()
                     end)
-
                     local refreshBtn = GUI:Button_Create(parent, "refresh_btn", cogin.w/2 + 110, 150, "res/wy/public/kb_btn.png")
                     GUI:setAnchorPoint(refreshBtn, 0.5, 0)
                     GUI:Button_setTitleText(refreshBtn, "再次刷新")
@@ -571,9 +505,6 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:setContentSize(bg, cogin.w, cogin.h)
         GUI:setAnchorPoint(bg, 0.5, 0.5)
         GUI:setTouchEnabled(bg, true)
-
-
     end
 end
-
 return npc

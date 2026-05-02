@@ -1,46 +1,36 @@
 -- 角色面板 装备
 PlayerEquip = {}
-
 PlayerEquip._ui = nil
-
 -- 13 斗笠位置比较特殊 属于和头盔位置同部位
--- 要斗笠和头盔分开 需要设置Panel_pos13为显示 
+-- 要斗笠和头盔分开 需要设置Panel_pos13为显示
 PlayerEquip.showModelCapAndHelmet = false -- 斗笠和头盔分开情况下  模型是否显示 斗笠头盔
 PlayerEquip.posSetting = {}
 PlayerEquip._hideNodePos = {}
 PlayerEquip.RoleType = {
     Self = 1 -- 自己
 }
-
 -- 剑甲分离出格子 需要对应相应装备位置
 PlayerEquip.realUIPos = {
-    [GUIDefine.EquipPosUI.Equip_Type_Dress] = 1000, 
+    [GUIDefine.EquipPosUI.Equip_Type_Dress] = 1000,
     [GUIDefine.EquipPosUI.Equip_Type_Weapon] = 1001,
 }
-
 PlayerEquip.fictionalUIPos = {
     [1000] = GUIDefine.EquipPosUI.Equip_Type_Dress,
-    [1001] = GUIDefine.EquipPosUI.Equip_Type_Weapon, 
+    [1001] = GUIDefine.EquipPosUI.Equip_Type_Weapon,
 }
-
 local posList = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 14, 16, 1000, 1001}
-
-
 function PlayerEquip.main(data)
     PlayerEquip.posSetting = {
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 16, 1000, 1001, -- 如有分离装备 需要添加
     }
     local parent = GUI:Attach_Parent()
     GUI:LoadExport(parent, "player/player_equip_node_win32")
-
     PlayerEquip._ui = GUI:ui_delegate(parent)
     if not PlayerEquip._ui then
         return false
     end
     PlayerEquip._parent = parent
-
     PlayerEquip._samePosDiff = {}
-
     -- 初始化装备槽
     PlayerEquip.InitEquipCells()
     -- 角色性别
@@ -49,7 +39,6 @@ function PlayerEquip.main(data)
     PlayerEquip.playerHairID = SL:GetMetaValue("HAIR")
     -- 职业
     PlayerEquip.playerJob = SL:GetMetaValue("JOB")
-
     --是否进入过跨服
     -- 珍宝
     local ringBoxShow = SL:GetMetaValue("SERVER_OPTION", SW_KEY_SNDAITEMBOX) == 1 -- 首饰盒功能是否开启
@@ -57,10 +46,8 @@ function PlayerEquip.main(data)
     GUI:addOnClickEvent(PlayerEquip._ui.Best_ringBox,function()
         -- 请求玩家首饰盒状态
         SL:RequestOpenPlayerBestRings()
-
         GUI:delayTouchEnabled(PlayerEquip._ui.Best_ringBox, 0.3)
     end)
-
     --刷新首饰盒状态
     PlayerEquip.RefreshPlayerBestRingsOpenState()
     PlayerEquip.RefreshBestRingBox()
@@ -69,56 +56,37 @@ function PlayerEquip.main(data)
     PlayerEquip.RefreshGuildInfo()
     ----------------------
     PlayerEquip.RegisterEvent()
-
     PlayerEquip.InitEquipFramekuang()
-
-
     local EquipShow_90 = GUI:EquipShow_Create(
             GUI:Image_Create(PlayerEquip._ui.Panel_1, "duihuan_wz1", 140.00, 100.00, "res/wy/public/70_70_k.png")
     , "EquipShow_90", 35, 35, 90, false, {look = true, movable = true, bgVisible = false, doubleTakeOff = true})
     GUI:EquipShow_setAutoUpdate(EquipShow_90)
     GUI:setAnchorPoint(EquipShow_90, 0.5, 0.5)
-
     PlayerEquip.gzd = GUI:Node_Create(PlayerEquip._ui.Panel_1, "gzd", 0, 250)
     GUI:setLocalZOrder(PlayerEquip.gzd, 0)
-
     local Button= GUI:Button_Create(PlayerEquip._ui.Panel_1, "Button1", 40, 10.00, "res/private/player_main_layer_ui/btn_1.png")
     GUI:addOnClickEvent(Button, function()
         SL:SendLuaNetMsg(105, 24, 24, 0, "")
     end)
     NPC_UI_HELPER.tryStartXylGuide(nil, Button, PlayerEquip._ui.Panel_1, "tianshu_divination", {
-        taskNames = {"初识仙法","天书强化"},
+        taskNames = {"天书强化", "进行天书强化1次", "初识仙法", "进行天书仙法抽取"},
         dir = 5,
         desc = "打开天书界面",
     })
     local mainline_realm
-
     Button= GUI:Button_Create(PlayerEquip._ui.Panel_1, "Button2", 110, 10.00, "res/private/player_main_layer_ui/btn_2.png")
     GUI:addOnClickEvent(Button, function()
         SL:SendLuaNetMsg(105, 21, 21, 0, "")
-        if mainline_realm then
-            SL:CloseGuide(mainline_realm)
-        end
     end)
-    -- 主线任务 20：在境界提升界面内引导点击升级按钮。
-    mainline_realm = NPC_UI_HELPER.tryStartMainlineUpgradeGuide(nil, Button, PlayerEquip._ui.Panel_1, 21, 1, {
-        taskMap = {[21] = 20},
-        keyPrefix = "mainline_realm",
-        dir = 5,
-        hideMask = true,
-        isForce = false,
-    })
     Button= GUI:Button_Create(PlayerEquip._ui.Panel_1, "Button3", 180, 10.00, "res/private/player_main_layer_ui/btn_3.png")
     GUI:addOnClickEvent(Button, function()
         SL:SendLuaNetMsg(105, 22, 22, 0, "")
     end)
     NPC_UI_HELPER.tryStartXylGuide(nil, Button, PlayerEquip._ui.Panel_1, "tianshu_divination", {
-        taskNames = {"升级灵根","装配主灵根","装配副灵根"},
+        taskNames = {"升级灵根", "强化灵根1次", "装配主灵根", "装配火灵根至主灵根", "装配副灵根", "装配水灵根至副灵根"},
         dir = 5,
         desc = "打开灵根界面",
     })
-    
-
     Button= GUI:Button_Create(PlayerEquip._ui.Panel_1, "Button4", 250, 10.00, "res/private/player_main_layer_ui/btn_4.png")
     GUI:addOnClickEvent(Button, function()
         SL:SendLuaNetMsg(105, 44, 44, 0, "")
@@ -128,14 +96,10 @@ function PlayerEquip.main(data)
         dir = 5,
         desc = "打开仙府",
     })
-
-
     Button = GUI:Button_Create(PlayerEquip._ui.Panel_1, "Button11", 400 + 120 - 253, 50+363, "res/private/player_main_layer_ui/btn_11.png")
     GUI:addOnClickEvent(Button, function()
        Npclib["anniu"][22](0,0,"")     --法宝
     end)
-
-    
     -- local T_41_data = Player:getServerVar("T41")
     -- -- local U_28_data = Player:getServerVar("U28")
     -- if T_41_data == "" then
@@ -144,7 +108,6 @@ function PlayerEquip.main(data)
     --     T_41_data = SL:JsonDecode(T_41_data,false)
     -- end
     -- U_28_data = tonumber(U_28_data)
-
     -- if U_28_data > 0 then
     --     GUI:Text_Create(PlayerEquip._ui.Panel_1, "U_28_data", 400, 50.00 + 100, 20, "#ffffff", teshudata["npc_21"].details[U_28_data].title)
     -- end
@@ -153,9 +116,7 @@ function PlayerEquip.main(data)
     -- else
     --     GUI:Text_Create(PlayerEquip._ui.Panel_1, "T_41_data_main", 400, 50.00 + 200, 20, "#ffffff", "暂无主灵根")
     -- end
-
 end
-
 function PlayerEquip.InitHideNodePos()
     PlayerEquip._hideNodePos = {}
     local posList = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
@@ -168,7 +129,6 @@ function PlayerEquip.InitHideNodePos()
         end
     end
 end
-
 --给装备一个初始的框
 function PlayerEquip.InitEquipFramekuang()
     for _, i in ipairs(posList) do
@@ -191,7 +151,6 @@ function PlayerEquip.InitEquipFramekuang()
         end
     end
 end
-
 function PlayerEquip.InitSamePosDiff(isAfterF10Load)
     PlayerEquip._pos13Visible = GUI:getVisible(PlayerEquip._ui.Panel_pos13)
     if  PlayerEquip._pos13Visible then
@@ -210,7 +169,6 @@ function PlayerEquip.InitSamePosDiff(isAfterF10Load)
         PlayerEquip.UpdatePlayerView(nil, true)
     end
 end
-
 function PlayerEquip.InitEquipEvent()
     local posSetting = PlayerEquip.posSetting
     for _, pos in ipairs(posSetting) do
@@ -218,24 +176,20 @@ function PlayerEquip.InitEquipEvent()
         PlayerEquip.InitPanelMoveEvent(equipPanel, pos)
     end
 end
-
 function PlayerEquip.InitPanelMoveEvent(equipPanel, pos)
-
     local function GetEquipDataByPos(equipPos, equipList)
         local beginOnMoving = true
         if PlayerEquip._samePosDiff[equipPos] then
             equipList = false
             beginOnMoving = false
         end
-
         local equipItems = nil
         local posData = nil
         if equipList then
             equipItems = SL:GetMetaValue("EQUIP_DATA_LIST", equipPos)
         else
-            posData = SL:GetMetaValue("EQUIP_DATA", equipPos, beginOnMoving) 
+            posData = SL:GetMetaValue("EQUIP_DATA", equipPos, beginOnMoving)
         end
-
         if not equipItems and posData then
             if not beginOnMoving then
                 equipItems = {}
@@ -244,11 +198,9 @@ function PlayerEquip.InitPanelMoveEvent(equipPanel, pos)
                 equipItems = posData
             end
         end
-        
         return equipItems
     end
-	
-	local function checkSamePosCurSelect(equipPos)
+    local function checkSamePosCurSelect(equipPos)
         if not PlayerEquip._samePosDiff[equipPos] then
             local itemData = SL:GetMetaValue("EQUIP_DATA", equipPos, true)
             if itemData and itemData.Where then
@@ -257,7 +209,6 @@ function PlayerEquip.InitPanelMoveEvent(equipPanel, pos)
         end
         return equipPos
     end
-
     local equipPos = PlayerEquip.fictionalUIPos and PlayerEquip.fictionalUIPos[pos] or pos
     local function refreshMoveState(_, bool)
         local setPos = equipPos
@@ -271,7 +222,7 @@ function PlayerEquip.InitPanelMoveEvent(equipPanel, pos)
         else
             local noEquip = nil
             if bool then
-				if setPos == GUIDefine.EquipPosUI.Equip_Type_Helmet then
+                if setPos == GUIDefine.EquipPosUI.Equip_Type_Helmet then
                     setPos = checkSamePosCurSelect(GUIDefine.EquipPosUI.Equip_Type_Helmet)
                 end
                 noEquip = {}
@@ -291,26 +242,22 @@ function PlayerEquip.InitPanelMoveEvent(equipPanel, pos)
             end
             PlayerEquip.UpdatePlayerView(noEquip)
         end
-
-        if PlayerEquip.realUIPos and PlayerEquip.realUIPos[setPos] then 
-            if bool then 
+        if PlayerEquip.realUIPos and PlayerEquip.realUIPos[setPos] then
+            if bool then
                 PlayerEquip.HideEquipItemsUI(setPos)
-            else 
+            else
                 PlayerEquip.ShowEquipItemsUI(setPos)
-            end 
+            end
         end
-
         if bool then
             PlayerEquip._moveItemData = SL:GetMetaValue("EQUIP_DATA", equipPos)
         else
             PlayerEquip._moveItemData = nil
         end
     end
-
     local function endMoveCallBack()
         PlayerEquip._moveItemData = nil
     end
-
     -- 双击
     local function doubleCallBack()
         if PlayerEquip._moveItemData then
@@ -325,12 +272,10 @@ function PlayerEquip.InitPanelMoveEvent(equipPanel, pos)
             SL:TakeOffPlayerEquip(itemData)
         end
     end
-
     -- 鼠标滚动
     local function scrollCallBack(data)
         SL:onLUAEvent(LUA_EVENT_ITEMTIPS_MOUSE_SCROLL, data)
     end
-
     local panelSize = GUI:getContentSize(equipPanel)
     local equipWidget = GUI:MoveWidget_Create(equipPanel, "move_equip_" .. pos, panelSize.width / 2 , panelSize.height / 2, panelSize.width, panelSize.height, SL:GetMetaValue("ITEMFROMUI_ENUM").PALYER_EQUIP, {
         equipPos = equipPos,
@@ -341,7 +286,6 @@ function PlayerEquip.InitPanelMoveEvent(equipPanel, pos)
         pcDoubleCB = doubleCallBack,
         mouseScrollCB = scrollCallBack,
     })
-
     local enterDelayTimer = nil
     local function CleanupTimer()
         if enterDelayTimer then
@@ -349,7 +293,6 @@ function PlayerEquip.InitPanelMoveEvent(equipPanel, pos)
             enterDelayTimer = nil
         end
     end
-
     local function mouseMoveCallBack()
         local itemData = GetEquipDataByPos(equipPos, true)
         if not itemData or PlayerEquip._moveItemData then
@@ -366,7 +309,6 @@ function PlayerEquip.InitPanelMoveEvent(equipPanel, pos)
         SL:OpenItemTips(data)
         CleanupTimer()
     end
-
     local function onEnterFunc()
         if enterDelayTimer then
             return
@@ -375,26 +317,23 @@ function PlayerEquip.InitPanelMoveEvent(equipPanel, pos)
             mouseMoveCallBack()
         end, 0.05)
     end
-
     local function onLeaveFunc()
         SL:CloseItemTips()
         CleanupTimer()
     end
-
     GUI:addMouseMoveEvent(equipPanel, {
         onEnterFunc = onEnterFunc,
         onLeaveFunc = onLeaveFunc,
         checkIsVisible = true
     })
 end
-
 function PlayerEquip.InitEquipUI()
-    local equipDataByPos = SL:GetMetaValue("EQUIP_POS_DATAS")  
+    local equipDataByPos = SL:GetMetaValue("EQUIP_POS_DATAS")
     for pos, data in pairs(equipDataByPos) do
         local equipPanel = PlayerEquip._ui["Panel_pos" .. pos]
         if equipPanel and (GUIFunction:CheckCanShowEquipItem(pos) or PlayerEquip._samePosDiff[pos]) then
             local item = SL:GetMetaValue("EQUIP_DATA_BY_MAKEINDEX", data)
-            if item then 
+            if item then
                 local itemNode = PlayerEquip._ui["Node_"..pos]
                 GUI:removeAllChildren(itemNode)
                 PlayerEquip.CreateEquipItem(itemNode, item, pos)
@@ -403,11 +342,10 @@ function PlayerEquip.InitEquipUI()
         PlayerEquip.ShowEquipItemsUI(pos)
     end
 end
-
 function PlayerEquip.CreateEquipItem(parent, data, uiPos)
     -- 剑甲分离装备框不显示内观特效
     local function checkPos(uiPos)
-        if PlayerEquip.fictionalUIPos and PlayerEquip.fictionalUIPos[uiPos] then 
+        if PlayerEquip.fictionalUIPos and PlayerEquip.fictionalUIPos[uiPos] then
             local pos = PlayerEquip.fictionalUIPos[uiPos]
             if pos == GUIDefine.EquipPosUI.Equip_Type_Dress or pos == GUIDefine.EquipPosUI.Equip_Type_Weapon then
                 return false
@@ -415,7 +353,6 @@ function PlayerEquip.CreateEquipItem(parent, data, uiPos)
         end
         return true
     end
-
     local info = {}
     info.itemData = data
     info.index = data.Index
@@ -425,7 +362,6 @@ function PlayerEquip.CreateEquipItem(parent, data, uiPos)
     local item = GUI:ItemShow_Create(parent, "item_" .. uiPos, 0, 0, info)
     GUI:setAnchorPoint(item, 0.5, 0.5)
 end
-
 function PlayerEquip.InitEquipCells()
     local uid = SL:GetMetaValue("USER_ID")
     -- 请求通知脚本查看uid的珍宝
@@ -442,18 +378,16 @@ function PlayerEquip.InitEquipCells()
         GUI:setVisible(PlayerEquip._ui.Node_14, false)
         GUI:setVisible(PlayerEquip._ui.Node_15, false)
     end
-
     -- 剑甲分离配置
-    if SL:GetMetaValue("GAME_DATA", "DivideWeaponAndClothes") == 1 then 
+    if SL:GetMetaValue("GAME_DATA", "DivideWeaponAndClothes") == 1 then
         GUI:setVisible(PlayerEquip._ui.Panel_pos1000, true)
         GUI:setVisible(PlayerEquip._ui.Panel_pos1001, true)
         GUI:setVisible(PlayerEquip._ui.Node_1000, true)
         GUI:setVisible(PlayerEquip._ui.Node_1001, true)
         table.insert(PlayerEquip.posSetting, 1000)
         table.insert(PlayerEquip.posSetting, 1001)
-    end 
+    end
 end
-
 function PlayerEquip.RefreshGuildInfo()
     local textGuildInfo = PlayerEquip._ui.Text_guildinfo
     local guildData = SL:GetMetaValue("GUILD_INFO") -- 行会数据
@@ -463,16 +397,13 @@ function PlayerEquip.RefreshGuildInfo()
         return
     end
     myJobName = myJobName or ""
-
     local guildInfo = myGuildName .. " " .. myJobName
     GUI:Text_setString(textGuildInfo, guildInfo)
-
     local color = SL:GetMetaValue("USER_NAME_COLOR")
     if color and color > 0 then
         GUI:Text_setTextColor(textGuildInfo, SL:GetHexColorByStyleId(color))
     end
 end
-
 function PlayerEquip.RefreshPlayerBestRingsOpenState(data)
     local activeState = SL:GetMetaValue("BEST_RING_OPENSTATE", PlayerEquip.RoleType.Self)
     if activeState then
@@ -480,9 +411,8 @@ function PlayerEquip.RefreshPlayerBestRingsOpenState(data)
     else
         GUI:Image_setGrey(PlayerEquip._ui.Image_box, true)
     end
-    
     local function mouseMoveCallBack(touchPos)
-        if not GUI:getVisible(PlayerEquip._ui.Best_ringBox) then 
+        if not GUI:getVisible(PlayerEquip._ui.Best_ringBox) then
             return
         end
         local bestRingsName = "神器"
@@ -499,11 +429,9 @@ function PlayerEquip.RefreshPlayerBestRingsOpenState(data)
             GUI:ShowWorldTips(tips, worldPos, GUI:p(0.5, 1))
         end
     end
-
     local function leaveItem()
         GUI:HideWorldTips()
     end
-
     GUI:addMouseMoveEvent(PlayerEquip._ui.Best_ringBox,
         {
             onEnterFunc = mouseMoveCallBack,
@@ -516,8 +444,6 @@ function PlayerEquip.RefreshPlayerBestRingsOpenState(data)
         end
     end
 end
-
-
 function PlayerEquip.RefreshBestRingBox()
     SL:scheduleOnce(PlayerEquip._ui.Best_ringBox,function()
         local texture = "btn_jewelry_1_1.png"
@@ -530,8 +456,6 @@ function PlayerEquip.RefreshBestRingBox()
         PlayerEquip.RefreshPlayerBestRingsOpenState()
     end,0.1)
 end
-
-
 function PlayerEquip.GetShowUIPosByItemWhere(pos)
     local typeConfig = GUIDefine.EquipPosUI
     if pos == typeConfig.Equip_Type_Cap or pos == typeConfig.Equip_Type_Veil then
@@ -541,7 +465,6 @@ function PlayerEquip.GetShowUIPosByItemWhere(pos)
     end
     return pos
 end
-
 function PlayerEquip.UpdateEquipUI(data)
     if not data or not next(data) then
         return
@@ -558,7 +481,7 @@ function PlayerEquip.UpdateEquipUI(data)
     if not equipPanel then
         return
     end
-    local isShowItem = false 
+    local isShowItem = false
     if GUIFunction:CheckCanShowEquipItem(pos) or PlayerEquip._samePosDiff[pos] then
         isShowItem = true
     end
@@ -574,7 +497,7 @@ function PlayerEquip.UpdateEquipUI(data)
             GUI:removeAllChildren(itemNode)
             local item = SL:GetMetaValue("EQUIP_DATA_BY_MAKEINDEX", MakeIndex)
             PlayerEquip.CreateEquipItem(itemNode, item, pos)
-            if PlayerEquip._samePosDiff[pos] and PlayerEquip.showModelCapAndHelmet then 
+            if PlayerEquip._samePosDiff[pos] and PlayerEquip.showModelCapAndHelmet then
                 PlayerEquip.UpdatePlayerView()
                 PlayerEquip.ShowEquipItemsUI(pos)
             end
@@ -586,7 +509,7 @@ function PlayerEquip.UpdateEquipUI(data)
         if isShowItem then
             local itemNode = PlayerEquip._ui["Node_" .. pos]
             GUI:removeAllChildren(itemNode)
-            if PlayerEquip._samePosDiff[pos] and PlayerEquip.showModelCapAndHelmet then 
+            if PlayerEquip._samePosDiff[pos] and PlayerEquip.showModelCapAndHelmet then
                 PlayerEquip.UpdatePlayerView()
                 PlayerEquip.HideEquipItemsUI(pos)
             end
@@ -599,13 +522,12 @@ function PlayerEquip.UpdateEquipUI(data)
         if not data.isChangeLook then
             return
         end
-
         if isShowItem then
             local itemNode = PlayerEquip._ui["Node_" .. pos]
             GUI:removeAllChildren(itemNode)
             local item = SL:GetMetaValue("EQUIP_DATA_BY_MAKEINDEX", MakeIndex)
             PlayerEquip.CreateEquipItem(itemNode, item, pos)
-            if PlayerEquip._samePosDiff[pos] and PlayerEquip.showModelCapAndHelmet then 
+            if PlayerEquip._samePosDiff[pos] and PlayerEquip.showModelCapAndHelmet then
                 PlayerEquip.UpdatePlayerView()
             end
         else
@@ -613,21 +535,17 @@ function PlayerEquip.UpdateEquipUI(data)
         end
     end
 end
-
 function PlayerEquip.UpdatePlayerView(noEquipType, init)
     GUI:removeAllChildren(PlayerEquip._ui.Node_playerModel)
     local equipDataByPos = SL:GetMetaValue("EQUIP_POS_DATAS")
     local equipTypeConfig = GUIDefine.EquipPosUI
-
     noEquipType = noEquipType or {}
-
     local showNakedMold = true --装备进行判断是否显示裸模  默认显示
     local showHelmet = false
     local function getFileName(looks)
         local fileName = string.format("%06d", looks % 10000)
         return fileName, math.floor(looks / 10000)
     end
-
     local function GetLooks(equipType, need)
         local show = {
             look = nil,
@@ -644,32 +562,26 @@ function PlayerEquip.UpdatePlayerView(noEquipType, init)
                 return show
             end
             local equipData = SL:GetMetaValue("EQUIP_DATA_BY_MAKEINDEX", MakeIndex) or {}
-
             if equipType == equipTypeConfig.Equip_Type_Dress then
                 if showNakedMold and equipData and equipData.shonourSell and tonumber(equipData.shonourSell) == 1 then --xslm==1不显示裸模
                     showNakedMold = false
                 end
             end
-
             if equipData and equipData.Looks then
                 show.look = equipData.Looks
             end
-
             if equipData and equipData.sEffect then
                 show.effect = equipData.sEffect
             end
-
             if equipType == equipTypeConfig.Equip_Type_Cap and equipData.AniCount == 0 then
                 showHelmet = true
             end
-
             if PlayerEquip._samePosDiff[equipType] and not PlayerEquip.showModelCapAndHelmet then
                 return {
                     look = nil,
                     effect = nil
                 }
             end
-
             return show
         end
         return show
@@ -684,7 +596,6 @@ function PlayerEquip.UpdatePlayerView(noEquipType, init)
     local tDressShow    = GetLooks(10004)
     local tWeaponShow   = GetLooks(10005)
     local embattle      = SL:GetMetaValue("EMBATTLE")
-
     local modelData = {
         clothID         = clothShow.look,
         clothEffectID   = clothShow.effect,
@@ -707,85 +618,67 @@ function PlayerEquip.UpdatePlayerView(noEquipType, init)
         notShowMold     = not showNakedMold,
         notShowHair     = not showNakedMold,
     }
-
     local sex = SL:GetMetaValue("SEX")
     local job = SL:GetMetaValue("JOB")
     local uiModel = GUI:UIModel_Create(PlayerEquip._ui.Node_playerModel, "model", 0, 0, sex, modelData, nil, true, job, {showHelmet = showHelmet})
     GUI:setAnchorPoint(uiModel, 0.5, 0.5)
 end
-
 function PlayerEquip.ShowEquipItemsUI(pos)
-    if not pos then 
-        return 
-    end 
-
-    if not PlayerEquip.realUIPos or not PlayerEquip.realUIPos[pos] then 
-        return 
-    end 
-
+    if not pos then
+        return
+    end
+    if not PlayerEquip.realUIPos or not PlayerEquip.realUIPos[pos] then
+        return
+    end
     local data = SL:GetMetaValue("EQUIP_DATA", pos)
-    if not data then 
-        return 
-    end 
-
+    if not data then
+        return
+    end
     local UIPos = PlayerEquip.realUIPos[pos]
-
     local itemPanel = PlayerEquip._ui["Panel_pos" .. UIPos]
     local bShow = GUI:getVisible(itemPanel)
-    if not bShow then 
-        return 
-    end 
-
+    if not bShow then
+        return
+    end
     local itemNode = PlayerEquip._ui["Node_" .. UIPos]
-    if not itemNode then   
-        return 
-    end 
-
+    if not itemNode then
+        return
+    end
     GUI:setVisible(itemNode, true)
     GUI:removeAllChildren(itemNode)
-
     PlayerEquip.CreateEquipItem(itemNode, data, UIPos)
 end
-
 function PlayerEquip.HideEquipItemsUI(pos)
-    if not pos then 
-        return 
-    end 
-
-    if not PlayerEquip.realUIPos or not PlayerEquip.realUIPos[pos] then 
-        return 
-    end 
-
-    local UIPos = PlayerEquip.realUIPos[pos] 
-
+    if not pos then
+        return
+    end
+    if not PlayerEquip.realUIPos or not PlayerEquip.realUIPos[pos] then
+        return
+    end
+    local UIPos = PlayerEquip.realUIPos[pos]
     local itemPanel = PlayerEquip._ui["Panel_pos" .. UIPos]
     local bShow = GUI:getVisible(itemPanel)
-    if not bShow then 
-        return 
-    end 
-
+    if not bShow then
+        return
+    end
     local itemNode = PlayerEquip._ui["Node_"..UIPos]
-    if not itemNode then   
-        return 
-    end 
-
+    if not itemNode then
+        return
+    end
     GUI:setVisible(itemNode, false)
     GUI:removeAllChildren(itemNode)
 end
-
 function PlayerEquip.OnOpenOrCloseWin(data)
     if data == "PlayerBestRingGUI" then
         PlayerEquip.RefreshBestRingBox()
     end
 end
-
---[[    
+--[[
     界面关闭回调
 ]]
 function PlayerEquip.CloseCallback()
     PlayerEquip.UnRegisterEvent()
 end
-
 function PlayerEquip.RegisterEvent()
     --刷新行会信息
     SL:RegisterLUAEvent(LUA_EVENT_PLAYER_GUILD_INFO_CHANGE, "PlayerEquip", PlayerEquip.RefreshGuildInfo)
@@ -801,7 +694,6 @@ function PlayerEquip.RegisterEvent()
     -- 首饰盒状态改变
     SL:RegisterLUAEvent(LUA_EVENT_BESTRINGBOX_STATE, "PlayerEquip", PlayerEquip.RefreshPlayerBestRingsOpenState)
 end
-
 function PlayerEquip.UnRegisterEvent()
     SL:UnRegisterLUAEvent(LUA_EVENT_PLAYER_GUILD_INFO_CHANGE, "PlayerEquip")
     SL:UnRegisterLUAEvent(LUA_EVENT_PLAYER_EQUIP_CHANGE, "PlayerEquip")

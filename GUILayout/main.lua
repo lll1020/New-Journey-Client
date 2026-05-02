@@ -1,4 +1,4 @@
-﻿-- npc加载
+-- npc加载
 -- npclib 渲染地址
 
 Npclib = setmetatable({}, {

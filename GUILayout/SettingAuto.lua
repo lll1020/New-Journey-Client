@@ -902,4 +902,3 @@ end
 function SettingAuto.UnRegisterEvent()
     SL:UnRegisterLUAEvent(LUA_EVENT_MONSTER_IGNORELIST_ADD, "SettingAuto")
 end
-

@@ -1,14 +1,10 @@
 local npc = {}
-
 npc._config = teshudata["npc_9"]
-
 local WINDOW_OPTS = {
     background = {skin = "res/custom/one_city/9/bg.png", eff = false},
     title = {x = 56 + 40, y = 464, skin = "res/custom/one_city/9/title.png"},
 }
-
 local TAB_ORDER = {2, 1}
-
 local RING_UI = {
     [1] = {
         key = "fh",
@@ -25,24 +21,20 @@ local RING_UI = {
         tabOff = "res/custom/one_city/9/tab_mb_off.png",
     },
 }
-
 local function getItemDataByName(name)
     local itemIndex = name and SL:GetMetaValue("ITEM_INDEX_BY_NAME", name)
     return itemIndex and SL:GetMetaValue("ITEM_DATA", itemIndex) or nil
 end
-
 local function getEquipLevel(item)
     if not item or not item.Index then
         return 0
     end
     return tonumber(Player:getEquipFieldByIndex(item.Index, 1)) or 0
 end
-
 local function getEquipItem(cfgIdx)
     local where = npc._config and npc._config.where and npc._config.where[cfgIdx]
     return where and SL:GetMetaValue("EQUIP_DATA", where) or nil
 end
-
 local function getNextConfig(cfgIdx, equipLevel)
     local configList = npc._config and npc._config.config and npc._config.config[cfgIdx]
     if type(configList) ~= "table" then
@@ -50,7 +42,6 @@ local function getNextConfig(cfgIdx, equipLevel)
     end
     return configList[equipLevel]
 end
-
 local function getDefaultCfgIdx()
     if RING_UI[npc.selectedCfgIdx] then
         return npc.selectedCfgIdx
@@ -62,17 +53,14 @@ local function getDefaultCfgIdx()
     end
     return TAB_ORDER[1]
 end
-
 local function buildPreviewText(currentItem, nextItem, equipLevel)
     if not currentItem then
         return "<font color='#ff6666' size='18'>请先穿戴对应特戒</font>\n\n<font color='#d7d7d7' size='16'>穿戴后可在这里查看当前属性与升级后的属性预览。</font>"
     end
-
     local parts = {
         string.format("<font color='#efad21' size='18'>当前属性  Lv.%d</font>", math.max(1, equipLevel)),
         string.format("人物攻击 + %d%%", equipLevel) or "",
     }
-
     if nextItem then
         parts[#parts + 1] = ""
         parts[#parts + 1] = string.format("<font color='#56d8ff' size='18'>升级预览  Lv.%d</font>", equipLevel + 1)
@@ -81,13 +69,10 @@ local function buildPreviewText(currentItem, nextItem, equipLevel)
         parts[#parts + 1] = ""
         parts[#parts + 1] = "<font color='#efad21' size='18'>已达最高等级</font>"
     end
-
     return table.concat(parts, "\n")
 end
-
 function npc.main(npcid, p2, p3, msgData)
     local UI_updata
-
     local function ensureWindow(npcid)
         local opts = {}
         for k, v in pairs(WINDOW_OPTS) do
@@ -100,7 +85,6 @@ function npc.main(npcid, p2, p3, msgData)
         npc.node = npc._window.node
         return npc.node
     end
-
     local function drawTab(node, cfgIdx, posY)
         local uiCfg = RING_UI[cfgIdx] or {}
         local selected = npc.selectedCfgIdx == cfgIdx
@@ -116,7 +100,6 @@ function npc.main(npcid, p2, p3, msgData)
                 UI_updata(npc.node)
             end
         end)
-
         local item = getEquipItem(cfgIdx)
         local equipLevel = getEquipLevel(item)
         local nextConfig = (item and equipLevel < (npc._config.max_level or 0)) and getNextConfig(cfgIdx, equipLevel) or nil
@@ -125,15 +108,12 @@ function npc.main(npcid, p2, p3, msgData)
             NPC_UI_HELPER.redpoint_create(tab, {x = 120, y = 110, autoScale = 0.9})
         end
     end
-
     UI_updata = function(node)
         if not node then
             return
         end
-
         GUI:removeAllChildren(node)
         npc.selectedCfgIdx = getDefaultCfgIdx()
-
         local cfgIdx = npc.selectedCfgIdx
         local uiCfg = RING_UI[cfgIdx] or {}
         local item = getEquipItem(cfgIdx)
@@ -142,25 +122,20 @@ function npc.main(npcid, p2, p3, msgData)
         local nextItem = nextConfig and getItemDataByName(nextConfig.give) or nil
         local canUpgrade = item and equipLevel < (npc._config.max_level or 0) and nextConfig ~= nil
         local canPay = canUpgrade and checkItemNum(nextConfig.cost)
-
         -- GUI:Text_Create(node, "slogan_shadow", 82, 420, 22, "#000000", "左手麻痹 / 右手复活 / 传奇大陆横着走！")
         -- local slogan = GUI:Text_Create(node, "slogan", 80, 422, 22, "#DDEEFF", "左手麻痹 / 右手复活 / 传奇大陆横着走！")
         -- GUI:Text_setFontName(slogan, "fonts/font4.ttf")
         -- GUI:Text_enableOutline(slogan, "#000000", 2)
-
         drawTab(node, 2, 252)
         drawTab(node, 1, 121)
-
         if uiCfg.nameSkin then
             GUI:Image_Create(node, "ring_name", 138, 360, uiCfg.nameSkin)
         end
-
         -- local levelText = item and string.format("Lv.%d", math.max(1, equipLevel)) or "未穿戴"
         -- local levelColor = item and "#EFAD21" or "#FF6666"
         -- local levelLabel = GUI:Text_Create(node, "level", 215, 358, 20, levelColor, levelText)
         -- GUI:Text_setFontName(levelLabel, "fonts/font4.ttf")
         -- GUI:Text_enableOutline(levelLabel, "#000000", 2)
-
         if item then
             GUI:setAnchorPoint(GUI:ItemShow_Create(node, "item_current", 248, 128, {
                 itemData = item,
@@ -173,7 +148,6 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:Text_setFontName(tip, "fonts/font4.ttf")
             GUI:Text_enableOutline(tip, "#000000", 2)
         end
-
         if canUpgrade and nextItem then
             GUI:setAnchorPoint(GUI:ItemShow_Create(node, "item_next", 248, 287, {
                 itemData = nextItem,
@@ -187,7 +161,6 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:Text_setFontName(nextTip, "fonts/font4.ttf")
             GUI:Text_enableOutline(nextTip, "#000000", 2)
         end
-
         if nextConfig and nextConfig.cost then
             for costIdx = 1, math.min(2, #nextConfig.cost) do
                 local entry = nextConfig.cost[costIdx]
@@ -195,17 +168,14 @@ function npc.main(npcid, p2, p3, msgData)
                 GUI:setPosition(costNode, (costIdx == 1) and 85 or 85 + 220, 122 + 20)
             end
         end
-
         local previewHost = GUI:Node_Create(node, "preview_host", 433 + 30, 370 - 50)
         local previewRich = GUI:RichText_Create(previewHost, "preview_text", 0, 0,
             buildPreviewText(item, nextItem, equipLevel), 300, 18, "#f7f7de", 3, nil, nil,
             {outlineSize = 2, outlineColor = SL:ConvertColorFromHexString("#100808")})
         GUI:setAnchorPoint(previewRich, 0, 1)
-
         if uiCfg.tipSkin then
             GUI:Image_Create(node, "tip_img", 430, 36, uiCfg.tipSkin)
         end
-
         local upgradeBtn = GUI:Button_Create(node, "upgrade_btn", 250, 40, "res/custom/one_city/9/btn_upgrade.png")
         GUI:setAnchorPoint(upgradeBtn, 0.5, 0.5)
         GUI:addOnClickEvent(upgradeBtn, function()
@@ -220,12 +190,10 @@ function npc.main(npcid, p2, p3, msgData)
             SL:SendLuaNetMsg(100, npcid, 1, cfgIdx, "")
         end)
         GUI:Button_setGrey(upgradeBtn, not canUpgrade)
-        NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, upgradeBtn, node, npcid, cfgIdx, {dir = 5})
         if canPay then
             NPC_UI_HELPER.redpoint_create(upgradeBtn)
         end
     end
-
     if p2 == 0 then
         npc.data = SL:JsonDecode(msgData, false)
         ensureWindow(npcid)
@@ -236,5 +204,4 @@ function npc.main(npcid, p2, p3, msgData)
         end
     end
 end
-
 return npc

@@ -8,7 +8,7 @@
 Disclaimer for Robert Penner's Easing Equations license:
 TERMS OF USE - EASING EQUATIONS
 Open source under the BSD License.
-Copyright © 2001 Robert Penner
+Copyright 漏 2001 Robert Penner
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
     * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.

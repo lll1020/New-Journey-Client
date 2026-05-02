@@ -1,4 +1,4 @@
-﻿local MainAssistXylHelper = {}
+local MainAssistXylHelper = {}
 
 -- 备注：伏妖录当前任务变更事件名。
 MainAssistXylHelper.EVENT_CURRENT_TASK_CHANGE = "伏妖录当前任务变更"
@@ -252,8 +252,9 @@ function MainAssistXylHelper.bind(MainAssist)
     end
 
     local function _get_xyl_current_task_action_text(info)
+        local autoClaim = type(info) == "table" and tonumber(info.i or 0) == 2
         local task = type(info) == "table" and info.task or nil
-        local canClaim = (type(task) == "table" and task.id == 999 and task.khdjy) and (task.khdjy(task) == true) or false
+        local canClaim = (not autoClaim and type(task) == "table" and task.need_receive ~= false and task.id == 999 and task.khdjy) and (task.khdjy(task) == true) or false
         return canClaim and "领取奖励" or "立即前往"
     end
 
@@ -1512,11 +1513,13 @@ function MainAssistXylHelper.bind(MainAssist)
             return
         end
 
+        local autoClaim = tonumber(info.i or 0) == 2
         local task = info.task or {}
-        local enable = (task.id == 999 and task.khdjy) and (task.khdjy(task) == true) or false
+        local enable = (not autoClaim and task.need_receive ~= false and task.id == 999 and task.khdjy) and (task.khdjy(task) == true) or false
         SL:SendLuaNetMsg(101, 11, enable and 3 or 1, 0,
             string.format('{"i":%d,"j":%d,"k":0,"z":%d}', info.i, info.j, info.z))
     end
+    MainAssist.GoToCurrentXylTask = _go_to_current_xyl_task
 
     local function _get_xyl_current_task_desc(task)
         if type(task) ~= "table" then

@@ -1,6 +1,5 @@
 -- 异闻录：剧情完成判定辅助
 local _xyl_name_map
-
 local function _xyl_norm_name(name)
     if not name then
         return ""
@@ -11,7 +10,6 @@ local function _xyl_norm_name(name)
     v = v:gsub("　", "")
     return v
 end
-
 local function _xyl_build_name_map()
     local map = {}
     local data = teshudata or {}
@@ -22,7 +20,6 @@ local function _xyl_build_name_map()
     end
     return map
 end
-
 local function _xyl_get_npc_key(name)
     if not name then
         return nil
@@ -33,15 +30,12 @@ local function _xyl_get_npc_key(name)
     end
     return nil
 end
-
 local function _xyl_get_server_var(varName)
     return Player:getServerVar(varName)
 end
-
 local function _xyl_get_json(varName)
     return Player:JsonToTbl(_xyl_get_server_var(varName))
 end
-
 local function _xyl_get_num(varName)
     return tonumber(_xyl_get_server_var(varName)) or 0
 end
@@ -56,7 +50,6 @@ local function _xyl_has_title(title)
     end
     return SL:GetMetaValue("TITLE_DATA_BY_ID", idx) ~= nil
 end
-
 -- 备注：通用剧情完成判定（读取 T13，优先称号，其次次数/完成标记）
 local function _xyl_check_story(name)
     local key = _xyl_get_npc_key(name)
@@ -103,7 +96,6 @@ local function _xyl_check_story(name)
     end
     return false
 end
-
 -- 备注：背包道具数量是否满足
 local function _xyl_has_item(name, count)
     if not name or name == "" then
@@ -112,7 +104,6 @@ local function _xyl_has_item(name, count)
     local miss = Player:checkItemNumByTable({{name, count or 1}})
     return not miss
 end
-
 -- 备注：列表内任意道具满足即可
 local function _xyl_has_any_item(list)
     if type(list) ~= "table" then
@@ -125,7 +116,6 @@ local function _xyl_has_any_item(list)
     end
     return false
 end
-
 -- 备注：指定部位是否装备指定名称物品
 local function _xyl_has_equip_named(where, name)
     if not where or not name then
@@ -134,13 +124,11 @@ local function _xyl_has_equip_named(where, name)
     local equipName = Player:getEquipNameByPos(where)
     return equipName == name
 end
-
 -- 备注：天书等级是否达到 1 级
 local function _xyl_has_tianshu_level()
     local data = _xyl_get_json("T42")
     return (data.level or 0) >= 1
 end
-
 -- 备注：天书是否已配置任意仙法
 local function _xyl_has_any_xianfa()
     local data = _xyl_get_json("T42")
@@ -157,7 +145,6 @@ local function _xyl_has_any_xianfa()
     end
     return false
 end
-
 -- 备注：天书是否拥有红色仙法
 local function _xyl_has_red_xianfa()
     local data = _xyl_get_json("T42")
@@ -169,7 +156,6 @@ local function _xyl_has_red_xianfa()
     end
     return false
 end
-
 local _xyl_equip_strength_vars = {
     ["衣服"] = "U32",
     ["武器"] = "U33",
@@ -182,7 +168,6 @@ local _xyl_equip_strength_vars = {
     ["右戒"] = "U40",
     ["靴子"] = "U41",
 }
-
 -- 备注：任意装备强化等级 > 0
 local function _xyl_has_equip_strength()
     local cfg = teshudata and teshudata["npc_28"]
@@ -203,7 +188,6 @@ local function _xyl_has_equip_strength()
     end
     return false
 end
-
 -- 备注：灵根喂养任意等级 > 0
 local function _xyl_has_linggen_feed()
     local data = _xyl_get_json("T41")
@@ -215,7 +199,6 @@ local function _xyl_has_linggen_feed()
     end
     return false
 end
-
 -- 备注：是否已查看江湖称号
 local function _xyl_has_jianghu_title()
     if rawget(_G, "XYL_VIEW_JH_TITLE") then
@@ -230,29 +213,50 @@ local function _xyl_has_jianghu_title()
     end
     return false
 end
-
 -- 备注：是否已装配主灵根
 local function _xyl_has_main_linggen()
     local data = _xyl_get_json("T41")
     return (tonumber(data.main or (data.T_data and data.T_data.main)) or 0) > 0
 end
-
+-- 备注：主灵根是否为指定下标（1=金 2=木 3=水 4=火 5=土）
+local function _xyl_has_main_linggen_of(idx)
+    local data = _xyl_get_json("T41")
+    return (tonumber(data.main or (data.T_data and data.T_data.main)) or 0) == (tonumber(idx) or 0)
+end
 -- 备注：是否已装配副灵根
 local function _xyl_has_other_linggen()
     local data = _xyl_get_json("T41")
     return (tonumber(data.other or (data.T_data and data.T_data.other)) or 0) > 0
 end
-
+-- 备注：副灵根是否为指定下标（1=金 2=木 3=水 4=火 5=土）
+local function _xyl_has_other_linggen_of(idx)
+    local data = _xyl_get_json("T41")
+    return (tonumber(data.other or (data.T_data and data.T_data.other)) or 0) == (tonumber(idx) or 0)
+end
 -- 备注：气运占卜次数是否大于 0
 local function _xyl_has_divination()
     return _xyl_get_num("U31") > 0
 end
-
+-- 备注：是否已打开过二大陆限时福利
+local function _xyl_has_second_continent_welfare_open()
+    return _xyl_get_num("N$XYL2_WELFARE_OPEN") > 0
+end
+-- 备注：是否已完成过一次天书使者洗炼
+local function _xyl_has_second_continent_tianshu_refine()
+    return _xyl_get_num("N$XYL2_TIANSHU_REFINE") > 0
+end
+-- 备注：是否已查看过幸运增幅界面
+local function _xyl_has_second_continent_lucky_view()
+    return _xyl_get_num("N$XYL2_LUCKY_VIEW") > 0
+end
+-- 备注：境界是否已达到筑基境（等级 10）
+local function _xyl_has_foundation_realm()
+    return _xyl_get_num("U28") >= 10
+end
 -- 备注：转生等级是否达到指定等级
 local function _xyl_has_rebirth(level)
     return _xyl_get_num("U43") >= (level or 1)
 end
-
 -- 备注：判断斗笠低阶名称（低阶不算完成传说/更高）
 local function _xyl_is_lower_hat_name(name)
     if not name or name == "" then
@@ -263,7 +267,6 @@ local function _xyl_is_lower_hat_name(name)
     end
     return name:match("^斗笠%[lv%d+%]$") ~= nil
 end
-
 -- 备注：判断葫芦低阶名称（低阶不算完成神/更高）
 local function _xyl_is_lower_gourd_name(name)
     if not name or name == "" then
@@ -274,7 +277,6 @@ local function _xyl_is_lower_gourd_name(name)
     end
     return name:match("^酒葫芦%[lv%d+%]$") ~= nil
 end
-
 -- 备注：是否拥有传说神石类道具
 local function _xyl_has_legendary_stone()
     local cfg = teshudata and teshudata["npc_53"]
@@ -282,7 +284,6 @@ local function _xyl_has_legendary_stone()
     SL:dump(list, "legendary stone list")
     return _xyl_has_any_item(list)
 end
-
 -- 备注：传说斗笠（装备或背包）是否拥有（上位斗笠也视为完成）
 local function _xyl_has_legendary_hat()
     local item = SL:GetMetaValue("EQUIP_DATA", 13)
@@ -294,7 +295,6 @@ local function _xyl_has_legendary_hat()
         return false
     end
 end
-
 -- 备注：神酒葫芦（装备或背包）是否拥有（上位葫芦也视为完成）
 local function _xyl_has_god_gourd()
     local item = SL:GetMetaValue("EQUIP_DATA", 16)
@@ -306,7 +306,6 @@ local function _xyl_has_god_gourd()
         return false
     end
 end
-
 -- 备注：高级淬体是否全完成（或已有称号）
 local function _xyl_has_advanced_quench()
     local cfg = teshudata and teshudata["npc_54"]
@@ -325,13 +324,11 @@ local function _xyl_has_advanced_quench()
     end
     return true
 end
-
 -- 备注：仙府是否已开启（有数据记录）
 local function _xyl_has_xianfu_open()
     local data = _xyl_get_json("T47")
     return next(data or {}) ~= nil
 end
-
 -- 备注：仙府炼制是否有记录
 local function _xyl_has_xianfu_refine()
     local data = _xyl_get_json("T47")
@@ -343,7 +340,6 @@ local function _xyl_has_xianfu_refine()
     end
     return false
 end
-
 -- 备注：仙府种植或药草是否有记录
 local function _xyl_has_xianfu_plant()
     local data = _xyl_get_json("T47")
@@ -365,18 +361,20 @@ local function _xyl_has_xianfu_plant()
     end
     return false
 end
-
 -- 备注：砍树系统是否有数据记录
 local function _xyl_has_tree()
     local data = _xyl_get_json("T55")
     return next(data or {}) ~= nil
 end
-
 -- 备注：藏宝图累计完成次数 > 0
 local function _xyl_has_treasure()
     return _xyl_get_num("U46") > 0
 end
-
+-- 备注：聚宝盆是否已修复/激活
+local function _xyl_has_treasure_basin_fixed()
+    local data = _xyl_get_json("T44")
+    return (tonumber(data and data.rebuilt or 0) or 0) >= 1
+end
 -- 备注：灵兽全星级是否达到指定等级
 local function _xyl_has_lingshou_star(star)
     local cfg = teshudata and teshudata["npc_64"]
@@ -396,7 +394,6 @@ local function _xyl_has_lingshou_star(star)
     end
     return true
 end
-
 -- 备注：是否拥有【唐代】古玩类道具
 local function _xyl_has_tang_antique()
     local cfg = teshudata and teshudata["npc_65"]
@@ -413,13 +410,11 @@ local function _xyl_has_tang_antique()
     end
     return _xyl_has_any_item(list)
 end
-
 -- 备注：生肖守护是否全激活
 local function _xyl_has_shengxiao_guard()
     local data = _xyl_get_json("T53")
     return (tonumber(data.level) or 0) >= 1
 end
-
 -- 备注：是否已激活全部圣遗物（灵兽圣遗物）
 local function _xyl_has_all_syw()
     local data = _xyl_get_json("T50")
@@ -437,7 +432,6 @@ local function _xyl_has_all_syw()
     end
     return true
 end
-
 -- 备注：是否已激活全部天命装备（持有或穿戴）
 local function _xyl_has_all_tianming()
     local list = {
@@ -457,20 +451,31 @@ local function _xyl_has_all_tianming()
     end
     return true
 end
-
 -- 备注：剧情点验证入口（优先特殊逻辑，其次剧情完成）
 local function _xyl_check_task(name)
     local key = _xyl_norm_name(name)
     local special = {
         ["天书强化"] = _xyl_has_tianshu_level,
+        ["进行天书强化1次"] = _xyl_has_tianshu_level,
         ["初识仙法"] = _xyl_has_any_xianfa,
+        ["进行天书仙法抽取"] = _xyl_has_any_xianfa,
         ["装备强化"] = _xyl_has_equip_strength,
+        ["装备强化1次"] = _xyl_has_equip_strength,
         ["升级灵根"] = _xyl_has_linggen_feed,
+        ["强化灵根1次"] = _xyl_has_linggen_feed,
         ["查看江湖称号"] = _xyl_has_jianghu_title,
+        ["查看江湖称号1次"] = _xyl_has_jianghu_title,
         ["装配主灵根"] = _xyl_has_main_linggen,
+        ["装配火灵根至主灵根"] = function() return _xyl_has_main_linggen_of(4) end,
         ["装配副灵根"] = _xyl_has_other_linggen,
+        ["装配水灵根至副灵根"] = function() return _xyl_has_other_linggen_of(3) end,
         ["气运占卜"] = _xyl_has_divination,
+        ["引导点击限时福利NPC"] = _xyl_has_second_continent_welfare_open,
+        ["引导天书使者洗炼一次"] = _xyl_has_second_continent_tianshu_refine,
+        ["查看幸运增幅1次"] = _xyl_has_second_continent_lucky_view,
+        ["提升修为至筑基境"] = _xyl_has_foundation_realm,
         ["转生·二"] = function() return _xyl_has_rebirth(20) end,
+        ["完成2大陆转生"] = function() return _xyl_has_rebirth(20) end,
         ["转生·三"] = function() return _xyl_has_rebirth(30) end,
         ["转生·四"] = function() return _xyl_has_rebirth(40) end,
         ["转生·五"] = function() return _xyl_has_rebirth(50) end,
@@ -484,6 +489,8 @@ local function _xyl_check_task(name)
         ["了解砍树"] = _xyl_has_tree,
         ["种植仙草"] = _xyl_has_xianfu_plant,
         ["寻宝大师"] = _xyl_has_treasure,
+        ["修复聚宝盆"] = _xyl_has_treasure_basin_fixed,
+        ["聚宝盆任务"] = _xyl_has_treasure_basin_fixed,
         ["激活全部圣遗物"] = _xyl_has_all_syw,
         ["激活全部天命装备"] = _xyl_has_all_tianming,
         ["灵兽全一星"] = function() return _xyl_has_lingshou_star(2) end,
@@ -506,7 +513,6 @@ local function _xyl_check_task(name)
     end
     return _xyl_check_story(key)
 end
-
 -- 备注：客户端可见进度判定入口
 local function _xyl_khdjy(task)
     if not task then
@@ -518,7 +524,6 @@ local function _xyl_khdjy(task)
     end
     return _xyl_check_task(tk)
 end
-
 local function _xyl_get_chapter_cfg(taskData, l, zj)
     local lCfg = taskData and taskData[l]
     if type(lCfg) ~= "table" then
@@ -526,7 +531,6 @@ local function _xyl_get_chapter_cfg(taskData, l, zj)
     end
     return lCfg[zj]
 end
-
 local function _xyl_get_task_reward_jqd(task)
     local total = 0
     local rewards = type(task) == "table" and task.jl or nil
@@ -540,7 +544,6 @@ local function _xyl_get_task_reward_jqd(task)
     end
     return total
 end
-
 local function _xyl_is_task_done_for_jqd(task)
     if type(task) ~= "table" then
         return false
@@ -552,14 +555,12 @@ local function _xyl_is_task_done_for_jqd(task)
     local ok, done = pcall(checker, task)
     return ok and done == true
 end
-
 local function _xyl_get_completed_chapter_reward_jqd(taskData, l, zj)
     local cfg = _xyl_get_chapter_cfg(taskData, l, zj)
     local tasks = cfg and cfg.jq
     if type(tasks) ~= "table" then
         return 0
     end
-
     local total = 0
     local hasFinishedTask = false
     for _, task in ipairs(tasks) do
@@ -568,37 +569,31 @@ local function _xyl_get_completed_chapter_reward_jqd(taskData, l, zj)
             hasFinishedTask = true
         end
     end
-
     if not hasFinishedTask then
         return 0
     end
     return total
 end
-
 local function _xyl_should_ignore_ruoshui_jqd(l, zj)
     l = tonumber(l) or 0
     zj = tonumber(zj) or 0
     return l > 3 or (l == 3 and zj >= 2)
 end
-
 local function _xyl_adjust_unlock_jqd(taskData, l, zj, curJqd)
     local nowJqd = tonumber(curJqd) or 0
     if not _xyl_should_ignore_ruoshui_jqd(l, zj) then
         return nowJqd
     end
-
     local ruoshuiJqd = _xyl_get_completed_chapter_reward_jqd(taskData, 3, 1)
     if ruoshuiJqd <= 0 then
         return nowJqd
     end
-
     nowJqd = nowJqd - ruoshuiJqd
     if nowJqd < 0 then
         nowJqd = 0
     end
     return nowJqd
 end
-
 local function _xyl_to_pre_list(pre)
     if type(pre) ~= "table" then
         return nil
@@ -611,7 +606,6 @@ local function _xyl_to_pre_list(pre)
     end
     return nil
 end
-
 local function _xyl_check_chapter_pre(taskData, pre)
     if type(pre) ~= "table" then
         return true
@@ -635,20 +629,17 @@ local function _xyl_check_chapter_pre(taskData, pre)
     end
     return false
 end
-
 local function _xyl_get_chapter_lock_info(taskData, l, zj, curJqd)
     local cfg = _xyl_get_chapter_cfg(taskData, l, zj)
     if not cfg then
         return { locked = false, tip = "", ext_tips = {}, cur_jqd = tonumber(curJqd) or 0, need_jqd = 0, lack_jqd = false }
     end
-
     local nowJqd = _xyl_adjust_unlock_jqd(taskData, l, zj, curJqd)
     local needJqd = tonumber(cfg.jqd) or 0
     local lackJqd = cfg.jqd and nowJqd < needJqd
     local locked = lackJqd and true or false
     local tip = lackJqd and string.format("剧情点不足：%d/%d", nowJqd, needJqd) or ""
     local extTips = {}
-
     local preList = _xyl_to_pre_list(cfg.pre) or _xyl_to_pre_list(cfg.unlock_pre)
     if preList then
         for _, pre in ipairs(preList) do
@@ -665,7 +656,6 @@ local function _xyl_get_chapter_lock_info(taskData, l, zj, curJqd)
             end
         end
     end
-
     return {
         locked = locked,
         tip = tip,
@@ -675,233 +665,258 @@ local function _xyl_get_chapter_lock_info(taskData, l, zj, curJqd)
         lack_jqd = lackJqd and true or false,
     }
 end
-
 local npc_xyl = {
     {},
     {
-        {
-            jq = {
-                {
-                    "天书强化",
-                    id = 999,
-                    jl = { { "剧情点", 1 }, { "仙法卷轴", 1 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    need_receive = false,
-                    yd = { 1, "二大陆主城", 24, 100, 106 },
-                    desc = "前往天书界面完成首次强化，让天书正式发挥作用。\n<font color='#F4D179'>目标：</font>将天书提升至1级\n<font color='#F4D179'>进度：</font>%s",
-                },
-                {
-                    "初识仙法",
-                    id = 999,
-                    jl = { { "剧情点", 1 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    need_receive = false,
-                    yd = { 1, "二大陆主城", 24, 100, 106 },
-                    desc = "在天书中学习并装配第一个仙法，正式掌握仙法力量。\n<font color='#F4D179'>目标：</font>已获得任意仙法\n<font color='#F4D179'>进度：</font>%s",
-                },
-                {
-                    "扫荡野火帮（剧）",
-                    tk = "npc_603",
-                    id = 999,
-                    jl = { { "剧情点", 1 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    need_receive = true,
-                    yd = { 1, "野火帮", 603, 100, 223 },
-                    desc = "深入野火帮外围清剿匪徒，用连续战斗打开剧情缺口。\n<font color='#F4D179'>目标：</font>击杀怪物30只\n<font color='#F4D179'>进度：</font>%s",
-                },
-                {
-                    "深入野火（剧）",
-                    tk = "npc_607",
-                    id = 999,
-                    jl = { { "剧情点", 1 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    need_receive = false,
-                    yd = { 1, "野火帮大营", 607, 60, 279 },
-                    desc = "清理现场后搜集罪证，将野火帮的恶行作为后续调查线索。\n<font color='#F4D179'>目标：</font>\n提交野火帮罪证×10\n<font color='#F4D179'>进度：</font>%s",
-                },
+    {
+        jq = {
+            {
+                "进行天书强化1次",
+                id = 999,
+                jl = { { "剧情点", 1 }, { "仙法卷轴", 1 } },
+                fwdjy = nil,
+                khdjy = _xyl_khdjy,
+                need_receive = false,
+                yd = { 3, 14 },
+                desc = "前往天书界面完成首次强化，让天书正式发挥作用。\n<font color='#F4D179'>目标：</font>将天书提升至1级\n<font color='#F4D179'>进度：</font>%s",
             },
-            name = "初入江湖",
-
-            jqd = 0,
-
-            jl = { { "1元真实充值", 1 }, { "激活火灵根", 1 } },
-        },
-        {
-            jq = {
-                {
-                    "装配主灵根",
-                    id = 999,
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    need_receive = false,
-                    yd = { 1, "二大陆主城", 22, 95, 106 },
-                    desc = "前往灵根界面装配主灵根，掌握第一道灵根之力。\n<font color='#F4D179'>目标：</font>已装配主灵根\n<font color='#F4D179'>进度：</font>%s",
-                },
-                {
-                    "查看江湖称号",
-                    id = 999,
-                    jl = { { "剧情点", 1 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    need_receive = false,
-                    yd = { 1, "二大陆主城", 43, 119, 122 },
-                    desc = "前往江湖称号界面查看称号信息，踏出江湖第一步。\n<font color='#F4D179'>目标：</font>查看江湖称号\n<font color='#F4D179'>进度：</font>%s",
-                },
-                {
-                    "气运占卜",
-                    id = 999,
-                    jl = { { "剧情点", 1 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    need_receive = false,
-                    yd = { 1, "二大陆主城", 26, 110, 106 },
-                    desc = "进行一次气运占卜，开启命格与气运加成的第一步。\n<font color='#F4D179'>目标：</font>完成1次气运占卜\n<font color='#F4D179'>进度：</font>%s",
-                },
-                {
-                    "剿灭恶徒（剧）",
-                    tk = "npc_604",
-                    id = 999,
-                    jl = { { "剧情点", 1 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    need_receive = true,
-                    yd = { 1, "极光城郊", 604, 83, 166 },
-                    desc = "追踪森林异动，分别清剿两类作乱妖物。\n<font color='#F4D179'>目标：</font>\n<font color='#F0B42A'>寒霜狐</font>   %s\n<font color='#F0B42A'>冰羽雀</font>   %s",
-                },
-                {
-                    "守护森林（剧）",
-                    tk = "npc_608",
-                    id = 999,
-                    jl = { { "剧情点", 1 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    need_receive = true,
-                    yd = { 1, "神秘森林", 608, 52, 53 },
-                    desc = "持续肃清林地中的杂兵，稳定整片区域的安全局势。\n<font color='#F4D179'>目标：</font>击杀怪物50只\n<font color='#F4D179'>进度：</font>%s",
-                },
+            {
+                "进行天书仙法抽取",
+                id = 999,
+                jl = { { "剧情点", 1 } },
+                fwdjy = nil,
+                khdjy = _xyl_khdjy,
+                need_receive = false,
+                yd = { 3, 14 },
+                desc = "在天书中完成一次仙法抽取，正式掌握仙法力量。\n<font color='#F4D179'>目标：</font>已获得任意仙法\n<font color='#F4D179'>进度：</font>%s",
             },
-            name = "小试牛刀",
-
-            jqd = 4,
-
-            jl = { { "1元真实充值", 1 }, { "激活木灵根", 1 } },
-        },
-        {
-            jq = {
-                {
-                    "装配副灵根",
-                    id = 999,
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    need_receive = false,
-                    yd = { 1, "二大陆主城", 22, 95, 106 },
-                    desc = "返回灵根界面装配副灵根，补全第二道灵根之力。\n<font color='#F4D179'>目标：</font>已装配副灵根\n<font color='#F4D179'>进度：</font>%s",
-                },
-                {
-                    "装备强化",
-                    id = 999,
-                    jl = { { "剧情点", 1 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    need_receive = false,
-                    yd = { 1, "二大陆主城", 28, 115, 106 },
-                    desc = "前往装备强化界面完成一次强化，让角色拥有更稳定的正向成长。\n<font color='#F4D179'>目标：</font>\n完成任意部位装备强化\n<font color='#F4D179'>进度：</font>%s",
-                },
-                {
-                    "杀伐之路（剧）",
-                    tk = "npc_605",
-                    id = 999,
-                    jl = { { "剧情点", 1 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    need_receive = true,
-                    yd = { 1, "兵道古藏", 605, 103, 53 },
-                    desc = "在血战中证明自己，继续推进主线杀伐节奏。\n<font color='#F4D179'>目标：</font>击杀怪物30只\n<font color='#F4D179'>进度：</font>%s",
-                },
-                {
-                    "掘墓人（剧）",
-                    tk = "npc_610",
-                    id = 999,
-                    jl = { { "剧情点", 1 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    need_receive = false,
-                    yd = { 1, "乱葬岗", 610, 170, 212 },
-                    desc = "从古墓线索中带回关键古物，推进墓地支线真相。\n<font color='#F4D179'>目标：</font>提交唐三彩×5\n<font color='#F4D179'>进度：</font>%s",
-                },
+            {
+                "引导点击限时福利NPC",
+                id = 999,
+                fwdjy = nil,
+                khdjy = _xyl_khdjy,
+                need_receive = false,
+                yd = { 1, "二大陆主城", 105, 95, 106 },
+                desc = "前往限时福利界面查看当前阶段奖励，熟悉前期补给来源。\n<font color='#F4D179'>目标：</font>成功打开限时福利\n<font color='#F4D179'>进度：</font>%s",
             },
-            name = "漫漫仙途",
-
-            jqd = 8,
-
-            jl = { { "1元真实充值", 1 }, { "激活水灵根", 1 } },
-        },
-        {
-            jq = {
-                {
-                    "升级灵根",
-                    id = 999,
-                    jl = { { "剧情点", 1 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    need_receive = false,
-                    yd = { 1, "二大陆主城", 22, 97, 113 },
-                    desc = "完成一次灵根培养，让修炼体系正式进入进阶阶段。\n<font color='#F4D179'>目标：</font>完成1次灵根升级\n<font color='#F4D179'>进度：</font>%s",
-                },
-                {
-                    "讨伐夜魔（剧）",
-                    tk = "npc_606",
-                    id = 999,
-                    jl = { { "剧情点", 1 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    need_receive = true,
-                    yd = { 1, "夜魔洞", 606, 98, 95 },
-                    desc = "夜探古刹外围，分别讨伐两种潜伏在暗处的魔物。\n<font color='#F4D179'>目标：</font>\n<font color='#F0B42A'>夜蝠魇</font>   %s\n<font color='#F0B42A'>地腔鼠</font>   %s",
-                },
-                {
-                    "古刹之谜（剧）",
-                    tk = "npc_609",
-                    id = 999,
-                    jl = { { "剧情点", 1 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    need_receive = false,
-                    yd = { 1, "洞穴秘境", 609, 143, 153 },
-                    desc = "收集古刹异变残留物，拼出幕后事件的关键线索。\n<font color='#F4D179'>目标：</font>\n<font color='#F0B42A'>杀意碎片</font>   %s\n<font color='#F0B42A'>煞气</font>   %s",
-                },
-                {
-                    "转生·二",
-                    id = 999,
-                    jl = { { "剧情点", 1 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    need_receive = false,
-                    yd = { 1, "xtc", 33, 132, 121 },
-                    desc = "完成第二阶段转生突破，继续开启更高阶成长内容。\n<font color='#F4D179'>目标：</font>转生达到二阶要求\n<font color='#F4D179'>进度：</font>%s",
-                },
-                {
-                    "修复轩辕剑（剧）",
-                    -- tk = "npc_601",
-                    id = 999,
-                    jl = { { "剧情点", 1 } },
-                    fwdjy = nil,
-                    khdjy = _xyl_khdjy,
-                    need_receive = false,
-                    yd = { 1, "二大陆主城", 601, 91, 116 },
-                    desc = "沿着前置剧情完成轩辕剑修复，补足这一阶段的主线关键节点。\n<font color='#F4D179'>目标：</font>\n完成修复轩辕剑剧情\n<font color='#F4D179'>进度：</font>%s",
-                },
+            {
+                "扫荡野火帮（剧）",
+                tk = "npc_603",
+                id = 999,
+                jl = { { "剧情点", 1 } },
+                fwdjy = nil,
+                khdjy = _xyl_khdjy,
+                need_receive = true,
+                yd = { 1, "野火帮", 603, 100, 223 },
+                desc = "深入野火帮外围清剿匪徒，用连续战斗打开剧情缺口。\n<font color='#F4D179'>目标：</font>击杀怪物30只\n<font color='#F4D179'>进度：</font>%s",
             },
-            name = "融会贯通",
-
-            jqd = 11,
-
-            jl = { { "1元真实充值", 1 }, { "仙法卷轴", 1 } },
+            {
+                "气运占卜",
+                id = 999,
+                fwdjy = nil,
+                khdjy = _xyl_khdjy,
+                need_receive = false,
+                yd = { 1, "二大陆主城", 26, 110, 106 },
+                desc = "进行一次气运占卜，开启命格与气运加成的第一步。\n<font color='#F4D179'>目标：</font>完成1次气运占卜\n<font color='#F4D179'>进度：</font>%s",
+            },
+            {
+                "深入野火（剧）",
+                tk = "npc_607",
+                id = 999,
+                jl = { { "剧情点", 1 }, { "激活火灵根", 1 } },
+                fwdjy = nil,
+                khdjy = _xyl_khdjy,
+                need_receive = false,
+                yd = { 1, "野火帮大营", 607, 60, 279 },
+                desc = "清理现场后搜集罪证，将野火帮的恶行作为后续调查线索。\n<font color='#F4D179'>目标：</font>\n提交野火帮罪证×10\n<font color='#F4D179'>进度：</font>%s",
+            },
         },
+        name = "初入江湖",
+        jqd = 0,
+        jl = { { "1元真实充值", 1 }, { "激活火灵根", 1 } },
+    },
+    {
+        jq = {
+            {
+                "装配火灵根至主灵根",
+                id = 999,
+                jl = { { "剧情点", 1 } },
+                fwdjy = nil,
+                khdjy = _xyl_khdjy,
+                need_receive = false,
+                yd = { 3, 14 },
+                desc = "前往灵根界面将火灵根装配到主灵根位置，先建立核心灵根方向。\n<font color='#F4D179'>目标：</font>主灵根为火灵根\n<font color='#F4D179'>进度：</font>%s",
+            },
+            {
+                "聚宝盆任务",
+                id = 999,
+                jl = { { "剧情点", 1 } },
+                fwdjy = nil,
+                khdjy = _xyl_khdjy,
+                need_receive = false,
+                yd = { 1, "二大陆主城", 106, 95, 100 },
+                desc = "收集聚宝盆碎片并完成重铸，修复聚宝盆后可继续解锁后续成长内容。\n<font color='#F4D179'>目标：</font>成功修复聚宝盆\n<font color='#F4D179'>进度：</font>%s",
+            },
+            {
+                "引导天书使者洗炼一次",
+                id = 999,
+                jl = { { "剧情点", 1 }, { "激活水灵根", 1 } },
+                fwdjy = nil,
+                khdjy = _xyl_khdjy,
+                need_receive = false,
+                yd = { 1, "二大陆主城", 104, 100, 106 },
+                desc = "前往天书使者完成一次洗炼，熟悉天书附魔强化路线。\n<font color='#F4D179'>目标：</font>完成1次天书使者洗炼\n<font color='#F4D179'>进度：</font>%s",
+            },
+            {
+                "装配水灵根至副灵根",
+                id = 999,
+                fwdjy = nil,
+                khdjy = _xyl_khdjy,
+                need_receive = false,
+                yd = { 3, 14 },
+                desc = "返回灵根界面将水灵根装配到副灵根位置，补齐第二道灵根属性。\n<font color='#F4D179'>目标：</font>副灵根为水灵根\n<font color='#F4D179'>进度：</font>%s",
+            },
+            {
+                "装备强化1次",
+                id = 999,
+                jl = { { "剧情点", 1 } },
+                fwdjy = nil,
+                khdjy = _xyl_khdjy,
+                need_receive = false,
+                yd = { 1, "二大陆主城", 28, 115, 106 },
+                desc = "前往装备强化界面完成一次强化，让角色拥有更稳定的正向成长。\n<font color='#F4D179'>目标：</font>完成任意部位装备强化\n<font color='#F4D179'>进度：</font>%s",
+            },
+        },
+        name = "小试牛刀",
+        jqd = 4,
+        jl = { { "1元真实充值", 1 }, { "激活木灵根", 1 } },
+    },
+    {
+        jq = {
+            {
+                "守护森林（剧）",
+                tk = "npc_608",
+                id = 999,
+                jl = { { "剧情点", 1 } },
+                fwdjy = nil,
+                khdjy = _xyl_khdjy,
+                need_receive = true,
+                yd = { 1, "神秘森林", 608, 52, 53 },
+                desc = "持续肃清林地中的杂兵，稳定整片区域的安全局势。\n<font color='#F4D179'>目标：</font>击杀怪物50只\n<font color='#F4D179'>进度：</font>%s",
+            },
+            {
+                "查看江湖称号1次",
+                id = 999,
+                fwdjy = nil,
+                khdjy = _xyl_khdjy,
+                need_receive = false,
+                yd = { 1, "二大陆主城", 43, 119, 122 },
+                desc = "前往江湖称号界面查看称号信息，熟悉当前江湖成长方向。\n<font color='#F4D179'>目标：</font>查看江湖称号\n<font color='#F4D179'>进度：</font>%s",
+            },
+            {
+                "杀伐之路（剧）",
+                tk = "npc_605",
+                id = 999,
+                jl = { { "剧情点", 1 } },
+                fwdjy = nil,
+                khdjy = _xyl_khdjy,
+                need_receive = true,
+                yd = { 1, "杀伐道场", 605, 103, 53 },
+                desc = "在血战中证明自己，继续推进主线杀伐节奏。\n<font color='#F4D179'>目标：</font>击杀怪物30只\n<font color='#F4D179'>进度：</font>%s",
+            },
+            {
+                "查看幸运增幅1次",
+                id = 999,
+                fwdjy = nil,
+                khdjy = _xyl_khdjy,
+                need_receive = false,
+                yd = { 1, "二大陆主城", 25, 105, 106 },
+                desc = "前往幸运增幅界面查看当前强化成长，了解幸运体系提升方向。\n<font color='#F4D179'>目标：</font>成功查看幸运增幅\n<font color='#F4D179'>进度：</font>%s",
+            },
+            {
+                "掘墓人（剧）",
+                tk = "npc_610",
+                id = 999,
+                jl = { { "剧情点", 1 } },
+                fwdjy = nil,
+                khdjy = _xyl_khdjy,
+                need_receive = false,
+                yd = { 1, "乱葬岗", 610, 170, 212 },
+                desc = "从古墓线索中带回关键古物，推进墓地支线真相。\n<font color='#F4D179'>目标：</font>提交唐三彩×5\n<font color='#F4D179'>进度：</font>%s",
+            },
+            {
+                "强化灵根1次",
+                id = 999,
+                fwdjy = nil,
+                khdjy = _xyl_khdjy,
+                need_receive = false,
+                yd = { 3, 14 },
+                desc = "完成一次灵根培养，让修炼体系正式进入进阶阶段。\n<font color='#F4D179'>目标：</font>完成1次灵根升级\n<font color='#F4D179'>进度：</font>%s",
+            },
+        },
+        name = "漫漫仙途",
+        jqd = 8,
+        jl = { { "1元真实充值", 1 }, { "激活水灵根", 1 } },
+    },
+    {
+        jq = {
+            {
+                "讨伐夜魔（剧）",
+                tk = "npc_606",
+                id = 999,
+                jl = { { "剧情点", 1 } },
+                fwdjy = nil,
+                khdjy = _xyl_khdjy,
+                need_receive = true,
+                yd = { 1, "夜魔洞", 606, 98, 95 },
+                desc = "夜探夜魔洞深处，清剿潜伏在暗处的精英魔物。\n<font color='#F4D179'>目标：</font>击杀精英怪10只\n<font color='#F4D179'>进度：</font>%s",
+            },
+            {
+                "古刹之谜（剧）",
+                tk = "npc_609",
+                id = 999,
+                jl = { { "剧情点", 1 } },
+                fwdjy = nil,
+                khdjy = _xyl_khdjy,
+                need_receive = false,
+                yd = { 1, "洞穴秘境", 609, 143, 153 },
+                desc = "收集古刹异变残留物，拼出幕后事件的关键线索。\n<font color='#F4D179'>目标：</font>\n<font color='#F0B42A'>杀意碎片</font>   %s\n<font color='#F0B42A'>煞气</font>   %s",
+            },
+            {
+                "修复轩辕剑（剧）",
+                id = 999,
+                jl = { { "剧情点", 1 } },
+                fwdjy = nil,
+                khdjy = _xyl_khdjy,
+                need_receive = false,
+                yd = { 1, "二大陆主城", 601, 91, 116 },
+                desc = "沿着前置剧情完成轩辕剑修复，补足这一阶段的主线关键节点。\n<font color='#F4D179'>目标：</font>\n完成修复轩辕剑剧情\n<font color='#F4D179'>进度：</font>%s",
+            },
+            {
+                "提升修为至筑基境",
+                id = 999,
+                jl = { { "剧情点", 1 } },
+                fwdjy = nil,
+                khdjy = _xyl_khdjy,
+                need_receive = false,
+                yd = { 3, 14 },
+                desc = "提升修为境界并跨入筑基境，完成二大陆阶段性的修炼突破。\n<font color='#F4D179'>目标：</font>境界达到筑基境\n<font color='#F4D179'>进度：</font>%s",
+            },
+            {
+                "完成2大陆转生",
+                id = 999,
+                jl = { { "剧情点", 1 } },
+                fwdjy = nil,
+                khdjy = _xyl_khdjy,
+                need_receive = false,
+                yd = { 1, "二大陆主城", 33, 90, 127 },
+                desc = "完成第二阶段转生突破，为下阶段大陆成长做好准备。\n<font color='#F4D179'>目标：</font>转生达到二阶要求\n<font color='#F4D179'>进度：</font>%s",
+            },
+        },
+        name = "融会贯通",
+        jqd = 11,
+        jl = { { "1元真实充值", 1 }, { "仙法卷轴", 1 } },
+    },
     },
     {
         {
@@ -973,9 +988,7 @@ local npc_xyl = {
                 },
             },
             name = "灰界开篇",
-
             jqd = 11,
-
             jl = { { "1元真实充值", 1 }, { "仙法卷轴", 1 } },
         },
         {
@@ -1012,9 +1025,7 @@ local npc_xyl = {
                 },
             },
             name = "仙府功能",
-
             jqd = 11,
-
             jl = {{ "1元真实充值", 2 }, { "激活金灵根", 1 }},
         },
         {
@@ -1069,9 +1080,7 @@ local npc_xyl = {
                 },
             },
             name = "外海之旅",
-
             jqd = 17,
-
             jl = {{ "1元真实充值", 2 }, { "激活土灵根", 1 }},
         },
         {
@@ -1133,9 +1142,7 @@ local npc_xyl = {
                 },
             },
             name = "内海探秘",
-
             jqd = 21,
-
             jl = {{ "1元真实充值", 2 }, { "神石宝箱钥匙", 1 }},
         },
         {
@@ -1175,9 +1182,7 @@ local npc_xyl = {
                 },
             },
             name = "草谷丹道",
-
             jqd = 26,
-
             jl = {{ "1元真实充值", 2 }, { "神石宝箱钥匙", 1 }},
         },
         {
@@ -1233,12 +1238,9 @@ local npc_xyl = {
                     yd = { 1, "xtc", 34, 136, 121 },
                     desc = "继续推进转生系统，将角色突破到第三阶段。\n<font color='#F4D179'>目标：</font>转生达到三阶\n<font color='#F4D179'>进度：</font>%s",
                 },
-                
             },
             name = "三大陆毕业章",
-
             jqd = 11,
-
             jl = {{ "1元真实充值", 5 }, { "等级卷轴", 5 }},
         },
     },
@@ -1307,9 +1309,7 @@ local npc_xyl = {
                 },
             },
             name = "若水秘闻",
-
             jqd = 40,
-
             jl = { { "等级卷轴", 20 }, { "1元真实充值", 25 } },
         },
         {
@@ -1393,9 +1393,7 @@ local npc_xyl = {
                 },
             },
             name = "地府探秘",
-
             jqd = 47,
-
             jl = { { "等级卷轴", 5 }, { "1元真实充值", 8 } },
         },
         {
@@ -1501,9 +1499,7 @@ local npc_xyl = {
                 },
             },
             name = "重走西游",
-
             jqd = 46,
-
             jl = { { "等级卷轴", 10 }, { "1元真实充值", 15 } },
         },
         {
@@ -1565,9 +1561,7 @@ local npc_xyl = {
                 },
             },
             name = "生肖守护[始]",
-
             jqd = 46,
-
             jl = { { "等级卷轴", 5 }, { "1元真实充值", 8 } },
         },
         {
@@ -1629,9 +1623,7 @@ local npc_xyl = {
                 },
             },
             name = "生肖守护[转]",
-
             jqd = 46,
-
             jl = { { "等级卷轴", 5 }, { "1元真实充值", 8 } },
         },
         {
@@ -1704,9 +1696,7 @@ local npc_xyl = {
                 },
             },
             name = "生肖守护[终]",
-
             jqd = 46,
-
             jl = { { "等级卷轴", 5 }, { "1元真实充值", 8 } },
         },
         {
@@ -2227,14 +2217,12 @@ local npc_xyl = {
         },
     },
 }
-
 -- 备注：扁平化 cost 配置，兼容 {{"道具",1}} 与 { [1]={{"道具",1}} } 两种写法。
 local function _xyl_collect_cost_entries(cost, out)
     out = out or {}
     if type(cost) ~= "table" then
         return out
     end
-
     local function appendEntry(v)
         if type(v) == "table" then
             if type(v[1]) == "string" and tonumber(v[2]) then
@@ -2244,11 +2232,9 @@ local function _xyl_collect_cost_entries(cost, out)
             end
         end
     end
-
     for i, v in ipairs(cost) do
         appendEntry(v)
     end
-
     for k, v in pairs(cost) do
         if type(k) ~= "number" or k < 1 or k > #cost or k % 1 ~= 0 then
             appendEntry(v)
@@ -2256,7 +2242,6 @@ local function _xyl_collect_cost_entries(cost, out)
     end
     return out
 end
-
 local function _xyl_count_placeholders(desc)
     local n = 0
     local s = tostring(desc or "")
@@ -2265,7 +2250,6 @@ local function _xyl_count_placeholders(desc)
     end
     return n
 end
-
 local XYL_DESC_COLOR = {
     ok = "#66FF66",
     fail = "#FF6B6B",
@@ -2274,15 +2258,12 @@ local XYL_DESC_COLOR = {
     system = "#63E6FF",
     action = "#FF9A6A",
 }
-
 local function _xyl_wrap_color(text, color)
     return string.format("<font color='%s'>%s</font>", tostring(color or "#FFFFFF"), tostring(text or ""))
 end
-
 local function _xyl_escape_pattern(text)
     return tostring(text or ""):gsub("([%(%)%.%%%+%-%*%?%[%]%^%$])", "%%%1")
 end
-
 local function _xyl_apply_keyword_color(text, words, color, staged)
     local content = tostring(text or "")
     for _, word in ipairs(words or {}) do
@@ -2294,20 +2275,17 @@ local function _xyl_apply_keyword_color(text, words, color, staged)
     end
     return content
 end
-
 local function _xyl_beautify_desc_keywords(text)
     local content = tostring(text or "")
     if content == "" then
         return content
     end
-
     local protected = {}
     local staged = {}
     content = content:gsub("(<font.-</font>)", function(tag)
         table.insert(protected, tag)
         return "\1" .. tostring(#protected) .. "\2"
     end)
-
     local systemWords = {
         "天书界面", "装备强化界面", "幸运强化界面", "江湖称号界面", "灵根界面", "古玩鉴定", "气运占卜",
         "灵根培养", "自动砍树", "藏宝图", "仙府", "转生",
@@ -2317,20 +2295,16 @@ local function _xyl_beautify_desc_keywords(text)
         "前往", "完成", "击杀", "提交", "收集", "挑战",
         "调查", "开启", "制作", "提升", "通过", "击败", "装配", "领取",
     }
-
     content = _xyl_apply_keyword_color(content, systemWords, XYL_DESC_COLOR.system, staged)
     content = _xyl_apply_keyword_color(content, actionWords, XYL_DESC_COLOR.action, staged)
-
     content = content:gsub("\3(%d+)\4", function(idx)
         return staged[tonumber(idx) or 0] or ""
     end)
-
     content = content:gsub("\1(%d+)\2", function(idx)
         return protected[tonumber(idx) or 0] or ""
     end)
     return content
 end
-
 function _xyl_status_rich_text(text)
     local value = tostring(text or "")
     if value == "已全部提交" or value == "已完成" or value == "已提交" or value == "已拥有" or value == "已激活"
@@ -2346,7 +2320,6 @@ function _xyl_status_rich_text(text)
     end
     return value
 end
-
 local function _xyl_story_node_done(node)
     if node == nil then
         return false
@@ -2367,7 +2340,6 @@ local function _xyl_story_node_done(node)
     end
     return false
 end
-
 local function _xyl_story_node_started(node)
     if node == nil then
         return false
@@ -2388,7 +2360,6 @@ local function _xyl_story_node_started(node)
     end
     return false
 end
-
 local function _xyl_get_story_node_by_tk(tk, storyData)
     if not tk or tk == "" then
         return nil
@@ -2400,7 +2371,6 @@ local function _xyl_get_story_node_by_tk(tk, storyData)
     end
     return node
 end
-
 function _xyl_progress_pair_text(cur, need)
     local c = tonumber(cur) or 0
     local n = tonumber(need) or 0
@@ -2410,7 +2380,6 @@ function _xyl_progress_pair_text(cur, need)
     local color = (n > 0 and c >= n) and XYL_DESC_COLOR.ok or XYL_DESC_COLOR.fail
     return c, n, _xyl_wrap_color(string.format("%d/%d", c, n), color)
 end
-
 -- 备注：统一将进度节点转为数值，兼容 number/string/table 三种结构。
 local function _xyl_node_to_number(node)
     if type(node) == "number" then
@@ -2424,7 +2393,6 @@ local function _xyl_node_to_number(node)
     end
     return 0
 end
-
 -- 备注：读取杀怪进度，兼容 tk / 去下划线 tk / shaguai_id 等不同存储键名。
 function _xyl_get_kill_progress_value(sg, tk, cfg, suffix)
     if type(sg) ~= "table" then
@@ -2433,14 +2401,12 @@ function _xyl_get_kill_progress_value(sg, tk, cfg, suffix)
     local suf = tostring(suffix or "")
     local sufNoUnder = suf:gsub("^_", "")
     local keyList = {}
-
     local function add_key(v)
         if v == nil then
             return
         end
         table.insert(keyList, v)
     end
-
     local tkStr = tk and tostring(tk) or nil
     if tkStr and tkStr ~= "" then
         add_key(tkStr .. suf)
@@ -2450,7 +2416,6 @@ function _xyl_get_kill_progress_value(sg, tk, cfg, suffix)
             add_key(tkStr:gsub("_", "") .. sufNoUnder)
         end
     end
-
     local sid = cfg and tonumber(cfg.shaguai_id) or nil
     if sid then
         add_key(tostring(sid) .. suf)
@@ -2459,12 +2424,10 @@ function _xyl_get_kill_progress_value(sg, tk, cfg, suffix)
         end
         add_key(sid)
     end
-
     local sources = { sg }
     if type(sg.sg_data) == "table" then
         table.insert(sources, sg.sg_data)
     end
-
     local best = 0
     for _, src in ipairs(sources) do
         for _, k in ipairs(keyList) do
@@ -2479,7 +2442,6 @@ function _xyl_get_kill_progress_value(sg, tk, cfg, suffix)
     end
     return best
 end
-
 function _xyl_get_item_count_by_name(itemName)
     if not itemName or itemName == "" then
         return 0
@@ -2493,7 +2455,6 @@ function _xyl_get_item_count_by_name(itemName)
     end
     return tonumber(SL:GetMetaValue("ITEM_COUNT", itemIdx)) or 0
 end
-
 local function _xyl_has_item_exact(itemName, needCount)
     if not itemName or itemName == "" then
         return false
@@ -2501,7 +2462,6 @@ local function _xyl_has_item_exact(itemName, needCount)
     local miss = Player:checkItemNumByTable({{itemName, needCount or 1}})
     return not miss
 end
-
 -- 备注：读取“分项提交”状态（同源服务端 T_dljq 的 tk_a/tk_b/tk_c 标记）。
 -- 未提交时补充显示“是否已拥有对应道具”。
 local function _xyl_get_split_submit_state_text(storyData, tk, idx, entry)
@@ -2518,7 +2478,6 @@ local function _xyl_get_split_submit_state_text(storyData, tk, idx, entry)
     if submitted then
         return _xyl_status_rich_text("已提交")
     end
-
     if type(entry) == "table" and entry[1] then
         local itemName = entry[1]
         local need = tonumber(entry[2]) or 1
@@ -2527,13 +2486,11 @@ local function _xyl_get_split_submit_state_text(storyData, tk, idx, entry)
         end
         return _xyl_status_rich_text("未拥有")
     end
-
     if tostring(tk) == "npc_629" then
         return _xyl_status_rich_text("未拥有")
     end
     return nil
 end
-
 local function _xyl_get_task_progress_values(task, storyData)
     if type(task) ~= "table" then
         return nil, nil, nil
@@ -2549,12 +2506,10 @@ local function _xyl_get_task_progress_values(task, storyData)
         end
         return nil, nil, _xyl_status_rich_text("未完成")
     end
-
     local node = _xyl_get_story_node_by_tk(tk, storyData)
     if node == nil then
         return nil, nil, nil
     end
-
     local cfg = teshudata and teshudata[tk]
     local need = tonumber(cfg and cfg.max_num)
     local cur = 0
@@ -2566,7 +2521,6 @@ local function _xyl_get_task_progress_values(task, storyData)
             cur = need or 1
         end
     end
-
     if need and need > 0 then
         return _xyl_progress_pair_text(cur, need)
     end
@@ -2578,7 +2532,6 @@ local function _xyl_get_task_progress_values(task, storyData)
     end
     return cur, need, _xyl_status_rich_text("未开始")
 end
-
 -- 备注：重复提交类任务进度（同源 tk 计数 + cfg.max_num），如 npc_630。
 local function _xyl_get_repeat_submit_progress_text(storyData, tk, cfg)
     if type(storyData) ~= "table" or not tk or type(cfg) ~= "table" then
@@ -2592,7 +2545,6 @@ local function _xyl_get_repeat_submit_progress_text(storyData, tk, cfg)
     local _, _, txt = _xyl_progress_pair_text(cur, need)
     return txt
 end
-
 -- 备注：多次确认/审问类任务进度（同源 tk_s 列表长度），如 npc_631。
 local function _xyl_get_repeat_confirm_progress_text(storyData, tk, totalNeed)
     if type(storyData) ~= "table" or not tk then
@@ -2612,7 +2564,6 @@ local function _xyl_get_repeat_confirm_progress_text(storyData, tk, totalNeed)
     local _, _, txt = _xyl_progress_pair_text(cur, need)
     return txt
 end
-
 local function _xyl_get_task_progress_format_args(task, storyData, killData)
     local args = {}
     local tk = type(task) == "table" and task.tk and tostring(task.tk) or nil
@@ -2625,7 +2576,6 @@ local function _xyl_get_task_progress_format_args(task, storyData, killData)
             for _, preTk in ipairs(preTasks) do
                 local done = false
                 local preCfg = teshudata and teshudata[preTk]
-
                 if preCfg and preCfg.ch and _xyl_has_title(preCfg.ch) then
                     done = true
                 else
@@ -2643,12 +2593,10 @@ local function _xyl_get_task_progress_format_args(task, storyData, killData)
                         end
                     end
                 end
-
                 table.insert(args, _xyl_status_rich_text(done and "已完成" or "未完成"))
             end
             return args
         end
-
         -- 特殊任务：船长的宝藏（npc_630）显示提交次数进度（0/3）+ 当前背包数量。
         if tk == "npc_630" then
             local submitText = _xyl_get_repeat_submit_progress_text(storyData, tk, cfg)
@@ -2694,7 +2642,6 @@ local function _xyl_get_task_progress_format_args(task, storyData, killData)
             end
             return args
         end
-
         local hasABC = (tonumber(cfg.num_a) or 0) > 0 or (tonumber(cfg.num_b) or 0) > 0 or (tonumber(cfg.num_c) or 0) > 0
         if hasABC then
             local pairs = {
@@ -2718,7 +2665,6 @@ local function _xyl_get_task_progress_format_args(task, storyData, killData)
                 table.insert(args, txt)
             end
         end
-
         local costEntries = _xyl_collect_cost_entries(cfg.cost)
         for i, entry in ipairs(costEntries) do
             -- 仅 npc_629 使用“分项提交状态”；其余任务保持原本背包数量进度逻辑。
@@ -2730,7 +2676,6 @@ local function _xyl_get_task_progress_format_args(task, storyData, killData)
                     handled = true
                 end
             end
-
             if not handled then
                 local name = entry[1]
                 local need = tonumber(entry[2]) or 0
@@ -2741,7 +2686,6 @@ local function _xyl_get_task_progress_format_args(task, storyData, killData)
                 end
             end
         end
-
         if #args == 0 and type(cfg.details) == "table" then
             local aNeed, bNeed, cNeed = 0, 0, 0
             for _, d in ipairs(cfg.details) do
@@ -2763,17 +2707,14 @@ local function _xyl_get_task_progress_format_args(task, storyData, killData)
             end
         end
     end
-
     if #args == 0 then
         local _, _, progressText = _xyl_get_task_progress_values(task, storyData)
         table.insert(args, progressText or "未开始")
     end
     return args
 end
-
 local function _xyl_build_task_desc(task)
     local desc = (type(task) == "table" and (task.desc or task.wz)) or nil
-
     local storyData = _xyl_get_json("T13")
     local killData = _xyl_get_json("T35")
     if type(desc) == "function" then
@@ -2790,14 +2731,12 @@ local function _xyl_build_task_desc(task)
     local args = _xyl_get_task_progress_format_args(task, storyData, killData)
     local summary = table.concat(args, " ")
     local unpack_fn = table.unpack or unpack
-
     local placeholderCount = _xyl_count_placeholders(desc)
     if placeholderCount > #args then
         for i = #args + 1, placeholderCount do
             args[i] = summary ~= "" and summary or _xyl_status_rich_text("未开始")
         end
     end
-
     local ok, formatted = pcall(function()
         return string.format(desc, unpack_fn(args))
     end)
@@ -2810,7 +2749,6 @@ local function _xyl_build_task_desc(task)
     end
     return _xyl_beautify_desc_keywords(desc .. "\n进度：" .. (summary ~= "" and summary or _xyl_status_rich_text("未开始")))
 end
-
 -- 备注：统一补齐“需领取”字段，默认 false；可在单任务里显式改为 true。
 local function _xyl_mark_accept_tasks(taskData)
     for _, continent in ipairs(taskData or {}) do
@@ -2833,7 +2771,6 @@ local function _xyl_mark_accept_tasks(taskData)
 end
 
 _xyl_mark_accept_tasks(npc_xyl)
-
 npc_xyl.get_chapter_lock_info = function(l, zj, curJqd)
     return _xyl_get_chapter_lock_info(npc_xyl, l, zj, curJqd)
 end
@@ -2841,28 +2778,3 @@ npc_xyl.build_task_desc = function(task)
     return _xyl_build_task_desc(task)
 end
 return npc_xyl
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

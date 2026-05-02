@@ -1,4 +1,4 @@
-﻿-- 第17号兑换NPC面板，基于 ui_helper.lua 重构
+-- 第17号兑换NPC面板，基于 ui_helper.lua 重构
 -- 提供双选项快捷兑换，统一布局注释
 local npc = {}
 

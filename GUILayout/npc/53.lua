@@ -1,4 +1,4 @@
-﻿-- 第53号合成面板（npc_53），复用 ui_helper.lua 布局策略
+-- 第53号合成面板（npc_53），复用 ui_helper.lua 布局策略
 local npc = {}
 
 npc._config = teshudata["npc_53"]

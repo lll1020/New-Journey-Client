@@ -1,4 +1,4 @@
-﻿local npc = {}
+local npc = {}
 npc._config = teshudata["npc_22"]
 
 local MAIN_WINDOW_OPTS = {
@@ -151,6 +151,37 @@ local function ensureUpgradeWindow(npcid)
     npc.xjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, UPGRADE_WINDOW_OPTS)
     npc.xjm_node = npc.xjm_window and npc.xjm_window.node or nil
     return npc.xjm_node
+end
+-- 任务完成后同时关闭灵根主界面和升级弹窗，避免残留窗口。
+local function _lg_close_all_windows()
+    NPC_UI_HELPER.closeWindow(npc.xjm_window)
+    npc.xjm_window = nil
+    npc.xjm_node = nil
+    NPC_UI_HELPER.closeWindow(npc._window)
+end
+-- 二大陆 xyl 任务命中后，按当前灵根数据判断是否已完成并自动关窗。
+local function _lg_try_finish_xyl_and_close()
+    local T_data = npc.data and npc.data.T_data or {}
+    local mainIdx = tonumber(T_data.main or 0) or 0
+    local otherIdx = tonumber(T_data.other or 0) or 0
+    if NPC_UI_HELPER.isCurrentXylTask("装配火灵根至主灵根") and mainIdx == 4 then
+        _lg_close_all_windows()
+        return true
+    end
+    if NPC_UI_HELPER.isCurrentXylTask("装配水灵根至副灵根") and otherIdx == 3 then
+        _lg_close_all_windows()
+        return true
+    end
+    if NPC_UI_HELPER.isCurrentXylTask({"升级灵根", "强化灵根1次"}) then
+        local levelMap = npc.data and npc.data.T_data and npc.data.T_data.level or {}
+        for _, level in pairs(levelMap) do
+            if (tonumber(level) or 0) > 0 then
+                _lg_close_all_windows()
+                return true
+            end
+        end
+    end
+    return false
 end
 
 -- 创建带描边的文本，统一字体与描边风格。
@@ -682,6 +713,20 @@ local function _lg_refresh_main_page(npcid, node)
 
     local currentTaskName = _lg_get_current_xyl_task_name()
     local canEquipOtherSelected = selectedIdx > 0 and _lg_has_root(selectedIdx) and selectedIdx ~= (tonumber(mainIdx or 0) or 0)
+    local isMainFireTask = currentTaskName == "装配火灵根至主灵根"
+    local isOtherWaterTask = currentTaskName == "装配水灵根至副灵根"
+
+    -- 指定主灵根任务时，优先引导选择火灵根本体。
+    if isMainFireTask and (not mainIdx or mainIdx <= 0) and selectedIdx ~= 4 and _lg_has_root(4) then
+        local fireSlot = GUI:getChildByName(node, "root_slot_4")
+        if fireSlot then
+            NPC_UI_HELPER.tryStartXylGuide(npc, fireSlot, node, "linggen_select_main_fire", {
+                taskName = "装配火灵根至主灵根",
+                dir = 5,
+                desc = "点击火灵根",
+            })
+        end
+    end
 
     if selectedIdx > 0 and _lg_has_root(selectedIdx) and (not mainIdx or mainIdx <= 0) then
         local btnEquipMain = GUI:Button_Create(node, "btn_equip_main", MAIN_EQUIP_BTN_POS.x, MAIN_EQUIP_BTN_POS.y, "res/custom/linggen/new/main/btn_equip.png")
@@ -690,7 +735,7 @@ local function _lg_refresh_main_page(npcid, node)
             SL:SendLuaNetMsg(100, npcid, 2, selectedIdx, "")
         end)
         NPC_UI_HELPER.tryStartXylGuide(npc, btnEquipMain, node, "linggen_equip_main", {
-            taskName = "装配主灵根",
+            taskNames = {"装配主灵根", "装配火灵根至主灵根"},
             dir = 5,
             desc = "点击装配主灵根",
         })
@@ -701,14 +746,17 @@ local function _lg_refresh_main_page(npcid, node)
             SL:SendLuaNetMsg(100, npcid, 2, 0, "")
         end)
     end
-    if currentTaskName == "装配副灵根" and (not otherIdx or otherIdx <= 0) and not canEquipOtherSelected then
-        local guideIdx = _lg_first_active_other_idx(mainIdx)
+    if (currentTaskName == "装配副灵根" or isOtherWaterTask) and (not otherIdx or otherIdx <= 0) and not canEquipOtherSelected then
+        local guideIdx = isOtherWaterTask and 3 or _lg_first_active_other_idx(mainIdx)
+        if guideIdx == mainIdx then
+            guideIdx = 0
+        end
         local guideSlot = guideIdx > 0 and GUI:getChildByName(node, "root_slot_" .. tostring(guideIdx)) or nil
         if guideSlot then
             NPC_UI_HELPER.tryStartXylGuide(npc, guideSlot, node, "linggen_select_other_root", {
-                taskName = "装配副灵根",
+                taskNames = {"装配副灵根", "装配水灵根至副灵根"},
                 dir = 5,
-                desc = "点击灵根",
+                desc = isOtherWaterTask and "点击水灵根" or "点击灵根",
             })
         end
     end
@@ -719,7 +767,7 @@ local function _lg_refresh_main_page(npcid, node)
             SL:SendLuaNetMsg(100, npcid, 3, selectedIdx, "")
         end)
         NPC_UI_HELPER.tryStartXylGuide(npc, btnEquipOther, node, "linggen_equip_other", {
-            taskName = "装配副灵根",
+            taskNames = {"装配副灵根", "装配水灵根至副灵根"},
             dir = 5,
             desc = "点击装配副灵根",
         })
@@ -741,7 +789,7 @@ local function _lg_refresh_main_page(npcid, node)
     end)
     if selectedIdx > 0 and _lg_has_root(selectedIdx) then
         NPC_UI_HELPER.tryStartXylGuide(npc, btnUpgradePage, node, "linggen_upgrade_open", {
-            taskName = "升级灵根",
+            taskNames = {"升级灵根", "强化灵根1次"},
             dir = 5,
             idx = 1,
             desc = "点击打开灵根升级",
@@ -817,7 +865,7 @@ _lg_refresh_upgrade_window = function(npcid, xNode)
     elseif nextCfg and checkItemNum(nextCfg.cost) then
         NPC_UI_HELPER.redpoint_create(btn, {x = 120, y = 46})
         NPC_UI_HELPER.tryStartXylGuide(npc, btn, xNode, "linggen_upgrade_" .. tostring(idx), {
-            taskName = "升级灵根",
+            taskNames = {"升级灵根", "强化灵根1次"},
             idx = 2,
             dir = 5,
             desc = "点击升级灵根",
@@ -841,6 +889,7 @@ function npc.main(npcid, p2, p3, msgData)
         if npc.xjm_node then
             _lg_refresh_upgrade_window(npcid, npc.xjm_node)
         end
+        _lg_try_finish_xyl_and_close()
     elseif p2 == 2 then
         npc.data = SL:JsonDecode(msgData, false) or npc.data or {}
         local xNode = ensureUpgradeWindow(npcid)

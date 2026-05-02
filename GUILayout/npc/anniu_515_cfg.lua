@@ -1,4 +1,4 @@
-﻿local cfg = {
+local cfg = {
     -- 名称：成就系统名称，客户端使用本地同名配置显示
     -- groups: 成就页签分组，服务端只做兜底
     name = "仙途奇缘",
@@ -10,7 +10,7 @@
         {count = 50, reward = "称号：成就卷轴Lv.2", extra = "对怪增伤+10%，打怪爆率+50%"},
         {count = 75, reward = "千年玄铁*888", extra = ""},
         {count = 100, reward = "称号：成就卷轴Lv.3", extra = "攻击加成+10%，防御加成+10%"},
-        {count = 125, reward = "仙品仙法卷轴*2", extra = ""},
+        {count = 125, reward = "极品仙法卷轴*2", extra = ""},
         {count = 150, reward = "称号：成就卷轴Lv.4", extra = "全属性+10%"},
         {count = 170, reward = "帝星本源*3", extra = ""},
         {count = 185, reward = "称号：大收藏家", extra = "（全属性+50%，对怪增伤+50%，对人攻速+100%，对怪攻速+100%）"},
@@ -239,4 +239,3 @@ cfg.attr_show_color = {
 }
 
 return cfg
-

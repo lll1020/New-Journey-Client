@@ -1,4 +1,4 @@
-﻿local npc = {
+local npc = {
     currentTab = 1,
     milestonePage = 1,
     searchKey = "",

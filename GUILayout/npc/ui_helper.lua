@@ -1,4 +1,4 @@
-﻿-- 通用 NPC 窗口工具模块（兼容旧版界面）
+-- 通用 NPC 窗口工具模块（兼容旧版界面）
 -- 功能概述：
 --   * 统一处理 Win_Create / 遮罩层 / 背景面板 / 关闭按钮等模板代码
 --   * 支持通过 WINDOW_STYLE + ensureWindow 快速复用窗口
@@ -7,11 +7,9 @@ local existingHelper = rawget(_G, "NPC_UI_HELPER")
 if existingHelper then
     return existingHelper
 end
-
 local UIHelper = {}
-
 -- ===== 默认素材配置 =====
-local DEFAULT_OVERLAY = 'res/public/1900000651_1.png'  -- 全屏遮罩：点击关闭窗口
+local DEFAULT_OVERLAY = 'res/wy/public/40-40.png'  -- 全屏遮罩：点击关闭窗口
 local DEFAULT_BG = 'res/wy/public/tongyong_0.png'              -- 背景面板：承载 UI 内容
 local DEFAULT_CLOSE = 'res/wy/public/close_red_big.png'        -- 默认关闭按钮
 local DEFAULT_BUTTON = 'res/public/1900000660.png'     -- 默认主按钮皮肤
@@ -24,20 +22,11 @@ local GUIDE_DOMAIN_PRIORITY = {
 }
 -- 主线引导映射：提升类 NPC 界面对应的主线任务号。
 local MAINLINE_TASK_BY_UPGRADE_NPC = {
-    [6] = 4,
-    [7] = 5,
-    [8] = 6,
-    [9] = 7,
-    [10] = 8,
-    [21] = 20,
-    [32] = 21,
-    [502] = 22,
+    [32] = 15,
 }
-
 -- ===== 基础工具函数 =====
 -- 空函数：用于 overlay / closeBtn 的默认 onClick，避免频繁创建匿名函数
 local function noop() end
-
 -- 规范化描边配置：
 --   opts = false -> 不启用描边
 --   opts = nil   -> 使用默认描边
@@ -49,7 +38,6 @@ local function ensureOutline(opts)
     opts = opts or {}
     return { outlineSize = opts.outlineSize or 2, outlineColor = opts.outlineColor or DEFAULT_OUTLINE }
 end
-
 -- 为遮罩或关闭按钮注册点击事件（若未传 handler，回落到 noop）
 local function addCloseHandler(widget, handler)
     if not widget then
@@ -57,7 +45,6 @@ local function addCloseHandler(widget, handler)
     end
     GUI:addOnClickEvent(widget, handler or noop)
 end
-
 local function isValidGuideNode(node)
     if not node then
         return false
@@ -67,7 +54,6 @@ local function isValidGuideNode(node)
     end
     return true
 end
-
 -- 统一引导入口：便于后续排查 guideWidget / guideParent / 旧引导残留问题。
 function UIHelper.startGuide(opts)
     opts = opts or {}
@@ -89,19 +75,16 @@ function UIHelper.startGuide(opts)
     end
     return SL:StartGuide(guideArgs)
 end
-
 local function getGuidePriority(domain, opts)
     if opts and opts.priority ~= nil then
         return tonumber(opts.priority) or 0
     end
     return GUIDE_DOMAIN_PRIORITY[tostring(domain or "default")] or GUIDE_DOMAIN_PRIORITY.default
 end
-
 local function isSameGuideRequest(activeDomain, activeKey, domain, guideKey)
     return tostring(activeDomain or "") == tostring(domain or "")
         and tostring(activeKey or "") == tostring(guideKey or "")
 end
-
 local function closeActiveGuide()
     if UIHelper._guideActiveHandle then
         UIHelper.closeGuide(UIHelper._guideActiveHandle)
@@ -113,7 +96,6 @@ local function closeActiveGuide()
     UIHelper._guideActiveWidget = nil
     UIHelper._guideActiveParent = nil
 end
-
 local function pickBestGuideRequest()
     local requestMap = UIHelper._guideRequestMap
     if type(requestMap) ~= "table" then
@@ -134,7 +116,6 @@ local function pickBestGuideRequest()
     end
     return bestDomain, bestRequest
 end
-
 local function activateGuideRequest(domain, request)
     if type(request) ~= "table" then
         return false
@@ -167,7 +148,6 @@ local function activateGuideRequest(domain, request)
     UIHelper._guideActiveParent = guideParent
     return guideHandle
 end
-
 local function refreshGuideArbitration()
     local bestDomain, bestRequest = pickBestGuideRequest()
     if not bestRequest then
@@ -176,7 +156,6 @@ local function refreshGuideArbitration()
     end
     return activateGuideRequest(bestDomain, bestRequest)
 end
-
 function UIHelper.requestGuide(domain, guideKey, opts)
     domain = tostring(domain or "default")
     opts = opts or {}
@@ -191,7 +170,6 @@ function UIHelper.requestGuide(domain, guideKey, opts)
     }
     return refreshGuideArbitration()
 end
-
 function UIHelper.closeGuideByDomain(domain, guideKey)
     domain = tostring(domain or "default")
     local requestMap = UIHelper._guideRequestMap
@@ -208,7 +186,6 @@ function UIHelper.closeGuideByDomain(domain, guideKey)
     end
     return true
 end
-
 -- 统一关闭引导入口：避免各处直接 pcall + CloseGuide。
 function UIHelper.closeGuide(guideHandle)
     if not guideHandle then
@@ -218,7 +195,6 @@ function UIHelper.closeGuide(guideHandle)
         SL:CloseGuide(guideHandle)
     end)
 end
-
 -- 登录期内第一次打开纯提交任务页时，若材料不足则先显示“领取任务”按钮。
 -- repeatCount > 0 表示已提交过至少一次，此时不再走首次引导按钮逻辑。
 function UIHelper.shouldShowFirstOpenTakeButton(taskKey, cost, repeatCount)
@@ -231,7 +207,6 @@ function UIHelper.shouldShowFirstOpenTakeButton(taskKey, cost, repeatCount)
     if (tonumber(repeatCount) or 0) > 0 then
         return false
     end
-
     UIHelper._firstOpenSubmitTaskMap = UIHelper._firstOpenSubmitTaskMap or {}
     local hasOpened = UIHelper._firstOpenSubmitTaskMap[taskKey] == true
     if not hasOpened then
@@ -240,14 +215,12 @@ function UIHelper.shouldShowFirstOpenTakeButton(taskKey, cost, repeatCount)
     if hasOpened then
         return false
     end
-
     local hasEnough = true
     if type(checkItemNum) == "function" then
         hasEnough = checkItemNum(cost) == true
     end
     return hasEnough ~= true
 end
-
 function UIHelper.handleFirstOpenTakeButton(windowCache)
     local parent = windowCache and windowCache.parent
     if parent then
@@ -255,7 +228,6 @@ function UIHelper.handleFirstOpenTakeButton(windowCache)
     end
     SL:SetMetaValue("BATTLE_AFK_BEGIN")
 end
-
 -- ===== 核心方法：窗口创建/复用 =====
 -- cache  : windowCache[name]，复用时传入旧引用
 -- npcid  : 当前 NPC ID，仅用于默认 windowName
@@ -273,7 +245,6 @@ function UIHelper.ensureWindow(cache, npcid, opts)
     local closeCfg = opts.closeButton
     local nodeCfg = opts.node or {}
     local title = opts.title or {}
-
     local name = opts.windowName or string.format('npc_%s', npcid or 'unknown')
     local x = pos.x or cogin.w / 2
     local y = pos.y or cogin.h / 2
@@ -284,7 +255,6 @@ function UIHelper.ensureWindow(cache, npcid, opts)
     else
         parent = GUI:Win_Create(name, x, y, 0, 0, false, false, true, true, true, npcid or 0, opts.zOrder or 1)
     end
-
     local overlay = GUI:Image_Create(parent, overlayCfg.name or 'bjt', overlayCfg.x or 0, overlayCfg.y or 0, overlayCfg.skin or DEFAULT_OVERLAY)
     GUI:setAnchorPoint(overlay, overlayCfg.anchorX or 0.5, overlayCfg.anchorY or 0.5)
     GUI:setContentSize(overlay, overlayCfg.width or (cogin.w + 100), overlayCfg.height or (cogin.h + 100))
@@ -292,7 +262,9 @@ function UIHelper.ensureWindow(cache, npcid, opts)
     addCloseHandler(overlay, overlayCfg.onClick or function()
         GUI:Win_Close(parent)
     end)
-
+    GUI:setOpacity(overlay, 0)
+    -- GUI:Timeline_FadeIn(overlay, 0.3, nil)
+    GUI:Timeline_FadeTo(overlay, 200, 0.5, nil)
     local bg = GUI:Image_Create(parent, bgCfg.name or 'img_bj', bgCfg.x or 0, bgCfg.y or 0, bgCfg.skin or DEFAULT_BG)
     GUI:setAnchorPoint(bg, bgCfg.anchorX or 0.5, bgCfg.anchorY or 0.5)
     GUI:setTouchEnabled(bg, true)
@@ -302,23 +274,16 @@ function UIHelper.ensureWindow(cache, npcid, opts)
         GUI:Frames_Create(bg, "eff2", 0, 0, "res/wy/eff/city/tongyong_0_dx_2_", ".png", 1, 45,
             { speed = 75, count = 45, loop = -1})
     end
-
     if opts.title then
         cache.title = GUI:Image_Create(bg, title.name or 'title', title.x or 56, title.y or 464, title.skin)
         GUI:setAnchorPoint(cache.title, title.anchorX or 0, title.anchorY or 0)
     end
-
     if bgCfg.timeline == true then
         GUI:Timeline_Window1(bg)
     end
     --放置透传
     GUI:addMouseOverTips(overlay, "", {x = 0, y = 0}, {x = 0, y = 0})
-
-
-    
-
     local node = GUI:Node_Create(bg, nodeCfg.name or 'node', nodeCfg.x or 0, nodeCfg.y or 0)
-
     local closeBtn = nil
     if closeCfg ~= false then
         closeCfg = closeCfg or {}
@@ -329,22 +294,17 @@ function UIHelper.ensureWindow(cache, npcid, opts)
             GUI:Win_Close(parent)
         end)
     end
-
-
     cache.parent = parent
     cache.overlay = overlay
     cache.bg = bg
     cache.close = closeBtn
     cache.node = node
     cache.title = opts.title
-
     if opts.titleText then
         UIHelper.createTitle(bg, opts.titleText, opts.subTitle, opts.titleOptions,name)
     end
-
     return cache
 end
-
 -- ===== UI 构建工具 =====
 -- 标题生成：支持主/副标题 + 描边效果
 function UIHelper.createTitle(parent, text, subtitle, opts,name)
@@ -368,7 +328,6 @@ function UIHelper.createTitle(parent, text, subtitle, opts,name)
     end
     return label
 end
-
 -- 富文本封装：通过 opts 控制宽高 / 颜色 / 对齐 / 描边 / 锚点
 function UIHelper.createRichText(parent, name, x, y, content, opts)
     opts = opts or {}
@@ -378,7 +337,6 @@ function UIHelper.createRichText(parent, name, x, y, content, opts)
     end
     return widget
 end
-
 -- 主操作按钮：
 --   * text 为空且 opts.icon=true 时只显示图片
 --   * opts.sound=false 可禁用点击音效
@@ -406,7 +364,6 @@ function UIHelper.createPrimaryButton(parent, name, x, y, text, callback, opts)
     end)
     return btn
 end
-
 -- 分割线：常用于窗口内部分隔区块
 function UIHelper.createDivider(parent, name, x, y, width, height, opts)
     opts = opts or {}
@@ -418,13 +375,11 @@ function UIHelper.createDivider(parent, name, x, y, width, height, opts)
     GUI:setOpacity(divider, opts.opacity or 200)
     return divider
 end
-
 -- 当主线步骤匹配时，为提升按钮触发引导（同 key 只触发一次）。
 -- guideCache 通常传 npc 表，用于缓存 `_guide_key` 防止重复弹窗。
 local function _closeMainlineGuide()
     return UIHelper.closeGuideByDomain("mainline")
 end
-
 function UIHelper.tryStartMainlineUpgradeGuide(guideCache, button, guideParent, npcid, marker, opts)
     if not isValidGuideNode(button) then
         return false
@@ -437,14 +392,12 @@ function UIHelper.tryStartMainlineUpgradeGuide(guideCache, button, guideParent, 
     if rwid ~= (tonumber(targetTask) or -1) then
         return false
     end
-
     local keyPrefix = opts.keyPrefix or "mainline_upgrade"
     local guideKey = string.format("%s_%s_%s_%s", keyPrefix, tostring(rwid), tostring(npcid), tostring(marker or 0))
     if guideCache then
         guideCache._guide_key = guideKey
     end
     SL:release_print('NPC_UI_HELPER: tryStartMainlineUpgradeGuide', guideKey)
-
     local guideResult = UIHelper.requestGuide("mainline", guideKey, {
         dir = opts.dir or 3,
         guideWidget = button,
@@ -457,7 +410,6 @@ function UIHelper.tryStartMainlineUpgradeGuide(guideCache, button, guideParent, 
     if guideResult then
         return guideResult
     end
-
     SL:ScheduleOnce(function()
         if not isValidGuideNode(button) then
             return
@@ -475,7 +427,6 @@ function UIHelper.tryStartMainlineUpgradeGuide(guideCache, button, guideParent, 
     end, tonumber(opts.delay) or 0)
     return false
 end
-
 local function _normalizeXylTaskName(name)
     local value = tostring(name or "")
     value = value:gsub("%s+", "")
@@ -483,11 +434,35 @@ local function _normalizeXylTaskName(name)
     value = value:gsub("%(.-%)", "")
     return value
 end
-
 local function _closeXylGuideList()
     return UIHelper.closeGuideByDomain("xyl")
 end
-
+-- 判断当前异闻录任务名是否匹配，支持单个任务或任务名列表。
+function UIHelper.isCurrentXylTask(taskNameOrList)
+    local currentTaskName = tostring(rawget(_G, "XYL_CURRENT_TASK_NAME") or "")
+    if currentTaskName == "" then
+        return false
+    end
+    local currentTaskNorm = _normalizeXylTaskName(currentTaskName)
+    if type(taskNameOrList) == "table" then
+        for _, taskName in ipairs(taskNameOrList) do
+            if currentTaskNorm == _normalizeXylTaskName(taskName) then
+                return true
+            end
+        end
+        return false
+    end
+    return currentTaskNorm == _normalizeXylTaskName(taskNameOrList)
+end
+-- 统一关闭 NPC 弹窗，便于任务完成后自动收起界面。
+function UIHelper.closeWindow(windowCache)
+    local parent = windowCache and windowCache.parent or nil
+    if parent and (not (tolua and tolua.isnull) or not tolua.isnull(parent)) then
+        GUI:Win_Close(parent)
+        return true
+    end
+    return false
+end
 -- 当 xyl 当前任务匹配时，为指定按钮触发引导。
 -- opts:
 --   taskName  = "查看仙法"
@@ -500,13 +475,11 @@ function UIHelper.tryStartXylGuide(guideCache, button, guideParent, marker, opts
         return false
     end
     opts = opts or {}
-
     local currentTaskName = tostring(opts.currentTaskName or rawget(_G, "XYL_CURRENT_TASK_NAME") or "")
     if currentTaskName == "" then
         return false
     end
     local currentTaskNorm = _normalizeXylTaskName(currentTaskName)
-
     local matched = false
     if type(opts.match) == "function" then
         local ok, result = pcall(opts.match, currentTaskName, currentTaskNorm)
@@ -515,17 +488,15 @@ function UIHelper.tryStartXylGuide(guideCache, button, guideParent, marker, opts
         for _, taskName in ipairs(opts.taskNames) do
             if currentTaskNorm == _normalizeXylTaskName(taskName) then
                 matched = true
-                break 
+                break
             end
         end
     elseif opts.taskName then
         matched = currentTaskNorm == _normalizeXylTaskName(opts.taskName)
     end
-
     if not matched then
         return false
     end
-
     if opts.once == true then
         local idx = tonumber(opts.idx) or 0
         local onceKey = string.format("%s_%s", currentTaskNorm, tostring(idx))
@@ -536,7 +507,6 @@ function UIHelper.tryStartXylGuide(guideCache, button, guideParent, marker, opts
         end
         guideCache._xylGuideOnceMap[onceKey] = true
     end
-
     local guideKey = string.format("xyl_%s_%s", currentTaskNorm, tostring(marker or opts.idx or 0))
     local guideResult = UIHelper.requestGuide("xyl", guideKey, {
         dir = opts.dir or 3,
@@ -552,7 +522,6 @@ function UIHelper.tryStartXylGuide(guideCache, button, guideParent, marker, opts
     end
     return guideResult
 end
-
 -- 格式化 NPC 标题，例如：NPC 17 (兑换使者)
 function UIHelper.formatNpcTitle(npcid, config)
     local parts = { 'NPC', tostring(npcid or '?') }
@@ -571,18 +540,15 @@ function UIHelper.redpoint_create_eff(parent, opts)
     local width = tonumber(size.width) or 0
     local height = tonumber(size.height) or 0
     local minSide = math.max(1, math.min(width > 0 and width or 64, height > 0 and height or 64))
-
     -- 统一规则：红点默认右对齐 + 垂直居中，且保持在按钮框内
     local inset = opts.inset
     if inset == nil then
         inset = math.max(4, math.floor(minSide * 0.08))
     end
-
     local autoScale = opts.autoScale
     if autoScale == nil then
         autoScale = math.max(0.55, math.min(0.95, minSide / 110))
     end
-
     local posX = opts.x
     if posX == nil then
         posX = width - inset
@@ -593,7 +559,6 @@ function UIHelper.redpoint_create_eff(parent, opts)
     end
     posX = math.max(0, math.min(width, posX))
     posY = math.max(0, math.min(height, posY))
-
     local eff = GUI:Frames_Create(parent, opts.name or "redpoint", posX, posY, "res/wy/icon/hongdian/eff_", ".png", 1, 15,
         { speed = 75, count = 15, loop = -1})
     GUI:setScale(eff, opts.scale or autoScale)
@@ -610,7 +575,6 @@ function UIHelper.redpoint_create(parent, opts)
     local width = tonumber(size.width) or 0
     local height = tonumber(size.height) or 0
     local minSide = math.max(1, math.min(width > 0 and width or 64, height > 0 and height or 64))
-
     -- 统一规则：红点默认右对齐 + 垂直居中，且保持在按钮框内
     local inset = opts.inset
     if inset == nil then
@@ -626,7 +590,6 @@ function UIHelper.redpoint_create(parent, opts)
     end
     posX = math.max(0, math.min(width, posX))
     posY = math.max(0, math.min(height, posY))
-
     local eff = GUI:Image_Create(parent, opts.name or "redpoint", posX, posY, "res/public/ists_red.png")
     GUI:setAnchorPoint(eff, opts.anchorX or 1, opts.anchorY or 0.5)
     return eff
@@ -687,7 +650,5 @@ function UIHelper.guochang_3()
         GUI:setAnchorPoint(wz, 0.5, 0.5)
     end
 end
-
-
 _G.NPC_UI_HELPER = UIHelper
 return UIHelper

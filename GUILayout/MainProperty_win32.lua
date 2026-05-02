@@ -1290,4 +1290,3 @@ function MainProperty.RefreshFakeDropType()
     end
 end
 
-

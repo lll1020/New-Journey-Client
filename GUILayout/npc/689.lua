@@ -260,4 +260,3 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
-
