@@ -14,6 +14,9 @@ function LeftAttrOBJ:main()
 end
 
 function LeftAttrOBJ:HideandShow(bool)
+    if not self:reloadInit() then
+        return
+    end
     local function visible()
         if self.IsShow then
             GUI:Timeline_EaseSineIn_MoveTo(self.ui.ImageView, self.left_position_hide, 0.1)
@@ -64,9 +67,23 @@ local function createLeftPanel()
 
     end
 end
+
+local function hasLeftAttrUI()
+    return LeftAttrOBJ.ui
+        and LeftAttrOBJ.ui.ImageView
+        and LeftAttrOBJ.ui.HideButton
+        and LeftAttrOBJ.ui.gongSu
+        and LeftAttrOBJ.ui.qieGe
+        and LeftAttrOBJ.ui.baoLv
+        and LeftAttrOBJ.ui.beiGong
+        and LeftAttrOBJ.ui.fuHuo
+end
+
 --buff改变触发
 function LeftAttrOBJ:onBuffUpdate(t)
-    self:reloadInit()
+    if not self:reloadInit() then
+        return
+    end
     if t.buffID == 20060 or t.buffID == 20078 then
         if t.type == 0 or t.type == 1 then
             local rwid = SL:GetMetaValue("MAIN_ACTOR_ID")
@@ -81,7 +98,9 @@ function LeftAttrOBJ:onBuffUpdate(t)
 end
 
 function LeftAttrOBJ:onAttrChange()
-    self:reloadInit()
+    if not self:reloadInit() then
+        return
+    end
     local qieGe = math.floor(SL:GetMetaValue("ATT_BY_TYPE", 244)*(1 + SL:GetMetaValue("ATT_BY_TYPE", 253)/10000))
     local baoLv = SL:GetMetaValue("ATT_BY_TYPE", 242)/100
     local gongSu = SL:GetMetaValue("ATT_BY_TYPE", 200)/100
@@ -108,9 +127,20 @@ end
 -- 优先加载界面
 --重载初始化
 function LeftAttrOBJ:reloadInit()
-    if not self.ui then
-        local parent = GUI:Win_FindParent(105)
+    if hasLeftAttrUI() then
+        return true
     end
+    local parent = GUI:Win_FindParent(105)
+    if not parent then
+        self.ui = nil
+        return false
+    end
+    if not GUI:getChildByName(parent, "ImageView") then
+        createLeftPanel()
+    else
+        self.ui = GUI:ui_delegate(parent)
+    end
+    return hasLeftAttrUI()
 end
 
 local function onEnterGameWorld()

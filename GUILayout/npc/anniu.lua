@@ -1,4 +1,4 @@
-local npc = {
+﻿local npc = {
 }
 npc.iconpx = {
     {
@@ -22,6 +22,11 @@ npc._shortcut_collapsed = false
 local zbz = {
 }
 npc.rw = {
+}
+npc.woodcut_doll = {
+    tab = "doll_machine",
+    payload = {doll = {}},
+    lastResult = nil,
 }
 local WINDOW_STYLE = {
     reward = {
@@ -3440,36 +3445,381 @@ npc[30] = function(p2, p3, Data)
             end)
         end
     end
-    local function btn_buy_xjm()
-        local config = teshudata["anniu_30"]
-        npc.xjm_window = NPC_UI_HELPER.ensureWindow(nil, 30, {
-            windowName = "npc_anniu_30_xjm",
-            background = {
-                skin = "res/custom/three_city/xianfu/kanshu/buy/bg.png",
-            },
-            closeButton = {
-                x = 600,
-                y = 260,
-            },
-        })
-        npc.xjm_node = npc.xjm_window.node
-        GUI:Text_setFontName(GUI:Text_Create(npc.xjm_node, "cost", 422, 100, 30, "#FFFFFF", (npc.data_30.T_data.dh_num + 1) > #config.dh.details and config.dh.cost[1][2] or config.dh.details[npc.data_30.T_data.dh_num + 1].cost[1][2]), "fonts/501.ttf")
-        GUI:setAnchorPoint(GUI:ItemShow_Create(npc.xjm_node, "item1", 250, 196, {
-            index = SL:GetMetaValue("ITEM_INDEX_BY_NAME", "仙府币"),
-            count = 1,
-            look = true,
-        }), 0.5, 0.5)
-        GUI:setAnchorPoint(GUI:ItemShow_Create(npc.xjm_node, "item2", 490, 196, {
-            index = SL:GetMetaValue("ITEM_INDEX_BY_NAME", "砍树盲盒"),
-            count = 1,
-            look = true,
-        }), 0.5, 0.5)
-        local btn = GUI:Button_Create(npc.xjm_node, "btn", 364, 10, "res/custom/three_city/xianfu/kanshu/buy/btn.png")
-        GUI:setAnchorPoint(btn, 0.5, 0)
-        GUI:addOnClickEvent(btn, function()
-            SL:SendLuaNetMsg(101, 30, 4, 0, '')
+    local function format_doll_number(value)
+        local num = tonumber(value) or 0
+        local formatted = tostring(math.floor(num + 0.5))
+        local result = formatted
+        local k = 0
+        while true do
+            result, k = result:gsub('^(-?%d+)(%d%d%d)', '%1,%2')
+            if k == 0 then
+                break
+            end
+        end
+        return result
+    end
+
+    local function format_doll_cost(cost)
+        if type(cost) ~= 'table' then
+            return '—'
+        end
+        local parts = {}
+        for _, value in pairs(cost) do
+            if type(value) == 'table' and value[1] then
+                parts[#parts + 1] = string.format('%s x%s', value[1], format_doll_number(value[2] or 0))
+            end
+        end
+        table.sort(parts)
+        return (#parts > 0) and table.concat(parts, ' / ') or '—'
+    end
+
+    local function format_doll_attr_value(value, percent)
+        local num = tonumber(value) or 0
+        if tonumber(percent or 0) == 1 then
+            return string.format('%s%%', tostring(math.floor(num / 100)))
+        end
+        return format_doll_number(num)
+    end
+
+    local function get_doll_cfg()
+        return ((teshudata['npc_44'] or {}).DollCfg or {})
+    end
+
+    local function get_doll_result_cfg(resultId)
+        return ((get_doll_cfg().results or {})[resultId])
+    end
+
+    local function get_doll_asset(resultId)
+        local cfg = get_doll_result_cfg(resultId)
+        if not cfg then
+            return nil
+        end
+        local qualityMap = {
+            normal = '普通',
+            red = '红',
+            hidden = '隐藏',
+        }
+        local group = tostring(cfg.asset_group or 1)
+        local quality = qualityMap[cfg.quality or 'normal'] or '普通'
+        return string.format('res/custom/three_city/xianfu/仙府部分/收藏柜/娃娃/娃娃%s/%s.png', group, quality)
+    end
+
+    local function request_open_doll_machine()
+        npc.woodcut_doll.tab = 'doll_machine'
+        SL:SendLuaNetMsg(101, 30, 4, 0, '')
+    end
+
+    local function request_draw_doll_machine()
+        SL:SendLuaNetMsg(101, 30, 5, 0, '')
+    end
+
+    local open_doll_machine
+
+    local function get_doll_tab_skin(tabId)
+        local folderMap = {
+            doll_machine = '娃娃机',
+            doll_cabinet = '收藏柜',
+        }
+        local folder = folderMap[tabId] or '娃娃机'
+        local state = npc.woodcut_doll.tab == tabId and '亮' or '暗'
+        return string.format('res/custom/three_city/xianfu/仙府部分/左侧按钮/%s/%s.png', folder, state)
+    end
+
+    local function build_doll_owned_list(doll)
+        local owned = (doll or {}).owned or {}
+        local result = {}
+        local order = get_doll_cfg().cabinet_order or {}
+        local marked = {}
+        for _, resultId in ipairs(order) do
+            local count = tonumber(owned[resultId]) or 0
+            if count > 0 then
+                result[#result + 1] = {
+                    id = resultId,
+                    count = count,
+                    cfg = get_doll_result_cfg(resultId),
+                }
+                marked[resultId] = true
+            end
+        end
+        for resultId, count in pairs(owned) do
+            count = tonumber(count) or 0
+            if count > 0 and not marked[resultId] then
+                result[#result + 1] = {
+                    id = resultId,
+                    count = count,
+                    cfg = get_doll_result_cfg(resultId),
+                }
+            end
+        end
+        return result
+    end
+
+    local function format_doll_rate_text(rate, base)
+        local percent = ((tonumber(rate) or 0) * 100) / math.max(1, tonumber(base) or 1)
+        if math.floor(percent) == percent then
+            return string.format('%.0f%%', percent)
+        end
+        if percent >= 1 then
+            return string.format('%.2f%%', percent)
+        end
+        return string.format('%.4f%%', percent)
+    end
+
+    local function build_doll_tip_html()
+        local cfg = get_doll_cfg()
+        local lines = {}
+        local normalRate = math.max(0, (tonumber(cfg.red_rate_base) or 10000) - (tonumber(cfg.red_rate) or 0) - (tonumber((cfg.hidden or {}).rate) or 0))
+        local normalPool = cfg.normal_pool or {}
+        local redPool = cfg.red_pool or {}
+        local hiddenPool = (cfg.hidden or {}).pool or {}
+        if #normalPool > 0 then
+            lines[#lines + 1] = string.format("<font color='#ffffff'>普通款总概率：%s</font>", format_doll_rate_text(normalRate, cfg.red_rate_base))
+            local everyNormal = normalRate / #normalPool
+            for _, resultId in ipairs(normalPool) do
+                local resultCfg = get_doll_result_cfg(resultId) or {}
+                lines[#lines + 1] = string.format("<font color='#ffffff'>%s\t%s</font>", tostring(resultCfg.name or resultId), format_doll_rate_text(everyNormal, cfg.red_rate_base))
+            end
+        end
+        if #redPool > 0 then
+            lines[#lines + 1] = string.format("<font color='#ffffff'>红款总概率：%s</font>", format_doll_rate_text(cfg.red_rate, cfg.red_rate_base))
+            local everyRed = (tonumber(cfg.red_rate) or 0) / #redPool
+            for _, resultId in ipairs(redPool) do
+                local resultCfg = get_doll_result_cfg(resultId) or {}
+                lines[#lines + 1] = string.format("<font color='#ffffff'>%s\t%s</font>", tostring(resultCfg.name or resultId), format_doll_rate_text(everyRed, cfg.red_rate_base))
+            end
+        end
+        if #hiddenPool > 0 then
+            lines[#lines + 1] = string.format("<font color='#ffffff'>隐藏款总概率：%s</font>", format_doll_rate_text((cfg.hidden or {}).rate, (cfg.hidden or {}).rate_base or cfg.red_rate_base))
+            local everyHidden = (tonumber((cfg.hidden or {}).rate) or 0) / #hiddenPool
+            for _, resultId in ipairs(hiddenPool) do
+                local resultCfg = get_doll_result_cfg(resultId) or {}
+                lines[#lines + 1] = string.format("<font color='#ffffff'>%s\t%s</font>", tostring(resultCfg.name or resultId), format_doll_rate_text(everyHidden, (cfg.hidden or {}).rate_base or cfg.red_rate_base))
+            end
+        end
+        if tonumber(cfg.pity_need) and tonumber(cfg.pity_need) > 0 then
+            lines[#lines + 1] = string.format("<font color='#ffffff'>连续%s次未出红款，下次必出红款</font>", format_doll_number(cfg.pity_need))
+        end
+        if cfg.every_draw_reward and next(cfg.every_draw_reward) then
+            lines[#lines + 1] = string.format("<font color='#ffffff'>每次固定奖励：%s</font>", format_doll_cost(cfg.every_draw_reward))
+        end
+        return table.concat(lines, "<br>")
+    end
+
+    local function render_doll_side_tabs(parent)
+        local tabs = {
+            {id = 'doll_machine', x = 6 - 42, y = 247 + 50 + 88},
+            {id = 'doll_cabinet', x = 6 - 42, y = 123 + 50 + 88},
+        }
+        for _, tab in ipairs(tabs) do
+            local btn = GUI:Button_Create(parent, 'doll_side_tab_' .. tab.id, tab.x, tab.y, get_doll_tab_skin(tab.id))
+            GUI:setAnchorPoint(btn, 0, 1)
+            GUI:addOnClickEvent(btn, function()
+                if npc.woodcut_doll.tab ~= tab.id then
+                    npc.woodcut_doll.tab = tab.id
+                    open_doll_machine()
+                end
+            end)
+        end
+    end
+
+    local function render_doll_machine_panel(parent)
+        local payload = npc.woodcut_doll.payload or {}
+        local doll = payload.doll or {}
+        local cfg = get_doll_cfg()
+        local bg = GUI:Frames_Create(parent, "eff", 0 - 40, 0, "res/custom/three_city/xianfu/仙府部分/娃娃机/bg/eff_", ".png", 1, 150,
+        { speed = 75, count = 150, loop = -1})
+        GUI:Image_Create(parent, 'machine_rule_img', 498 - 40, 273, 'res/custom/three_city/xianfu/仙府部分/娃娃机/游戏规则.png')
+        GUI:Image_Create(parent, 'machine_material_title', 58 - 20, 132, 'res/custom/three_city/xianfu/仙府部分/娃娃机/所需材料.png')
+        local panel = GUI:Image_Create(parent, 'machine_info_bg', 42 - 20, 8, 'res/custom/three_city/xianfu/仙府部分/娃娃机/下方透明底.png')
+        local tip = GUI:Image_Create(parent, 'machine_tip', 650 - 40 -553, 402 - 389, 'res/custom/msfc/page1/wenhao.png')
+
+        GUI:setAnchorPoint(panel, 0, 0)
+        GUI:setOpacity(panel, 185)
+        local tipHtml = build_doll_tip_html()
+        if SL:GetMetaValue("WINPLAYMODE") then
+            GUI:addMouseMoveEvent(tip, {onEnterFunc = function()
+                local pos = GUI:getWorldPosition(tip)
+                SL:OpenCommonDescTipsPop({str = tipHtml, worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 1})
+            end, onLeaveFunc = function()
+                SL:CloseCommonDescTipsPop()
+            end})
+        else
+            GUI:setTouchEnabled(tip, true)
+            GUI:addOnTouchEvent(tip, function(self)
+                local pos = GUI:getWorldPosition(tip)
+                SL:OpenCommonDescTipsPop({str = tipHtml, worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 1})
+            end)
+        end
+        local pityNeed = doll.pity_need or cfg.pity_need or 0
+        local line1 = GUI:Text_Create(panel, 'machine_line1', 26, 86, 18, '#f5f0df', string.format('当前仙府币：%s    本次消耗：%s', format_doll_number(SL:GetMetaValue('TMONEY', '仙府币') or 0), format_doll_cost(doll.current_cost or cfg.normal_draw_cost or {})))
+        -- local line2 = GUI:Text_Create(panel, 'machine_line2', 26, 58, 18, '#ffe1a8', string.format('累计抓取：%s    新手剩余：%s    红款保底：%s/%s', format_doll_number(doll.draw_total or 0), format_doll_number(doll.newbie_left or 0), format_doll_number(doll.pity_progress or 0), format_doll_number(pityNeed)))
+        -- local line3 = GUI:Text_Create(panel, 'machine_line3', 26, 30, 18, '#9fe8ff', string.format('固定奖励：%s    隐藏款已解锁：%s', format_doll_cost(cfg.every_draw_reward or {}), format_doll_number(doll.hidden_count or 0)))
+        GUI:Text_enableOutline(line1, '#100808', 2)
+        -- GUI:Text_enableOutline(line2, '#100808', 2)
+        -- GUI:Text_enableOutline(line3, '#100808', 2)
+        local lastResultId = ((npc.woodcut_doll.lastResult or {}).resultId) or doll.last_result
+        local resultCfg = lastResultId and get_doll_result_cfg(lastResultId) or nil
+        -- if resultCfg then
+        --     local resultName = GUI:Text_Create(panel, 'machine_result_name', 388, 86, 18, '#ffd66b', string.format('最近获得：%s[%s]', resultCfg.name or '', resultCfg.quality_name or ''))
+        --     local resultDesc = GUI:Text_Create(panel, 'machine_result_desc', 388, 58, 17, '#ffffff', resultCfg.attr_desc or '')
+        --     GUI:Text_enableOutline(resultName, '#100808', 2)
+        --     GUI:Text_enableOutline(resultDesc, '#100808', 2)
+        --     local asset = get_doll_asset(lastResultId)
+        --     if asset then
+        --         local preview = GUI:Image_Create(panel, 'machine_result_preview', 655, 8, asset)
+        --         GUI:setScale(preview, 0.42)
+        --         GUI:setAnchorPoint(preview, 0.5, 0)
+        --     end
+        -- else
+        --     local emptyText = GUI:Text_Create(panel, 'machine_result_empty', 388, 72, 18, '#ffffff', '尚未抓到娃娃')
+        --     GUI:Text_enableOutline(emptyText, '#100808', 2)
+        -- end
+        -- GUI:Image_Create(parent, 'doll_skip_anim_mock', 689, 84, 'res/custom/three_city/xianfu/仙府部分/娃娃机/跳过动画.png')
+        local drawBtn = GUI:Button_Create(parent, 'doll_draw_btn', 662 - 50, 40, 'res/custom/three_city/xianfu/仙府部分/娃娃机/抓一次.png')
+        GUI:setAnchorPoint(drawBtn, 0.5, 0.5)
+        GUI:addOnClickEvent(drawBtn, function()
+            request_draw_doll_machine()
         end)
     end
+
+    local function render_doll_cabinet_panel(parent)
+        local payload = npc.woodcut_doll.payload or {}
+        local doll = payload.doll or {}
+        local qualityCount = doll.quality_count or {}
+        local order = get_doll_cfg().cabinet_order or {}
+        local ownedList = build_doll_owned_list(doll)
+        GUI:Image_Create(parent, 'cabinet_room_bg', 0 - 40, 0, 'res/custom/three_city/xianfu/仙府部分/收藏柜/收藏柜背景.png')
+        local attrBg = GUI:Image_Create(parent, 'cabinet_attr_bg', 503 - 40, 280 - 50, 'res/custom/three_city/xianfu/仙府部分/收藏柜/右上角属性底.png')
+        GUI:setAnchorPoint(attrBg, 0, 0)
+        GUI:setScaleX(attrBg, 8.6)
+        GUI:setScaleY(attrBg, 1.55)
+        local totalOwned = 0
+        for _, count in pairs(doll.owned or {}) do
+            totalOwned = totalOwned + (tonumber(count) or 0)
+        end
+        local titleText = GUI:Text_Create(parent, 'cabinet_title_text', 534, 470 - 50, 20, '#ffe9c2', '已解锁娃娃')
+        GUI:Text_enableOutline(titleText, '#100808', 2)
+        local infoRows = {
+            string.format('已解锁：%s/%s', format_doll_number(#ownedList), format_doll_number(#order)),
+            string.format('收藏总数：%s', format_doll_number(totalOwned)),
+            string.format('普通：%s', format_doll_number(qualityCount.normal or 0)),
+            string.format('红款：%s', format_doll_number(qualityCount.red or 0)),
+            string.format('隐藏：%s', format_doll_number(qualityCount.hidden or 0)),
+        }
+        for idx, text in ipairs(infoRows) do
+            local label = GUI:Text_Create(parent, 'cabinet_info_' .. idx, 534, 438 - (idx - 1) * 28 - 50, 18, '#ffffff', text)
+            GUI:Text_enableOutline(label, '#100808', 2)
+        end
+        local summary = doll.summary or {}
+        for idx, entry in ipairs(summary) do
+            if idx > 5 then
+                break
+            end
+            local text = string.format('%s +%s', entry.name or '', format_doll_attr_value(entry.value, entry.percent))
+            local label = GUI:Text_Create(parent, 'cabinet_summary_' .. idx, 534, 298 - (idx - 1) * 24 - 50, 17, '#ffe8c5', text)
+            GUI:Text_enableOutline(label, '#100808', 2)
+        end
+        local viewX = 66
+        local viewY = 66 - 50
+        local viewW = 644
+        local viewH = 394 + 50
+        local scroll = GUI:ScrollView_Create(parent, 'cabinet_scroll', viewX, viewY, viewW, viewH, 1)
+        GUI:ScrollView_setBounceEnabled(scroll, true)
+        GUI:setTouchEnabled(scroll, true)
+        local cols = 3
+        local cellW = 128
+        local cellH = 214
+        local rows = math.max(1, math.ceil(math.max(#ownedList, 1) / cols))
+        local innerH = math.max(viewH, rows * cellH + 10)
+        GUI:ScrollView_setInnerContainerSize(scroll, viewW, innerH)
+        local layout = GUI:Layout_Create(scroll, 'cabinet_layout', 0, 0, viewW, innerH, false)
+        if #ownedList <= 0 then
+            local emptyText = GUI:Text_Create(layout, 'cabinet_empty_text', 260, math.floor(innerH / 2), 22, '#f3ead4', '暂无已解锁娃娃')
+            GUI:Text_enableOutline(emptyText, '#100808', 2)
+        else
+            local qualityColor = {
+                normal = '#d9edf8',
+                red = '#ff8f80',
+                hidden = '#ffe37e',
+            }
+            for idx, entry in ipairs(ownedList) do
+                local col = (idx - 1) % cols
+                local row = math.floor((idx - 1) / cols)
+                local posX = 8 + col * cellW
+                local posY = innerH - 208 - 8 - row * cellH
+                local slot = GUI:Layout_Create(layout, 'cabinet_owned_' .. idx, posX, posY, 134, 208, false)
+                local asset = get_doll_asset(entry.id)
+                if asset then
+                    GUI:Image_Create(slot, 'cabinet_owned_img_' .. idx, 0, 0, asset)
+                end
+                local dollName = tostring((entry.cfg or {}).name or '')
+                local nameText = GUI:Text_Create(slot, 'cabinet_name_' .. idx, 67, 164 - 155, 14, '#f3ead4', dollName)
+                GUI:setAnchorPoint(nameText, 0.5, 0)
+                GUI:Text_enableOutline(nameText, '#100808', 2)
+                local quality = tostring((entry.cfg or {}).quality or 'normal')
+                local qualityName = tostring((entry.cfg or {}).quality_name or '')
+                local qualityText = GUI:Text_Create(slot, 'cabinet_quality_' .. idx, 8, 184, 14, qualityColor[quality] or '#ffffff', qualityName)
+                GUI:Text_enableOutline(qualityText, '#100808', 2)
+                local countText = GUI:Text_Create(slot, 'cabinet_count_' .. idx, 126, 184, 14, '#ffe084', 'x' .. format_doll_number(entry.count))
+                GUI:setAnchorPoint(countText, 1, 0)
+                GUI:Text_enableOutline(countText, '#100808', 2)
+            end
+        end
+    end
+
+    open_doll_machine = function()
+        local skin = 'res/wy/public/tongyong_0.png'
+        if npc.doll_window and npc.doll_window.parent then
+            GUI:Win_Close(npc.doll_window.parent)
+            npc.doll_window = nil
+        end
+        npc.doll_window = NPC_UI_HELPER.ensureWindow(nil, 30, {
+            windowName = 'npc_anniu_30_doll',
+            background = {
+                skin = skin,
+            },
+            closeButton = {x = 782, y = 470},
+            title = {x = 50, y = 464, skin = "res/custom/three_city/xianfu/仙府部分/标题.png"},
+        })
+        local node = npc.doll_window.node
+        GUI:removeAllChildren(node)
+        render_doll_side_tabs(node)
+        if npc.woodcut_doll.tab == 'doll_cabinet' then
+            render_doll_cabinet_panel(node)
+        else
+            render_doll_machine_panel(node)
+        end
+    end
+    -- local function btn_buy_xjm()
+    --     local config = teshudata["anniu_30"]
+    --     npc.xjm_window = NPC_UI_HELPER.ensureWindow(nil, 30, {
+    --         windowName = "npc_anniu_30_xjm",
+    --         background = {
+    --             skin = "res/custom/three_city/xianfu/kanshu/buy/bg.png",
+    --         },
+    --         closeButton = {
+    --             x = 600,
+    --             y = 260,
+    --         },
+    --     })
+    --     npc.xjm_node = npc.xjm_window.node
+    --     GUI:Text_setFontName(GUI:Text_Create(npc.xjm_node, "cost", 422, 100, 30, "#FFFFFF", (npc.data_30.T_data.dh_num + 1) > #config.dh.details and config.dh.cost[1][2] or config.dh.details[npc.data_30.T_data.dh_num + 1].cost[1][2]), "fonts/501.ttf")
+    --     GUI:setAnchorPoint(GUI:ItemShow_Create(npc.xjm_node, "item1", 250, 196, {
+    --         index = SL:GetMetaValue("ITEM_INDEX_BY_NAME", "仙府币"),
+    --         count = 1,
+    --         look = true,
+    --     }), 0.5, 0.5)
+    --     GUI:setAnchorPoint(GUI:ItemShow_Create(npc.xjm_node, "item2", 490, 196, {
+    --         index = SL:GetMetaValue("ITEM_INDEX_BY_NAME", "砍树盲盒"),
+    --         count = 1,
+    --         look = true,
+    --     }), 0.5, 0.5)
+    --     local btn = GUI:Button_Create(npc.xjm_node, "btn", 364, 10, "res/custom/three_city/xianfu/kanshu/buy/btn.png")
+    --     GUI:setAnchorPoint(btn, 0.5, 0)
+    --     GUI:addOnClickEvent(btn, function()
+    --         request_open_doll_machine()
+    --     end)
+    -- end
     if p2 == 0 then
         npc.data_30 = not Data and {
         } or SL:JsonDecode(Data, false)
@@ -3484,6 +3834,7 @@ npc[30] = function(p2, p3, Data)
         else
             parent = GUI:Win_Create("anniu_30", 0, 0, 0, 0, false, false, true, true, true, nil, 1)
         end
+        npc.mainWindow = parent
         local bjt = GUI:Image_Create(parent, "bjt", cogin.w / 2, cogin.h / 2, "res/custom/three_city/xianfu/kanshu/bg_1/eff_1.png")
         GUI:setAnchorPoint(bjt, 0.5, 0.5)
         GUI:setContentSize(bjt, cogin.w, cogin.h)
@@ -3518,18 +3869,23 @@ npc[30] = function(p2, p3, Data)
         npc.wz1 = GUI:Text_Create(re_wz, "wz1", 133, 483, 20, "#FFFFFF", npc.data_30.T_data.num)
         npc.wz2 = GUI:Text_Create(re_wz, "wz2", 133, 449, 20, "#FFFFFF", npc.data_30.T_data.dh_num)
         local btn_updata_2 = GUI:Button_Create(re_wz, "btn_updata_2", 278 / 2, 300 - 210, "res/custom/three_city/xianfu/kanshu/btn_updata_2.png")
-        local btn_buy = GUI:Button_Create(re_wz, "btn_buy", 278 / 2, 300 - 70, "res/custom/three_city/xianfu/kanshu/btn_buy.png")
+        -- local btn_buy = GUI:Button_Create(re_wz, "btn_buy", 278 / 2, 300 - 70, "res/custom/three_city/xianfu/kanshu/btn_buy.png")
         local btn_tip = GUI:Button_Create(re_wz, "btn_tip", 278 / 2, 300, "res/custom/three_city/xianfu/kanshu/btn_tip.png")
         local btn_updata_1 = GUI:Button_Create(re_wz, "btn_updata_", 278 / 2, 300 - 140, "res/custom/three_city/xianfu/kanshu/btn_updata_1.png")
+        local btn_doll = GUI:Button_Create(re_wz, "btn_doll", 278 / 2, 300 - 70, "res/custom/three_city/xianfu/仙府部分/抓娃娃机.png")
         GUI:setAnchorPoint(btn_updata_2, 0.5, 0.5)
-        GUI:setAnchorPoint(btn_buy, 0.5, 0.5)
+        -- GUI:setAnchorPoint(btn_buy, 0.5, 0.5)
         GUI:setAnchorPoint(btn_tip, 0.5, 0.5)
         GUI:setAnchorPoint(btn_updata_1, 0.5, 0.5)
+        GUI:setAnchorPoint(btn_doll, 0.5, 0.5)
         GUI:addOnClickEvent(btn_updata_2, function()
             btn_updata_2_xjm()
         end)
-        GUI:addOnClickEvent(btn_buy, function()
-            btn_buy_xjm()
+        -- GUI:addOnClickEvent(btn_buy, function()
+        --     btn_buy_xjm()
+        -- end)
+        GUI:addOnClickEvent(btn_doll, function()
+            request_open_doll_machine()
         end)
         GUI:addOnClickEvent(btn_tip, function()
             npc.xjm_window = NPC_UI_HELPER.ensureWindow(nil, 30, {
@@ -3604,9 +3960,15 @@ npc[30] = function(p2, p3, Data)
             end)
         end
     elseif p2 == 4 then
-        npc.data_30 = not Data and {
-        } or SL:JsonDecode(Data, false)
-        btn_buy_xjm()
+        npc.woodcut_doll.payload = (not Data or Data == '') and {doll = {}} or (SL:JsonDecode(Data, false) or {doll = {}})
+        npc.woodcut_doll.tab = npc.woodcut_doll.tab or 'doll_machine'
+        open_doll_machine()
+    elseif p2 == 5 then
+        local payload = (not Data or Data == '') and {doll = {}} or (SL:JsonDecode(Data, false) or {doll = {}})
+        npc.woodcut_doll.payload = payload
+        npc.woodcut_doll.lastResult = payload.extra or npc.woodcut_doll.lastResult
+        npc.woodcut_doll.tab = 'doll_machine'
+        open_doll_machine()
     end
 end
 npc[498] = function(p2, p3, Data)

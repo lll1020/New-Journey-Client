@@ -18,21 +18,38 @@ local function createLeftPanel()
     end
 end
 
+local function hasLeftTopUI()
+    return LeftTopOBJ.ui and LeftTopOBJ.ui.TextAtlas_1
+end
+
 --重载初始化
 function LeftTopOBJ:reloadInit()
-    if not self.ui then
-        local parent = GUI:Win_FindParent(101)
-        self.ui = GUI:ui_delegate(parent)
+    if hasLeftTopUI() then
+        return true
     end
+    local parent = GUI:Win_FindParent(101)
+    if not parent then
+        self.ui = nil
+        return false
+    end
+    if not GUI:getChildByName(parent, "ImageView") then
+        createLeftPanel()
+    end
+    self.ui = GUI:ui_delegate(parent)
+    return hasLeftTopUI()
 end
 
 --显示战斗力
 function LeftTopOBJ:ShowPower()
-    self:reloadInit()
-    local varValue =  Player:getServerVar("B2")
-    local startValue = GUI:TextAtlas_getString(LeftTopOBJ.ui.TextAtlas_1)
-    animateNumberTransition(tonumber(startValue),tonumber(varValue),0.2,20,function (value)
-        GUI:TextAtlas_setString(LeftTopOBJ.ui.TextAtlas_1, tostring(value))
+    if not self:reloadInit() then
+        return
+    end
+    local varValue = tonumber(Player:getServerVar("B2")) or 0
+    local startValue = tonumber(GUI:TextAtlas_getString(LeftTopOBJ.ui.TextAtlas_1)) or 0
+    animateNumberTransition(startValue, varValue, 0.2, 20, function(value)
+        if hasLeftTopUI() then
+            GUI:TextAtlas_setString(LeftTopOBJ.ui.TextAtlas_1, tostring(value))
+        end
     end)
 end
 

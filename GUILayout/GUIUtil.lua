@@ -34,49 +34,32 @@ SL:Require("GUILayout/A/LeftTopOBJ", true)
 
 ---回收的数据初始化
 cogin.huishou_jc_list = {}
-local function append_nested_group(source, gl)
-    for _, group in pairs(source or {}) do
-        if type(group) == "table" then
-            for _, subgroup in pairs(group) do
-                if type(subgroup) == "table" and type(subgroup.l) == "table" then
-                    for itemIdx, cfg in pairs(subgroup.l) do
-                        cogin.huishou_jc_list[itemIdx] = cfg
-                        cogin.huishou_jc_list[itemIdx].gl = gl
-                    end
-                end
-            end
-        end
+local function append_huishou_group(source, gl)
+    if type(source) ~= "table" then
+        return
     end
-end
-
-local function append_single_group(source, gl)
-    for _, group in pairs(source or {}) do
-        if type(group) == "table" and type(group.l) == "table" then
-            for itemIdx, cfg in pairs(group.l) do
+    for itemIdx, cfg in pairs(source) do
+        if type(cfg) == "table" then
+            if type(cfg.l) == "table" then
+                append_huishou_group(cfg.l, gl)
+            elseif type(cfg[1]) == "number" then
                 cogin.huishou_jc_list[itemIdx] = cfg
                 cogin.huishou_jc_list[itemIdx].gl = gl
+            else
+                append_huishou_group(cfg, gl)
             end
         end
     end
 end
 
-local function append_flat_group(source, gl)
-    for itemIdx, cfg in pairs(source or {}) do
-        if type(cfg) == "table" then
-            cogin.huishou_jc_list[itemIdx] = cfg
-            cogin.huishou_jc_list[itemIdx].gl = gl
-        end
-    end
-end
-
-append_nested_group(cogin.hs.zzhs, 1)
-append_nested_group(cogin.hs.fzfj, 1)
-append_nested_group(cogin.hs.zsfj, 2)
-append_nested_group(cogin.hs.sqhs, 3)
-append_nested_group(cogin.hs.gwfj, 4)
-append_nested_group(cogin.hs.ssfj, 5)
-append_nested_group(cogin.hs.clfj, 6)
-append_flat_group(cogin.hs.teshuhuihsou, 7)
+append_huishou_group(cogin.hs.zzhs, 1)
+append_huishou_group(cogin.hs.fzfj, 1)
+append_huishou_group(cogin.hs.zsfj, 2)
+append_huishou_group(cogin.hs.sqhs, 3)
+append_huishou_group(cogin.hs.gwfj, 4)
+append_huishou_group(cogin.hs.ssfj, 5)
+append_huishou_group(cogin.hs.clfj, 6)
+append_huishou_group(cogin.hs.teshuhuihsou, 7)
 
 for itemIdx, cfg in pairs(cogin.hs.kexiaohui or {})  do
     if not cogin.huishou_jc_list[itemIdx] then

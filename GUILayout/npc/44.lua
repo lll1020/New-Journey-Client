@@ -39,6 +39,8 @@ local MENU_TABS = {
     {id = 'rank', label = '排行称号'},
     {id = 'system', label = '系统提示'},
     {idx = 2,id = 'shape', label = '装扮'},
+    {id = 'doll_machine', label = '娃娃机'},
+    {id = 'doll_cabinet', label = '收藏柜'},
 }
 local MENU_TABS_LIST = {
     [1] = {4,5,10},
@@ -48,7 +50,7 @@ local MENU_TABS_LIST = {
 -- UI 文本及按钮常用配色，集中管理方便整体调色。
 
 local MENU_PERMISSIONS = {
-    self = {overview = true, farm = true, inventory = true, social = true, shop = true, refine = true, pet = true, system = true, shape = true},
+    self = {overview = true, farm = true, inventory = true, social = true, shop = true, refine = true, pet = true, system = true, shape = true, doll_machine = true, doll_cabinet = true},
     guest = {farm = true, social = true},
 }
 
@@ -61,6 +63,19 @@ local colors = {
     muted = '#9fb0c0',
 }
 
+-- 外部入口可通过 MetaValue 指定仙府首次打开的默认页签。
+local function consumeRequestedTab()
+    if not SL or not SL.GetMetaValue then
+        return nil
+    end
+    local tab = SL:GetMetaValue("XIANFU_OPEN_TAB")
+    if tab and tab ~= "" and SL.SetMetaValue then
+        SL:SetMetaValue("XIANFU_OPEN_TAB", "")
+        return tostring(tab)
+    end
+    return nil
+end
+
 -- 维护前端本地状态（选中地块、菜单页签等），避免 nil。
 local function ensureState()
     npc._state = npc._state or {}
@@ -72,6 +87,7 @@ local function ensureState()
     state.lastActionOk = state.lastActionOk or false
     state.menuTab = state.menuTab or 'overview'
     state.viewMode = state.viewMode or 'self'
+    state.lastDollResult = state.lastDollResult or nil
     state.remoteGridId = math.max(1, math.min(npc._config.gridSize or 9, tonumber(state.remoteGridId) or 1))
     return state
 end
@@ -133,6 +149,7 @@ local function buildLocalSnapshotCfg()
         decorate = cfg.DecorateCfg or {},
         pet = cfg.PetCfg or {},
         shop = cfg.ShopCfg or {},
+        doll = cfg.DollCfg or {},
     }
 end
 
@@ -311,6 +328,66 @@ local function formatSeconds(seconds)
         return string.format('%02d:%02d:%02d', h, m, s)
     end
     return string.format('%02d:%02d', m, s)
+end
+
+local function formatAttrValue(value, percent)
+    local num = tonumber(value) or 0
+    if percent and tonumber(percent) == 1 then
+        return string.format('%s%%', tostring(math.floor(num / 100)))
+    end
+    return formatNumber(num)
+end
+
+local function getDollData(snapshot)
+    return ((snapshot or {}).player or {}).doll or {}
+end
+
+local function getDollCfg()
+    return ((npc._config or {}).DollCfg or {})
+end
+
+local function getDollResultCfg(resultId)
+    return (((npc._config or {}).DollCfg or {}).results or {})[resultId]
+end
+
+local function getDollAsset(resultId)
+    local cfg = getDollResultCfg(resultId)
+    if not cfg then
+        return nil
+    end
+    local qualityMap = {
+        normal = '普通',
+        red = '红',
+        hidden = '隐藏',
+    }
+    local group = tostring(cfg.asset_group or 1)
+    local quality = qualityMap[cfg.quality or 'normal'] or '普通'
+    return string.format('res/custom/three_city/xianfu/仙府部分/收藏柜/娃娃/娃娃%s/%s.png', group, quality)
+end
+
+local function switchDollTab(tabId)
+    local state = ensureState()
+    state.menuTab = tabId
+    npc.render()
+end
+
+local function drawDollSideTabs(parent, currentTab)
+    local baseX = -cogin.w / 2 + 24
+    local baseY = cogin.h / 2 - 120
+    local tabs = {
+        {id = 'doll_machine', normal = "res/custom/three_city/xianfu/仙府部分/左侧按钮/娃娃机/暗.png", active = "res/custom/three_city/xianfu/仙府部分/左侧按钮/娃娃机/亮.png"},
+        {id = 'doll_cabinet', normal = "res/custom/three_city/xianfu/仙府部分/左侧按钮/收藏柜/暗.png", active = "res/custom/three_city/xianfu/仙府部分/左侧按钮/收藏柜/亮.png"},
+    }
+    for idx, tab in ipairs(tabs) do
+        local skin = currentTab == tab.id and tab.active or tab.normal
+        local btn = GUI:Button_Create(parent, 'doll_side_tab_' .. tab.id, baseX, baseY - (idx - 1) * 125, skin)
+        GUI:setAnchorPoint(btn, 0, 1)
+        GUI:addOnClickEvent(btn, function()
+            if currentTab ~= tab.id then
+                switchDollTab(tab.id)
+            end
+        end)
+    end
 end
 
 local function safePairs(list)
@@ -639,6 +716,15 @@ local function drawMenuBar(node)
         local tab = MENU_TABS[k]
         local x = startX 
         local allowed = permission[tab.id]
+        local btnSkin = "res/custom/three_city/xianfu/btn/l/"..tostring(tab.idx)..".png"
+        local btnDisabledSkin = "res/custom/three_city/xianfu/btn/n/"..tostring(tab.idx)..".png"
+        if tab.id == "doll_machine" then
+            btnSkin = "res/custom/three_city/xianfu/仙府部分/左侧按钮/娃娃机/亮.png"
+            btnDisabledSkin = "res/custom/three_city/xianfu/仙府部分/左侧按钮/娃娃机/暗.png"
+        elseif tab.id == "doll_cabinet" then
+            btnSkin = "res/custom/three_city/xianfu/仙府部分/左侧按钮/收藏柜/亮.png"
+            btnDisabledSkin = "res/custom/three_city/xianfu/仙府部分/左侧按钮/收藏柜/暗.png"
+        end
         local btn = NPC_UI_HELPER.createPrimaryButton(btn_list_img, 'menux_btn_' .. tab.id, 560 + (idx - 1) * 150, -10, "", function()
 
             if tab.id == "pet" then
@@ -651,11 +737,11 @@ local function drawMenuBar(node)
                 npc.render()
                 return
             end
-            if s.menuTab ~= tab.id then
-                s.menuTab = tab.id
-                npc.render()
-            end
-        end,{skin = "res/custom/three_city/xianfu/btn/l/"..tab.idx..".png",Disabled_skin = "res/custom/three_city/xianfu/btn/n/"..tab.idx..".png"})
+              if s.menuTab ~= tab.id then
+                  s.menuTab = tab.id
+                  npc.render()
+              end
+          end,{skin = btnSkin,Disabled_skin = btnDisabledSkin})
         GUI:setAnchorPoint(btn, 0.5, 0)
         if allowed then
             GUI:Button_setBright(btn, state.menuTab ~= tab.id)
@@ -1740,6 +1826,143 @@ local function drawshape(node, snapshot, npcid)
     end)
 end
 
+-- ===== 仙府娃娃机 =====
+local function drawDollMachine(node, snapshot, npcid)
+    if isGuestMode() then
+        SL:ShowSystemTips("<font color='#FF0000'>拜访模式不可使用娃娃机。</font>")
+        return
+    end
+
+    local doll = getDollData(snapshot)
+    local cfg = getDollCfg()
+    local state = ensureState()
+
+    local root = GUI:Node_Create(node, 'doll_machine_panel', 0, 0)
+    drawDollSideTabs(root, 'doll_machine')
+
+    local title = GUI:Image_Create(root, 'doll_machine_title', -300, cogin.h / 2 - 78, "res/custom/three_city/xianfu/仙府部分/标题.png")
+    GUI:setAnchorPoint(title, 0, 1)
+
+    local machineWrap = GUI:Node_Create(root, 'machine_wrap', -360, -182)
+    GUI:setAnchorPoint(machineWrap, 0, 0)
+    local anim = GUI:Frames_Create(machineWrap, "machine_anim", 0, 0, "res/custom/three_city/xianfu/仙府部分/娃娃机/仙府娃娃机序列/仙府娃娃机_", ".png", 0, 150, {speed = 60, count = 150, loop = -1})
+    GUI:setAnchorPoint(anim, 0, 0)
+    GUI:setScale(anim, 0.86)
+
+    GUI:Image_Create(root, 'rule_title', 210, 118, "res/custom/three_city/xianfu/仙府部分/娃娃机/游戏规则.png")
+    GUI:Image_Create(root, 'cost_title', 210, 2, "res/custom/three_city/xianfu/仙府部分/娃娃机/所需材料.png")
+    local infoBg = GUI:Image_Create(root, 'info_bg', 135, -220, "res/custom/three_city/xianfu/仙府部分/娃娃机/下方透明底.png")
+    GUI:setContentSize(infoBg, 352, 170)
+
+    local costText = formatCost(doll.current_cost or cfg.normal_draw_cost or {})
+    local fixedRewardText = formatCost(cfg.every_draw_reward or {})
+    local pityNeed = doll.pity_need or cfg.pity_need or 35
+    local rightInfo = {
+        {key = 'doll_money', y = 75, color = "#f7f7de", text = string.format("当前仙府币：%s", formatNumber(SL:GetMetaValue("TMONEY", "仙府币") or 0))},
+        {key = 'doll_cost', y = 42, color = "#ffffff", text = "本次消耗：" .. costText},
+        {key = 'doll_reward_fix', y = 12, color = "#c0f7a2", text = "固定奖励：" .. fixedRewardText},
+        {key = 'doll_draw_total', y = -18, color = "#ffe9c2", text = string.format("累计抓取：%s", formatNumber(doll.draw_total or 0))},
+        {key = 'doll_newbie', y = -48, color = "#8af5ff", text = string.format("新手优惠剩余：%s", formatNumber(doll.newbie_left or 0))},
+        {key = 'doll_pity', y = -78, color = "#ffcd7f", text = string.format("红款保底：%s/%s", formatNumber(doll.pity_progress or 0), formatNumber(pityNeed))},
+        {key = 'doll_hidden', y = -108, color = "#ff8686", text = string.format("隐藏款已出：%s", formatNumber(doll.hidden_count or 0))},
+    }
+    for _, row in ipairs(rightInfo) do
+        GUI:Text_Create(root, row.key, 165, row.y, 18, row.color, row.text, nil, nil, {outlineSize = 2, outlineColor = SL:ConvertColorFromHexString("#100808")})
+    end
+
+    local resultCfg = nil
+    local lastResultId = ((state.lastDollResult or {}).resultId) or doll.last_result
+    if lastResultId and lastResultId ~= '' then
+        resultCfg = getDollResultCfg(lastResultId)
+    end
+
+    if resultCfg then
+        GUI:Text_Create(root, 'doll_result_name', 165, -145, 19, "#ffd66b", string.format("最近获得：%s[%s]", resultCfg.name or "", resultCfg.quality_name or ""), nil, nil, {outlineSize = 2, outlineColor = SL:ConvertColorFromHexString("#100808")})
+        GUI:Text_Create(root, 'doll_result_desc', 165, -173, 17, "#ffffff", resultCfg.attr_desc or "", nil, nil, {outlineSize = 2, outlineColor = SL:ConvertColorFromHexString("#100808")})
+        local asset = getDollAsset(lastResultId)
+        if asset then
+            local preview = GUI:Image_Create(root, 'doll_preview', 328, -196, asset)
+            GUI:setScale(preview, 0.82)
+        end
+    else
+        GUI:Text_Create(root, 'doll_result_empty', 165, -160, 18, "#ffffff", "尚未抓到娃娃", nil, nil, {outlineSize = 2, outlineColor = SL:ConvertColorFromHexString("#100808")})
+    end
+
+    local drawBtn = NPC_UI_HELPER.createPrimaryButton(root, 'doll_draw_btn', 245, -240, "", function()
+        sendAction(npcid, 'dollDraw', {})
+    end, {skin = "res/custom/three_city/xianfu/仙府部分/娃娃机/抓一次.png"})
+    GUI:setAnchorPoint(drawBtn, 0.5, 0.5)
+end
+
+-- ===== 收藏柜 =====
+local function drawDollCabinet(node, snapshot, npcid)
+    if isGuestMode() then
+        SL:ShowSystemTips("<font color='#FF0000'>拜访模式不可查看收藏柜。</font>")
+        return
+    end
+
+    local doll = getDollData(snapshot)
+    local cfg = getDollCfg()
+    local root = GUI:Node_Create(node, 'doll_cabinet_panel', 0, 0)
+    drawDollSideTabs(root, 'doll_cabinet')
+
+    local title = GUI:Image_Create(root, 'doll_cabinet_title', -300, cogin.h / 2 - 78, "res/custom/three_city/xianfu/仙府部分/标题.png")
+    GUI:setAnchorPoint(title, 0, 1)
+
+    local bg = GUI:Image_Create(root, 'cabinet_bg', -370, -215, "res/custom/three_city/xianfu/仙府部分/收藏柜/收藏柜背景.png")
+    GUI:setAnchorPoint(bg, 0, 0)
+
+    local attrBg = GUI:Image_Create(root, 'cabinet_attr_bg', 175, 112, "res/custom/three_city/xianfu/仙府部分/收藏柜/右上角属性底.png")
+    GUI:setAnchorPoint(attrBg, 0, 0)
+    GUI:setScaleX(attrBg, 8.4)
+
+    GUI:Text_Create(root, 'cabinet_title_text', 205, 142, 20, "#ffe9c2", "收藏属性总览", nil, nil, {outlineSize = 2, outlineColor = SL:ConvertColorFromHexString("#100808")})
+
+    local summary = doll.summary or {}
+    if #summary <= 0 then
+        GUI:Text_Create(root, 'cabinet_summary_empty', 205, 110, 18, "#ffffff", "暂无娃娃属性", nil, nil, {outlineSize = 2, outlineColor = SL:ConvertColorFromHexString("#100808")})
+    else
+        for idx, entry in ipairs(summary) do
+            if idx > 6 then
+                break
+            end
+            local text = string.format("%s +%s", entry.name or "", formatAttrValue(entry.value, entry.percent))
+            GUI:Text_Create(root, 'cabinet_summary_' .. idx, 205, 112 - (idx - 1) * 28, 18, "#ffffff", text, nil, nil, {outlineSize = 2, outlineColor = SL:ConvertColorFromHexString("#100808")})
+        end
+    end
+
+    local scroll = GUI:ScrollView_Create(root, "cabinet_scroll", -332, -176, 690, 432, 1)
+    GUI:ScrollView_setBounceEnabled(scroll, true)
+
+    local order = cfg.cabinet_order or {}
+    local totalRows = math.ceil(math.max(#order, 1) / 5)
+    local innerH = math.max(432, totalRows * 238)
+    GUI:ScrollView_setInnerContainerSize(scroll, 690, innerH)
+    local container = GUI:Layout_Create(scroll, "cabinet_layout", 0, 0, 690, innerH)
+
+    for idx, resultId in ipairs(order) do
+        local resultCfg = getDollResultCfg(resultId)
+        local col = (idx - 1) % 5
+        local row = math.floor((idx - 1) / 5)
+        local posX = 18 + col * 132
+        local posY = innerH - 18 - row * 214
+        local itemNode = GUI:Node_Create(container, 'cabinet_item_' .. idx, posX, posY)
+        local asset = getDollAsset(resultId)
+        if asset then
+            local img = GUI:Image_Create(itemNode, 'cabinet_img_' .. idx, 0, -190, asset)
+            GUI:setScale(img, 0.9)
+        else
+            GUI:Image_Create(itemNode, 'cabinet_empty_' .. idx, 47, -150, "res/custom/three_city/xianfu/仙府部分/娃娃机/空.png")
+        end
+        local ownedCount = tonumber((doll.owned or {})[resultId]) or 0
+        if ownedCount > 0 then
+            GUI:Image_Create(itemNode, 'cabinet_has_' .. idx, 47, -34, "res/custom/three_city/xianfu/仙府部分/娃娃机/对号.png")
+        end
+    end
+
+    GUI:Image_Create(root, 'cabinet_hint', 372, -12, "res/custom/three_city/xianfu/仙府部分/收藏柜/上下滑动查看全部.png")
+end
+
 -- 炼丹模块，展示配方/冷却。
 local function drawRefine(node, snapshot, npcid)
 
@@ -2136,6 +2359,10 @@ local function renderSection(tab, snapshot, baseSnapshot, npcid)
         drawSystemMessages(npc.node, snapshot)
     elseif tab == 'shape' then
         drawshape(npc.node, snapshot, npcid)
+    elseif tab == 'doll_machine' then
+        drawDollMachine(npc.node, snapshot, npcid)
+    elseif tab == 'doll_cabinet' then
+        drawDollCabinet(npc.node, snapshot, npcid)
     else
         drawPlotCells(npc.node, snapshot)
         drawPlotDetail(npc.node, snapshot, npcid)
@@ -2165,8 +2392,11 @@ function npc.render()
     end
     buildTopOverview(npc.node, displaySnapshot, baseSnapshot, npcid)
     drawMenuBar(npc.node)
-    local btn_knashu = GUI:Frames_Create(npc.node, "eff1", -cogin.w/2,  - cogin.h/2 + 150, "res/custom/three_city/xianfu/kanshu/btn/eff_", ".png", 1, 75,
-                { speed = 75, count = 75, loop = -1})
+    local btn_knashu = GUI:Frames_Create(npc.node, "eff1", -cogin.w / 2, -cogin.h / 2 + 150, "res/custom/three_city/xianfu/kanshu/btn/eff_", ".png", 1, 75, {
+        speed = 75,
+        count = 75,
+        loop = -1
+    })
     GUI:setAnchorPoint(btn_knashu, 0, 0)
     GUI:setTouchEnabled(btn_knashu, true)
     GUI:addOnClickEvent(btn_knashu, function()
@@ -2185,6 +2415,11 @@ local function handleInitial(msgData)
     local data = parseJson(msgData)
     updateSnapshot(data)
     exitGuestMode()
+    local state = ensureState()
+    if state.requestedMenuTab and MENU_PERMISSIONS.self[state.requestedMenuTab] then
+        state.menuTab = state.requestedMenuTab
+        state.requestedMenuTab = nil
+    end
     npc.render()
 end
 
@@ -2206,6 +2441,10 @@ local function handleAction(npcid, msgData)
     state.lastActionOk = payload.ok and true or false
     if payload.state then
         updateSnapshot(payload.state)
+    end
+    if payload.action == 'dollDraw' and payload.extra then
+        state.lastDollResult = payload.extra
+        state.menuTab = 'doll_machine'
     end
     local extra = payload.extra
     if extra and extra.visitMode and extra.target then
@@ -2236,7 +2475,13 @@ end
 
 -- NPC 入口：注册窗口并分发消息。
 function npc.main(npcid, p2, p3, msgData)
-    ensureState().npcid = npcid
+    local state = ensureState()
+    state.npcid = npcid
+    local requestedTab = consumeRequestedTab()
+    if requestedTab and MENU_PERMISSIONS.self[requestedTab] then
+        state.requestedMenuTab = requestedTab
+        state.menuTab = requestedTab
+    end
     ensureWindow(npcid)
     if p2 == 0 then
         handleInitial(msgData)

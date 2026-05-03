@@ -120,6 +120,16 @@ end
 ---* numSteps：步长
 ---* onUpdate：回调函数
 function animateNumberTransition(startValue, endValue, duration, numSteps, onUpdate)
+    startValue = tonumber(startValue) or 0
+    endValue = tonumber(endValue) or 0
+    duration = tonumber(duration) or 0
+    numSteps = tonumber(numSteps) or 0
+    if numSteps <= 0 then
+        if onUpdate then
+            onUpdate(math.floor(endValue))
+        end
+        return
+    end
     local currentValue = startValue
     local stepValue = math.abs(endValue - startValue) / numSteps  -- 步进值取绝对值
     local stepInterval = duration / numSteps
@@ -140,7 +150,9 @@ function animateNumberTransition(startValue, endValue, duration, numSteps, onUpd
                 end
             end
             -- 调用更新回调函数
-            onUpdate(math.floor(currentValue))
+            if onUpdate then
+                onUpdate(math.floor(currentValue))
+            end
             -- 递归调用，在下一个时间段继续更新数字
             SL:ScheduleOnce(animateNumber, stepInterval)
         end
