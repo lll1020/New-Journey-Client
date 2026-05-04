@@ -24,7 +24,7 @@ local layoutCfg = {
     level = {startX = 40, startY = 335, gapX = 170},               -- 顶部等级切换按钮：起点与横向间距
 }
 
-local tierNames = {"稀有", "史诗", "神话", "传说"}
+local tierNames = {"稀有", "史诗", "传说", "神话"}
 
 -- 读取指定等级的槽位表，并生成“槽位名称 -> 索引”的查找表
 local function getSlotData(level)

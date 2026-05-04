@@ -321,7 +321,7 @@ local function renderMain(node, npcid, data)
         SL:SendLuaNetMsg(100, npcid, 1, 0, "")
     end)
     NPC_UI_HELPER.tryStartXylGuide(npc, refreshBtn, node, "tianshu_refine_once", {
-        taskName = "引导天书使者洗炼一次",
+        taskName = "洗炼天书",
         dir = 5,
         desc = "点击洗炼天书",
     })

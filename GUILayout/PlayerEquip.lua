@@ -18,7 +18,28 @@ PlayerEquip.fictionalUIPos = {
     [1000] = GUIDefine.EquipPosUI.Equip_Type_Dress,
     [1001] = GUIDefine.EquipPosUI.Equip_Type_Weapon,
 }
+local LUA_EVENT_YWL_CURRENT_TASK_CHANGE = "伏妖录当前任务变更"
 local posList = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 14, 16, 1000, 1001}
+local function _refresh_xyl_playerequip_guides()
+    local ui = PlayerEquip._ui
+    if not ui or not ui.Panel_1 then
+        return
+    end
+    if ui.Button1 then
+        NPC_UI_HELPER.tryStartXylGuide(PlayerEquip, ui.Button1, ui.Panel_1, "tianshu_divination", {
+            taskNames = {"天书强化", "进行天书强化1次", "初识仙法", "进行天书仙法抽取"},
+            dir = 5,
+            desc = "打开天书界面",
+        })
+    end
+    if ui.Button3 then
+        NPC_UI_HELPER.tryStartXylGuide(PlayerEquip, ui.Button3, ui.Panel_1, "linggen_panel_open", {
+            taskNames = {"升级灵根", "强化灵根", "强化灵根1次", "装配主灵根", "装配火灵根至主灵根", "装配副灵根", "装配水灵根至副灵根"},
+            dir = 5,
+            desc = "打开灵根界面",
+        })
+    end
+end
 function PlayerEquip.main(data)
     PlayerEquip.posSetting = {
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 16, 1000, 1001 --如有分离装备 需要添加
@@ -68,11 +89,6 @@ function PlayerEquip.main(data)
     GUI:addOnClickEvent(Button, function()
         SL:SendLuaNetMsg(105, 24, 24, 0, "")
     end)
-    NPC_UI_HELPER.tryStartXylGuide(nil, Button, PlayerEquip._ui.Panel_1, "tianshu_divination", {
-        taskNames = {"天书强化", "进行天书强化1次", "初识仙法", "进行天书仙法抽取"},
-        dir = 5,
-        desc = "打开天书界面",
-    })
     local mainline_realm
     Button= GUI:Button_Create(PlayerEquip._ui.Panel_1, "Button2", 110, 10.00, "res/private/player_main_layer_ui/btn_2.png")
     GUI:addOnClickEvent(Button, function()
@@ -82,11 +98,6 @@ function PlayerEquip.main(data)
     GUI:addOnClickEvent(Button, function()
         SL:SendLuaNetMsg(105, 22, 22, 0, "")
     end)
-    NPC_UI_HELPER.tryStartXylGuide(nil, Button, PlayerEquip._ui.Panel_1, "tianshu_divination", {
-        taskNames = {"升级灵根", "强化灵根1次", "装配主灵根", "装配火灵根至主灵根", "装配副灵根", "装配水灵根至副灵根"},
-        dir = 5,
-        desc = "打开灵根界面",
-    })
     Button= GUI:Button_Create(PlayerEquip._ui.Panel_1, "Button4", 250, 10.00, "res/private/player_main_layer_ui/btn_4.png")
     GUI:addOnClickEvent(Button, function()
         SL:SendLuaNetMsg(105, 44, 44, 0, "")
@@ -95,6 +106,7 @@ function PlayerEquip.main(data)
     GUI:addOnClickEvent(Button, function()
        Npclib["anniu"][22](0,0,"")     --法宝
     end)
+    _refresh_xyl_playerequip_guides()
 end
 function PlayerEquip.InitHideNodePos()
     PlayerEquip._hideNodePos = {}
@@ -618,6 +630,9 @@ function PlayerEquip.OnOpenOrCloseWin(data)
         PlayerEquip.RefreshBestRingBox()
     end
 end
+function PlayerEquip.OnXylCurrentTaskChange()
+    _refresh_xyl_playerequip_guides()
+end
 --[[
     界面关闭回调
 ]]
@@ -638,6 +653,7 @@ function PlayerEquip.RegisterEvent()
     SL:RegisterLUAEvent(LUA_EVENT_CLOSEWIN, "PlayerEquip", PlayerEquip.OnOpenOrCloseWin)
     -- 首饰盒状态改变
     SL:RegisterLUAEvent(LUA_EVENT_BESTRINGBOX_STATE, "PlayerEquip", PlayerEquip.RefreshPlayerBestRingsOpenState)
+    SL:RegisterLUAEvent(LUA_EVENT_YWL_CURRENT_TASK_CHANGE, "PlayerEquip", PlayerEquip.OnXylCurrentTaskChange)
 end
 function PlayerEquip.UnRegisterEvent()
     SL:UnRegisterLUAEvent(LUA_EVENT_PLAYER_GUILD_INFO_CHANGE, "PlayerEquip")
@@ -647,4 +663,5 @@ function PlayerEquip.UnRegisterEvent()
     SL:UnRegisterLUAEvent(LUA_EVENT_OPENWIN, "PlayerEquip")
     SL:UnRegisterLUAEvent(LUA_EVENT_CLOSEWIN, "PlayerEquip")
     SL:UnRegisterLUAEvent(LUA_EVENT_BESTRINGBOX_STATE, "PlayerEquip")
+    SL:UnRegisterLUAEvent(LUA_EVENT_YWL_CURRENT_TASK_CHANGE, "PlayerEquip")
 end

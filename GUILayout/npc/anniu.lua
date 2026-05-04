@@ -1952,6 +1952,7 @@ npc[11] = function(p2, p3, Data)
         ["进行天书强化1次"] = true,
         ["初识仙法"] = true,
         ["进行天书仙法抽取"] = true,
+        ["限时福利"] = true,
         ["引导点击限时福利NPC"] = true,
         ["扫荡野火帮"] = true,
         ["气运占卜"] = true,
@@ -1959,7 +1960,9 @@ npc[11] = function(p2, p3, Data)
         ["装配主灵根"] = true,
         ["装配火灵根至主灵根"] = true,
         ["修复聚宝盆"] = true,
+        ["聚宝盆"] = true,
         ["聚宝盆任务"] = true,
+        ["洗炼天书"] = true,
         ["引导天书使者洗炼一次"] = true,
         ["装配副灵根"] = true,
         ["装配水灵根至副灵根"] = true,
@@ -1969,15 +1972,20 @@ npc[11] = function(p2, p3, Data)
         ["查看江湖称号"] = true,
         ["查看江湖称号1次"] = true,
         ["杀伐之路"] = true,
+        ["查看幸运增幅"] = true,
         ["查看幸运增幅1次"] = true,
         ["掘墓人"] = true,
         ["升级灵根"] = true,
+        ["强化灵根"] = true,
         ["强化灵根1次"] = true,
         ["讨伐夜魔"] = true,
         ["古刹之谜"] = true,
         ["修复轩辕剑"] = true,
+        ["筑基"] = true,
         ["提升修为至筑基境"] = true,
         ["转生·二"] = true,
+        ["完成转生"] = true,
+        ["完转生"] = true,
         ["完成2大陆转生"] = true,
         ["开辟仙府"] = true,
         ["寻宝大师"] = true,
@@ -2183,22 +2191,16 @@ npc[11] = function(p2, p3, Data)
     end
     function _ywl_has_third_continent_half_entry()
         local raw = Player:getServerVar("T13")
-        if raw and raw ~= "" then
-            local ok, storyData = pcall(function()
-                return Player:JsonToTbl(raw)
-            end)
-            if ok and type(storyData) == "table" and _ywl_story_node_done(storyData["npc_46"]) then
-                return true
-            end
-        end
-        local xianfuRaw = Player:getServerVar("T47")
-        if not xianfuRaw or xianfuRaw == "" then
+        if not raw or raw == "" then
             return false
         end
-        local ok, xianfuData = pcall(function()
-            return Player:JsonToTbl(xianfuRaw)
+        local ok, storyData = pcall(function()
+            return Player:JsonToTbl(raw)
         end)
-        return ok and type(xianfuData) == "table" and next(xianfuData) ~= nil
+        if not ok or type(storyData) ~= "table" then
+            return false
+        end
+        return _ywl_story_node_done(storyData["npc_46"])
     end
     local function _ywl_is_third_continent_half_chapter(name)
         if not name or name == "" then
@@ -2403,7 +2405,7 @@ npc[11] = function(p2, p3, Data)
             local curJqd = tonumber(SL:GetMetaValue("TMONEY", "剧情点")) or 0
             local need = tonumber(zjCfg.jqd) or 0
             local lackJqd = zjCfg.jqd and curJqd < need
-            local lockInfo = nil
+            local lockInfo = npc.xyl and npc.xyl.get_chapter_lock_info and npc.xyl.get_chapter_lock_info(npc.l, npc.zj, curJqd) or nil
             local lockExtTips = {
             }
             if lockInfo then
@@ -2825,6 +2827,12 @@ npc[11] = function(p2, p3, Data)
                                     SL:ShowSystemTips("<font color='#FF0000'>需要完成灾厄入侵后才能进入该章节</font>")
                                     return
                                 end
+                            end
+                            local curJqd = tonumber(SL:GetMetaValue("TMONEY", "剧情点")) or 0
+                            local lockInfo = npc.xyl and npc.xyl.get_chapter_lock_info and npc.xyl.get_chapter_lock_info(npc.l, y, curJqd) or nil
+                            if lockInfo and lockInfo.locked then
+                                SL:ShowSystemTips(string.format("<font color='#FF0000'>%s</font>", tostring(lockInfo.tip or "章节未解锁")))
+                                return
                             end
                             GUI:Text_setTextColor(GUI:ui_delegate(GUI:ui_delegate(chapterList)["x_chap_" .. npc.zj]).wz, "#FFFFFF")
                             npc.zj = y
@@ -4322,7 +4330,7 @@ npc[502] = function(p2, p3, Data)
                 }
             end
         end
-        if tonumber(cfg.token_count or 0) and tonumber(cfg.token_count or 0) > 0 then
+        if tonumber(cfg.token_count or 0) and tonumber(cfg.token_count or 0) > 0 and not (type(cfg.show) == "table" and #cfg.show > 0 and tostring((cfg.show[1] or {})[1] or "") == (((teshudata["npc_101"] or {}).token_name) or "鹤嘴锄")) then
             local tokenName = ((teshudata["npc_101"] or {
             }).token_name) or "鹤嘴锄"
             list[#list + 1] = {

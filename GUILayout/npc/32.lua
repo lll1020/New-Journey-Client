@@ -124,12 +124,12 @@ function npc.main(npcid, p2, p3, msgData)
             local canPay = config and config.cost and checkItemNum(config.cost)
             local canGuideRebirth = (tonumber(npc.data.exp or 0) or 0) >= (tonumber(config and config.need_xxz or 0) or 0) and canPay
 
-            if config and config.req_desc and config.req_desc ~= "" then
-                local desc = GUI:Text_Create(node, "desc",386, 160, 20, "#ffffff", config.req_desc)
-                GUI:Text_setFontName(desc, "fonts/font4.ttf")
-                GUI:Text_enableOutline(desc, "#F03022", 2)
-                GUI:setAnchorPoint(desc, 0.5, 0.5)
-            end
+            -- if config and config.req_desc and config.req_desc ~= "" then
+            --     local desc = GUI:Text_Create(node, "desc",386, 160, 20, "#ffffff", config.req_desc)
+            --     GUI:Text_setFontName(desc, "fonts/font4.ttf")
+            --     GUI:Text_enableOutline(desc, "#F03022", 2)
+            --     GUI:setAnchorPoint(desc, 0.5, 0.5)
+            -- end
 
             
             
@@ -182,7 +182,7 @@ function npc.main(npcid, p2, p3, msgData)
                 NPC_UI_HELPER.closeGuideByDomain("mainline")
             end
             NPC_UI_HELPER.tryStartXylGuide(npc, Button, node, "rebirth_two", {
-                taskNames = {"转生·二", "完成2大陆转生"},
+                taskNames = {"转生·二", "完成转生", "完转生", "完成2大陆转生"},
                 dir = 5,
                 desc = "点击进行转生",
             })
@@ -203,7 +203,7 @@ function npc.main(npcid, p2, p3, msgData)
     elseif p2 == 1 then
         npc.data.level = npc.data.level + 1
         UI_updata(npc.node)
-        if NPC_UI_HELPER.isCurrentXylTask({"转生·二", "完成2大陆转生"})
+        if NPC_UI_HELPER.isCurrentXylTask({"转生·二", "完成转生", "完转生", "完成2大陆转生"})
             and (tonumber(npc.data and npc.data.level or 0) or 0) >= 20 then
             NPC_UI_HELPER.closeWindow(npc._window)
         end

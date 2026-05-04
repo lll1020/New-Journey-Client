@@ -280,7 +280,7 @@ end
 -- 备注：是否拥有传说神石类道具
 local function _xyl_has_legendary_stone()
     local cfg = teshudata and teshudata["npc_53"]
-    local list = cfg and cfg.cost and cfg.cost[4]
+    local list = cfg and cfg.cost and cfg.cost[3]
     SL:dump(list, "legendary stone list")
     return _xyl_has_any_item(list)
 end
@@ -327,7 +327,7 @@ end
 -- 备注：仙府是否已开启（有数据记录）
 local function _xyl_has_xianfu_open()
     local data = _xyl_get_json("T47")
-    return next(data or {}) ~= nil
+    return type(data) == "table" and tonumber(data.opened or 0) >= 1
 end
 -- 备注：仙府炼制是否有记录
 local function _xyl_has_xianfu_refine()
@@ -462,6 +462,7 @@ local function _xyl_check_task(name)
         ["装备强化"] = _xyl_has_equip_strength,
         ["装备强化1次"] = _xyl_has_equip_strength,
         ["升级灵根"] = _xyl_has_linggen_feed,
+        ["强化灵根"] = _xyl_has_linggen_feed,
         ["强化灵根1次"] = _xyl_has_linggen_feed,
         ["查看江湖称号"] = _xyl_has_jianghu_title,
         ["查看江湖称号1次"] = _xyl_has_jianghu_title,
@@ -470,11 +471,17 @@ local function _xyl_check_task(name)
         ["装配副灵根"] = _xyl_has_other_linggen,
         ["装配水灵根至副灵根"] = function() return _xyl_has_other_linggen_of(3) end,
         ["气运占卜"] = _xyl_has_divination,
+        ["限时福利"] = _xyl_has_second_continent_welfare_open,
         ["引导点击限时福利NPC"] = _xyl_has_second_continent_welfare_open,
+        ["洗炼天书"] = _xyl_has_second_continent_tianshu_refine,
         ["引导天书使者洗炼一次"] = _xyl_has_second_continent_tianshu_refine,
+        ["查看幸运增幅"] = _xyl_has_second_continent_lucky_view,
         ["查看幸运增幅1次"] = _xyl_has_second_continent_lucky_view,
+        ["筑基"] = _xyl_has_foundation_realm,
         ["提升修为至筑基境"] = _xyl_has_foundation_realm,
         ["转生·二"] = function() return _xyl_has_rebirth(20) end,
+        ["完成转生"] = function() return _xyl_has_rebirth(20) end,
+        ["完转生"] = function() return _xyl_has_rebirth(20) end,
         ["完成2大陆转生"] = function() return _xyl_has_rebirth(20) end,
         ["转生·三"] = function() return _xyl_has_rebirth(30) end,
         ["转生·四"] = function() return _xyl_has_rebirth(40) end,
@@ -490,6 +497,7 @@ local function _xyl_check_task(name)
         ["种植仙草"] = _xyl_has_xianfu_plant,
         ["寻宝大师"] = _xyl_has_treasure,
         ["修复聚宝盆"] = _xyl_has_treasure_basin_fixed,
+        ["聚宝盆"] = _xyl_has_treasure_basin_fixed,
         ["聚宝盆任务"] = _xyl_has_treasure_basin_fixed,
         ["激活全部圣遗物"] = _xyl_has_all_syw,
         ["激活全部天命装备"] = _xyl_has_all_tianming,
@@ -671,7 +679,7 @@ local npc_xyl = {
     {
         jq = {
             {
-                "进行天书强化1次",
+                "天书强化",
                 id = 999,
                 jl = { { "剧情点", 1 }, { "仙法卷轴", 1 } },
                 fwdjy = nil,
@@ -681,7 +689,7 @@ local npc_xyl = {
                 desc = "前往天书界面完成首次强化，让天书正式发挥作用。\n<font color='#F4D179'>目标：</font>将天书提升至1级\n<font color='#F4D179'>进度：</font>%s",
             },
             {
-                "进行天书仙法抽取",
+                "初识仙法",
                 id = 999,
                 jl = { { "剧情点", 1 } },
                 fwdjy = nil,
@@ -691,7 +699,7 @@ local npc_xyl = {
                 desc = "在天书中完成一次仙法抽取，正式掌握仙法力量。\n<font color='#F4D179'>目标：</font>已获得任意仙法\n<font color='#F4D179'>进度：</font>%s",
             },
             {
-                "引导点击限时福利NPC",
+                "限时福利",
                 id = 999,
                 fwdjy = nil,
                 khdjy = _xyl_khdjy,
@@ -738,7 +746,7 @@ local npc_xyl = {
     {
         jq = {
             {
-                "装配火灵根至主灵根",
+                "装配主灵根",
                 id = 999,
                 jl = { { "剧情点", 1 } },
                 fwdjy = nil,
@@ -748,17 +756,18 @@ local npc_xyl = {
                 desc = "前往灵根界面将火灵根装配到主灵根位置，先建立核心灵根方向。\n<font color='#F4D179'>目标：</font>主灵根为火灵根\n<font color='#F4D179'>进度：</font>%s",
             },
             {
-                "聚宝盆任务",
+                "聚宝盆",
+                tk = "npc_106",
                 id = 999,
                 jl = { { "剧情点", 1 } },
                 fwdjy = nil,
                 khdjy = _xyl_khdjy,
                 need_receive = false,
-                yd = { 1, "二大陆主城", 106, 95, 100 },
-                desc = "收集聚宝盆碎片并完成重铸，修复聚宝盆后可继续解锁后续成长内容。\n<font color='#F4D179'>目标：</font>成功修复聚宝盆\n<font color='#F4D179'>进度：</font>%s",
+                yd = { 1, "极光城郊", 106, 83, 166 },
+                desc = "收集聚宝盆碎片×20并完成重铸，修复聚宝盆后可继续解锁后续成长内容。\n<font color='#F4D179'>目标：</font>修复聚宝盆\n<font color='#F4D179'>进度：</font>%s",
             },
             {
-                "引导天书使者洗炼一次",
+                "洗炼天书",
                 id = 999,
                 jl = { { "剧情点", 1 }, { "激活水灵根", 1 } },
                 fwdjy = nil,
@@ -768,7 +777,7 @@ local npc_xyl = {
                 desc = "前往天书使者完成一次洗炼，熟悉天书附魔强化路线。\n<font color='#F4D179'>目标：</font>完成1次天书使者洗炼\n<font color='#F4D179'>进度：</font>%s",
             },
             {
-                "装配水灵根至副灵根",
+                "装配副灵根",
                 id = 999,
                 fwdjy = nil,
                 khdjy = _xyl_khdjy,
@@ -805,7 +814,7 @@ local npc_xyl = {
                 desc = "持续肃清林地中的杂兵，稳定整片区域的安全局势。\n<font color='#F4D179'>目标：</font>击杀怪物50只\n<font color='#F4D179'>进度：</font>%s",
             },
             {
-                "查看江湖称号1次",
+                "查看江湖称号",
                 id = 999,
                 fwdjy = nil,
                 khdjy = _xyl_khdjy,
@@ -825,7 +834,7 @@ local npc_xyl = {
                 desc = "在血战中证明自己，继续推进主线杀伐节奏。\n<font color='#F4D179'>目标：</font>击杀怪物30只\n<font color='#F4D179'>进度：</font>%s",
             },
             {
-                "查看幸运增幅1次",
+                "查看幸运增幅",
                 id = 999,
                 fwdjy = nil,
                 khdjy = _xyl_khdjy,
@@ -845,7 +854,7 @@ local npc_xyl = {
                 desc = "从古墓线索中带回关键古物，推进墓地支线真相。\n<font color='#F4D179'>目标：</font>提交唐三彩×5\n<font color='#F4D179'>进度：</font>%s",
             },
             {
-                "强化灵根1次",
+                "强化灵根",
                 id = 999,
                 fwdjy = nil,
                 khdjy = _xyl_khdjy,
@@ -893,7 +902,7 @@ local npc_xyl = {
                 desc = "沿着前置剧情完成轩辕剑修复，补足这一阶段的主线关键节点。\n<font color='#F4D179'>目标：</font>\n完成修复轩辕剑剧情\n<font color='#F4D179'>进度：</font>%s",
             },
             {
-                "提升修为至筑基境",
+                "筑基",
                 id = 999,
                 jl = { { "剧情点", 1 } },
                 fwdjy = nil,
@@ -903,7 +912,7 @@ local npc_xyl = {
                 desc = "提升修为境界并跨入筑基境，完成二大陆阶段性的修炼突破。\n<font color='#F4D179'>目标：</font>境界达到筑基境\n<font color='#F4D179'>进度：</font>%s",
             },
             {
-                "完成2大陆转生",
+                "完成转生",
                 id = 999,
                 jl = { { "剧情点", 1 } },
                 fwdjy = nil,
@@ -928,7 +937,7 @@ local npc_xyl = {
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
                     need_receive = false,
-                    yd = { 1, "灰界", 55, 197, 196 },
+                    yd = { 1, "三大陆主城", 55, 146, 234 },
                     desc = "开辟仙府，正式踏入灰界后的修行之路。\n<font color='#F4D179'>目标：</font>成功开启仙府\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
@@ -1026,6 +1035,13 @@ local npc_xyl = {
             },
             name = "仙府功能",
             jqd = 11,
+            pre = {
+                check = function()
+                    return _xyl_check_task("开辟仙府")
+                end,
+                lock_tip = "需先解锁仙府",
+                tip = "请先完成【开辟仙府】后再进入本章节",
+            },
             jl = {{ "1元真实充值", 2 }, { "激活金灵根", 1 }},
         },
         {

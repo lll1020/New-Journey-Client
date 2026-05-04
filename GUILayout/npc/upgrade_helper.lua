@@ -589,11 +589,7 @@ local function _upgrade_is_npc_46_completed()
     return _upgrade_is_story_done("npc_46")
 end
 local function _upgrade_has_third_continent_half_entry()
-    if _upgrade_is_npc_46_completed() then
-        return true
-    end
-    local xianfuData = _upgrade_get_server_json("T47")
-    return type(xianfuData) == "table" and next(xianfuData) ~= nil
+    return _upgrade_is_npc_46_completed()
 end
 local function _upgrade_has_third_continent_full_entry()
     return _upgrade_is_story_done("npc_46") or _upgrade_is_story_done("npc_46")
@@ -645,7 +641,7 @@ local UPGRADE_CHECKERS = {
     [70] = _upgrade_check_emojiuguan_66,
 }
 local OPEN_BTN_LIST = {
-    {id = 105, label = "限时福利", npcid = 105, continent = 1},
+    {id = 1, label = "限时福利", npcid = 105, continent = 1},
     {id = 6, label = "切割之斧", npcid = 6, continent = 1},
     {id = 7, label = "攻速之镰[★]", npcid = 7, continent = 1},
     {id = 8, label = "斗笠[★]", npcid = 8, continent = 1},

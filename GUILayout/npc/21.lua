@@ -117,7 +117,7 @@ function npc.main(npcid, p2, p3, msgData)
                 SL:SendLuaNetMsg(100, npcid, 1, 0, "")
             end)
             NPC_UI_HELPER.tryStartXylGuide(npc, Button, node, "foundation_realm_upgrade", {
-                taskName = "提升修为至筑基境",
+                taskName = "筑基",
                 dir = 5,
                 desc = "点击提升修为",
             })
@@ -133,7 +133,7 @@ function npc.main(npcid, p2, p3, msgData)
     elseif p2 == 1 then
         npc.data = SL:JsonDecode(msgData,false)
         UI_updata(npc.node)
-        if NPC_UI_HELPER.isCurrentXylTask("提升修为至筑基境")
+        if NPC_UI_HELPER.isCurrentXylTask({"筑基", "提升修为至筑基境"})
             and (tonumber(npc.data and npc.data.level or 0) or 0) >= 10 then
             NPC_UI_HELPER.closeWindow(npc._window)
         end

@@ -33,24 +33,26 @@ local MENU_TABS = {
     {id = 'farm', label = '菜园'},
     {id = 'inventory', label = '灵草仓储'},
     {idx = 1,id = 'social', label = '社交互动'},
-    {idx = 4,id = 'shop', label = '商城装扮'},
     {idx = 4,id = 'refine', label = '炼丹炉'},
     {idx = 7,id = 'pet', label = '灵兽培养'},
     {id = 'rank', label = '排行称号'},
     {id = 'system', label = '系统提示'},
-    {idx = 2,id = 'shape', label = '装扮'},
-    {id = 'doll_machine', label = '娃娃机'},
-    {id = 'doll_cabinet', label = '收藏柜'},
 }
 local MENU_TABS_LIST = {
-    [1] = {4,5,10},
-    [2] = {6,7},
+    [1] = {4},
+    [2] = {5,6},
+}
+local QUICK_MENU_TABS = {
+    {id = "farm", label = "菜园", x = -120},
+    {id = "inventory", label = "仓储", x = 0},
+    {id = "rank", label = "排行", x = 120},
+    {id = "system", label = "说明", x = 240},
 }
 
 -- UI 文本及按钮常用配色，集中管理方便整体调色。
 
 local MENU_PERMISSIONS = {
-    self = {overview = true, farm = true, inventory = true, social = true, shop = true, refine = true, pet = true, system = true, shape = true, doll_machine = true, doll_cabinet = true},
+    self = {overview = true, farm = true, inventory = true, social = true, refine = true, pet = true, rank = true, system = true},
     guest = {farm = true, social = true},
 }
 
@@ -62,6 +64,9 @@ local colors = {
     danger = '#ff8686',
     muted = '#9fb0c0',
 }
+
+local buildUnlockedPlantList
+local buildLevelSummary
 
 -- 外部入口可通过 MetaValue 指定仙府首次打开的默认页签。
 local function consumeRequestedTab()
@@ -85,7 +90,7 @@ local function ensureState()
     state.friendKey = state.friendKey or ''
     state.lastMessage = state.lastMessage or ''
     state.lastActionOk = state.lastActionOk or false
-    state.menuTab = state.menuTab or 'overview'
+    state.menuTab = state.menuTab or 'farm'
     state.viewMode = state.viewMode or 'self'
     state.lastDollResult = state.lastDollResult or nil
     state.remoteGridId = math.max(1, math.min(npc._config.gridSize or 9, tonumber(state.remoteGridId) or 1))
@@ -234,7 +239,7 @@ local function exitGuestMode()
     local state = ensureState()
     state.viewMode = 'self'
     state.guestSnapshot = nil
-    state.menuTab = state.menuTab == 'overview' and state.menuTab or 'overview'
+    state.menuTab = 'farm'
 end
 
 local function getGuestTargetName()
@@ -428,8 +433,11 @@ local function resolveHerbCount(herbs, plantCfg, herbName)
             return herbs[id]
         end
     end
-    if herbName == '仙草' and herbs.Low ~= nil then
+    if (herbName == '仙草' or herbName == '低阶灵草') and herbs.Low ~= nil then
         return herbs.Low
+    end
+    if herbName == '中阶灵草' and herbs.Mid ~= nil then
+        return herbs.Mid
     end
     if herbName == '高阶灵草' and herbs.High ~= nil then
         return herbs.High
@@ -499,7 +507,7 @@ local function describePlot(plot)
     plot = plot or {}
     local stateName = plot.state or 'empty'
     local cfg = getPlantCfg(plot.seedId)
-    local name = cfg and cfg.name or (plot.seedId == 'High' and '高阶灵草' or (plot.seedId == 'Low' and '仙草' or '未播种'))
+    local name = cfg and cfg.name or (plot.seedId == 'High' and '高阶灵草' or (plot.seedId == 'Mid' and '中阶灵草' or (plot.seedId == 'Low' and '低阶灵草' or '未播种')))
     local now = serverNow()
     if stateName == 'growing' then
         local remain = math.max(0, (plot.finishAt or now) - now)
@@ -612,6 +620,26 @@ local function buildTopOverview(node, snapshot, baseSnapshot, npcid)
     local xiangHua = GUI:TextAtlas_Create(wz1, "xiangHua", 120, 3, tonumber(player.xiangHua or 0), "res/custom/public/text1.png", 14, 30, ".")
 
     local likenum = GUI:TextAtlas_Create(wz2, "likenum", 120, 3, tonumber(player.likenum or 0), "res/custom/public/text1.png", 14, 30, ".")
+
+    if not guestMode then
+        local levelInfo, canLevelUp = buildLevelSummary(snapshot)
+        NPC_UI_HELPER.createRichText(top_img, "xianfu_level_info", 20, -28, levelInfo, {
+            width = 700,
+            height = 90,
+            anchor = {x = 0, y = 1},
+            color = colors.primary
+        })
+        local btnLevel = NPC_UI_HELPER.createPrimaryButton(top_img, "btn_xianfu_levelup", cogin.w - 210, -145, "", function()
+            sendAction(npcid, "levelUp", {})
+        end, {
+            skin = "res/custom/three_city/xianfu/btn/l/1.png",
+            Disabled_skin = "res/custom/three_city/xianfu/btn/n/1.png"
+        })
+        GUI:setAnchorPoint(btnLevel, 0.5, 0)
+        if not canLevelUp then
+            GUI:Button_setBright(btnLevel, false)
+        end
+    end
 
 
     --SL:dump(player,"playerdata")
@@ -750,6 +778,28 @@ local function drawMenuBar(node)
         end
     end
 
+    for _, entry in ipairs(QUICK_MENU_TABS) do
+        local allowed = permission[entry.id]
+        local btn = NPC_UI_HELPER.createPrimaryButton(btn_list_img, "quick_tab_" .. entry.id, entry.x, -8, entry.label, function()
+            local s = ensureState()
+            if not allowed then
+                s.lastMessage = "拜访模式仅开放菜园与社交功能"
+                npc.render()
+                return
+            end
+            if s.menuTab ~= entry.id then
+                s.menuTab = entry.id
+                npc.render()
+            end
+        end)
+        GUI:setAnchorPoint(btn, 0.5, 0)
+        if allowed then
+            GUI:Button_setBright(btn, state.menuTab ~= entry.id)
+        else
+            GUI:Button_setBright(btn, false)
+        end
+    end
+
 
 end
 
@@ -818,7 +868,7 @@ local function drawPlotCells(node, snapshot)
 
         local stateName = plot.state or 'empty'
         local cfg = getPlantCfg(plot.seedId)
-        local name = cfg and cfg.name or (plot.seedId == 'High' and '高阶灵草' or (plot.seedId == 'Low' and '仙草' or '未播种'))
+        local name = cfg and cfg.name or (plot.seedId == 'High' and '高阶灵草' or (plot.seedId == 'Mid' and '中阶灵草' or (plot.seedId == 'Low' and '低阶灵草' or '未播种')))
         local now = serverNow()
         
         if state.selectedPlot == i then
@@ -838,11 +888,11 @@ local function drawPlotCells(node, snapshot)
             -- local remain = math.max(0, (plot.finishAt or now) - now)
             -- return string.format('成长中\n%s', formatSeconds(remain)), cfg and cfg.canSteal and '可被偷' or '安全'
         elseif stateName == 'mature' then
-            if name == '仙草' then
+            if name == '低阶灵草' then
                 GUI:setAnchorPoint(GUI:Image_Create(itme, "plot_sl", 0, 0, "res/custom/three_city/xianfu/plot/p_"..i.."/k_3.png")
                 , 0.5, 0.5)
 
-            elseif name == '高阶灵草' then
+            elseif name == '中阶灵草' or name == '高阶灵草' then
                 GUI:setAnchorPoint(GUI:Image_Create(itme, "plot_sl", 0, 0, "res/custom/three_city/xianfu/plot/p_"..i.."/k_4.png")
                 , 0.5, 0.5)
 
@@ -957,78 +1007,30 @@ local function drawPlotDetail(node, snapshot, npcid)
         return btn
     end
 
-    if plot.state == 'empty' or true then
-
-        
-        local btn_seed = GUI:Button_Create(panel, "btn_seed", 100, buttonY, "res/custom/three_city/xianfu/btn/"..(plot.state == 'empty' and "l" or "n").."/8.png")
-        GUI:setAnchorPoint(btn_seed, 0.5, 0)
-        if plot.state == 'empty' then
-        local seeds = player.seeds or {}
-        local shop = (snapshot.cfg and snapshot.cfg.shop) or {}
-        local seedList = shop.seeds or {}
-        local plantList = buildPlantList(plantCfg)
-        local herbs = player.herbs or {}
-        local hasAnySeed = false
-        for _, entry in ipairs(seedList) do
-            if entry and entry.name and (tonumber(SL:GetMetaValue("ITEM_COUNT", entry.name)) or 0) > 0 then
-                hasAnySeed = true
-                break
-            end
-        end
-        if hasAnySeed then
-            NPC_UI_HELPER.redpoint_create(btn_seed)
-        end
-        GUI:addOnClickEvent(btn_seed, function()
-            local gridId = plot.gridId or selected
-            queuePlotAdvance('plant', gridId)
-            sendAction(npcid, 'plant', {gridId = gridId, seedId = 'Low'})
-        end)
-        NPC_UI_HELPER.tryStartXylGuide(state, btn_seed, panel, "xianfu_plant_" .. tostring(plot.gridId or selected or 0), {
-            taskName = "种植仙草",
-            dir = 5,
-            desc = "点击种植仙草",
-        })
-
-        
-
-
-        if #plantList == 0 then
-            -- local emptyTip = GUI:Text_Create(btn_seed, 'inventory_herb_empty', -170, y, 18, colors.warning, '暂无灵草配置')
-            -- GUI:setAnchorPoint(emptyTip, 0, 0.5)
+    if plot.state == 'empty' then
+        local unlockedPlantList = buildUnlockedPlantList(snapshot)
+        if #unlockedPlantList <= 0 then
+            NPC_UI_HELPER.createRichText(panel, "farm_empty_tip", 0, -70, "当前仙府等级暂无可种植灵草", {
+                width = 360,
+                height = 30,
+                anchor = {x = 0, y = 1},
+                color = colors.warning
+            })
         else
-            for idx, entry in ipairs(seedList) do
-                local desc = GUI:Text_Create(btn_seed, "desc",5 + (idx - 1)*83, 150, 23, "#081839", "仙草种子："..SL:GetMetaValue("ITEM_COUNT", entry.name))
+            for idx, entry in ipairs(unlockedPlantList) do
+                local offsetX = 85 + (idx - 1) * 140
+                local btn = GUI:Button_Create(panel, "btn_seed_" .. tostring(entry.id), offsetX, buttonY, "res/custom/three_city/xianfu/btn/l/8.png")
+                GUI:setAnchorPoint(btn, 0.5, 0)
+                GUI:addOnClickEvent(btn, function()
+                    local gridId = plot.gridId or selected
+                    queuePlotAdvance("plant", gridId)
+                    sendAction(npcid, "plant", {gridId = gridId, seedId = entry.id})
+                end)
+                local desc = GUI:Text_Create(btn, "desc_" .. tostring(entry.id), 40, 150, 22, "#081839", tostring((entry.cfg or {}).name or entry.id))
                 GUI:Text_setFontName(desc, "fonts/500.ttf")
                 GUI:Text_enableOutline(desc, "#FFFFFF", 2)
-
-                -- local kuang = GUI:Image_Create(btn_seed, "btn_seed"..idx, 0 + (idx - 1)*83, 150, "res/wy/public/58_58_kuang.png")
-                -- local item = GUI:ItemShow_Create(kuang, "item", 29, 29, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME",entry.name), look = true, bgVisible = false })
-                -- GUI:setAnchorPoint(item, 0.5, 0.5)
-                -- GUI:Text_Create(kuang, "count",5,0, 14, "#FF0000", "库存:"..SL:GetMetaValue("ITEM_COUNT", entry.name))
-                -- GUI:ItemShow_addReplaceClickEvent(item, function()
-                --     if idx == 1 then
-                --         sendAction(npcid, 'plant', {gridId = plot.gridId or selected, seedId = 'Low'})
-                --     elseif idx == 2 then
-                --         sendAction(npcid, 'plant', {gridId = plot.gridId or selected, seedId = 'High'})
-                --     end
-
-                -- end)
-                
             end
         end
-
-            
-            -- kuang = GUI:Image_Create(btn_seed, "btn_seed_high", 83, 150, "res/wy/public/70_70_k.png")
-
-            -- NPC_UI_HELPER.createPrimaryButton(btn_seed, 'btn_seed_low', -100, 80, '播种·低阶', function()
-            --     sendAction(npcid, 'plant', {gridId = plot.gridId or selected, seedId = 'Low'})
-            -- end)
-            -- NPC_UI_HELPER.createPrimaryButton(btn_seed, 'btn_seed_high', -100, 30, '播种·高阶', function()
-            --     sendAction(npcid, 'plant', {gridId = plot.gridId or selected, seedId = 'High'})
-            -- end)
-        end
-
-
     elseif plot.state == 'growing' then
         -- createActionButton('btn_acc', 0, '加速（敬请期待）', function()
         --     local s = ensureState()
@@ -1036,12 +1038,10 @@ local function drawPlotDetail(node, snapshot, npcid)
         --     s.lastActionOk = false
         --     npc.render()
         -- end, false)
-    else
-        -- createActionButton('btn_idle', 0, '等待中', nil, false)
     end
 
-    if plot.state == 'mature' or true then
-        local canHarvest = hasProductReward(plot.product)
+    if plot.state == 'mature' then
+        local canHarvest = true
         local btn = createActionButton('btn_harvest', 245, '', function()
             if not canHarvest then
                 return
@@ -1065,49 +1065,31 @@ local function drawInventory(node, snapshot, npcid)
         return
     end
     local player = snapshot.player or {}
-    local seeds = player.seeds or {}
     local herbs = player.herbs or {}
-    local shop = (snapshot.cfg and snapshot.cfg.shop) or {}
     local plantCfg = snapshot.cfg and snapshot.cfg.plant or {}
-    local seedList = shop.seeds or {}
     local plantList = buildPlantList(plantCfg)
 
     local y = 50
-    if #seedList > 0 then
-        local seedHeader = GUI:Text_Create(panel, 'inventory_seed_header', -170, y, 18, colors.detail, '种子库存 / 购买')
-        GUI:setAnchorPoint(seedHeader, 0, 0.5)
-        GUI:Text_enableOutline(seedHeader, '#1d0f09', 1)
-        y = y - 26
-        for idx, entry in ipairs(seedList) do
-            local rowY = y - (idx - 1) * 30
-            local label = string.format('%s：%s', entry.name or entry.id, formatNumber(seeds[entry.seed] or 0))
-            local rowLabel = GUI:Text_Create(panel, 'inventory_seed_' .. idx, -170, rowY, 18, colors.primary, label)
-            GUI:setAnchorPoint(rowLabel, 0, 0.5)
-            GUI:Text_enableOutline(rowLabel, '#1d0f09', 1)
-            local costLabel = GUI:Text_Create(panel, 'inventory_seed_cost_' .. idx, -20, rowY, 16, colors.detail, string.format('售价：%s', formatCost(entry.cost)))
-            GUI:setAnchorPoint(costLabel, 0, 0.5)
-            local btn = NPC_UI_HELPER.createPrimaryButton(panel, 'inventory_buy_' .. entry.id, 150, rowY, '购买', function()
-                sendAction(npcid, 'buySeed', {id = entry.id, amount = 1})
-            end)
-            GUI:setAnchorPoint(btn, 0, 0.5)
-        end
-        y = y - (#seedList * 30) - 20
-    end
-
-    local herbHeader = GUI:Text_Create(panel, 'inventory_herb_header', -170, y, 18, colors.detail, '灵草库存')
+    local herbHeader = GUI:Text_Create(panel, 'inventory_herb_header', -170, y, 18, colors.detail, '仙府材料库存')
     GUI:setAnchorPoint(herbHeader, 0, 0.5)
     GUI:Text_enableOutline(herbHeader, '#1d0f09', 1)
     y = y - 26
-    if #plantList == 0 then
-        local emptyTip = GUI:Text_Create(panel, 'inventory_herb_empty', -170, y, 18, colors.warning, '暂无灵草配置')
+    local rows = {}
+    for _, plant in ipairs(plantList) do
+        local herbName = plant.cfg.name or plant.id
+        rows[#rows + 1] = string.format('%s：%s', herbName, formatNumber(resolveHerbCount(herbs, plantCfg, herbName)))
+    end
+    rows[#rows + 1] = string.format('下品丹材：%s', formatNumber(herbs["下品丹材"] or 0))
+    rows[#rows + 1] = string.format('中品丹材：%s', formatNumber(herbs["中品丹材"] or 0))
+    rows[#rows + 1] = string.format('上品丹材：%s', formatNumber(herbs["上品丹材"] or 0))
+    rows[#rows + 1] = string.format('仙府币：%s', formatNumber(herbs["仙府币"] or 0))
+    rows[#rows + 1] = string.format('神石碎片：%s', formatNumber(herbs["神石碎片"] or 0))
+    if #rows == 0 then
+        local emptyTip = GUI:Text_Create(panel, 'inventory_herb_empty', -170, y, 18, colors.warning, '暂无仙府材料')
         GUI:setAnchorPoint(emptyTip, 0, 0.5)
     else
-        for idx, plant in ipairs(plantList) do
+        for idx, text in ipairs(rows) do
             local rowY = y - (idx - 1) * 26
-            local herbName = plant.cfg.name or plant.id
-            local count = resolveHerbCount(herbs, plantCfg, herbName)
-            local stealState = plant.cfg.canSteal and '可偷' or '不可偷'
-            local text = string.format('%s：%s｜%s', herbName, formatNumber(count), stealState)
             local rowLabel = GUI:Text_Create(panel, 'inventory_herb_' .. idx, -170, rowY, 18, colors.primary, text)
             GUI:setAnchorPoint(rowLabel, 0, 0.5)
             GUI:Text_enableOutline(rowLabel, '#1d0f09', 1)
@@ -1826,6 +1808,57 @@ local function drawshape(node, snapshot, npcid)
     end)
 end
 
+-- 读取当前仙府等级可用的灵草列表，仅展示已解锁的播种项。
+buildUnlockedPlantList = function(snapshot)
+    local player = (snapshot and snapshot.player) or {}
+    local plantCfg = (snapshot and snapshot.cfg and snapshot.cfg.plant) or {}
+    local playerLevel = tonumber(player.level or 1) or 1
+    local result = {}
+    for _, entry in ipairs(buildPlantList(plantCfg)) do
+        local needLevel = tonumber((entry.cfg or {}).need_level or 1) or 1
+        if playerLevel >= needLevel then
+            result[#result + 1] = entry
+        end
+    end
+    return result
+end
+
+-- 组装当前等级与下一级需求说明，供顶部总览与升级按钮提示复用。
+buildLevelSummary = function(snapshot)
+    local player = (snapshot and snapshot.player) or {}
+    local cfg = (snapshot and snapshot.cfg) or {}
+    local level = tonumber(player.level or 1) or 1
+    local openSlots = tonumber(player.open_slots or 0) or 0
+    local plotUnlock = tonumber(player.plot_unlock or 0) or 0
+    local growth = ((player.growth or {}).total) or 0
+    local dailyGrowth = (((player.growth or {}).daily_total or {}).count) or 0
+    local stats = player.level_stats or {}
+    local nextCfg = (cfg.level_cfg or {})[level + 1]
+    local lines = {
+        string.format("仙府%d级  地块:%s  神石槽:%s", level, formatNumber(plotUnlock), formatNumber(openSlots)),
+        string.format("成长值:%s/%s", formatNumber(dailyGrowth), formatNumber(cfg.growth_daily_limit or 0)),
+        string.format("累计成长:%s", formatNumber(growth)),
+    }
+    if nextCfg then
+        lines[#lines + 1] = string.format("升%d级需求: 成长%s / 低阶收获%s / 下品丹%s / 中品丹%s / 神石碎片%s",
+            level + 1,
+            formatNumber(nextCfg.need_growth or 0),
+            formatNumber(nextCfg.need_harvest or 0),
+            formatNumber(nextCfg.need_refine_low or 0),
+            formatNumber(nextCfg.need_refine_mid or 0),
+            formatNumber(nextCfg.need_frag or 0)
+        )
+        lines[#lines + 1] = string.format("当前进度: 收获%s / 下品丹%s / 中品丹%s",
+            formatNumber(stats.harvest_low or 0),
+            formatNumber(stats.refine_low or 0),
+            formatNumber(stats.refine_mid or 0)
+        )
+    else
+        lines[#lines + 1] = "当前已达仙府最高等级"
+    end
+    return table.concat(lines, "\n"), nextCfg ~= nil
+end
+
 -- ===== 仙府娃娃机 =====
 local function drawDollMachine(node, snapshot, npcid)
     if isGuestMode() then
@@ -2346,8 +2379,6 @@ local function renderSection(tab, snapshot, baseSnapshot, npcid)
     elseif tab == 'social' then
         -- drawQuickActions(npc.node, snapshot, npcid, baseSnapshot)
         drawVisitorLog(npc.node, snapshot, npcid)
-    elseif tab == 'shop' then
-        drawShop(npc.node, snapshot, npcid)
     elseif tab == 'refine' then
         drawRefine(npc.node, snapshot, npcid)
     elseif tab == 'pet' then
@@ -2357,12 +2388,6 @@ local function renderSection(tab, snapshot, baseSnapshot, npcid)
         drawRank(npc.node, snapshot)
     elseif tab == 'system' then
         drawSystemMessages(npc.node, snapshot)
-    elseif tab == 'shape' then
-        drawshape(npc.node, snapshot, npcid)
-    elseif tab == 'doll_machine' then
-        drawDollMachine(npc.node, snapshot, npcid)
-    elseif tab == 'doll_cabinet' then
-        drawDollCabinet(npc.node, snapshot, npcid)
     else
         drawPlotCells(npc.node, snapshot)
         drawPlotDetail(npc.node, snapshot, npcid)
@@ -2386,9 +2411,9 @@ function npc.render()
     local npcid = state.npcid
     local guestMode = isGuestMode()
     local permission = MENU_PERMISSIONS[guestMode and 'guest' or 'self'] or {}
-    local currentTab = state.menuTab or 'overview'
+    local currentTab = state.menuTab or 'farm'
     if not permission[currentTab] then
-        state.menuTab = guestMode and 'farm' or 'overview'
+        state.menuTab = 'farm'
     end
     buildTopOverview(npc.node, displaySnapshot, baseSnapshot, npcid)
     drawMenuBar(npc.node)
@@ -2407,7 +2432,7 @@ function npc.render()
         dir = 5,
         desc = "开启砍树界面",
     })
-    renderSection(state.menuTab or 'overview', displaySnapshot, baseSnapshot, npcid)
+    renderSection(state.menuTab or 'farm', displaySnapshot, baseSnapshot, npcid)
 end
 
 -- 处理首次进入 NPC 的快照。
@@ -2444,7 +2469,7 @@ local function handleAction(npcid, msgData)
     end
     if payload.action == 'dollDraw' and payload.extra then
         state.lastDollResult = payload.extra
-        state.menuTab = 'doll_machine'
+        state.menuTab = 'farm'
     end
     local extra = payload.extra
     if extra and extra.visitMode and extra.target then

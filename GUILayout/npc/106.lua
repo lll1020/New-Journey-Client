@@ -107,10 +107,13 @@ local function _refresh_ui(node, npcid)
         GUI:setAnchorPoint(claimBtn, 0.5, 0.5)
         GUI:setTouchEnabled(claimBtn, true)
         GUI:addOnClickEvent(claimBtn, function()
+            if not _can_rebuild() then
+                NPC_UI_HELPER.closeWindow(npc._window)
+            end
             SL:SendLuaNetMsg(100, npcid, 1, 0, "")
         end)
         NPC_UI_HELPER.tryStartXylGuide(npc, claimBtn, node, "treasure_basin_rebuild", {
-            taskNames = {"修复聚宝盆", "聚宝盆任务"},
+            taskNames = {"修复聚宝盆", "聚宝盆", "聚宝盆任务"},
             dir = 7,
             desc = "点击修复聚宝盆",
         })
@@ -150,7 +153,7 @@ function npc.main(npcid, p2, p3, msgData)
     end
     _refresh_ui(npc.node, npcid)
     if (tonumber((npc.data or {}).activated or 0) or 0) >= 1
-        and NPC_UI_HELPER.isCurrentXylTask({"修复聚宝盆", "聚宝盆任务"}) then
+        and NPC_UI_HELPER.isCurrentXylTask({"修复聚宝盆", "聚宝盆", "聚宝盆任务"}) then
         NPC_UI_HELPER.closeWindow(npc._window)
     end
 end

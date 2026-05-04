@@ -257,7 +257,7 @@ function npc.main(npcid, p2, p3, msgData)
         ensureWindow()
         UI_updata(npc.node, npcid)
         NPC_UI_HELPER.tryStartXylGuide(npc, npc._window and npc._window.close, npc.node, "welfare_open_close", {
-            taskName = "引导点击限时福利NPC",
+            taskName = "限时福利",
             dir = 5,
             desc = "已查看，点击关闭继续",
         })

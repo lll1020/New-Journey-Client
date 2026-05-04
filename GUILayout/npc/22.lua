@@ -164,15 +164,15 @@ local function _lg_try_finish_xyl_and_close()
     local T_data = npc.data and npc.data.T_data or {}
     local mainIdx = tonumber(T_data.main or 0) or 0
     local otherIdx = tonumber(T_data.other or 0) or 0
-    if NPC_UI_HELPER.isCurrentXylTask("装配火灵根至主灵根") and mainIdx == 4 then
+    if NPC_UI_HELPER.isCurrentXylTask({"装配主灵根", "装配火灵根至主灵根"}) and mainIdx == 4 then
         _lg_close_all_windows()
         return true
     end
-    if NPC_UI_HELPER.isCurrentXylTask("装配水灵根至副灵根") and otherIdx == 3 then
+    if NPC_UI_HELPER.isCurrentXylTask({"装配副灵根", "装配水灵根至副灵根"}) and otherIdx == 3 then
         _lg_close_all_windows()
         return true
     end
-    if NPC_UI_HELPER.isCurrentXylTask({"升级灵根", "强化灵根1次"}) then
+    if NPC_UI_HELPER.isCurrentXylTask({"升级灵根", "强化灵根", "强化灵根1次"}) then
         local levelMap = npc.data and npc.data.T_data and npc.data.T_data.level or {}
         for _, level in pairs(levelMap) do
             if (tonumber(level) or 0) > 0 then
@@ -713,15 +713,15 @@ local function _lg_refresh_main_page(npcid, node)
 
     local currentTaskName = _lg_get_current_xyl_task_name()
     local canEquipOtherSelected = selectedIdx > 0 and _lg_has_root(selectedIdx) and selectedIdx ~= (tonumber(mainIdx or 0) or 0)
-    local isMainFireTask = currentTaskName == "装配火灵根至主灵根"
-    local isOtherWaterTask = currentTaskName == "装配水灵根至副灵根"
+    local isMainFireTask = currentTaskName == "装配主灵根" or currentTaskName == "装配火灵根至主灵根"
+    local isOtherWaterTask = currentTaskName == "装配副灵根" or currentTaskName == "装配水灵根至副灵根"
 
     -- 指定主灵根任务时，优先引导选择火灵根本体。
     if isMainFireTask and (not mainIdx or mainIdx <= 0) and selectedIdx ~= 4 and _lg_has_root(4) then
         local fireSlot = GUI:getChildByName(node, "root_slot_4")
         if fireSlot then
             NPC_UI_HELPER.tryStartXylGuide(npc, fireSlot, node, "linggen_select_main_fire", {
-                taskName = "装配火灵根至主灵根",
+                taskName = "装配主灵根",
                 dir = 5,
                 desc = "点击火灵根",
             })
@@ -789,7 +789,7 @@ local function _lg_refresh_main_page(npcid, node)
     end)
     if selectedIdx > 0 and _lg_has_root(selectedIdx) then
         NPC_UI_HELPER.tryStartXylGuide(npc, btnUpgradePage, node, "linggen_upgrade_open", {
-            taskNames = {"升级灵根", "强化灵根1次"},
+            taskNames = {"升级灵根", "强化灵根", "强化灵根1次"},
             dir = 5,
             idx = 1,
             desc = "点击打开灵根升级",
@@ -865,7 +865,7 @@ _lg_refresh_upgrade_window = function(npcid, xNode)
     elseif nextCfg and checkItemNum(nextCfg.cost) then
         NPC_UI_HELPER.redpoint_create(btn, {x = 120, y = 46})
         NPC_UI_HELPER.tryStartXylGuide(npc, btn, xNode, "linggen_upgrade_" .. tostring(idx), {
-            taskNames = {"升级灵根", "强化灵根1次"},
+            taskNames = {"升级灵根", "强化灵根", "强化灵根1次"},
             idx = 2,
             dir = 5,
             desc = "点击升级灵根",
