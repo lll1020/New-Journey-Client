@@ -42,12 +42,6 @@ local MENU_TABS_LIST = {
     [1] = {4},
     [2] = {5,6},
 }
-local QUICK_MENU_TABS = {
-    {id = "farm", label = "菜园", x = -120},
-    {id = "inventory", label = "仓储", x = 0},
-    {id = "rank", label = "排行", x = 120},
-    {id = "system", label = "说明", x = 240},
-}
 
 -- UI 文本及按钮常用配色，集中管理方便整体调色。
 
@@ -155,6 +149,10 @@ local function buildLocalSnapshotCfg()
         pet = cfg.PetCfg or {},
         shop = cfg.ShopCfg or {},
         doll = cfg.DollCfg or {},
+        level_cfg = cfg.level_cfg or {},
+        growth_rules = cfg.growth_rules or {},
+        level_max = cfg.level_max or 0,
+        growth_daily_limit = cfg.growth_daily_limit or 0,
     }
 end
 
@@ -163,16 +161,7 @@ local function ensureSnapshotCompat(data)
         data = {}
     end
     data.player = data.player or {}
-    local localCfg = buildLocalSnapshotCfg()
-    if type(data.cfg) ~= 'table' then
-        data.cfg = localCfg
-    else
-        for key, value in pairs(localCfg) do
-            if type(data.cfg[key]) ~= 'table' then
-                data.cfg[key] = value
-            end
-        end
-    end
+    data.cfg = buildLocalSnapshotCfg()
     if type(data.rank) ~= 'table' then
         data.rank = {}
     end
@@ -213,7 +202,7 @@ local function wrapGuestSnapshot(target)
             pet = target.pet or {},
             visitor = target.visitor or {},
         },
-        cfg = (base and base.cfg) or buildLocalSnapshotCfg(),
+        cfg = buildLocalSnapshotCfg(),
         rank = base and base.rank or {},
     }
     return ensureSnapshotCompat(wrapped)
@@ -500,6 +489,42 @@ local function canPlotBeStolen(plot)
     return cfg and cfg.canSteal and true or false
 end
 
+local function getClientItemCount(name)
+    if not name or name == '' or not SL or not SL.GetMetaValue then
+        return 0
+    end
+    local bindMoney = {
+        ["金币"] = {3, 1},
+        ["元宝"] = {4, 2},
+        ["灵石"] = {8, 7},
+        ["剧情点"] = {9},
+    }
+    if bindMoney[name] then
+        local total = 0
+        for _, idx in ipairs(bindMoney[name]) do
+            total = total + (tonumber(SL:GetMetaValue("ITEM_COUNT", idx)) or 0)
+        end
+        return total
+    end
+    local idx = SL:GetMetaValue("ITEM_INDEX_BY_NAME", name)
+    if not idx then
+        return 0
+    end
+    return tonumber(SL:GetMetaValue("ITEM_COUNT", idx)) or 0
+end
+
+local function getPlotUnlockNeedLevel(gridId)
+    gridId = tonumber(gridId or 1) or 1
+    if gridId <= 1 then
+        return 1
+    elseif gridId <= 3 then
+        return 2
+    elseif gridId <= 6 then
+        return 3
+    end
+    return 4
+end
+
 
 
 -- 根据地块状态拼装提示文案。
@@ -525,6 +550,9 @@ local function describePlot(plot)
         return statusText, tips
     elseif stateName == 'empty' then
         return '空地', '可播种'
+    elseif stateName == 'locked' then
+        local needLevel = getPlotUnlockNeedLevel(plot.gridId)
+        return string.format('%d级仙府', needLevel), '解锁'
     end
     return stateName, name
 end
@@ -622,22 +650,58 @@ local function buildTopOverview(node, snapshot, baseSnapshot, npcid)
     local likenum = GUI:TextAtlas_Create(wz2, "likenum", 120, 3, tonumber(player.likenum or 0), "res/custom/public/text1.png", 14, 30, ".")
 
     if not guestMode then
-        local levelInfo, canLevelUp = buildLevelSummary(snapshot)
-        NPC_UI_HELPER.createRichText(top_img, "xianfu_level_info", 20, -28, levelInfo, {
-            width = 700,
-            height = 90,
+        local levelInfo = buildLevelSummary(snapshot)
+        local infoBg = GUI:Layout_Create(top_img, "xianfu_level_info_bg", 18, -22, 760, 192, false)
+        GUI:setAnchorPoint(infoBg, 0, 1)
+
+
+        NPC_UI_HELPER.createRichText(infoBg, "xianfu_level_info", 18, -12 + 221, levelInfo.summary or "", {
+            width = 724,
+            height = 58,
             anchor = {x = 0, y = 1},
             color = colors.primary
         })
-        local btnLevel = NPC_UI_HELPER.createPrimaryButton(top_img, "btn_xianfu_levelup", cogin.w - 210, -145, "", function()
-            sendAction(npcid, "levelUp", {})
-        end, {
-            skin = "res/custom/three_city/xianfu/btn/l/1.png",
-            Disabled_skin = "res/custom/three_city/xianfu/btn/n/1.png"
-        })
-        GUI:setAnchorPoint(btnLevel, 0.5, 0)
-        if not canLevelUp then
-            GUI:Button_setBright(btnLevel, false)
+
+        if levelInfo.hasNext and type(levelInfo.progress) == "table" and #levelInfo.progress > 0 then
+            local startY = -74 + 160
+            for idx, row in ipairs(levelInfo.progress) do
+                local rowY = startY - (idx - 1) * 26
+                local now = tonumber(row.now or 0) or 0
+                local need = tonumber(row.need or 0) or 0
+                local percent = 100
+                if need > 0 then
+                    percent = math.max(0, math.min(100, math.floor((math.min(now, need) / need) * 100)))
+                end
+                local done = need <= 0 or now >= need
+                local labelColor = done and "#a6f0a1" or "#ffe8a3"
+                local valueColor = done and "#a6f0a1" or "#ffffff"
+
+                local rowNode = GUI:Node_Create(infoBg, "xianfu_level_progress_" .. idx, 18, rowY)
+                GUI:setAnchorPoint(rowNode, 0, 1)
+
+                local labelText = GUI:Text_Create(rowNode, "label", 0, 0, 17, labelColor, row.label or "")
+                GUI:setAnchorPoint(labelText, 0, 1)
+                GUI:Text_enableOutline(labelText, "#100808", 1)
+
+                local bg = GUI:Image_Create(rowNode, "bar_bg", 114, -2, "res/custom/fairyFate/1/progress_bg.png")
+                GUI:setAnchorPoint(bg, 0, 1)
+                GUI:setScaleX(bg, 0.52)
+                GUI:setScaleY(bg, 0.68)
+
+                local bar = GUI:LoadingBar_Create(rowNode, "bar", 116, -2, "res/custom/fairyFate/1/progress_fill.png", 0)
+                GUI:setAnchorPoint(bar, 0, 1)
+                GUI:setScaleX(bar, 0.52)
+                GUI:setScaleY(bar, 0.68)
+                GUI:LoadingBar_setPercent(bar, percent)
+
+                local valueText = GUI:Text_Create(rowNode, "value", 322, 0, 17, valueColor, string.format("%s/%s", formatNumber(now), formatNumber(need)))
+                GUI:setAnchorPoint(valueText, 1, 1)
+                GUI:Text_enableOutline(valueText, "#100808", 1)
+
+                local statusText = GUI:Text_Create(rowNode, "status", 336, 0, 17, done and "#7cf59a" or "#7cd6ff", done and "已满" or "未满")
+                GUI:setAnchorPoint(statusText, 0, 1)
+                GUI:Text_enableOutline(statusText, "#100808", 1)
+            end
         end
     end
 
@@ -742,19 +806,8 @@ local function drawMenuBar(node)
 
     for idx, k in ipairs(MENU_TABS_LIST[2]) do
         local tab = MENU_TABS[k]
-        local x = startX 
         local allowed = permission[tab.id]
-        local btnSkin = "res/custom/three_city/xianfu/btn/l/"..tostring(tab.idx)..".png"
-        local btnDisabledSkin = "res/custom/three_city/xianfu/btn/n/"..tostring(tab.idx)..".png"
-        if tab.id == "doll_machine" then
-            btnSkin = "res/custom/three_city/xianfu/仙府部分/左侧按钮/娃娃机/亮.png"
-            btnDisabledSkin = "res/custom/three_city/xianfu/仙府部分/左侧按钮/娃娃机/暗.png"
-        elseif tab.id == "doll_cabinet" then
-            btnSkin = "res/custom/three_city/xianfu/仙府部分/左侧按钮/收藏柜/亮.png"
-            btnDisabledSkin = "res/custom/three_city/xianfu/仙府部分/左侧按钮/收藏柜/暗.png"
-        end
         local btn = NPC_UI_HELPER.createPrimaryButton(btn_list_img, 'menux_btn_' .. tab.id, 560 + (idx - 1) * 150, -10, "", function()
-
             if tab.id == "pet" then
                 SL:SendLuaNetMsg(105, 64, 64, 0, '')
                 return
@@ -765,11 +818,11 @@ local function drawMenuBar(node)
                 npc.render()
                 return
             end
-              if s.menuTab ~= tab.id then
-                  s.menuTab = tab.id
-                  npc.render()
-              end
-          end,{skin = btnSkin,Disabled_skin = btnDisabledSkin})
+            if s.menuTab ~= tab.id then
+                s.menuTab = tab.id
+                npc.render()
+            end
+        end, {skin = "res/custom/three_city/xianfu/btn/l/" .. tostring(tab.idx) .. ".png", Disabled_skin = "res/custom/three_city/xianfu/btn/n/" .. tostring(tab.idx) .. ".png"})
         GUI:setAnchorPoint(btn, 0.5, 0)
         if allowed then
             GUI:Button_setBright(btn, state.menuTab ~= tab.id)
@@ -777,30 +830,6 @@ local function drawMenuBar(node)
             GUI:Button_setBright(btn, false)
         end
     end
-
-    for _, entry in ipairs(QUICK_MENU_TABS) do
-        local allowed = permission[entry.id]
-        local btn = NPC_UI_HELPER.createPrimaryButton(btn_list_img, "quick_tab_" .. entry.id, entry.x, -8, entry.label, function()
-            local s = ensureState()
-            if not allowed then
-                s.lastMessage = "拜访模式仅开放菜园与社交功能"
-                npc.render()
-                return
-            end
-            if s.menuTab ~= entry.id then
-                s.menuTab = entry.id
-                npc.render()
-            end
-        end)
-        GUI:setAnchorPoint(btn, 0.5, 0)
-        if allowed then
-            GUI:Button_setBright(btn, state.menuTab ~= entry.id)
-        else
-            GUI:Button_setBright(btn, false)
-        end
-    end
-
-
 end
 
 
@@ -1007,51 +1036,48 @@ local function drawPlotDetail(node, snapshot, npcid)
         return btn
     end
 
-    if plot.state == 'empty' then
-        local unlockedPlantList = buildUnlockedPlantList(snapshot)
-        if #unlockedPlantList <= 0 then
-            NPC_UI_HELPER.createRichText(panel, "farm_empty_tip", 0, -70, "当前仙府等级暂无可种植灵草", {
-                width = 360,
-                height = 30,
-                anchor = {x = 0, y = 1},
-                color = colors.warning
-            })
-        else
-            for idx, entry in ipairs(unlockedPlantList) do
-                local offsetX = 85 + (idx - 1) * 140
-                local btn = GUI:Button_Create(panel, "btn_seed_" .. tostring(entry.id), offsetX, buttonY, "res/custom/three_city/xianfu/btn/l/8.png")
-                GUI:setAnchorPoint(btn, 0.5, 0)
-                GUI:addOnClickEvent(btn, function()
-                    local gridId = plot.gridId or selected
-                    queuePlotAdvance("plant", gridId)
-                    sendAction(npcid, "plant", {gridId = gridId, seedId = entry.id})
-                end)
-                local desc = GUI:Text_Create(btn, "desc_" .. tostring(entry.id), 40, 150, 22, "#081839", tostring((entry.cfg or {}).name or entry.id))
-                GUI:Text_setFontName(desc, "fonts/500.ttf")
-                GUI:Text_enableOutline(desc, "#FFFFFF", 2)
+    local unlockedPlantList = buildUnlockedPlantList(snapshot)
+    local canPlant = plot.state == 'empty'
+    local canHarvest = plot.state == 'mature'
+
+    if #unlockedPlantList <= 0 then
+        NPC_UI_HELPER.createRichText(panel, "farm_empty_tip", 0, -70, "当前仙府等级暂无可种植灵草", {
+            width = 360,
+            height = 30,
+            anchor = {x = 0, y = 1},
+            color = colors.warning
+        })
+    else
+        for idx, entry in ipairs(unlockedPlantList) do
+            local offsetX = 85 + (idx - 1) * 140
+            local btn = GUI:Button_Create(panel, "btn_seed_" .. tostring(entry.id), offsetX, buttonY, "res/custom/three_city/xianfu/btn/l/8.png")
+            GUI:setAnchorPoint(btn, 0.5, 0)
+            if not canPlant then
+                GUI:Button_setBright(btn, false)
             end
+            GUI:addOnClickEvent(btn, function()
+                if not canPlant then
+                    return
+                end
+                local gridId = plot.gridId or selected
+                queuePlotAdvance("plant", gridId)
+                sendAction(npcid, "plant", {gridId = gridId, seedId = entry.id})
+            end)
+            -- local desc = GUI:Text_Create(btn, "desc_" .. tostring(entry.id), 40, 150, 22, "#081839", tostring((entry.cfg or {}).name or entry.id))
+            -- GUI:Text_setFontName(desc, "fonts/500.ttf")
+            -- GUI:Text_enableOutline(desc, "#FFFFFF", 2)
         end
-    elseif plot.state == 'growing' then
-        -- createActionButton('btn_acc', 0, '加速（敬请期待）', function()
-        --     local s = ensureState()
-        --     s.lastMessage = '加速功能预留，暂未开放。'
-        --     s.lastActionOk = false
-        --     npc.render()
-        -- end, false)
     end
 
-    if plot.state == 'mature' then
-        local canHarvest = true
-        local btn = createActionButton('btn_harvest', 245, '', function()
-            if not canHarvest then
-                return
-            end
-            local gridId = plot.gridId or selected
-            queuePlotAdvance('harvest', gridId)
-            sendAction(npcid, 'harvest', {gridId = gridId})
-        end, canHarvest,{skin = "res/custom/three_city/xianfu/btn/l/5.png",Disabled_skin = "res/custom/three_city/xianfu/btn/n/5.png"})
-        GUI:setAnchorPoint(btn, 0.5, 0)
-    end
+    local btn = createActionButton('btn_harvest', 245, '', function()
+        if not canHarvest then
+            return
+        end
+        local gridId = plot.gridId or selected
+        queuePlotAdvance('harvest', gridId)
+        sendAction(npcid, 'harvest', {gridId = gridId})
+    end, canHarvest,{skin = "res/custom/three_city/xianfu/btn/l/5.png",Disabled_skin = "res/custom/three_city/xianfu/btn/n/5.png"})
+    GUI:setAnchorPoint(btn, 0.5, 0)
 end
 
 local function drawInventory(node, snapshot, npcid)
@@ -1832,31 +1858,38 @@ buildLevelSummary = function(snapshot)
     local plotUnlock = tonumber(player.plot_unlock or 0) or 0
     local growth = ((player.growth or {}).total) or 0
     local dailyGrowth = (((player.growth or {}).daily_total or {}).count) or 0
-    local stats = player.level_stats or {}
     local nextCfg = (cfg.level_cfg or {})[level + 1]
     local lines = {
-        string.format("仙府%d级  地块:%s  神石槽:%s", level, formatNumber(plotUnlock), formatNumber(openSlots)),
-        string.format("成长值:%s/%s", formatNumber(dailyGrowth), formatNumber(cfg.growth_daily_limit or 0)),
-        string.format("累计成长:%s", formatNumber(growth)),
+        string.format("<font size='20' color='#ffe8a3'>仙府%d级</font>  \n  <font size='18' color='#9fe9ff'>已解锁地块</font><font size='18' color='#ffffff'>%s</font>  \n  <font size='18' color='#9fe9ff'>已解锁神石槽</font><font size='18' color='#ffffff'>%s</font>", level, formatNumber(plotUnlock), formatNumber(openSlots)),
+        string.format("<font size='18' color='#9fe9ff'>今日成长</font><font size='18' color='#ffffff'>%s/%s</font>    <font size='18' color='#9fe9ff'>累计成长</font><font size='18' color='#ffffff'>%s</font>", formatNumber(dailyGrowth), formatNumber(cfg.growth_daily_limit or 0), formatNumber(growth)),
     }
+    local progressList = {}
     if nextCfg then
-        lines[#lines + 1] = string.format("升%d级需求: 成长%s / 低阶收获%s / 下品丹%s / 中品丹%s / 神石碎片%s",
-            level + 1,
-            formatNumber(nextCfg.need_growth or 0),
-            formatNumber(nextCfg.need_harvest or 0),
-            formatNumber(nextCfg.need_refine_low or 0),
-            formatNumber(nextCfg.need_refine_mid or 0),
-            formatNumber(nextCfg.need_frag or 0)
-        )
-        lines[#lines + 1] = string.format("当前进度: 收获%s / 下品丹%s / 中品丹%s",
-            formatNumber(stats.harvest_low or 0),
-            formatNumber(stats.refine_low or 0),
-            formatNumber(stats.refine_mid or 0)
-        )
+        lines[#lines + 1] = string.format("<font size='18' color='#ffd27a'>升%d级需求</font>", level + 1)
+        progressList[#progressList + 1] = {
+            label = "成长值",
+            now = tonumber(growth or 0) or 0,
+            need = tonumber(nextCfg.need_growth or 0) or 0,
+        }
+        for _, cost in ipairs(nextCfg.cost or {}) do
+            local itemName = tostring(cost[1] or "")
+            local needNum = tonumber(cost[2] or 0) or 0
+            if itemName ~= "" and needNum > 0 then
+                progressList[#progressList + 1] = {
+                    label = itemName,
+                    now = getClientItemCount(itemName),
+                    need = needNum,
+                }
+            end
+        end
     else
-        lines[#lines + 1] = "当前已达仙府最高等级"
+        lines[#lines + 1] = "<font size='18' color='#a6f0a1'>当前已达仙府最高等级</font>"
     end
-    return table.concat(lines, "\n"), nextCfg ~= nil
+    return {
+        summary = table.concat(lines, "<br>"),
+        progress = progressList,
+        hasNext = nextCfg ~= nil,
+    }
 end
 
 -- ===== 仙府娃娃机 =====
@@ -2516,3 +2549,4 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
+

@@ -39,6 +39,20 @@ local function _refresh_xyl_playerequip_guides()
             desc = "打开灵根界面",
         })
     end
+    if ui.Button2 then
+        NPC_UI_HELPER.tryStartXylGuide(PlayerEquip, ui.Button2, ui.Panel_1, "xiuwu_panel_open", {
+            taskNames = {"筑基"},
+            dir = 5,
+            desc = "打开修为界面",
+        })
+    end
+    if ui.Button4 then
+        NPC_UI_HELPER.tryStartXylGuide(PlayerEquip, ui.Button4, ui.Panel_1, "xianfu_panel_open", {
+            taskNames = {"种植仙草","了解砍树"},
+            dir = 5,
+            desc = "打开仙府界面",
+        })
+    end
 end
 function PlayerEquip.main(data)
     PlayerEquip.posSetting = {
@@ -102,11 +116,6 @@ function PlayerEquip.main(data)
     GUI:addOnClickEvent(Button, function()
         SL:SendLuaNetMsg(105, 44, 44, 0, "")
     end)
-    NPC_UI_HELPER.tryStartXylGuide(nil, Button, PlayerEquip._ui.Panel_1, "tianshu_divination", {
-        taskNames = {"种植仙草","了解砍树"},
-        dir = 5,
-        desc = "打开仙府",
-    })
     Button = GUI:Button_Create(PlayerEquip._ui.Panel_1, "Button11", 400 + 120 - 253, 50+363, "res/private/player_main_layer_ui/btn_11.png")
     GUI:addOnClickEvent(Button, function()
        Npclib["anniu"][22](0,0,"")     --法宝

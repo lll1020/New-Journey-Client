@@ -42,8 +42,8 @@ function npc.main(npcid, p2, p3, msgData)
         --         , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
         -- , 0, 1)
         --显示奖励
-        local rwjl_show = ItemNumByTable_img_new(npc._config.rwjl, nil,GUI:Node_Create(node, "rwjl", 0, 0))
-        GUI:setPosition(rwjl_show, 490, 80)
+        -- local rwjl_show = ItemNumByTable_img_new(npc._config.rwjl, nil,GUI:Node_Create(node, "rwjl", 0, 0))
+        -- GUI:setPosition(rwjl_show, 490, 80)
         
 
 
@@ -51,25 +51,17 @@ function npc.main(npcid, p2, p3, msgData)
         if npc.data.jq_data["npc_55"] and npc.data.jq_data["npc_55"] == 2 then
             GUI:Text_setFontName(GUI:Text_Create(node, "tip",450,30, 25, "#00FF00", "任务已完成，恭喜您！")
             , "fonts/500.ttf")
-        elseif npc.data.jq_data["npc_55"] and npc.data.jq_data["npc_55"] == 1 then
-
-            local desc = GUI:Text_Create(node, "desc",500,200, 20, "#FFFFFF", "当前击杀："..(npc.data.sg_data.npc_55 or 0))
-            GUI:Text_setFontName(desc, "fonts/font4.ttf")
-            GUI:Text_enableOutline(desc, "#CA352C", 2)
-
-            local tip = GUI:Text_Create(node, "tip",470,285, 20, "#FF0000", "[灰界]系列地图即可完成任务")
-            GUI:Text_setFontName(tip, "fonts/font4.ttf")
-            GUI:Text_enableOutline(tip, "#000000", 2)
-
-
-            local Button= GUI:Button_Create(node, "Button2", 450, 0.00, "res/custom/three_city/xfts/btn.png")
-            GUI:addOnClickEvent(Button, function()
-                SL:SendLuaNetMsg(100, npcid, 2, 0, "")
-            end)
         else
-            local Button= GUI:Button_Create(node, "Button", 450, 0.00, "res/wy/public/an_lqrw.png")
+
+
+
+            local Button= GUI:Button_Create(node, "Button1", 450 - 100, 10.00, "res/custom/three_city/xfts/btn1.png")
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 1, 0, "")
+            end)
+            local Button= GUI:Button_Create(node, "Button2", 450 + 100, 10.00, "res/custom/three_city/xfts/btn2.png")
+            GUI:addOnClickEvent(Button, function()
+                SL:SendLuaNetMsg(100, npcid, 2, 0, "")
             end)
         end
         

@@ -39,6 +39,20 @@ local function _refresh_xyl_playerequip_guides()
             desc = "打开灵根界面",
         })
     end
+    if ui.Button2 then
+        NPC_UI_HELPER.tryStartXylGuide(PlayerEquip, ui.Button2, ui.Panel_1, "xiuwu_panel_open", {
+            taskNames = {"筑基"},
+            dir = 5,
+            desc = "打开修为界面",
+        })
+    end
+    if ui.Button4 then
+        NPC_UI_HELPER.tryStartXylGuide(PlayerEquip, ui.Button4, ui.Panel_1, "xianfu_panel_open", {
+            taskNames = {"种植仙草","了解砍树"},
+            dir = 5,
+            desc = "打开仙府界面",
+        })
+    end
 end
 function PlayerEquip.main(data)
     PlayerEquip.posSetting = {

@@ -33,10 +33,10 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:Effect_Create(Layout1, "rw1", 40, 40, 4, SL:GetMetaValue("EQUIP_DATA", 0) and SL:GetMetaValue("EQUIP_DATA", 0).Shape or 1300, 0, 2, 2, 0.8)
         GUI:Effect_Create(Layout1, "wq", 40, 40, 5, SL:GetMetaValue("EQUIP_DATA", 1) and SL:GetMetaValue("EQUIP_DATA", 1).Shape or 6, 0, 2, 2, 0.8)
 
-        local desc2 = GUI:Text_Create(Label_node, "desc2",180, 350, 24, "#FF00FF", (npc.data.T_data.level[""..idx] or 0).." / "..k.max_level)
+        local desc2 = GUI:Text_Create(Label_node, "desc2",180, 350, 24, "#FFFFFF", (npc.data.T_data.level[""..idx] or 0).." / "..k.max_level)
         -- GUI:Text_setFontName(desc2, "fonts/500.ttf")
         GUI:Text_setFontName(desc2, "fonts/font4.ttf")
-        GUI:Text_enableOutline(desc2, "#FFFFFF", 2)
+        GUI:Text_enableOutline(desc2, "#081800", 2)
         
         GUI:Text_setFontName(GUI:Text_Create(Label_node, "wz",190,106, 25, "#FF0000", "技能伤害提升2%")
         , "fonts/501.ttf")
