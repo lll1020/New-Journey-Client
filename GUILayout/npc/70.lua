@@ -24,7 +24,7 @@ function npc.main(npcid, p2, p3, msgData)
         return npc.node
     end
 
-    local function UI_updata(node) --鐣岄潰娓叉煋
+    local function UI_updata(node) --界面渲染
         if not node then
             return
         end
@@ -63,11 +63,11 @@ function npc.main(npcid, p2, p3, msgData)
     end
 
 
-    if p2 == 0 then--鐣岄潰
+    if p2 == 0 then--界面
         npc.data = SL:JsonDecode(msgData,false)
         ensureWindow(npcid)
         UI_updata(npc.node)
-    elseif p2 == 1 then--鐣岄潰
+    elseif p2 == 1 then--界面
         npc.data = SL:JsonDecode(msgData,false)
         UI_updata(npc.node)
     end

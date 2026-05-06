@@ -5205,6 +5205,12 @@ npc[511] = function(p2, p3, Data)
                     SL:SendLuaNetMsg(101, 511, 1, 1, string.format('{"7rqd":%d}', todayIdx))
                 end)
                 NPC_UI_HELPER.redpoint_create(claimButton)
+                NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, claimButton, card, 511, 1, {
+                    dir = 5,
+                    taskMap = {[511] = 10,},
+                    desc = "点击领取七日登录奖励",
+                    isForce = false
+                })
             else
                 local tipText
                 if not canShow or todayIdx > totalDays then
