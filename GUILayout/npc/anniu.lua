@@ -1,4 +1,4 @@
-﻿local npc = {
+local npc = {
 }
 npc.iconpx = {
     {
@@ -4728,6 +4728,12 @@ npc[507] = function(p2, p3, Data)
         }
         local qmdk = activity_cfg.qmdk or {
         }
+        local hdjd = activity_cfg.hdjd or {
+        }
+        local bwcz = activity_cfg.bwcz or {
+        }
+        local mskh = activity_cfg.mskh or {
+        }
         local sjdb = activity_cfg.sjdb or {
         }
         local txzr = teshudata["anniu_506"] or {
@@ -4752,10 +4758,15 @@ npc[507] = function(p2, p3, Data)
             btnSkin = "res/custom/activity/btn.png",
         }
         if i == 1 then
+            local open = tonumber((((npc.data_507 or {}).open_state or {})[1]) or 0) or 0
+            local myData = (npc.data_507 and npc.data_507.bwcz) or {}
             cfg.title = "保卫村庄"
-            cfg.time = "当前暂未开放，开放后可通过本页直接参与"
-            cfg.desc = "活动开启后，村庄周围会刷新多波入侵怪物。守住村庄核心并尽快清理怪群，坚持到结算即可完成守卫。"
-            cfg.reward = "开放后公布活动奖励"
+            cfg.time = string.format("每日%02d:%02d开启，持续%s分钟", tonumber(bwcz.start_hour or 18) or 18, tonumber(bwcz.start_minute_clock or 0) or 0, tostring(bwcz.duration_min or 30))
+            if open == 1 then
+                cfg.time = cfg.time .. "\n当前活动进行中，可直接点击参与"
+            end
+            cfg.desc = string.format("进入【%s】后怪物按波次刷新。活动怪物只受1点固定伤害，对玩家造成0伤害。当前累计功勋：%s，当前称号：%s。", tostring(bwcz.display_map or bwcz.map or "村庄"), tostring(tonumber(myData.gx or 0) or 0), tostring(myData.title or "暂无称号"))
+            cfg.reward = "击杀奖励：金币18W、金币88W、元宝5W；前三名达到镇境武侯可得50元真实充值"
         elseif i == 2 then
             cfg.title = "全民夺矿"
             cfg.time = string.format("开服第%s分钟开启，持续%s分钟", tostring(qmdk.start_minute or 26), tostring(qmdk.duration_min or 8))
@@ -4783,10 +4794,15 @@ npc[507] = function(p2, p3, Data)
             cfg.desc = "活动开启后前往土城跑酷"
             cfg.reward = "奖励丰厚"
         elseif i == 6 then
-            cfg.title = "天才地宝"
-            cfg.time = "当前暂未开放，开放后可通过本页直接参与"
-            cfg.desc = "活动开启后地图内将刷新稀有材料与宝物点位，率先找到并成功采集的玩家可带走当轮核心奖励。"
-            cfg.reward = "开放后公布活动奖励"
+            local open = tonumber((((npc.data_507 or {}).open_state or {})[6]) or 0) or 0
+            local myData = (npc.data_507 and npc.data_507.mskh) or {}
+            cfg.title = "美食狂欢"
+            cfg.time = string.format("每日%02d:%02d开启，持续%s分钟", tonumber(mskh.start_hour or 16) or 16, tonumber(mskh.start_minute_clock or 0) or 0, tostring(mskh.duration_min or 30))
+            if open == 1 then
+                cfg.time = cfg.time .. "\n当前活动进行中，可直接点击参与"
+            end
+            cfg.desc = string.format("进入【%s】后会刷新鸡、羊、鹿三种动物。击杀后会直接掉落对应肉类，当前美食积分：%s，当前活动积分：%s，时光之杖等级：%s。", tostring(mskh.map or "天材地宝"), tostring(tonumber(myData.point or 0) or 0), tostring(tonumber(myData.grjf or 0) or 0), tostring(tonumber(myData.weapon_level or 0) or 0))
+            cfg.reward = "鸡肉=1积分，羊肉=5积分，鹿肉=10积分；可在屠夫处兑换美食家、时光之杖、时光鉴定石"
         elseif i == 7 then
             cfg.title = "天选之人"
             cfg.time = table.concat(txzr.notice or {
@@ -4826,9 +4842,9 @@ npc[507] = function(p2, p3, Data)
             cfg.reward = "随机夺宝"
         elseif i == 14 then
             cfg.title = "黑暗禁地"
-            cfg.time = "当前暂未开放，开放后可通过本页直接参与"
-            cfg.desc = "活动开启后可进入黑暗禁地探索高危区域，击败禁地怪物与首领，争夺更高阶的掉落与禁地专属收益。"
-            cfg.reward = "开放后公布活动奖励"
+            cfg.time = string.format("每日%02d:%02d开启，持续%s分钟", tonumber(hdjd.start_hour or 19) or 19, tonumber(hdjd.start_minute_clock or 30) or 30, tostring(hdjd.duration_min or 20))
+            cfg.desc = string.format("进入【%s】后全图会随机刷新【%s】，采集%s秒即可直接获得奖励。活动期间视野会被大幅压低，宝箱会按固定间隔持续补刷。", tostring(hdjd.map or "黑暗禁地"), tostring(hdjd.chest_mob or "黑暗宝箱"), tostring(hdjd.collect_sec or 3))
+            cfg.reward = "金币*38W、元宝*2000-8000、1元真充红包*1、五行石/杀伐神石/千年玄铁随机其一"
         end
         return cfg
     end
