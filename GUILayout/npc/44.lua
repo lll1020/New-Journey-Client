@@ -62,6 +62,13 @@ local colors = {
 local buildUnlockedPlantList
 local buildLevelSummary
 
+local function closePlantSelectPopup()
+    if npc.plantSelectPopup then
+        GUI:removeFromParent(npc.plantSelectPopup)
+        npc.plantSelectPopup = nil
+    end
+end
+
 -- 外部入口可通过 MetaValue 指定仙府首次打开的默认页签。
 local function consumeRequestedTab()
     if not SL or not SL.GetMetaValue then
@@ -1048,25 +1055,73 @@ local function drawPlotDetail(node, snapshot, npcid)
             color = colors.warning
         })
     else
-        for idx, entry in ipairs(unlockedPlantList) do
-            local offsetX = 85 + (idx - 1) * 140
-            local btn = GUI:Button_Create(panel, "btn_seed_" .. tostring(entry.id), offsetX, buttonY, "res/custom/three_city/xianfu/btn/l/8.png")
-            GUI:setAnchorPoint(btn, 0.5, 0)
+        NPC_UI_HELPER.createRichText(panel, "farm_choose_tip", 0, -72, "点击种植后选择灵草类型", {
+            width = 420,
+            height = 24,
+            anchor = {x = 0, y = 1},
+            color = "#ffe8a3"
+        })
+        local plantBtn = createActionButton('btn_plant', 85, '', function()
             if not canPlant then
-                GUI:Button_setBright(btn, false)
+                return
             end
-            GUI:addOnClickEvent(btn, function()
-                if not canPlant then
-                    return
-                end
-                local gridId = plot.gridId or selected
-                queuePlotAdvance("plant", gridId)
-                sendAction(npcid, "plant", {gridId = gridId, seedId = entry.id})
+            closePlantSelectPopup()
+            local popup = GUI:Node_Create(npc.bg or node, 'plant_select_popup', 0, 0)
+            npc.plantSelectPopup = popup
+
+            local overlay = GUI:Image_Create(popup, 'overlay', 0, 0, 'res/public/1900000651_1.png')
+            GUI:setContentSize(overlay, SL:GetMetaValue("SCREEN_WIDTH"), SL:GetMetaValue("SCREEN_HEIGHT"))
+            GUI:setTouchEnabled(overlay, true)
+            GUI:addOnClickEvent(overlay, function()
+                closePlantSelectPopup()
             end)
-            -- local desc = GUI:Text_Create(btn, "desc_" .. tostring(entry.id), 40, 150, 22, "#081839", tostring((entry.cfg or {}).name or entry.id))
-            -- GUI:Text_setFontName(desc, "fonts/500.ttf")
-            -- GUI:Text_enableOutline(desc, "#FFFFFF", 2)
-        end
+
+            local box = GUI:Image_Create(popup, 'box', 410, 270, 'res/wy/public/500-300.png')
+            GUI:setAnchorPoint(box, 0.5, 0.5)
+            local title = GUI:Text_Create(box, 'title', 250, 262, 22, colors.primary, '选择种植灵草')
+            GUI:setAnchorPoint(title, 0.5, 0.5)
+            GUI:Text_enableOutline(title, '#1d0f09', 1)
+
+            for idx, entry in ipairs(unlockedPlantList) do
+                local seedCfg = entry.cfg or {}
+                local rewardParts = {}
+                for _, reward in ipairs(seedCfg.product or {}) do
+                    local give = reward.give or {}
+                    local itemName = tostring((give[1] or {})[1] or "")
+                    local itemCount = tonumber((give[1] or {})[2] or 0) or 0
+                    local rate = tonumber(reward.rate or 0) or 0
+                    if itemName ~= "" and itemCount > 0 and rate > 0 then
+                        rewardParts[#rewardParts + 1] = string.format("%s*%s/%s%%", itemName, formatNumber(itemCount), formatNumber(rate))
+                    end
+                end
+                local lineY = 205 - (idx - 1) * 72
+                local desc = string.format("%s\n成熟:%s分钟\n%s",
+                    tostring(seedCfg.name or entry.id),
+                    tostring(math.floor((tonumber(seedCfg.matureTime or 0) or 0) / 60)),
+                    table.concat(rewardParts, " + ")
+                )
+                NPC_UI_HELPER.createRichText(box, 'seed_option_' .. tostring(entry.id), 36, lineY + 18, desc, {
+                    width = 320,
+                    height = 58,
+                    anchor = {x = 0, y = 0.5},
+                    color = "#f4ead4",
+                })
+                local chooseBtn = NPC_UI_HELPER.createPrimaryButton(box, 'choose_seed_' .. tostring(entry.id), 408, lineY, '选择', function()
+                    local gridId = plot.gridId or selected
+                    closePlantSelectPopup()
+                    queuePlotAdvance("plant", gridId)
+                    sendAction(npcid, "plant", {gridId = gridId, seedId = entry.id})
+                end, {w = 88})
+                GUI:setAnchorPoint(chooseBtn, 0.5, 0.5)
+            end
+
+            local closeBtn = GUI:Button_Create(box, 'close_popup', 468, 262, 'res/wy/public/close_red_big.png')
+            GUI:setTouchEnabled(closeBtn, true)
+            GUI:addOnClickEvent(closeBtn, function()
+                closePlantSelectPopup()
+            end)
+        end, canPlant, {skin = "res/custom/three_city/xianfu/btn/l/8.png", Disabled_skin = "res/custom/three_city/xianfu/btn/n/8.png"})
+        GUI:setAnchorPoint(plantBtn, 0.5, 0)
     end
 
     local btn = createActionButton('btn_harvest', 245, '', function()
@@ -1858,6 +1913,7 @@ buildLevelSummary = function(snapshot)
     local plotUnlock = tonumber(player.plot_unlock or 0) or 0
     local growth = ((player.growth or {}).total) or 0
     local dailyGrowth = (((player.growth or {}).daily_total or {}).count) or 0
+    local levelStats = player.level_stats or {}
     local nextCfg = (cfg.level_cfg or {})[level + 1]
     local lines = {
         string.format("<font size='20' color='#ffe8a3'>仙府%d级</font>  \n  <font size='18' color='#9fe9ff'>已解锁地块</font><font size='18' color='#ffffff'>%s</font>  \n  <font size='18' color='#9fe9ff'>已解锁神石槽</font><font size='18' color='#ffffff'>%s</font>", level, formatNumber(plotUnlock), formatNumber(openSlots)),
@@ -1871,6 +1927,26 @@ buildLevelSummary = function(snapshot)
             now = tonumber(growth or 0) or 0,
             need = tonumber(nextCfg.need_growth or 0) or 0,
         }
+        if tonumber(nextCfg.need_harvest or 0) > 0 then
+            progressList[#progressList + 1] = {
+                label = "低阶灵草收获次数",
+                now = tonumber(levelStats.harvest_low or 0) or 0,
+                need = tonumber(nextCfg.need_harvest or 0) or 0,
+            }
+        end
+        if tonumber(nextCfg.need_refine_low or 0) > 0 then
+            progressList[#progressList + 1] = {
+                label = "下品丹药炼制次数",
+                now = tonumber(levelStats.refine_low or 0) or 0,
+                need = tonumber(nextCfg.need_refine_low or 0) or 0,
+            }
+        elseif tonumber(nextCfg.need_refine_mid or 0) > 0 then
+            progressList[#progressList + 1] = {
+                label = "中品丹药炼制次数",
+                now = tonumber(levelStats.refine_mid or 0) or 0,
+                need = tonumber(nextCfg.need_refine_mid or 0) or 0,
+            }
+        end
         for _, cost in ipairs(nextCfg.cost or {}) do
             local itemName = tostring(cost[1] or "")
             local needNum = tonumber(cost[2] or 0) or 0
@@ -2432,6 +2508,7 @@ function npc.render()
     if not npc.node then
         return
     end
+    closePlantSelectPopup()
     GUI:removeAllChildren(npc.node)
     local baseSnapshot = getSnapshot()
     if not baseSnapshot.player then

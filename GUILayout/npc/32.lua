@@ -55,6 +55,47 @@ function npc.main(npcid, p2, p3, msgData)
         )
     end
 
+    local function buildNextAttrTips(config)
+        local attrs = config and config.attr or {}
+        if type(attrs) ~= "table" or #attrs <= 0 then
+            return "<font color='#F4D179'>下级转生属性</font><br><font color='#FFFFFF'>暂无属性预览</font>"
+        end
+        return string.format(
+            "<font color='#F4D179'>下级转生属性</font><br>%s",
+            Player:showAttr(attrs)
+        )
+    end
+
+    local function bindDescTips(widget, tipBuilder, formatWay)
+        if not widget or type(tipBuilder) ~= "function" then
+            return
+        end
+        local function _open()
+            local pos = GUI:getWorldPosition(widget)
+            SL:OpenCommonDescTipsPop({
+                str = tipBuilder(),
+                worldPos = {x = pos.x, y = pos.y},
+                anchorPoint = {x = 0, y = 0},
+                formatWay = formatWay or 1
+            })
+        end
+        if SL:GetMetaValue("WINPLAYMODE") then
+            GUI:addMouseMoveEvent(widget, {
+                onEnterFunc = function()
+                    _open()
+                end,
+                onLeaveFunc = function()
+                    SL:CloseCommonDescTipsPop()
+                end
+            })
+        else
+            GUI:setTouchEnabled(widget, true)
+            GUI:addOnTouchEvent(widget, function()
+                _open()
+            end)
+        end
+    end
+
     local function openCurrentAttrTips(tip)
         if not tip then
             return
@@ -133,12 +174,18 @@ function npc.main(npcid, p2, p3, msgData)
 
             
             
-            GUI:setContentSize(GUI:Image_Create(node, "rw_tb_bj", 50 + 160 - 5,40 + 145, "res/wy/public/tycccc.png"), 165, 110)
+            -- GUI:setContentSize(GUI:Image_Create(node, "rw_tb_bj", 50 + 160 - 5,40 + 145, "res/wy/public/tycccc.png"), 165, 110)
 
-            GUI:Text_setFontName(GUI:Text_Create(node, "tip",50 + 160,40 + 220, 20, "#f7f7de", "下级转生属性:")
-            , "fonts/font4.ttf")
-            local attr_desc = GUI:RichText_Create(node, "attr_desc", 50 + 160,40 + 220 - 5,  Player:showAttr(config.attr), 200, 17, "#f7f7de", 3,nil,nil)
-            GUI:setAnchorPoint(attr_desc, 0, 1)
+            local nextAttrNode = GUI:Layout_Create(node, "next_attr_node", 50 + 160 - 70 - 110, 40 + 170 - 200, 140, 46, false)
+            GUI:setTouchEnabled(nextAttrNode, true)
+            local nextAttrText = GUI:Text_Create(nextAttrNode, "next_attr_text", 70, 28, 20, "#F4D179", "下级转生属性")
+            GUI:setAnchorPoint(nextAttrText, 0.5, 0.5)
+            GUI:Text_setFontName(nextAttrText, "fonts/font4.ttf")
+            GUI:Text_enableOutline(nextAttrText, "#100808", 2)
+             GUI:Text_enableUnderline(nextAttrText)
+            bindDescTips(nextAttrNode, function()
+                return buildNextAttrTips(config)
+            end, 1)
 
             --可以展示当前以获取属性
             local tip = GUI:Image_Create(node, "tip2", 380 + 60 + 218, 350 + 30 - 260, "res/custom/msfc/page1/wenhao.png")

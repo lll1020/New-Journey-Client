@@ -334,6 +334,21 @@ local function ensureWindow(name, npcid, extraOpts)
     windowCache[name] = NPC_UI_HELPER.ensureWindow(windowCache[name], npcid or 0, opts)
     return windowCache[name]
 end
+-- 这两个快捷入口判定会在函数定义前被引用，先前置声明，避免运行时落到全局查找。
+local _shortcut_is_firstcharge_completed
+local _shortcut_is_unbind_completed
+local function _shortcut_should_show_persistent_redpoint(cfg)
+    local npcid = tonumber(cfg and cfg[3] or 0) or 0
+    if npcid == 501 then
+        return not _shortcut_is_firstcharge_completed()
+    end
+    if npcid == 504 then
+        local totalCharge = tonumber(SL:GetMetaValue("MONEY", 23) or 0) or 0
+        local realCharge = tonumber(SL:GetMetaValue("REAL_RECHARGE") or 0) or 0
+        return math.max(totalCharge, realCharge) <= 0 and not _shortcut_is_unbind_completed()
+    end
+    return false
+end
 local function createShortcutButton(container, cfg, order, prefix, opts)
     opts = opts or {
     }
@@ -341,10 +356,19 @@ local function createShortcutButton(container, cfg, order, prefix, opts)
     local posX = tonumber(opts.x) or (498 - 80 * order)
     local posY = tonumber(opts.y) or 0
     local button = GUI:Button_Create(container, btnName, posX, posY, "res/wy/icon/top_" .. cfg[1] .. ".png")
+    local keepRedPoint = _shortcut_should_show_persistent_redpoint(cfg)
     GUI:addOnClickEvent(button, function()
         SL:SendLuaNetMsg(101, cfg[3], 0, 0, "")
-        GUI:removeAllChildren(button)
+        if not keepRedPoint then
+            GUI:removeAllChildren(button)
+        end
     end)
+    if keepRedPoint then
+        NPC_UI_HELPER.redpoint_create_eff(button, {
+            x = 80,
+            y = 60,
+        })
+    end
     local cacheMap = opts.cacheMap or npc.db_anniu
     cacheMap["" .. cfg[4]] = button
     return button
@@ -382,7 +406,7 @@ local function _shortcut_is_freesponsor_completed()
     local finalTitle = details[#details] and details[#details].ch
     return _shortcut_has_title(finalTitle)
 end
-local function _shortcut_is_firstcharge_completed()
+_shortcut_is_firstcharge_completed = function()
     local T_data = npc.data_501 and npc.data_501.T_data
     if type(T_data) ~= "table" then
         return false
@@ -484,7 +508,7 @@ local function _feijian_format_left_seconds(seconds)
     end
     return string.format("%02d:%02d", m, s)
 end
-local function _shortcut_is_unbind_completed()
+_shortcut_is_unbind_completed = function()
     if npc.kryb and tonumber(npc.kryb.mztq or 0) == 1 then
         return true
     end
@@ -590,6 +614,10 @@ local function _huti_get_card_states()
 end
 local function _shortcut_should_show(cfg)
     local npcid = tonumber(cfg and cfg[3] or 0)
+    if npcid == 31 then
+        -- 马上发财：二大陆主线阶段（rwid >= 16）后才显示快捷按钮。
+        return (tonumber(cogin and cogin.sjtb and cogin.sjtb.rwid) or 0) >= 16
+    end
     if npcid == 516 then
         return not _shortcut_is_freesponsor_completed()
     end
@@ -1282,7 +1310,12 @@ npc[2] = function(p2, p3, msgData)
                 end
                 return tier
             end
-            local startTier = string.match(text, "基础装备(%d+)%-%d+")
+            local startTier = string.match(text, "制式装备(%d+)%-%d+")
+            if startTier then
+                local tier = tonumber(startTier) or 1
+                return colorByTier[clampTier(tier)]
+            end
+            startTier = string.match(text, "基础装备(%d+)%-%d+")
             if startTier then
                 local tier = tonumber(startTier) or 1
                 return colorByTier[clampTier(tier)]
@@ -1290,6 +1323,33 @@ npc[2] = function(p2, p3, msgData)
             local zishuTier = string.match(text, "专属附加(%d+)")
             if zishuTier then
                 return colorByTier[clampTier(zishuTier)]
+            end
+            local dlNameTierMap = {
+                ["世界专属"] = 1,
+                ["极光城"] = 2,
+                ["苍云城"] = 3,
+                ["若水"] = 4,
+                ["红尘"] = 5,
+                ["灵虚"] = 6,
+                ["七大陆主城"] = 7,
+                ["八大陆主城"] = 8,
+                ["九大陆主城"] = 9,
+            }
+            if dlNameTierMap[text] then
+                return colorByTier[clampTier(dlNameTierMap[text])]
+            end
+            local dlTier = string.match(text, "([三四五六七八九])大陆")
+            if dlTier then
+                local tierMap = {
+                    ["三"] = 3,
+                    ["四"] = 4,
+                    ["五"] = 5,
+                    ["六"] = 6,
+                    ["七"] = 7,
+                    ["八"] = 8,
+                    ["九"] = 9,
+                }
+                return colorByTier[clampTier(tierMap[dlTier] or 3)]
             end
             local shizhuangTier = string.match(text, "时装首饰(%d+)")
             if shizhuangTier then
@@ -5715,6 +5775,21 @@ npc[514] = function(p2, p3, Data)
             100 + 91,
         },
     }
+    -- 世界地图大陆按钮：按客户端当前大陆解锁状态切换亮/灰两套贴图。
+    local function isWorldMapContinentUnlocked(idx)
+        local continent = tonumber(idx or 0) or 0
+        if continent <= 1 then
+            return true
+        end
+        if continent <= 7 and type(dl_sz) == "function" then
+            return dl_sz(continent) == true
+        end
+        if continent == 8 then
+            local rebirthLevel = tonumber(SL:GetMetaValue("RELEVEL") or 0) or 0
+            return rebirthLevel >= (continent - 1) * 10
+        end
+        return true
+    end
     local function renderWorldMap(node)
         GUI:removeAllChildren(node)
         local bg = GUI:Frames_Create(node, "bg", 0, 0, "res/custom/sjdt/eff/eff_", ".png", 1, 8, {
@@ -5724,8 +5799,13 @@ npc[514] = function(p2, p3, Data)
         })
         GUI:setAnchorPoint(bg, 0.5, 0.5)
         for i = 1, 8 do
-            local btn = GUI:Button_Create(bg, 'btn' .. i, pos[i][1], pos[i][2], 'res/custom/sjdt/dl/l/' .. i .. '.png')
+            local isUnlocked = isWorldMapContinentUnlocked(i)
+            local skinState = isUnlocked and "l" or "n"
+            local btn = GUI:Button_Create(bg, 'btn' .. i, pos[i][1], pos[i][2], 'res/custom/sjdt/dl/' .. skinState .. '/' .. i .. '.png')
             GUI:addOnClickEvent(btn, function()
+                if not isUnlocked then
+                    return
+                end
                 if i == 3 then
                     if not _ywl_has_third_continent_half_entry() then
                         NPC_UI_HELPER.guochang_3()
@@ -5831,6 +5911,15 @@ npc[516] = function(p2, p3, Data)
                 titleName .. "[称号]",
                 1,
             }
+        end
+        for _, extraTitle in ipairs((cfg or {}).extra_titles or {}) do
+            extraTitle = tostring(extraTitle or "")
+            if extraTitle ~= "" then
+                ret[#ret + 1] = {
+                    extraTitle .. "[称号]",
+                    1,
+                }
+            end
         end
         appendReward(cfg and cfg.jl)
         return ret

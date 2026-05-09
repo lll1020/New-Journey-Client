@@ -1,4 +1,4 @@
-local npc = {
+﻿local npc = {
     currentTab = 1,
     selectedMilestoneIdx = nil,
 }
@@ -470,6 +470,86 @@ local function closeBoxPopup()
     end
 end
 
+local function closeBuyPopup()
+    if npc.buyPopup then
+        GUI:removeFromParent(npc.buyPopup)
+        npc.buyPopup = nil
+    end
+end
+
+local function _get_buy_popup_count()
+    if not npc.buyPopupInput then
+        return 1
+    end
+    local count = tonumber(GUI:TextInput_getString(npc.buyPopupInput) or 0) or 0
+    if count < 1 then
+        count = 1
+    end
+    return math.floor(count)
+end
+
+local function openBuyPopup()
+    closeBuyPopup()
+
+    npc.buyPopup = GUI:Node_Create(npc.bg, "buy_popup", 0, 0)
+
+    local overlay = GUI:Image_Create(npc.buyPopup, "overlay", 0, 0, "res/public/1900000651_1.png")
+    GUI:setAnchorPoint(overlay, 0, 0)
+    GUI:setContentSize(overlay, 818, 542)
+    GUI:setIgnoreContentAdaptWithSize(overlay, false)
+    GUI:setTouchEnabled(overlay, true)
+    GUI:addOnClickEvent(overlay, function()
+        closeBuyPopup()
+    end)
+
+    local panel = GUI:Image_Create(npc.buyPopup, "panel", 409, 271, "res/wy/public/500-300.png")
+    GUI:setAnchorPoint(panel, 0.5, 0.5)
+    GUI:setContentSize(panel, 360, 220)
+    GUI:setIgnoreContentAdaptWithSize(panel, false)
+    GUI:setTouchEnabled(panel, true)
+
+    local title = GUI:Text_Create(panel, "title", 180, 188, 22, "#ffe07a", "购买数量")
+    GUI:setAnchorPoint(title, 0.5, 0.5)
+    setTextStyle(title)
+
+    local closeBtn = GUI:Button_Create(panel, "close", 332, 190, "res/wy/public/close_red_big.png")
+    GUI:addOnClickEvent(closeBtn, function()
+        closeBuyPopup()
+    end)
+
+    local tip = GUI:Text_Create(panel, "tip", 180, 146, 16, "#f3e8ce", string.format("每个消耗 %s灵石", tostring(getBuyCostText())))
+    GUI:setAnchorPoint(tip, 0.5, 0.5)
+    setTextStyle(tip)
+
+    local inputBg = GUI:Image_Create(panel, "input_bg", 70, 96, "res/public/1900000668.png")
+    GUI:setContentSize(inputBg, 220, 36)
+    GUI:setIgnoreContentAdaptWithSize(inputBg, false)
+
+    local input = GUI:TextInput_Create(inputBg, "input", 10, 4, 200, 28, 18)
+    GUI:TextInput_setInputMode(input, 2)
+    GUI:TextInput_setMaxLength(input, 6)
+    GUI:TextInput_setString(input, "1")
+    GUI:TextInput_setPlaceHolder(input, "请输入数量")
+    GUI:TextInput_setFontColor(input, "#ffffff")
+    npc.buyPopupInput = input
+
+    local desc = GUI:Text_Create(panel, "desc", 180, 74, 16, "#8fd6ff", string.format("将购买【%s】", tostring(getTokenName())))
+    GUI:setAnchorPoint(desc, 0.5, 0.5)
+    setTextStyle(desc)
+
+    local confirm = GUI:Button_Create(panel, "confirm", 200, 18, "res/custom/msfc/page1/action_2.png")
+    GUI:addOnClickEvent(confirm, function()
+        local count = _get_buy_popup_count()
+        closeBuyPopup()
+        SL:SendLuaNetMsg(100, 101, 4, count, SL:JsonEncode({count = count}, false))
+    end)
+
+    -- local cancel = GUI:Button_Create(panel, "cancel", 190, 18, "res/custom/msfc/page1/action_3.png")
+    -- GUI:addOnClickEvent(cancel, function()
+    --     closeBuyPopup()
+    -- end)
+end
+
 local function openBoxPopup(boxType)
     closeBoxPopup()
 
@@ -726,7 +806,7 @@ function npc.renderFucai(node)
     local exchangeBtn = GUI:Button_Create(node, "exchange", 322 - 90, 17, "res/custom/msfc/page1/action_1.png")
     GUI:setAnchorPoint(exchangeBtn, 0, 0)
     GUI:addOnClickEvent(exchangeBtn, function()
-        SL:SendLuaNetMsg(100, 101, 3, 1, SL:JsonEncode({count = 1}, false))
+        SL:SendLuaNetMsg(100, 101, 3, 0, "")
     end)
     if toNumber(npc.data and npc.data.exchange_available, 0) <= 0 then
         GUI:setOpacity(exchangeBtn, 180)
@@ -738,7 +818,7 @@ function npc.renderFucai(node)
     local buyBtn = GUI:Button_Create(node, "buy", 608 - 180, 17, "res/custom/msfc/page1/action_2.png")
     GUI:setAnchorPoint(buyBtn, 0, 0)
     GUI:addOnClickEvent(buyBtn, function()
-        SL:SendLuaNetMsg(100, 101, 4, 1, SL:JsonEncode({count = 1}, false))
+        openBuyPopup()
     end)
 
     createMilestoneList(node)
@@ -852,6 +932,7 @@ UI_updata = function(node)
     end
 
     closeBoxPopup()
+    closeBuyPopup()
     GUI:removeAllChildren(node)
     createTabs(node)
 

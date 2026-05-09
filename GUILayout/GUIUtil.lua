@@ -410,6 +410,52 @@ local function _dl_get_zslv()
     return _dl_to_num(SL:GetMetaValue("RELEVEL"), 0)
 end
 
+-- 大陆门槛：读取人物等级，四大陆起需要校验 150 级条件。
+local function _dl_get_level()
+    return _dl_to_num(SL:GetMetaValue("LEVEL"), 0)
+end
+
+-- 大陆门槛：读取服务端 JSON 变量，给灵根/命盘判定复用。
+local function _dl_get_json(varName)
+    return Player:JsonToTbl(Player:getServerVar(varName))
+end
+
+-- 大陆门槛：检查是否拥有指定称号。
+local function _dl_has_title(titleName)
+    if not titleName or titleName == "" then
+        return false
+    end
+    local idx = _dl_to_num(SL:GetMetaValue("ITEM_INDEX_BY_NAME", titleName), 0)
+    if idx <= 0 then
+        return false
+    end
+    return SL:GetMetaValue("TITLE_DATA_BY_ID", idx) ~= nil
+end
+
+-- 大陆门槛：五大陆要求 10 种灵根均已激活。
+local function _dl_has_all_linggen()
+    local data = _dl_get_json("T41")
+    local levels = type(data.level) == "table" and data.level or {}
+    for i = 1, 10 do
+        if _dl_to_num(levels[tostring(i)] or levels[i], 0) <= 0 then
+            return false
+        end
+    end
+    return true
+end
+
+-- 大陆门槛：六大陆要求完成天道命盘，客户端按 npc_74 的 all 计数判定。
+local function _dl_has_all_destiny()
+    local jqData = _dl_get_json("T13")
+    local state = type(jqData["npc_74"]) == "table" and jqData["npc_74"] or {}
+    local cfgList = (type(teshudata) == "table" and teshudata)
+        or (cogin and type(cogin.teshudata) == "table" and cogin.teshudata)
+        or {}
+    local cfg = type(cfgList["npc_74"]) == "table" and cfgList["npc_74"] or {}
+    local need = _dl_to_num(cfg.all, 4)
+    return _dl_to_num(state.all, 0) >= need
+end
+
 local function _dl_check(dl)
     dl = _dl_to_num(dl, 0)
     if dl == 1 then
@@ -419,9 +465,10 @@ local function _dl_check(dl)
     local zxrw = _dl_get_mainline_progress()
     local zslv = _dl_get_zslv()
     local jqd = _dl_get_jqd()
+    local level = _dl_get_level()
 
     if dl == 2 then
-        if zxrw >= 16 then
+        if zxrw >= 16 or zslv >= 10 then
             return true
         end
         return false, "需完成主线引导后才可进入二大陆"
@@ -431,15 +478,30 @@ local function _dl_check(dl)
         end
         return false, "需完成二大陆转生且剧情点达到11后才可进入三大陆"
     elseif dl == 4 then
-        if zslv >= 30 and jqd >= 40 then
+        if zslv >= 30 and jqd >= 40 and level >= 150 then
             return true
         end
-        return false, "需完成三大陆转生且剧情点达到40后才可进入四大陆"
+        return false, "需完成三大陆转生且剧情点达到40、人物等级达到150级后才可进入四大陆"
     elseif dl == 5 then
-        if zslv >= 40 and jqd >= 90 then
+        if zslv >= 40 and jqd >= 90 and _dl_has_all_linggen() then
             return true
         end
-        return false, "需完成四大陆转生且剧情点达到90后才可进入五大陆"
+        return false, "需完成四大陆转生且剧情点达到90，并激活全部灵根后才可进入五大陆"
+    elseif dl == 6 then
+        if zslv >= 50 and jqd >= 100 and _dl_has_all_destiny() then
+            return true
+        end
+        return false, "需完成五大陆转生且剧情点达到100，并完成天道命盘后才可进入六大陆"
+    elseif dl == 7 then
+        if zslv >= 60 and jqd >= 100 and _dl_has_title("世界符文·[真我]") then
+            return true
+        end
+        return false, "需完成六大陆转生且剧情点达到100，并获得世界符文·[真我]后才可进入七大陆"
+    elseif dl == 8 then
+        if zslv >= 70 then
+            return true
+        end
+        return false, "需完成七大陆转生后才可进入八大陆"
     end
 
     return true

@@ -30,13 +30,25 @@ local function getEnterNeedText(dl)
         return "进入条件：完成三大陆转生 + 剧情点40"
     elseif dl == 5 then
         return "进入条件：完成四大陆转生 + 剧情点90"
+    elseif dl == 6 then
+        return "进入条件：完成五大陆转生"
+    elseif dl == 7 then
+        return "进入条件：完成六大陆转生"
+    elseif dl == 8 then
+        return "进入条件：完成七大陆转生"
     end
     return "进入条件：请按主线推进"
 end
 local function canEnterByCfg(cfg)
     local dl = _to_num(cfg and cfg[6], 1)
     if type(dl_sz) == "function" then
-        return dl_sz(dl) == true
+        if dl <= 5 then
+            return dl_sz(dl) == true
+        end
+    end
+    if dl >= 6 and dl <= 8 then
+        local rebirthLevel = _to_num(SL:GetMetaValue("RELEVEL"), 0)
+        return rebirthLevel >= (dl - 1) * 10
     end
     return true
 end

@@ -44,7 +44,7 @@ function npc.main(npcid, p2, p3, msgData)
                 SL:SendLuaNetMsg(100, npcid, 1, 0, "")
             end)
         elseif npc.data.jq_data[key] == 1 then
-            local desc = GUI:Text_Create(node, "desc",100,100, 20, "#FFFFFF", "当前击杀：\n[精英怪] "..(npc.data.sg_data[key] or 0).."/"..(npc._config.num or 0))
+            local desc = GUI:Text_Create(node, "desc",100,100, 20, "#FFFFFF", "当前击杀：\n[红名怪] "..(npc.data.sg_data[key] or 0).."/"..(npc._config.num or 0))
             GUI:Text_setFontName(desc, "fonts/font4.ttf")
             GUI:Text_enableOutline(desc, "#CA352C", 1)
             local Button= GUI:Button_Create(node, "Button", btn_pos[1], btn_pos[2], "res/custom/all_story_mission/2/btn_give.png")

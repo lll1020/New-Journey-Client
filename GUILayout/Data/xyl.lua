@@ -878,7 +878,7 @@ local npc_xyl = {
                 khdjy = _xyl_khdjy,
                 need_receive = true,
                 yd = { 1, "夜魔洞", 606, 98, 95 },
-                desc = "夜探夜魔洞深处，清剿潜伏在暗处的精英魔物。\n<font color='#F4D179'>目标：</font>击杀精英怪10只\n<font color='#F4D179'>进度：</font>%s",
+                desc = "夜探夜魔洞深处，清剿潜伏在暗处的红名魔物。\n<font color='#F4D179'>目标：</font>击杀红名怪10只\n<font color='#F4D179'>进度：</font>%s",
             },
             {
                 "古刹之谜（剧）",

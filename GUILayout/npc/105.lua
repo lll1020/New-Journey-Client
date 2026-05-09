@@ -151,7 +151,7 @@ local function _render_card(node, npcid, payload, T_data, idx)
     local rewardName, rewardCount, rewardLabel = _get_reward_entry(cfg)
     local state = _get_card_state(payload, T_data, idx)
     local rewardIndex = rewardName ~= "" and SL:GetMetaValue("ITEM_INDEX_BY_NAME", rewardName) or nil
-    if rewardIndex then
+    if rewardIndex and rewardIndex > 0 then
         local item = GUI:ItemShow_Create(card, "reward_item", 60 - 15, 102 - 15, {
             index = rewardIndex,
             count = rewardCount > 0 and rewardCount or 1,
@@ -162,6 +162,9 @@ local function _render_card(node, npcid, payload, T_data, idx)
         if state.claimedDone then
             GUI:ItemShow_setIconGrey(item, true)
         end
+    else
+        local fallback = create_outline_text(card, "reward_fallback_" .. idx, 60, 102, 16, "#FFF1C3", rewardName ~= "" and rewardName or "奖励", "#22140F")
+        GUI:setAnchorPoint(fallback, 0.5, 0.5)
     end
     if state.claimedDone then
         GUI:Image_setGrey(card, true)
