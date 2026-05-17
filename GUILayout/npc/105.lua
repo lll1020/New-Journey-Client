@@ -75,6 +75,11 @@ local function _format_left_seconds(left)
     end
     return string.format("%02d:%02d", minute, second)
 end
+local function _format_left_minutes(left)
+    left = math.max(tonumber(left) or 0, 0)
+    return string.format("%d", math.max(math.ceil(left / 60), 0))
+end
+
 local function _get_reward_entry(cfg)
     local reward = cfg and cfg.reward and cfg.reward[1] or nil
     if type(reward) ~= "table" then
@@ -171,14 +176,16 @@ local function _render_card(node, npcid, payload, T_data, idx)
     end
     local title = create_outline_text(card, "reward_label_" .. idx, 60, 52 + 8, 15, "#6A391D", rewardLabel, "#F7E8C6")
     GUI:setAnchorPoint(title, 0.5, 0.5)
-    local status = create_outline_text(card, "status_" .. idx, 64, 147, 13, state.statusColor, state.statusText, "#22140F")
+    local status = create_outline_text(card, "status_" .. idx, 64, 147, 18, state.statusColor, state.statusText, "#22140F")
     GUI:setAnchorPoint(status, 0.5, 0.5)
     if state.left > 0 and state.claimedDone ~= true and idx == state.expected then
-        GUI:Text_COUNTDOWN(status, state.left, function()
-            if npc.node and not tolua.isnull(npc.node) then
-                UI_updata(npc.node, npcid)
-            end
-        end)
+        -- GUI:Text_COUNTDOWN(status, state.left, function()
+        --     if npc.node and not tolua.isnull(npc.node) then
+        --         UI_updata(npc.node, npcid)
+        --     end
+        -- end)
+        GUI:Text_setString(status,"当前选择")
+        GUI:setAnchorPoint(create_outline_text(node, "sysj", 64 + 494 + 20, 147 + 205 + 13, 18, state.statusColor, _format_left_minutes(state.left), "#22140F"), 0.5, 0.5)
     end
     local btn = GUI:Button_Create(card, "card_btn_" .. idx, 20, 8, CHOOSE_BTN_SKIN)
     if state.disabled then
@@ -221,7 +228,7 @@ local function _render_footer(node, npcid, payload, T_data)
         hint = string.format("当前第%d档已可领取，领取后才会开始下一档计时", expected)
         hintColor = "#FFE26B"
     end
-    -- local hintText = create_outline_text(node, "footer_hint", 500, 144, 16, hintColor, hint, "#20120D")
+    -- local hintText = create_outline_text(node, "footer_hint", 488, 136, 16, hintColor, hint, "#20120D")
     -- GUI:setAnchorPoint(hintText, 0.5, 0.5)
     local claimAllBtn = GUI:Button_Create(node, "claim_all_btn", 347 + 66, 106, CLAIM_ALL_BTN_SKIN)
     if claimed >= total then
@@ -239,6 +246,15 @@ function UI_updata(node, npcid)
     GUI:removeAllChildren(node)
     local payload, T_data = _get_state()
     local total = _get_total_welfare_count(payload)
+    -- create_outline_text(node, "top_tip", 430, 448, 18, "#FFF1C3", "新服限时福利：领取当前奖励后，才会开始下一档计时", "#20120D")
+    -- GUI:setAnchorPoint(GUI:ui_delegate(node).top_tip, 0.5, 0.5)
+    -- if tonumber(payload.first_charge_ready or 0) >= 1 then
+    --     create_outline_text(node, "bottom_tip", 430, 42, 18, "#77FFB0", "已购买首充礼包，剩余限时福利可全部直接领取", "#20120D")
+    --     GUI:setAnchorPoint(GUI:ui_delegate(node).bottom_tip, 0.5, 0.5)
+    -- else
+    --     create_outline_text(node, "bottom_tip", 430, 42, 18, "#FFE26B", "购买首充礼包后，限时福利可全部直接领取，无需等待", "#20120D")
+    --     GUI:setAnchorPoint(GUI:ui_delegate(node).bottom_tip, 0.5, 0.5)
+    -- end
     for i = 1, math.min(total, #CARD_POS_LIST) do
         _render_card(node, npcid, payload, T_data, i)
     end

@@ -29,6 +29,20 @@ function npc.main(npcid, p2, p3, msgData)
         return npc.node
     end
 
+    local function canActivate(idx)
+        local state = npc.data and npc.data.T_data or {}
+        local cfg = npc._config and npc._config.details and npc._config.details[idx]
+        if not cfg or (state[""..idx] and state[""..idx] == 1) then
+            return false
+        end
+        return checkItemNum(cfg.cost or {})
+    end
+
+    local function centerText(textNode, width, height)
+        GUI:Text_setTextAreaSize(textNode, {width = width, height = height})
+        GUI:Text_setTextHorizontalAlignment(textNode, 1)
+    end
+
     local function UI_updata(node) --界面渲染
         if not node then
             return
@@ -51,15 +65,21 @@ function npc.main(npcid, p2, p3, msgData)
             end
             if npc.data.T_data[""..i] and npc.data.T_data[""..i] == 1 then
                 GUI:Image_Create(cbl_item, "dui", 20, 0, "res/wy/public/6.png")
+            elseif canActivate(i) then
+                NPC_UI_HELPER.redpoint_create(cbl_item, {
+                    x = 100 - 10,
+                    y = 30 + 50 - 10,
+                })
             end
             
         end
         GUI:UserUILayout(layout, {dir=3,addDir=1,colnum = 4,gap = {x=10, y=0}})
 
         for i=1,3 do
-            local desc = GUI:Text_Create(node, "desc"..i,300 + 257,220 + 115 - (i-1)*96, 22, "#00FFFF", attr_wz[i])
+            local desc = GUI:Text_Create(node, "desc"..i,300 + 257 - 40,220 + 115 - (i-1)*96, 22, "#00FFFF", attr_wz[i])
             GUI:Text_setFontName(desc, "fonts/500.ttf")
             GUI:Text_enableOutline(desc, "#000000", 2)
+            centerText(desc, 220, 32)
         end
 
 
@@ -74,6 +94,9 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 1, 0, SL:JsonEncode({idx = npc.titles_sign}, false))
             end)
+            if canActivate(npc.titles_sign) then
+                NPC_UI_HELPER.redpoint_create(Button)
+            end
         end
 
         

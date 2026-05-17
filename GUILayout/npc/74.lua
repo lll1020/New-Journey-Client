@@ -19,7 +19,12 @@ local function getPanelState()
     T_data["npc_74"] = T_data["npc_74"] or {}
     return T_data["npc_74"]
 end
-
+local other_wz = {
+    "极品仙法爆率+ 5%",
+    "境界压制 + 10%",
+    "的灵根属性 +5%",
+    "灵兽人物属性 + 5%",
+}
 local function isActivated(idx)
     return tonumber(getPanelState()[tostring(idx)] or 0) == 1
 end
@@ -74,7 +79,7 @@ local function renderDetail(npcId, idx)
     -- local descTitle = GUI:Text_Create(node, "desc_title", 152, 246, 20, "#FF2E2E", "激活条件")
     -- GUI:Text_setFontName(descTitle, "fonts/font4.ttf")
     -- GUI:setAnchorPoint(descTitle, 0.5, 0.5)
-    GUI:setAnchorPoint(GUI:RichText_Create(node, "attr_desc", 60, 270, Player:showAttr(npc._config.details[idx].attr), 200, 16, "#FF00FF", 0,nil,nil)
+    GUI:setAnchorPoint(GUI:RichText_Create(node, "attr_desc", 80, 270, Player:showAttr(npc._config.details[idx].attr).."\n"..other_wz[idx], 200, 16, "#FF00FF", 0,nil,nil)
     , 0, 1)
     local desc = GUI:Text_Create(node, "desc", 308/2, 214 - 115, 18, "#FFFFFF", cfg.desc or "无")
     GUI:setAnchorPoint(desc, 0.5, 0.5)
@@ -128,7 +133,7 @@ local function renderMain(node, npcId)
             renderDetail(npcId, i)
         end)
         if isActivated(i) then
-            GUI:Image_Create(button, "done_" .. i, 100 -88, 108 - 60, "res/wy/public/10_2.png")
+            GUI:Image_Create(button, "done_" .. i, 100 -88, 108 - 60 - 40, "res/wy/public/10_2.png")
         end
         local namePos = {
             [1] = {x = 72, y = 8},

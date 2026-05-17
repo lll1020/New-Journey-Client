@@ -18,6 +18,11 @@ local config = {
 [17] = {    icon="",    id=17,    value="<[青狮]最终攻击 + %s/FCOLOR=254>",},
 [18] = {    icon="",    id=18,    value="<[白象]最终生命 + %s/FCOLOR=254>",},
 [19] = {    icon="",    id=19,    value="<[大鹏]最终防御 + %s/FCOLOR=254>",},
+[20] = {    icon="",    id=20,    value="<[莲花白]人物生命: + %s/FCOLOR=254>",},
+[21] = {    icon="",    id=21,    value="<[女儿红]攻击上限: + %s/FCOLOR=254>",},
+[22] = {    icon="",    id=22,    value="<[百花酿]杀怪爆率: + %s/FCOLOR=254>",},
+[23] = {    icon="",    id=23,    value="<[竹叶青]打怪切割: + %s/FCOLOR=254>",},
+[24] = {    icon="",    id=24,    value="<[八仙醉]怪物格挡: + %s/FCOLOR=254>",},
 
 
 }

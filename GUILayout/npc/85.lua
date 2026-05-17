@@ -367,7 +367,7 @@ local function renderEntryCostBoxes(parent, entryList, positions, boxSkin)
 
             local box = GUI:Image_Create(parent, "entry_box_" .. idx, pos.x, pos.y, boxSkin or ITEM_BOX_SKIN)
             if itemIndex > 0 then
-                GUI:setAnchorPoint(GUI:ItemShow_Create(box, "entry_item_" .. idx, 29, 30, {index = itemIndex, look = true, bgVisible = false}), 0.5, 0.5)
+                GUI:setAnchorPoint(GUI:ItemShow_Create(box, "entry_item_" .. idx, 29, 30, {index = itemIndex, look = true, movable = false, bgVisible = false}), 0.5, 0.5)
             else
                 createText(box, "entry_name_" .. idx, 29, 20, 12, "#F5E6C6", displayName, FONT_MAIN, 0.5, 0.5)
             end
@@ -397,7 +397,7 @@ local function renderRewardPreview(parent, reward)
     local box = GUI:Image_Create(parent, "reward_box", 0, 0, ITEM_BOX_SKIN)
     local itemIndex = toNumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", list[1][1]), 0)
     if itemIndex > 0 then
-        GUI:setAnchorPoint(GUI:ItemShow_Create(box, "reward_item", 29, 30, {index = itemIndex, count = list[1][2], look = true, bgVisible = false}), 0.5, 0.5)
+        GUI:setAnchorPoint(GUI:ItemShow_Create(box, "reward_item", 29, 30, {index = itemIndex, count = list[1][2], look = true, movable = false, bgVisible = false}), 0.5, 0.5)
     else
         createText(box, "reward_item_name", 29, 22, 14, "#F5E6C6", list[1][1], FONT_MAIN, 0.5, 0.5)
         createText(box, "reward_item_num", 29, 6, 12, "#FFD66D", "x" .. tostring(list[1][2]), FONT_MAIN, 0.5, 0.5)

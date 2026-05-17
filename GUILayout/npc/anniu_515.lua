@@ -83,7 +83,7 @@ local RAW_ATTR_META = {
     [244] = {label = "对怪切割"},
     [245] = {label = "对怪增伤", percent = true},
     [248] = {label = "对怪固定吸血"},
-    [255] = {label = "怪物格挡"},
+    [255] = {label = "受怪格挡"},
     [282] = {label = "人物攻击", percent = true},
 }
 
@@ -906,43 +906,42 @@ local function renderMilestoneCard(parent, idx, milestone)
     local card = GUI:Image_Create(parent, "milestone_card_" .. idx, baseX, 210, "res/custom/fairyFate/1/card_bg.png")
     GUI:setAnchorPoint(card, 0, 0)
 
-    local countText = GUI:Text_Create(card, "count", 65, 135, 16, "#FF00FF", string.format("%s成就", tostring(milestone.count or 0)))
+    local countText = GUI:Text_Create(card, "count", 65, 135 - 70, 16, "#ff3bd7", string.format("%s成就", tostring(milestone.count or 0)))
     GUI:setAnchorPoint(countText, 0.5, 0.5)
-    setTextStyle(countText, "#FF00FF", 16)
+    GUI:Text_setTextColor(countText, "#ff3bd7")
+    GUI:Text_setFontSize(countText, 16)
+    GUI:Text_setFontName(countText, "fonts/font4.ttf")
 
     local preview = getRewardPreview(milestone.reward)
     if preview.index > 0 then
         local item = GUI:ItemShow_Create(card, "item", 64, 102, {index = preview.index, count = preview.count, look = true, bgVisible = false})
         GUI:setAnchorPoint(item, 0.5, 0.5)
     else
-        local rewardText = GUI:Text_Create(card, "reward_text", 62, 95, 15, "#2f3745", preview.label)
+        local rewardText = GUI:Text_Create(card, "reward_text", 62, 85, 15, "#2f3745", preview.label)
         GUI:setAnchorPoint(rewardText, 0.5, 0.5)
         GUI:Text_setTextAreaSize(rewardText, {width = 96, height = 42})
         GUI:Text_setTextHorizontalAlignment(rewardText, 1)
         setTextStyle(rewardText, "#34465c", 15)
     end
 
-    local button = GUI:Button_Create(card, "claim", 16, 10, "res/custom/fairyFate/1/claim_btn.png")
-    GUI:setAnchorPoint(button, 0, 0)
     local claimed = isMilestoneClaimed(milestone.count)
     local canClaim = (not claimed) and getTotalDoneCount() >= toNumber(milestone.count, 0)
 
     if claimed then
-        GUI:setOpacity(button, 180)
-        local claimedText = GUI:Text_Create(button, "claimed_text", 48, 50, 18, "#6d7b8d", "已领")
+        local claimedText = GUI:Text_Create(card, "claimed_text", 65, 30, 18, "#ff3d3d", "已领取")
         GUI:setAnchorPoint(claimedText, 0.5, 0.5)
-        setTextStyle(claimedText, "#00FF00", 16)
-    elseif canClaim then
+        GUI:Text_setFontSize(claimedText, 18)
+        GUI:Text_setFontName(claimedText, "fonts/font4.ttf")
+        return
+    end
+
+    local button = GUI:Button_Create(card, "claim", 16, 10, "res/custom/fairyFate/1/claim_btn.png")
+    GUI:setAnchorPoint(button, 0, 0)
+    if canClaim then
         UI_HELPER.redpoint_create(button, {x = 90, y = 28})
-    else
-        GUI:setOpacity(button, 180)
     end
 
     GUI:addOnClickEvent(button, function()
-        if claimed then
-            SL:ShowSystemTips("该进度奖励已领取")
-            return
-        end
         if not canClaim then
             SL:ShowSystemTips(string.format("达成%s个成就后可领取", tostring(milestone.count or 0)))
             return

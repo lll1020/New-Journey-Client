@@ -333,7 +333,7 @@ function npc.main(npcid, p2, p3, msgData)
                     if cur_lv >= need_lv then
                         return "已解锁", "#00FF00", nil
                     end
-                    return "解锁天书等级："..need_lv, "#A0A0A4", nil
+                    return "解锁需天书等级："..need_lv, "#A0A0A4", nil
                 end
                 local function render_slot_detail(slot)
                     local slot_key = ""..slot
@@ -366,7 +366,10 @@ function npc.main(npcid, p2, p3, msgData)
                                 text = "解锁天书等级："..need_lv
                             end
                         end
-                        GUI:setAnchorPoint(GUI:Text_Create(npc.xf_node, "wz5",50 + 549,16 + 480, 20, color, text), 0, 1)
+                        -- 未解锁提示改为居中显示，避免与左侧信息区重叠。
+                        local lockText = GUI:Text_Create(npc.xf_node, "wz5", 50 + 549 + 155, 16 + 480 - 12, 20, color, text)
+                        GUI:setAnchorPoint(lockText, 0.5, 0.5)
+                        GUI:Text_enableOutline(lockText, "#000000", 1)
                     end
                     local guang = GUI:Image_Create(npc.xf_node, "cost_once_value_img", 50 + 549 + 70, 150, "res/wy/public/guang.png")
                     GUI:setContentSize(guang, 180, 30)
@@ -378,10 +381,11 @@ function npc.main(npcid, p2, p3, msgData)
                     local drawOnceCost = 1
                     local currentTokenColor = currentTokenCount >= drawOnceCost and "#45ff93" or "#ff6666"
                     GUI:RichText_Create(guang, "num", 130, 5, string.format("<font color='%s'>%s</font><font color='#FFFFFF'>/%s</font>", currentTokenColor, tostring(currentTokenCount), tostring(drawOnceCost)), 150, 16, "#FFFFFF", 0, nil, nil)
-                    npc._xf_skip_anim = npc._xf_skip_anim == true
-                    local skipLabel = GUI:Text_Create(npc.xf_node, "skip_label", 50 + 549 + 20 - 20, 52 + 18 + 50, 18, "#FFFFFF", "是否跳过动画")
+                    -- 天书抽取默认跳过动画，玩家可手动取消勾选。
+                    npc._xf_skip_anim = npc._xf_skip_anim ~= false
+                    local skipLabel = GUI:Text_Create(npc.xf_node, "skip_label", 50 + 549 + 20, 52 + 18 + 50, 18, "#FFFFFF", "跳过动画")
                     GUI:Text_enableOutline(skipLabel, "#000000", 1)
-                    local skipCheck = GUI:CheckBox_Create(npc.xf_node, "skip_anim", 50 + 549 + 140 - 20, 53 + 18 + 52, "res/wy/public/xz_1.png", "res/wy/public/xz_0.png")
+                    local skipCheck = GUI:CheckBox_Create(npc.xf_node, "skip_anim", 50 + 549 + 140 - 40, 53 + 18 + 52, "res/wy/public/xz_1.png", "res/wy/public/xz_0.png")
                     GUI:CheckBox_setSelected(skipCheck, npc._xf_skip_anim)
                     GUI:CheckBox_addOnEvent(skipCheck, function(sender)
                         npc._xf_skip_anim = GUI:CheckBox_isSelected(sender)
@@ -425,6 +429,11 @@ function npc.main(npcid, p2, p3, msgData)
                     local kuang = GUI:Image_Create(dbLayout, "kuang"..i, 0, 0, "res/custom/tianshu/xf/k_0.png")
                     GUI:setTouchEnabled(kuang, true)
                     GUI:addOnClickEvent(kuang, function()
+                        -- 未解锁槽位仅展示锁定状态，不允许切换右侧详情与刷新入口。
+                        if not is_slot_unlocked(i, caowei[""..i]) then
+                            SL:ShowSystemTips("该仙法槽位尚未解锁")
+                            return
+                        end
                         if npc.xf_sign then
                             GUI:removeChildByName(layout_delegate["kuang"..npc.xf_sign], "kuang_eff")
                         end
@@ -441,8 +450,17 @@ function npc.main(npcid, p2, p3, msgData)
                     GUI:Image_loadTexture(kuang, "res/custom/tianshu/xf/k_"..level..".png")
                 end
                 GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 1,gap = {x=40, y=10}})
-                npc.xf_sign = npc.xf_sign or 1
-                if npc.xf_sign >= 1 and npc.xf_sign <= 10 then
+                -- 默认选中第一个已解锁槽位，避免首次打开时落在未解锁格子上。
+                if not npc.xf_sign or not is_slot_unlocked(npc.xf_sign, caowei[""..npc.xf_sign]) then
+                    npc.xf_sign = nil
+                    for slot = 1, 10 do
+                        if is_slot_unlocked(slot, caowei[""..slot]) then
+                            npc.xf_sign = slot
+                            break
+                        end
+                    end
+                end
+                if npc.xf_sign and npc.xf_sign >= 1 and npc.xf_sign <= 10 then
                     local kuang = layout_delegate["kuang"..npc.xf_sign]
                     if kuang then
                         GUI:Frames_Create(kuang, "kuang_eff", -8, -6, "res/custom/tianshu/xf/kuang/kuang_", ".png", 1, 15,
@@ -497,6 +515,7 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data = SL:JsonDecode(msgData,false)
         npc.titles_sign = nil
         npc._xf_skip_lingshi_confirm = false
+        npc._xf_skip_anim = true
         ensureWindow(npcid)
         UI_updata(npc.node)
     elseif p2 == 1 then
@@ -517,7 +536,7 @@ function npc.main(npcid, p2, p3, msgData)
         else
             parent = GUI:Win_Create("xf_xjm", 0, 0, 0, 0, false, false, true, true, true, nil, 24)
         end
-        npc._xf_skip_anim = npc._xf_skip_anim == true
+        npc._xf_skip_anim = npc._xf_skip_anim ~= false
         local startFrame = npc._xf_skip_anim and 104 or 1
         local endFrame = 158
         local function close_popup()
@@ -551,7 +570,7 @@ function npc.main(npcid, p2, p3, msgData)
                     GUI:setAnchorPoint(attr_desc, 0.5, 1)
                     GUI:setOpacity(attr_desc, 0)
                     GUI:Timeline_FadeIn(attr_desc, 1,nil)
-                    local skipLabel = GUI:Text_Create(parent, "skip_label", cogin.w/2 - 60, 80, 20, "#FFFFFF", "是否跳过动画")
+                    local skipLabel = GUI:Text_Create(parent, "skip_label", cogin.w/2 - 60, 80, 20, "#FFFFFF", "跳过动画")
                     GUI:Text_enableOutline(skipLabel, "#000000", 1)
                     local skipCheck = GUI:CheckBox_Create(parent, "skip_anim", cogin.w/2 + 75, 80, "res/wy/public/xz_1.png", "res/wy/public/xz_0.png")
                     GUI:CheckBox_setSelected(skipCheck, npc._xf_skip_anim)

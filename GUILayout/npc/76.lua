@@ -147,7 +147,11 @@ local function renderMain(node, npcId)
     npc.Label = GUI:Node_Create(node, "Label", 170, 15)
 
     npc.titles_sign = npc.titles_sign or 1
-    for i = 1, 4 do
+    local total = math.max(1, #(npc._config.details or {}))
+    if npc.titles_sign > total then
+        npc.titles_sign = total
+    end
+    for i = 1, total do
         local item = GUI:Button_Create(npc.cbl_list, "item" .. i, 0, 0,
             "res/custom/five_city/tmsl/list/" .. (npc.titles_sign == i and "l" or "n") .. "/" .. i .. ".png")
         GUI:Image_Create(npc.cbl_list, "fgx" .. i, 0, 0, "res/custom/fulitating/list/fgx.png")

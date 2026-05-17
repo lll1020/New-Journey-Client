@@ -132,7 +132,7 @@ local function renderPreviewItem(parent)
     local itemIndex = previewName ~= "" and toNumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", previewName), 0) or 0
     local box = GUI:Image_Create(parent, "preview_box", 0, 0, ITEM_BOX_SKIN)
     if itemIndex > 0 then
-        GUI:setAnchorPoint(GUI:ItemShow_Create(box, "preview_item", 29, 30, {index = itemIndex, look = true, bgVisible = false}), 0.5, 0.5)
+        GUI:setAnchorPoint(GUI:ItemShow_Create(box, "preview_item", 29, 30, {index = itemIndex, look = true, movable = false, bgVisible = false}), 0.5, 0.5)
     end
     return box
 end

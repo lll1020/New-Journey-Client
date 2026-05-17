@@ -1,4 +1,4 @@
-teshudata = {
+﻿teshudata = {
     ["npc_1"] = {
         id = 1,
         name = "灵根鉴定",
@@ -197,13 +197,13 @@ teshudata = {
         id = 14,
         where = 16,
         name = "仙食坊",
-        title = "仙食坊全满",
+        title = "酒仙",
         config = {
             --配置
             [1] = {attr_desc = "人物攻击",attrID = 4,ratio = 1,cost =  { {"女儿红",1} },max_level = 750,},
             [2] = {attr_desc = "人物生命",attrID = 1,ratio = 20,cost =  { {"莲花白",1} },max_level = 750,},
             [3] = {attr_desc = "人物切割",attrID = 244,ratio = 80,cost =  { {"竹叶青",1} },max_level = 550,},
-            [4] = {attr_desc = "怪物免伤",attrID = 255,ratio = 10,cost =  { {"百花酿",1} },max_level = 200,},
+            [4] = {attr_desc = "怪物格挡",attrID = 255,ratio = 10,cost =  { {"百花酿",1} },max_level = 200,},
             [5] = {attr_desc = "打怪爆率",attrID = 242,ratio = 100,cost =  { {"八仙醉",1} },max_level = 200,},
         },
     },
@@ -223,7 +223,7 @@ teshudata = {
     ["npc_20"] = {
         id = 20,
         name = "冠名",
-        ch = "冠名",
+        ch = "天下谁人不识君",
         cost = 588,
         -- jl = { { "龙纹铜钱", 100 },{3,10000000,"绑定金币"},{4,2000000,"绑定元宝"}},
     },
@@ -599,12 +599,12 @@ teshudata = {
         id = 27,
         name = "技能升级",
         details = {
-            {name = "攻杀剑术",eff = 60334,buff = 74,attr = {{}},max_level = 10, cost = {{"书页",20},{"金币",1000000},{"辉耀水晶",5}},mz = "攻杀剑术额外附加自身攻击上限35%的真实伤害"},
-            {name = "刺杀剑术",eff = 60334,buff = 75,attr = {{}},max_level = 10, cost = {{"书页",20},{"金币",2000000},{"辉耀水晶",5}},mz = "刺杀剑术有5%的几率使目标受到的伤害翻倍"},
-            {name = "半月弯刀",eff = 60334,buff = 76,attr = {{}},max_level = 10, cost = {{"书页",20},{"金币",2000000},{"辉耀水晶",5}},mz = "半月弯刀攻击目标时，有20%的几率使攻击速度+2.持续5秒"},
-            {name = "烈火剑法",eff = 60334,buff = 77,attr = {{}},max_level = 10, cost = {{"书页",20},{"金币",3000000},{"辉耀水晶",5}},mz = "烈火剑法点燃被击中的目标3秒，没秒减少等同于释放者攻击上限20%的生命"},
-            {name = "开天斩",eff = 60334,buff = 78,attr = {{}},max_level = 10, cost = {{"书页",20},{"金币",5000000},{"辉耀水晶",5}},mz = "开天斩命中目标后，使目标5秒内降低20%的防御"},
-            {name = "逐日剑法",eff = 60334,buff = 79,attr = {{}},max_level = 10, cost = {{"书页",20},{"金币",5000000},{"辉耀水晶",5}},mz = "逐日剑法击中的目标为玩家时，有35%的几率使其额外减少当前HP10%的生命"},
+            {name = "攻杀剑术",eff = 15,buff = 74,attr = {{}},max_level = 10, cost = {{"书页",20},{"金币",1000000},{"辉耀水晶",5}},mz = "攻杀剑术额外附加自身攻击上限35%的真实伤害"},
+            {name = "刺杀剑术",eff = 20304,buff = 75,attr = {{}},max_level = 10, cost = {{"书页",20},{"金币",2000000},{"辉耀水晶",5}},mz = "刺杀剑术有5%的几率使目标受到的伤害翻倍"},
+            {name = "半月弯刀",eff = 20305,buff = 76,attr = {{}},max_level = 10, cost = {{"书页",20},{"金币",2000000},{"辉耀水晶",5}},mz = "半月弯刀攻击目标时，有20%的几率使攻击速度+2.持续5秒"},
+            {name = "烈火剑法",eff = 60339,buff = 77,attr = {{}},max_level = 10, cost = {{"书页",20},{"金币",3000000},{"辉耀水晶",5}},mz = "烈火剑法点燃被击中的目标3秒，没秒减少等同于释放者攻击上限20%的生命"},
+            {name = "开天斩",eff = 60340,buff = 78,attr = {{}},max_level = 10, cost = {{"书页",20},{"金币",5000000},{"辉耀水晶",5}},mz = "开天斩命中目标后，使目标5秒内降低20%的防御"},
+            {name = "逐日剑法",eff = 60343,buff = 79,attr = {{}},max_level = 10, cost = {{"书页",20},{"金币",5000000},{"辉耀水晶",5}},mz = "逐日剑法击中的目标为玩家时，有35%的几率使其额外减少当前HP10%的生命"},
         },
     },
     ["npc_28"] = {
@@ -730,7 +730,8 @@ teshudata = {
     },
     ["npc_41"] = {
         id = 41,
-        name = "斗笠升级1",
+        name = "江湖斗笠",
+        title = "江湖·斗笠",
         where = 13,
         cost = {
             {"辉耀水晶",30},
@@ -743,7 +744,8 @@ teshudata = {
     },
     ["npc_42"] = {
         id = 42,
-        name = "葫芦升级1",
+        name = "酒仙葫芦",
+        title = "真·酒葫芦",
         where = 16,
         cost = {
             {"辉耀水晶",88},
@@ -989,7 +991,8 @@ teshudata = {
     },
     ["npc_51"] = {
         id = 51,
-        name = "斗笠升级2",
+        name = "江湖斗笠",
+        title = "传说·斗笠",
         where = 13,
         cost = {
             {"辉耀水晶",88},
@@ -1002,7 +1005,8 @@ teshudata = {
     },
     ["npc_52"] = {
         id = 52,
-        name = "葫芦升级2",
+        name = "酒仙葫芦",
+        title = "神·酒葫芦",
         where = 16,
         cost = {
             {"辉耀水晶",288},
@@ -1018,6 +1022,7 @@ teshudata = {
         extra_cost = {
             [3] = {{"高阶神石卷轴",1}},
         },
+        compose_desc = "十个相同品质的神石可以合成出更高一级的神石",
         open_rate = {
             rare = 8400,
             epic = 1000,
@@ -1224,11 +1229,11 @@ teshudata = {
         -- 高级灵根挑战要求：对应低级灵根等级达到指定等级。
         need_low_level = 3,
         details = {
-            {mob_name= "雷灵根守护兽",mob_shape = 12034,scale = 0.7,time = 300,nandu = "ss",yq = "金灵根达到Lv.3",jl = "激活雷灵根", itme = nil,},
-            {mob_name= "风灵根守护兽",mob_shape = 12035,time = 300,nandu = "ss",yq = "木灵根达到Lv.3",jl = "激活风灵根", itme = "新月之风",},
-            {mob_name= "冰灵根守护兽",mob_shape = 12036,time = 300,nandu = "ss",yq = "水灵根达到Lv.3",jl = "激活冰灵根", itme = "冰霜群雨",},
-            {mob_name= "焚灵根守护兽",mob_shape = 12037,time = 300,nandu = "ss",yq = "火灵根达到Lv.3",jl = "激活焚灵根", itme = "九转金丹",},
-            {mob_name= "岩灵根守护兽",mob_shape = 12038,time = 300,nandu = "ss",yq = "土灵根达到Lv.3",jl = "激活岩灵根", itme = "磐岩之心",},
+            {mob_name= "雷灵根守护兽",mob_shape = 12034,scale = 0.7,time = 300,nandu = "ss",yq = "金灵根达到Lv.3",jl = "激活雷灵根", itme = "御雷丹",},
+            {mob_name= "风灵根守护兽",mob_shape = 12035,time = 300,nandu = "ss",yq = "木灵根达到Lv.3",jl = "激活风灵根", itme = "定风珠",},
+            {mob_name= "冰灵根守护兽",mob_shape = 12036,time = 300,nandu = "ss",yq = "水灵根达到Lv.3",jl = "激活冰灵根", itme = "深情的家伙",},
+            {mob_name= "焚灵根守护兽",mob_shape = 12037,time = 300,nandu = "ss",yq = "火灵根达到Lv.3",jl = "激活焚灵根", itme = "芭蕉扇",},
+            {mob_name= "岩灵根守护兽",mob_shape = 12038,time = 300,nandu = "ss",yq = "土灵根达到Lv.3",jl = "激活岩灵根", itme = "后土之力",},
         },
     },
     ["npc_70"] = {
@@ -1320,13 +1325,12 @@ teshudata = {
         all_level_add = 5,
         all_desc = "全命盘激活后：150级后等级+5",
         details = {
-            {name = "灵兽", reward_desc = "无", desc = "任意2只灵兽亲密度满级", cost = {{"天道命石",10},{"元宝",1000000}}, attr = {{25,10}}},
-            {name = "灵根", reward_desc = "无", desc = "任意2个灵根满级", cost = {{"天道命石",10},{"元宝",1000000}}, attr = {{25,10}}},
-            {name = "境界", reward_desc = "无", desc = "境界达到元婴境", cost = {{"天道命石",10},{"元宝",1000000}}, attr = {{25,10}}},
-            {name = "天书仙法", reward_desc = "无", desc = "天书达到LV30且拥有3条红色仙法", cost = {{"天道命石",10},{"元宝",1000000}}, attr = {{25,10}}},
+            {name = "灵兽", reward_desc = "灵兽路径完成后：灵兽给予的人物属性+5%", desc = "任意2只灵兽亲密度满级", cost = {{"天道命石",10},{"元宝",1000000}}, attr = {{25,10}}},
+            {name = "灵根", reward_desc = "灵根路径完成后：所有灵根属性+5%", desc = "任意2个灵根满级", cost = {{"天道命石",10},{"元宝",1000000}}, attr = {{25,10}}},
+            {name = "境界", reward_desc = "修为属性完成后：对未完成该路径的玩家境界压制+10%（增伤和减伤）", desc = "境界达到元婴境", cost = {{"天道命石",10},{"元宝",1000000}}, attr = {{25,10}}},
+            {name = "天书仙法", reward_desc = "仙法路径完成后：极品仙法爆率+5%", desc = "天书达到LV30且拥有3条红色仙法", cost = {{"天道命石",10},{"元宝",1000000}}, attr = {{25,10}}},
         },
-    },
-    ["npc_75"] = {
+    },    ["npc_75"] = {
         id = 75,
         name = "装备解封",
         details = {
@@ -1341,9 +1345,10 @@ teshudata = {
         name = "天命试炼",
         dujie_drop = {item = "天道·渡劫丹", rate = 5000, need_charge = 100},
         details = {
-            {name = "灵兽", reward = {{"天道卷轴[天命·复活]",1}}, cost = {{"辉耀水晶",5}}, trial = {fb_map = "mwsl", fb_time = 300, enter_pos = {29,27}, boss = "≮火烧连营·天命策尊≯", boss_pos = {32,36}, boss_effect = 92, pet_tick_sec = 1, pet_hurt_pct = 4, pet_hint_sec = 5}},
-            {name = "灵根", reward = {{"天道卷轴[天命·麻痹]",1}}, cost = {{"辉耀水晶",5}}, trial = {fb_map = "mwsl", fb_time = 300, enter_pos = {29,27}, boss = "王婆", boss_pos = {32,36}, elite = "暗影打手·精英", elite_count = 3, mob = "暗影打手", mob_count = 10, mob_center = {32,36}}},
-            {name = "天书仙法", reward = {{"天道卷轴[天命·神斧]",1}}, cost = {{"辉耀水晶",5}}, trial = {fb_map = "mwsl", fb_time = 90, enter_pos = {29,27}, total_round = 3, round_sec = 20, score_target = 10, score_tick_sec = 1, safe_radius = 3, safe_effect = 92, safe_points = {{29,27},{35,27},{29,35},{35,35},{32,31}}}},
+            {name = "灵兽", reward = {{"天道卷轴[天命·复活]",1}}, cost = {{"辉耀水晶",100}}, trial = {fb_map = "mwsl", fb_time = 300, enter_pos = {29,27}, boss = "≮火烧连营·天命策尊≯", boss_pos = {32,36}, boss_effect = 92, pet_tick_sec = 1, pet_hurt_pct = 4, pet_hint_sec = 5}},
+            {name = "灵根", reward = {{"天道卷轴[天命·麻痹]",1}}, cost = {{"辉耀水晶",100}}, trial = {fb_map = "mwsl", fb_time = 300, enter_pos = {29,27}, boss = "王婆", boss_pos = {32,36}, elite = "暗影打手·精英", elite_count = 3, mob = "暗影打手", mob_count = 10, mob_center = {32,36}}},
+            {name = "境界", reward = {{"天道卷轴[天命·神镰]",1}}, cost = {{"辉耀水晶",100}}, trial = {fb_map = "mwsl", fb_time = 120, enter_pos = {29,27}, need_success = 3, lightning_sec = 5, lightning_effect = 60463, dan_item = "天道·渡劫丹", dan_keep_sec = 3}},
+            {name = "天书仙法", reward = {{"天道卷轴[天命·神斧]",1}}, cost = {{"辉耀水晶",100}}, trial = {fb_map = "mwsl", fb_time = 90, enter_pos = {29,27}, total_round = 3, round_sec = 20, score_target = 10, score_tick_sec = 1, safe_radius = 3, safe_effect = 92, safe_points = {{29,27},{35,27},{29,35},{35,35},{32,31}}}},
         },
     },
     -- 六大陆功能：残魂商店与火毒值系统。
@@ -1823,7 +1828,7 @@ teshudata = {
                 {name = "时装：熊猫人", sEffect = 60053, shape = 1317,attr = {{1,2500},{2,2500},{3,50},{4,50},{5,50},{6,50},{7,50},{8,50},{200,1000},{201,1000},{25,30}}},
                 {name = "时装：开挖掘机", sEffect = 60054, shape = 1318,attr = {{1,2500},{2,2500},{3,50},{4,50},{5,50},{6,50},{7,50},{8,50},{200,1000},{201,1000},{25,30}}},
                 {name = "时装：天刀", sEffect = 60045, shape = 1309,attr = {{1,2500},{2,2500},{3,50},{4,50},{5,50},{6,50},{7,50},{8,50},{200,1000},{201,1000},{25,30}}},
-                {name = "时装：冠名", sEffect = 60042, shape = 1306,attr = {{1,8888},{2,8888},{3,188},{4,188},{5,188},{6,188},{7,188},{8,188}}},
+                {name = "时装：天下谁人不识君", sEffect = 60057, shape = 1321,attr = {{1,8888},{2,8888},{3,188},{4,188},{5,188},{6,188},{7,188},{8,188}}},
                 {name = "时装：吕奉先", sEffect = 60043, shape = 1307,attr = {{3,100},{4,500}}},
                 {name = "时装：火柴人", sEffect = 60055, shape = 1319,attr = {{1,500},{2,500},{3,10},{4,50},{5,10},{6,50},{7,10},{8,50},{244,1000}}},
                 {name = "时装：骷髅", sEffect = 60056, shape = 1320,attr = {{1,500},{2,500},{3,10},{4,50},{5,10},{6,50},{7,10},{8,50},{244,1000}}},
@@ -2559,7 +2564,7 @@ teshudata = {
             {give = {{"灵石",1980},{"元宝",500000},{"辉耀水晶",188}},skill = "魔法盾"},
             {give = {{"灵石",3280},{"金币",55000000},{"极品仙法卷轴",2}},show = {{"独享首曝特权",1}}},
             {give = {{"灵石",6480},{"元宝",1000000},{"阴阳八卦境",1}},token_count = 188,show = {{"鹤嘴锄",188}}},
-            {give = {{"灵石",9980},{"元宝",2000000},{"极品仙法卷轴",3}},show = {{"雷霆双子剑",1}},},
+            {give = {{"灵石",9980},{"元宝",2000000},{"极品仙法卷轴",3}},show = {{"雷霆双子剑",1},{"红色仙法+5%",1}},},
         },
         ch = "九五至尊"
     },
@@ -2588,14 +2593,14 @@ teshudata = {
         name = "马上发财",
         attr_list_name = "马上发财活动属性", -- 活动附加属性列表名
         token_name = "鹤嘴锄", -- 抽奖次数显示名
-        crown_title = "冠名", -- 冠名判定称号
+        crown_title = "天下谁人不识君", -- 天下谁人不识君判定称号
         skill_name = "十步一杀", -- 足迹套装影响技能
         kill_per_exchange = 188, -- 每188杀兑换1次
         exchange_daily_limit = 50, -- 每日最多兑换次数
         buy_cost = {{"灵石",30}}, -- 购买1次的消耗
         draw_once_cost = 1, -- 单抽消耗次数
         draw_ten_cost = 10, -- 十连消耗次数
-        crown_cost = 588, -- 冠名累计充值
+        crown_cost = 588, -- 天下谁人不识君累计充值
         day_card = {need_charge = 28, title = "日卡", rewards = {{"元宝",100000},{"灵石",280}}, token_count = 10}, -- 日卡礼包：今日累计充值达到金额后可领取
         duplicate_fashion_reward = {{"元宝",660000}}, -- 时装重复补偿
         title_reward = {
@@ -2920,15 +2925,15 @@ teshudata = {
                 ["羊肉"] = {point = 5},
                 ["鹿肉"] = {point = 10},
             },
-            title_name = "美食家",
+            title_name = "酒仙",
             title_buff_desc = "打怪爆率+10%，生命偷取+10%，每次攻击动物伤害+1",
             shop = {
                 {
                     idx = 1,
-                    name = "美食家",
+                    name = "酒仙",
                     cost = 100,
                     limit = 1,
-                    reward = {kind = "title", name = "美食家"},
+                    reward = {kind = "title", name = "酒仙"},
                     desc = "打怪爆率+10%，生命偷取+10%，每次攻击动物伤害+1",
                 },
                 {

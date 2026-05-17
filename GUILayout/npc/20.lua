@@ -51,7 +51,7 @@ function npc.main(npcid, p2, p3, msgData)
         local label = GUI:Text_Create(parent, name, x, y, size, color, text)
         GUI:setAnchorPoint(label, anchorX or 0.5, anchorY or 0.5)
         GUI:Text_setFontName(label, "fonts/font4.ttf")
-        GUI:Text_enableOutline(label, "#1b0d07", 2)
+        -- GUI:Text_enableOutline(label, "#1b0d07", 2)
         return label
     end
 
@@ -69,15 +69,15 @@ function npc.main(npcid, p2, p3, msgData)
         local hasTitle = hasPanelTitle(npc.data)
 
         -- createOutlinedText(node, "title_tip", 389, 357, 24, "#FFE8A3", "首位冠名玩家", 0.5, 0.5)
-        createOutlinedText(node, "player_name", 389 + 50 - 80, 303 - 270, 34, "#FFEDBF", nameText, 0, 0.5)
+        createOutlinedText(node, "player_name", 389 + 50 - 80, 303 - 270 - 2, 26, "#FFEDBF", nameText, 0, 0.5)
 
         local chargeColor = charge >= cost and "#7CFF7C" or "#FF8A7A"
-        createOutlinedText(node, "charge_value", 380 + 244 + 44, 212 + 30 - 107, 22, chargeColor, tostring(charge) .. "/" .. tostring(cost), 1, 0.5)
+        createOutlinedText(node, "charge_value", 380 + 244 + 22, 212 + 30 - 107, 22, chargeColor, tostring(charge) .. "/" .. tostring(cost), 1, 0.5)
 
-        GUI:Effect_Create(node, "sz", 176, 60 + 110 + 117, 0, teshudata["npc_1002"].details.sz[8].sEffect, 0, 0, 3, 1)
+        GUI:Effect_Create(node, "sz", 176 + 30, 60 + 110 + 117, 0, teshudata["npc_1002"].details.sz[8].sEffect, 0, 0, 3, 1)
         -- GUI:Effect_Create(node, "ch", 60 + 176, 60 + 110, 0, teshudata["npc_1002"].details.ch[1].sEffect, 0, 0, 3, 1)
 
-        local cost_show = ItemNumByTable_img_new({{"时装：冠名",1},{"冠名[称号]",1}}, nil,GUI:Node_Create(node, "cost_show", 0, 0))
+        local cost_show = ItemNumByTable_img_new({{"时装：天下谁人不识君",1},{"天下谁人不识君[称号]",1}}, nil,GUI:Node_Create(node, "cost_show", 0, 0))
         GUI:setPosition(cost_show, 450 + 40 + 40, 100 + 50)
 
         -- local stateText = hasTitle and "已拥有冠名称号" or "达到条件后可领取冠名称号"

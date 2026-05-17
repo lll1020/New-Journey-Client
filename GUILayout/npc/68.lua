@@ -55,6 +55,21 @@ local function resolveNeedItemData(itemName)
     return nil, nil
 end
 
+local function hasNeedTitle(itemName)
+    if not itemName or itemName == "" then
+        return true
+    end
+    local idx = SL:GetMetaValue("ITEM_INDEX_BY_NAME", itemName)
+    if idx and idx > 0 and SL:GetMetaValue("TITLE_DATA_BY_ID", idx) ~= nil then
+        return true
+    end
+    local titleIdx = SL:GetMetaValue("ITEM_INDEX_BY_NAME", itemName .. "[称号]")
+    if titleIdx and titleIdx > 0 and SL:GetMetaValue("TITLE_DATA_BY_ID", titleIdx) ~= nil then
+        return true
+    end
+    return false
+end
+
 function npc.main(npcid, p2, p3, msgData)
     local function ensureWindow(curNpcId)
         local opts = {}
@@ -103,7 +118,7 @@ function npc.main(npcid, p2, p3, msgData)
         createText(labelNode, "state_value", 490, 300, 22, stateCfg.color, stateCfg.text, 0, 0.5)
         createText(labelNode, "time_title", 382, 260, 20, "#EDE4C6", "试炼时限：", 0, 0.5)
         createText(labelNode, "time_value", 490, 260, 20, "#B2F022", tostring(config.time or 300) .. "秒", 0, 0.5)
-        createRich(labelNode, "content_rich", 382 - 32, 230, 250, 16,
+        createRich(labelNode, "content_rich", 382 - 32, 230 + 15, 250, 16,
             "1. 进入专属试炼副本，\n     限时击败守护兽\n"
             .. "2. 通关后返回此处，\n     即可激活对应灵根\n"
             .. "3. 每种灵根试炼仅需完成一次")
@@ -138,6 +153,10 @@ function npc.main(npcid, p2, p3, msgData)
             local enterBtn = GUI:Button_Create(labelNode, "enter_btn", 150 + 37, -8 + 46, "res/custom/four_city/lgsl/btn.png")
             GUI:setAnchorPoint(enterBtn, 0.5, 0.5)
             GUI:addOnClickEvent(enterBtn, function()
+                local needItem = tostring(config.itme or "")
+                if needItem ~= "" and not hasNeedTitle(needItem) then
+                    SL:ShowSystemTips(string.format("<font color='#FFCC66'>进入该灵根试炼需要先拥有称号或神器位装备：%s</font>", needItem))
+                end
                 SL:SendLuaNetMsg(100, npcid, 1, idx, "")
             end)
         end

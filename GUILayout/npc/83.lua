@@ -128,7 +128,7 @@ local function renderRewardPreview(parent, cfg)
     end
     local itemIndex = info.name ~= "" and toNumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", info.name), 0) or 0
     if (not info.isTitle) and itemIndex > 0 then
-        GUI:setAnchorPoint(GUI:ItemShow_Create(box, "reward_item", 29, 30, {index = itemIndex, count = info.num, look = true, bgVisible = false}), 0.5, 0.5)
+        GUI:setAnchorPoint(GUI:ItemShow_Create(box, "reward_item", 29, 30, {index = itemIndex, count = info.num, look = true, movable = false, bgVisible = false}), 0.5, 0.5)
     elseif info.isTitle then
         createText(box, "reward_title_name", 29, 34, 14, "#F6D38B", "称号", FONT_MAIN, 0.5, 0.5)
         createText(box, "reward_title_text", 29, 12, 12, "#6CFF7B", info.name, FONT_MAIN, 0.5, 0.5)

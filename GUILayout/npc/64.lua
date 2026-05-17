@@ -127,7 +127,8 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:Image_Create(npc.xjm_node, "syw", 170, 150, "res/custom/four_city/lingshou/xjm/syw.png")
 
         local kuang = GUI:Image_Create(npc.xjm_node, "kuang2", 170 + 120, 150 - 10, "res/wy/public/58_58_kuang.png")
-        local item = GUI:ItemShow_Create(kuang, "item", 58/2, 58/2, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.config.ls[npc.titles_sign].syw), look = true, bgVisible = false })
+        -- 灵兽圣遗物仅作为当前激活条件展示，不允许拖动。
+        local item = GUI:ItemShow_Create(kuang, "item", 58/2, 58/2, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.config.ls[npc.titles_sign].syw), look = true, movable = false, bgVisible = false })
         GUI:setAnchorPoint(item,0.5, 0.5)
         npc.ls_data.T_data.syw = npc.ls_data.T_data.syw or {}
         GUI:Text_Create(kuang, "qmd", 40, 0, 18, "#FF00FF", (npc.ls_data.T_data.syw[""..npc.titles_sign] and npc.ls_data.T_data.syw[""..npc.titles_sign] == 1) and "已激活" or "未激活")

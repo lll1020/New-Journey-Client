@@ -20,6 +20,15 @@ function npc.main(npcid, p2, p3, msgData)
         end
         return tostring(num)
     end
+    -- 当前境界在 0 级时显示为“凡人”，避免界面出现“无”。
+    local function get_current_realm_title(level)
+        local curLevel = tonumber(level or 0) or 0
+        if curLevel <= 0 then
+            return "凡人"
+        end
+        local config = npc._config and npc._config.details and npc._config.details[curLevel] or nil
+        return (config and config.title) or "凡人"
+    end
     local function ensureWindow(npcid)
         local opts = {}
         for k, v in pairs(WINDOW_OPTS) do
@@ -45,10 +54,12 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:Image_Create(node, "kuang", 395, 20.00, "res/custom/jingjie/kuang.png")
         local wz_2 = GUI:Image_Create(node, "wz_2", 400, 300.00, "res/custom/jingjie/wz_2.png")
         local wz_3 = GUI:Image_Create(node, "wz_3", 30, 300.00, "res/custom/jingjie/wz_3.png")
-        local desc = GUI:Text_Create(wz_2, "desc",130,0, 25, "#FF0000", (npc._config.details[npc.data.level] and npc._config.details[npc.data.level].title or "无"))
+        -- 当前境界名称改为同源显示，0 级明确展示为“凡人”。
+        local desc = GUI:Text_Create(wz_2, "desc",130,0, 25, "#FF0000", get_current_realm_title(level))
         GUI:Text_setFontName(desc, "fonts/502.ttf")
         GUI:Text_enableOutline(desc, "#000000", 2)
-        local desc = GUI:Text_Create(wz_3, "desc",130,0, 25, "#FFFFFF", npc.data.exp)
+        -- 当前修为统一显示为数值文本，和底图“当前修为”保持一致。
+        local desc = GUI:Text_Create(wz_3, "desc",130,0, 25, "#FFFFFF", tostring(exp or 0))
         GUI:Text_setFontName(desc, "fonts/502.ttf")
         GUI:Text_enableOutline(desc, "#000000", 2)
         local attr = {

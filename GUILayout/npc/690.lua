@@ -215,14 +215,15 @@ function npc.main(npcid, p2, p3, msgData)
 
             local cfg = teshudata[info.key] or {}
             local taskName = cfg.name or info.name
-            local rewardText = buildTaskRewardText(cfg)
+            local rewardList = buildRewardWithTitle(cfg)
             local taskState = tonumber(npc.data.T_dljq[info.key] or 0) or 0
             local jdSkin = (taskState >= 2 and "rwjd_3") or (taskState >= 1 and "rwjd_2") or "rwjd_1"
 
             GUI:Text_setFontName(GUI:Text_Create(row, "name", 15, 10, 24, "#00FFFF", taskName), "fonts/501.ttf")
-            local reward = GUI:Text_Create(row, "reward", 195, 10, 16, "#F4D179", rewardText)
-            GUI:Text_setFontName(reward, "fonts/font4.ttf")
-            GUI:Text_enableOutline(reward, "#000000", 1)
+            if rewardList and #rewardList > 0 then
+                local reward = ItemNumByTable_img_new(rewardList, nil, GUI:Node_Create(row, "reward", 195, -8))
+                GUI:setScale(reward, 0.78)
+            end
             GUI:Image_Create(row, "state", 430, 0, "res/wy/public/" .. jdSkin .. ".png")
         end
 

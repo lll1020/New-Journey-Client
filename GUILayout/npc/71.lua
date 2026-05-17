@@ -2,15 +2,20 @@ local npc = {}
 
 npc._config = teshudata["npc_71"]
 
-
-
 local WINDOW_OPTS = {
     background = {skin = "res/custom/five_city/jxmj/bg.png", eff = false},
     closeButton = {x = 400 + 247, y = 200 + 100},
 }
+
 function npc.main(npcid, p2, p3, msgData)
-
-
+    -- 酒仙秘境展示页的奖励道具只用于预览，不允许拖动。
+    local function create_static_item_show(parent, name, x, y, itemInfo)
+        local show = GUI:ItemShow_Create(parent, name, x, y, itemInfo)
+        if show then
+            GUI:setAnchorPoint(show, 0.5, 0.5)
+        end
+        return show
+    end
     local function ensureWindow(npcid)
         local opts = {}
         for k, v in pairs(WINDOW_OPTS) do
@@ -23,27 +28,23 @@ function npc.main(npcid, p2, p3, msgData)
         npc.node = npc._window.node
         return npc.node
     end
-
     local function UI_updata(node) --界面渲染
         if not node then
             return
         end
-
         GUI:removeAllChildren(node)
-
-        local itemShow = GUI:ItemShow_Create(node, "next", 372, 202, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME","酒仙剑"), look = true, bgVisible = false })
-        itemShow:setAnchorPoint(cc.p(0.5, 0.5))
+        create_static_item_show(node, "next", 372, 202, {
+            index = SL:GetMetaValue("ITEM_INDEX_BY_NAME", "酒仙剑"),
+            look = true,
+            movable = false,
+            bgVisible = false
+        })
 
         local Button = GUI:Button_Create(node, "Button1", 250, 30.00, "res/custom/five_city/jxmj/btn.png")
         GUI:addOnClickEvent(Button, function()
             SL:SendLuaNetMsg(100, npcid, 1, 0, "")
         end)
-
-        
-       
     end
-
-
     if p2 == 0 then--界面
         npc.data = SL:JsonDecode(msgData,false)
         ensureWindow(npcid)

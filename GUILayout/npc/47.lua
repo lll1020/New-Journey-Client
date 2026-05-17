@@ -38,8 +38,7 @@ function npc.main(npcid, p2, p3, msgData)
 
         for i = 1,3 do
             local kuang = GUI:Image_Create(node, "kuang"..i, 150 + 385 + (i-1)*50, 343.00, "res/wy/public/40-42.png")
-            SL:release_print(npc._config.details[i].itme)
-            GUI:setAnchorPoint(GUI:ItemShow_Create(kuang, "item", 20, 20, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.details[i].item)}), 0.5, 0.5)
+            GUI:setAnchorPoint(GUI:ItemShow_Create(kuang, "item", 20, 20, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.details[4-i].item), look = true, movable = false, bgVisible = false }), 0.5, 0.5)
 
         end
 

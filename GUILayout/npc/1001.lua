@@ -43,7 +43,7 @@ function npc.main(npcid, p2, p3, msgData)
             --设置物品图标
             local item = GUI:ItemShow_Create(itemNode, "item", 0, 0, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME",v[1]), look = true, bgVisible = false })
             GUI:setAnchorPoint(item, 0.5, 0.5)
-            GUI:Text_setFontName(GUI:Text_Create(itemNode, "name",-20,-85, 20, "#FF0000", npc.data.T_data[v[1]] or "暂未爆出")
+            GUI:Text_setFontName(GUI:Text_Create(itemNode, "name",-20,-85, 20, "#FF0000", npc.data.T_data[v[1]] or "※虚位以待※")
             , "fonts/500.ttf")
 
 

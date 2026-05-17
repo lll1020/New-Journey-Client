@@ -66,7 +66,14 @@ end
 
 
 function npc.main(npcid, p2, p3, msgData)
-
+    -- 时光之杖界面顶部消耗道具仅用于预览，不允许拖动。
+    local function create_static_item_show(parent, name, x, y, itemInfo)
+        local show = GUI:ItemShow_Create(parent, name, x, y, itemInfo)
+        if show then
+            GUI:setAnchorPoint(show, 0.5, 0.5)
+        end
+        return show
+    end
 
     local function ensureWindow(npcid)
         local opts = {}
@@ -87,7 +94,12 @@ function npc.main(npcid, p2, p3, msgData)
         end
 
         GUI:removeAllChildren(node)
-        GUI:setAnchorPoint(GUI:ItemShow_Create(node, "item1", 383,53, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.cost[1][1]), look = true, bgVisible = false }),0.5, 0.5)
+        create_static_item_show(node, "item1", 383, 53, {
+            index = SL:GetMetaValue("ITEM_INDEX_BY_NAME", npc._config.cost[1][1]),
+            look = true,
+            movable = false,
+            bgVisible = false
+        })
 
 
         local list = GUI:ListView_Create(node, "list", 30, 80, 700, 260,1)

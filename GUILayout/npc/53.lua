@@ -25,15 +25,16 @@ local LEFT_TAB_POS = {
 }
 local BOX_NAME_ORDER = {"神石宝箱", "神石宝箱[史诗级]", "神石宝箱[传说级]"}
 local SLOT_BASE_NAMES = {"山川", "海洋", "天空", "清风", "火焰", "满月", "大地", "雷电"}
+local EMPTY_STONE_SKIN = "res/custom/three_city/sshc/new/神石纯底.png"
 local SLOT_POS = {
-    {x = 250, y = 338},
-    {x = 372, y = 338},
-    {x = 494, y = 338},
-    {x = 616, y = 229},
-    {x = 616, y = 338},
-    {x = 494, y = 229},
-    {x = 372, y = 229},
-    {x = 250, y = 229},
+    {x = 250 - 10, y = 338 + 25 + 5},
+    {x = 372 - 10, y = 338 + 25 + 5},
+    {x = 494 - 10, y = 338 + 25 + 5},
+    {x = 616 - 10, y = 338 + 25 + 5},
+    {x = 250 - 10, y = 229 + 25},
+    {x = 372 - 10, y = 229 + 25},
+    {x = 494 - 10, y = 229 + 25},
+    {x = 616 - 10, y = 229 + 25},
 }
 local ATLAS_TOP_TAB_POS = {
     [1] = {x = 185, y = 406},
@@ -53,6 +54,20 @@ local QUALITY_COLOR = {
     [3] = "#F5C35D",
     [4] = "#FF6B6B",
 }
+local QUALITY_NAME = {
+    [1] = "稀有",
+    [2] = "史诗",
+    [3] = "传说",
+    [4] = "神话",
+}
+local QUALITY_FRAME_SKIN = {
+    [1] = "res/custom/three_city/sshc/new/宝箱下级面板/开宝箱/稀有.png",
+    [2] = "res/custom/three_city/sshc/new/宝箱下级面板/开宝箱/史诗.png",
+    [3] = "res/custom/three_city/sshc/new/宝箱下级面板/开宝箱/传说.png",
+    [4] = "res/custom/three_city/sshc/new/宝箱下级面板/开宝箱/神话.png",
+}
+local DOUBLE_CLICK_INTERVAL = 0.35
+local BOX_SKIP_ANIM_KEY = "npc_53_box_skip_anim"
 local BOX_RATE_DESC = {
     ["神石宝箱"] = "<font color='#d8f0ff'>稀有 84%</font><br><font color='#c48eff'>史诗 10%</font><br><font color='#f5c35d'>传说 1%</font><br><font color='#ff6b6b'>神话 5%</font>",
     ["神石宝箱[史诗级]"] = "<font color='#c48eff'>固定开启史诗级神石</font>",
@@ -164,18 +179,15 @@ local function _get_panel_boxes()
 end
 
 local function _get_current_box_name()
-    local boxes = _get_panel_boxes()
     local current = npc._boxName
-    if current and boxes[current] and boxes[current] > 0 then
-        return current
-    end
-    for _, boxName in ipairs(BOX_NAME_ORDER) do
-        if boxes[boxName] and boxes[boxName] > 0 then
-            npc._boxName = boxName
-            return boxName
+    if current then
+        for _, boxName in ipairs(BOX_NAME_ORDER) do
+            if current == boxName then
+                return current
+            end
         end
     end
-    npc._boxName = npc._boxName or BOX_NAME_ORDER[1]
+    npc._boxName = BOX_NAME_ORDER[1]
     return npc._boxName
 end
 
@@ -220,7 +232,38 @@ local function _get_slot_display_name(itemName, slotIndex)
         end
         return itemName
     end
-    return _get_slot_base_name(slotIndex) .. "神石"
+    return string.format("神石槽%d", _toint(slotIndex, 0))
+end
+
+local function _get_embed_slot_label(slotIndex)
+    return _get_slot_base_name(slotIndex)
+end
+
+local function _get_short_stone_name(itemName, slotIndex)
+    itemName = tostring(itemName or "")
+    if itemName ~= "" then
+        local baseName = string.match(itemName, "^(.-)神石")
+        if baseName and baseName ~= "" then
+            return baseName
+        end
+    end
+    return _get_slot_base_name(slotIndex)
+end
+
+local function _strip_stone_name_from_attr_text(attrText)
+    attrText = tostring(attrText or "")
+    if attrText == "" then
+        return ""
+    end
+    local out = {}
+    for line in string.gmatch(attrText .. "<br>", "(.-)<br>") do
+        local plain = string.gsub(line, "<.->", "")
+        plain = string.gsub(plain, "%s+", "")
+        if plain ~= "" and not string.find(plain, "神石", 1, true) then
+            out[#out + 1] = line
+        end
+    end
+    return table.concat(out, "<br>")
 end
 
 local function _get_equipped_slot_map()
@@ -236,12 +279,10 @@ local function _get_open_slots()
     return math.max(0, _toint(_get_panel_data().open_slots, 0))
 end
 
--- 按仙府当前已开放的槽位过滤神石列表，避免预览出现尚未解锁槽位的奖励。
 local function _filter_item_list_by_open_slots(itemList)
-    local openSlots = _get_open_slots()
     local out = {}
-    for slotIndex, itemName in ipairs(itemList or {}) do
-        if slotIndex <= openSlots and tostring(itemName or "") ~= "" then
+    for _, itemName in ipairs(itemList or {}) do
+        if tostring(itemName or "") ~= "" then
             out[#out + 1] = itemName
         end
     end
@@ -279,6 +320,36 @@ local function _create_stroke_text(parent, name, x, y, size, color, text, anchor
     end
     GUI:Text_enableOutline(widget, OUTLINE_COLOR, 2)
     return widget
+end
+
+local function _create_quality_stone_icon(parent, prefix, x, y, slotIndex, quality, bright, scale)
+    quality = _toint(quality, 0)
+    if quality > 0 and QUALITY_FRAME_SKIN[quality] then
+        local frame = GUI:Image_Create(parent, prefix .. "_quality_frame", x, y, QUALITY_FRAME_SKIN[quality])
+        GUI:setAnchorPoint(frame, 0.5, 0.5)
+        GUI:setScale(frame, scale or (quality >= 3 and 0.76 or 0.68))
+    end
+    local icon = GUI:Image_Create(parent, prefix .. "_icon", x + 5, y - 10, _get_slot_icon_path(slotIndex, bright ~= false))
+    GUI:setAnchorPoint(icon, 0.5, 0.5)
+    if quality >= 4 then
+        GUI:setScale(icon, 0.9)
+    else
+        GUI:setScale(icon, 0.8)
+    end
+    return icon
+end
+
+local function _create_quality_label(parent, name, x, y, quality)
+    quality = _toint(quality, 0)
+    local text = QUALITY_NAME[quality] or ""
+    if text == "" then
+        return nil
+    end
+    local label = _create_stroke_text(parent, name, x, y, quality >= 3 and 16 or 14, QUALITY_COLOR[quality] or "#FFFFFF", text, 0.5, 0.5, quality >= 3 and "fonts/500.ttf" or nil)
+    if quality >= 3 then
+        GUI:Text_enableOutline(label, QUALITY_COLOR[quality] or OUTLINE_COLOR, 1)
+    end
+    return label
 end
 
 local function _show_item_tips_by_name(itemName, anchorNode)
@@ -374,6 +445,73 @@ local function _flatten_box_pool(boxName)
     return pool
 end
 
+local function _build_anim_box_pool(boxName, rewardName)
+    local basePool = _flatten_box_pool(boxName)
+    local qualityBuckets = {{}, {}, {}, {}}
+    for _, itemName in ipairs(basePool) do
+        local quality = math.max(1, math.min(_get_slot_quality(itemName), 4))
+        qualityBuckets[quality][#qualityBuckets[quality] + 1] = itemName
+    end
+    local displayPool = {}
+    local function pushFromQuality(quality, repeatCount)
+        local bucket = qualityBuckets[quality] or {}
+        if #bucket <= 0 then
+            return
+        end
+        for _ = 1, repeatCount do
+            for _, itemName in ipairs(bucket) do
+                displayPool[#displayPool + 1] = itemName
+            end
+        end
+    end
+    pushFromQuality(1, 1)
+    pushFromQuality(2, 2)
+    pushFromQuality(3, 4)
+    pushFromQuality(4, 5)
+    if #displayPool <= 0 then
+        displayPool = basePool
+    end
+    if #displayPool <= 0 then
+        displayPool[1] = tostring(rewardName or "")
+    end
+    return displayPool
+end
+
+local function _build_box_preview_pool(boxName)
+    local basePool = _flatten_box_pool(boxName)
+    local qualityBuckets = {{}, {}, {}, {}}
+    for _, itemName in ipairs(basePool) do
+        local quality = math.max(1, math.min(_get_slot_quality(itemName), 4))
+        qualityBuckets[quality][#qualityBuckets[quality] + 1] = itemName
+    end
+    local highestQuality = 0
+    for quality = 4, 1, -1 do
+        if #(qualityBuckets[quality] or {}) > 0 then
+            highestQuality = quality
+            break
+        end
+    end
+    if highestQuality <= 0 then
+        return {}
+    end
+    local previewPool = {}
+    for _, itemName in ipairs(qualityBuckets[highestQuality]) do
+        previewPool[#previewPool + 1] = itemName
+    end
+    for quality = highestQuality - 1, 1, -1 do
+        if #previewPool >= 20 then
+            break
+        end
+        for _, itemName in ipairs(qualityBuckets[quality]) do
+            if #previewPool >= 20 then
+                break
+            end
+            previewPool[#previewPool + 1] = itemName
+        end
+    end
+    return previewPool
+end
+
 local function _ensure_compose_state()
     npc._composeState = npc._composeState or {}
     local state = npc._composeState
@@ -390,6 +528,23 @@ local function _reset_compose_selection()
     state.selectedList = {}
     state.selectedCounts = {}
     state.slotCounts = {}
+    state.currentLevel = 1
+end
+
+local function _is_double_click_action(key)
+    key = tostring(key or "")
+    if key == "" then
+        return false
+    end
+    npc._doubleClickState = npc._doubleClickState or {}
+    local now = os.clock()
+    local last = npc._doubleClickState[key] or 0
+    npc._doubleClickState[key] = now
+    if now - last <= DOUBLE_CLICK_INTERVAL then
+        npc._doubleClickState[key] = 0
+        return true
+    end
+    return false
 end
 
 local function _recompute_slot_counts()
@@ -412,32 +567,40 @@ local function _get_compose_next_slot_list(level)
     return npc._config.cost[level + 1] or {}
 end
 
-local function _build_compose_group_list()
+local function _build_compose_group_list(forceLevel)
     local state = _ensure_compose_state()
+    local lockLevel = tonumber(forceLevel or (#state.selectedList > 0 and state.currentLevel or nil))
     local lookup = {}
-    local slotList = _get_compose_slot_list(state.currentLevel)
-    for idx, itemName in ipairs(slotList) do
-        lookup[itemName] = idx
+    local maxLevel = state.maxLevel or math.max(1, #(npc._config.cost or {}) - 1)
+    local startLevel = lockLevel or 1
+    local endLevel = lockLevel or maxLevel
+    for level = startLevel, endLevel do
+        local slotList = npc._config.cost and npc._config.cost[level] or {}
+        for idx, itemName in ipairs(slotList or {}) do
+            lookup[itemName] = {slotIndex = idx, level = level}
+        end
     end
     local groups = {}
     local groupMap = {}
     local bagData = SL:GetMetaValue("BAG_DATA") or {}
     for bagKey, itemData in pairs(bagData) do
         local itemName = tostring(itemData.Name or "")
-        local slotIndex = lookup[itemName]
-        if slotIndex then
+        local info = lookup[itemName]
+        if info then
             local makeIndex = tostring(itemData.MakeIndex or bagKey)
             local count = _toint(itemData.Count or itemData.OverLap or 1, 1)
-            local group = groupMap[itemName]
+            local groupKey = tostring(info.level) .. "|" .. itemName
+            local group = groupMap[groupKey]
             if not group then
                 group = {
                     itemName = itemName,
-                    slotIndex = slotIndex,
+                    slotIndex = info.slotIndex,
+                    level = info.level,
                     totalCount = 0,
                     itemData = itemData,
                     stacks = {},
                 }
-                groupMap[itemName] = group
+                groupMap[groupKey] = group
                 groups[#groups + 1] = group
             end
             group.totalCount = group.totalCount + count
@@ -449,12 +612,65 @@ local function _build_compose_group_list()
         end
     end
     table.sort(groups, function(a, b)
+        if a.level ~= b.level then
+            return a.level < b.level
+        end
         if a.slotIndex == b.slotIndex then
             return tostring(a.itemName) < tostring(b.itemName)
         end
         return a.slotIndex < b.slotIndex
     end)
     return groups
+end
+
+local function _build_embed_bag_godstone_list()
+    local equippedMap = _get_equipped_slot_map()
+    local equippedSame = {}
+    for _, entry in pairs(equippedMap or {}) do
+        local itemName = tostring(entry.item_name or "")
+        local slotIndex = _get_slot_index_by_name(itemName)
+        if slotIndex > 0 then
+            equippedSame[slotIndex] = true
+        end
+    end
+    local hasEmptySlot = false
+    for slotIndex = 1, #SLOT_POS do
+        if not equippedMap[slotIndex] or tostring(equippedMap[slotIndex].item_name or "") == "" then
+            hasEmptySlot = true
+            break
+        end
+    end
+    local out = {}
+    local bagData = SL:GetMetaValue("BAG_DATA") or {}
+    for bagKey, itemData in pairs(bagData) do
+        local itemName = tostring(itemData.Name or "")
+        local slotIndex = _get_slot_index_by_name(itemName)
+        if slotIndex > 0 then
+            local quality = _get_slot_quality(itemName)
+            local canTakeOn = hasEmptySlot and not equippedSame[slotIndex]
+            out[#out + 1] = {
+                itemName = itemName,
+                slotIndex = slotIndex,
+                quality = quality,
+                canTakeOn = canTakeOn,
+                makeIndex = tostring(itemData.MakeIndex or bagKey),
+                itemData = itemData,
+            }
+        end
+    end
+    table.sort(out, function(a, b)
+        if a.canTakeOn ~= b.canTakeOn then
+            return a.canTakeOn
+        end
+        if a.quality ~= b.quality then
+            return a.quality > b.quality
+        end
+        if a.slotIndex ~= b.slotIndex then
+            return a.slotIndex < b.slotIndex
+        end
+        return tostring(a.itemName) < tostring(b.itemName)
+    end)
+    return out
 end
 
 local function _get_group_used_count(group)
@@ -486,6 +702,15 @@ local function _add_group_to_compose(group)
     if #state.selectedList >= NEED_ITEM_NUM then
         return false
     end
+    local groupLevel = _toint(group and group.level, 0)
+    if groupLevel <= 0 then
+        return false
+    end
+    if #state.selectedList <= 0 then
+        state.currentLevel = groupLevel
+    elseif groupLevel ~= _toint(state.currentLevel, 1) then
+        return false
+    end
     local stack = _pick_stack_from_group(group)
     if not stack then
         return false
@@ -493,6 +718,7 @@ local function _add_group_to_compose(group)
     state.selectedList[#state.selectedList + 1] = {
         makeIndex = tostring(stack.makeIndex),
         slotIndex = group.slotIndex,
+        level = groupLevel,
         itemName = group.itemName,
         itemData = stack.itemData or group.itemData,
     }
@@ -512,6 +738,11 @@ local function _remove_one_selected_by_slot(slotIndex)
             end
             table.remove(state.selectedList, idx)
             _recompute_slot_counts()
+            if #state.selectedList <= 0 then
+                state.currentLevel = 1
+            else
+                state.currentLevel = _toint(state.selectedList[1].level, state.currentLevel)
+            end
             return true
         end
     end
@@ -520,7 +751,10 @@ end
 
 local function _auto_fill_compose()
     local state = _ensure_compose_state()
-    local groups = _build_compose_group_list()
+    if #state.selectedList <= 0 then
+        state.currentLevel = 1
+    end
+    local groups = _build_compose_group_list(state.currentLevel)
     local preferredMap = {}
     for slotIndex, count in pairs(state.slotCounts or {}) do
         if _toint(count, 0) > 0 then
@@ -596,6 +830,17 @@ local function _build_compose_probability_text()
     return summary
 end
 
+-- 生成神石合成页的固定消耗说明文本，直接展示必需数量与额外卷轴需求。
+local function _build_compose_cost_text()
+    local state = _ensure_compose_state()
+    local parts = {string.format("必需数量：同品质神石 %d 个", NEED_ITEM_NUM)}
+    local extra = npc._config.extra_cost and npc._config.extra_cost[state.currentLevel] or nil
+    if type(extra) == "table" and extra[1] then
+        parts[#parts + 1] = string.format("额外道具：%s x%s", tostring(extra[1][1] or ""), tostring(extra[1][2] or 1))
+    end
+    return table.concat(parts, "    ")
+end
+
 --[[
 网络请求与主界面绘制方法说明：
 1. _send_compose_request(npcid)
@@ -635,6 +880,7 @@ local function _send_compose_request(npcid)
         SL:ShowSystemTips(string.format("<font color='#FF0000'>需要放入%d个神石后才可合成</font>", NEED_ITEM_NUM))
         return
     end
+    state.currentLevel = _toint(state.selectedList[1] and state.selectedList[1].level, state.currentLevel)
     local payload = {item_level = state.currentLevel, itemlist = {}}
     for _, entry in ipairs(state.selectedList) do
         payload.itemlist[#payload.itemlist + 1] = tostring(entry.makeIndex)
@@ -653,6 +899,49 @@ local function _send_open_box(npcid, boxName)
     SL:SendLuaNetMsg(100, npcid, 2, 0, SL:JsonEncode({box_name = boxName}, false))
 end
 
+local function _send_claim_box_reward(npcid, token)
+    SL:SendLuaNetMsg(100, npcid, 4, 0, SL:JsonEncode({token = tostring(token or "")}, false))
+end
+
+local function _get_user_default()
+    if cc and cc.UserDefault and cc.UserDefault.getInstance then
+        return cc.UserDefault:getInstance()
+    end
+    return nil
+end
+
+local function _load_skip_box_anim()
+    if npc._skip_box_anim ~= nil then
+        return npc._skip_box_anim == true
+    end
+    local userDefault = _get_user_default()
+    if userDefault and userDefault.getBoolForKey then
+        npc._skip_box_anim = userDefault:getBoolForKey(BOX_SKIP_ANIM_KEY, false) == true
+    else
+        npc._skip_box_anim = false
+    end
+    return npc._skip_box_anim == true
+end
+
+local function _save_skip_box_anim(enabled)
+    npc._skip_box_anim = enabled == true
+    local userDefault = _get_user_default()
+    if userDefault and userDefault.setBoolForKey then
+        userDefault:setBoolForKey(BOX_SKIP_ANIM_KEY, npc._skip_box_anim)
+        if userDefault.flush then
+            userDefault:flush()
+        end
+    end
+end
+
+local function _send_take_on_godstone(npcid, makeIndex)
+    SL:SendLuaNetMsg(100, npcid, 5, 0, SL:JsonEncode({makeIndex = tostring(makeIndex or "")}, false))
+end
+
+local function _send_take_off_godstone(npcid, where)
+    SL:SendLuaNetMsg(100, npcid, 6, 0, SL:JsonEncode({where = _toint(where, 0)}, false))
+end
+
 local function _render_page_bg(node)
     if not node then
         return
@@ -661,7 +950,7 @@ local function _render_page_bg(node)
     if not skin then
         return
     end
-    GUI:Image_Create(node, "page_bg", 428, 268, skin)
+    GUI:Image_Create(node, "page_bg", 184, 20, skin)
 end
 
 local function _ensure_window(npcid)
@@ -673,7 +962,7 @@ local function _ensure_window(npcid)
         },
         closeButton = {
             x = 808,
-            y = 488,
+            y = 488 - 80,
         },
         node = {
             x = 0,
@@ -689,6 +978,7 @@ local function _render_left_tabs(node, npcid)
         local skin = string.format("res/custom/three_city/sshc/new/左侧按钮/%s/%s.png", npc._page == page and "亮" or "暗", PAGE_KEY[page])
         local pos = LEFT_TAB_POS[page]
         local btn = GUI:Button_Create(node, "page_" .. page, pos.x, pos.y, skin)
+        GUI:setTouchEnabled(btn, true)
         GUI:addOnClickEvent(btn, function()
             if npc._page == page then
                 return
@@ -711,20 +1001,59 @@ local function _render_embed_attr_panel(node)
         local entry = equippedMap[slotIndex]
         if entry and entry.item_name and entry.item_name ~= "" then
             local equipData = SL:GetMetaValue("EQUIP_DATA", _toint(entry.where, 0))
-            attrText[#attrText + 1] = string.format("<font color='%s'>【%s】</font>", QUALITY_COLOR[_get_slot_quality(entry.item_name)] or "#FFFFFF", _get_slot_display_name(entry.item_name, slotIndex))
             if equipData then
-                attrText[#attrText + 1] = Player:showEquipAttr(equipData) or ""
+                local attr = _strip_stone_name_from_attr_text(Player:showEquipAttr(equipData) or "")
+                if attr ~= "" then
+                    attrText[#attrText + 1] = attr
+                end
             end
-            attrText[#attrText + 1] = "<br>"
         end
     end
     if #attrText <= 0 then
         attrText[1] = "<font color='#C8C8C8'>当前尚未装配神石</font>"
     end
-    GUI:RichText_Create(node, "embed_attr", 663, 394, table.concat(attrText, "<br>"), 158, 304, "#F5E8C9", 3, nil, nil, {
+    local scroll = GUI:ScrollView_Create(node, "embed_attr_scroll", 660, 155, 170, 244, 1)
+    GUI:ScrollView_setInnerContainerSize(scroll, 170, math.max(244, 28 + #attrText * 26))
+    GUI:RichText_Create(scroll, "embed_attr", 8, math.max(18, #attrText * 26) - 30, table.concat(attrText, "<br>"), 154, 16, "#F5E8C9", 1, nil, nil, {
         outlineSize = 2,
         outlineColor = SL:ConvertColorFromHexString(OUTLINE_COLOR),
     })
+    _create_stroke_text(node, "embed_attr_tip", 744, 128 - 90, 16, "#9FB6B8", "属性随穿戴实时生效", 0.5, 0.5)
+end
+
+local function _render_embed_bag_list(node, npcid)
+    local bagList = _build_embed_bag_godstone_list()
+    local list = GUI:ListView_Create(node, "embed_bag_stone_list", 206 - 14, 20, 430 + 20, 143, 2)
+    GUI:ListView_setBounceEnabled(list, true)
+    GUI:ListView_setItemsMargin(list, 0)
+    if #bagList <= 0 then
+        _create_stroke_text(node, "embed_bag_empty", 420, 86, 16, "#9FB6B8", "背包中暂无神石", 0.5, 0.5)
+        return
+    end
+    for idx, entry in ipairs(bagList) do
+        local slot = GUI:Layout_Create(-1, "embed_bag_slot_" .. idx, 0, 0, 100, 70, false)
+        GUI:ListView_pushBackCustomItem(list, slot)
+        _create_quality_stone_icon(slot, "embed_bag_" .. idx, 50, 43, entry.slotIndex, entry.quality, entry.canTakeOn)
+        -- _create_stroke_text(slot, "embed_bag_name_" .. idx, 31, 8, 12, entry.canTakeOn and (QUALITY_COLOR[entry.quality] or "#F3F3F3") or "#777777", _get_short_stone_name(entry.itemName, entry.slotIndex), 0.5, 0.5)
+        if entry.canTakeOn then
+            _create_stroke_text(slot, "embed_bag_mark_" .. idx, 48 + 35, 60, 12, "#74FF9F", "可", 0.5, 0.5)
+        end
+        local touch = GUI:Layout_Create(slot, "embed_bag_touch_" .. idx, 0, 0, 62, 70, false)
+        GUI:setTouchEnabled(touch, true)
+        GUI:addOnClickEvent(touch, function()
+            if entry.canTakeOn then
+                if _is_double_click_action("embed_bag_" .. tostring(entry.makeIndex or "")) then
+                    _send_take_on_godstone(npcid, entry.makeIndex)
+                else
+                    _show_item_tips_by_name(entry.itemName, touch)
+                    SL:ShowSystemTips("<font color='#FFCC66'>再次点击可直接穿戴该神石</font>")
+                end
+            else
+                _show_item_tips_by_name(entry.itemName, touch)
+                SL:ShowSystemTips("<font color='#FFCC66'>当前没有空槽或同名神石已穿戴</font>")
+            end
+        end)
+    end
 end
 
 local function _render_embed(node, npcid)
@@ -735,55 +1064,52 @@ local function _render_embed(node, npcid)
         local entry = equippedMap[slotIndex]
         local hasEquip = entry and entry.item_name and entry.item_name ~= ""
         local baseNode = GUI:Layout_Create(node, "embed_slot_" .. slotIndex, pos.x - 54, pos.y - 54, 108, 120, false)
-        local icon = GUI:Image_Create(baseNode, "slot_icon_" .. slotIndex, 54, 62, _get_slot_icon_path(slotIndex, hasEquip))
-        GUI:setAnchorPoint(icon, 0.5, 0.5)
-        if not isOpen then
-            local darkIcon = GUI:Image_Create(baseNode, "slot_dark_" .. slotIndex, 54, 62, _get_slot_icon_path(slotIndex, false))
-            GUI:setAnchorPoint(darkIcon, 0.5, 0.5)
-            GUI:Image_Create(baseNode, "slot_lock_" .. slotIndex, 54, 62, "res/custom/three_city/sshc/new/神石icon/锁.png")
-            _create_stroke_text(baseNode, "slot_lock_text_" .. slotIndex, 54, 8, 14, "#B8B8B8", string.format("%d级仙府解锁", slotIndex), 0.5, 0.5)
+        local quality = hasEquip and _get_slot_quality(entry.item_name) or 0
+        if hasEquip then
+            _create_quality_stone_icon(baseNode, "slot_" .. slotIndex, 54, 62, slotIndex, quality, true)
         else
+            local icon = GUI:Image_Create(baseNode, "slot_icon_" .. slotIndex, 54, 62, EMPTY_STONE_SKIN)
+            GUI:setAnchorPoint(icon, 0.5, 0.5)
+        end
+        if not isOpen then
+            GUI:Image_Create(baseNode, "slot_lock_" .. slotIndex, 5, 15, "res/custom/three_city/sshc/new/神石icon/锁.png")
+            -- _create_stroke_text(baseNode, "slot_lock_text_" .. slotIndex, 54, 8, 14, "#B8B8B8", string.format("第%d槽", slotIndex), 0.5, 0.5)
+        elseif not hasEquip then
             local btn = GUI:Layout_Create(baseNode, "slot_touch_" .. slotIndex, 0, 0, 108, 120, false)
             GUI:setTouchEnabled(btn, true)
             GUI:addOnClickEvent(btn, function()
-                SL:OpenBagUI()
-                SL:ShowSystemTips("<font color='#FFCC66'>请在背包中双击对应神石进行装配</font>")
+                SL:ShowSystemTips("<font color='#FFCC66'>点击下方背包神石可直接穿戴</font>")
             end)
         end
-        local labelColor = not isOpen and "#8E8E8E" or (hasEquip and (QUALITY_COLOR[_get_slot_quality(entry.item_name)] or "#FFFFFF") or "#F3F3F3")
-        _create_stroke_text(baseNode, "slot_name_" .. slotIndex, 54, 10, 18, labelColor, _get_slot_display_name(hasEquip and entry.item_name or "", slotIndex), 0.5, 0.5)
+        -- local labelColor = not isOpen and "#8E8E8E" or (hasEquip and (QUALITY_COLOR[_get_slot_quality(entry.item_name)] or "#FFFFFF") or "#F3F3F3")
+        -- _create_stroke_text(baseNode, "slot_name_" .. slotIndex, 54, 10, 17, labelColor, _get_embed_slot_label(slotIndex), 0.5, 0.5)
         if hasEquip then
+            -- _create_quality_label(baseNode, "slot_quality_" .. slotIndex, 54, 104, quality)
             local tipBtn = GUI:Layout_Create(baseNode, "slot_tip_" .. slotIndex, 0, 0, 108, 120, false)
             GUI:setTouchEnabled(tipBtn, true)
-            GUI:addOnTouchEvent(tipBtn, function()
-                _show_item_tips_by_name(entry.item_name, tipBtn)
+            GUI:addOnClickEvent(tipBtn, function()
+                if _is_double_click_action("embed_slot_" .. tostring(entry.where or slotIndex)) then
+                    _send_take_off_godstone(npcid, entry.where)
+                else
+                    _show_item_tips_by_name(entry.item_name, tipBtn)
+                    SL:ShowSystemTips("<font color='#FFCC66'>再次点击可卸下该神石</font>")
+                end
             end)
         end
     end
+    _render_embed_bag_list(node, npcid)
     _render_embed_attr_panel(node)
 end
 
 local function _render_compose_level_tabs(node, npcid)
     local state = _ensure_compose_state()
-    for level = 1, state.maxLevel do
-        local leftName = ATLAS_TAB_NAME[level] or tostring(level)
-        local rightName = ATLAS_TAB_NAME[level + 1] or tostring(level + 1)
-        local x = 214 + (level - 1) * 152
-        local y = 410
-        local textColor = state.currentLevel == level and "#F6E6B4" or "#7E7E7E"
-        local tab = GUI:Layout_Create(node, "compose_level_" .. level, x, y, 140, 26, false)
-        GUI:setTouchEnabled(tab, true)
-        GUI:addOnClickEvent(tab, function()
-            if state.currentLevel == level then
-                return
-            end
-            state.currentLevel = level
-            _reset_compose_selection()
-            if npc._render_current_page then
-                npc._render_current_page(node, npcid)
-            end
-        end)
-        _create_stroke_text(tab, "compose_level_text_" .. level, 70, 13, 18, textColor, string.format("%s→%s", leftName, rightName), 0.5, 0.5)
+    local level = _toint(state.currentLevel, 1)
+    local leftName = ATLAS_TAB_NAME[level] or tostring(level)
+    local rightName = ATLAS_TAB_NAME[level + 1] or tostring(level + 1)
+    local text = #state.selectedList > 0 and string.format("当前阶段：%s→%s", leftName, rightName) or "默认阶段：稀有→史诗"
+    _create_stroke_text(node, "compose_level_hint", 428, 410, 18, "#F6E6B4", text, 0.5, 0.5)
+    if #state.selectedList <= 0 then
+        _create_stroke_text(node, "compose_level_tip", 428, 386, 15, "#C7E7E3", "选择第一颗神石后自动锁定对应合成阶段", 0.5, 0.5)
     end
 end
 
@@ -794,9 +1120,9 @@ local function _render_compose_target_slots(node)
     for slotIndex, pos in ipairs(SLOT_POS) do
         local itemName = nextList[slotIndex] or ""
         local itemData = _get_item_data_by_name(itemName)
-        local baseNode = GUI:Layout_Create(node, "compose_target_" .. slotIndex, pos.x - 54, pos.y - 54, 108, 120, false)
-        local icon = GUI:Image_Create(baseNode, "compose_icon_" .. slotIndex, 54, 62, _get_slot_icon_path(slotIndex, true))
-        GUI:setAnchorPoint(icon, 0.5, 0.5)
+        local baseNode = GUI:Layout_Create(node, "compose_target_" .. slotIndex, pos.x - 54 - 10, pos.y - 54 - 38, 108, 120, false)
+        local quality = _get_slot_quality(itemName)
+        _create_quality_stone_icon(baseNode, "compose_" .. slotIndex, 54, 62, slotIndex, quality, true)
         if itemData then
             local touch = GUI:Layout_Create(baseNode, "compose_touch_" .. slotIndex, 0, 0, 108, 120, false)
             GUI:setTouchEnabled(touch, true)
@@ -811,34 +1137,41 @@ local function _render_compose_target_slots(node)
                 end
             end)
         end
-        _create_stroke_text(baseNode, "compose_name_" .. slotIndex, 54, 10, 18, "#F5F5F5", _get_slot_display_name(itemName, slotIndex), 0.5, 0.5)
+        -- _create_stroke_text(baseNode, "compose_name_" .. slotIndex, 54, 10, 17, QUALITY_COLOR[quality] or "#F5F5F5", _get_short_stone_name(itemName, slotIndex), 0.5, 0.5)
+        -- _create_quality_label(baseNode, "compose_quality_" .. slotIndex, 54, 104, quality)
         local selectedCount = _toint(counts[slotIndex], 0)
         if selectedCount > 0 then
-            _create_stroke_text(baseNode, "compose_count_" .. slotIndex, 84, 92, 20, "#53F8BC", "x" .. tostring(selectedCount), 0.5, 0.5)
+            _create_stroke_text(baseNode, "compose_count_" .. slotIndex, 84 - 53, 100, 20, "#53F8BC", "x" .. tostring(selectedCount), 0.5, 0.5)
         end
     end
 end
 
 local function _render_compose_bag(node, npcid)
+    local state = _ensure_compose_state()
     local groups = _build_compose_group_list()
-    local list = GUI:ListView_Create(node, "compose_bag_list", 646, 78, 168, 330, 1)
-    GUI:ListView_setItemsMargin(list, 8)
+    local list = GUI:ListView_Create(node, "compose_bag_list", 660, 75 - 50, 180, 333, 1)
+    GUI:ListView_setItemsMargin(list, 6)
     if #groups <= 0 then
-        _create_stroke_text(node, "compose_empty", 730, 238, 18, "#FFCC8A", "背包中没有当前可合成的神石", 0.5, 0.5)
+        _create_stroke_text(node, "compose_empty_1", 731, 252, 18, "#FFCC8A", "暂无可合成神石", 0.5, 0.5)
+        _create_stroke_text(node, "compose_empty_2", 731, 222, 15, "#9FB6B8", "检查背包或清空已选材料", 0.5, 0.5)
         return
     end
+    -- local bagHint = #state.selectedList > 0 and string.format("当前只显示%s材料", ATLAS_TAB_NAME[state.currentLevel] or tostring(state.currentLevel)) or "未选择：显示全部神石"
+    -- _create_stroke_text(node, "compose_bag_hint", 731, 420, 15, "#BFFFEF", bagHint, 0.5, 0.5)
     for idx, group in ipairs(groups) do
-        local row = GUI:Layout_Create(-1, "compose_bag_row_" .. idx, 0, 0, 158, 62, false)
+        local row = GUI:Layout_Create(-1, "compose_bag_row_" .. idx, 0, 0, 154, 58, false)
         GUI:ListView_pushBackCustomItem(list, row)
         local itemData = group.itemData
         if itemData then
-            GUI:ItemShow_Create(row, "compose_item_" .. idx, 8, 8, {itemData = itemData, count = 1, look = true, bgVisible = false})
+            -- 合成背包列表中的神石仅用于拖入前预览，不允许直接拖出列表控件。
+            GUI:ItemShow_Create(row, "compose_item_" .. idx, 6, 7, {itemData = itemData, count = 1, look = true, movable = false, bgVisible = false})
         end
-        _create_stroke_text(row, "compose_item_name_" .. idx, 58, 39, 14, "#F7E7C0", group.itemName, 0, 0.5)
+        local levelText = #state.selectedList <= 0 and ((ATLAS_TAB_NAME[group.level] or tostring(group.level)) .. " ") or ""
+        _create_stroke_text(row, "compose_item_name_" .. idx, 54, 38, 14, "#F7E7C0", levelText .. _get_short_stone_name(group.itemName, group.slotIndex), 0, 0.5)
         local remain = _get_group_remain_count(group)
-        _create_stroke_text(row, "compose_item_count_" .. idx, 58, 18, 14, remain > 0 and "#8DFFB9" or "#A8A8A8", string.format("剩余 %d/%d", remain, _toint(group.totalCount, 0)), 0, 0.5)
-        _create_stroke_text(row, "compose_item_put_" .. idx, 148, 29, 14, remain > 0 and "#7BFFE3" or "#7E7E7E", "放入", 1, 0.5)
-        local clicker = GUI:Layout_Create(row, "compose_row_click_" .. idx, 0, 0, 158, 62, false)
+        _create_stroke_text(row, "compose_item_count_" .. idx, 54, 18, 13, remain > 0 and "#8DFFB9" or "#A8A8A8", string.format("%d/%d", remain, _toint(group.totalCount, 0)), 0, 0.5)
+        -- _create_stroke_text(row, "compose_item_put_" .. idx, 148, 29, 14, remain > 0 and "#7BFFE3" or "#7E7E7E", "+", 1, 0.5)
+        local clicker = GUI:Image_Create(row, "compose_item_put_" .. idx, 130, 15, "res/wy/public/hd_sd_jia.png")
         GUI:setTouchEnabled(clicker, true)
         GUI:addOnClickEvent(clicker, function()
             if _add_group_to_compose(group) then
@@ -846,49 +1179,57 @@ local function _render_compose_bag(node, npcid)
                     npc._render_current_page(node, npcid)
                 end
             else
-                SL:ShowSystemTips("<font color='#FF0000'>当前神石数量不足或已放满</font>")
+                SL:ShowSystemTips("<font color='#FF0000'>当前神石数量不足、阶段不一致或已放满</font>")
             end
         end)
     end
 end
 
 local function _render_compose(node, npcid)
-    _render_compose_level_tabs(node, npcid)
+    -- _render_compose_level_tabs(node, npcid)
     _render_compose_target_slots(node)
     _render_compose_bag(node, npcid)
-    _create_stroke_text(node, "compose_rule", 428, 457, 18, "#F5E2AF", "十个相同品质的神石可以合成出更高一级的神石", 0.5, 0.5)
-    _create_stroke_text(node, "compose_prob", 428, 429, 17, "#EFD9A7", _build_compose_probability_text(), 0.5, 0.5)
-    _create_stroke_text(node, "compose_tip", 214, 100, 18, "#E6D2A5", "提示：自动补充会优先选择同类型神石进行补充", 0, 0.5)
+    -- _create_stroke_text(node, "compose_rule", 428, 457, 17, "#F5E2AF", tostring(npc._config.compose_desc or "十个相同品质的神石可以合成出更高一级的神石"), 0.5, 0.5)
+    -- _create_stroke_text(node, "compose_prob", 428, 429, 16, "#EFD9A7", _build_compose_probability_text(), 0.5, 0.5)
+    -- -- 合成页常驻展示必需数量与额外卷轴消耗，避免玩家只能通过问号查看。
+    -- _create_stroke_text(node, "compose_cost_rule", 428, 402, 15, "#FFD891", _build_compose_cost_text(), 0.5, 0.5)
+    -- _create_stroke_text(node, "compose_tip", 214, 100, 16, "#E6D2A5", "提示：自动补充会优先选择同类型神石", 0, 0.5)
 
-    local takeoffBtn = GUI:Button_Create(node, "compose_takeoff_btn", 236, 145, "res/custom/three_city/sshc/new/合成/一键卸下.png")
+    local takeoffBtn = GUI:Button_Create(node, "compose_takeoff_btn", 236, 145 - 18, "res/custom/three_city/sshc/new/合成/一键卸下.png")
     GUI:addOnClickEvent(takeoffBtn, function()
-        _send_takeoff_all(npcid)
-    end)
-
-    local autoFillBtn = GUI:Button_Create(node, "compose_auto_fill_btn", 445, 145, "res/custom/three_city/sshc/new/合成/自动补充.png")
-    GUI:addOnClickEvent(autoFillBtn, function()
-        _auto_fill_compose()
-        if npc._render_current_page then
+        _reset_compose_selection()
+        if npc._render_current_page and node and not (tolua and tolua.isnull and tolua.isnull(node)) then
             npc._render_current_page(node, npcid)
         end
     end)
 
-    local composeBtn = GUI:Button_Create(node, "compose_btn", 348, 37, "res/custom/three_city/sshc/new/合成/立即合成.png")
+    local autoFillBtn = GUI:Button_Create(node, "compose_auto_fill_btn", 445, 145 - 18, "res/custom/three_city/sshc/new/合成/自动补充.png")
+    GUI:addOnClickEvent(autoFillBtn, function()
+        _auto_fill_compose()
+        if npc._render_current_page and node and not (tolua and tolua.isnull and tolua.isnull(node)) then
+            npc._render_current_page(node, npcid)
+        end
+    end)
+
+    local composeBtn = GUI:Button_Create(node, "compose_btn", 348, 20, "res/custom/three_city/sshc/new/合成/立即合成.png")
     GUI:addOnClickEvent(composeBtn, function()
         _send_compose_request(npcid)
     end)
 
-    local tipBtn = GUI:Button_Create(node, "compose_rule_btn", 561, 33, "res/custom/three_city/sshc/new/合成/本次可能会出...png")
+    local tipBtn = GUI:Button_Create(node, "compose_rule_btn", 561 - 365, 33, "res/custom/three_city/sshc/new/合成/本次可能会出...png")
     local state = _ensure_compose_state()
+
+
     GUI:addOnClickEvent(tipBtn, function()
         local extra = npc._config.extra_cost and npc._config.extra_cost[state.currentLevel] or nil
         local extraText = ""
         if type(extra) == "table" and extra[1] then
             extraText = string.format("<br><font color='#f5c35d'>额外消耗：%s*%s</font>", tostring(extra[1][1] or ""), tostring(extra[1][2] or 1))
         end
+        local pos = GUI:getWorldPosition(tipBtn)
         SL:OpenCommonDescTipsPop({
             str = string.format("<font color='#ffffff'>%s</font>%s", _build_compose_probability_text(), extraText),
-            worldPos = {x = 520, y = 180},
+            worldPos = {x = pos.x, y = pos.y},
             anchorPoint = {x = 0, y = 0},
             formatWay = 1
         })
@@ -897,21 +1238,21 @@ end
 
 local function _render_box_preview(node)
     local boxName = _get_current_box_name()
-    local previewPool = _flatten_box_pool(boxName)
-    local list = GUI:ListView_Create(node, "box_preview_list", 182, 287, 534, 114, 2)
-    GUI:ListView_setItemsMargin(list, 8)
+    local previewPool = _build_box_preview_pool(boxName)
+    local list = GUI:ListView_Create(node, "box_preview_list", 184, 250, 532 + 113, 116, 2)
+    GUI:ListView_setItemsMargin(list, 10)
     if #previewPool <= 7 then
         GUI:ListView_setItemsMargin(list, 4)
     end
     for idx, itemName in ipairs(previewPool) do
         local itemData = _get_item_data_by_name(itemName)
-        local slot = GUI:Layout_Create(-1, "box_preview_slot_" .. idx, 0, 0, 76, 110, false)
+        local slot = GUI:Layout_Create(-1, "box_preview_slot_" .. idx, 0, 0, 76, 112, false)
         GUI:ListView_pushBackCustomItem(list, slot)
         local slotIndex = math.max(1, _get_slot_index_by_name(itemName))
-        local icon = GUI:Image_Create(slot, "box_preview_icon_bg_" .. idx, 36, 62, _get_slot_icon_path(slotIndex, true))
-        GUI:setAnchorPoint(icon, 0.5, 0.5)
-        _create_stroke_text(slot, "box_preview_name_" .. idx, 38, 10, 16, "#F3F3F3", _get_slot_display_name(itemName, slotIndex), 0.5, 0.5)
-        local touch = GUI:Layout_Create(slot, "box_preview_touch_" .. idx, 0, 0, 76, 110, false)
+        local quality = _get_slot_quality(itemName)
+        _create_quality_stone_icon(slot, "box_preview_" .. idx, 36, 62, slotIndex, quality, true, quality >= 3 and 0.56 or 0.5)
+        -- _create_stroke_text(slot, "box_preview_name_" .. idx, 38, 10, 15, QUALITY_COLOR[quality] or "#F3F3F3", _get_short_stone_name(itemName, slotIndex), 0.5, 0.5)
+        local touch = GUI:Layout_Create(slot, "box_preview_touch_" .. idx, 0, 0, 76, 112, false)
         GUI:setTouchEnabled(touch, true)
         GUI:addOnTouchEvent(touch, function()
             if itemData then
@@ -928,13 +1269,14 @@ local function _render_box_cost(node)
     local boxIndex = _get_item_index_by_name(boxName)
     local keyIndex = _get_item_index_by_name("神石宝箱钥匙")
     if boxIndex > 0 then
-        GUI:ItemShow_Create(node, "box_cost_box", 355, 169, {index = boxIndex, count = 1, look = true, bgVisible = false})
+        GUI:ItemShow_Create(node, "box_cost_box", 355 + 100, 169 - 50, {index = boxIndex, count = 1, look = true, movable = false, bgVisible = false})
     end
     if keyIndex > 0 then
-        GUI:ItemShow_Create(node, "box_cost_key", 443, 169, {index = keyIndex, count = 1, look = true, bgVisible = false})
+        GUI:ItemShow_Create(node, "box_cost_key", 443 + 100, 169 - 50, {index = keyIndex, count = 1, look = true, movable = false, bgVisible = false})
     end
-    _create_stroke_text(node, "box_cost_box_count", 354, 136, 16, boxCount > 0 and "#79FFAE" or "#FF8C8C", string.format("%d/1", boxCount), 0.5, 0.5)
-    _create_stroke_text(node, "box_cost_key_count", 444, 136, 16, keyCount > 0 and "#79FFAE" or "#FF8C8C", string.format("%d/1", keyCount), 0.5, 0.5)
+    -- _create_stroke_text(node, "box_cost_title", 400, 262, 20, "#F5E7B8", "所需材料", 0.5, 0.5)
+    _create_stroke_text(node, "box_cost_box_count", 354 + 115, 136 - 20, 16, boxCount > 0 and "#79FFAE" or "#FF8C8C", string.format("%d/1", boxCount), 0.5, 0.5)
+    _create_stroke_text(node, "box_cost_key_count", 444 + 115, 136 - 20, 16, keyCount > 0 and "#79FFAE" or "#FF8C8C", string.format("%d/1", keyCount), 0.5, 0.5)
 end
 
 local function _render_box_selector(node, npcid)
@@ -952,7 +1294,7 @@ local function _render_box_selector(node, npcid)
         local color = npc._boxName == boxName and "#F5E7B8" or "#7C7C7C"
         local count = _toint(boxes[boxName], 0)
         local shortName = idx == 1 and "普通宝箱" or (idx == 2 and "史诗宝箱" or "传说宝箱")
-        _create_stroke_text(btn, "box_selector_text_" .. idx, 61, 12, 16, color, string.format("%s(%d)", shortName, count), 0.5, 0.5)
+        _create_stroke_text(btn, "box_selector_text_" .. idx, 61, 12, 15, color, string.format("%s(%d)", shortName, count), 0.5, 0.5)
     end
     local tip = GUI:Image_Create(node, "box_tip", 698, 203, "res/custom/msfc/page1/wenhao.png")
     _create_desc_tip(tip, _get_box_rate_desc(_get_current_box_name()))
@@ -988,20 +1330,32 @@ local function _show_box_result_popup(resultData)
     if resultData.panel then
         npc.data = resultData.panel
     end
+    if _load_skip_box_anim() then
+        local claimToken = tostring(resultData.token or "")
+        if claimToken ~= "" then
+            _send_claim_box_reward(npc._npcid or 53, claimToken)
+        end
+        return
+    end
     _close_box_popup()
     local parent = GUI:Win_Create("npc_53_box_popup", 0, 0, 0, 0, false, false, true, true, true, nil, 30)
-    local overlay = GUI:Image_Create(parent, "overlay", 0, 0, "res/public/1900000651_1.png")
+    local overlay = GUI:Image_Create(parent, "overlay", cogin.w/2, cogin.h/2, "res/public/1900000651_1.png")
     GUI:setAnchorPoint(overlay, 0.5, 0.5)
     GUI:setContentSize(overlay, cogin.w + 100, cogin.h + 100)
     GUI:setTouchEnabled(overlay, true)
     local panel = GUI:Image_Create(parent, "panel", cogin.w / 2, cogin.h / 2, "res/custom/three_city/sshc/new/宝箱下级面板/恭喜获得/恭喜获得.png")
     GUI:setAnchorPoint(panel, 0.5, 0.5)
+    local topCloseBtn = GUI:Button_Create(panel, "popup_top_close_btn", 492, 424, "res/wy/public/close_red_big.png")
+    GUI:setVisible(topCloseBtn, false)
+    GUI:addOnClickEvent(topCloseBtn, function()
+        _close_box_popup()
+    end)
     local stripMask = GUI:Layout_Create(panel, "strip_mask", 74, 138, 392, 120, false)
     GUI:Layout_setClippingEnabled(stripMask, true)
     local strip = GUI:Node_Create(stripMask, "strip", 0, 0)
-    local highlight = GUI:Image_Create(panel, "highlight", 268, 138, "res/custom/three_city/sshc/new/宝箱下级面板/开宝箱/边框.png")
+    local highlight = GUI:Image_Create(panel, "highlight", 268, 138 - 175, "res/custom/three_city/sshc/new/宝箱下级面板/开宝箱/边框.png")
     GUI:setAnchorPoint(highlight, 0.5, 0)
-    local previewPool = _flatten_box_pool(tostring(resultData.box_name or BOX_NAME_ORDER[1]))
+    local previewPool = _build_anim_box_pool(tostring(resultData.box_name or BOX_NAME_ORDER[1]), tostring(resultData.reward_name or ""))
     if #previewPool <= 0 then
         previewPool[1] = tostring(resultData.reward_name or "")
     end
@@ -1019,11 +1373,7 @@ local function _show_box_result_popup(resultData)
         local itemData = _get_item_data_by_name(itemName)
         local slotIndex = math.max(1, _get_slot_index_by_name(itemName))
         local quality = math.max(1, _get_slot_quality(itemName))
-        local qualitySkin = quality == 1 and "稀有" or (quality == 2 and "史诗" or (quality == 3 and "传说" or "神话"))
-        local qualityBg = GUI:Image_Create(slot, "box_roll_quality_" .. idx, 50, 62, string.format("res/custom/three_city/sshc/new/宝箱下级面板/开宝箱/%s.png", qualitySkin))
-        GUI:setAnchorPoint(qualityBg, 0.5, 0.5)
-        local icon = GUI:Image_Create(slot, "box_roll_icon_" .. idx, 50, 62, _get_slot_icon_path(slotIndex, true))
-        GUI:setAnchorPoint(icon, 0.5, 0.5)
+        _create_quality_stone_icon(slot, "box_roll_" .. idx, 50, 62, slotIndex, quality, true, quality >= 3 and 0.62 or 0.56)
         if itemData then
             local touch = GUI:Layout_Create(slot, "box_roll_touch_" .. idx, 0, 0, 100, 120, false)
             GUI:setTouchEnabled(touch, true)
@@ -1031,7 +1381,7 @@ local function _show_box_result_popup(resultData)
                 _show_item_tips_by_name(itemName, touch)
             end)
         end
-        _create_stroke_text(slot, "box_roll_name_" .. idx, 50, 12, 16, "#F3F3F3", _get_slot_display_name(itemName, slotIndex), 0.5, 0.5)
+        _create_stroke_text(slot, "box_roll_name_" .. idx, 50, 12, 15, QUALITY_COLOR[quality] or "#F3F3F3", _get_short_stone_name(itemName, slotIndex), 0.5, 0.5)
     end
 
     local function finish_show()
@@ -1040,21 +1390,19 @@ local function _show_box_result_popup(resultData)
         local rewardIndex = math.max(1, _get_slot_index_by_name(rewardName))
         GUI:setVisible(stripMask, false)
         GUI:setVisible(highlight, false)
-        local resultIcon = GUI:Image_Create(panel, "result_icon", 270, 248, _get_slot_icon_path(rewardIndex, true))
-        GUI:setAnchorPoint(resultIcon, 0.5, 0.5)
-        _create_stroke_text(panel, "result_name", 270, 176, 22, QUALITY_COLOR[_get_slot_quality(rewardName)] or "#FFFFFF", rewardName, 0.5, 0.5, "fonts/500.ttf")
-        _create_stroke_text(panel, "result_quality", 270, 144, 18, "#FFE6A1", qualityText ~= "" and qualityText or "获得成功", 0.5, 0.5)
-        if npc.node then
-            local activeNpcId = npc._npcid or 53
-            if npc._render_current_page then
-                npc._render_current_page(npc.node, activeNpcId)
-            end
+        _create_quality_stone_icon(panel, "result", 270, 248 - 10, rewardIndex, _get_slot_quality(rewardName), true, 0.82)
+        _create_stroke_text(panel, "result_name", 270, 176 - 10, 22, QUALITY_COLOR[_get_slot_quality(rewardName)] or "#FFFFFF", _get_short_stone_name(rewardName, rewardIndex) .. "神石", 0.5, 0.5, "fonts/500.ttf")
+        -- _create_stroke_text(panel, "result_quality", 270, 144, 18, "#FFE6A1", qualityText ~= "" and qualityText or "获得成功", 0.5, 0.5)
+        local claimToken = tostring(resultData.token or "")
+        if claimToken ~= "" then
+            _send_claim_box_reward(npc._npcid or 53, claimToken)
         end
-        local closeBtn = GUI:Button_Create(panel, "result_close_btn", 78, 90, "res/custom/three_city/sshc/new/宝箱下级面板/恭喜获得/我知道了.png")
+        GUI:setVisible(topCloseBtn, true)
+        local closeBtn = GUI:Button_Create(panel, "result_close_btn", 78, 90 - 10, "res/custom/three_city/sshc/new/宝箱下级面板/恭喜获得/我知道了.png")
         GUI:addOnClickEvent(closeBtn, function()
             _close_box_popup()
         end)
-        local reopenBtn = GUI:Button_Create(panel, "result_reopen_btn", 297, 90, "res/custom/three_city/sshc/new/宝箱下级面板/恭喜获得/再次开启.png")
+        local reopenBtn = GUI:Button_Create(panel, "result_reopen_btn", 297, 90 - 10, "res/custom/three_city/sshc/new/宝箱下级面板/恭喜获得/再次开启.png")
         GUI:addOnClickEvent(reopenBtn, function()
             _close_box_popup()
             _send_open_box(npc._npcid or 53, tostring(resultData.box_name or _get_current_box_name()))
@@ -1064,33 +1412,30 @@ local function _show_box_result_popup(resultData)
         end)
     end
 
-    if npc._skip_box_anim then
-        GUI:setPosition(strip, targetX - (targetIndex - 1) * cellWidth, 0)
-        finish_show()
-    else
-        GUI:setPosition(strip, 0, 0)
-        GUI:runAction(strip, GUI:ActionSequence(
-            GUI:ActionMoveTo(1.6, targetX - (targetIndex - 1) * cellWidth, 0),
-            GUI:CallFunc(function()
-                finish_show()
-            end)
-        ))
-    end
+    GUI:setPosition(strip, 0, 0)
+    local finalX = targetX - (targetIndex - 1) * cellWidth
+    GUI:runAction(strip, GUI:ActionSequence(
+        GUI:ActionMoveTo(0.45, finalX + cellWidth * 3, 0),
+        GUI:ActionMoveTo(0.65, finalX + cellWidth, 0),
+        GUI:ActionMoveTo(0.9, finalX, 0),
+        GUI:CallFunc(function()
+            finish_show()
+        end)
+    ))
 end
 
 local function _render_box(node, npcid)
     npc._boxName = _get_current_box_name()
     _render_box_preview(node)
-    _render_box_selector(node, npcid)
+    -- _render_box_selector(node, npcid)
     _render_box_cost(node)
 
-    local skipLabel = _create_stroke_text(node, "box_skip_label", 232, 78, 22, "#F3E3A8", "跳过动画", 0, 0.5)
-    local skipCheck = GUI:CheckBox_Create(node, "box_skip_check", 336, 52, "res/custom/three_city/sshc/new/宝箱/跳过动画有对号.png", "res/custom/three_city/sshc/new/宝箱/跳过动画空对号.png")
-    GUI:CheckBox_setSelected(skipCheck, npc._skip_box_anim == true)
+    -- local skipLabel = _create_stroke_text(node, "box_skip_label", 232, 78, 22, "#F3E3A8", "跳过动画", 0, 0.5)
+    local skipCheck = GUI:CheckBox_Create(node, "box_skip_check", 250, 52, "res/custom/three_city/sshc/new/宝箱/跳过动画空对号.png", "res/custom/three_city/sshc/new/宝箱/跳过动画有对号.png")
+    GUI:CheckBox_setSelected(skipCheck, _load_skip_box_anim())
     GUI:CheckBox_addOnEvent(skipCheck, function(sender)
-        npc._skip_box_anim = GUI:CheckBox_isSelected(sender)
+        _save_skip_box_anim(GUI:CheckBox_isSelected(sender))
     end)
-    GUI:Text_enableOutline(skipLabel, OUTLINE_COLOR, 2)
 
     local openBtn = GUI:Button_Create(node, "box_open_btn", 412, 35, "res/custom/three_city/sshc/new/宝箱/立即开启.png")
     GUI:addOnClickEvent(openBtn, function()
@@ -1110,7 +1455,7 @@ local function _render_atlas(node, npcid)
     local ownedMap = _get_owned_map()
     for quality = 1, 4 do
         local folder = atlasQuality == quality and "亮" or "暗"
-        local btn = GUI:Button_Create(node, "atlas_top_" .. quality, ATLAS_TOP_TAB_POS[quality].x, ATLAS_TOP_TAB_POS[quality].y, string.format("res/custom/three_city/sshc/new/图鉴/上方按钮/%s/%s级图鉴.png", folder, ATLAS_TAB_NAME[quality]))
+        local btn = GUI:Button_Create(node, "atlas_top_" .. quality, ATLAS_TOP_TAB_POS[quality].x, ATLAS_TOP_TAB_POS[quality].y - 35, string.format("res/custom/three_city/sshc/new/图鉴/上方按钮/%s/%s级图鉴.png", folder, ATLAS_TAB_NAME[quality]))
         GUI:addOnClickEvent(btn, function()
             if npc._atlasQuality == quality then
                 return
@@ -1126,31 +1471,47 @@ local function _render_atlas(node, npcid)
     for slotIndex, pos in ipairs(SLOT_POS) do
         local itemName = list[slotIndex] or ""
         local owned = ownedMap[itemName] == 1 or ownedMap[itemName] == true
-        local baseNode = GUI:Layout_Create(node, "atlas_slot_" .. slotIndex, pos.x - 54, pos.y - 54, 108, 120, false)
-        local icon = GUI:Image_Create(baseNode, "atlas_icon_" .. slotIndex, 54, 62, _get_slot_icon_path(slotIndex, owned))
-        GUI:setAnchorPoint(icon, 0.5, 0.5)
+        local baseNode = GUI:Layout_Create(node, "atlas_slot_" .. slotIndex, pos.x - 54 + 72, pos.y - 54 - 58, 108, 120, false)
+        local quality = atlasQuality
+        _create_quality_stone_icon(baseNode, "atlas_" .. slotIndex, 54, 62, slotIndex, quality, owned)
         if not owned then
-            GUI:Image_Create(baseNode, "atlas_lock_" .. slotIndex, 54, 62, "res/custom/three_city/sshc/new/神石icon/锁.png")
+            -- GUI:Image_Create(baseNode, "atlas_lock_" .. slotIndex, 10, 15, "res/custom/three_city/sshc/new/神石icon/锁.png")
         end
-        _create_stroke_text(baseNode, "atlas_name_" .. slotIndex, 54, 10, 18, owned and "#F3F3F3" or "#A0A0A0", _get_slot_display_name(itemName, slotIndex), 0.5, 0.5)
-        local touch = GUI:Layout_Create(baseNode, "atlas_touch_" .. slotIndex, 0, 0, 108, 120, false)
-        GUI:setTouchEnabled(touch, true)
-        GUI:addOnTouchEvent(touch, function()
-            _show_item_tips_by_name(itemName, touch)
-        end)
+        -- _create_stroke_text(baseNode, "atlas_name_" .. slotIndex, 54, 10, 17, owned and (QUALITY_COLOR[quality] or "#F3F3F3") or "#A0A0A0", _get_short_stone_name(itemName, slotIndex), 0.5, 0.5)
+        if owned then
+            -- _create_quality_label(baseNode, "atlas_quality_" .. slotIndex, 54, 104, quality)
+            local touch = GUI:Layout_Create(baseNode, "atlas_touch_" .. slotIndex, 0, 0, 108, 120, false)
+            GUI:setTouchEnabled(touch, true)
+            GUI:addOnTouchEvent(touch, function()
+                _show_item_tips_by_name(itemName, touch)
+            end)
+        else
+
+        end
+
     end
 
     local progress = progressMap[tostring(atlasQuality)] or {}
     local hit = _toint(progress.hit, 0)
     local total = _toint(progress.total, 0)
     local rewardLevel = _toint(progress.reward, 0)
-    local line = GUI:Image_Create(node, "atlas_line", 428, 136, "res/custom/three_city/sshc/new/图鉴/分割线-.png")
+    local line = GUI:Image_Create(node, "atlas_line", 428 + 83, 136, "res/custom/three_city/sshc/new/图鉴/分割线-.png")
     GUI:setAnchorPoint(line, 0.5, 0.5)
     _create_stroke_text(node, "atlas_progress", 695, 106, 18, "#BFE6FF", string.format("已收集：%d/%d", hit, total), 0.5, 0.5)
-    _create_stroke_text(node, "atlas_reward", 428, 54, 24, "#55F7FF", string.format("%s级全收集后：150级后等级+%d", ATLAS_TAB_NAME[atlasQuality], rewardLevel), 0.5, 0.5, "fonts/500.ttf")
+    _create_stroke_text(node, "atlas_reward", 428, 54, 22, "#55F7FF", string.format("%s级全收集后：150级后等级+%d", ATLAS_TAB_NAME[atlasQuality], rewardLevel), 0.5, 0.5, "fonts/500.ttf")
 end
 
 local function _render_current_page(node, npcid)
+    if not node or (tolua and tolua.isnull and tolua.isnull(node)) then
+        local window = npc._window and npc._window.node or nil
+        if not window or (tolua and tolua.isnull and tolua.isnull(window)) then
+            window = _ensure_window(npcid)
+        end
+        node = window
+    end
+    if not node or (tolua and tolua.isnull and tolua.isnull(node)) then
+        return
+    end
     GUI:removeAllChildren(node)
     _render_page_bg(node)
     _render_left_tabs(node, npcid)
@@ -1170,6 +1531,14 @@ npc._render_compose = _render_compose
 npc._render_box = _render_box
 npc._render_atlas = _render_atlas
 npc._render_current_page = _render_current_page
+
+local function _refresh_on_equip_change()
+    if npc.node and not (tolua and tolua.isnull and tolua.isnull(npc.node)) and npc._npcid then
+        _render_current_page(npc.node, npc._npcid)
+    end
+end
+
+SL:RegisterLUAEvent(LUA_EVENT_PLAYER_EQUIP_CHANGE, "npc_53_equip_change_refresh", _refresh_on_equip_change)
 
 --[[
 npc.main(npcid, p2, p3, msgData)

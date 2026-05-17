@@ -1,5 +1,39 @@
 local npc = {}
 npc._config = teshudata["npc_13"]
+local function _build_rate_tip_html()
+    local lines = {}
+    local maxLevel = tonumber(npc._config.max_level or 0) or 0
+    for level = 1, maxLevel do
+        local cfg = npc._config.config and npc._config.config[level] or nil
+        local rate = tonumber(cfg and cfg.gl or 0) or 0
+        lines[#lines + 1] = string.format("<font color='#ffffff'>第%s次赠礼：成功率 %s%%</font>", tostring(level), tostring(rate))
+    end
+    return table.concat(lines, "<br>")
+end
+
+local function _bind_common_tip(widget, tipText)
+    if not widget or not tipText or tipText == "" then
+        return
+    end
+    if SL:GetMetaValue("WINPLAYMODE") then
+        GUI:addMouseMoveEvent(widget, {
+            onEnterFunc = function()
+                local pos = GUI:getWorldPosition(widget)
+                SL:OpenCommonDescTipsPop({str = tipText, worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 1})
+            end,
+            onLeaveFunc = function()
+                SL:CloseCommonDescTipsPop()
+            end
+        })
+    else
+        GUI:setTouchEnabled(widget, true)
+        GUI:addOnTouchEvent(widget, function()
+            local pos = GUI:getWorldPosition(widget)
+            SL:OpenCommonDescTipsPop({str = tipText, worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 1})
+        end)
+    end
+end
+
 local function _get_percent_text(level)
     local maxLevel = tonumber(npc._config.max_level or 0) or 0
     local rewardPercent = tonumber(npc._config.reward_percent or 100) or 100
@@ -36,6 +70,14 @@ end
             return
         end
         GUI:removeAllChildren(node)
+        local rateTipText = _build_rate_tip_html()
+        -- local rateTipLabel = GUI:Text_Create(node, "rate_tip_label", 640, 357, 20, "#F6D27F", "概率公示")
+        -- GUI:Text_setFontName(rateTipLabel, "fonts/font4.ttf")
+        -- GUI:Text_enableOutline(rateTipLabel, "#000000", 2)
+        local rateTipIcon = GUI:Image_Create(node, "rate_tip_icon", 715, 357 - 300, "res/wy/public/xqh_tip.png")
+        GUI:setAnchorPoint(rateTipIcon, 0.5, 0.5)
+        -- _bind_common_tip(rateTipLabel, rateTipText)
+        _bind_common_tip(rateTipIcon, rateTipText)
         if npc.data.dj_num < npc._config.max_level then
             local config = npc._config.config[npc.data.dj_num + 1]
             GUI:Text_setFontName(GUI:Text_Create(node, "desc1",500,351, 25, "#FB0000", _get_percent_text(npc.data.dj_num))

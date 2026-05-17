@@ -176,6 +176,31 @@ local function getBoxPool(boxType)
     return boxPool[boxType] or {}
 end
 
+local function buildPoolTipText()
+    local cfg = getConfig()
+    local pool = cfg.pool or {}
+    local fashionPool = cfg.fashion_pool or {}
+    local guaranteeBoxes = cfg.guarantee_boxes or {}
+    local lines = {"<font color='#F6D27F'>概率公示</font>"}
+
+    for _, entry in ipairs(pool) do
+        if entry.kind == "fashion_random" then
+            for fashionIdx, fashionCfg in ipairs(fashionPool) do
+                local rateText = fashionIdx <= 4 and "0.5%" or "0.25%"
+                lines[#lines + 1] = string.format("<font color='#ffffff'>%s\t%s</font>", tostring(fashionCfg.name or ("时装" .. tostring(fashionIdx))), rateText)
+            end
+        else
+            lines[#lines + 1] = string.format("<font color='#ffffff'>%s\t%s</font>", tostring(entry.label or ""), tostring(entry.show_rate or ""))
+        end
+    end
+
+    lines[#lines + 1] = string.format("<font color='#ffffff'>每抽%s次必出一个时装</font>", tostring(toNumber(cfg.fashion_pity_every, 200)))
+    for _, guaranteeCfg in ipairs(guaranteeBoxes) do
+        lines[#lines + 1] = string.format("<font color='#ffffff'>每%s抽必得：%s</font>", tostring(toNumber(guaranteeCfg.every, 0)), tostring(guaranteeCfg.label or ""))
+    end
+    return table.concat(lines, "<br>")
+end
+
 local function getBoxCount(boxType)
     local dataCounts = npc.data and npc.data.box_counts
     if type(dataCounts) == "table" and dataCounts[boxType] ~= nil then
@@ -332,6 +357,10 @@ local function getDayCardButtonState()
     return canClaim, claimed
 end
 
+local function isDayCardUnlocked()
+    return toNumber(npc.data and npc.data.day_card_unlocked, 0) == 1
+end
+
 local function isMilestoneClaimed(idx, isCrown)
     local T_data = (npc.data and npc.data.T_data) or {}
     local bucket = isCrown and (T_data.claim_crown or {}) or (T_data.claim_normal or {})
@@ -362,6 +391,19 @@ local function getHighestClaimableMilestone(isCrown)
         end
     end
     return target
+end
+
+local function buildRewardSummaryText(rewardPack)
+    local entries = getRewardEntries(rewardPack)
+    if #entries <= 0 then
+        return "暂无奖励"
+    end
+    local summary = {}
+    for idx = 1, math.min(#entries, 3) do
+        local entry = entries[idx]
+        table.insert(summary, string.format("%s×%s", tostring(entry.label or entry.name), tostring(entry.count or 1)))
+    end
+    return table.concat(summary, "\n")
 end
 
 local function pickDefaultMilestone()
@@ -624,6 +666,9 @@ local function createTabs(node)
     }
 
     for idx = 1, 2 do
+        if idx == 2 and not isDayCardUnlocked() then
+            break
+        end
         local skin = (npc.currentTab == idx) and TAB_SKINS[idx].light or TAB_SKINS[idx].dark
         local btn = GUI:Button_Create(node, "tab_" .. tostring(idx), 6, tabY[idx], skin)
         GUI:setAnchorPoint(btn, 0, 0)
@@ -726,10 +771,11 @@ function npc.renderFucai(node)
     GUI:setContentSize(guang, 180, 30)
 
     local tip = GUI:Image_Create(node, "tip", 380 + 60, 350 + 30, "res/custom/msfc/page1/wenhao.png")
+    local poolTipText = buildPoolTipText()
     if SL:GetMetaValue("WINPLAYMODE") then
         GUI:addMouseMoveEvent(tip, {onEnterFunc = function()
             local pos = GUI:getWorldPosition(tip)
-            SL:OpenCommonDescTipsPop({str = "<font color='#ffffff'>金币*38w	      80%</font><br><font color='#ffffff'>千年玄铁*5	      10%</font><br><font color='#ffffff'>辉耀水晶*1	      5%</font><br><font color='#ffffff'>仙法卷轴残页*5	4.50%</font><br><font color='#ffffff'>时装1	            0.5%</font><br><font color='#ffffff'>时装2	            0.5%</font><br><font color='#ffffff'>时装3	            0.5%</font><br><font color='#ffffff'>时装4	            0.5%</font><br><font color='#ffffff'>时装5	            0.25%</font><br><font color='#ffffff'>时装6	            0.25%</font><br><font color='#ffffff'>每抽200次必出一个时装</font><br><font color='#ffffff'>每18抽必得:  低级材料自选箱*1</font><br><font color='#ffffff'>每66抽必得:  高级材料自选箱*1</font><br><font color='#ffffff'>每100抽必得：特级材料自选箱*1</font>", worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 1})
+            SL:OpenCommonDescTipsPop({str = poolTipText, worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 1})
         end, onLeaveFunc = function()
             SL:CloseCommonDescTipsPop()
         end})
@@ -737,7 +783,7 @@ function npc.renderFucai(node)
         GUI:setTouchEnabled(tip, true)
         GUI:addOnTouchEvent(tip, function(self)
             local pos = GUI:getWorldPosition(tip)
-            SL:OpenCommonDescTipsPop({str = "<font color='#ffffff'>金币*38w	      80%</font><br><font color='#ffffff'>千年玄铁*5	      10%</font><br><font color='#ffffff'>辉耀水晶*1	      5%</font><br><font color='#ffffff'>仙法卷轴残页*5	4.50%</font><br><font color='#ffffff'>时装1	            0.5%</font><br><font color='#ffffff'>时装2	            0.5%</font><br><font color='#ffffff'>时装3	            0.5%</font><br><font color='#ffffff'>时装4	            0.5%</font><br><font color='#ffffff'>时装5	            0.25%</font><br><font color='#ffffff'>时装6	            0.25%</font><br><font color='#ffffff'>每抽200次必出一个时装</font><br><font color='#ffffff'>每18抽必得:  低级材料自选箱*1</font><br><font color='#ffffff'>每66抽必得:  高级材料自选箱*1</font><br><font color='#ffffff'>每100抽必得：特级材料自选箱*1</font>", worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 1})
+            SL:OpenCommonDescTipsPop({str = poolTipText, worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 1})
         end)
     end
     -- 
@@ -753,9 +799,8 @@ function npc.renderFucai(node)
     GUI:RichText_Create(node, "jlsz4", 98 - 30,280,  "<a href='jump#item_tips#"..SL:GetMetaValue("ITEM_INDEX_BY_NAME", "时装：熊猫人").."'>[".."时装：熊猫人".."]</a>", 500, 14, "#FF0000", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
     GUI:RichText_Create(node, "jlsz5", 210,200,  "<a href='jump#item_tips#"..SL:GetMetaValue("ITEM_INDEX_BY_NAME", "时装：开挖掘机").."'>[".."时装：开挖掘机".."]</a>", 500, 14, "#FF0000", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
     GUI:RichText_Create(node, "jlsz6", 400,280,  "<a href='jump#item_tips#"..SL:GetMetaValue("ITEM_INDEX_BY_NAME", "时装：天刀").."'>[".."时装：天刀".."]</a>", 500, 14, "#FF0000", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-    
 
-    GUI:setScale(GUI:ItemShow_Create(guang, "icon", 105, 5, {index = SL:GetMetaValue("ITEM_INDEX_BY_NAME","锄子")}), 0.6)
+    GUI:setScale(GUI:ItemShow_Create(guang, "icon", 105, 5, {index = SL:GetMetaValue("ITEM_INDEX_BY_NAME","鹤嘴锄")}), 0.6)
     local currentTokenCount = toNumber(npc.data and npc.data.token_count, 0)
     local drawOnceCost = getDrawOnceCost()
     local currentTokenColor = currentTokenCount >= drawOnceCost and "#45ff93" or "#ff6666"
@@ -764,12 +809,11 @@ function npc.renderFucai(node)
     local guang = GUI:Image_Create(node, "cost_ten_value_img", 144 - 60 + 190, 82 - 25 + 78, "res/wy/public/guang.png")
     GUI:setContentSize(guang, 180, 30)
     
-    GUI:setScale(GUI:ItemShow_Create(guang, "icon", 105, 5, {index = SL:GetMetaValue("ITEM_INDEX_BY_NAME","锄子")}), 0.6)
+    GUI:setScale(GUI:ItemShow_Create(guang, "icon", 105, 5, {index = SL:GetMetaValue("ITEM_INDEX_BY_NAME","鹤嘴锄")}), 0.6)
     local currentTokenCount = toNumber(npc.data and npc.data.token_count, 0)
     local drawTenCost = getDrawTenCost()
     local currentTokenColor = currentTokenCount >= drawTenCost and "#45ff93" or "#ff6666"
     GUI:RichText_Create(guang, "text", 130, 5, string.format("<font color='%s'>%s</font><font color='#FFFFFF'>/%s</font>", currentTokenColor, tostring(currentTokenCount), tostring(drawTenCost)), 150, 16, "#FFFFFF", 0, nil, nil)
-
 
     local drawOnceBtn = GUI:Button_Create(node, "draw_once", 144 - 60 - 16, 82 - 25, "res/custom/msfc/page1/draw_once.png")
     GUI:setAnchorPoint(drawOnceBtn, 0, 0)
@@ -783,11 +827,11 @@ function npc.renderFucai(node)
         SL:SendLuaNetMsg(100, 101, 2, 0, "")
     end)
 
-    if toNumber(npc.data and npc.data.token_count, 0) < getDrawOnceCost() then
-        GUI:setOpacity(drawOnceBtn, 180)
+    if toNumber(npc.data and npc.data.token_count, 0) >= getDrawOnceCost() then
+        NPC_UI_HELPER.redpoint_create(drawOnceBtn)
     end
-    if toNumber(npc.data and npc.data.token_count, 0) < getDrawTenCost() then
-        GUI:setOpacity(drawTenBtn, 180)
+    if toNumber(npc.data and npc.data.token_count, 0) >= getDrawTenCost() then
+        NPC_UI_HELPER.redpoint_create(drawTenBtn)
     end
 
     -- local exchangeRich = GUI:RichText_Create(node, "exchange_tips", 74, 30, string.format("每击杀<font color='#ff3030'>%s</font>只怪可兑换1个", tostring(getExchangeNeed())), 250, 18, "#f3e8ce", 0, nil, nil)
@@ -808,8 +852,8 @@ function npc.renderFucai(node)
     GUI:addOnClickEvent(exchangeBtn, function()
         SL:SendLuaNetMsg(100, 101, 3, 0, "")
     end)
-    if toNumber(npc.data and npc.data.exchange_available, 0) <= 0 then
-        GUI:setOpacity(exchangeBtn, 180)
+    if toNumber(npc.data and npc.data.exchange_available, 0) > 0 then
+        NPC_UI_HELPER.redpoint_create(exchangeBtn, {x = 156, y = 23})
     end
 
     -- local buyRich = GUI:RichText_Create(node, "buy_tips", 426, 30, string.format("<font color='#ff3030'>%s</font>灵石可购买1个", getBuyCostText()), 180, 18, "#f3e8ce", 0, nil, nil)
@@ -826,6 +870,18 @@ function npc.renderFucai(node)
     local selected = findMilestoneByIdx(npc.selectedMilestoneIdx) or getMilestones()[1]
     local normalTarget = getHighestClaimableMilestone(false) or selected
     local crownTarget = getHighestClaimableMilestone(true) or selected
+    if selected then
+        -- GUI:Text_Create(node, "preview_title_normal", 618, 422, 16, "#FFE07A", "当前所选普通奖励")
+        -- setTextStyle(GUI:ui_delegate(node).preview_title_normal)
+        -- GUI:Text_Create(node, "preview_title_crown", 710, 422, 16, "#FFE07A", "冠名奖励")
+        -- setTextStyle(GUI:ui_delegate(node).preview_title_crown)
+
+        -- local normalSummary = GUI:RichText_Create(node, "preview_normal", 612, 404, buildRewardSummaryText(selected.normal), 84, 42, "#f7f7de", 1, nil, nil, {outlineSize = 1, outlineColor = SL:ConvertColorFromHexString("#100808")})
+        -- GUI:setAnchorPoint(normalSummary, 0, 1)
+        -- local crownSummary = GUI:RichText_Create(node, "preview_crown", 704, 404, buildRewardSummaryText(selected.crown), 84, 42, "#f7f7de", 1, nil, nil, {outlineSize = 1, outlineColor = SL:ConvertColorFromHexString("#100808")})
+        -- GUI:setAnchorPoint(crownSummary, 0, 1)
+    end
+
     local normalBtn = GUI:Button_Create(node, "claim_normal", 610, 18, "res/custom/msfc/page1/action_3.png")
     GUI:setAnchorPoint(normalBtn, 0, 0)
     GUI:addOnClickEvent(normalBtn, function()
@@ -844,11 +900,11 @@ function npc.renderFucai(node)
         SL:SendLuaNetMsg(100, 101, 6, crownTarget.idx, SL:JsonEncode({idx = crownTarget.idx, draw = crownTarget.draw}, false))
     end)
 
-    if not normalTarget or not canClaimMilestone(normalTarget, false) then
-        GUI:setOpacity(normalBtn, 180)
+    if normalTarget and canClaimMilestone(normalTarget, false) then
+        NPC_UI_HELPER.redpoint_create(normalBtn, {x = 156, y = 23})
     end
-    if not crownTarget or not canClaimMilestone(crownTarget, true) then
-        GUI:setOpacity(crownBtn, 180)
+    if crownTarget and canClaimMilestone(crownTarget, true) then
+        NPC_UI_HELPER.redpoint_create(crownBtn, {x = 156, y = 23})
     end
 end
 
@@ -910,8 +966,8 @@ function npc.renderRika(node)
         end
         SL:ShowSystemTips(string.format("今日累计充值达到%s元后可领取", tostring(getDayCardNeedCharge())))
     end)
-    if claimed or not canClaim then
-        GUI:setOpacity(button, 180)
+    if not claimed and canClaim then
+        NPC_UI_HELPER.redpoint_create(button)
     end
 end
 
@@ -929,6 +985,10 @@ end
 UI_updata = function(node)
     if not node then
         return
+    end
+
+    if npc.currentTab == 2 and not isDayCardUnlocked() then
+        npc.currentTab = 1
     end
 
     closeBoxPopup()

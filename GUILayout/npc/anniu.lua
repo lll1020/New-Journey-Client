@@ -1,4 +1,4 @@
-local npc = {
+﻿local npc = {
 }
 npc.iconpx = {
     {
@@ -27,6 +27,8 @@ npc.woodcut_doll = {
     tab = "doll_machine",
     payload = {doll = {}},
     lastResult = nil,
+    skipAnim = false,
+    reveal = nil,
 }
 local WINDOW_STYLE = {
     reward = {
@@ -377,11 +379,47 @@ local function _shortcut_has_title(titleName)
     if not titleName or titleName == "" then
         return false
     end
-    local idx = SL:GetMetaValue("ITEM_INDEX_BY_NAME", titleName)
-    if not idx then
-        return false
+    local titleList = {
+        tostring(titleName or ""),
+    }
+    if string.find(titleName, "%[称号%]") then
+        titleList[#titleList + 1] = string.gsub(titleName, "%[称号%]$", "")
+    else
+        titleList[#titleList + 1] = tostring(titleName) .. "[称号]"
     end
-    return SL:GetMetaValue("TITLE_DATA_BY_ID", idx) ~= nil
+    local used = {
+    }
+    for _, oneName in ipairs(titleList) do
+        if oneName ~= "" and not used[oneName] then
+            used[oneName] = true
+            local idx = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", oneName) or 0) or 0
+            if idx > 0 and SL:GetMetaValue("TITLE_DATA_BY_ID", idx) ~= nil then
+                return true
+            end
+        end
+    end
+    return false
+end
+local function _shortcut_get_server_json(varName)
+    if not Player or not Player.getServerVar or not Player.JsonToTbl then
+        return {
+        }
+    end
+    local raw = Player:getServerVar(varName)
+    if not raw or raw == "" then
+        return {
+        }
+    end
+    local data = Player:JsonToTbl(raw)
+    return type(data) == "table" and data or {
+    }
+end
+local function _shortcut_get_firstcharge_state()
+    local T_data = npc.data_501 and npc.data_501.T_data
+    if type(T_data) == "table" and next(T_data) ~= nil then
+        return T_data
+    end
+    return _shortcut_get_server_json("T39")
 end
 local function _shortcut_is_freesponsor_completed()
     local cfg = teshudata and teshudata["anniu_516"]
@@ -407,12 +445,18 @@ local function _shortcut_is_freesponsor_completed()
     return _shortcut_has_title(finalTitle)
 end
 _shortcut_is_firstcharge_completed = function()
-    local T_data = npc.data_501 and npc.data_501.T_data
-    if type(T_data) ~= "table" then
-        return false
-    end
+    local T_data = _shortcut_get_firstcharge_state()
     local mainClaimed = tonumber(T_data["main_claimed"] or T_data["other_lb"] or T_data["_lb"] or 0) or 0
-    return mainClaimed >= 1
+    if mainClaimed >= 1 then
+        return true
+    end
+    local cfg = teshudata and teshudata["anniu_501"] or {
+    }
+    local finalTitle = tostring(cfg.final_title or cfg.ch or "")
+    if finalTitle ~= "" and _shortcut_has_title(finalTitle) then
+        return true
+    end
+    return false
 end
 local function _shortcut_is_kuangbao_completed()
     local cfg = teshudata and teshudata["npc_15"]
@@ -553,9 +597,7 @@ local function _huti_get_local_open_flag(idx)
         return (tonumber(SL:GetMetaValue("RELEVEL") or 0) or 0) >= 1
     end
     if idx == 2 then
-        local firstChargeData = (npc.data_501 and npc.data_501.T_data) or {
-        }
-        return (tonumber(firstChargeData["main_claimed"] or firstChargeData["other_lb"] or firstChargeData["_lb"] or 0) or 0) >= 1
+        return _shortcut_is_firstcharge_completed()
     end
     if idx == 3 then
         return _shortcut_is_unbind_completed()
@@ -564,10 +606,11 @@ local function _huti_get_local_open_flag(idx)
 end
 local function _huti_is_open(idx)
     local info = _huti_get_aura_info(idx)
+    local localOpen = _huti_get_local_open_flag(idx)
     if info.open ~= nil then
-        return tonumber(info.open or 0) == 1
+        return tonumber(info.open or 0) == 1 or localOpen == true
     end
-    return _huti_get_local_open_flag(idx)
+    return localOpen
 end
 local function _huti_get_active_idx()
     local data = _huti_get_server_data()
@@ -815,10 +858,16 @@ local function registerShortcutTitleRefresh()
     end
     npc._shortcut_title_refresh_registered = true
     local function _refresh_shortcut()
-        if npc._shortcut_refresh_pending then
+        if npc._shortcut_refresh_pending or not npc.dbLayout then
             return
         end
         npc._shortcut_refresh_pending = true
+        SL:ScheduleOnce(function()
+            npc._shortcut_refresh_pending = false
+            if npc.dbLayout then
+                rebuildShortcutButtons("")
+            end
+        end, 0)
     end
     SL:RegisterLUAEvent(LUA_EVENT_ROLE_PROPERTY_CHANGE, "anniu_shortcut_title_refresh_prop", _refresh_shortcut)
     SL:RegisterLUAEvent(LUA_EVENT_SERVER_VALUE_CHANGE, "anniu_shortcut_title_refresh_server", _refresh_shortcut)
@@ -1090,25 +1139,6 @@ npc[1] = function(p2, p3, msgData)
                         y = 0,
                     }, 0.5)
                 end)
-                if SL:GetMetaValue("IS_SHOW_MAUNAL_SERVICE") or true then
-                    local kefu = GUI:Button_Create(npc.RightBottom, "kefu", -260 - 100, 90, "res/wy/icon/kefu_pc.png")
-                    GUI:addOnClickEvent(kefu, function()
-                        SL:RequestOpen996ManualService()
-                    end)
-                    ManualService = {
-                    }
-                    function ManualService.OnUnReadMessage(data)
-                        if data and data.unReadNums > 0 then
-                            return
-                        end
-                    end
-                    function ManualService.RegisterEvent()
-                        SL:RegisterLUAEvent("LUA_EVENT_MANUAL_SERVICE_MESSAGE_UN_READ", "ManualService", ManualService.OnUnReadMessage)
-                    end
-                    function ManualService.UnRegisterEvent()
-                        SL:UnRegisterLUAEvent("LUA_EVENT_MANUAL_SERVICE_MESSAGE_UN_READ", "ManualService")
-                    end
-                end
                 local moji = GUI:Effect_Create(npc.RightBottom, "moji", -260, 40, 0, 7060, 0, 0, 0, 1)
                 local Layout = GUI:Layout_Create(moji, "Layout", 0, 0, 48, 48, false)
                 GUI:setTouchEnabled(Layout, true)
@@ -3394,7 +3424,7 @@ npc[22] = function(p2, p3, Data)
                 id = 72,
                 x = 246,
                 y = 94,
-                name = "全购买·仙法全槽位[未激活]",
+                name = "雷霆双子剑[未激活]",
             },
             {
                 id = 73,
@@ -3549,6 +3579,48 @@ npc[30] = function(p2, p3, Data)
         return format_doll_number(num)
     end
 
+    local function get_doll_cost_count(cost, itemName)
+        if type(cost) ~= 'table' then
+            return 0
+        end
+        local total = 0
+        local targetName = tostring(itemName or '')
+        for _, entry in ipairs(cost) do
+            if type(entry) == 'table' and tostring(entry[1] or '') == targetName then
+                total = total + (tonumber(entry[2] or 0) or 0)
+            end
+        end
+        return total
+    end
+
+    local function get_doll_attr_label(entryCfg)
+        local attrDesc = tostring((entryCfg or {}).attr_desc or '')
+        if attrDesc == '' then
+            return '属性加成'
+        end
+        local label = attrDesc
+        label = string.gsub(label, '%s*/%s*.*$', '')
+        label = string.gsub(label, '%+.*$', '')
+        label = string.gsub(label, '%s+$', '')
+        return label ~= '' and label or attrDesc
+    end
+
+    local function build_doll_preview_batch_cost(doll, cfg, count)
+        local drawTotal = tonumber((doll or {}).draw_total or 0) or 0
+        local firstCount = tonumber((cfg or {}).first_draw_count or 0) or 0
+        local drawCount = math.max(1, tonumber(count) or 1)
+        local total = 0
+        for _ = 1, drawCount do
+            if drawTotal < firstCount then
+                total = total + get_doll_cost_count((cfg or {}).first_draw_cost or {}, '仙府币')
+            else
+                total = total + get_doll_cost_count((cfg or {}).normal_draw_cost or {}, '仙府币')
+            end
+            drawTotal = drawTotal + 1
+        end
+        return total
+    end
+
     local function get_doll_cfg()
         return ((teshudata['npc_44'] or {}).DollCfg or {})
     end
@@ -3577,11 +3649,25 @@ npc[30] = function(p2, p3, Data)
         SL:SendLuaNetMsg(101, 30, 4, 0, '')
     end
 
-    local function request_draw_doll_machine()
-        SL:SendLuaNetMsg(101, 30, 5, 0, '')
+    local function request_draw_doll_machine(count)
+        local payload = {
+            count = tonumber(count) == 10 and 10 or 1,
+        }
+        SL:SendLuaNetMsg(101, 30, 5, 0, SL:JsonEncode(payload, false))
     end
 
     local open_doll_machine
+
+    -- Cocos UI 节点有效性判定，避免旧窗口关闭后动画/回调继续操作失效节点。
+    local function is_valid_cobj(target)
+        if not target then
+            return false
+        end
+        if tolua and tolua.isnull then
+            return not tolua.isnull(target)
+        end
+        return true
+    end
 
     local function get_doll_tab_skin(tabId)
         local folderMap = {
@@ -3690,6 +3776,330 @@ npc[30] = function(p2, p3, Data)
         end
     end
 
+    local function open_doll_draw_popup(results, drawCount)
+        results = type(results) == 'table' and results or {}
+        if #results <= 0 then
+            return
+        end
+        local parent = GUI:GetWindow(nil, 'doll_xjm')
+        if not is_valid_cobj(parent) then
+            parent = nil
+        end
+        if parent then
+            GUI:removeAllChildren(parent)
+        else
+            parent = GUI:Win_Create('doll_xjm', 0, 0, 0, 0, false, false, true, true, true, nil, 30)
+        end
+        if not is_valid_cobj(parent) then
+            return
+        end
+        local popupToken = string.format('doll_popup_%s_%s', tostring(os.clock()), tostring(math.random(1000, 9999)))
+        npc.woodcut_doll.popupToken = popupToken
+        npc.woodcut_doll.popupRendered = nil
+        local function is_popup_alive()
+            return npc.woodcut_doll.popupToken == popupToken and is_valid_cobj(parent)
+        end
+        local startFrame = npc.woodcut_doll.skipAnim and 120 or 1
+        local endFrame = 150
+        local overlay = GUI:Image_Create(parent, 'bjt', 0, 0, 'res/public/1900000651_1.png')
+        GUI:setAnchorPoint(overlay, 0.5, 0.5)
+        GUI:setContentSize(overlay, cogin.w + 100, cogin.h + 100)
+        GUI:setTouchEnabled(overlay, true)
+        local qualityColor = {
+            normal = '#d9edf8',
+            red = '#ff8f80',
+            hidden = '#ffe37e',
+        }
+        local function close_popup()
+            if npc.woodcut_doll.popupToken == popupToken then
+                npc.woodcut_doll.popupToken = nil
+            end
+            if is_valid_cobj(parent) then
+                GUI:Win_Close(parent)
+            end
+        end
+        local function render_result_layer()
+            if not is_popup_alive() then
+                return
+            end
+            if npc.woodcut_doll.popupRendered == popupToken then
+                return
+            end
+            npc.woodcut_doll.popupRendered = popupToken
+            local resultLayer = GUI:Layout_Create(parent, 'doll_result_layer', 0, 0, cogin.w, cogin.h, false)
+            GUI:setLocalZOrder(resultLayer, 20)
+            GUI:setTouchEnabled(resultLayer, true)
+            local title = GUI:Text_Create(resultLayer, 'doll_draw_title', cogin.w / 2, cogin.h - 92, 28, '#ffe9c2', drawCount >= 10 and '十连抽取结果' or '抓取成功')
+            GUI:setAnchorPoint(title, 0.5, 0.5)
+            GUI:Text_enableOutline(title, '#100808', 2)
+            local hint = GUI:Text_Create(resultLayer, 'doll_draw_hint', cogin.w / 2, 88, 18, '#ffffff', '点击关闭返回娃娃机')
+            GUI:setAnchorPoint(hint, 0.5, 0.5)
+            GUI:Text_enableOutline(hint, '#100808', 2)
+            local skipLabel = GUI:Text_Create(resultLayer, 'skip_label', cogin.w / 2 - 60, 56, 20, '#FFFFFF', '跳过动画')
+            GUI:Text_enableOutline(skipLabel, '#000000', 1)
+            local skipCheck = GUI:CheckBox_Create(resultLayer, 'skip_anim', cogin.w / 2 + 75, 56, 'res/wy/public/xz_1.png', 'res/wy/public/xz_0.png')
+            GUI:CheckBox_setSelected(skipCheck, npc.woodcut_doll.skipAnim == true)
+            GUI:CheckBox_addOnEvent(skipCheck, function(sender)
+                npc.woodcut_doll.skipAnim = GUI:CheckBox_isSelected(sender)
+            end)
+            local closeBtn = GUI:Button_Create(resultLayer, 'know_btn', cogin.w / 2, 120, 'res/wy/public/kb_btn.png')
+            GUI:setAnchorPoint(closeBtn, 0.5, 0)
+            GUI:Button_setTitleText(closeBtn, '关闭')
+            GUI:Button_setTitleFontSize(closeBtn, 18)
+            GUI:setLocalZOrder(closeBtn, 100)
+            GUI:addOnClickEvent(closeBtn, function()
+                close_popup()
+            end)
+            if drawCount <= 1 then
+                local entry = results[1] or {}
+                local asset = get_doll_asset(entry.resultId)
+                local previewWrap = GUI:Layout_Create(resultLayer, 'doll_draw_single_wrap', cogin.w / 2 - 80, cogin.h / 2 - 120, 160, 220, false)
+                local preview
+                if asset then
+                    preview = GUI:Image_Create(previewWrap, 'doll_draw_preview', 80, 140, asset)
+                    GUI:setAnchorPoint(preview, 0.5, 0.5)
+                    GUI:setOpacity(preview, 0)
+                end
+                local quality = tostring(entry.quality or 'normal')
+                local name = GUI:Text_Create(resultLayer, 'doll_draw_name', cogin.w / 2, cogin.h / 2 - 86 - 100, 46, qualityColor[quality] or '#ffffff', tostring(entry.name or ''))
+                GUI:setAnchorPoint(name, 0.5, 0)
+                GUI:Text_setFontName(name, 'fonts/448.ttf')
+                GUI:Text_enableOutline(name, '#000000', 2)
+                local attr_desc = GUI:RichText_Create(preview, 'doll_draw_attr_desc', 67, 164-155 + 20, tostring(entry.attrDesc or ''), 420, 14, '#f7f7de', 1, nil, nil)
+                GUI:setAnchorPoint(attr_desc, 0.5, 1)
+                GUI:setOpacity(name, 0)
+                GUI:setOpacity(attr_desc, 0)
+                if preview and is_valid_cobj(preview) then
+                    GUI:runAction(preview, GUI:ActionFadeIn(0.25))
+                end
+                GUI:runAction(name, GUI:ActionFadeIn(0.25))
+                GUI:runAction(attr_desc, GUI:ActionFadeIn(0.25))
+                return
+            end
+            local cols = 5
+            local cardW = 96 + 30
+            local cardH = 152 + 50
+            local startX = cogin.w / 2 - 232
+            local startY = cogin.h / 2 + 46
+            for idx, entry in ipairs(results) do
+                local col = (idx - 1) % cols
+                local row = math.floor((idx - 1) / cols)
+                local posX = startX + col * 150
+                local posY = startY - row * 230
+                local card = GUI:Layout_Create(resultLayer, 'doll_draw_card_' .. idx, posX, posY, cardW, cardH, false)
+                GUI:setLocalZOrder(card, 50)
+                GUI:setVisible(card, false)
+                local asset = get_doll_asset(entry.resultId)
+                if asset then
+                    GUI:Image_Create(card, 'doll_draw_card_asset_' .. idx, 0, 0, asset)
+                end
+                local quality = tostring(entry.quality or 'normal')
+                local qualityText = GUI:Text_Create(card, 'doll_draw_card_quality_' .. idx, 8, cardH - 26, 14, qualityColor[quality] or '#ffffff', tostring(entry.qualityName or ''))
+                GUI:Text_enableOutline(qualityText, '#100808', 2)
+                local nameText = GUI:Text_Create(card, 'doll_draw_card_name_' .. idx, 67, 164-155 + 20, 14, '#f8eed8', tostring(entry.name or ''))
+                GUI:setAnchorPoint(nameText, 0.5, 0)
+                GUI:Text_enableOutline(nameText, '#100808', 2)
+                local attrText = GUI:Text_Create(card, 'doll_draw_card_attr_' .. idx, 67, 164-155, 14, '#fff0c0', tostring(entry.attrDesc or ''))
+                GUI:setAnchorPoint(attrText, 0.5, 0)
+                GUI:Text_enableOutline(attrText, '#100808', 2)
+                GUI:addOnClickEvent(card, function()
+                    local worldPos = GUI:getWorldPosition(card)
+                    SL:OpenCommonDescTipsPop({
+                        str = string.format("<font color='#ffe9c2'>%s[%s]</font><br><font color='#ffffff'>%s</font>", tostring(entry.name or ''), tostring(entry.qualityName or ''), tostring(entry.attrDesc or '')),
+                        worldPos = {x = worldPos.x, y = worldPos.y},
+                        anchorPoint = {x = 0, y = 1},
+                        formatWay = 1
+                    })
+                end)
+                GUI:setVisible(card, true)
+                GUI:setOpacity(card, 0)
+                GUI:setScale(card, 0.9)
+                GUI:runAction(card, GUI:ActionSpawn(
+                    GUI:ActionFadeIn(0.5),
+                    GUI:ActionSequence(
+                        GUI:ActionScaleTo(0.3, 1.04),
+                        GUI:ActionScaleTo(0.3, 1)
+                    )
+                ))
+            end
+        end
+        local bg = GUI:Frames_Create(parent, 'bg', cogin.w / 2, cogin.h / 2 + 100, 'res/custom/three_city/xianfu/仙府部分/娃娃机/bg/eff_', '.png', startFrame, endFrame,
+            { speed = 50, count = 150, loop = 1, callback = function(self)
+                if not is_popup_alive() then
+                    return
+                end
+                render_result_layer()
+            end })
+        GUI:setContentSize(bg, cogin.w + 300, cogin.h + 300)
+        GUI:setAnchorPoint(bg, 0.5, 0.5)
+        GUI:setTouchEnabled(bg, true)
+        if not npc.woodcut_doll.skipAnim then
+            GUI:Timeline_DelayTime(parent, 8, function()
+                if is_popup_alive() then
+                    render_result_layer()
+                end
+            end)
+        else
+            GUI:Timeline_DelayTime(parent, 0.05, function()
+                if is_popup_alive() then
+                    render_result_layer()
+                end
+            end)
+        end
+    end
+
+    local function render_doll_draw_overlay(parent)
+        local reveal = npc.woodcut_doll.reveal
+        if type(reveal) ~= 'table' then
+            return
+        end
+        local results = reveal.results or {}
+        if #results <= 0 then
+            return
+        end
+        local overlay = GUI:Layout_Create(parent, 'doll_draw_overlay', -40, 0, 840, 500, false)
+        local mask = GUI:Image_Create(overlay, 'overlay_mask', 0, 0, 'res/public/1900000651_1.png')
+        GUI:setOpacity(mask, 225)
+        GUI:setTouchEnabled(mask, true)
+        if reveal.phase == 'opening' then
+            local eff = GUI:Frames_Create(overlay, 'overlay_eff', 0, 0, 'res/custom/three_city/xianfu/仙府部分/娃娃机/bg/eff_', '.png', 1, 150, {
+                speed = 75,
+                count = 150,
+                loop = 1
+            })
+            GUI:setLocalZOrder(eff, 2)
+            local skipWrap = GUI:Layout_Create(overlay, 'overlay_skip_wrap', 600, 66, 180, 36, false)
+            GUI:setLocalZOrder(skipWrap, 6)
+            local skipLabel = GUI:Image_Create(skipWrap, 'overlay_skip_label', 30, -2, 'res/custom/three_city/xianfu/仙府部分/娃娃机/跳过动画.png')
+            GUI:setTouchEnabled(skipLabel, false)
+            local skipBtn = GUI:CheckBox_Create(skipWrap, 'overlay_skip_check', 0, 0, 'res/public/1900000550.png', 'res/public/1900000551.png')
+            GUI:CheckBox_setSelected(skipBtn, npc.woodcut_doll.skipAnim == true)
+            GUI:CheckBox_addOnEvent(skipBtn, function(self)
+                npc.woodcut_doll.skipAnim = GUI:CheckBox_isSelected(self)
+                if npc.woodcut_doll.reveal == reveal then
+                    reveal.skipAnim = npc.woodcut_doll.skipAnim == true
+                end
+            end)
+            if not reveal.openingScheduled then
+                reveal.openingScheduled = true
+                local token = reveal.token
+                GUI:Timeline_DelayTime(overlay, 115, function()
+                    local current = npc.woodcut_doll.reveal
+                    if current ~= reveal or current.token ~= token then
+                        return
+                    end
+                    current.openingScheduled = nil
+                    current.phase = npc.woodcut_doll.skipAnim and 'summary' or 'reveal'
+                    current.showCount = npc.woodcut_doll.skipAnim and #results or 1
+                    open_doll_machine()
+                end)
+            end
+            return
+        end
+        local effStatic = GUI:Image_Create(overlay, 'overlay_eff_static', 0, 0, 'res/custom/three_city/xianfu/仙府部分/娃娃机/bg/eff_150.png')
+        GUI:setLocalZOrder(effStatic, 2)
+        local title = GUI:Text_Create(overlay, 'overlay_title', cogin.w / 2 - 40, 446, 26, '#ffe9c2', reveal.phase == 'summary' and (#results >= 10 and '十连结果' or '抽取结果') or '娃娃抓取中')
+        GUI:Text_enableOutline(title, '#100808', 2)
+        GUI:setAnchorPoint(title, 0.5, 0.5)
+        local hintText = reveal.phase == 'summary' and '点击关闭返回娃娃机，点击任意结果查看属性' or '开奖结果揭晓中'
+        local hint = GUI:Text_Create(overlay, 'overlay_hint', cogin.w / 2 - 40, 412, 18, '#ffffff', hintText)
+        GUI:Text_enableOutline(hint, '#100808', 2)
+        GUI:setAnchorPoint(hint, 0.5, 0.5)
+        local closeBtn = GUI:Button_Create(overlay, 'overlay_close', cogin.w / 2 - 150, 86, 'res/wy/public/kb_btn.png')
+        GUI:setLocalZOrder(closeBtn, 5)
+        GUI:Button_setTitleText(closeBtn, '关闭')
+        GUI:Button_setTitleFontSize(closeBtn, 18)
+        GUI:addOnClickEvent(closeBtn, function()
+            npc.woodcut_doll.reveal = nil
+            open_doll_machine()
+        end)
+
+        local qualityColor = {
+            normal = '#d9edf8',
+            red = '#ff8f80',
+            hidden = '#ffe37e',
+        }
+        local cardNodes = {}
+        local visibleCount = math.max(0, math.min(#results, tonumber(reveal.showCount or 0) or 0))
+        local cols = (#results >= 10) and 5 or math.min(#results, 3)
+        local cardW = (#results >= 10) and 96 or 138
+        local cardH = (#results >= 10) and 152 or 214
+        local startX = (#results >= 10) and 148 or (cogin.w / 2 - 40 - math.floor((cols - 1) * 82))
+        local baseY = (#results >= 10) and 210 or 138
+        for idx, entry in ipairs(results) do
+            local col = (idx - 1) % cols
+            local row = math.floor((idx - 1) / cols)
+            local posX = startX + col * ((#results >= 10) and 104 or 164)
+            local posY = baseY - row * ((#results >= 10) and 166 or 0)
+            local card = GUI:Layout_Create(overlay, 'overlay_card_' .. idx, posX, posY, cardW, cardH, false)
+            GUI:setLocalZOrder(card, 4)
+            local asset = get_doll_asset(entry.resultId)
+            if asset then
+                GUI:Image_Create(card, 'overlay_card_asset_' .. idx, 0, 0, asset)
+            end
+            local labelBg = GUI:Image_Create(card, 'overlay_card_labelbg_' .. idx, -8, cardH - 56, 'res/custom/three_city/xianfu/仙府部分/娃娃机/下方透明底.png')
+            GUI:setScaleX(labelBg, 0.28)
+            GUI:setScaleY(labelBg, 0.42)
+            GUI:setOpacity(labelBg, 180)
+            local qualityText = GUI:Text_Create(card, 'overlay_card_quality_' .. idx, 8, cardH - 26, 14, qualityColor[tostring(entry.quality or 'normal')] or '#ffffff', tostring(entry.qualityName or ''))
+            GUI:Text_enableOutline(qualityText, '#100808', 2)
+            local nameText = GUI:Text_Create(card, 'overlay_card_name_' .. idx, math.floor(cardW / 2), cardH - 46, (#results >= 10) and 13 or 15, '#f8eed8', tostring(entry.name or ''))
+            GUI:setAnchorPoint(nameText, 0.5, 0)
+            GUI:Text_enableOutline(nameText, '#100808', 2)
+            local attrText = GUI:Text_Create(card, 'overlay_card_attr_' .. idx, math.floor(cardW / 2), 10, (#results >= 10) and 12 or 14, '#fff0c0', tostring(entry.attrDesc or ''))
+            GUI:setAnchorPoint(attrText, 0.5, 0)
+            GUI:Text_enableOutline(attrText, '#100808', 2)
+            GUI:setVisible(card, idx <= visibleCount or reveal.phase == 'summary')
+            if reveal.phase ~= 'summary' and idx == visibleCount and visibleCount > 0 then
+                GUI:setOpacity(card, 0)
+                GUI:setScale(card, 0.8)
+                GUI:runAction(card, GUI:ActionSpawn(
+                    GUI:ActionFadeIn(0.12),
+                    GUI:ActionSequence(
+                        GUI:ActionScaleTo(0.08, 1.08),
+                        GUI:ActionScaleTo(0.08, 1)
+                    )
+                ))
+            end
+            GUI:addOnClickEvent(card, function()
+                local worldPos = GUI:getWorldPosition(card)
+                SL:OpenCommonDescTipsPop({
+                    str = string.format("<font color='#ffe9c2'>%s[%s]</font><br><font color='#ffffff'>%s</font>", tostring(entry.name or ''), tostring(entry.qualityName or ''), tostring(entry.attrDesc or '')),
+                    worldPos = {x = worldPos.x, y = worldPos.y},
+                    anchorPoint = {x = 0, y = 1},
+                    formatWay = 1
+                })
+            end)
+            cardNodes[#cardNodes + 1] = card
+        end
+        if reveal.phase == 'summary' and #results == 1 then
+            local entry = results[1] or {}
+            local quality = tostring(entry.quality or 'normal')
+            local summaryTitle = GUI:Text_Create(overlay, 'overlay_single_title', cogin.w / 2 - 40, 144, 42, qualityColor[quality] or '#ffffff', tostring(entry.name or ''))
+            GUI:setAnchorPoint(summaryTitle, 0.5, 0)
+            GUI:Text_setFontName(summaryTitle, 'fonts/448.ttf')
+            GUI:Text_enableOutline(summaryTitle, '#100808', 2)
+            local summaryDesc = GUI:RichText_Create(overlay, 'overlay_single_desc', cogin.w / 2 - 40, 116, tostring(entry.attrDesc or ''), 360, 20, '#f7f7de', 1, nil, nil)
+            GUI:setAnchorPoint(summaryDesc, 0.5, 1)
+        end
+        if reveal.phase ~= 'summary' and not reveal.skipAnim and not reveal.stepScheduled then
+            reveal.stepScheduled = true
+            local token = reveal.token
+            GUI:Timeline_DelayTime(overlay, 18, function()
+                local current = npc.woodcut_doll.reveal
+                if current ~= reveal or current.token ~= token then
+                    return
+                end
+                current.stepScheduled = nil
+                current.showCount = math.min(#results, (tonumber(current.showCount or 0) or 0) + 1)
+                if current.showCount >= #results then
+                    current.phase = 'summary'
+                end
+                open_doll_machine()
+            end)
+        end
+    end
+
     local function render_doll_machine_panel(parent)
         local payload = npc.woodcut_doll.payload or {}
         local doll = payload.doll or {}
@@ -3719,17 +4129,35 @@ npc[30] = function(p2, p3, Data)
             end)
         end
         local pityNeed = doll.pity_need or cfg.pity_need or 0
-        local line1 = GUI:Text_Create(panel, 'machine_line1', 26, 86, 18, '#f5f0df', string.format('当前仙府币：%s    本次消耗：%s', format_doll_number(SL:GetMetaValue('TMONEY', '仙府币') or 0), format_doll_cost(doll.current_cost or cfg.normal_draw_cost or {})))
-        -- local line2 = GUI:Text_Create(panel, 'machine_line2', 26, 58, 18, '#ffe1a8', string.format('累计抓取：%s    新手剩余：%s    红款保底：%s/%s', format_doll_number(doll.draw_total or 0), format_doll_number(doll.newbie_left or 0), format_doll_number(doll.pity_progress or 0), format_doll_number(pityNeed)))
-        -- local line3 = GUI:Text_Create(panel, 'machine_line3', 26, 30, 18, '#9fe8ff', string.format('固定奖励：%s    隐藏款已解锁：%s', format_doll_cost(cfg.every_draw_reward or {}), format_doll_number(doll.hidden_count or 0)))
-        GUI:Text_enableOutline(line1, '#100808', 2)
-        -- GUI:Text_enableOutline(line2, '#100808', 2)
-        -- GUI:Text_enableOutline(line3, '#100808', 2)
+        local tokenCount = tonumber(SL:GetMetaValue('TMONEY', '仙府币') or 0) or 0
+        local singleCost = doll.current_cost or cfg.normal_draw_cost or {}
+        local tenNeed = build_doll_preview_batch_cost(doll, cfg, 10)
+        local tenCost = payload.ten_cost or {{'仙府币', tenNeed}}
+        local guang = GUI:Image_Create(panel, "cost_ten_value_img",  26, 86, "res/wy/public/guang.png")
+        GUI:setContentSize(guang, 180 + 120, 30)
+        GUI:setScale(GUI:ItemShow_Create(guang, "icon", 105, 5, {index = SL:GetMetaValue("ITEM_INDEX_BY_NAME","仙府币")}), 0.6)
+        GUI:Text_setFontName(GUI:Text_Create(guang, "Text_Money2", 3.00, 2.00, 22, "#ffffff", [[所需消耗:]]), "fonts/501.ttf")
+        local singleNeed = get_doll_cost_count(singleCost, '仙府币')
+        local currentTokenColor = tokenCount >= singleNeed and "#45ff93" or "#ff6666"
+        GUI:RichText_Create(guang, "text", 130, 5, string.format("<font color='%s'>%s</font><font color='#FFFFFF'>/%s</font>", currentTokenColor, format_doll_number(tokenCount), format_doll_cost(singleCost)), 300, 16, "#FFFFFF", 0, nil, nil)
+        local tenColor = tokenCount >= tenNeed and '#45ff93' or '#ff6666'
+        -- local infoRows = {
+        --     string.format('累计抓取：%s', format_doll_number(doll.draw_total or 0)),
+        --     string.format('新手剩余：%s', format_doll_number(doll.newbie_left or 0)),
+        --     string.format('红款保底：%s/%s', format_doll_number(doll.pity_progress or 0), format_doll_number(pityNeed)),
+        --     string.format('隐藏已出：%s', format_doll_number(doll.hidden_count or 0)),
+        --     string.format('十连消耗：%s', format_doll_cost(tenCost)),
+        -- }
+        -- local rowColors = {'#ffe1a8', '#9fe8ff', '#ffd38f', '#ffb3a0', tenColor}
+        -- for idx, text in ipairs(infoRows) do
+        --     local rowLabel = GUI:Text_Create(panel, 'machine_info_row_' .. idx, 26, 62 - (idx - 1) * 18, 16, rowColors[idx] or '#ffffff', text)
+        --     GUI:Text_enableOutline(rowLabel, '#100808', 2)
+        -- end
         local lastResultId = ((npc.woodcut_doll.lastResult or {}).resultId) or doll.last_result
         local resultCfg = lastResultId and get_doll_result_cfg(lastResultId) or nil
         -- if resultCfg then
         --     local resultName = GUI:Text_Create(panel, 'machine_result_name', 388, 86, 18, '#ffd66b', string.format('最近获得：%s[%s]', resultCfg.name or '', resultCfg.quality_name or ''))
-        --     local resultDesc = GUI:Text_Create(panel, 'machine_result_desc', 388, 58, 17, '#ffffff', resultCfg.attr_desc or '')
+        --     local resultDesc = GUI:Text_Create(panel, 'machine_result_desc', 388, 58, 16, '#ffffff', resultCfg.attr_desc or '')
         --     GUI:Text_enableOutline(resultName, '#100808', 2)
         --     GUI:Text_enableOutline(resultDesc, '#100808', 2)
         --     local asset = get_doll_asset(lastResultId)
@@ -3742,11 +4170,23 @@ npc[30] = function(p2, p3, Data)
         --     local emptyText = GUI:Text_Create(panel, 'machine_result_empty', 388, 72, 18, '#ffffff', '尚未抓到娃娃')
         --     GUI:Text_enableOutline(emptyText, '#100808', 2)
         -- end
-        -- GUI:Image_Create(parent, 'doll_skip_anim_mock', 689, 84, 'res/custom/three_city/xianfu/仙府部分/娃娃机/跳过动画.png')
-        local drawBtn = GUI:Button_Create(parent, 'doll_draw_btn', 662 - 50, 40, 'res/custom/three_city/xianfu/仙府部分/娃娃机/抓一次.png')
+        local skipWrap = GUI:Layout_Create(parent, 'doll_skip_wrap', 560, 92, 160, 28, false)
+        local skipBtn = GUI:CheckBox_Create(skipWrap, 'doll_skip_check', 0, 0, 'res/public/1900000550.png', 'res/public/1900000551.png')
+        GUI:CheckBox_setSelected(skipBtn, npc.woodcut_doll.skipAnim == true)
+        GUI:CheckBox_addOnEvent(skipBtn, function(self)
+            npc.woodcut_doll.skipAnim = GUI:CheckBox_isSelected(self)
+        end)
+        local skipLabel = GUI:Image_Create(skipWrap, 'doll_skip_label', 30, -2, 'res/custom/three_city/xianfu/仙府部分/娃娃机/跳过动画.png')
+        GUI:setTouchEnabled(skipLabel, false)
+        local drawBtn = GUI:Button_Create(parent, 'doll_draw_btn', 630, 40, 'res/custom/three_city/xianfu/仙府部分/娃娃机/抓一次.png')
         GUI:setAnchorPoint(drawBtn, 0.5, 0.5)
         GUI:addOnClickEvent(drawBtn, function()
-            request_draw_doll_machine()
+            request_draw_doll_machine(1)
+        end)
+        local drawTenBtn = GUI:Button_Create(parent, 'doll_draw_ten_btn', 400, 40, 'res/custom/three_city/xianfu/仙府部分/娃娃机/抓十次.png')
+        GUI:setAnchorPoint(drawTenBtn, 0.5, 0.5)
+        GUI:addOnClickEvent(drawTenBtn, function()
+            request_draw_doll_machine(10)
         end)
     end
 
@@ -3820,8 +4260,11 @@ npc[30] = function(p2, p3, Data)
                 if asset then
                     GUI:Image_Create(slot, 'cabinet_owned_img_' .. idx, 0, 0, asset)
                 end
+                local attrLabel = GUI:Text_Create(slot, 'cabinet_attr_label_' .. idx, 67, 164 - 155, 14, '#ffe084', get_doll_attr_label(entry.cfg or {}))
+                GUI:setAnchorPoint(attrLabel, 0.5, 0)
+                GUI:Text_enableOutline(attrLabel, '#100808', 2)
                 local dollName = tostring((entry.cfg or {}).name or '')
-                local nameText = GUI:Text_Create(slot, 'cabinet_name_' .. idx, 67, 164 - 155, 14, '#f3ead4', dollName)
+                local nameText = GUI:Text_Create(slot, 'cabinet_name_' .. idx, 67, 164 - 155 + 20, 14, '#f3ead4', dollName)
                 GUI:setAnchorPoint(nameText, 0.5, 0)
                 GUI:Text_enableOutline(nameText, '#100808', 2)
                 local quality = tostring((entry.cfg or {}).quality or 'normal')
@@ -3837,11 +4280,7 @@ npc[30] = function(p2, p3, Data)
 
     open_doll_machine = function()
         local skin = 'res/wy/public/tongyong_0.png'
-        if npc.doll_window and npc.doll_window.parent then
-            GUI:Win_Close(npc.doll_window.parent)
-            npc.doll_window = nil
-        end
-        npc.doll_window = NPC_UI_HELPER.ensureWindow(nil, 30, {
+        npc.doll_window = NPC_UI_HELPER.ensureWindow(npc.doll_window or {}, 30, {
             windowName = 'npc_anniu_30_doll',
             background = {
                 skin = skin,
@@ -3849,8 +4288,10 @@ npc[30] = function(p2, p3, Data)
             closeButton = {x = 782, y = 470},
             title = {x = 50, y = 464, skin = "res/custom/three_city/xianfu/仙府部分/标题.png"},
         })
-        local node = npc.doll_window.node
-        GUI:removeAllChildren(node)
+        local node = npc.doll_window and npc.doll_window.node
+        if not node then
+            return
+        end
         render_doll_side_tabs(node)
         if npc.woodcut_doll.tab == 'doll_cabinet' then
             render_doll_cabinet_panel(node)
@@ -3996,8 +4437,12 @@ npc[30] = function(p2, p3, Data)
         npc.data_30.T_data.auto = npc.data_30.T_data.auto or 0
         npc.data_30.T_data.num = npc.data_30.T_data.num or 0
         npc.data_30.T_data.dh_num = npc.data_30.T_data.dh_num or 0
-        GUI:Text_setString(npc.wz1, npc.data_30.T_data.num)
-        GUI:Text_setString(npc.wz2, npc.data_30.T_data.dh_num)
+        if is_valid_cobj(npc.wz1) then
+            GUI:Text_setString(npc.wz1, npc.data_30.T_data.num)
+        end
+        if is_valid_cobj(npc.wz2) then
+            GUI:Text_setString(npc.wz2, npc.data_30.T_data.dh_num)
+        end
     elseif p2 == 2 then
         npc.data_30 = not Data and {
         } or SL:JsonDecode(Data, false)
@@ -4009,34 +4454,59 @@ npc[30] = function(p2, p3, Data)
     elseif p2 == 3 then
         npc.json = SL:JsonDecode(Data, false) or {
         }
+        if not is_valid_cobj(npc.node) then
+            return
+        end
         for i = 1, #npc.json do
             local btn = GUI:ItemShow_Create(npc.node, "item" .. os.clock(), math.random(300, 400), math.random(300, 400), {
                 index = SL:GetMetaValue("ITEM_INDEX_BY_NAME", npc.json[i][1]),
                 count = 1,
                 look = true,
             })
+            if not is_valid_cobj(btn) then
+                break
+            end
             local endPos = GUI:p(math.random(100, 500), math.random(100, 50))
             local controlPoint_1 = GUI:p(300, 600)
             local controlPoint_2 = GUI:p(300, 600)
             local endPosition = endPos
             local bezier = GUI:ActionBezierTo(0.5, controlPoint_1, controlPoint_2, endPosition)
-            GUI:runAction(btn, GUI:ActionSequence(bezier, GUI:DelayTime(10), GUI:CallFunc(function()
-                GUI:removeFromParent(btn)
-            end)))
-            GUI:Timeline_DelayTime(btn, 100, function()
-                GUI:removeFromParent(btn)
-            end)
+            if is_valid_cobj(btn) then
+                GUI:runAction(btn, GUI:ActionSequence(bezier, GUI:DelayTime(10), GUI:CallFunc(function()
+                    if is_valid_cobj(btn) then
+                        GUI:removeFromParent(btn)
+                    end
+                end)))
+            end
+            if is_valid_cobj(npc.node) then
+                GUI:Timeline_DelayTime(npc.node, 100, function()
+                    if is_valid_cobj(btn) then
+                        GUI:removeFromParent(btn)
+                    end
+                end)
+            end
         end
     elseif p2 == 4 then
         npc.woodcut_doll.payload = (not Data or Data == '') and {doll = {}} or (SL:JsonDecode(Data, false) or {doll = {}})
+        npc.woodcut_doll.reveal = nil
         npc.woodcut_doll.tab = npc.woodcut_doll.tab or 'doll_machine'
         open_doll_machine()
     elseif p2 == 5 then
         local payload = (not Data or Data == '') and {doll = {}} or (SL:JsonDecode(Data, false) or {doll = {}})
         npc.woodcut_doll.payload = payload
         npc.woodcut_doll.lastResult = payload.extra or npc.woodcut_doll.lastResult
+        local results = ((payload.extra or {}).results or {})
+        local count = tonumber((payload.extra or {}).count) or #results
+        if count <= 0 then
+            count = math.max(#results, 1)
+        end
+        if #results <= 0 and payload.extra then
+            results = {payload.extra}
+        end
+        npc.woodcut_doll.reveal = nil
         npc.woodcut_doll.tab = 'doll_machine'
         open_doll_machine()
+        open_doll_draw_popup(results, count)
     end
 end
 npc[498] = function(p2, p3, Data)
@@ -4224,7 +4694,7 @@ npc[501] = function(p2, p3, Data)
             end
         end
         local btnSkin = "res/custom/top/shochong/btn_2.png"
-        local mainBtn = GUI:Button_Create(node, "main_btn", 636, 80, btnSkin)
+        local mainBtn = GUI:Button_Create(node, "main_btn", 550, 80, btnSkin)
         GUI:setAnchorPoint(mainBtn, 0.5, 0.5)
         GUI:addOnClickEvent(mainBtn, function()
             if tonumber(T_data.ok or 0) ~= 1 then
@@ -4611,13 +5081,11 @@ local patrolRefs = npc._patrolRefs
 npc[505] = function(p2, p3, Data)
     local function buildPatrolUI(data)
         local win = ensureWindow("patrol", 505, {
-            titleText = "巡航挂机",
+            titleText = "自动巡航",
         })
         local panel = win.node
         GUI:setPosition(panel, 150, 50)
-        local firstChargeData = (npc.data_501 and npc.data_501.T_data) or {
-        }
-        local patrolOpen = (tonumber(firstChargeData["main_claimed"] or firstChargeData["other_lb"] or firstChargeData["_lb"] or 0) or 0) >= 1
+        local patrolOpen = _shortcut_is_firstcharge_completed()
         npc.ksgj = GUI:Button_Create(panel, "ksgj", 439.0 - 130, 22.0, "res/public/1900000660.png")
         GUI:Button_setTitleText(npc.ksgj, data.gjkg and "停止挂机" or "开始挂机")
         GUI:Button_setTitleColor(npc.ksgj, "#ffffff")
@@ -4630,6 +5098,7 @@ npc[505] = function(p2, p3, Data)
             end
             SL:SendLuaNetMsg(101, 505, 4, 0, "")
         end)
+        -- 巡航界面标题与提示统一使用“自动巡航”文案，和当前首充解锁规则保持一致。
         local unlockText = patrolOpen and "已解锁：领取首充礼包后激活自动巡航/传送3秒CD" or "解锁条件：领取首充礼包"
         local unlockColor = patrolOpen and "#33ff99" or "#ff7056"
         local tip = GUI:Text_Create(panel, "patrol_unlock_tip", 309, 420, 16, unlockColor, unlockText)
@@ -4916,9 +5385,9 @@ npc[507] = function(p2, p3, Data)
         GUI:addOnClickEvent(btn, function()
             SL:SendLuaNetMsg(101, 507, 1, i, "")
         end)
-        local title = GUI:Text_Create(label, "title", 22, 315, 24, "#F3E2B6", cfg.title or "")
-        GUI:Text_setFontName(title, "fonts/500.ttf")
-        GUI:Text_enableOutline(title, "#100808", 2)
+        -- local title = GUI:Text_Create(label, "title", 22, 315, 24, "#F3E2B6", cfg.title or "")
+        -- GUI:Text_setFontName(title, "fonts/500.ttf")
+        -- GUI:Text_enableOutline(title, "#100808", 2)
         richText(label, "tip", 60, 252 + 40, 468, 18, "<font color='#f3e2b6' size='16'>" .. tostring(cfg.desc or "") .. "</font>")
         richText(label, "time", 60, 153 + 30, 468, 18, "<font color='#9ff06b' size='16'>" .. tostring(cfg.time or "") .. "</font>")
         richText(label, "reward", 86, 73, 468, 16, "<font color='#ffe07a' size='16'>" .. tostring(cfg.reward or "") .. "</font>")
@@ -5564,7 +6033,7 @@ npc[511] = function(p2, p3, Data)
                     outlineColor = SL:ConvertColorFromHexString("#100808"),
                 })
                 local ownerName = fldt_get_qqsb_owner_name(v.idx)
-                local ownerDisplayName = ownerName ~= "" and ownerName or "※虚位以待※"
+        local ownerDisplayName = ownerName ~= "" and ownerName or "※虚位以待※"
                 local ownerColor = ownerName ~= "" and "#00FF00" or "#FFFFFF"
                 GUI:Text_Create(l, "owner_" .. i, 300, 8, 18, ownerColor, ownerDisplayName)
                 if v.state == 1 then
@@ -6029,7 +6498,7 @@ npc[516] = function(p2, p3, Data)
                 108,
             },
             {
-                83,
+                83 + 10,
                 108,
             },
             {

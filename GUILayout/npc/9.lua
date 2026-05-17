@@ -21,6 +21,34 @@ local RING_UI = {
         tabOff = "res/custom/one_city/9/tab_mb_off.png",
     },
 }
+local other_wz = {
+    {
+        "复活后生命值提升",
+        "复活后生命值提升",
+        "复活后生命值提升",
+        "复活后生命值提升",
+        "复活后生命值提升",
+        "复活后生命值提升",
+        "复活后生命值提升",
+        "复活后生命值提升",
+        "复活后生命值提升",
+        "复活后生命值提升",
+        "复活后生命值提升",
+    },
+    {
+        "麻痹概率提升",
+        "麻痹概率提升",
+        "麻痹概率提升",
+        "麻痹概率提升",
+        "麻痹概率提升",
+        "麻痹概率提升",
+        "麻痹概率提升",
+        "麻痹概率提升",
+        "麻痹概率提升",
+        "麻痹概率提升",
+        "麻痹概率提升",
+    },
+}
 local function getItemDataByName(name)
     local itemIndex = name and SL:GetMetaValue("ITEM_INDEX_BY_NAME", name)
     return itemIndex and SL:GetMetaValue("ITEM_DATA", itemIndex) or nil
@@ -64,7 +92,7 @@ local function buildPreviewText(currentItem, nextItem, equipLevel)
     if nextItem then
         parts[#parts + 1] = ""
         parts[#parts + 1] = string.format("<font color='#56d8ff' size='18'>升级预览  Lv.%d</font>", equipLevel + 1)
-        parts[#parts + 1] = string.format("人物攻击 + %d%%", equipLevel + 1) or ""
+        parts[#parts + 1] = string.format("人物攻击 + %d%%", equipLevel + 1) or "" 
     else
         parts[#parts + 1] = ""
         parts[#parts + 1] = "<font color='#efad21' size='18'>已达最高等级</font>"
@@ -73,6 +101,16 @@ local function buildPreviewText(currentItem, nextItem, equipLevel)
 end
 function npc.main(npcid, p2, p3, msgData)
     local UI_updata
+
+    -- 特戒面板里的当前装备和升级预览只用于展示，不允许拖动。
+    local function create_static_item_show(parent, name, x, y, itemInfo)
+        local show = GUI:ItemShow_Create(parent, name, x, y, itemInfo)
+        if show then
+            GUI:setAnchorPoint(show, 0.5, 0.5)
+        end
+        return show
+    end
+
     local function ensureWindow(npcid)
         local opts = {}
         for k, v in pairs(WINDOW_OPTS) do
@@ -137,11 +175,12 @@ function npc.main(npcid, p2, p3, msgData)
         -- GUI:Text_setFontName(levelLabel, "fonts/font4.ttf")
         -- GUI:Text_enableOutline(levelLabel, "#000000", 2)
         if item then
-            GUI:setAnchorPoint(GUI:ItemShow_Create(node, "item_current", 248, 128, {
+            create_static_item_show(node, "item_current", 248, 128, {
                 itemData = item,
                 look = true,
+                movable = false,
                 bgVisible = false,
-            }), 0.5, 0.5)
+            })
         else
             local tip = GUI:Text_Create(node, "wear_tip", 248, 128, 25, "#A5A5A5", "请先穿戴")
             GUI:setAnchorPoint(tip, 0.5, 0.5)
@@ -149,11 +188,12 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:Text_enableOutline(tip, "#000000", 2)
         end
         if canUpgrade and nextItem then
-            GUI:setAnchorPoint(GUI:ItemShow_Create(node, "item_next", 248, 287, {
+            create_static_item_show(node, "item_next", 248, 287, {
                 itemData = nextItem,
                 look = true,
+                movable = false,
                 bgVisible = false,
-            }), 0.5, 0.5)
+            })
         else
             local tipText = item and "满级" or "预览"
             local nextTip = GUI:Text_Create(node, "next_tip", 248, 287, 18, "#EFAD21", tipText)
@@ -170,7 +210,7 @@ function npc.main(npcid, p2, p3, msgData)
         end
         local previewHost = GUI:Node_Create(node, "preview_host", 433 + 30, 370 - 50)
         local previewRich = GUI:RichText_Create(previewHost, "preview_text", 0, 0,
-            buildPreviewText(item, nextItem, equipLevel), 300, 18, "#f7f7de", 3, nil, nil,
+            buildPreviewText(item, nextItem, equipLevel).."\n"..other_wz[cfgIdx][equipLevel], 300, 18, "#f7f7de", 3, nil, nil,
             {outlineSize = 2, outlineColor = SL:ConvertColorFromHexString("#100808")})
         GUI:setAnchorPoint(previewRich, 0, 1)
         if uiCfg.tipSkin then

@@ -34,6 +34,49 @@ local function createText(parent, name, x, y, size, color, text, ax, ay)
     return label
 end
 
+-- 统一生成顶部说明文本，卖肉页和商店页分别复用不同说明。
+local function createTipText(parent, name, text)
+    local rich = GUI:RichText_Create(parent, name, 385, 455, tostring(text or ""), 360, 18, "#F8F8F8", 0, nil, nil, {
+        outlineSize = 2,
+        outlineColor = "#000000",
+    })
+    GUI:setAnchorPoint(rich, 0, 1)
+    return rich
+end
+
+-- 卖肉页顶部说明，直接提示肉类来源和卖肉用途。
+local function buildSellTipText()
+    return table.concat({
+        "<font color='#FFFFFF'>未来来！走过路过不要错过！小伙子，你</font><br>",
+        "<font color='#FFFFFF'>若打到了肉，可</font><font color='#7CFB9A'>以卖我换取美食积分</font><font color='#FFFFFF'>，兑换奖励！</font>"
+    }, "")
+end
+
+-- 商店页顶部说明，强调积分兑换与限购信息。
+local function buildShopTipText()
+    return table.concat({
+        "<font color='#FFFFFF'>美食积分可</font><font color='#FFD27A'>兑换稀有材料与道具</font><font color='#FFFFFF'>，</font><br>",
+        "<font color='#FFFFFF'>部分奖励存在</font><font color='#FF8F8F'>限购</font><font color='#FFFFFF'>，请按需求兑换。</font>"
+    }, "")
+end
+
+-- 生成列表状态文案，卖肉与购买两页共用。
+local function buildStateText(mode, enough, reachedLimit)
+    if mode == "shop" then
+        if reachedLimit then
+            return "已售完", "#FF8F8F"
+        end
+        if not enough then
+            return "积分不足", "#BFBFBF"
+        end
+        return "可购买", "#7CFB9A"
+    end
+    if not enough then
+        return "数量不足", "#BFBFBF"
+    end
+    return "可出售", "#7CFB9A"
+end
+
 local function ensureWindow(npcid)
     local opts = {}
     for k, v in pairs(WINDOW_OPTS) do
@@ -57,6 +100,8 @@ local function ensureWindow(npcid)
     npc.node = GUI:Node_Create(npc.bg, "node", -415, -328)
     return npc.node
 end
+
+local renderMain
 
 local function currentTab(npcid)
     local data = panelData()
@@ -94,7 +139,11 @@ end
 
 local function renderSellPage(node, npcid)
     local data = panelData()
-    createText(node, "point", 650, 405 + 130, 18, "#7CFB9A", "美食积分：" .. tostring(toNum(data.point, 0)), 1, 0.5)
+    createTipText(node, "sell_tip", buildSellTipText())
+    createText(node, "point", 735, 440, 18, "#7CFB9A", "美食积分：" .. tostring(toNum(data.point, 0)), 1, 0.5)
+    createText(node, "header_name", 468, 322, 19, "#79E3FF", "肉类", 0.5, 0.5)
+    createText(node, "header_price", 611, 322, 19, "#FF9C9C", "回收价格", 0.5, 0.5)
+    createText(node, "header_state", 720, 322, 19, "#7CFB9A", "是否售卖", 0.5, 0.5)
     local meats = data.meats or {}
     table.sort(meats, function(a, b)
         return toNum(a.point, 0) < toNum(b.point, 0)
@@ -105,8 +154,12 @@ local function renderSellPage(node, npcid)
         if itemIndex > 0 then
             GUI:ItemShow_Create(node, "item_" .. i, 504 - 38, y + 14, {index = itemIndex, count = toNum(one.count, 0), look = true, bgVisible = true})
         end
-        -- createText(node, "point_desc_" .. i, 682, y + 15, 18, "#FFFFFF", string.format("美食积分*%s", tostring(toNum(one.point, 0))), 0.5, 0.5)
-        createText(node, "count_desc_" .. i, 504 - 38, y, 15, "#79E3FF", string.format("%s x%s", tostring(one.name or ""), tostring(toNum(one.count, 0))), 0, 0.5)
+        -- 每行补上肉类名称、积分收益和状态，避免只有按钮缺少信息。
+        createText(node, "count_desc_" .. i, 494, y, 15, "#79E3FF", string.format("%s x%s", tostring(one.name or ""), tostring(toNum(one.count, 0))), 0, 0.5)
+        createText(node, "point_desc_" .. i, 611, y + 14, 17, "#FFFFFF", string.format("美食积分*%s", tostring(toNum(one.point, 0))), 0.5, 0.5)
+        local enough = toNum(one.count, 0) > 0
+        local stateText, stateColor = buildStateText("sell", enough, false)
+        createText(node, "state_desc_" .. i, 720, y + 14, 17, stateColor, stateText, 0.5, 0.5)
         local btn = GUI:Button_Create(node, "sell_btn_" .. i, 818 - 160, y  + 14, "res/custom/activity/屠夫/卖.png")
         GUI:addOnClickEvent(btn, function()
             if toNum(one.count, 0) <= 0 then
@@ -124,7 +177,11 @@ end
 local function renderShopPage(node, npcid)
     local data = panelData()
     local point = toNum(data.point, 0)
-    createText(node, "point", 650, 405 + 130, 18, "#7CFB9A", "美食积分：" .. tostring(point), 1, 0.5)
+    createTipText(node, "shop_tip", buildShopTipText())
+    createText(node, "point", 735, 440, 18, "#7CFB9A", "美食积分：" .. tostring(point), 1, 0.5)
+    createText(node, "shop_header_name", 468, 322, 19, "#79E3FF", "奖励", 0.5, 0.5)
+    createText(node, "shop_header_cost", 611, 322, 19, "#FF9C9C", "积分消耗", 0.5, 0.5)
+    createText(node, "shop_header_state", 720, 322, 19, "#7CFB9A", "兑换状态", 0.5, 0.5)
     local shop = data.shop or {}
     local buyMap = data.shop_buy or {}
     for i, one in ipairs(shop) do
@@ -144,8 +201,12 @@ local function renderShopPage(node, npcid)
         local limit = toNum(one.limit, 0)
         local buyNum = toNum(buyMap[tostring(idx)] or buyMap[idx] or buyMap[tostring(i)] or buyMap[i], 0)
         local limitText = limit > 0 and string.format("%s %s/%s", tostring(one.name or ""), tostring(buyNum), tostring(limit)) or tostring(one.name or "")
-        -- createText(node, "shop_limit_" .. i, 504 - 38, y, 15, "#79E3FF", limitText, 0, 0.5)
-        -- createText(node, "shop_cost_" .. i, 650, y + 14, 16, "#FFE7A6", string.format("消耗:%s积分", tostring(cost)), 0.5, 0.5)
+        createText(node, "shop_limit_" .. i, 494, y, 15, "#79E3FF", limitText, 0, 0.5)
+        createText(node, "shop_cost_" .. i, 611, y + 14, 16, "#FFE7A6", string.format("%s积分", tostring(cost)), 0.5, 0.5)
+        local enough = point >= cost
+        local reachedLimit = limit > 0 and buyNum >= limit
+        local stateText, stateColor = buildStateText("shop", enough, reachedLimit)
+        createText(node, "shop_state_" .. i, 720, y + 14, 16, stateColor, stateText, 0.5, 0.5)
         local btn = GUI:Button_Create(node, "buy_btn_" .. i, 818 - 160, y  + 14, "res/custom/activity/屠夫/购买.png")
         GUI:addOnClickEvent(btn, function()
             if limit > 0 and buyNum >= limit then
@@ -164,7 +225,8 @@ local function renderShopPage(node, npcid)
     end
 end
 
-function renderMain(node, npcid)
+-- 主渲染入口：切换标签页时直接重建内容，保证背景和列表状态同步。
+renderMain = function(node, npcid)
     if not node then
         return
     end

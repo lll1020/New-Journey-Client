@@ -124,18 +124,8 @@ local function _lg_bind_move_events(npcid)
     if npc._moveEventBound then
         return
     end
+    -- 灵根卸下已改为按钮操作，这里不再注册拖拽卸下事件。
     npc._moveEventBound = true
-
-    local function maintoout()
-        SL:SendLuaNetMsg(100, npcid, 2, 0, "")
-    end
-
-    local function othertoout()
-        SL:SendLuaNetMsg(100, npcid, 3, 0, "")
-    end
-
-    GUI:AddMoveWidgetTypeEvent("lg_main_drag", "out", maintoout, nil)
-    GUI:AddMoveWidgetTypeEvent("lg_other_drag", "out", othertoout, nil)
 end
 
 -- 创建主界面窗口并缓存引用。
@@ -307,8 +297,97 @@ local function _lg_format_scale_text(idx, extraLevel)
     if scale <= 0 then
         return "0.0"
     end
-    -- return string.format("%.1f", scale)
-    return "[灵根等级]"
+    -- 直接回显当前倍率值，避免继续显示占位文本。
+    return string.format("%.1f", scale)
+end
+
+-- 将数值格式化为更适合文案展示的文本：整数不带小数，小数最多保留两位。
+local function _lg_format_effect_number(value)
+    value = tonumber(value) or 0
+    if math.abs(value - math.floor(value + 0.5)) < 0.0001 then
+        return tostring(math.floor(value + 0.5))
+    end
+    local text = string.format("%.2f", value)
+    text = text:gsub("0+$", "")
+    text = text:gsub("%.$", "")
+    return text
+end
+
+-- 将灵根效果文案中的“5000*灵根倍率+2000”一类公式直接结算为实际数值。
+local function _lg_strip_html(text)
+    local plain = tostring(text or "")
+    plain = plain:gsub("<[^>]->", "")
+    plain = plain:gsub("^%s+", "")
+    plain = plain:gsub("%s+$", "")
+    return plain
+end
+
+local function _lg_build_attr_preview_line(attr, nextValue, isMaxLevel)
+    local currentText = _lg_strip_html(Player:showAttr({attr}))
+    local attrName, currentValue = currentText:match("^(.-)%+(.+)$")
+    attrName = tostring((attrName and attrName ~= "" and attrName) or attr[1] or "")
+    currentValue = tostring((currentValue and currentValue ~= "" and currentValue) or attr[2] or 0)
+    local currentLine = string.format("<font color='#FFFFFF'>%s+%s</font>", attrName, currentValue)
+    if isMaxLevel then
+        return currentLine .. "<font color='#8C6B35'> [当前已满级]</font>"
+    end
+    return string.format(
+        "%s<font color='#8C6B35'> -> </font><font color='#4DA3FF'>%s</font><font color='#8C6B35'>[下级属性]</font>",
+        currentLine,
+        tostring(nextValue or 0)
+    )
+end
+
+local _lg_resolve_effect_text
+local _lg_is_max_level
+
+local function _lg_format_effect_preview_text(template, baseValue, idx)
+    local currentText = _lg_resolve_effect_text(template, baseValue, idx, 0)
+    if _lg_is_max_level(idx) then
+        return currentText
+    end
+    local nextText = _lg_resolve_effect_text(template, baseValue, idx, 1)
+    local currentValue = currentText:match("%[(.-)%]")
+    local nextValue = nextText:match("%[(.-)%]")
+    if currentValue and nextValue and currentValue ~= nextValue then
+        local previewContent = string.format(
+            "<font color='#FFFFFF'>%s</font><font color='#8C6B35'> -> </font><font color='#4DA3FF'>%s</font>",
+            currentValue,
+            nextValue
+        )
+        currentText = currentText:gsub("%[.-%]", function()
+            return "[" .. previewContent .. "]"
+        end, 1)
+    end
+    return currentText
+end
+
+local function _lg_build_effect_preview_lines(titleColor, titleText, template, baseValue, idx)
+    return {
+        string.format("<font color='%s'>%s</font>", titleColor or "#FFFFFF", titleText or ""),
+        "　　" .. tostring(_lg_format_effect_preview_text(template, baseValue, idx) or "")
+    }
+end
+
+_lg_resolve_effect_text = function(template, baseValue, idx, extraLevel)
+    template = tostring(template or "")
+    if template == "" then
+        return ""
+    end
+    local scale = _lg_effect_scale(idx, extraLevel)
+    if scale <= 0 then
+        scale = 0
+    end
+    local formatted = string.format(template, tostring(baseValue or 0), _lg_format_effect_number(scale))
+    formatted = formatted:gsub("([%d%.]+)%%%*([%d%.]+)%+([%d%.]+)%%", function(base, mul, add)
+        local result = (tonumber(base) or 0) * (tonumber(mul) or 0) + (tonumber(add) or 0)
+        return _lg_format_effect_number(result) .. "%"
+    end)
+    formatted = formatted:gsub("([%d%.]+)%*([%d%.]+)%+([%d%.]+)", function(base, mul, add)
+        local result = (tonumber(base) or 0) * (tonumber(mul) or 0) + (tonumber(add) or 0)
+        return _lg_format_effect_number(result)
+    end)
+    return formatted
 end
 
 -- 生成灵根本体图标路径。
@@ -350,8 +429,16 @@ local function _lg_next_upgrade_cfg(idx)
 end
 
 -- 判断指定灵根是否已满级。
-local function _lg_is_max_level(idx)
+_lg_is_max_level = function(idx)
     return _lg_level_value(idx) >= tonumber(npc._config.main_updata.max_level or 0)
+end
+
+local function _lg_can_upgrade(idx)
+    if not idx or idx <= 0 or not _lg_has_root(idx) or _lg_is_max_level(idx) then
+        return false
+    end
+    local nextCfg = _lg_next_upgrade_cfg(idx)
+    return nextCfg and checkItemNum(nextCfg.cost) or false
 end
 
 -- 汇总当前所有已激活灵根的总属性。
@@ -394,29 +481,27 @@ local function _lg_build_attr_preview_html(idx)
     local nextAttrs = _lg_build_attr_list(idx, 1)
     local lines = {
         string.format("<font color='"..ROOT_COLORS[idx].."'>[%s灵根]</font>", tostring(cfg.name or "")),
-        string.format("<font color='#00FF00'>当前等级：</font><font color='#FFFFFF'>Lv.%d</font>", _lg_level_value(idx)),
+        string.format("<font color='#00FF00'>当前等级：</font><font color='#FFFFFF'>%d</font>", _lg_level_value(idx)),
         "",
-        "<font color='#FFFFFF'>属性预览:</font>",
+        "<font color='#FFFFFF'>属性预览：</font>",
     }
-    -- lines[#lines + 1] = ""
     if #currentAttrs == 0 then
         lines[#lines + 1] = "<font color='#FF0000'>当前灵根未激活</font>"
     else
         for i, attr in ipairs(currentAttrs) do
             local nextValue = nextAttrs[i] and nextAttrs[i][2] or attr[2]
-            local attrHtml = Player:showAttr({attr})
-            local nextText = _lg_is_max_level(idx) and "已满级" or tostring(nextValue)
-            local nextColor = _lg_is_max_level(idx) and "#FFFFFF" or "#4DA3FF"
-            lines[#lines + 1] = string.format("%s<font color='#8C6B35'> -> </font><font color='%s'>%s</font>[下级属性]", attrHtml, nextColor, nextText)
+            lines[#lines + 1] = _lg_build_attr_preview_line(attr, nextValue, _lg_is_max_level(idx))
         end
     end
 
     lines[#lines + 1] = ""
-    lines[#lines + 1] = "<font color='#DE0000'>主灵根效果:</font>"
-    lines[#lines + 1] = string.format("<font color='#FFFFFF'>%s</font>", string.format(cfg.wz1, cfg.value1 or cfg.value or 0, _lg_format_scale_text(idx, 0)))
+    for _, line in ipairs(_lg_build_effect_preview_lines("#DE0000", "主灵根效果：", cfg.wz1, cfg.value1 or cfg.value or 0, idx)) do
+        lines[#lines + 1] = line
+    end
     lines[#lines + 1] = ""
-    lines[#lines + 1] = "<font color='#4169E1'>副灵根效果:</font>"
-    lines[#lines + 1] = string.format("<font color='#FFFFFF'>%s</font>", string.format(cfg.wz2, cfg.value2 or 0, _lg_format_scale_text(idx, 0)))
+    for _, line in ipairs(_lg_build_effect_preview_lines("#4169E1", "副灵根效果：", cfg.wz2, cfg.value2 or 0, idx)) do
+        lines[#lines + 1] = line
+    end
     return table.concat(lines, "\n")
 end
 
@@ -508,88 +593,14 @@ end
 
 -- 创建中间拖入卸下区域，拖拽时显示提示框。
 local function _lg_create_unequip_drag_area(parent)
-    local outMoveWidget = GUI:MoveWidget_Create(
-        parent,
-        "out_moveWidget",
-        UNEQUIP_DROP_POS.x,
-        UNEQUIP_DROP_POS.y,
-        UNEQUIP_DROP_SIZE.width,
-        UNEQUIP_DROP_SIZE.height,
-        SL:GetMetaValue("ITEMFROMUI_ENUM").out,
-        {}
-    )
-    GUI:setAnchorPoint(outMoveWidget, 0, 0)
-    GUI:setVisible(outMoveWidget, false)
-    local bg = GUI:Image_Create(outMoveWidget, "kuang", 0, 0, "res/wy/public/500-300.png")
-    GUI:setAnchorPoint(bg, 0, 0)
-    GUI:setContentSize(bg, UNEQUIP_DROP_SIZE.width, UNEQUIP_DROP_SIZE.height)
-    local tip = strokeText(outMoveWidget, "drop_tip", UNEQUIP_DROP_SIZE.width / 2, UNEQUIP_DROP_SIZE.height / 2, 22, "#FFFFFF", "放入框内卸下", "fonts/501.ttf")
-    GUI:setAnchorPoint(tip, 0.5, 0.5)
-    return outMoveWidget
+    -- 保留旧函数名，当前版本不再显示拖拽卸下区域。
+    return nil
 end
 
 -- 为主/副灵根槽位挂载拖拽控件，并绑定拖拽中跟随显示与卸下提示。
 local function _lg_attach_drag_widget(parent, name, x, y, moveType, beginIdx)
-    local dragBg = nil
-    local dragItem = nil
-    local drag = GUI:MoveWidget_Create(
-        parent,
-        name,
-        x,
-        y,
-        SLOT_TOUCH_SIZE.width,
-        SLOT_TOUCH_SIZE.height,
-        moveType,
-        {
-            beginMoveCB = function()
-                npc.current_idx = beginIdx
-                if dragBg then
-                    GUI:setVisible(dragBg, true)
-                end
-                if dragItem then
-                    GUI:setVisible(dragItem, true)
-                end
-                if npc.out_moveWidget then
-                    GUI:setVisible(npc.out_moveWidget, true)
-                end
-            end,
-            endMoveCB = function()
-                if dragBg then
-                    GUI:setVisible(dragBg, false)
-                end
-                if dragItem then
-                    GUI:setVisible(dragItem, false)
-                end
-                if npc.out_moveWidget then
-                    GUI:setVisible(npc.out_moveWidget, false)
-                end
-            end,
-            cancelMoveCB = function()
-                if dragBg then
-                    GUI:setVisible(dragBg, false)
-                end
-                if dragItem then
-                    GUI:setVisible(dragItem, false)
-                end
-                if npc.out_moveWidget then
-                    GUI:setVisible(npc.out_moveWidget, false)
-                end
-            end
-        }
-    )
-    GUI:setAnchorPoint(drag, 0.5, 0.5)
-    -- dragBg = GUI:Image_Create(drag, "drag_bg", SLOT_TOUCH_SIZE.width / 2, SLOT_TOUCH_SIZE.height / 2, "res/wy/public/003.png")
-    -- GUI:setAnchorPoint(dragBg, 0.5, 0.5)
-    -- GUI:setContentSize(dragBg, SLOT_TOUCH_SIZE.width, SLOT_TOUCH_SIZE.height)
-    dragItem = _lg_show_root_icon(drag, "drag_item", SLOT_TOUCH_SIZE.width / 2, SLOT_TOUCH_SIZE.height / 2, beginIdx, 1.0)
-    if dragItem then
-        GUI:setScale(dragItem, 0.92)
-    end
-    -- GUI:setVisible(dragBg, false)
-    if dragItem then
-        GUI:setVisible(dragItem, false)
-    end
-    return drag
+    -- 保留旧函数名，避免旧调用报错；当前版本不再挂拖拽控件。
+    return nil
 end
 
 -- 渲染右下当前激活灵根：图标 + 对应技能效果说明。
@@ -627,13 +638,13 @@ local function _lg_render_skill_icons(parent)
         "skill_main",
         mainSkill,
         SKILL_ICON_POS.main,
-        mainCfg and string.format("<font color='#9FE2FF'>%s</font>", string.format(mainCfg.wz1, mainCfg.value1 or mainCfg.value or 0, _lg_format_scale_text(mainIdx, 0))) or ""
+        mainCfg and string.format("<font color='#9FE2FF'>%s</font>", _lg_resolve_effect_text(mainCfg.wz1, mainCfg.value1 or mainCfg.value or 0, mainIdx, 0)) or ""
     )
     renderOne(
         "skill_other",
         otherSkill,
         SKILL_ICON_POS.other,
-        otherCfg and string.format("<font color='#9FE2FF'>%s</font>", string.format(otherCfg.wz2, otherCfg.value2 or 0, _lg_format_scale_text(otherIdx, 0))) or ""
+        otherCfg and string.format("<font color='#9FE2FF'>%s</font>", _lg_resolve_effect_text(otherCfg.wz2, otherCfg.value2 or 0, otherIdx, 0)) or ""
     )
 end
 
@@ -653,11 +664,21 @@ local function _lg_refresh_main_page(npcid, node)
         local col = (idx - 1) % ROOT_GRID_POS.cols
         local x = ROOT_GRID_POS.startX + col * ROOT_GRID_POS.gapX
         local y = ROOT_GRID_POS.startY - row * ROOT_GRID_POS.gapY
+        -- 每个灵根格子都提前缓存激活状态，后续点击与置灰共用同一份判断。
+        local rootActive = _lg_has_root(idx)
         local slot = GUI:Layout_Create(node, "root_slot_" .. idx, x - ROOT_SLOT_SIZE.width / 2, y - ROOT_SLOT_SIZE.height / 2, ROOT_SLOT_SIZE.width, ROOT_SLOT_SIZE.height, false)
         GUI:Image_Create(slot, "bg", 0, 0, "res/custom/linggen/new/main/slot_bg.png")
         local rootItem = _lg_show_root_icon(slot, "item", ROOT_SLOT_SIZE.width / 2, ROOT_SLOT_SIZE.height / 2, idx, ROOT_ICON_SCALE)
-        GUI:setTouchEnabled(slot, true)
+        GUI:setTouchEnabled(slot, rootActive)
         GUI:addOnTouchEvent(slot, function(sender, type)
+            -- 未激活灵根只保留灰态展示，不允许再被选中或触发长按预览。
+            if not rootActive then
+                sender._clicking = false
+                if type == SLDefine.TouchEventType.ended then
+                    SL:ShowSystemTips("该灵根未激活")
+                end
+                return
+            end
             -- 触发控件（sender）：控件本身
             -- 事件类型（type）：触摸阶段 0-3
             if type == SLDefine.TouchEventType.began then           -- 0 触摸开始
@@ -681,7 +702,12 @@ local function _lg_refresh_main_page(npcid, node)
             end
         end)
         if rootItem then
-            GUI:Image_setGrey(rootItem, not _lg_has_root(idx))
+            GUI:Image_setGrey(rootItem, not rootActive)
+        end
+        if _lg_can_upgrade(idx) then
+            local upgradeMark = GUI:Image_Create(slot, "upgrade_mark", ROOT_SLOT_SIZE.width + 8, 0, "res/wy/public/upup.png")
+            GUI:setAnchorPoint(upgradeMark, 1, 0)
+            GUI:setLocalZOrder(upgradeMark, 98)
         end
         if selectedIdx == idx then
             local sel = GUI:Image_Create(slot, "selected", ROOT_SLOT_SIZE.width / 2, ROOT_SLOT_SIZE.height / 2 - 3, "res/custom/linggen/new/main/selected_frame.png")
@@ -796,7 +822,8 @@ local function _lg_refresh_main_page(npcid, node)
         })
     end
 
-    npc.out_moveWidget = _lg_create_unequip_drag_area(node)
+    -- 当前版本只保留按钮卸下，不再创建拖拽卸下区域。
+    npc.out_moveWidget = nil
 
     local mainTouch = GUI:Layout_Create(node, "main_slot_touch", MAIN_SLOT_POS.x - SLOT_TOUCH_SIZE.width / 2, MAIN_SLOT_POS.y - SLOT_TOUCH_SIZE.height / 2, SLOT_TOUCH_SIZE.width, SLOT_TOUCH_SIZE.height, false)
     GUI:setTouchEnabled(mainTouch, true)
@@ -807,10 +834,6 @@ local function _lg_refresh_main_page(npcid, node)
             _lg_refresh_main_page(npcid, node)
         end
     end)
-    if mainIdx and mainIdx > 0 then
-        _lg_attach_drag_widget(node, "main_drag_touch", MAIN_SLOT_POS.x, MAIN_SLOT_POS.y, SL:GetMetaValue("ITEMFROMUI_ENUM").lg_main_drag, mainIdx)
-    end
-
     local otherTouch = GUI:Layout_Create(node, "other_slot_touch", OTHER_SLOT_POS.x - SLOT_TOUCH_SIZE.width / 2, OTHER_SLOT_POS.y - SLOT_TOUCH_SIZE.height / 2, SLOT_TOUCH_SIZE.width, SLOT_TOUCH_SIZE.height, false)
     GUI:setTouchEnabled(otherTouch, true)
     GUI:addOnClickEvent(otherTouch, function()
@@ -820,9 +843,6 @@ local function _lg_refresh_main_page(npcid, node)
             _lg_refresh_main_page(npcid, node)
         end
     end)
-    if otherIdx and otherIdx > 0 then
-        _lg_attach_drag_widget(node, "other_drag_touch", OTHER_SLOT_POS.x, OTHER_SLOT_POS.y, SL:GetMetaValue("ITEMFROMUI_ENUM").lg_other_drag, otherIdx)
-    end
 end
 
 -- 刷新灵根升级弹窗：预览属性、当前灵根、消耗、升级按钮。
@@ -862,7 +882,7 @@ _lg_refresh_upgrade_window = function(npcid, xNode)
     if _lg_is_max_level(idx) then
         strokeText(xNode, "max_tip", UPGRADE_BTN_POS.x, UPGRADE_BTN_POS.y + 76, 18, "#7CFF7C", "当前灵根已满级", "fonts/font4.ttf")
         GUI:setAnchorPoint(GUI:getChildByName(xNode, "max_tip"), 0.5, 0.5)
-    elseif nextCfg and checkItemNum(nextCfg.cost) then
+    elseif _lg_can_upgrade(idx) then
         NPC_UI_HELPER.redpoint_create(btn, {x = 120, y = 46})
         NPC_UI_HELPER.tryStartXylGuide(npc, btn, xNode, "linggen_upgrade_" .. tostring(idx), {
             taskNames = {"升级灵根", "强化灵根", "强化灵根1次"},
