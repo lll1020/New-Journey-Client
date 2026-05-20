@@ -928,7 +928,7 @@ local function renderMilestoneCard(parent, idx, milestone)
     local canClaim = (not claimed) and getTotalDoneCount() >= toNumber(milestone.count, 0)
 
     if claimed then
-        local claimedText = GUI:Text_Create(card, "claimed_text", 65, 30, 18, "#ff3d3d", "已领取")
+        local claimedText = GUI:Text_Create(card, "claimed_text", 65, 30, 18, "#4AE74A", "已领取")
         GUI:setAnchorPoint(claimedText, 0.5, 0.5)
         GUI:Text_setFontSize(claimedText, 18)
         GUI:Text_setFontName(claimedText, "fonts/font4.ttf")

@@ -185,7 +185,7 @@ local function _render_card(node, npcid, payload, T_data, idx)
         --     end
         -- end)
         GUI:Text_setString(status,"当前选择")
-        GUI:setAnchorPoint(create_outline_text(node, "sysj", 64 + 494 + 20, 147 + 205 + 13, 18, state.statusColor, _format_left_minutes(state.left), "#22140F"), 0.5, 0.5)
+        GUI:setAnchorPoint(create_outline_text(node, "sysj", 64 + 494 + 20, 147 + 205 + 15, 18, state.statusColor, _format_left_minutes(state.left), "#22140F"), 0.5, 0.5)
     end
     local btn = GUI:Button_Create(card, "card_btn_" .. idx, 20, 8, CHOOSE_BTN_SKIN)
     if state.disabled then

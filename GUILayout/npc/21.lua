@@ -106,12 +106,14 @@ function npc.main(npcid, p2, p3, msgData)
             local desc = GUI:Text_Create(node, "need_xxz",130 + 290,267, 25, "#FFFFFF", "下一级需要的修为："..config.need_xxz)
             GUI:Text_setFontName(desc, "fonts/502.ttf")
             GUI:Text_enableOutline(desc, "#000000", 2)
-            if level == 9 then
+            if level == 9 or true then
                 local jzColor = tonumber(npc.data.jz_dan_color or 249) == 250 and "#00FF00" or "#FF0000"
                 local jzText = tostring(npc.data.jz_dan_text or "未服用")
                 local jzDesc = GUI:Text_Create(node, "jz_dan_tip", 80, 235, 25, jzColor, "筑基条件：筑基丹" .. jzText)
                 GUI:Text_setFontName(jzDesc, "fonts/502.ttf")
                 GUI:Text_enableOutline(jzDesc, "#000000", 2)
+                GUI:setAnchorPoint(GUI:ItemShow_Create(jzDesc, "item", 300, 15, {index= SL:GetMetaValue("ITEM_INDEX_BY_NAME","筑基丹"),count = 1,look= true})
+                , 0.5, 0.5)
             end
             -- GUI:setAnchorPoint(
             --         GUI:RichText_Create(node, "desc", 200, 430,

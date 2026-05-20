@@ -6163,27 +6163,183 @@ npc[511] = function(p2, p3, Data)
     end
 end
 npc[512] = function(p2, p3, Data)
+    local strategyPages = {
+        {
+            key = "intro",
+            main = "本服简介",
+            subs = {
+                {name = "游戏简介", img = "res/custom/strategy/本服简介-游戏简介/本服简介-游戏简介.png"},
+                {name = "等级相关", img = "res/custom/strategy/本服简介-等级相关.png"},
+            },
+        },
+        {
+            key = "start",
+            main = "起号抗米",
+            subs = {
+                {name = "白嫖玩家", img = "res/custom/strategy/起号抗米-白嫖玩家.png"},
+                {name = "小资玩家", img = "res/custom/strategy/起号抗米-小资玩家-.png"},
+                {name = "土豪玩家", img = "res/custom/strategy/起号抗米-土豪玩家--.png"},
+            },
+        },
+        {
+            key = "equip",
+            main = "装备预览",
+            subs = {
+                {name = "装备分类", img = "res/custom/strategy/装备预览-装备分类-.png"},
+                {name = "顶级装备", img = "res/custom/strategy/顶级装备背景.png"},
+                {name = "追梦神器", img = "res/custom/strategy/追梦神器背景.png"},
+                {name = "全服孤品", img = "res/custom/strategy/全服孤品背景.png"},
+            },
+        },
+        {
+            key = "play",
+            main = "玩法攻略",
+            subs = {
+                {name = "玩法攻略", img = "res/custom/strategy/玩法攻略/玩法攻略.png"},
+                -- {name = "灵根部分", img = "res/custom/strategy/玩法攻略/灵根部分.png", w = 1392, h = 162},
+            },
+        },
+        {
+            key = "map",
+            main = "地图走法",
+            map = true,
+            subs = {
+                {name = "地图走法", img = "res/custom/strategy/地图走法/地图走法.png", w = 1944, h = 1286},
+            },
+        },
+    }
+    local function getPage(idx)
+        return strategyPages[tonumber(idx or 1) or 1] or strategyPages[1]
+    end
+    local function getSub(page, idx)
+        page = page or strategyPages[1]
+        return page.subs[tonumber(idx or 1) or 1] or page.subs[1]
+    end
+    local function strategyFileExists(path)
+        return SL and SL.IsFileExist and SL:IsFileExist(path)
+    end
+    local function getSideButtonSkin(name, selected, fallback)
+        local path = "res/custom/strategy/左侧按钮/" .. (selected and "亮" or "暗") .. "/" .. name .. ".png"
+        if strategyFileExists(path) then
+            return path
+        end
+        return fallback or "res/custom/strategy/list/" .. (selected and "l" or "n") .. "/1.png"
+    end
+    local function setButtonSkin(btn, name, selected)
+        if not btn then
+            return
+        end
+        GUI:Button_loadTextureNormal(btn, getSideButtonSkin(name, selected))
+    end
+    local function createSideButton(parent, id, name, selected, fallback, onClick)
+        local btn = GUI:Button_Create(parent, id, 0, 0, getSideButtonSkin(name, selected, fallback))
+        if not strategyFileExists("res/custom/strategy/左侧按钮/暗/" .. name .. ".png") then
+            local txt = GUI:Text_Create(btn, "txt", 85, 21, 20, selected and "#fff3c0" or "#79808b", name)
+            GUI:setAnchorPoint(txt, 0.5, 0.5)
+            GUI:Text_enableOutline(txt, "#100808", 2)
+        end
+        if onClick then
+            GUI:addOnClickEvent(btn, onClick)
+        end
+        return btn
+    end
+    local function createScaleButton(parent, name, x, y, text, callback)
+        local btn = GUI:Button_Create(parent, name, x, y, "res/wy/public/kb_btn.png")
+        -- GUI:setScale(btn, 0.8)
+        GUI:Button_setTitleText(btn, text)
+        GUI:Button_setTitleFontSize(btn, 20)
+        
+        -- local label = GUI:Text_Create(btn, "txt", 58, 17, 22, "#fff2c2", text)
+        -- GUI:setAnchorPoint(label, 0.5, 0.5)
+        -- GUI:Text_enableOutline(label, "#251008", 2)
+        GUI:addOnClickEvent(btn, callback)
+        return btn
+    end
+    local function renderNormalPage(Label_node, page)
+        local viewW, viewH = 584, 444
+        local subIdx = (npc.strategy_sub_sign and npc.strategy_sub_sign[page.key]) or 1
+        local sub = getSub(page, subIdx)
+        local imgW, imgH = sub.w or 584, sub.h or 444
+        local scroll = GUI:ScrollView_Create(Label_node, "ScrollView", 0, 0, viewW, viewH, imgW > viewW and 2 or 1)
+        GUI:ScrollView_setBounceEnabled(scroll, true)
+        local innerW, innerH = math.max(viewW, imgW), math.max(viewH, imgH)
+        GUI:ScrollView_setInnerContainerSize(scroll, innerW, innerH)
+        local img = GUI:Image_Create(scroll, "content", 0, math.max(0, innerH - imgH), sub.img)
+        GUI:setAnchorPoint(img, 0, 0)
+    end
+    local function renderMapPage(Label_node, page)
+        local viewW, viewH = 584, 444
+        GUI:Image_Create(Label_node, "map_bg", 0, 0, "res/custom/strategy/地图走法/地图走法背景.png")
+        local mapInfo = getSub(page, (npc.strategy_sub_sign and npc.strategy_sub_sign[page.key]) or 1)
+        npc.strategy_map_scale = npc.strategy_map_scale or 0.32
+        local function refreshMap(scroll)
+            GUI:removeAllChildren(scroll)
+            local scale = npc.strategy_map_scale or 0.32
+            local imgW = math.floor((mapInfo.w or 1944) * scale)
+            local imgH = math.floor((mapInfo.h or 1286) * scale)
+            GUI:ScrollView_setInnerContainerSize(scroll, math.max(viewW, imgW), math.max(viewH, imgH))
+            local img = GUI:Image_Create(scroll, "map_img", 0, math.max(0, math.max(viewH, imgH) - imgH), mapInfo.img)
+            GUI:setAnchorPoint(img, 0, 0)
+            GUI:setScale(img, scale)
+        end
+        local scroll = GUI:ScrollView_Create(Label_node, "MapScrollView", 0, 0, viewW, viewH, 2)
+        GUI:ScrollView_setBounceEnabled(scroll, true)
+        refreshMap(scroll)
+        local tools = GUI:Layout_Create(Label_node, "map_tools", 370, 405, 200, 36, false)
+        createScaleButton(tools, "zoom_out", -50, -400, "-", function()
+            npc.strategy_map_scale = math.max(0.25, (npc.strategy_map_scale or 0.32) - 0.08)
+            refreshMap(scroll)
+        end)
+        createScaleButton(tools, "zoom_reset", 40, -400, "复位", function()
+            npc.strategy_map_scale = 0.32
+            refreshMap(scroll)
+        end)
+        createScaleButton(tools, "zoom_in", 130, -400, "+", function()
+            npc.strategy_map_scale = math.min(1.2, (npc.strategy_map_scale or 0.32) + 0.08)
+            refreshMap(scroll)
+        end)
+    end
     local function GUI_createLabel(Label_node, idx)
         GUI:removeAllChildren(Label_node)
-        if idx == 1 then
+        local page = getPage(idx)
+        if page.map then
+            renderMapPage(Label_node, page)
+        else
+            renderNormalPage(Label_node, page)
         end
     end
     local function UI_updata(node)
         GUI:removeAllChildren(node)
         npc.cbl_list = GUI:ListView_Create(node, "cbl_list", -5, 10, 170, 440, 1)
         GUI:ListView_setGravity(npc.cbl_list, 1)
-        GUI:ListView_setItemsMargin(npc.cbl_list, 10)
+        GUI:ListView_setItemsMargin(npc.cbl_list, 6)
         npc.Label = GUI:Node_Create(node, "Label", 170, 15)
-        npc.titles_sign = 1
-        for i = 1, 6 do
-            local cbl_item = GUI:Button_Create(npc.cbl_list, "item" .. i, 0, 0, "res/custom/strategy/list/" .. (npc.titles_sign == i and "l" or "n") .. "/" .. i .. ".png")
-            GUI:Image_Create(npc.cbl_list, "fgx" .. i, 0, 0, "res/custom/strategy/list/fgx.png")
-            GUI:addOnClickEvent(cbl_item, function()
-                GUI:Button_loadTextureNormal(GUI:ui_delegate(npc.cbl_list)["item" .. npc.titles_sign], "res/custom/strategy/list/n/" .. npc.titles_sign .. ".png")
+        npc.titles_sign = npc.titles_sign or 1
+        npc.strategy_sub_sign = npc.strategy_sub_sign or {}
+        for i, page in ipairs(strategyPages) do
+            local selectedMain = npc.titles_sign == i
+            local cbl_item = createSideButton(npc.cbl_list, "main_" .. i, page.main, selectedMain, nil, function()
                 npc.titles_sign = i
+                npc.strategy_sub_sign[page.key] = npc.strategy_sub_sign[page.key] or 1
+                UI_updata(node)
                 GUI_createLabel(npc.Label, i)
-                GUI:Button_loadTextureNormal(GUI:ui_delegate(npc.cbl_list)["item" .. npc.titles_sign], "res/custom/strategy/list/l/" .. npc.titles_sign .. ".png")
             end)
+            GUI:Image_Create(npc.cbl_list, "fgx" .. i, 0, 0, "res/custom/strategy/list/fgx.png")
+            if selectedMain then
+                -- GUI:Image_Create(cbl_item, "selected", -1, -2, "res/custom/strategy/左侧按钮/选中框.png")
+            end
+            if selectedMain and #(page.subs or {}) > 1 then
+                for subIdx, sub in ipairs(page.subs) do
+                    local selectedSub = (npc.strategy_sub_sign[page.key] or 1) == subIdx
+                    local subBtn = createSideButton(npc.cbl_list, "sub_" .. i .. "_" .. subIdx, sub.name, selectedSub, "res/custom/strategy/左侧按钮/" .. (selectedSub and "亮" or "暗") .. "/游戏简介.png", function()
+                        npc.strategy_sub_sign[page.key] = subIdx
+                        UI_updata(node)
+                        GUI_createLabel(npc.Label, i)
+                    end)
+                    GUI:setScale(subBtn, 0.82)
+                    GUI:setPositionX(subBtn, 34)
+                end
+            end
         end
     end
     if p2 == 0 then

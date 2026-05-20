@@ -17,7 +17,28 @@ local function getBgSkinByNpcid(npcid)
     end
     return "res/custom/dlcs/2/bg.png"
 end
-
+-- 根据大陆序号给出进入条件文案（与 GUIUtil 的大陆开放条件保持一致）
+local function getEnterNeedText(dl)
+    dl = _to_num(dl, 1)
+    if dl <= 1 then
+        return "无"
+    elseif dl == 2 then
+        return "完成主线引导"
+    elseif dl == 3 then
+        return "完成二大陆转生 + 剧情点11"
+    elseif dl == 4 then
+        return "完成三大陆转生 + 剧情点40"
+    elseif dl == 5 then
+        return "完成四大陆转生 + 剧情点90"
+    elseif dl == 6 then
+        return "完成五大陆转生"
+    elseif dl == 7 then
+        return "完成六大陆转生"
+    elseif dl == 8 then
+        return "完成七大陆转生"
+    end
+    return "请按主线推进"
+end
 local function canEnterByCfg(cfg)
     local dl = _to_num(cfg and cfg[6], 1)
     if type(dl_sz) == "function" then
@@ -50,26 +71,28 @@ function npc.main(npcid, p2, p3, msgData)
         end
         GUI:removeAllChildren(node)
         local cfg = npc._config and npc._config[npcid] or nil
+        local needText = getEnterNeedText(cfg and cfg[6])
         local enterOK = canEnterByCfg(cfg)
         local bgSize = (npc.bg and GUI:getContentSize(npc.bg)) or {width = 798, height = 452}
-        -- 传送入口不再展示底部进入条件文案，只保留按钮本身与锁定状态表现。
-        local effect = GUI:Image_Create(node, "enter_effect", math.floor(bgSize.width / 2) + 50, 136, "res/custom/dlcs/tj.png")
-        GUI:setAnchorPoint(effect, 0.5, 0.5)
-        GUI:setOpacity(effect, enterOK and 180 or 120)
-        GUI:runAction(effect, GUI:ActionRepeatForever(GUI:ActionSequence(
-            GUI:ActionScaleTo(0.9, 1.03),
-            GUI:ActionScaleTo(0.9, 0.98)
-        )))
+        -- 条件面板
+        local cond = GUI:Image_Create(node, "tj", 0, 148, "res/custom/dlcs/tj.png")
+        GUI:setAnchorPoint(cond, 0, 0)
+        local condSize = GUI:getContentSize(cond) or {width = 566, height = 82}
+        GUI:setPosition(cond, math.floor((bgSize.width - condSize.width) / 2) + 50, 100)
+        local stateColor = enterOK and "#00ff00" or "#ff3333"
+        local stateText = enterOK and "（已解锁）" or "（未解锁）"
+        local lockText = GUI:Text_Create(cond, "lock", condSize.width / 2, 14 + 15, 20, stateColor, needText .. stateText)
+        GUI:Text_setFontName(lockText, "fonts/500.ttf")
+        GUI:Text_enableOutline(lockText, "#000000", 2)
+        GUI:setAnchorPoint(lockText, 0.5, 0.5)
         -- 进入按钮
         local button = GUI:Button_Create(node, "btn_enter", math.floor(bgSize.width / 2) + 50, 50, "res/custom/dlcs/btn.png")
         GUI:setAnchorPoint(button, 0.5, 0.5)
-        if not enterOK then
-            GUI:setGrey(button, true)
-        end
         GUI:addOnClickEvent(button, function()
-            if not enterOK then
-                return
-            end
+            -- if not canEnterByCfg(cfg) then
+            --     SL:ShowSystemTips("当前条件未满足，暂时无法进入")
+            --     return
+            -- end
             if npcid == 503 then
                 if not _ywl_has_third_continent_half_entry() then
                     NPC_UI_HELPER.guochang_3()
@@ -78,10 +101,6 @@ function npc.main(npcid, p2, p3, msgData)
             end
             SL:SendLuaNetMsg(100, npcid, 1, 0, "")
         end)
-        local stateText = GUI:Text_Create(node, "lock_state", math.floor(bgSize.width / 2) + 50, 138, 22, enterOK and "#FFF1CC" or "#D0D0D0", enterOK and "点击进入" or "暂未解锁")
-        GUI:Text_setFontName(stateText, "fonts/500.ttf")
-        GUI:Text_enableOutline(stateText, "#000000", 2)
-        GUI:setAnchorPoint(stateText, 0.5, 0.5)
     end
     if p2 == 0 then
         npc.data = SL:JsonDecode(msgData, false)
