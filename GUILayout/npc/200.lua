@@ -75,6 +75,13 @@ local NPC_ALLOW_DEEP = {
     [204] = true,
 }
 
+local MAINLINE_ENTER_TASK_BY_NPC = {
+    [201] = 2,
+    [202] = 5,
+    [203] = 8,
+    [204] = 11,
+}
+
 local DEFAULT_OUTLINE = SL and SL:ConvertColorFromHexString("#100808") or "#100808"
 
 npc._config = {}
@@ -378,6 +385,13 @@ function npc.main(npcid, p2, p3, msgData)
             SL:SendLuaNetMsg(100, npcid, 1, 0, "")
         end, {fontSize = 20,skin = "res/custom/ditu/qrcs_btn.png"})
         GUI:setAnchorPoint(enterBtn, 0.5, 0.5)
+        NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, enterBtn, node, npcid, "enter", {
+            dir = 5,
+            taskMap = MAINLINE_ENTER_TASK_BY_NPC,
+            desc = "点击进入地图",
+            isForce = false,
+            hideMask = false,
+        })
 
         -- if NPC_ALLOW_DEEP[npcid] then
         --     local deepBtn = NPC_UI_HELPER.createPrimaryButton(node, "enter_deep_btn", 200, actionY, "进入地图深处", function()

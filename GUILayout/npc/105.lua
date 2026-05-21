@@ -7,12 +7,24 @@ local WINDOW_OPTS = {
 local CARD_SKIN = "res/custom/xianshifuli/框.png"
 local CHOOSE_BTN_SKIN = "res/custom/xianshifuli/选择.png"
 local CLAIM_ALL_BTN_SKIN = "res/custom/xianshifuli/我全都要.png"
+local REWARD_ITEM_EFFECT_ID = 13048
 local CARD_POS_LIST = {
     {x = 242, y = 178},
     {x = 371, y = 178},
     {x = 500, y = 178},
     {x = 629, y = 178},
 }
+local function add_reward_item_effect(parent, name, x, y, scale)
+    if not parent or tolua.isnull(parent) then
+        return nil
+    end
+    local effect = GUI:Effect_Create(parent, name or "reward_item_eff", x or 0, y or 0, 0, REWARD_ITEM_EFFECT_ID, 0, 0, 0, scale or 1)
+    GUI:setScale(effect, scale or 1)
+    -- if effect then
+    --     GUI:setLocalZOrder(effect, 999)
+    -- end
+    return effect
+end
 local function create_outline_text(parent, name, x, y, size, color, text, outline)
     local label = GUI:Text_Create(parent, name, x, y, size, color, text)
     GUI:Text_enableOutline(label, outline or "#000000", 1)
@@ -156,6 +168,8 @@ local function _render_card(node, npcid, payload, T_data, idx)
     local rewardName, rewardCount, rewardLabel = _get_reward_entry(cfg)
     local state = _get_card_state(payload, T_data, idx)
     local rewardIndex = rewardName ~= "" and SL:GetMetaValue("ITEM_INDEX_BY_NAME", rewardName) or nil
+    add_reward_item_effect(card, "reward_item_eff_" .. idx, 60, 102, 0.7)
+
     if rewardIndex and rewardIndex > 0 then
         local item = GUI:ItemShow_Create(card, "reward_item", 60 - 15, 102 - 15, {
             index = rewardIndex,
@@ -174,7 +188,7 @@ local function _render_card(node, npcid, payload, T_data, idx)
     if state.claimedDone then
         GUI:Image_setGrey(card, true)
     end
-    local title = create_outline_text(card, "reward_label_" .. idx, 60, 52 + 8, 15, "#6A391D", rewardLabel, "#F7E8C6")
+    local title = create_outline_text(card, "reward_label_" .. idx, 60, 52 + 8, 15, "#FF00FF", rewardLabel, "#081800")
     GUI:setAnchorPoint(title, 0.5, 0.5)
     local status = create_outline_text(card, "status_" .. idx, 64, 147, 18, state.statusColor, state.statusText, "#22140F")
     GUI:setAnchorPoint(status, 0.5, 0.5)

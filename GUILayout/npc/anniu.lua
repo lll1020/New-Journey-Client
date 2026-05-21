@@ -1,5 +1,34 @@
 ﻿local npc = {
 }
+local REWARD_ITEM_EFFECT_14193 = 14193
+local REWARD_ITEM_EFFECT_13048 = 13048
+local function _add_reward_item_effect(parent, name, x, y, scale, effectId)
+    if not parent or tolua.isnull(parent) then
+        return nil
+    end
+    local effect = GUI:Effect_Create(parent, name or "reward_item_eff", x or 0, y or 0, 0, effectId or REWARD_ITEM_EFFECT_14193, 0, 0, 0, 1)
+    GUI:setScale(effect, scale or 1)
+    -- if effect then
+    --     GUI:setLocalZOrder(effect, 999)
+    -- end
+    return effect
+end
+local function _add_reward_effect_for_table(node, effectName, x, y, scale, effectId)
+    if not node or tolua.isnull(node) then
+        return
+    end
+    local listView = GUI:getChildByName(node, "cllist")
+    if not listView or tolua.isnull(listView) then
+        return
+    end
+    local children = GUI:getChildren(listView) or {
+    }
+    for _, child in pairs(children) do
+        if child and not tolua.isnull(child) then
+            _add_reward_item_effect(child, effectName, x, y, scale, effectId)
+        end
+    end
+end
 npc.iconpx = {
     {
         {15, "天天省钱",509,1}, {3, "福利大厅",511,2}, {17, "游戏攻略",512,3},{4, "活动大厅",507,4},{14, "首充礼包",501,5},{16, "仙途奇缘",515,515},{20, "护体光环",23,23},{21, "马上发财",31,31}
@@ -1029,6 +1058,7 @@ npc[0] = function(p2, p3, msgData)
                 look = true,
                 count = v[2],
             })
+            -- _add_reward_item_effect(k, "reward_item_eff", 20, 20, 0.9, REWARD_ITEM_EFFECT_14193)
         end
         GUI:UserUILayout(Layout1, {
             dir = 2,
@@ -1269,7 +1299,9 @@ npc[1] = function(p2, p3, msgData)
     end
 end
 npc[2] = function(p2, p3, msgData)
-    if p2 == 2 then
+    if p2 == 8 then
+        SL:OpenBagUI()
+    elseif p2 == 2 then
         local shuju = SL:JsonDecode(msgData, false)
         shuju.xz = shuju.xz or {
         }
@@ -2786,6 +2818,7 @@ npc[11] = function(p2, p3, Data)
                         end)
                         if okReward and rewardNode then
                             GUI:setPosition(rewardNode, 0, -60)
+                            _add_reward_effect_for_table(rewardNode, "ywl_reward_eff", 29, 30, 0.9, REWARD_ITEM_EFFECT_14193)
                         end
                         local desc = GUI:Text_Create(cover, "desc_wz", 10, 172, 20, "#FFFFFF", "任务简介")
                         GUI:Text_enableUnderline(desc)
@@ -2847,7 +2880,9 @@ npc[11] = function(p2, p3, Data)
                 _relayout_task_cards(false)
                 GUI:Image_Create(node, "wz1", 340, 100, 'res/custom/ywl/wz.png')
                 if zjCfg.jl and not _ywl_is_auto_chapter_continent(npc.l) then
-                    GUI:setPosition(ItemNumByTable_img(zjCfg.jl, nil, node), 560, 40)
+                    local rewardNode = ItemNumByTable_img(zjCfg.jl, nil, node)
+                    GUI:setPosition(rewardNode, 560, 40)
+                    _add_reward_effect_for_table(rewardNode, "ywl_chapter_reward_eff", 25, 25, 0.9, REWARD_ITEM_EFFECT_14193)
                 end
                 if npc.data and npc.data.ywl and npc.data.ywl["jl_" .. npc.l .. "_" .. npc.zj] == 1 then
                     GUI:Image_Create(node, "done", 750, 40, 'res/wy/public/rwjd_3.png')
@@ -3184,8 +3219,8 @@ npc[18] = function(p2, p3, Data)
             guideWidget = btn,
             guideParent = node,
             guideDesc = "点击领取",
-            isForce = false,
-            hideMask = true,
+            isForce = true,
+            hideMask = false,
         })
     end
     if p2 == 0 then
@@ -4632,6 +4667,7 @@ npc[501] = function(p2, p3, Data)
     end
     local function create_reward_box(parent, name, count, x, y, giftTag)
         local box = GUI:Image_Create(parent, "box_" .. tostring(x) .. "_" .. tostring(y), x, y, "res/custom/top/shochong/kuang.png")
+        _add_reward_item_effect(box, "reward_eff", 25, 24, 0.9, REWARD_ITEM_EFFECT_14193)
         local itemIndex = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", name) or 0) or 0
         if itemIndex > 0 then
             local item = GUI:ItemShow_Create(box, "item", 25, 24, {
@@ -4805,6 +4841,10 @@ npc[501] = function(p2, p3, Data)
         npc.data_501 = not Data and (npc.data_501 or {
         }) or SL:JsonDecode(Data, false)
         rebuildShortcutButtons("")
+        if p2 == 1 and tonumber(p3 or 0) == 1 then
+            NPC_UI_HELPER.closeWindow(windowCache.firstCharge)
+            return
+        end
         if npc.node and not tolua.isnull(npc.node) then
             UI_updata(npc.node)
         end
@@ -4813,6 +4853,7 @@ end
 npc[502] = function(p2, p3, Data)
     local function create_502_item(parent, itemName, itemCount, itemKey)
         local itemNode = GUI:Image_Create(parent, "itme" .. tostring(itemKey or itemName), 0, 0, "dev/res/wy/public/40-42.png")
+        _add_reward_item_effect(itemNode, "reward_eff", 20, 21, 0.6, REWARD_ITEM_EFFECT_13048)
         local itemIndex = SL:GetMetaValue("ITEM_INDEX_BY_NAME", itemName)
         if tonumber(itemIndex) and tonumber(itemIndex) > 0 then
             local itemShow = GUI:ItemShow_Create(itemNode, "item", 40 / 2, 42 / 2, {
@@ -4820,6 +4861,7 @@ npc[502] = function(p2, p3, Data)
                 look = true,
             })
             GUI:setAnchorPoint(itemShow, 0.5, 0.5)
+            
         end
         if tonumber(itemCount or 0) > 1 then
             GUI:setAnchorPoint(GUI:Text_Create(itemNode, "count", 40 / 2, 5, 13, "#FFFFFF", SL:GetSimpleNumber(itemCount, 0)), 0.5, 0.5)
@@ -4875,6 +4917,8 @@ npc[502] = function(p2, p3, Data)
             return
         end
         GUI:removeAllChildren(node)
+        local guideAmount = tonumber(npc._onlineRechargeGuideAmount or 0) or 0
+        local guideButton = nil
         local Input = GUI:TextInput_Create(node, "Input", 180.0 + 324, 50.0 + 363, 50.0, 20.0, 13)
         GUI:TextInput_setPlaceHolder(Input, "最少10")
         GUI:setTouchEnabled(Input, true)
@@ -4902,6 +4946,9 @@ npc[502] = function(p2, p3, Data)
             local rechargeAmount = rechargeList[i]
             local Button = GUI:Image_Create(dbLayout, "img_lf" .. i, 0, 0, "res/custom/chongzhi/" .. rechargeAmount .. ".png")
             GUI:setTouchEnabled(Button, true)
+            if guideAmount > 0 and tonumber(rechargeAmount) == guideAmount then
+                guideButton = Button
+            end
             if npc.data_502["cz502_" .. rechargeAmount] and npc.data_502["cz502_" .. rechargeAmount] == 1 then
             else
                 GUI:Image_Create(Button, "double", 100, 100, "res/custom/chongzhi/double.png")
@@ -4934,8 +4981,26 @@ npc[502] = function(p2, p3, Data)
             },
         })
         GUI:Image_Create(ScrollView, "k_1", 0, 0, "res/custom/chongzhi/k_1.png")
+        if guideButton then
+            npc._onlineRechargeGuideAmount = nil
+            SL:ScheduleOnce(function()
+                if guideButton and not tolua.isnull(guideButton) then
+                    NPC_UI_HELPER.startGuide({
+                        dir = 1,
+                        guideWidget = guideButton,
+                        guideParent = dbLayout,
+                        guideDesc = "点击10元档位获取筑基丹",
+                        isForce = false,
+                        hideMask = false,
+                    })
+                end
+            end, 0.1)
+        end
     end
-    if p2 == 0 then
+    if p2 == 0 or p2 == 8 then
+        if p2 == 8 then
+            npc._onlineRechargeGuideAmount = tonumber(p3) or 10
+        end
         npc.data_502 = not Data and {
         } or SL:JsonDecode(Data, false)
         local rechargeWin = ensureWindow("onlineRecharge", 502, {
@@ -4993,6 +5058,7 @@ end
 npc[504] = function(p2, p3, Data)
     local function create_reward_box(parent, itemName, itemCount, x, y, giftTag)
         local box = GUI:Image_Create(parent, "reward_box_" .. tostring(x) .. "_" .. tostring(y), x, y, "res/custom/top/shochong/kuang.png")
+        _add_reward_item_effect(box, "reward_eff", 25, 24, 0.9, REWARD_ITEM_EFFECT_14193)
         local itemIndex = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", itemName) or 0) or 0
         if itemIndex > 0 then
             local item = GUI:ItemShow_Create(box, "item", 25, 24, {
@@ -6604,13 +6670,14 @@ npc[516] = function(p2, p3, Data)
                 [516] = 4,
             },
             desc = "点击领取",
-            isForce = false,
-            hideMask = true,
+            isForce = true,
+            hideMask = false,
             keyPrefix = "mainline_free_sponsor",
         })
     end
     local function mfzz_render_item(parent, itemName, itemCount, posX, posY, key)
         local slot = GUI:Image_Create(parent, "slot_" .. tostring(key), posX, posY, "dev/res/wy/public/40-42.png")
+        _add_reward_item_effect(slot, "reward_eff", 20, 21, 0.85, REWARD_ITEM_EFFECT_14193)
         GUI:setAnchorPoint(slot, 0.5, 0.5)
         local itemIndex = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", itemName)) or 0
         if itemIndex <= 0 and not string.find(tostring(itemName), "%[称号%]") then
@@ -6622,6 +6689,7 @@ npc[516] = function(p2, p3, Data)
                 look = true,
             })
             GUI:setAnchorPoint(itemShow, 0.5, 0.5)
+            
         end
         if tonumber(itemCount or 0) > 1 then
             local countText = GUI:Text_Create(slot, "count", 20, 3, 13, "#FFFFFF", SL:GetSimpleNumber(itemCount, 0))

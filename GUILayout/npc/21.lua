@@ -112,7 +112,7 @@ function npc.main(npcid, p2, p3, msgData)
                 local jzDesc = GUI:Text_Create(node, "jz_dan_tip", 80, 235, 25, jzColor, "筑基条件：筑基丹" .. jzText)
                 GUI:Text_setFontName(jzDesc, "fonts/502.ttf")
                 GUI:Text_enableOutline(jzDesc, "#000000", 2)
-                GUI:setAnchorPoint(GUI:ItemShow_Create(jzDesc, "item", 300, 15, {index= SL:GetMetaValue("ITEM_INDEX_BY_NAME","筑基丹"),count = 1,look= true})
+                GUI:setAnchorPoint(GUI:ItemShow_Create(jzDesc, "item", 300, 15, {index= SL:GetMetaValue("ITEM_INDEX_BY_NAME","筑基丹"),count = 1,look= true, bgVisible = false})
                 , 0.5, 0.5)
             end
             -- GUI:setAnchorPoint(

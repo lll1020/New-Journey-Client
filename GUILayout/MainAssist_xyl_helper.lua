@@ -1539,7 +1539,16 @@ function MainAssistXylHelper.bind(MainAssist)
         return tostring(task.desc or task.wz or "暂无任务简介")
     end
 
-    local function _xyl_append_reward_entries(outList, rewardList, seenMap)
+    local function _xyl_is_story_point_reward(name)
+        return tostring(name or "") == "剧情点"
+    end
+
+    local function _xyl_is_unlock_linggen_reward(name)
+        return type(name) == "string" and string.match(name, "^激活.+灵根$") ~= nil
+    end
+
+    local function _xyl_append_reward_entries(outList, rewardList, seenMap, opts)
+        opts = opts or {}
         if type(rewardList) ~= "table" then
             return
         end
@@ -1547,7 +1556,7 @@ function MainAssistXylHelper.bind(MainAssist)
             if type(entry) == "table" and entry[1] ~= nil and entry[2] ~= nil then
                 local key = tostring(entry[1])
                 local count = tonumber(entry[2]) or 0
-                if key ~= "" and count > 0 then
+                if key ~= "" and count > 0 and not (opts.skipStoryPoint and _xyl_is_story_point_reward(key)) then
                     local pos = seenMap[key]
                     if pos then
                         outList[pos][2] = (tonumber(outList[pos][2]) or 0) + count
@@ -1592,6 +1601,17 @@ function MainAssistXylHelper.bind(MainAssist)
         end
     end
 
+    local function _xyl_append_cfg_detail_rewards(outList, cfg, seenMap, opts)
+        local details = type(cfg) == "table" and cfg.details or nil
+        if type(details) ~= "table" then
+            return
+        end
+        _xyl_append_reward_entries(outList, details.rwjl, seenMap, opts)
+        _xyl_append_reward_entries(outList, details.give, seenMap, opts)
+        _xyl_append_reward_entries(outList, details.jl, seenMap, opts)
+        _xyl_append_title_reward(outList, details.ch, seenMap)
+    end
+
     local function _xyl_is_title_reward_name(name)
         return type(name) == "string"
             and (string.find(name, "%[称号%]") ~= nil or string.match(name, "^称号%[.+%]$") ~= nil)
@@ -1602,42 +1622,42 @@ function MainAssistXylHelper.bind(MainAssist)
             return {}
         end
 
-        local titleRewards = {}
-        local otherRewards = {}
-        for _, entry in ipairs(rewardList) do
-            if type(entry) == "table" and _xyl_is_title_reward_name(entry[1]) then
-                table.insert(titleRewards, entry)
-            else
-                table.insert(otherRewards, entry)
-            end
-        end
-
-        local merged = {}
-        for _, entry in ipairs(titleRewards) do
-            table.insert(merged, entry)
-        end
-        for _, entry in ipairs(otherRewards) do
-            table.insert(merged, entry)
-        end
-
         local result = {}
-        for i = 1, math.min(2, #merged) do
-            result[i] = merged[i]
+        for i = 1, math.min(2, #rewardList) do
+            result[i] = rewardList[i]
         end
         return result
     end
 
-    local function _xyl_collect_task_reward_data(task)
+    local function _xyl_prepare_reward_display_data(rewardList)
+        if type(rewardList) ~= "table" then
+            return {}
+        end
+        local result = {}
+        for i, entry in ipairs(rewardList) do
+            if type(entry) == "table" then
+                local name = entry[1]
+                if _xyl_is_unlock_linggen_reward(name) then
+                    result[i] = {name}
+                else
+                    result[i] = entry
+                end
+            end
+        end
+        return result
+    end
+
+    local function _xyl_collect_task_reward_data(task, info)
         if type(task) ~= "table" then
             return {}
         end
 
         local rewardList = {}
         local seenMap = {}
-        _xyl_append_reward_entries(rewardList, task.jl, seenMap)
-        _xyl_append_reward_entries(rewardList, task.rwjl, seenMap)
-        _xyl_append_reward_entries(rewardList, task.give, seenMap)
-        _xyl_append_title_reward(rewardList, task.ch, seenMap)
+        local rewardOpts = {skipStoryPoint = true}
+        _xyl_append_reward_entries(rewardList, task.rwjl, seenMap, rewardOpts)
+        _xyl_append_reward_entries(rewardList, task.give, seenMap, rewardOpts)
+        _xyl_append_reward_entries(rewardList, task.jl, seenMap, rewardOpts)
 
         local relatedNpcIds = {}
         local function appendNpcId(npcId)
@@ -1646,9 +1666,11 @@ function MainAssistXylHelper.bind(MainAssist)
                 relatedNpcIds[npcId] = true
                 local cfg = teshudata and teshudata["npc_" .. tostring(npcId)]
                 if type(cfg) == "table" then
-                    _xyl_append_reward_entries(rewardList, cfg.rwjl, seenMap)
-                    _xyl_append_reward_entries(rewardList, cfg.jl, seenMap)
-                    _xyl_append_reward_entries(rewardList, cfg.give, seenMap)
+                    _xyl_append_reward_entries(rewardList, cfg.rwjl, seenMap, rewardOpts)
+                    _xyl_append_reward_entries(rewardList, cfg.give, seenMap, rewardOpts)
+                    _xyl_append_reward_entries(rewardList, cfg.jl, seenMap, rewardOpts)
+                    _xyl_append_reward_entries(rewardList, cfg.artifact_reward, seenMap, rewardOpts)
+                    _xyl_append_cfg_detail_rewards(rewardList, cfg, seenMap, rewardOpts)
                     _xyl_append_title_reward(rewardList, cfg.ch, seenMap)
                 end
             end
@@ -1657,11 +1679,15 @@ function MainAssistXylHelper.bind(MainAssist)
         if type(task.tk) == "string" then
             appendNpcId(task.tk:match("^npc_(%d+)$"))
         end
+        if type(task.ydtk) == "string" then
+            appendNpcId(task.ydtk:match("^npc_(%d+)$"))
+        end
         if type(task.yd) == "table" then
             appendNpcId(task.yd[3])
         end
 
-        return _xyl_trim_reward_display(rewardList)
+        _xyl_append_title_reward(rewardList, task.ch, seenMap)
+        return _xyl_prepare_reward_display_data(_xyl_trim_reward_display(rewardList))
     end
 
     local function _close_current_xyl_detail()
@@ -1778,7 +1804,7 @@ function MainAssistXylHelper.bind(MainAssist)
         GUI:setAnchorPoint(nameText, 0, 0.5)
         GUI:Text_enableOutline(nameText, "#110b05", 2)
 
-        local rewardTitle = GUI:Text_Create(panel, "reward", 0, 70, 16, "#00FB00", "剧情\n奖励")
+        local rewardTitle = GUI:Text_Create(panel, "reward", 0, 70, 16, "#00FB00", "任务\n奖励")
         GUI:setAnchorPoint(rewardTitle, 0, 0.5)
         GUI:Text_enableOutline(rewardTitle, "#110b05", 2)
 
@@ -1850,6 +1876,13 @@ function MainAssistXylHelper.bind(MainAssist)
             return
         end
 
+        local taskKey = _get_xyl_current_task_cache_key(MainAssist._xylCurrentTask, info)
+        if MainAssist._xylDetailDefaultOpenKey ~= taskKey then
+            MainAssist._xylDetailPopupOpened = true
+            MainAssist._xylDetailPopupAutoResume = true
+            MainAssist._xylDetailDefaultOpenKey = taskKey
+        end
+
         GUI:Text_setString(widget.nameText, tostring(info.name))
         local wz = _get_xyl_current_task_action_text(info)
         GUI:Button_setTitleText(widget.goBtn, wz)
@@ -1866,7 +1899,7 @@ function MainAssistXylHelper.bind(MainAssist)
             widget.rewardNode = nil
         end
 
-        local rewardData = _xyl_collect_task_reward_data(info.task)
+        local rewardData = _xyl_collect_task_reward_data(info.task, info)
         if #rewardData > 0 then
             local okReward, rewardNode = pcall(function()
                 return ItemNumByTable_img_new(rewardData, nil, widget.rewardRoot)

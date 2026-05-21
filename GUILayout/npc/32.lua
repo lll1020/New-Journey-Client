@@ -179,7 +179,7 @@ function npc.main(npcid, p2, p3, msgData)
             -- 下级转生属性上移，和主体模型区拉开距离。
             local nextAttrNode = GUI:Layout_Create(node, "next_attr_node", 50 + 160 - 70 - 110, 40 + 170 - 235, 140, 46, false)
             GUI:setTouchEnabled(nextAttrNode, true)
-            local nextAttrText = GUI:Text_Create(nextAttrNode, "next_attr_text", 70, 28 + 20, 20, "#F4D179", "下级转生属性")
+            local nextAttrText = GUI:Text_Create(nextAttrNode, "next_attr_text", 70, 28 + 20 + 40, 20, "#F4D179", "下级转生属性")
             GUI:setAnchorPoint(nextAttrText, 0.5, 0.5)
             GUI:Text_setFontName(nextAttrText, "fonts/font4.ttf")
             GUI:Text_enableOutline(nextAttrText, "#100808", 2)

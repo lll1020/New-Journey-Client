@@ -381,8 +381,8 @@ function npc.main(npcid, p2, p3, msgData)
                     local drawOnceCost = 1
                     local currentTokenColor = currentTokenCount >= drawOnceCost and "#45ff93" or "#ff6666"
                     GUI:RichText_Create(guang, "num", 130, 5, string.format("<font color='%s'>%s</font><font color='#FFFFFF'>/%s</font>", currentTokenColor, tostring(currentTokenCount), tostring(drawOnceCost)), 150, 16, "#FFFFFF", 0, nil, nil)
-                    -- 天书抽取默认跳过动画，玩家可手动取消勾选。
-                    npc._xf_skip_anim = npc._xf_skip_anim ~= false
+                    -- 默认不跳过动画；玩家手动勾选后，本次界面生命周期内保留选择。
+                    npc._xf_skip_anim = npc._xf_skip_anim == true
                     local skipLabel = GUI:Text_Create(npc.xf_node, "skip_label", 50 + 549 + 20, 52 + 18 + 50, 18, "#FFFFFF", "跳过动画")
                     GUI:Text_enableOutline(skipLabel, "#000000", 1)
                     local skipCheck = GUI:CheckBox_Create(npc.xf_node, "skip_anim", 50 + 549 + 140 - 40, 53 + 18 + 52, "res/wy/public/xz_1.png", "res/wy/public/xz_0.png")
@@ -515,7 +515,7 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data = SL:JsonDecode(msgData,false)
         npc.titles_sign = nil
         npc._xf_skip_lingshi_confirm = false
-        npc._xf_skip_anim = true
+        npc._xf_skip_anim = false
         ensureWindow(npcid)
         UI_updata(npc.node)
     elseif p2 == 1 then
@@ -536,7 +536,7 @@ function npc.main(npcid, p2, p3, msgData)
         else
             parent = GUI:Win_Create("xf_xjm", 0, 0, 0, 0, false, false, true, true, true, nil, 24)
         end
-        npc._xf_skip_anim = npc._xf_skip_anim ~= false
+        npc._xf_skip_anim = npc._xf_skip_anim == true
         local startFrame = npc._xf_skip_anim and 104 or 1
         local endFrame = 158
         local function close_popup()
