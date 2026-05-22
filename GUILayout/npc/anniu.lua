@@ -365,6 +365,19 @@ local function ensureWindow(name, npcid, extraOpts)
     windowCache[name] = NPC_UI_HELPER.ensureWindow(windowCache[name], npcid or 0, opts)
     return windowCache[name]
 end
+local function openFirstChargeWelfareConfirm()
+    SL:OpenCommonTipsPop({
+        str = "你可以领取全部的限时福利了！无需等待！是否立即领取？",
+        btnType = 2,
+        callback = function(atype)
+            if atype == 1 then
+                NPC_UI_HELPER.closeWindow(windowCache.firstCharge)
+                windowCache.firstCharge = nil
+                SL:SendLuaNetMsg(105, 105, 105, 0, "")
+            end
+        end,
+    })
+end
 -- 这两个快捷入口判定会在函数定义前被引用，先前置声明，避免运行时落到全局查找。
 local _shortcut_is_firstcharge_completed
 local _shortcut_is_unbind_completed
@@ -926,10 +939,40 @@ local function ensureTopPanelExpanded()
         _refresh_shortcut_collapsed_state(false)
     end
 end
+local function openClientBagForGuide()
+    SL:JumpTo(7)
+    SL:OpenBagUI()
+    SL:ScheduleOnce(function()
+        SL:RefreshBagPos()
+        SL:OpenBagUI()
+    end, 0.1)
+end
 local function startGuideOnButton(data)
     ensureTopPanelExpanded()
-    local target = npc.db_anniu[tostring(data.an)]
+    local targetKey = tostring(data.an)
+    local target = npc.db_anniu[targetKey]
+    if (not target) and data.rwid then
+        cogin.sjtb.rwid = math.max(tonumber(cogin.sjtb.rwid) or 0, tonumber(data.rwid) or 0)
+        rebuildShortcutButtons("")
+        ensureTopPanelExpanded()
+        target = npc.db_anniu[targetKey]
+    end
     if not target then
+        SL:ScheduleOnce(function()
+            rebuildShortcutButtons("")
+            ensureTopPanelExpanded()
+            local retryTarget = npc.db_anniu[targetKey]
+            if retryTarget then
+                NPC_UI_HELPER.startGuide({
+                    dir = data.fx,
+                    guideWidget = retryTarget,
+                    guideParent = npc.dbLayout,
+                    guideDesc = data.ms,
+                    isForce = false,
+                    hideMask = false,
+                })
+            end
+        end, 0.2)
         return
     end
     SL:release_print("startGuideOnButton", data.an, target and "found" or "not found")
@@ -998,6 +1041,10 @@ local guideDispatch = {
         startGuideOnButton(data)
     end,
     [2] = function(data)
+        if tostring(data.npcdt or "") == "二大陆主城" and type(dl_sz) == "function" and not dl_sz(2) then
+            SL:ShowSystemTips("<font color='#FF0000'>需完成主线引导后才可进入二大陆</font>")
+            return
+        end
         SL:ScheduleOnce(function()
             triggerNavigate({
                 map = data.npcdt,
@@ -1010,9 +1057,11 @@ local guideDispatch = {
         end, 0.2)
     end,
     [3] = function(data)
-        SL:JumpTo(7)
+        openClientBagForGuide()
         if data.rwid then
             cogin.sjtb.zxrwid = data.rwid
+            cogin.sjtb.rwid = math.max(tonumber(cogin.sjtb.rwid) or 0, tonumber(data.rwid) or 0)
+            rebuildShortcutButtons("")
         end
     end,
     [4] = function(data)
@@ -1300,7 +1349,7 @@ npc[1] = function(p2, p3, msgData)
 end
 npc[2] = function(p2, p3, msgData)
     if p2 == 8 then
-        SL:OpenBagUI()
+        openClientBagForGuide()
     elseif p2 == 2 then
         local shuju = SL:JsonDecode(msgData, false)
         shuju.xz = shuju.xz or {
@@ -2091,11 +2140,7 @@ npc[11] = function(p2, p3, Data)
         ["装备强化"] = true,
         ["装备强化1次"] = true,
         ["守护森林"] = true,
-        ["查看江湖称号"] = true,
-        ["查看江湖称号1次"] = true,
         ["杀伐之路"] = true,
-        ["查看幸运增幅"] = true,
-        ["查看幸运增幅1次"] = true,
         ["掘墓人"] = true,
         ["升级灵根"] = true,
         ["强化灵根"] = true,
@@ -4732,6 +4777,13 @@ npc[501] = function(p2, p3, Data)
         local btnSkin = "res/custom/top/shochong/btn_2.png"
         local mainBtn = GUI:Button_Create(node, "main_btn", 550, 80, btnSkin)
         GUI:setAnchorPoint(mainBtn, 0.5, 0.5)
+        if tonumber(T_data.ok or 0) == 1 and tonumber(T_data.main_claimed or 0) < 1 then
+            GUI:Button_loadTextures(mainBtn, "res/wy/public/npc_19_tip_jl.png")
+            -- GUI:Button_setTitleText(mainBtn, "领取奖励")
+            -- GUI:Button_setTitleColor(mainBtn, "#FFF6D8")
+            -- GUI:Button_setTitleFontSize(mainBtn, 20)
+            -- GUI:Button_titleEnableOutline(mainBtn, "#5A1D0C", 2)
+        end
         GUI:addOnClickEvent(mainBtn, function()
             if tonumber(T_data.ok or 0) ~= 1 then
                 SL:SendLuaNetMsg(101, 501, 1, 0, "")
@@ -4843,6 +4895,8 @@ npc[501] = function(p2, p3, Data)
         rebuildShortcutButtons("")
         if p2 == 1 and tonumber(p3 or 0) == 1 then
             NPC_UI_HELPER.closeWindow(windowCache.firstCharge)
+            windowCache.firstCharge = nil
+            openFirstChargeWelfareConfirm()
             return
         end
         if npc.node and not tolua.isnull(npc.node) then
