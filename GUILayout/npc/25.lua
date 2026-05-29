@@ -43,8 +43,14 @@ function npc.main(npcid, p2, p3, msgData)
 
 
         if config then
-            local cost = ItemNumByTable_img(config.cost, nil,GUI:Node_Create(node, "cost", 0, 0))
-            GUI:setPosition(cost, 530, 85)
+            if npc.data.level <= 0 then
+                local free_tip = GUI:Text_Create(node, "free_tip", 560, 85, 24, "#00FF00", "首次引导免费")
+                GUI:Text_setFontName(free_tip, "fonts/501.ttf")
+                GUI:setAnchorPoint(free_tip, 0.5, 0.5)
+            else
+                local cost = ItemNumByTable_img(config.cost, nil,GUI:Node_Create(node, "cost", 0, 0))
+                GUI:setPosition(cost, 530, 85)
+            end
 
             -- GUI:setAnchorPoint(
             --         GUI:RichText_Create(node, "desc", 200, 430,
@@ -62,9 +68,15 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 1, 0, "")
             end)
-            if checkItemNum(config.cost) then
+            if npc.data.level <= 0 or checkItemNum(config.cost) then
                 NPC_UI_HELPER.redpoint_create(Button)
             end
+            NPC_UI_HELPER.tryStartXylGuide(npc, Button, node, "lucky_upgrade", {
+                taskNames = {"引导幸运增幅", "幸运增幅", "幸运强化", "幸运增幅强化一次"},
+                desc = "点击免费完成幸运增幅",
+                dir = 3,
+                hideMask = true,
+            })
         else
             local cost = ItemNumByTable_img({ {"灵石",999999} }, nil,GUI:Node_Create(node, "cost", 0, 0))
             GUI:setPosition(cost, 530, 85)

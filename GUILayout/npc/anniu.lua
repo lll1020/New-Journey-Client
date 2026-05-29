@@ -5372,6 +5372,167 @@ npc[507] = function(p2, p3, Data)
         end
         return table.concat(parts, "、")
     end
+    local function rewardCount(v)
+        if type(v) == "table" then
+            return tonumber(v[2] or v.max or v[1] or v.min or 1) or 1
+        end
+        return tonumber(v or 1) or 1
+    end
+    local function appendRewardItem(out, seen, name, count)
+        name = tostring(name or "")
+        if name == "" then
+            return
+        end
+        count = rewardCount(count)
+        if count <= 0 then
+            count = 1
+        end
+        local pos = seen[name]
+        if pos then
+            out[pos][2] = math.max(rewardCount(out[pos][2]), count)
+            return
+        end
+        seen[name] = #out + 1
+        out[#out + 1] = {
+            name,
+            count,
+        }
+    end
+    local function appendRewardList(out, seen, list)
+        if type(list) ~= "table" then
+            return
+        end
+        for _, one in ipairs(list) do
+            if type(one) == "table" then
+                appendRewardItem(out, seen, one[1] or one.item or one.name, one[2] or one.count or 1)
+            end
+        end
+    end
+    local function appendRankRewards(out, seen, rewards)
+        if type(rewards) ~= "table" then
+            return
+        end
+        for _, one in ipairs(rewards) do
+            appendRewardList(out, seen, one and one.items)
+        end
+    end
+    local function appendHdjdRewards(out, seen, rewards)
+        if type(rewards) ~= "table" then
+            return
+        end
+        for _, one in ipairs(rewards) do
+            appendRewardList(out, seen, one and one.give)
+            if type(one) == "table" and type(one.random_one) == "table" then
+                for _, group in ipairs(one.random_one) do
+                    appendRewardList(out, seen, group)
+                end
+            end
+        end
+    end
+    local function appendSjdbRewards(out, seen, circles)
+        if type(circles) ~= "table" then
+            return
+        end
+        for _, circle in ipairs(circles) do
+            if type(circle) == "table" and type(circle.drops) == "table" then
+                for _, drop in ipairs(circle.drops) do
+                    if type(drop) == "table" then
+                        appendRewardItem(out, seen, drop.item, drop.count)
+                    end
+                end
+            end
+        end
+    end
+    local function appendNamedRewards(out, seen, names)
+        if type(names) ~= "table" then
+            return
+        end
+        for _, name in ipairs(names) do
+            appendRewardItem(out, seen, name, 1)
+        end
+    end
+    local function buildRewardItems(...)
+        local out = {
+        }
+        local seen = {
+        }
+        local args = {
+            ...
+        }
+        for _, fn in ipairs(args) do
+            if type(fn) == "function" then
+                fn(out, seen)
+            end
+        end
+        return out
+    end
+    local function getRewardItemIndex(item)
+        if type(item) ~= "table" then
+            return 0
+        end
+        return tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", item[1])) or 0
+    end
+    local function isRewardEquip(item)
+        local itemIndex = getRewardItemIndex(item)
+        if itemIndex <= 0 then
+            return false
+        end
+        local itemData = SL:GetMetaValue("ITEM_DATA", itemIndex)
+        if type(itemData) ~= "table" then
+            return false
+        end
+        local itemTypeEnum = SL:GetMetaValue("ITEMTYPE_ENUM") or {}
+        return SL:GetMetaValue("ITEMTYPE", itemData) == itemTypeEnum.Equip
+    end
+    local function sortRewardItems(items)
+        local equips = {
+        }
+        local others = {
+        }
+        for _, item in ipairs(items or {}) do
+            if isRewardEquip(item) then
+                equips[#equips + 1] = item
+            else
+                others[#others + 1] = item
+            end
+        end
+        local sorted = {
+        }
+        for _, item in ipairs(equips) do
+            sorted[#sorted + 1] = item
+        end
+        for _, item in ipairs(others) do
+            sorted[#sorted + 1] = item
+        end
+        return sorted
+    end
+    local function renderRewardItems(label, cfg)
+        local items = sortRewardItems(cfg and cfg.rewardItems or {})
+        if #items <= 0 then
+            return
+        end
+        local root = GUI:Node_Create(label, "reward_items", 82, 52 - 23)
+        local maxPerRow = 6
+        local gapX = 66
+        local gapY = 62
+        for idx, item in ipairs(items) do
+            if idx > 4 then
+                break
+            end
+            local row = math.floor((idx - 1) / maxPerRow)
+            local col = (idx - 1) % maxPerRow
+            local slot = GUI:Image_Create(root, "slot_" .. idx, col * gapX, -row * gapY, "res/wy/public/58-60.png")
+            _add_reward_item_effect(slot, "activity_reward_eff", 29, 30, 0.85, REWARD_ITEM_EFFECT_14193)
+            local itemIndex = getRewardItemIndex(item)
+            if itemIndex > 0 then
+                GUI:setAnchorPoint(GUI:ItemShow_Create(slot, "item", 29, 30, {
+                    index = itemIndex,
+                    count = 1,
+                    look = true,
+                }), 0.5, 0.5)
+            end
+        end
+    end
     local function getActivityDisplayCfg(i)
         local qmdt = activity_cfg.qmdt or {
         }
@@ -5384,6 +5545,8 @@ npc[507] = function(p2, p3, Data)
         local mskh = activity_cfg.mskh or {
         }
         local sjdb = activity_cfg.sjdb or {
+        }
+        local sbk = teshudata["sbk"] or {
         }
         local txzr = teshudata["anniu_506"] or {
         }
@@ -5404,6 +5567,8 @@ npc[507] = function(p2, p3, Data)
             time = "活动时间请关注游戏内公告",
             desc = "该活动正在整理中，具体规则以服务端实际开启内容为准。",
             reward = "奖励以活动实际结算为准",
+            rewardItems = {
+            },
             btnSkin = "res/custom/activity/btn.png",
         }
         if i == 1 then
@@ -5416,11 +5581,22 @@ npc[507] = function(p2, p3, Data)
             end
             cfg.desc = string.format("进入【%s】后怪物按波次刷新。活动怪物只受1点固定伤害，对玩家造成0伤害。当前累计功勋：%s，当前称号：%s。", tostring(bwcz.display_map or bwcz.map or "村庄"), tostring(tonumber(myData.gx or 0) or 0), tostring(myData.title or "暂无称号"))
             cfg.reward = "击杀奖励：金币18W、金币88W、元宝5W；前三名达到镇境武侯可得50元真实充值"
+            cfg.rewardItems = buildRewardItems(function(out, seen)
+                local killReward = bwcz.kill_reward or {}
+                appendRewardList(out, seen, killReward.small)
+                appendRewardList(out, seen, killReward.elite)
+                appendRewardList(out, seen, killReward.boss)
+                appendRankRewards(out, seen, bwcz.rank_rewards)
+            end)
         elseif i == 2 then
             cfg.title = "全民夺矿"
             cfg.time = string.format("开服第%s分钟开启，持续%s分钟", tostring(qmdk.start_minute or 26), tostring(qmdk.duration_min or 8))
             cfg.desc = string.format("进入【%s】地图后停留在矿区即可持续得分，每%s秒获得%s点积分；活动结束后按照积分排行发奖。当前个人积分：%s。", tostring(qmdk.map or "全民夺矿"), tostring(qmdk.score_tick_sec or 10), tostring(qmdk.score_per_tick or 1), tostring(tonumber(qmdkState.grjf or 0) or 0))
             cfg.reward = "参与奖励：" .. makeRewardText(qmdk.join_reward)
+            cfg.rewardItems = buildRewardItems(function(out, seen)
+                appendRewardList(out, seen, qmdk.join_reward)
+                appendRankRewards(out, seen, qmdk.rank_rewards)
+            end)
         elseif i == 3 then
             local open = tonumber(qmdtState.open or 0) or 0
             local currentIdx = tonumber(qmdtState.current_idx or 0) or 0
@@ -5432,6 +5608,10 @@ npc[507] = function(p2, p3, Data)
                 cfg.desc = cfg.desc .. string.format("\n当前正在进行第%s/%s题，剩余%s秒。", tostring(currentIdx), tostring(qmdt.question_count or 5), tostring(remain))
             end
             cfg.reward = "参与奖励：" .. makeRewardText(qmdt.join_reward)
+            cfg.rewardItems = buildRewardItems(function(out, seen)
+                appendRewardList(out, seen, qmdt.join_reward)
+                appendRankRewards(out, seen, qmdt.rank_rewards)
+            end)
         elseif i == 4 then
             cfg.title = "勇夺镖车"
             cfg.time = "当前暂未开放，开放后可通过本页直接参与"
@@ -5442,6 +5622,22 @@ npc[507] = function(p2, p3, Data)
             cfg.time = "活动入口直达土城地图，具体开启时段以游戏公告为准"
             cfg.desc = "活动开启后前往土城跑酷"
             cfg.reward = "奖励丰厚"
+            cfg.rewardItems = buildRewardItems(function(out, seen)
+                appendNamedRewards(out, seen, {
+                    "10W经验卷",
+                    "20W经验卷",
+                    "50W经验卷",
+                    "元宝[5000]",
+                    "元宝[10000]",
+                    "1元真实充值",
+                    "冥海圣刃",
+                    "冥海圣武甲",
+                    "苍月圣狂斩",
+                    "苍月圣魂甲",
+                    "龙魂吊坠",
+                    "王权圣戒",
+                })
+            end)
         elseif i == 6 then
             local open = tonumber((((npc.data_507 or {}).open_state or {})[6]) or 0) or 0
             local myData = (npc.data_507 and npc.data_507.mskh) or {}
@@ -5452,6 +5648,18 @@ npc[507] = function(p2, p3, Data)
             end
             cfg.desc = string.format("进入【%s】后会刷新鸡、羊、鹿三种动物。击杀后会直接掉落对应肉类，当前美食积分：%s，当前活动积分：%s，时光之杖等级：%s。", tostring(mskh.map or "天材地宝"), tostring(tonumber(myData.point or 0) or 0), tostring(tonumber(myData.grjf or 0) or 0), tostring(tonumber(myData.weapon_level or 0) or 0))
             cfg.reward = "鸡肉=1积分，羊肉=5积分，鹿肉=10积分；可在屠夫处兑换美食家、时光之杖、时光鉴定石"
+            cfg.rewardItems = buildRewardItems(function(out, seen)
+                local shop = mskh.shop or {}
+                for _, one in ipairs(shop) do
+                    if type(one) == "table" and type(one.reward) == "table" then
+                        if one.reward.kind == "item" then
+                            appendRewardList(out, seen, one.reward.give)
+                        elseif one.reward.kind == "title" then
+                            appendRewardItem(out, seen, tostring(one.reward.name or "") .. "[称号]", 1)
+                        end
+                    end
+                end
+            end)
         elseif i == 7 then
             cfg.title = "天选之人"
             cfg.time = table.concat(txzr.notice or {
@@ -5459,6 +5667,16 @@ npc[507] = function(p2, p3, Data)
             }, "；")
             cfg.desc = "活动每轮会进行 roll 点排名，排名第一的玩家可获得额外奖励。"
             cfg.reward = "查看具体页面可以预览奖励"
+            cfg.rewardItems = buildRewardItems(function(out, seen)
+                for rewardIdx = 1, 10 do
+                    appendRewardItem(out, seen, txzr[rewardIdx], 1)
+                end
+                local joinReward = txzr.join_reward or {}
+                appendRewardItem(out, seen, joinReward.item, joinReward.count)
+                for _, one in ipairs(txzr.shenqi or {}) do
+                    appendRewardItem(out, seen, one and one.name, 1)
+                end
+            end)
         elseif i == 8 then
             cfg.title = "正邪大战"
             cfg.time = "当前暂未开放，开放后可通过本页直接参与"
@@ -5469,6 +5687,11 @@ npc[507] = function(p2, p3, Data)
             cfg.time = "活动开启时可直接传送进入【比武大会】地图"
             cfg.desc = "进入比武大会后进行全场混战，活动期间尽可能击败更多对手并保持生存，最终胜者可争夺武林盟主之位。"
             cfg.reward = "胜者可获得盟主荣誉与活动结算奖励"
+            cfg.rewardItems = buildRewardItems(function(out, seen)
+                appendRewardItem(out, seen, "绑定元宝", 380000)
+                appendRewardItem(out, seen, "1元真实充值", 38)
+                appendRewardItem(out, seen, "武林盟主[称号]", 1)
+            end)
         elseif i == 10 then
             cfg.title = "敬请期待"
             cfg.time = "该分页当前未启用"
@@ -5479,6 +5702,15 @@ npc[507] = function(p2, p3, Data)
             cfg.time = "请通过沙巴克专属入口参与攻城"
             cfg.desc = "沙巴克为大型行会攻城玩法，需要通过专属入口进入战场。争夺皇宫归属、守住核心据点即可拿下城主荣耀。"
             cfg.reward = "行会奖励"
+            cfg.rewardItems = buildRewardItems(function(out, seen)
+                local rewardItemName = tostring(sbk.money or "绑定灵符")
+                rewardItemName = string.gsub(rewardItemName, "#.*$", "")
+                local winReward = tonumber(sbk.kf_winReward or sbk.winReward or 10000) or 10000
+                local loserReward = tonumber(sbk.kf_loserReward or sbk.loserReward or 3000) or 3000
+                appendRewardItem(out, seen, rewardItemName, math.max(winReward, loserReward))
+                appendRewardItem(out, seen, "沙巴克城主[称号]", 1)
+                appendRewardItem(out, seen, "沙巴克[称号]", 1)
+            end)
         elseif i == 12 then
             cfg.title = "讨伐BOSS"
             cfg.time = "当前暂未开放，开放后可通过本页直接参与"
@@ -5489,11 +5721,17 @@ npc[507] = function(p2, p3, Data)
             cfg.time = string.format("活动开启后在【%s】地图持续%s秒投放宝物", tostring(sjdb.map or "天降财宝"), tostring(sjdb.keep_sec or 300))
             cfg.desc = "宝物会以三圈形式投放：外圈覆盖范围最大、中圈奖励提升、内圈数量最少但价值最高，越靠近中心收益越高。"
             cfg.reward = "随机夺宝"
+            cfg.rewardItems = buildRewardItems(function(out, seen)
+                appendSjdbRewards(out, seen, sjdb.circles)
+            end)
         elseif i == 14 then
             cfg.title = "黑暗禁地"
             cfg.time = string.format("每日%02d:%02d开启，持续%s分钟", tonumber(hdjd.start_hour or 19) or 19, tonumber(hdjd.start_minute_clock or 30) or 30, tostring(hdjd.duration_min or 20))
             cfg.desc = string.format("进入【%s】后全图会随机刷新【%s】，采集%s秒即可直接获得奖励。活动期间视野会被大幅压低，宝箱会按固定间隔持续补刷。", tostring(hdjd.map or "黑暗禁地"), tostring(hdjd.chest_mob or "黑暗宝箱"), tostring(hdjd.collect_sec or 3))
-            cfg.reward = "金币*38W、元宝*2000-8000、1元真充红包*1、五行石/杀伐神石/千年玄铁随机其一"
+            cfg.reward = "金币*38W、元宝*2000-8000、1元真实充值*1、五行石/杀伐神石[小]/千年玄铁随机其一"
+            cfg.rewardItems = buildRewardItems(function(out, seen)
+                appendHdjdRewards(out, seen, hdjd.rewards)
+            end)
         end
         return cfg
     end
@@ -5510,19 +5748,41 @@ npc[507] = function(p2, p3, Data)
         -- GUI:Text_enableOutline(title, "#100808", 2)
         richText(label, "tip", 60, 252 + 40, 468, 18, "<font color='#f3e2b6' size='16'>" .. tostring(cfg.desc or "") .. "</font>")
         richText(label, "time", 60, 153 + 30, 468, 18, "<font color='#9ff06b' size='16'>" .. tostring(cfg.time or "") .. "</font>")
-        richText(label, "reward", 86, 73, 468, 16, "<font color='#ffe07a' size='16'>" .. tostring(cfg.reward or "") .. "</font>")
+        renderRewardItems(label, cfg)
     end
     local function renderActivity(node)
         GUI:removeAllChildren(node)
         npc.cbl_list = GUI:ListView_Create(node, "cbl_list", -20, 50, 300, 420, 1)
         GUI:ListView_setGravity(npc.cbl_list, 2)
         npc.Label = GUI:Node_Create(node, "Label", 250, 15)
-        npc.titles_sign = npc.titles_sign or 1
-        for i = 1, 14 do
+        local activityIds = {
+            1,
+            2,
+            3,
+            5,
+            6,
+            7,
+            9,
+            11,
+            13,
+            14,
+        }
+        local visibleMap = {
+        }
+        for _, activityId in ipairs(activityIds) do
+            visibleMap[activityId] = true
+        end
+        if not visibleMap[tonumber(npc.titles_sign or 0) or 0] then
+            npc.titles_sign = activityIds[1]
+        end
+        for _, i in ipairs(activityIds) do
             local cbl_item = GUI:Button_Create(npc.cbl_list, "item" .. i, 0, 0, "res/custom/activity/list/" .. (npc.titles_sign == i and "l" or "n") .. "/" .. (npc.titles_sign == i and "l_" or "n_") .. i .. ".png")
             GUI:setContentSize(cbl_item, GUI:getContentSize(cbl_item).width * 0.8, GUI:getContentSize(cbl_item).height * 0.8)
             GUI:addOnClickEvent(cbl_item, function()
-                GUI:Button_loadTextureNormal(GUI:ui_delegate(npc.cbl_list)["item" .. npc.titles_sign], "res/custom/activity/list/n/n_" .. npc.titles_sign .. ".png")
+                local oldBtn = GUI:ui_delegate(npc.cbl_list)["item" .. npc.titles_sign]
+                if oldBtn and not tolua.isnull(oldBtn) then
+                    GUI:Button_loadTextureNormal(oldBtn, "res/custom/activity/list/n/n_" .. npc.titles_sign .. ".png")
+                end
                 npc.titles_sign = i
                 GUI_createLabel_507(npc.Label, i)
                 GUI:Button_loadTextureNormal(GUI:ui_delegate(npc.cbl_list)["item" .. npc.titles_sign], "res/custom/activity/list/l/l_" .. npc.titles_sign .. ".png")

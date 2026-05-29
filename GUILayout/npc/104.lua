@@ -5,7 +5,7 @@ local WINDOW_OPTS = {
     closeButton = {x = 742, y = 455},
 }
 local CLIENT_CONFIG = {
-    max_refresh = 999999,
+    max_refresh = 20,
 }
 local OUTLINE_COLOR = "#100808"
 local NAME_COLOR_MAP = {
@@ -34,7 +34,11 @@ local function getConfig()
     return npc._config or {}
 end
 local function getMaxRefresh()
-    return math.max(toNumber((getConfig() or {}).max_refresh, 0), CLIENT_CONFIG.max_refresh)
+    local cfgValue = toNumber((getConfig() or {}).max_refresh, 0)
+    if cfgValue > 0 then
+        return cfgValue
+    end
+    return CLIENT_CONFIG.max_refresh
 end
 local function ensureWindow(npcid)
     local opts = {}
@@ -237,7 +241,7 @@ end
 local getCurrentChoice
 local getPreviewChoice
 local function canRefresh(data)
-    return toNumber((data.T_data or {}).refresh_times, 0) < getMaxRefresh()
+    return true
 end
 local function setButtonState(button, enabled)
     if not button then
@@ -310,9 +314,18 @@ local function renderCurrentPanel(node, data)
     end
 end
 local function renderMain(node, npcid, data)
-    -- createRich(node, "top_tip_text", 120, 455, 620, 20,
-    --     string.format("<font color='#f7f7de'>请为你的天书附魔先天词条，至多可刷新%d次！</font>", getMaxRefresh()),
-    --     "#f7f7de", 0, 0.5)
+    local refreshTimes = toNumber((data.T_data or {}).refresh_times, 0)
+    local needTimes = getMaxRefresh()
+    local leftTimes = math.max(needTimes - refreshTimes, 0)
+    local tipText = leftTimes > 0
+        and string.format("再洗炼<font color='#ffdf67'>%d</font>次可获得称号：<font color='#ffdf67'>天书使者</font>（%d/%d）", leftTimes, refreshTimes, needTimes)
+        or string.format("已达成称号：<font color='#ffdf67'>天书使者</font>，仍可继续洗炼属性（%d/%d）", refreshTimes, needTimes)
+    local top_tip_text = createRich(node, "top_tip_text", 130, 430 - 317, 600, 20, tipText, "#00FFFF", 0, 0.5)
+
+    local kuang = GUI:Image_Create(node, "kuang2", 130 + GUI:getContentSize(top_tip_text).width, 430 - 350, "res/wy/public/70_70_k.png")
+    UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME","天书使者[称号]")))
+
+
     renderTianshuItem(node, "tianshu_item", 246, 210)
     renderCurrentPanel(node, data)
     renderCost(node, data)
@@ -357,7 +370,8 @@ local function renderPreviewPanel(node, npcid, data)
     NPC_UI_HELPER.tryStartXylGuide(npc, keepBtn, panel, "tianshu_refine_once", {
         taskNames = {"洗炼天书","引导天书使者洗炼一次"},
         dir = 5,
-        desc = "点击洗炼天书",
+        desc = "点击替换词条",
+        idx = "replace",
     })
     setButtonState(keepBtn, true)
 end

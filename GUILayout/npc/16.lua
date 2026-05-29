@@ -97,6 +97,9 @@ local function _get_claim_state_text()
     local claimed = _to_number(data.claimed, 0)
     local myPoints = _to_number(data.myPoints, 0)
     local minimum = _to_number(data.minimum, 0)
+    if _to_number(data.need_first_charge, 0) == 1 and _to_number(data.has_first_charge, 0) ~= 1 then
+        return "需先领取首充礼包", "#FF7B7B"
+    end
     if claimed >= 1 then
         return "今日奖励已领取", "#72FF99"
     end
@@ -117,9 +120,26 @@ local function _create_reward_desc(parent, name, x, y, title, rewardItems, color
     return group
 end
 
+local function _is_fixed_reward_mode()
+    local data = npc.data or {}
+    return _to_string(data.reward_mode, "") == "fixed" and type(data.fixed_rewards) == "table"
+end
+
+local function _get_fixed_reward_list(key)
+    local fixed = (npc.data or {}).fixed_rewards or {}
+    return type(fixed[key]) == "table" and fixed[key] or {}
+end
+
 local function _render_enter_page(parent, npcid)
     GUI:Image_Create(parent, "bg", 0, 0, "res/custom/one_city/sbk/bg_1.png")
+    local enterCount = #(((npc.data or {}).enter_maps) or (npc._config or {}).map or {})
+    if enterCount <= 0 then
+        enterCount = #(ENTER_POS or {})
+    end
     for idx, entry in ipairs(ENTER_POS) do
+        if idx > enterCount then
+            break
+        end
         local btn = GUI:Button_Create(parent, "enter_btn_" .. idx, entry[1], entry[2], "res/custom/one_city/sbk/btn/l/btn_" .. idx .. ".png")
         GUI:setAnchorPoint(btn, 0.5, 0)
         GUI:addOnClickEvent(btn, function()
@@ -139,12 +159,13 @@ local function _render_reward_page(parent, npcid)
     local winReward = _to_number(data.winReward, 0)
     local loserReward = _to_number(data.loserReward, 0)
     local rewardItemName = _get_reward_item_name()
-    local winnerRewardItems = {{rewardItemName, _get_reward_value(winReward, winnerPoints, myPoints)}}
-    local loserRewardItems = {{rewardItemName, _get_reward_value(loserReward, loserPoints, myPoints)}}
+    local winnerRewardItems = _is_fixed_reward_mode() and _get_fixed_reward_list("winner") or {{rewardItemName, _get_reward_value(winReward, winnerPoints, myPoints)}}
+    local loserRewardItems = _is_fixed_reward_mode() and _get_fixed_reward_list("loser") or {{rewardItemName, _get_reward_value(loserReward, loserPoints, myPoints)}}
+    local chairmanRewardItems = _is_fixed_reward_mode() and _get_fixed_reward_list("chairman") or nil
 
     _create_reward_desc(parent, "winner_reward", 20, 462, "胜利方奖励", winnerRewardItems, "#FFFFFF")
     _create_reward_desc(parent, "loser_reward", 20, 304, "失败方奖励", loserRewardItems, "#F4B7B7")
-    _create_reward_desc(parent, "chairman_reward", 20, 146, "胜利方会长额外奖励", nil, "#7DF19D")
+    _create_reward_desc(parent, "chairman_reward", 20, 146, "胜方会长额外奖励", chairmanRewardItems, "#7DF19D")
 
     local titleItemName = _resolve_title_item()
     if titleItemName then
@@ -179,11 +200,15 @@ local function _render_reward_page(parent, npcid)
     GUI:setAnchorPoint(claimBtn, 0.5, 0.5)
     _create_text(claimBtn, "claim_btn_text", 101, 24, 22, "#FFF7E8", "领取奖励", 0.5, 0.5, "fonts/font4.ttf", "#6F3A00", 1)
 
-    local canClaim = _to_number(data.claimed, 0) < 1 and myPoints >= minimum
+    local canClaim = _to_number(data.claimed, 0) < 1
+        and myPoints >= minimum
+        and (_to_number(data.need_first_charge, 0) ~= 1 or _to_number(data.has_first_charge, 0) == 1)
     GUI:Button_setBright(claimBtn, canClaim)
     GUI:addOnClickEvent(claimBtn, function()
         if not canClaim then
-            if _to_number(data.claimed, 0) >= 1 then
+            if _to_number(data.need_first_charge, 0) == 1 and _to_number(data.has_first_charge, 0) ~= 1 then
+                SL:ShowSystemTips("需先领取首充礼包后才能领取攻沙奖励")
+            elseif _to_number(data.claimed, 0) >= 1 then
                 SL:ShowSystemTips("今日沙巴克奖励已领取")
             else
                 SL:ShowSystemTips(string.format("攻沙积分需达到%s后才能领取", _format_num(minimum)))

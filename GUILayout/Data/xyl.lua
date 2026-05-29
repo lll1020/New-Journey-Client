@@ -199,11 +199,8 @@ local function _xyl_has_linggen_feed()
     end
     return false
 end
--- 备注：是否已查看江湖称号
+-- 备注：江湖称号任务要求实际强化一次
 local function _xyl_has_jianghu_title()
-    if rawget(_G, "XYL_VIEW_JH_TITLE") then
-        return true
-    end
     local cfg = teshudata and teshudata["npc_43"]
     local titleList = cfg and cfg.ch or {}
     for _, titleName in pairs(titleList) do
@@ -245,9 +242,9 @@ end
 local function _xyl_has_second_continent_tianshu_refine()
     return _xyl_get_num("N$XYL2_TIANSHU_REFINE") > 0
 end
--- 备注：是否已查看过幸运增幅界面
+-- 备注：幸运增幅任务要求实际强化一次
 local function _xyl_has_second_continent_lucky_view()
-    return _xyl_get_num("N$XYL2_LUCKY_VIEW") > 0
+    return _xyl_get_num("U30") > 0
 end
 -- 备注：境界是否已达到筑基境（等级 10）
 local function _xyl_has_foundation_realm()
@@ -469,6 +466,13 @@ local function _xyl_check_task(name)
         ["装配副灵根"] = _xyl_has_other_linggen,
         ["装配水灵根至副灵根"] = function() return _xyl_has_other_linggen_of(3) end,
         ["气运占卜"] = _xyl_has_divination,
+        ["江湖称号"] = _xyl_has_jianghu_title,
+        ["引导江湖称号"] = _xyl_has_jianghu_title,
+        ["江湖称号强化一次"] = _xyl_has_jianghu_title,
+        ["幸运增幅"] = _xyl_has_second_continent_lucky_view,
+        ["幸运强化"] = _xyl_has_second_continent_lucky_view,
+        ["引导幸运增幅"] = _xyl_has_second_continent_lucky_view,
+        ["幸运增幅强化一次"] = _xyl_has_second_continent_lucky_view,
         ["限时福利"] = _xyl_has_second_continent_welfare_open,
         ["引导点击限时福利NPC"] = _xyl_has_second_continent_welfare_open,
         ["洗炼天书"] = _xyl_has_second_continent_tianshu_refine,
@@ -724,6 +728,16 @@ local npc_xyl = {
                 desc = "进行一次气运占卜，开启命格与气运加成的第一步。\n<font color='#F4D179'>目标：</font>完成1次气运占卜\n<font color='#F4D179'>进度：</font>%s",
             },
             {
+                "引导江湖称号",
+                id = 999,
+                jl = { { "剧情点", 1 } },
+                fwdjy = nil,
+                khdjy = _xyl_khdjy,
+                need_receive = false,
+                yd = { 1, "二大陆主城", 43, 120, 106 },
+                desc = "前往江湖称号界面完成一次称号提升，首次引导免费。\n<font color='#F4D179'>目标：</font>江湖称号强化1次\n<font color='#F4D179'>进度：</font>%s",
+            },
+            {
                 "深入野火（剧）",
                 tk = "npc_607",
                 id = 999,
@@ -790,6 +804,16 @@ local npc_xyl = {
                 need_receive = false,
                 yd = { 1, "二大陆主城", 28, 115, 106 },
                 desc = "前往装备强化界面完成一次强化，让角色拥有更稳定的正向成长。\n<font color='#F4D179'>目标：</font>完成任意部位装备强化\n<font color='#F4D179'>进度：</font>%s",
+            },
+            {
+                "引导幸运增幅",
+                id = 999,
+                jl = { { "剧情点", 1 } },
+                fwdjy = nil,
+                khdjy = _xyl_khdjy,
+                need_receive = false,
+                yd = { 1, "二大陆主城", 25, 125, 106 },
+                desc = "前往幸运增幅界面完成一次幸运强化，首次引导免费。\n<font color='#F4D179'>目标：</font>幸运增幅强化1次\n<font color='#F4D179'>进度：</font>%s",
             },
         },
         name = "小试牛刀",
@@ -918,7 +942,7 @@ local npc_xyl = {
                     yd = { 1, "三大陆主城", 55, 146, 234 },
                     desc = "开辟仙府，正式踏入灰界后的修行之路。\n<font color='#F4D179'>目标：</font>成功开启仙府\n<font color='#F4D179'>进度：</font>%s",
                 },
-                {
+            {
                     "讨伐嘲灾",
                     tk = "npc_625",
                     id = 999,
@@ -2764,6 +2788,34 @@ local function _xyl_mark_accept_tasks(taskData)
     end
 end
 
+
+npc_xyl[6] = npc_xyl[6] or {}
+table.insert(npc_xyl[6], {
+    jq = {
+        {"天机道长", tk = "npc_721", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "六大陆主城", 721, 76, 26}, desc = "星图已见三光，前往冰川雪域寻回帝星遗失的线索。\n<font color='#F4D179'>目标：</font>星象达三星并领取星儿的玉佩碎片\n<font color='#F4D179'>进度：</font>%s"},
+        {"星儿", tk = "npc_722", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "六大陆主城", 722, 76, 26}, desc = "玉佩重铸，六大陆可爆玉佩碎片。\n<font color='#F4D179'>目标：</font>收集66个星儿的玉佩碎片与100万元宝\n<font color='#F4D179'>进度：</font>%s"},
+        {"凌雪", tk = "npc_723", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "冰川雪域", 723, 76, 26}, desc = "冰川下的寒意并未散去。\n<font color='#F4D179'>目标：</font>提交星力冰晶压制诅咒，解锁星陨冰窟\n<font color='#F4D179'>进度：</font>%s"},
+        {"守城士兵甲", tk = "npc_724", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "边关烽城", 724, 76, 26}, desc = "边关告急，先守住城，再去见赤焰。\n<font color='#F4D179'>目标：</font>完成守城任务\n<font color='#F4D179'>进度：</font>%s"},
+        {"赤焰", tk = "npc_725", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "边关烽城", 725, 76, 26}, desc = "护送赤焰，途中有刺客潜伏。\n<font color='#F4D179'>目标：</font>护送并击杀刺客，获取密信\n<font color='#F4D179'>进度：</font>%s"},
+        {"幽影", tk = "npc_726", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "森罗魔域", 726, 76, 26}, desc = "幽影盗走帝星本源，森罗魔气尚未平息。\n<font color='#F4D179'>目标：</font>击杀888只怪并提交森罗魔气\n<font color='#F4D179'>进度：</font>%s"},
+        {"恶魔契约", tk = "npc_728", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "血契之地二层", 728, 76, 26}, desc = "以血换契，每十名玩家可得一次抽奖。\n<font color='#F4D179'>目标：</font>累计击杀玩家并抽满十次\n<font color='#F4D179'>进度：</font>%s"},
+        {"雪域特使", tk = "npc_729", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "冰川雪域", 729, 76, 26}, desc = "击穿雪域封锁，打开下一张地图。\n<font color='#F4D179'>目标：</font>击杀200只怪并缴纳元宝\n<font color='#F4D179'>进度：</font>%s"},
+        {"魔域特使", tk = "npc_730", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "森罗魔域", 730, 76, 26}, desc = "击穿魔域封锁，打开下一张地图。\n<font color='#F4D179'>目标：</font>击杀200只怪并缴纳元宝\n<font color='#F4D179'>进度：</font>%s"},
+        {"边关特使", tk = "npc_731", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "边关烽城", 731, 76, 26}, desc = "击穿边关封锁，打开下一张地图。\n<font color='#F4D179'>目标：</font>击杀200只怪并缴纳元宝\n<font color='#F4D179'>进度：</font>%s"},
+        {"古城特使", tk = "npc_732", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "盛世古城", 732, 76, 26}, desc = "击穿古城封锁，打开下一张地图。\n<font color='#F4D179'>目标：</font>击杀200只怪并缴纳元宝\n<font color='#F4D179'>进度：</font>%s"},
+        {"盛世重游", tk = "npc_733", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "盛世古城", 733, 76, 26}, desc = "重游古城，集齐四地信物再来交付。\n<font color='#F4D179'>目标：</font>提交四件城市任务道具\n<font color='#F4D179'>进度：</font>%s"},
+        {"万国之首", tk = "npc_734", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "长安西市", 734, 76, 26}, desc = "商契残页散落西市。\n<font color='#F4D179'>目标：</font>收集88张商契残页\n<font color='#F4D179'>进度：</font>%s"},
+        {"洛水杜康", tk = "npc_735", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "洛阳天街", 735, 76, 26}, desc = "酒意与泉眼相合，方得杜康。\n<font color='#F4D179'>目标：</font>备齐材料酿杜康酒\n<font color='#F4D179'>进度：</font>%s"},
+        {"大宋的菜肴", tk = "npc_736", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "汴京御街", 736, 76, 26}, desc = "食盒空置，菜肴才是答案。\n<font color='#F4D179'>目标：</font>提交食盒与菜肴\n<font color='#F4D179'>进度：</font>%s"},
+        {"天青色的秘密", tk = "npc_737", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "临安古渡", 737, 76, 26}, desc = "窑火三开，青釉方成。\n<font color='#F4D179'>目标：</font>完成烧制，直至出青釉瓷碗\n<font color='#F4D179'>进度：</font>%s"},
+        {"密令护灵旗", tk = "npc_738", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "镇关帅府", 738, 76, 26}, desc = "护灵旗碎，密令方出。\n<font color='#F4D179'>目标：</font>收集材料合成密令护灵旗\n<font color='#F4D179'>进度：</font>%s"},
+        {"幽影的分身", tk = "npc_739", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "魔焰祭坛", 739, 76, 26}, desc = "先揭弱点，再入副本。\n<font color='#F4D179'>目标：</font>提交残页后进入副本击杀分身\n<font color='#F4D179'>进度：</font>%s"},
+        {"上古寒冰剑", tk = "npc_740", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "冻魂冰窟", 740, 76, 26}, desc = "寒冰剑成，剑诀方可出世。\n<font color='#F4D179'>目标：</font>收集材料合成寒冰剑\n<font color='#F4D179'>进度：</font>%s"},
+    },
+    name = "帝星旧事",
+    jqd = 100,
+    jl = {{"等级卷轴", 10}, {"1元真实充值", 15}},
+})
 _xyl_mark_accept_tasks(npc_xyl)
 npc_xyl.get_chapter_lock_info = function(l, zj, curJqd)
     return _xyl_get_chapter_lock_info(npc_xyl, l, zj, curJqd)

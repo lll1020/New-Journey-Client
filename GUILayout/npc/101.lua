@@ -5,6 +5,17 @@
 
 npc._config = teshudata["npc_101"]
 
+local REWARD_ITEM_EFFECT_ID = 14193
+
+local function addRewardItemEffect(parent, name, x, y, scale)
+    if not parent or tolua.isnull(parent) then
+        return nil
+    end
+    local effect = GUI:Effect_Create(parent, name or "reward_item_eff", x or 0, y or 0, 0, REWARD_ITEM_EFFECT_ID, 0, 0, 0, 1)
+    GUI:setScale(effect, scale or 1)
+    return effect
+end
+
 local WINDOW_OPTS = {
     background = {skin = "res/custom/msfc/panel_bg.png"},
     closeButton = {x = 782, y = 470},
@@ -471,6 +482,7 @@ local function createRewardCell(parent, name, x, y, rewardPack, stateText, state
 
     local bg = GUI:Image_Create(node, "bg", 0, 14, "res/custom/msfc/page1/item_box.png")
     GUI:setAnchorPoint(bg, 0, 0)
+    addRewardItemEffect(bg, "reward_eff", 25, 26, 0.85)
     if onClick then
         GUI:setTouchEnabled(bg, true)
         GUI:addOnClickEvent(bg, onClick)
@@ -649,6 +661,7 @@ local function openBoxPopup(boxType)
 
         local rewardEntries = getRewardEntries({main = reward})
         local entry = rewardEntries[1]
+        addRewardItemEffect(btn, "reward_eff", 62, 60, 0.95)
         if entry and entry.index > 0 then
             local item = GUI:ItemShow_Create(btn, "item", 62, 60, {index = entry.index, look = true})
             GUI:setAnchorPoint(item, 0.5, 0.5)
@@ -793,12 +806,12 @@ function npc.renderFucai(node)
     GUI:RichText_Create(node, "jl3", 98 - 20,200,  "<a href='jump#item_tips#"..SL:GetMetaValue("ITEM_INDEX_BY_NAME", npc._config.pool[3].give[1][1]).."'>["..npc._config.pool[3].label.."]</a>", 500, 14, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
     GUI:RichText_Create(node, "jl4", 350 - 20,200,  "<a href='jump#item_tips#"..SL:GetMetaValue("ITEM_INDEX_BY_NAME", npc._config.pool[4].give[1][1]).."'>["..npc._config.pool[4].label.."]</a>", 500, 14, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
 
-    GUI:RichText_Create(node, "jlsz1", 98,250,  "<a href='jump#item_tips#"..SL:GetMetaValue("ITEM_INDEX_BY_NAME", "时装：拉大车").."'>[".."时装：拉大车".."]</a>", 500, 14, "#FF0000", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-    GUI:RichText_Create(node, "jlsz2", 210 + 30,250,  "<a href='jump#item_tips#"..SL:GetMetaValue("ITEM_INDEX_BY_NAME", "时装：圣诞老人").."'>[".."时装：圣诞老人".."]</a>", 500, 14, "#FF0000", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-    GUI:RichText_Create(node, "jlsz3", 400,250,  "<a href='jump#item_tips#"..SL:GetMetaValue("ITEM_INDEX_BY_NAME", "时装：暗黑天使").."'>[".."时装：暗黑天使".."]</a>", 500, 14, "#FF0000", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-    GUI:RichText_Create(node, "jlsz4", 98 - 30,280,  "<a href='jump#item_tips#"..SL:GetMetaValue("ITEM_INDEX_BY_NAME", "时装：熊猫人").."'>[".."时装：熊猫人".."]</a>", 500, 14, "#FF0000", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-    GUI:RichText_Create(node, "jlsz5", 210,200,  "<a href='jump#item_tips#"..SL:GetMetaValue("ITEM_INDEX_BY_NAME", "时装：开挖掘机").."'>[".."时装：开挖掘机".."]</a>", 500, 14, "#FF0000", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
-    GUI:RichText_Create(node, "jlsz6", 400,280,  "<a href='jump#item_tips#"..SL:GetMetaValue("ITEM_INDEX_BY_NAME", "时装：天刀").."'>[".."时装：天刀".."]</a>", 500, 14, "#FF0000", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+    GUI:RichText_Create(node, "jlsz1", 98,250,  "<a href='jump#item_tips#"..SL:GetMetaValue("ITEM_INDEX_BY_NAME", "时装：拉大车[展示]").."'>[".."时装：拉大车".."]</a>", 500, 14, "#FF0000", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+    GUI:RichText_Create(node, "jlsz2", 210 + 30,250,  "<a href='jump#item_tips#"..SL:GetMetaValue("ITEM_INDEX_BY_NAME", "时装：圣诞老人[展示]").."'>[".."时装：圣诞老人".."]</a>", 500, 14, "#FF0000", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+    GUI:RichText_Create(node, "jlsz3", 400,250,  "<a href='jump#item_tips#"..SL:GetMetaValue("ITEM_INDEX_BY_NAME", "时装：暗黑天使[展示]").."'>[".."时装：暗黑天使".."]</a>", 500, 14, "#FF0000", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+    GUI:RichText_Create(node, "jlsz4", 98 - 30,280,  "<a href='jump#item_tips#"..SL:GetMetaValue("ITEM_INDEX_BY_NAME", "时装：熊猫人[展示]").."'>[".."时装：熊猫人".."]</a>", 500, 14, "#FF0000", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+    GUI:RichText_Create(node, "jlsz5", 210,200,  "<a href='jump#item_tips#"..SL:GetMetaValue("ITEM_INDEX_BY_NAME", "时装：开挖掘机[展示]").."'>[".."时装：开挖掘机".."]</a>", 500, 14, "#FF0000", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+    GUI:RichText_Create(node, "jlsz6", 400,280,  "<a href='jump#item_tips#"..SL:GetMetaValue("ITEM_INDEX_BY_NAME", "时装：天刀[展示]").."'>[".."时装：天刀".."]</a>", 500, 14, "#FF0000", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
 
     GUI:setScale(GUI:ItemShow_Create(guang, "icon", 105, 5, {index = SL:GetMetaValue("ITEM_INDEX_BY_NAME","鹤嘴锄")}), 0.6)
     local currentTokenCount = toNumber(npc.data and npc.data.token_count, 0)
@@ -929,6 +942,7 @@ function npc.renderRika(node)
     for idx = 1, 4 do
         local box = GUI:Image_Create(node, "rika_box_" .. tostring(idx), startX + (idx - 1) * 70, 108, "res/custom/msfc/page2/item_box.png")
         GUI:setAnchorPoint(box, 0, 0)
+        addRewardItemEffect(box, "reward_eff", 25, 26, 0.85)
 
         local reward = rewards[idx]
         local rewardName = reward and reward[1] or nil

@@ -51,17 +51,29 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:setAnchorPoint(GUI:RichText_Create(node, "next_attr_desc", 520, 330,  Player:showEquipAttr(SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.ch[npc.data.dj_num + 1]))), 200, 17, "#f7f7de", 3,nil,nil)
             , 0, 1)
 
-            local cost_show = ItemNumByTable_img(npc._config.cost[npc.data.dj_num + 1], nil,GUI:Node_Create(node, "cost_show", 0, 0))
-            GUI:setPosition(cost_show, 335, 100)
+            if npc.data.dj_num <= 0 then
+                local free_tip = GUI:Text_Create(node, "free_tip", 390, 105, 24, "#00FF00", "首次引导免费")
+                GUI:Text_setFontName(free_tip, "fonts/500.ttf")
+                GUI:setAnchorPoint(free_tip, 0.5, 0.5)
+            else
+                local cost_show = ItemNumByTable_img(npc._config.cost[npc.data.dj_num + 1], nil,GUI:Node_Create(node, "cost_show", 0, 0))
+                GUI:setPosition(cost_show, 335, 100)
+            end
 
             local Button= GUI:Button_Create(node, "Button", 778/2, 50.00, "res/custom/two_city/43_btn.png")
             GUI:setAnchorPoint(Button, 0.5, 0.5)
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 1, 0, "")
             end)
-            if checkItemNum(npc._config.cost[npc.data.dj_num + 1]) then
+            if npc.data.dj_num <= 0 or checkItemNum(npc._config.cost[npc.data.dj_num + 1]) then
                 NPC_UI_HELPER.redpoint_create(Button)
             end
+            NPC_UI_HELPER.tryStartXylGuide(npc, Button, node, "jianghu_title_upgrade", {
+                taskNames = {"引导江湖称号", "江湖称号", "江湖称号强化一次"},
+                desc = "点击免费提升江湖称号",
+                dir = 3,
+                hideMask = true,
+            })
         else
             local tip_max = GUI:Text_Create(node, "tip_max",390, 50, 30, "#FF0000", "已达最高等级")
             GUI:Text_setFontName(tip_max, "fonts/500.ttf")

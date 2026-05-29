@@ -6,6 +6,16 @@ local npc = {
 
 local UI_updata
 local UI_HELPER = SL:Require("GUILayout/npc/ui_helper", true)
+local REWARD_ITEM_EFFECT_ID = 14193
+
+local function addRewardItemEffect(parent, name, x, y, scale)
+    if not parent or tolua.isnull(parent) then
+        return nil
+    end
+    local effect = GUI:Effect_Create(parent, name or "reward_item_eff", x or 0, y or 0, 0, REWARD_ITEM_EFFECT_ID, 0, 0, 0, 1)
+    GUI:setScale(effect, scale or 1)
+    return effect
+end
 
 -- 515 的静态展示配置全部走客户端本地表，服务端只下发运行态数据。
 npc._config = SL:Require("GUILayout/npc/anniu_515_cfg", true) or {}
@@ -914,6 +924,7 @@ local function renderMilestoneCard(parent, idx, milestone)
 
     local preview = getRewardPreview(milestone.reward)
     if preview.index > 0 then
+        addRewardItemEffect(card, "reward_eff", 64, 102, 0.9)
         local item = GUI:ItemShow_Create(card, "item", 64, 102, {index = preview.index, count = preview.count, look = true, bgVisible = false})
         GUI:setAnchorPoint(item, 0.5, 0.5)
     else

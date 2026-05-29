@@ -11,6 +11,13 @@ local level_coler = {
     [4] = "#EFAD21",
     [5] = "#FF0000",
 }
+local XIANFA_SKIP_ANIM_KEY = "tianshu_xianfa_skip_anim"
+local function _get_xianfa_skip_anim_default()
+    return tostring(SL:GetLocalString(XIANFA_SKIP_ANIM_KEY) or "") == "1"
+end
+local function _set_xianfa_skip_anim_default(value)
+    SL:SetLocalString(XIANFA_SKIP_ANIM_KEY, value and "1" or "0")
+end
 local function _ywl_vertical_text(text)
                     if not text then
                         return ""
@@ -381,14 +388,17 @@ function npc.main(npcid, p2, p3, msgData)
                     local drawOnceCost = 1
                     local currentTokenColor = currentTokenCount >= drawOnceCost and "#45ff93" or "#ff6666"
                     GUI:RichText_Create(guang, "num", 130, 5, string.format("<font color='%s'>%s</font><font color='#FFFFFF'>/%s</font>", currentTokenColor, tostring(currentTokenCount), tostring(drawOnceCost)), 150, 16, "#FFFFFF", 0, nil, nil)
-                    -- 默认不跳过动画；玩家手动勾选后，本次界面生命周期内保留选择。
-                    npc._xf_skip_anim = npc._xf_skip_anim == true
+                    -- 第一次抽取默认不跳过；首次动画展示完成后默认勾选跳过动画。
+                    if npc._xf_skip_anim == nil then
+                        npc._xf_skip_anim = _get_xianfa_skip_anim_default()
+                    end
                     local skipLabel = GUI:Text_Create(npc.xf_node, "skip_label", 50 + 549 + 20, 52 + 18 + 50, 18, "#FFFFFF", "跳过动画")
                     GUI:Text_enableOutline(skipLabel, "#000000", 1)
                     local skipCheck = GUI:CheckBox_Create(npc.xf_node, "skip_anim", 50 + 549 + 140 - 40, 53 + 18 + 52, "res/wy/public/xz_1.png", "res/wy/public/xz_0.png")
                     GUI:CheckBox_setSelected(skipCheck, npc._xf_skip_anim)
                     GUI:CheckBox_addOnEvent(skipCheck, function(sender)
                         npc._xf_skip_anim = GUI:CheckBox_isSelected(sender)
+                        _set_xianfa_skip_anim_default(npc._xf_skip_anim)
                     end)
                     local Button = GUI:Button_Create(npc.xf_node, "Button", 50 + 549 + 76 + 80,80, "res/custom/tianshu/xf/btn_up.png")
                     local slot_unlocked = is_slot_unlocked(slot, slot_data)
@@ -396,7 +406,7 @@ function npc.main(npcid, p2, p3, msgData)
                         GUI:setOpacity(Button, 120)
                         GUI:setTouchEnabled(Button, false)
                     end
-                    -- if checkItemNum({{"仙品仙法卷轴",1}}) then
+                    -- if checkItemNum({{"极品仙法卷轴",1}}) then
                     --     NPC_UI_HELPER.redpoint_create(Button)
                     -- end
                     local function do_refresh()
@@ -515,7 +525,7 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data = SL:JsonDecode(msgData,false)
         npc.titles_sign = nil
         npc._xf_skip_lingshi_confirm = false
-        npc._xf_skip_anim = false
+        npc._xf_skip_anim = _get_xianfa_skip_anim_default()
         ensureWindow(npcid)
         UI_updata(npc.node)
     elseif p2 == 1 then
@@ -552,6 +562,10 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:setTouchEnabled(overlay, true)
         local bg = GUI:Frames_Create(parent, "bg", cogin.w/2,  cogin.h/2, "res/custom/tianshu/xf/eff/eff_", ".png", startFrame, endFrame,
                 { speed = 50, count = 158, loop = 1,callback = function(self)
+                    if startFrame == 1 then
+                        npc._xf_skip_anim = true
+                        _set_xianfa_skip_anim_default(true)
+                    end
                     local tit = GUI:Image_Create(parent, "tit", 150, cogin.h/2, "res/custom/tianshu/xf/l_".. data.group ..".png")
                     GUI:setAnchorPoint(tit, 0.5, 0.5)
                     GUI:setOpacity(tit, 0)
@@ -576,6 +590,7 @@ function npc.main(npcid, p2, p3, msgData)
                     GUI:CheckBox_setSelected(skipCheck, npc._xf_skip_anim)
                     GUI:CheckBox_addOnEvent(skipCheck, function(sender)
                         npc._xf_skip_anim = GUI:CheckBox_isSelected(sender)
+                        _set_xianfa_skip_anim_default(npc._xf_skip_anim)
                     end)
                     local knowBtn = GUI:Button_Create(parent, "know_btn", cogin.w/2 - 110, 150, "res/wy/public/kb_btn.png")
                     GUI:setAnchorPoint(knowBtn, 0.5, 0)
