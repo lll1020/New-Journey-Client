@@ -104,7 +104,7 @@ function npc.main(npcid, p2, p3, msgData)
             if checkItemNum(config.cost) then
                 NPC_UI_HELPER.redpoint_create(Button)
                 NPC_UI_HELPER.tryStartXylGuide(npc, Button, node, "equip_strengthen", {
-                    taskName = "装备强化",
+                    taskNames = {"装备强化", "装备强化1次"},
                     dir = 5,
                     desc = "点击强化装备",
                 })
@@ -190,6 +190,10 @@ function npc.main(npcid, p2, p3, msgData)
     elseif p2 == 1 then
         npc.data[""..p3] = npc.data[""..p3] + 1
         UI_updata(npc.node)
+        if NPC_UI_HELPER.isCurrentXylTask({"装备强化", "装备强化1次"})
+            and (tonumber(npc.data and npc.data[""..p3] or 0) or 0) >= 1 then
+            NPC_UI_HELPER.closeWindow(npc._window)
+        end
     end
 
     SL:RegisterLUAEvent(LUA_EVENT_CLOSEWIN, "关闭界面", function(self)

@@ -3,7 +3,7 @@ local MainAssistXylHelper = {}
 -- 备注：伏妖录当前任务变更事件名。
 MainAssistXylHelper.EVENT_CURRENT_TASK_CHANGE = "伏妖录当前任务变更"
 
-local DETAIL_POPUP_DEFAULT_POS = {x = 220, y = 0}
+local DETAIL_POPUP_DEFAULT_POS = {x = 220, y = 130}
 local XYL_DYNAMIC_REFRESH_DELAY = 0.2
 local GRAY_WORLD_PANEL_POS = {x = 40, y = 0}
 local GRAY_WORLD_BG_PATH = "res/wy/eff/npc_but_bj_1.png"

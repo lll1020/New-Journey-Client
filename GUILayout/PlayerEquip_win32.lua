@@ -27,23 +27,23 @@ local function _refresh_xyl_playerequip_guides()
     end
     if ui.Button1 then
         NPC_UI_HELPER.tryStartXylGuide(PlayerEquip, ui.Button1, ui.Panel_1, "tianshu_divination", {
-            taskNames = {"天书强化", "进行天书强化1次", "初识仙法", "进行天书仙法抽取"},
+            taskNames = {"天书强化", "天书仙法", "进行天书强化1次", "初识仙法", "进行天书仙法抽取"},
             dir = 5,
             desc = "打开天书界面",
         })
     end
     if ui.Button3 then
         NPC_UI_HELPER.tryStartXylGuide(PlayerEquip, ui.Button3, ui.Panel_1, "linggen_panel_open", {
-            taskNames = {"升级灵根", "强化灵根", "强化灵根1次", "装配主灵根", "装配火灵根至主灵根", "装配副灵根", "装配水灵根至副灵根"},
+            taskNames = {"本命灵根", "升级灵根", "选择你的本命灵根", "升级一次你的本命灵根", "强化灵根", "强化灵根1次", "装配主灵根", "装配火灵根至主灵根", "装配副灵根", "装配水灵根至副灵根"},
             dir = 5,
             desc = "打开灵根界面",
         })
     end
     if ui.Button2 then
         NPC_UI_HELPER.tryStartXylGuide(PlayerEquip, ui.Button2, ui.Panel_1, "xiuwu_panel_open", {
-            taskNames = {"筑基"},
+            taskNames = {"筑基", "提升修为至筑基境"},
             dir = 5,
-            desc = "打开修为界面",
+            desc = "点击境界按钮",
         })
     end
     if ui.Button4 then

@@ -130,7 +130,7 @@ function npc.main(npcid, p2, p3, msgData)
                 SL:SendLuaNetMsg(100, npcid, 1, 0, "")
             end)
             NPC_UI_HELPER.tryStartXylGuide(npc, Button, node, "foundation_realm_upgrade", {
-                taskName = "筑基",
+                taskNames = {"筑基", "提升修为至筑基境"},
                 dir = 5,
                 desc = "点击提升修为",
             })

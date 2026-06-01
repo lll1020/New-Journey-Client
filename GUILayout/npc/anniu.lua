@@ -1,4 +1,4 @@
-﻿local npc = {
+local npc = {
 }
 local REWARD_ITEM_EFFECT_14193 = 14193
 local REWARD_ITEM_EFFECT_13048 = 13048
@@ -34,7 +34,7 @@ npc.iconpx = {
         {15, "天天省钱",509,1}, {3, "福利大厅",511,2}, {17, "游戏攻略",512,3},{4, "活动大厅",507,4},{14, "首充礼包",501,5},{16, "仙途奇缘",515,515},{20, "护体光环",23,23},{21, "马上发财",31,31}
     },
     {
-        {19, "在线充值", 502,11}, {5, "交易行",510,12},{2, "解绑特权",504,13},{7, "狂暴之力",513,14},{12, "世界地图",514,15},{10, "免费赞助",516,16}
+        {19, "在线充值", 502,11}, {5, "交易行",510,12},{2, "解绑特权",504,13},{7, "狂暴之力",513,14},{12, "世界地图",514,15},{10, "免费赞助",516,16},{22, "灵兽契约",64,64}
     }
 }
 npc.LeftTop = GUI:Attach_LeftTop()
@@ -402,6 +402,14 @@ local function createShortcutButton(container, cfg, order, prefix, opts)
     local button = GUI:Button_Create(container, btnName, posX, posY, "res/wy/icon/top_" .. cfg[1] .. ".png")
     local keepRedPoint = _shortcut_should_show_persistent_redpoint(cfg)
     GUI:addOnClickEvent(button, function()
+        if tonumber(cfg[3]) == 64 then
+            rawset(_G, "NPC64_OPEN_CONTRACT_ONCE", true)
+            SL:SendLuaNetMsg(105, cfg[3], 1064, 0, "")
+            if not keepRedPoint then
+                GUI:removeAllChildren(button)
+            end
+            return
+        end
         SL:SendLuaNetMsg(101, cfg[3], 0, 0, "")
         if not keepRedPoint then
             GUI:removeAllChildren(button)
@@ -446,6 +454,9 @@ local function _shortcut_get_server_json(varName)
     if not Player or not Player.getServerVar or not Player.JsonToTbl then
         return {
         }
+    end
+    if varName == "T50" and type(rawget(_G, "NPC64_LAST_T_DATA")) == "table" then
+        return rawget(_G, "NPC64_LAST_T_DATA")
     end
     local raw = Player:getServerVar(varName)
     if not raw or raw == "" then
@@ -676,6 +687,57 @@ local function _shortcut_is_body_aura_completed()
     end
     return true
 end
+local function _shortcut_is_current_xyl_task(taskName)
+    local current = tostring(rawget(_G, "XYL_CURRENT_TASK_NAME") or "")
+    if current == "" then
+        return false
+    end
+    local function normalize(name)
+        local value = tostring(name or "")
+        value = value:gsub("%s+", "")
+        value = value:gsub("（.-）", "")
+        value = value:gsub("%(.-%)", "")
+        return value
+    end
+    return normalize(current) == normalize(taskName)
+end
+local function _shortcut_has_reached_xyl_task(taskName)
+    taskName = tostring(taskName or "")
+    if taskName == "" then
+        return false
+    end
+    local cur = tostring((npc.current_ywl_task and (npc.current_ywl_task.dq or npc.current_ywl_task.current_xyl_dq or npc.current_ywl_task.currentXylDq)) or "")
+    if cur == "" then
+        local ywlData = (npc.data and npc.data.ywl) or _shortcut_get_server_json("T26")
+        cur = tostring(ywlData and ywlData.dq or "")
+    end
+    local ci, cj, cz = cur:match("^(%d+)_(%d+)_(%d+)$")
+    ci, cj, cz = tonumber(ci), tonumber(cj), tonumber(cz)
+    if not (ci and cj and cz) then
+        return _shortcut_is_current_xyl_task(taskName)
+    end
+    for i, lCfg in ipairs(npc.xyl or {}) do
+        for j, zCfg in ipairs(lCfg or {}) do
+            for z, task in ipairs((zCfg and zCfg.jq) or {}) do
+                if tostring(task and task[1] or "") == taskName then
+                    if ci > i then return true end
+                    if ci == i and cj > j then return true end
+                    if ci == i and cj == j and cz >= z then return true end
+                    return false
+                end
+            end
+        end
+    end
+    return _shortcut_is_current_xyl_task(taskName)
+end
+local function _shortcut_should_show_pet_contract()
+    local data = _shortcut_get_server_json("T50")
+    local battlePet = tonumber(data.dqzh or 0) or 0
+    if battlePet > 0 then
+        return false
+    end
+    return (tonumber(data.baby_choice or 0) or 0) > 0 or _shortcut_has_reached_xyl_task("灵兽孵化")
+end
 local function _huti_get_card_states()
     local result = {
     }
@@ -717,6 +779,9 @@ local function _shortcut_should_show(cfg)
     end
     if npcid == 504 then
         return not _shortcut_is_unbind_completed()
+    end
+    if npcid == 64 then
+        return _shortcut_should_show_pet_contract()
     end
     return true
 end
@@ -860,8 +925,37 @@ local function _refresh_shortcut_collapsed_state(withAnim)
         end
     end
 end
+local function _build_shortcut_render_signature()
+    local parts = {
+    }
+    local count = 0
+    for rowIndex, row in ipairs(npc.iconpx or {
+    }) do
+        for _, cfg in ipairs(row or {
+        }) do
+            if _shortcut_should_show(cfg) then
+                count = count + 1
+                parts[#parts + 1] = table.concat({
+                    rowIndex,
+                    tostring(cfg[1] or ""),
+                    tostring(cfg[2] or ""),
+                    tostring(cfg[3] or ""),
+                    tostring(cfg[4] or ""),
+                    _shortcut_should_show_persistent_redpoint(cfg) and "1" or "0",
+                }, ":")
+            end
+        end
+    end
+    return table.concat(parts, "|"), count
+end
 local function rebuildShortcutButtons(filterKey)
     if not npc.dbLayout then
+        return
+    end
+    local signature, visibleCount = _build_shortcut_render_signature()
+    if npc._shortcut_render_signature == signature and #(npc.db_shortcut_entries or {
+    }) == visibleCount then
+        _refresh_shortcut_collapsed_state(false)
         return
     end
     GUI:removeAllChildren(npc.dbLayout)
@@ -892,7 +986,18 @@ local function rebuildShortcutButtons(filterKey)
     end
     renderRow(npc.iconpx[1], 70, "anniu_1")
     renderRow(npc.iconpx[2], -10, "anniu_2")
+    npc._shortcut_render_signature = signature
     _refresh_shortcut_collapsed_state(false)
+end
+-- 按 NPCID 从顶部快捷栏缓存中查找按钮，用于异闻录任务引导直接指向顶部入口。
+local function findShortcutButtonByNpcId(npcid)
+    npcid = tonumber(npcid)
+    for _, entry in ipairs(npc.db_shortcut_entries or {}) do
+        if tonumber(entry.cfg and entry.cfg[3] or 0) == npcid then
+            return entry.button
+        end
+    end
+    return nil
 end
 local function registerShortcutTitleRefresh()
     if npc._shortcut_title_refresh_registered then
@@ -2120,31 +2225,25 @@ local LUA_EVENT_YWL_CURRENT_TASK_CHANGE = "伏妖录当前任务变更"
 npc[11] = function(p2, p3, Data)
     local AUTO_GUIDE_TASKS = {
         ["天书强化"] = true,
-        ["进行天书强化1次"] = true,
         ["初识仙法"] = true,
-        ["进行天书仙法抽取"] = true,
+        ["天书仙法"] = true,
         ["限时福利"] = true,
-        ["引导点击限时福利NPC"] = true,
         ["扫荡野火帮"] = true,
         ["气运占卜"] = true,
         ["深入野火"] = true,
-        ["装配主灵根"] = true,
-        ["装配火灵根至主灵根"] = true,
+        ["本命灵根"] = true,
         ["修复聚宝盆"] = true,
         ["聚宝盆"] = true,
         ["聚宝盆任务"] = true,
         ["洗炼天书"] = true,
         ["引导天书使者洗炼一次"] = true,
-        ["装配副灵根"] = true,
-        ["装配水灵根至副灵根"] = true,
         ["装备强化"] = true,
         ["装备强化1次"] = true,
         ["守护森林"] = true,
-        ["杀伐之路"] = true,
-        ["掘墓人"] = true,
         ["升级灵根"] = true,
-        ["强化灵根"] = true,
-        ["强化灵根1次"] = true,
+        ["杀伐之路"] = true,
+        ["灵兽孵化"] = true,
+        ["掘墓人"] = true,
         ["讨伐夜魔"] = true,
         ["古刹之谜"] = true,
         ["修复轩辕剑"] = true,
@@ -2912,8 +3011,33 @@ npc[11] = function(p2, p3, Data)
                             end)
                             if AUTO_GUIDE_TASKS[taskName] and not autoGuideWidget then
                                 if not chapterDone and not taskDoneByReward and not khdDone and not storyStarted then
-                                    autoGuideWidget = goBtn
-                                    autoGuideDesc = "点击前往" .. taskName
+                                    if taskName == "本命灵根"
+                                        or taskName == "升级灵根"
+                                        or taskName == "筑基"
+                                        or taskName == "提升修为至筑基境" then
+                                        if cogin.isWin32 and MainProperty and MainProperty._ui then
+                                            autoGuideWidget = MainProperty._ui.Button_role
+                                        else
+                                            autoGuideWidget = npc.jueshe
+                                        end
+                                        autoGuideDesc = "打开人物界面"
+                                    elseif taskName == "灵兽孵化" then
+                                        ensureTopPanelExpanded()
+                                        local petShortcut = findShortcutButtonByNpcId(64)
+                                        if not petShortcut then
+                                            rebuildShortcutButtons("")
+                                            ensureTopPanelExpanded()
+                                            petShortcut = findShortcutButtonByNpcId(64)
+                                        end
+                                        if petShortcut then
+                                            autoGuideWidget = petShortcut
+                                            autoGuideDesc = "点击顶部灵兽契约"
+                                        end
+                                    end
+                                    if not autoGuideWidget and taskName ~= "灵兽孵化" then
+                                        autoGuideWidget = goBtn
+                                        autoGuideDesc = "点击前往" .. taskName
+                                    end
                                 end
                             end
                         end
@@ -2950,7 +3074,7 @@ npc[11] = function(p2, p3, Data)
                             dir = 3,
                             guideWidget = autoGuideWidget,
                             guideParent = guideParent,
-                            guideDesc = "建议优先领取",
+                            guideDesc = autoGuideDesc or "建议优先领取",
                             isForce = false,
                             hideMask = true,
                         })
@@ -3063,9 +3187,19 @@ npc[11] = function(p2, p3, Data)
             _ywl_close_storylog()
         end
         SL:onLUAEvent(LUA_EVENT_YWL_CURRENT_TASK_CHANGE, currentTask)
+        rebuildShortcutButtons("")
     end
 end
 npc[12] = function(p2, p3, Data)
+    local function openActivityEntry(kf, idx)
+        idx = tonumber(idx) or 0
+        if idx == 7 then
+            SL:SendLuaNetMsg(101, 506, 0, 0, "")
+            return
+        end
+        SL:SendLuaNetMsg(101, 507, tonumber(kf) or 1, idx, "")
+    end
+
     if p2 == 1 then
         npc.hd_data = SL:JsonDecode(Data, false)
         if npc.hdan then
@@ -3075,7 +3209,7 @@ npc[12] = function(p2, p3, Data)
         if cogin.isWin32 then
             npc.hdan = GUI:Button_Create(npc.RightTop, "hdan", -367, -300, "res/custom/activity/" .. p3 .. ".png")
             GUI:addOnClickEvent(npc.hdan, function()
-                SL:SendLuaNetMsg(101, 507, 1, p3, "")
+                openActivityEntry(1, p3)
             end)
             npc.djs = GUI:Text_Create(npc.hdan, "djs", 32 + 130, 19, 16, "#F7F7DE", npc.hd_data.sk * 60)
             GUI:setAnchorPoint(npc.djs, 0.5, 0.5)
@@ -3092,7 +3226,7 @@ npc[12] = function(p2, p3, Data)
         else
             npc.hdan = GUI:Button_Create(npc.RightTop, "hdan", -390 - 125 + 226 - 55 - 160, -240 - 61 - 31 + 50, "res/custom/activity/" .. p3 .. ".png")
             GUI:addOnClickEvent(npc.hdan, function()
-                SL:SendLuaNetMsg(101, 507, npc.hd_data.kf, npc.hd_data.idx, "")
+                openActivityEntry(npc.hd_data.kf, npc.hd_data.idx)
             end)
             npc.djs = GUI:Text_Create(npc.hdan, "djs", 32 + 130, 19, 16, "#F7F7DE", npc.hd_data.sk * 60)
             GUI:setAnchorPoint(npc.djs, 0.5, 0.5)
@@ -5741,6 +5875,10 @@ npc[507] = function(p2, p3, Data)
         GUI:Image_Create(label, "img_bj", 6, 350, "res/custom/activity/img/img_" .. i .. ".png")
         local btn = GUI:Button_Create(label, "btn", 340, 14, cfg.btnSkin or "res/custom/activity/btn.png")
         GUI:addOnClickEvent(btn, function()
+            if tonumber(i) == 7 then
+                SL:SendLuaNetMsg(101, 506, 0, 0, "")
+                return
+            end
             SL:SendLuaNetMsg(101, 507, 1, i, "")
         end)
         -- local title = GUI:Text_Create(label, "title", 22, 315, 24, "#F3E2B6", cfg.title or "")

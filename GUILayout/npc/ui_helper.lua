@@ -284,6 +284,8 @@ function UIHelper.ensureWindow(cache, npcid, opts)
     --放置透传
     GUI:addMouseOverTips(overlay, "", {x = 0, y = 0}, {x = 0, y = 0})
     local node = GUI:Node_Create(bg, nodeCfg.name or 'node', nodeCfg.x or 0, nodeCfg.y or 0)
+    GUI:setLocalZOrder(node, 99)
+
     local closeBtn = nil
     if closeCfg ~= false then
         closeCfg = closeCfg or {}

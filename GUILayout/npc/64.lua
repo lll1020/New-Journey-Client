@@ -38,6 +38,73 @@ local function _redpoint_if(parent, condition, opts)
     end
 end
 
+-- 灵兽孵化任务的界面内引导封装，进入契约界面后继续指向幼崽选择/领取按钮。
+local function _try_xyl_guide(button, parent, marker, desc, opts)
+    opts = opts or {}
+    return NPC_UI_HELPER.tryStartXylGuide(npc, button, parent, marker, {
+        taskName = "灵兽孵化",
+        desc = desc,
+        dir = opts.dir or 3,
+        isForce = opts.isForce == true,
+        hideMask = opts.hideMask,
+        once = opts.once,
+        idx = opts.idx,
+    })
+end
+
+local LINGSHOU_BABY_ITEMS = {
+    [1] = "麒麟幼崽",
+    [2] = "青龙幼崽",
+    [3] = "朱雀幼崽",
+    [4] = "白虎幼崽",
+    [5] = "玄武幼崽",
+}
+local function _server_now(payload)
+    local now = tonumber(payload and payload.server_time or 0) or 0
+    if now <= 0 and SL and SL.GetMetaValue then
+        now = tonumber(SL:GetMetaValue("SERVER_TIME") or 0) or 0
+    end
+    if now <= 0 then
+        now = os.time()
+    end
+    return now
+end
+
+local function _format_seconds(seconds)
+    seconds = math.max(0, math.floor(tonumber(seconds) or 0))
+    local h = math.floor(seconds / 3600)
+    local m = math.floor((seconds % 3600) / 60)
+    local s = seconds % 60
+    if h > 0 then
+        return string.format("%02d:%02d:%02d", h, m, s)
+    end
+    return string.format("%02d:%02d", m, s)
+end
+
+local function _get_hatch(idx)
+    local data = npc.ls_data and npc.ls_data.T_data or {}
+    data.hatch = data.hatch or {}
+    return data.hatch["" .. idx]
+end
+
+local function _get_baby_choice()
+    local data = npc.ls_data and npc.ls_data.T_data or {}
+    return tonumber(data.baby_choice or 0) or 0
+end
+
+local function _sync_shortcut_pet_data()
+    local data = npc.ls_data and npc.ls_data.T_data
+    if type(data) ~= "table" then
+        return
+    end
+    rawset(_G, "NPC64_LAST_T_DATA", data)
+    if Npclib and Npclib["anniu"] and Npclib["anniu"][1] then
+        SL:ScheduleOnce(function()
+            Npclib["anniu"][1](0, 1, "")
+        end, 0)
+    end
+end
+
 function npc.main(npcid, p2, p3, msgData)
 
 
@@ -70,7 +137,7 @@ function npc.main(npcid, p2, p3, msgData)
 
 
             if npc.ls_data.T_data.ls[""..npc.titles_sign] >= npc._config.config.wy.max_level then
-                GUI:Text_setFontName(GUI:Text_Create(localNode, "tip_max",490, 170, 30, "#FF0000", "已达最高等级亲密度")
+        GUI:Text_setFontName(GUI:Text_Create(localNode, "tip_max",490, 170, 30, "#FF0000", "已达最高等级亲密度")
                     , "fonts/500.ttf")
                 return
             end
@@ -101,7 +168,7 @@ function npc.main(npcid, p2, p3, msgData)
                 -- k[2] = k[2] * npc.data.T_data.level[""..npc.current_idx]
                 GUI:RichText_Create(kuang, "attr_desc", 20, 0, Player:showAttr({{k[1],k[2]}}), 200, 17, "#f7f7de", 3,nil,nil)
                 GUI:Image_Create(kuang, "jt", 150, 0, "res/custom/tianshu/qh/jt.png")
-                GUI:Text_Create(kuang, "old_attr_v",200,3, 17, "#00FFFF", (npc.ls_data.T_data.ls[""..npc.titles_sign] < npc._config.config.wy.max_level) and (npc._config.config.wy.det[(npc.ls_data.T_data.ls[""..npc.titles_sign] or 1) + 1].attr[v][2]) .. "(下一级亲密度)" or "已满级")
+                GUI:Text_Create(kuang, "old_attr_v",200,3, 17, "#00FFFF", (npc.ls_data.T_data.ls[""..npc.titles_sign] < npc._config.config.wy.max_level) and (npc._config.config.wy.det[(npc.ls_data.T_data.ls[""..npc.titles_sign] or 1) + 1].attr[v][2]) .. "(下一等级亲密度)" or "已满级")
             end
 
         end
@@ -138,6 +205,8 @@ function npc.main(npcid, p2, p3, msgData)
         -- GUI:Button_setTitleFontSize(Button, 14)
 
         GUI:addOnClickEvent(Button, function()
+            npc.ls_data.T_data.dqzh = npc.titles_sign
+            _sync_shortcut_pet_data()
             SL:SendLuaNetMsg(100, npcid, 2, 0, SL:JsonEncode({idx = npc.titles_sign}, false))
         end)
         local sywName = npc._config.config.ls[npc.titles_sign] and npc._config.config.ls[npc.titles_sign].syw
@@ -160,6 +229,257 @@ function npc.main(npcid, p2, p3, msgData)
         GUI_createLabel(npc.Label,npc.xjm_titles_sign)
 
     end
+
+    local open_contract_window
+    local function _baby_state(idx, data, now, babyChoice)
+        data = data or {}
+        data.ls = data.ls or {}
+        data.hatch = data.hatch or {}
+        local hatch = data.hatch["" .. idx]
+        local hasChoice = (tonumber(babyChoice or 0) or 0) > 0
+        local isChoice = (tonumber(babyChoice or 0) or 0) == idx
+        local isHatching = hatch and hatch.status == "hatching" and (tonumber(hatch.expireAt or 0) or 0) > now
+        if isHatching then
+            return "未孵化", "#00FFFF", false
+        end
+        if (tonumber(data.ls["" .. idx] or 0) or 0) > 0 then
+            return "已孵化", "#00FF95", false
+        end
+        if hatch and hatch.status == "done" then
+            return "孵化完成", "#00FF95", false
+        end
+        if isChoice then
+            return "已选择", "#F7DE91", false
+        end
+        if hasChoice then
+            return "已选择其他幼崽", "#999999", false
+        end
+        return "可领取", "#FF6666", true
+    end
+
+    local function open_baby_preview_window(idx, opts)
+        opts = opts or {}
+        idx = tonumber(idx) or 0
+        local petCfg = npc._config.config.ls[idx]
+        if not petCfg then
+            SL:ShowSystemTips("灵兽配置异常")
+            return
+        end
+        local data = npc.ls_data and npc.ls_data.T_data or {}
+        local now = _server_now(npc.ls_data)
+        local babyChoice = _get_baby_choice()
+        local status, color, canClaim = _baby_state(idx, data, now, babyChoice)
+        local babyName = LINGSHOU_BABY_ITEMS[idx] or (petCfg.name .. "幼崽")
+        local canDeploy = (tonumber((data.ls or {})["" .. idx] or 0) or 0) > 0
+
+        if npc.contract_window then
+            NPC_UI_HELPER.closeWindow(npc.contract_window)
+            npc.contract_window = nil
+        end
+        npc.baby_preview_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
+            windowName = "npc_64_baby_preview",
+            background = {skin = "res/custom/four_city/lingshou/xjm/bg.png", eff = false},
+            closeButton = {x = 9999, y = 9999, skin = "res/wy/public/close_red_big.png"},
+            titleText = "灵兽预览",
+            subTitle = babyName,
+        })
+        local node = npc.baby_preview_window.node
+        GUI:removeAllChildren(node)
+
+        local eff = GUI:Frames_Create(node, "eff", 288, 314, "res/custom/four_city/lingshou/xjm/eff/" .. idx .. "/eff_", ".png", 1, 30, {
+            speed = 75,
+            count = 30,
+            loop = -1,
+        })
+        GUI:setAnchorPoint(eff, 0.5, 0.5)
+
+        local petImg = GUI:Button_Create(node, "pet_img", 165 + 250, 55 + 85, "res/custom/four_city/lingshou/l_" .. idx .. ".png")
+        GUI:setScale(petImg, 0.75)
+        GUI:setTouchEnabled(petImg, false)
+        local name = GUI:Text_Create(node, "pet_name", 290, 430, 28, "#F7DE91", petCfg.name or "")
+        GUI:setAnchorPoint(name, 0.5, 0.5)
+        GUI:Text_setFontName(name, "fonts/500.ttf")
+        GUI:Text_enableOutline(name, "#000000", 1)
+
+        -- local statusNode = GUI:Text_Create(node, "status", 290, 388, 20, color, status)
+        -- GUI:setAnchorPoint(statusNode, 0.5, 0.5)
+        -- GUI:Text_enableOutline(statusNode, "#000000", 1)
+
+        -- for star = 1, 3 do
+        --     GUI:Image_Create(node, "star_" .. star, 230 + (star - 1) * 45, 355, "res/custom/four_city/lingshou/star_" .. ((tonumber((data.ls_sp or {})["" .. idx] or 0) or 0) >= star and "l" or "n") .. ".png")
+        -- end
+
+        local infoNode = GUI:Node_Create(node, "preview_info_node", 0, 0)
+        local previewPage = 1
+        local previewTabs = {}
+        local function renderPreviewInfo(page)
+            previewPage = page or 1
+            GUI:removeAllChildren(infoNode)
+            if previewPage == 1 then
+                GUI:Image_Create(infoNode, "wz1", 490, 380, "res/custom/four_city/lingshou/xjm/tip_1.png")
+                GUI:Image_Create(infoNode, "wz2", 490, 380 - 70, "res/custom/four_city/lingshou/xjm/tip_5.png")
+                GUI:Text_setFontName(GUI:Text_Create(infoNode, "b_skill", 500, 360, 18, "#FFFFFF", tostring(petCfg.b_skill or "")), "fonts/500.ttf")
+                local sSkill = GUI:Text_Create(infoNode, "s_skill", 500, 360 - 45, 18, "#FFFFFF", tostring(petCfg.s_skill or ""))
+                GUI:Text_setFontName(sSkill, "fonts/500.ttf")
+                GUI:setAnchorPoint(sSkill, 0, 1)
+            else
+                GUI:Image_Create(infoNode, "wz1", 490, 380, "res/custom/four_city/lingshou/xjm/tip_2.png")
+                GUI:Image_Create(infoNode, "wz2", 490, 380 - 100, "res/custom/four_city/lingshou/xjm/tip_3.png")
+                local attrGiveWz = GUI:Text_Create(infoNode, "attr_give_wz", 500, 360 + 15, 18, "#FFFFFF", tostring(petCfg.attr_give_wz or ""))
+                local attrWz = GUI:Text_Create(infoNode, "attr_wz", 500, 360 - 100 + 15, 18, "#FFFFFF", tostring(petCfg.attr_wz or ""))
+                GUI:Text_setFontName(attrGiveWz, "fonts/500.ttf")
+                GUI:Text_setFontName(attrWz, "fonts/500.ttf")
+                GUI:setAnchorPoint(attrGiveWz, 0, 1)
+                GUI:setAnchorPoint(attrWz, 0, 1)
+            end
+            for i = 1, 2 do
+                if previewTabs[i] then
+                    GUI:Button_loadTextureNormal(previewTabs[i], "res/custom/four_city/lingshou/xjm/list/" .. (previewPage == i and "l" or "n") .. "/" .. i .. ".png")
+                end
+            end
+        end
+
+        for i = 1, 2 do
+            local page = i
+            previewTabs[page] = GUI:Button_Create(node, "preview_tab_" .. page, 570 + (page - 1) * 150, 455, "res/custom/four_city/lingshou/xjm/list/" .. (previewPage == page and "l" or "n") .. "/" .. page .. ".png")
+            GUI:addOnClickEvent(previewTabs[page], function()
+                renderPreviewInfo(page)
+            end)
+        end
+        renderPreviewInfo(previewPage)
+
+        local quickHatchTip = GUI:Text_Create(node, "quick_hatch_tip", 695, 118, 18, "#F7DE91", "真实累计充值达到99元 可以立即孵化")
+        GUI:setAnchorPoint(quickHatchTip, 0.5, 0.5)
+        GUI:Text_setFontName(quickHatchTip, "fonts/500.ttf")
+        GUI:Text_enableOutline(quickHatchTip, "#000000", 1)
+
+        local backBtn = GUI:Button_Create(node, "back_btn", 500 + 100, 70 + 95, "res/custom/four_city/lingshou/xjm/an7.png")
+        GUI:Button_setTitleText(backBtn, opts.fromList and "返回选择" or "关闭")
+        GUI:Button_setTitleFontName(backBtn, "fonts/500.ttf")
+        GUI:Button_setTitleFontSize(backBtn, 20)
+        GUI:Button_setTitleColor(backBtn, "#FF0000")
+        GUI:addOnClickEvent(backBtn, function()
+            if npc.baby_preview_window then
+                NPC_UI_HELPER.closeWindow(npc.baby_preview_window)
+                npc.baby_preview_window = nil
+            end
+            if opts.fromList then
+                open_contract_window(true)
+            end
+        end)
+
+        local claimBtn = GUI:Button_Create(node, "claim_btn", 690 + 100, 70 + 95, canDeploy and "res/custom/four_city/lingshou/xjm/btn_cz.png" or "res/custom/four_city/lingshou/xjm/an7.png")
+        if not canDeploy then
+            GUI:Button_setTitleText(claimBtn, canClaim and "领取幼崽" or status)
+            GUI:Button_setTitleFontName(claimBtn, "fonts/500.ttf")
+            GUI:Button_setTitleFontSize(claimBtn, 20)
+            GUI:Button_setTitleColor(claimBtn, "#00FF00")
+            GUI:setTouchEnabled(claimBtn, canClaim)
+            GUI:Button_setBright(claimBtn, canClaim)
+        end
+        if canDeploy then
+            GUI:addOnClickEvent(claimBtn, function()
+                if npc.ls_data and npc.ls_data.T_data then
+                    npc.ls_data.T_data.dqzh = idx
+                    _sync_shortcut_pet_data()
+                end
+                SL:SendLuaNetMsg(100, npcid, 2, 0, SL:JsonEncode({idx = idx}, false))
+            end)
+        elseif canClaim then
+            _redpoint_if(claimBtn, true, {x = 176, y = 37})
+            GUI:addOnClickEvent(claimBtn, function()
+                SL:OpenCommonTipsPop({
+                    str = "灵兽幼崽只能领取一次，确认选择【" .. babyName .. "】吗？",
+                    btnType = 2,
+                    callback = function(atype)
+                        if atype == 1 then
+                            SL:SendLuaNetMsg(100, npcid, 6, 0, SL:JsonEncode({idx = idx}, false))
+                        end
+                    end,
+                })
+            end)
+        end
+    end
+
+    open_contract_window = function(forceList)
+        if npc.baby_preview_window then
+            NPC_UI_HELPER.closeWindow(npc.baby_preview_window)
+            npc.baby_preview_window = nil
+        end
+        local babyChoice = _get_baby_choice()
+        if not forceList and babyChoice > 0 then
+            open_baby_preview_window(babyChoice, {fromList = false})
+            return
+        end
+        npc.contract_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
+            windowName = "npc_64_contract",
+            background = {skin = "res/custom/four_city/lingshou/bg_1_1/eff_1.png", eff = false},
+            closeButton = {x = 350 + 470 + 75, y = 180 + 288, skin = "res/wy/public/close_red_big.png"},
+            titleText = "领取灵兽蛋",
+            subTitle = "选择幼崽",
+        })
+        local node = npc.contract_window.node
+        local bg = npc.contract_window.bg
+        GUI:removeAllChildren(node)
+
+        GUI:setLocalZOrder(GUI:Frames_Create(bg, "bg_eff", 0, 0, "res/custom/four_city/lingshou/bg_1_1/eff_", ".png", 1, 30, {speed = 100, count = 30, loop = -1}), 1)
+
+        local data = npc.ls_data and npc.ls_data.T_data or {}
+        data.ls = data.ls or {}
+        data.hatch = data.hatch or {}
+        local now = _server_now(npc.ls_data)
+
+        -- local title = GUI:Text_Create(node, "title", 499 + 200, 480, 26, "#F7DE91", "选择一只灵兽幼崽")
+        -- GUI:setAnchorPoint(title, 0.5, 0.5)
+        -- GUI:Text_setFontName(title, "fonts/500.ttf")
+        -- GUI:Text_enableOutline(title, "#000000", 1)
+
+        -- local desc = GUI:Text_Create(node, "desc", 499, 420, 18, "#FFFFFF", "每个角色只能领取一次幼崽，请确认后再选择。")
+        -- GUI:setAnchorPoint(desc, 0.5, 0.5)
+        -- GUI:Text_enableOutline(desc, "#000000", 1)
+        local Pos = {
+            [1] = {x = 100 + 579, y = 250 + 80, eff = 60483 - 10},
+            [2] = {x = 243 + 579, y = 146 + 80, eff = 60484 - 10},
+            [3] = {x = 188 + 579, y = -21 + 80, eff = 60485 - 10},
+            [4] = {x = 12 + 579, y = -21 + 80, eff = 60486 - 10},
+            [5] = {x = -43 + 579, y = 146 + 80, eff = 60487 - 10},
+        }
+        for i = 1, 5 do
+            local x = Pos[i].x
+            local y = Pos[i].y
+            -- local btn = GUI:Button_Create(node, "baby_" .. i, x, y, "res/custom/four_city/lingshou/l_" .. i .. ".png")
+            -- GUI:setScale(btn, 0.62)
+            local lay = GUI:Layout_Create(node, "lay_" .. i, x, y, 100, 150)
+            local btn = GUI:Effect_Create(lay, "baby_" .. i, 50, 75, 0, Pos[i].eff, 0, 0, 0, 1)
+            -- GUI:setAnchorPoint(btn, 0.5, 0.5)
+
+
+            local hatch = _get_hatch(i)
+            local received = hatch ~= nil
+            local hasChoice = babyChoice > 0
+            local isChoice = babyChoice == i
+            local isHatching = hatch and hatch.status == "hatching" and (tonumber(hatch.expireAt or 0) or 0) > now
+            local label = npc._config.config.ls[i] and npc._config.config.ls[i].name or LINGSHOU_BABY_ITEMS[i]
+            local nameText = GUI:Text_Create(lay, "name_" .. i, 70, 0, 24, "#FFFFFF", label)
+            GUI:setAnchorPoint(nameText, 0.5, 0.5)
+            GUI:Text_setFontName(nameText, "fonts/500.ttf")
+            GUI:Text_enableOutline(nameText, "#000000", 1)
+
+            -- local status, color, canClaim = _baby_state(i, data, now, babyChoice)
+            -- local statusNode = GUI:Text_Create(node, "status_" .. i, x + 68, 115, 17, color, status)
+            -- GUI:setAnchorPoint(statusNode, 0.5, 0.5)
+            -- GUI:Text_enableOutline(statusNode, "#000000", 1)
+            GUI:setTouchEnabled(lay, true)
+            GUI:addOnClickEvent(lay, function()
+                open_baby_preview_window(i, {fromList = true})
+            end)
+        end
+
+        -- local tip = GUI:Text_Create(node, "tip", 499, 55, 18, "#F7DE91", "点击灵兽蛋可进入预览界面，确认后领取48小时幼崽。")
+        -- GUI:setAnchorPoint(tip, 0.5, 0.5)
+        -- GUI:Text_enableOutline(tip, "#000000", 1)
+    end
+
     local function UI_updata(node) --界面渲染
         if not node then
             return
@@ -227,16 +547,36 @@ function npc.main(npcid, p2, p3, msgData)
     end
 
 
-    if p2 == 0 then--界面
+        if p2 == 0 then--界面
         npc.ls_data = SL:JsonDecode(msgData,false)
+        _sync_shortcut_pet_data()
+        if rawget(_G, "NPC64_OPEN_CONTRACT_ONCE") or (npc.ls_data and tonumber(npc.ls_data.open_contract or 0) == 1) then
+            rawset(_G, "NPC64_OPEN_CONTRACT_ONCE", nil)
+            open_contract_window()
+            return
+        end
         ensureWindow(npcid)
         UI_updata(npc.node)
     elseif p2 == 1 then
         npc.ls_data = SL:JsonDecode(msgData,false)
+        _sync_shortcut_pet_data()
         UI_updata(npc.node)
     elseif p2 == 3 then
         npc.ls_data = SL:JsonDecode(msgData,false)
+        _sync_shortcut_pet_data()
         xjm_UI_updata()
+    elseif p2 == 6 then
+        npc.ls_data = SL:JsonDecode(msgData,false)
+        _sync_shortcut_pet_data()
+        UI_updata(npc.node)
+        if npc.contract_window then
+            NPC_UI_HELPER.closeWindow(npc.contract_window)
+            npc.contract_window = nil
+        end
+        if npc.baby_preview_window then
+            NPC_UI_HELPER.closeWindow(npc.baby_preview_window)
+            npc.baby_preview_window = nil
+        end
     end
 end
 

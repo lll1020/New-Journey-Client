@@ -10,7 +10,8 @@ local WINDOW_OPTS = {
 local state_info = {
     [0] = {color = "#8FB6C8", text = "挑战中"},
     [1] = {color = "#FF5B5B", text = "未完成"},
-    [2] = {color = "#54FF9F", text = "已激活"},
+    [2] = {color = "#F4D179", text = "可觉醒"},
+    [3] = {color = "#54FF9F", text = "已觉醒"},
 }
 
 local function ensureTable(data, key)
@@ -136,19 +137,19 @@ function npc.main(npcid, p2, p3, msgData)
             createText(labelNode, "need_item_none", 600 - 60, 36, 20, "#F6E7C2", "无", 0.5, 0.5)
         end
 
-        if state == 2 then
+        if state == 3 then
             local ok = GUI:Image_Create(labelNode, "ok", 155 + 37, -8 + 46 + 60, "res/custom/four_city/lgsl/ok.png")
             GUI:setAnchorPoint(ok, 0.5, 0.5)
         elseif state == 2 then
-            -- local activeBtn = GUI:Button_Create(labelNode, "active_btn", 150, -8, "res/public/1900000660.png")
-            -- GUI:setAnchorPoint(activeBtn, 0.5, 0.5)
-            -- GUI:Button_setTitleText(activeBtn, "激活灵根")
-            -- GUI:Button_setTitleFontSize(activeBtn, 18)
-            -- GUI:Button_setTitleColor(activeBtn, "#F4E7B5")
-            -- GUI:Button_titleEnableOutline(activeBtn, "#110b05", 2)
-            -- GUI:addOnClickEvent(activeBtn, function()
-            --     SL:SendLuaNetMsg(100, npcid, 2, idx, "")
-            -- end)
+            local activeBtn = GUI:Button_Create(labelNode, "active_btn", 150 + 37, -8 + 46, "res/custom/four_city/lgsl/btn.png")
+            GUI:setAnchorPoint(activeBtn, 0.5, 0.5)
+            GUI:Button_setTitleText(activeBtn, "觉醒灵根")
+            GUI:Button_setTitleFontSize(activeBtn, 18)
+            GUI:Button_setTitleColor(activeBtn, "#F4E7B5")
+            GUI:Button_titleEnableOutline(activeBtn, "#110b05", 2)
+            GUI:addOnClickEvent(activeBtn, function()
+                SL:SendLuaNetMsg(100, npcid, 2, idx, "")
+            end)
         else
             local enterBtn = GUI:Button_Create(labelNode, "enter_btn", 150 + 37, -8 + 46, "res/custom/four_city/lgsl/btn.png")
             GUI:setAnchorPoint(enterBtn, 0.5, 0.5)
@@ -206,7 +207,7 @@ function npc.main(npcid, p2, p3, msgData)
     elseif p2 == 2 then
         npc.data = npc.data or {}
         npc.data.T_data = npc.data.T_data or {}
-        ensureTable(npc.data.T_data, "level")[tostring(p3)] = 0
+        ensureTable(npc.data.T_data, "level")[tostring((tonumber(p3) or 0) + 5)] = 1
         npc.data.T_dljq = npc.data.T_dljq or {}
         ensureTable(npc.data.T_dljq, "npc_68")[tostring(p3)] = 1
         npc.titles_sign = tonumber(p3) or npc.titles_sign or 1

@@ -106,6 +106,9 @@ SL:RegisterLuaNetMsg(105, function(msgID, p1, p2, p3, msgData)
         parent = GUI:Node_Create(GUI:Attach_SceneB(), "bossInfo", 0, 0)
     end
     local monsters = SL:JsonDecode(msgData,false)
+    if type(monsters) ~= "table" then
+        return
+    end
     for _, v in pairs(monsters) do
         local posM = SL:ConvertMapPos2WorldPos(tonumber(v.x) or 1, tonumber(v.y) or 1)
         local node = GUI:Node_Create(parent, string.format("boss_text%s_%s%s", v.name, posM.x, posM.y), posM.x, posM.y)

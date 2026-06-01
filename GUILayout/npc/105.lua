@@ -289,11 +289,15 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data = not msgData and {} or SL:JsonDecode(msgData, false)
         ensureWindow()
         UI_updata(npc.node, npcid)
-        NPC_UI_HELPER.tryStartXylGuide(npc, npc._window and npc._window.close, npc.node, "welfare_open_close", {
-            taskName = "限时福利",
-            dir = 5,
-            desc = "已查看，点击关闭继续",
-        })
+        SL:ScheduleOnce(function()
+            if npc._window and npc._window.close and npc.node and not tolua.isnull(npc.node) then
+                NPC_UI_HELPER.tryStartXylGuide(npc, npc._window.close, npc.node, "welfare_open_close", {
+                    taskNames = {"限时福利", "引导点击限时福利NPC"},
+                    dir = 5,
+                    desc = "已查看，点击关闭继续",
+                })
+            end
+        end, 3)
     elseif p2 == 1 then
         npc.data = not msgData and (npc.data or {}) or SL:JsonDecode(msgData, false)
         if npc.node and not tolua.isnull(npc.node) then

@@ -219,6 +219,15 @@ function npc.main(npcid, p2, p3, msgData)
                 if item then
                     local level = GUI:Text_Create(Label_node, "level",30 + 288,40 + 93, 30, "#FF0000", "天书【lv."..(npc.data.T_data.level or 0).."】")
                     GUI:Text_setFontName(level, "fonts/501.ttf")
+                    if (tonumber(npc.data.T_data.level or 0) or 0) >= 20 then
+                        local echoLines = {"<font color='#F4D179'>灵根回响共鸣：</font>"}
+                        for _, cfg in ipairs(((teshudata["npc_22"] or {}).main_r or {})) do
+                            if cfg.echo_name and cfg.echo_desc then
+                                echoLines[#echoLines + 1] = string.format("<font color='#A7D58D'>%s</font><font color='#FFFFFF'>：%s</font>", tostring(cfg.echo_name), tostring(cfg.echo_desc))
+                            end
+                        end
+                        GUI:RichText_Create(Label_node, "linggen_echo", 120, 420, table.concat(echoLines, "\n"), 360, 18, "#f7f7de", 1, nil, nil, {outlineSize = 1, outlineColor = SL:ConvertColorFromHexString("#100808")})
+                    end
                     local new_config = npc._config.details[1].details[(npc.data.T_data.level or 0) + 1]
                     local old_config = npc._config.details[1].details[(npc.data.T_data.level or 0)]
                     local jdt = GUI:LoadingBar_Create(Label_node, "jdt", 726,227,"res/custom/tianshu/qh/jdt.png", 0)
