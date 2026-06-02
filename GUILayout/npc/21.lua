@@ -106,14 +106,19 @@ function npc.main(npcid, p2, p3, msgData)
             local desc = GUI:Text_Create(node, "need_xxz",130 + 290,267, 25, "#FFFFFF", "下一级需要的修为："..config.need_xxz)
             GUI:Text_setFontName(desc, "fonts/502.ttf")
             GUI:Text_enableOutline(desc, "#000000", 2)
-            if level == 9 or true then
+            if level == 9 then
                 local jzColor = tonumber(npc.data.jz_dan_color or 249) == 250 and "#00FF00" or "#FF0000"
                 local jzText = tostring(npc.data.jz_dan_text or "未服用")
-                local jzDesc = GUI:Text_Create(node, "jz_dan_tip", 80, 235, 25, jzColor, "筑基条件：筑基丹" .. jzText)
+                local jzBg = GUI:Layout_Create(node, "jz_dan_tip_bg", 75 - 53, 198, 387, 54, false)
+                GUI:Layout_setBackGroundColorType(jzBg, 1)
+                GUI:Layout_setBackGroundColor(jzBg, "#000000")
+                GUI:Layout_setBackGroundColorOpacity(jzBg, 165)
+                local jzDesc = GUI:Text_Create(jzBg, "jz_dan_tip", 5, 14, 20, jzColor, "筑基条件：需要服用筑基丹 " .. jzText)
                 GUI:Text_setFontName(jzDesc, "fonts/502.ttf")
                 GUI:Text_enableOutline(jzDesc, "#000000", 2)
-                GUI:setAnchorPoint(GUI:ItemShow_Create(jzDesc, "item", 300, 15, {index= SL:GetMetaValue("ITEM_INDEX_BY_NAME","筑基丹"),count = 1,look= true, bgVisible = false})
-                , 0.5, 0.5)
+                local jzEff = GUI:Effect_Create(jzBg, "jz_dan_eff", 330 + 25, 27 + 2, 0, 13048)
+                GUI:setScale(jzEff, 0.8)
+                GUI:setAnchorPoint(GUI:ItemShow_Create(jzBg, "jz_dan_item", 330 + 25, 27 + 2, {index= SL:GetMetaValue("ITEM_INDEX_BY_NAME","筑基丹"),count = 1,look= true, bgVisible = false}), 0.5, 0.5)
             end
             -- GUI:setAnchorPoint(
             --         GUI:RichText_Create(node, "desc", 200, 430,
@@ -129,15 +134,25 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 1, 0, "")
             end)
-            NPC_UI_HELPER.tryStartXylGuide(npc, Button, node, "foundation_realm_upgrade", {
-                taskNames = {"筑基", "提升修为至筑基境"},
-                dir = 5,
-                desc = "点击提升修为",
-            })
+            if NPC_UI_HELPER.isCurrentXylTask({"筑基", "提升修为至筑基境"}) then
+                NPC_UI_HELPER.closeGuideByDomain("xyl")
+            end
         else
             GUI:Image_Create(node, "Button", 460, 10.00, "res/wy/public/15.png")
             NPC_UI_HELPER.closeGuideByDomain("mainline")
         end
+    end
+    if p2 == 2 then
+        SL:OpenCommonTipsPop({
+            str = "未检测到筑基丹，是否前往在线充值购买？",
+            btnType = 2,
+            callback = function(atype)
+                if atype == 1 then
+                    SL:SendLuaNetMsg(100, npcid, 2, 0, "")
+                end
+            end,
+        })
+        return
     end
     if p2 == 0 then--界面
         npc.data = SL:JsonDecode(msgData,false)

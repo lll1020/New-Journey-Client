@@ -1,4 +1,4 @@
-local npc = {
+﻿local npc = {
 }
 local REWARD_ITEM_EFFECT_14193 = 14193
 local REWARD_ITEM_EFFECT_13048 = 13048
@@ -1439,11 +1439,16 @@ npc[1] = function(p2, p3, msgData)
         elseif p3 == 1 then
             rebuildShortcutButtons(msgData or "")
             registerShortcutTitleRefresh()
+            
+            SL:WinClick(widget)
             UPGRADE_HELPER.registerOpenNpcButtons()
             UPGRADE_HELPER.startEquipChangeRefresh()
             UPGRADE_HELPER.startAutoRefresh(20 * 1)
         end
     elseif p2 == 10 then
+        if tonumber(p3 or 0) == 31 then
+            return
+        end
         if npc.db_anniu["" .. p3] and not GUI:ui_delegate(npc.db_anniu["" .. p3]).redpoint then
             NPC_UI_HELPER.redpoint_create_eff(npc.db_anniu["" .. p3], {
                 x = 80,
@@ -2240,7 +2245,7 @@ npc[11] = function(p2, p3, Data)
         ["装备强化"] = true,
         ["装备强化1次"] = true,
         ["守护森林"] = true,
-        ["升级灵根"] = true,
+        ["江湖称号升级1次"] = true,
         ["杀伐之路"] = true,
         ["灵兽孵化"] = true,
         ["掘墓人"] = true,
@@ -3012,7 +3017,6 @@ npc[11] = function(p2, p3, Data)
                             if AUTO_GUIDE_TASKS[taskName] and not autoGuideWidget then
                                 if not chapterDone and not taskDoneByReward and not khdDone and not storyStarted then
                                     if taskName == "本命灵根"
-                                        or taskName == "升级灵根"
                                         or taskName == "筑基"
                                         or taskName == "提升修为至筑基境" then
                                         if cogin.isWin32 and MainProperty and MainProperty._ui then
@@ -3021,6 +3025,18 @@ npc[11] = function(p2, p3, Data)
                                             autoGuideWidget = npc.jueshe
                                         end
                                         autoGuideDesc = "打开人物界面"
+                                    elseif taskName == "江湖称号升级1次" then
+                                        ensureTopPanelExpanded()
+                                        local titleShortcut = findShortcutButtonByNpcId(43)
+                                        if not titleShortcut then
+                                            rebuildShortcutButtons("")
+                                            ensureTopPanelExpanded()
+                                            titleShortcut = findShortcutButtonByNpcId(43)
+                                        end
+                                        if titleShortcut then
+                                            autoGuideWidget = titleShortcut
+                                            autoGuideDesc = "点击江湖称号"
+                                        end
                                     elseif taskName == "灵兽孵化" then
                                         ensureTopPanelExpanded()
                                         local petShortcut = findShortcutButtonByNpcId(64)
@@ -7198,6 +7214,14 @@ npc[516] = function(p2, p3, Data)
             local pos = gridPos[j]
             mfzz_render_item(card, rewardList[j][1], rewardList[j][2], pos[1] + 23, pos[2] + 10, idx .. "_" .. j)
         end
+        -- local detailDesc = tostring(cfg and cfg.desc or "")
+        -- if detailDesc ~= "" then
+        --     local descRich = GUI:RichText_Create(card, "detail_desc", 84, 182, string.format("<font color='#ffefbf'>%s</font>", detailDesc), 150, 14, "#f7f7de", 0, nil, nil, {
+        --         outlineSize = 1,
+        --         outlineColor = "#000000",
+        --     })
+        --     GUI:setAnchorPoint(descRich, 0.5, 1)
+        -- end
         local conditionText, conditionOk, needQuestion = mfzz_get_condition_info(cfg)
         local conditionColor = conditionOk and "#57ff8d" or "#ff4636"
         local conditionRich = nil

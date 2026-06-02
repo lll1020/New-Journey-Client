@@ -30,7 +30,7 @@ local ROOT_COLORS = {
 
 local ROOT_GRID_POS = {
     -- 左侧五行灵根竖排，基础/觉醒形态由右侧卡片展示。
-    startX = 88,
+    startX = 98,
     startY = 500,
     gapX = 0,
     gapY = 88,
@@ -56,31 +56,31 @@ local SLOT_TOUCH_SIZE = {width = 125, height = 110}
 -- 本命灵根名字相对槽位中心的纵向偏移
 local SLOT_NAME_OFFSET_Y = -146
 -- 左下“灵根总体属性”文本区域左下角
-local ATTR_BOX_POS = {x = 696, y = 258, anchorX = "right", anchorY = "top"}
+local ATTR_BOX_POS = {x = 686, y = 258, anchorX = "right", anchorY = "top"}
 -- 左下“灵根总体属性”文本区域宽高
 local ATTR_BOX_SIZE = {width = 350, height = 156}
 -- 中间拖入卸下框的左下角坐标
 local UNEQUIP_DROP_POS = {x = 300, y = 346}
 -- 中间拖入卸下框的尺寸
 local UNEQUIP_DROP_SIZE = {width = 410, height = 175}
-local SKILL_PANEL_GROUP = {x = 596, y = 122, gapY = 88, titleGapY = 104, width = 358, titleWidth = 234, rightMargin = 30, anchorX = "right", anchorY = "bottom", minBottomY = 30}
+local SKILL_PANEL_GROUP = {x = 596, y = 122, gapY = 88, titleGapY = 104, width = 358, titleWidth = 234, rightMargin = 40, anchorX = "right", anchorY = "bottom", minBottomY = 30}
 local SKILL_PANEL_CHILD_POS = {iconX = 54, iconY = 52, textX = 108, textY = 84, textWidth = 226, fontSize = 14}
 -- 中间升级按钮位置
-local PAGE_UPGRADE_BTN_POS = {x = 760, y = 45, minY = 81}
+local PAGE_UPGRADE_BTN_POS = {x = 770, y = 45, minY = 81}
 -- 主灵根空槽位下方“装配”按钮位置
-local MAIN_EQUIP_BTN_POS = {x = 92, y = 62, minY = 64}
+local MAIN_EQUIP_BTN_POS = {x = 102, y = 62, minY = 64}
 local DUAL_SWITCH_BTN_POS = {x = 616, y = 45, minY = 36}
 
 local MAIN_STATIC_PARTS = {
-    {name = "attr_panel", x = 620, y = 250, width = 386, rightMargin = 30, anchorX = "right", anchorY = "top", skin = "res/custom/linggen/new/main/itme3.png"},
+    {name = "attr_panel", x = 620, y = 250, width = 386, rightMargin = 40, anchorX = "right", anchorY = "top", skin = "res/custom/linggen/new/main/itme3.png"},
     {name = "attr_title", x = 640, y = 438, width = 188, follow = "attr_panel", followCenter = true, anchorX = "right", anchorY = "top", skin = "res/custom/linggen/new/main/itme4.png"},
     {name = "skill_panel_passive", x = SKILL_PANEL_GROUP.x, group = "skill_panel", offsetY = 0, width = SKILL_PANEL_GROUP.width, rightMargin = SKILL_PANEL_GROUP.rightMargin, anchorX = SKILL_PANEL_GROUP.anchorX, skin = "res/custom/linggen/new/main/itme2.png"},
     {name = "skill_panel_synergy", x = SKILL_PANEL_GROUP.x, group = "skill_panel", offsetY = -SKILL_PANEL_GROUP.gapY, width = SKILL_PANEL_GROUP.width, rightMargin = SKILL_PANEL_GROUP.rightMargin, anchorX = SKILL_PANEL_GROUP.anchorX, skin = "res/custom/linggen/new/main/itme2.png"},
     {name = "skill_title", x = SKILL_PANEL_GROUP.x, group = "skill_panel", offsetY = SKILL_PANEL_GROUP.titleGapY, width = SKILL_PANEL_GROUP.titleWidth, follow = "skill_panel_passive", followCenter = true, anchorX = SKILL_PANEL_GROUP.anchorX, skin = "res/custom/linggen/new/main/itme1.png"},
 }
 local FORM_CARD_POS = {
-    basic = {x = 188, y = 314 - 50, anchorX = "left", anchorY = "top", title = "基础形态"},
-    awaken = {x = 188, y = 110 - 50, anchorX = "left", anchorY = "top", title = "觉醒形态"},
+    basic = {x = 198, y = 314 - 50, anchorX = "left", anchorY = "top", title = "基础形态"},
+    awaken = {x = 198, y = 110 - 50, anchorX = "left", anchorY = "top", title = "觉醒形态"},
 }
 local FORM_CARD_SIZE = {width = 135, height = 161}
 
@@ -163,28 +163,14 @@ local function _lg_screen_size()
 end
 
 local function _lg_adapt_x(x, anchor)
-    local sw = _lg_screen_size()
-    local offsetX = (sw - MAIN_DESIGN_SIZE.width) / 2
     x = tonumber(x or 0) or 0
-    if anchor == "right" then
-        return x + offsetX
-    elseif anchor == "center" then
-        return x
-    end
-    return x - offsetX
+    return x
 end
 
 local function _lg_adapt_y(y, anchor, minY)
-    local _, sh = _lg_screen_size()
-    local offsetY = (sh - MAIN_DESIGN_SIZE.height) / 2
     y = tonumber(y or 0) or 0
     minY = tonumber(minY)
-    if anchor == "top" then
-        return y + offsetY
-    elseif anchor == "center" then
-        return y
-    end
-    local ret = y - offsetY
+    local ret = y
     if minY then
         ret = math.max(minY, ret)
     end
@@ -1126,15 +1112,6 @@ _lg_refresh_main_page = function(npcid, node)
         GUI:Image_Create(slot, "bg", 0, 0, "res/custom/linggen/new/main/slot_bg.png")
         local rootItem = _lg_show_root_icon(slot, "item", ROOT_SLOT_SIZE.width / 2, ROOT_SLOT_SIZE.height / 2, idx, ROOT_ICON_SCALE)
         GUI:setTouchEnabled(slot, rootActive or _lg_can_unlock_basic(idx))
-        if _lg_can_unlock_basic(idx) then
-            _lg_try_xyl_guide(slot, node, "unlock_basic_root", {"本命灵根", "选择你的本命灵根"}, "点击解锁基础灵根", {
-                dir = 3,
-                isForce = true,
-                hideMask = false,
-                once = true,
-                idx = idx,
-            })
-        end
         GUI:addOnTouchEvent(slot, function(sender, type)
             -- 未激活灵根只保留灰态展示，不允许再被选中或触发长按预览。
             if not rootActive then
@@ -1220,7 +1197,7 @@ _lg_refresh_main_page = function(npcid, node)
     --     end
     -- end
     local mainTipPos = _lg_adapt_pos(MAIN_SLOT_ITEM_POS, "center", "center")
-    strokeText(node, "unlock_chance_tip", 100, mainTipPos.y + 92 + 230, 20, "#F4D179", "基础灵根点数：" .. tostring(_lg_unlock_chance()), "fonts/font4.ttf")
+    strokeText(node, "unlock_chance_tip", 110, mainTipPos.y + 92 + 230, 20, "#F4D179", "基础灵根点数：" .. tostring(_lg_unlock_chance()), "fonts/font4.ttf")
     GUI:setAnchorPoint(GUI:getChildByName(node, "unlock_chance_tip"), 0, 0.5)
 
     _lg_render_attr_scroll(node, _lg_collect_total_attrs(), _lg_collect_total_specials())
@@ -1231,11 +1208,6 @@ _lg_refresh_main_page = function(npcid, node)
         local equipPos = _lg_adapt_pos(MAIN_EQUIP_BTN_POS, "left", "bottom")
         local btnEquipMain = GUI:Button_Create(node, "btn_equip_main", equipPos.x, equipPos.y, "res/custom/linggen/new/main/btn_equip.png")
         GUI:setAnchorPoint(btnEquipMain, 0.5, 0.5)
-        _lg_try_xyl_guide(btnEquipMain, node, "equip_main_root", {"本命灵根", "选择你的本命灵根"}, "点击设为本命灵根", {
-            dir = 3,
-            isForce = true,
-            hideMask = false,
-        })
         GUI:addOnClickEvent(btnEquipMain, function()
             SL:SendLuaNetMsg(100, npcid, 2, selectedIdx, "")
         end)
@@ -1263,11 +1235,6 @@ _lg_refresh_main_page = function(npcid, node)
     local upgradePos = _lg_adapt_pos(PAGE_UPGRADE_BTN_POS, "right", "bottom")
     local btnUpgradePage = GUI:Button_Create(node, "btn_open_upgrade", upgradePos.x - 300, upgradePos.y - 5, "res/custom/linggen/new/main/btn_upgrade.png")
     GUI:setAnchorPoint(btnUpgradePage, 0.5, 0.5)
-    _lg_try_xyl_guide(btnUpgradePage, node, "open_linggen_upgrade", {"升级灵根", "升级一次你的本命灵根"}, "点击打开灵根升级", {
-        dir = 3,
-        isForce = true,
-        hideMask = false,
-    })
     GUI:addOnClickEvent(btnUpgradePage, function()
         local xNode = ensureUpgradeWindow(npcid)
         if xNode then
@@ -1317,11 +1284,6 @@ _lg_refresh_upgrade_window = function(npcid, xNode)
 
     local btn = GUI:Button_Create(xNode, "btn_upgrade", UPGRADE_BTN_POS.x, UPGRADE_BTN_POS.y, "res/custom/linggen/new/updata/btn_upgrade.png")
     GUI:setAnchorPoint(btn, 0.5, 0.5)
-    _lg_try_xyl_guide(btn, xNode, "do_linggen_upgrade", {"升级灵根", "升级一次你的本命灵根"}, "点击升级本命灵根", {
-        dir = 3,
-        isForce = true,
-        hideMask = false,
-    })
     GUI:addOnClickEvent(btn, function()
         if idx > 0 and not _lg_is_max_level(idx) then
             SL:SendLuaNetMsg(100, npcid, 5, idx, "")

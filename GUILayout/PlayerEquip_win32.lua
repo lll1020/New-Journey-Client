@@ -34,7 +34,7 @@ local function _refresh_xyl_playerequip_guides()
     end
     if ui.Button3 then
         NPC_UI_HELPER.tryStartXylGuide(PlayerEquip, ui.Button3, ui.Panel_1, "linggen_panel_open", {
-            taskNames = {"本命灵根", "升级灵根", "选择你的本命灵根", "升级一次你的本命灵根", "强化灵根", "强化灵根1次", "装配主灵根", "装配火灵根至主灵根", "装配副灵根", "装配水灵根至副灵根"},
+            taskNames = {"本命灵根", "选择你的本命灵根", "装配主灵根", "装配火灵根至主灵根", "装配副灵根", "装配水灵根至副灵根"},
             dir = 5,
             desc = "打开灵根界面",
         })

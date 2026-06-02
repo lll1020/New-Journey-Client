@@ -5,6 +5,7 @@ MainAssistXylHelper.EVENT_CURRENT_TASK_CHANGE = "伏妖录当前任务变更"
 
 local DETAIL_POPUP_DEFAULT_POS = {x = 220, y = 130}
 local XYL_DYNAMIC_REFRESH_DELAY = 0.2
+local XYL_CURRENT_TASK_WIDGET_VISIBLE = false
 local GRAY_WORLD_PANEL_POS = {x = 40, y = 0}
 local GRAY_WORLD_BG_PATH = "res/wy/eff/npc_but_bj_1.png"
 local GRAY_WORLD_PANEL_SIZE = {width = 200, height = 190}
@@ -1737,6 +1738,10 @@ function MainAssistXylHelper.bind(MainAssist)
     end
 
     local function _open_current_xyl_detail()
+        if not XYL_CURRENT_TASK_WIDGET_VISIBLE then
+            _close_current_xyl_detail()
+            return
+        end
         MainAssist._xylDetailPopupOpened = true
         MainAssist._xylDetailPopupAutoResume = true
         if _should_hide_xyl_detail_popup() then
@@ -1854,12 +1859,24 @@ function MainAssistXylHelper.bind(MainAssist)
     end
 
     function MainAssist.UpdateCurrentXylTaskWidget()
+        MainAssist.UpdateGrayWorldTaskIcon()
+
+        if not XYL_CURRENT_TASK_WIDGET_VISIBLE then
+            if MainAssist._xylCurrentWidget and MainAssist._xylCurrentWidget.panel then
+                GUI:setVisible(MainAssist._xylCurrentWidget.panel, false)
+            end
+            _close_current_xyl_detail()
+            if MainAssist.ListView_mission then
+                GUI:setContentSize(MainAssist.ListView_mission, 200, 185)
+                GUI:setPosition(MainAssist.ListView_mission, 101, 94)
+            end
+            return
+        end
+
         local widget = _ensure_xyl_current_widget()
         if not widget then
             return
         end
-
-        MainAssist.UpdateGrayWorldTaskIcon()
 
         local info = _get_xyl_current_task_info(MainAssist._xylCurrentTask)
         local hasTask = info and info.name and info.name ~= ""

@@ -69,7 +69,7 @@ function npc.main(npcid, p2, p3, msgData)
                 NPC_UI_HELPER.redpoint_create(Button)
             end
             NPC_UI_HELPER.tryStartXylGuide(npc, Button, node, "jianghu_title_upgrade", {
-                taskNames = {"引导江湖称号", "江湖称号", "江湖称号强化一次"},
+                taskNames = {"引导江湖称号", "江湖称号", "江湖称号强化一次", "江湖称号升级1次"},
                 desc = "点击免费提升江湖称号",
                 dir = 3,
                 hideMask = true,
