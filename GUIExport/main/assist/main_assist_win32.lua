@@ -1,5 +1,4 @@
 local ui = {}
-
 function ui.init(parent)
 	-- Create Node
 	local Node = GUI:Node_Create(parent, "Node", 0.00, 0.00)
@@ -8,7 +7,7 @@ function ui.init(parent)
 	GUI:setTag(Node, -1)
 
 	-- Create Panel_assist
-	local Panel_assist = GUI:Layout_Create(Node, "Panel_assist", 0.00, 0.00, 244.00, 188.00, false)
+	local Panel_assist = GUI:Layout_Create(Node, "Panel_assist", -41.00, 0.00, 244.00, 188.00, false)
 	GUI:setChineseName(Panel_assist, "任务_组合")
 	GUI:setAnchorPoint(Panel_assist, 0.00, 1.00)
 	GUI:setTouchEnabled(Panel_assist, true)
@@ -21,14 +20,14 @@ function ui.init(parent)
 	GUI:setTag(Panel_content, 59)
 
 	-- Create Image_25
-	local Image_25 = GUI:Image_Create(Panel_content, "Image_25", 97.00, 94.00, "res/private/main/assist/1900012571.png")
+	local Image_25 = GUI:Image_Create(Panel_content, "Image_25", 101.00, 94.00, "res/private/main/assist/1900012571.png")
 	GUI:setChineseName(Image_25, "任务详细_背景图")
 	GUI:setAnchorPoint(Image_25, 0.50, 0.50)
 	GUI:setTouchEnabled(Image_25, false)
 	GUI:setTag(Image_25, 75)
 
 	-- Create Panel_mission
-	local Panel_mission = GUI:Layout_Create(Panel_content, "Panel_mission", -4.00, 0.00, 202.00, 188.00, false)
+	local Panel_mission = GUI:Layout_Create(Panel_content, "Panel_mission", 0.00, 0.00, 202.00, 188.00, false)
 	GUI:setChineseName(Panel_mission, "任务详细组合")
 	GUI:setTouchEnabled(Panel_mission, true)
 	GUI:setTag(Panel_mission, 63)
@@ -60,27 +59,29 @@ function ui.init(parent)
 	GUI:Button_setTitleColor(Button_mission, "#414146")
 	GUI:Button_setTitleFontSize(Button_mission, 14)
 	GUI:Button_titleDisableOutLine(Button_mission)
-	GUI:Win_SetParam(Button_mission, {grey = 1}, "Button")
 	GUI:setChineseName(Button_mission, "任务_按钮")
 	GUI:setAnchorPoint(Button_mission, 0.50, 0.00)
 	GUI:setTouchEnabled(Button_mission, true)
 	GUI:setTag(Button_mission, 226)
+	GUI:setVisible(Button_mission, false)
 
 	-- Create Button_near
 	local Button_near = GUI:Button_Create(Panel_content, "Button_near", 21.00, 83.00, "res/private/main/assist/near2.png")
 	GUI:Button_loadTexturePressed(Button_near, "res/private/main/assist/near1.png")
+	GUI:setContentSize(Button_near, 39, 85)
+	GUI:setIgnoreContentAdaptWithSize(Button_near, false)
 	GUI:Button_setTitleText(Button_near, "")
 	GUI:Button_setTitleColor(Button_near, "#414146")
 	GUI:Button_setTitleFontSize(Button_near, 14)
 	GUI:Button_titleDisableOutLine(Button_near)
-	GUI:Win_SetParam(Button_near, {grey = 1}, "Button")
 	GUI:setChineseName(Button_near, "附近_按钮")
 	GUI:setAnchorPoint(Button_near, 0.50, 1.00)
 	GUI:setTouchEnabled(Button_near, true)
 	GUI:setTag(Button_near, 227)
+	GUI:setVisible(Button_near, false)
 
 	-- Create Button_change
-	local Button_change = GUI:Button_Create(Panel_group, "Button_change", 20.00, 94.00, "res/private/main/assist/1900012558.png")
+	local Button_change = GUI:Button_Create(Panel_group, "Button_change", 21.00, 94.00, "res/private/main/assist/1900012558.png")
 	GUI:Button_loadTexturePressed(Button_change, "res/private/main/assist/1900012559.png")
 	GUI:Button_setScale9Slice(Button_change, 15, 15, 12, 10)
 	GUI:setContentSize(Button_change, 40, 41)
@@ -89,14 +90,14 @@ function ui.init(parent)
 	GUI:Button_setTitleColor(Button_change, "#414146")
 	GUI:Button_setTitleFontSize(Button_change, 14)
 	GUI:Button_titleDisableOutLine(Button_change)
-	GUI:Win_SetParam(Button_change, {grey = 1}, "Button")
 	GUI:setChineseName(Button_change, "任务_切换_按钮")
 	GUI:setAnchorPoint(Button_change, 0.50, 0.50)
 	GUI:setTouchEnabled(Button_change, true)
 	GUI:setTag(Button_change, 234)
+	GUI:setVisible(Button_change, false)
 
 	-- Create Panel_hide
-	local Panel_hide = GUI:Layout_Create(Node, "Panel_hide", 236.00, 0.00, 21.00, 188.00, false)
+	local Panel_hide = GUI:Layout_Create(Node, "Panel_hide", 200.00, 0.00, 21.00, 188.00, false)
 	GUI:setChineseName(Panel_hide, "任务伸缩组合")
 	GUI:setAnchorPoint(Panel_hide, 0.00, 1.00)
 	GUI:setTouchEnabled(Panel_hide, true)
@@ -118,11 +119,9 @@ function ui.init(parent)
 	GUI:Button_setTitleColor(Button_hide, "#414146")
 	GUI:Button_setTitleFontSize(Button_hide, 14)
 	GUI:Button_titleDisableOutLine(Button_hide)
-	GUI:Win_SetParam(Button_hide, {grey = 1}, "Button")
 	GUI:setChineseName(Button_hide, "任务伸缩_缩进")
 	GUI:setAnchorPoint(Button_hide, 0.50, 0.50)
 	GUI:setTouchEnabled(Button_hide, true)
 	GUI:setTag(Button_hide, 62)
 end
-
 return ui

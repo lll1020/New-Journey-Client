@@ -108,6 +108,12 @@ function npc.main(npcid, p2, p3, msgData)
                     dir = 5,
                     desc = "点击强化装备",
                 })
+                NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, Button, node, npcid, "equip_strengthen", {
+                    taskMap = {[npcid] = 24},
+                    keyPrefix = "mainline_equip_strengthen",
+                    dir = 5,
+                    desc = "点击强化装备",
+                })
             end
         else
             GUI:Text_setFontName(GUI:Text_Create(node, "tip_max",750 - 375, 50, 30, "#FF0000", "已达最高等级")

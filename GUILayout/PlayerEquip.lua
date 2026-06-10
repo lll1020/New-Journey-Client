@@ -38,10 +38,22 @@ local function _refresh_xyl_playerequip_guides()
             dir = 5,
             desc = "打开灵根界面",
         })
+        NPC_UI_HELPER.tryStartMainlineUpgradeGuide(PlayerEquip, ui.Button3, ui.Panel_1, 22, "linggen_panel_open", {
+            taskMap = {[22] = 22},
+            keyPrefix = "mainline_linggen_panel",
+            dir = 5,
+            desc = "打开灵根界面",
+        })
     end
     if ui.Button2 then
         NPC_UI_HELPER.tryStartXylGuide(PlayerEquip, ui.Button2, ui.Panel_1, "xiuwu_panel_open", {
             taskNames = {"筑基", "提升修为至筑基境"},
+            dir = 5,
+            desc = "点击境界按钮",
+        })
+        NPC_UI_HELPER.tryStartMainlineUpgradeGuide(PlayerEquip, ui.Button2, ui.Panel_1, 21, "xiuwu_panel_open", {
+            taskMap = {[21] = 32},
+            keyPrefix = "mainline_xiuwu_panel",
             dir = 5,
             desc = "点击境界按钮",
         })

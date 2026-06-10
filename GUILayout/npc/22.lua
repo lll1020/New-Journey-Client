@@ -14,6 +14,13 @@ local UPGRADE_WINDOW_OPTS = {
     background = {skin = "res/custom/linggen/new/updata/upgrade_bg.png", eff = false},
     closeButton = {x = 500, y = 376 - 60, skin = "res/wy/public/close_red_big.png"},
 }
+local CULTIVATE_WINDOW_OPTS = {
+    -- 培养灵根界面先使用通用窗口，内部布局独立于主界面。
+    windowName = "npc_anniu_22_cultivate",
+    titleText = "灵根培养",
+    titleOptions = {x = 392, y = 486, fontSize = 30, color = "#F4D179"},
+    closeButton = {x = 742, y = 470, skin = "res/wy/public/close_red_big.png"},
+}
 
 local ROOT_COLORS = {
     [1] = "#D9B55A",
@@ -29,12 +36,12 @@ local ROOT_COLORS = {
 }
 
 local ROOT_GRID_POS = {
-    -- 左侧五行灵根竖排，基础/觉醒形态由右侧卡片展示。
-    startX = 98,
-    startY = 500,
-    gapX = 0,
-    gapY = 88,
-    cols = 1,
+    -- 主界面顶部五行灵根横排，避开背景标题区域，按示意图居中展开。
+    startX = 370,
+    startY = 455,
+    gapX = 150,
+    gapY = 0,
+    cols = 5,
 }
 -- 单个顶部灵根格子的尺寸
 local ROOT_SLOT_SIZE = {width = 70, height = 74}
@@ -98,6 +105,40 @@ local UPGRADE_COST_POS = {
 -- 升级弹窗“升级”按钮位置
 local UPGRADE_BTN_POS = {x = 428 + 23, y = 50}
 
+local CULTIVATE_ROOT_POS = {startX = 180, y = 388, gapX = 92}
+local CULTIVATE_ROOT_ICON_SCALE = 0.5
+local CULTIVATE_FORM_ICON_SCALE = 0.8
+local CULTIVATE_FORM_CENTER_X = 108
+local CULTIVATE_FORM_POS = {
+    basic = {x = 60 - 20, y = 238 - 35},
+    awaken = {x = 60 - 20, y = 50},
+}
+local CULTIVATE_MAIN_POS = {x = 276, y = 236}
+local CULTIVATE_ATTR_POS = {x = 486, y = 252, width = 248, height = 142}
+local CULTIVATE_SKILL_BOX_POS = {x = 610, y = 34, width = 150, height = 244}
+local CULTIVATE_SKILL_SLOT_POS = {
+    {x = -42 - 50 + 5 + 20, y = 160 + 50},
+    {x = 50 - 50 - 10 + 20, y = 100 + 50},
+    {x = -42 - 50 + 5 + 20, y = 40 + 50},
+}
+local CULTIVATE_BTN_POS = {
+    upgrade = {x = 190, y = 34},
+    switch = {x = 392, y = 34},
+    back = {x = 596, y = 34},
+}
+local MAIN_OVERVIEW_POS = {
+    rootCard = {x = 150, y = 144, width = 215, height = 172},
+    traitCard = {x = 380, y = 150, width = 386, height = 188},
+    skillCard = {x = 752, y = 150, width = 386, height = 188},
+}
+local MAIN_FLOW_SUMMARY = {
+    [1] = "主打暴击高伤，单挑秒人专用！",
+    [2] = "超级吸血回血，挂机永不回城！",
+    [3] = "大幅提升爆率，打金夺宝必备！",
+    [4] = "群怪切割拉满，开荒冲图最快！",
+    [5] = "高防高减伤，抗BOSS扛团战！",
+}
+
 -- 部分技能图标文件名与技能名不完全一致，这里做映射
 local SPECIAL_SKILL_ICON_NAME = {
     ["枯木生风"] = "ku_mu_cheng_feng",
@@ -132,20 +173,21 @@ local SPECIAL_SKILL_ICON_NAME = {
     ["镇岳结界"] = "jian_ru_pan_shi",
 }
 local SKILL_ICON_BY_ROOT = {
-    [1] = {passive = "jin_force", synergy = "gang_sha"},
-    [2] = {passive = "mu_force", synergy = "fu_su"},
-    [3] = {passive = "shui_force", synergy = "chi_huan"},
-    [4] = {passive = "huo_force", synergy = "dian_ran"},
-    [5] = {passive = "tu_force", synergy = "tie_bi"},
-    [6] = {passive = "jiu_zhong_tian_lei", synergy = "lei_shan"},
-    [7] = {passive = "ji_feng", synergy = "fu_su"},
-    [8] = {passive = "ji_bing_han_dong", synergy = "bing_dong"},
-    [9] = {passive = "fen_tian_lie_huo", synergy = "tian_huo"},
-    [10] = {passive = "jian_ru_pan_shi", synergy = "gu_ruo_jin_tang"},
+    [1] = {passive = "jin_force", active = "jin_force", synergy = "gang_sha"},
+    [2] = {passive = "mu_force", active = "mu_force", synergy = "fu_su"},
+    [3] = {passive = "shui_force", active = "shui_force", synergy = "chi_huan"},
+    [4] = {passive = "huo_force", active = "huo_force", synergy = "dian_ran"},
+    [5] = {passive = "tu_force", active = "tu_force", synergy = "tie_bi"},
+    [6] = {passive = "jiu_zhong_tian_lei", active = "jiu_zhong_tian_lei", synergy = "lei_shan"},
+    [7] = {passive = "ji_feng", active = "ji_feng", synergy = "fu_su"},
+    [8] = {passive = "ji_bing_han_dong", active = "ji_bing_han_dong", synergy = "bing_dong"},
+    [9] = {passive = "fen_tian_lie_huo", active = "fen_tian_lie_huo", synergy = "tian_huo"},
+    [10] = {passive = "jian_ru_pan_shi", active = "jian_ru_pan_shi", synergy = "gu_ruo_jin_tang"},
 }
 
 local _lg_refresh_main_page
 local _lg_refresh_upgrade_window
+local _lg_refresh_cultivate_window
 
 -- 绑定本命灵根拖拽到中间卸下区域的移动事件。
 local function _lg_bind_move_events(npcid)
@@ -156,17 +198,20 @@ local function _lg_bind_move_events(npcid)
     npc._moveEventBound = true
 end
 
+-- 获取界面设计尺寸或当前屏幕尺寸；主界面居中与边缘定位时会用到。
 local function _lg_screen_size()
     local sw = tonumber((cogin and cogin.w) or (SL and SL.GetMetaValue and SL:GetMetaValue("SCREEN_WIDTH")) or MAIN_DESIGN_SIZE.width) or MAIN_DESIGN_SIZE.width
     local sh = tonumber((cogin and cogin.h) or (SL and SL.GetMetaValue and SL:GetMetaValue("SCREEN_HEIGHT")) or MAIN_DESIGN_SIZE.height) or MAIN_DESIGN_SIZE.height
     return sw, sh
 end
 
+-- X 坐标适配入口；当前版本保持设计稿坐标，保留锚点参数兼容旧布局配置。
 local function _lg_adapt_x(x, anchor)
     x = tonumber(x or 0) or 0
     return x
 end
 
+-- Y 坐标适配入口；当前主要用于限制底部组件不要低于最小 Y。
 local function _lg_adapt_y(y, anchor, minY)
     y = tonumber(y or 0) or 0
     minY = tonumber(minY)
@@ -177,6 +222,7 @@ local function _lg_adapt_y(y, anchor, minY)
     return ret
 end
 
+-- 把配置表里的 pos 转成最终渲染坐标，供静态面板/按钮共用。
 local function _lg_adapt_pos(pos, defaultAnchorX, defaultAnchorY)
     return {
         x = _lg_adapt_x(pos and pos.x or 0, pos and pos.anchorX or defaultAnchorX),
@@ -184,10 +230,12 @@ local function _lg_adapt_pos(pos, defaultAnchorX, defaultAnchorY)
     }
 end
 
+-- 按设计稿右边距计算右侧面板 X 坐标，用于属性、技能等靠右区域。
 local function _lg_right_aligned_x(width, rightMargin)
     return MAIN_DESIGN_SIZE.width - (tonumber(rightMargin or 70) or 70) - (tonumber(width or 0) or 0)
 end
 
+-- 读取一个静态面板的基础 X；带 rightMargin 的面板按右边距定位。
 local function _lg_part_base_x(part)
     if part and part.rightMargin and part.width then
         return _lg_right_aligned_x(part.width, part.rightMargin)
@@ -195,6 +243,7 @@ local function _lg_part_base_x(part)
     return part and part.x or 0
 end
 
+-- 计算技能面板组的基础 Y，保证两个技能框和标题整体不会贴底。
 local function _lg_group_base_y(group)
     if group == "skill_panel" then
         local bottomY = _lg_adapt_y(SKILL_PANEL_GROUP.y - SKILL_PANEL_GROUP.gapY, SKILL_PANEL_GROUP.anchorY)
@@ -204,6 +253,7 @@ local function _lg_group_base_y(group)
     return 0
 end
 
+-- 计算组内组件 Y 坐标，主界面旧技能面板布局保留这个入口。
 local function _lg_group_y(group, offsetY)
     if group == "skill_panel" then
         return _lg_adapt_y(_lg_group_base_y(group) + (tonumber(offsetY or 0) or 0), SKILL_PANEL_GROUP.anchorY)
@@ -211,7 +261,7 @@ local function _lg_group_y(group, offsetY)
     return _lg_adapt_y(tonumber(offsetY or 0) or 0, "bottom")
 end
 
--- 创建主界面窗口并缓存引用。
+-- 创建灵根主界面窗口并缓存引用；主界面承载顶部五灵根、左侧本命卡和中右说明区。
 local function ensureMainWindow(npcid)
     npc._window = NPC_UI_HELPER.ensureWindow(npc._window, npcid, MAIN_WINDOW_OPTS)
     npc.bg = npc._window.bg
@@ -224,17 +274,27 @@ local function ensureMainWindow(npcid)
     return npc.node
 end
 
--- 创建升级弹窗并缓存引用。
+-- 创建灵根升级弹窗并缓存引用；升级弹窗展示属性预览、消耗物品和升级按钮。
 local function ensureUpgradeWindow(npcid)
     npc.xjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, UPGRADE_WINDOW_OPTS)
     npc.xjm_node = npc.xjm_window and npc.xjm_window.node or nil
     return npc.xjm_node
+end
+
+-- 创建灵根培养弹窗并缓存引用；培养弹窗展示形态选择、本命灵根、总属性和技能占位。
+local function ensureCultivateWindow(npcid)
+    npc.cultivate_window = NPC_UI_HELPER.ensureWindow(npc.cultivate_window, npcid, CULTIVATE_WINDOW_OPTS)
+    npc.cultivate_node = npc.cultivate_window and npc.cultivate_window.node or nil
+    return npc.cultivate_node
 end
 -- 任务完成后同时关闭灵根主界面和升级弹窗，避免残留窗口。
 local function _lg_close_all_windows()
     NPC_UI_HELPER.closeWindow(npc.xjm_window)
     npc.xjm_window = nil
     npc.xjm_node = nil
+    NPC_UI_HELPER.closeWindow(npc.cultivate_window)
+    npc.cultivate_window = nil
+    npc.cultivate_node = nil
     NPC_UI_HELPER.closeWindow(npc._window)
 end
 -- 旧版 xyl 灵根装配任务已废弃，保留空实现兼容历史调用点。
@@ -301,6 +361,7 @@ local function _lg_default_selected_idx()
     return 1
 end
 
+-- 读取当前左上角/主线引导任务名，供灵根界面决定是否弹出按钮引导。
 local function _lg_get_current_xyl_task_name()
     return tostring(rawget(_G, "XYL_CURRENT_TASK_NAME") or "")
 end
@@ -417,6 +478,7 @@ local function _lg_strip_html(text)
     return plain
 end
 
+-- 把属性列表按属性 ID 累加，用于总属性展示和升级预览的同类合并。
 local function _lg_sum_attr_map(attrs)
     local sum = {}
     for _, attr in ipairs(attrs or {}) do
@@ -431,6 +493,7 @@ end
 local _lg_resolve_effect_text
 local _lg_is_max_level
 
+-- 构建升级预览里的特殊效果变化文案，负责显示当前值 -> 下级值。
 local function _lg_format_effect_preview_text(template, baseValue, idx)
     local currentText = _lg_resolve_effect_text(template, baseValue, idx, 0)
     if _lg_is_max_level(idx) then
@@ -452,6 +515,7 @@ local function _lg_format_effect_preview_text(template, baseValue, idx)
     return currentText
 end
 
+-- 生成一组特殊效果预览行，供升级弹窗左侧详情滚动区展示。
 local function _lg_build_effect_preview_lines(titleColor, titleText, template, baseValue, idx)
     return {
         string.format("<font color='%s'>%s</font>", titleColor or "#FFFFFF", titleText or ""),
@@ -459,6 +523,7 @@ local function _lg_build_effect_preview_lines(titleColor, titleText, template, b
     }
 end
 
+-- 根据灵根倍率解析技能/特殊效果公式，输出最终展示用的数值文本。
 _lg_resolve_effect_text = function(template, baseValue, idx, extraLevel)
     template = tostring(template or "")
     if template == "" then
@@ -523,6 +588,7 @@ _lg_is_max_level = function(idx)
     return _lg_level_value(idx) >= tonumber(npc._config.main_updata.max_level or 0)
 end
 
+-- 判断指定灵根是否满足升级条件：已激活、未满级且背包材料足够。
 local function _lg_can_upgrade(idx)
     if not idx or idx <= 0 or not _lg_has_root(idx) or _lg_is_max_level(idx) then
         return false
@@ -531,20 +597,24 @@ local function _lg_can_upgrade(idx)
     return nextCfg and checkItemNum(nextCfg.cost) or false
 end
 
+-- 读取基础灵根解锁机会数量，主界面“激活灵根”按钮用它判断红点与可点击状态。
 local function _lg_unlock_chance()
     return tonumber(npc.data and npc.data.T_data and npc.data.T_data.unlock_chance or 0) or 0
 end
 
+-- 判断指定基础灵根是否可以解锁，觉醒灵根不走这个入口。
 local function _lg_can_unlock_basic(idx)
     return idx and idx >= 1 and idx <= 5 and (not _lg_has_root(idx)) and _lg_unlock_chance() > 0
 end
 
+-- 判断当前本命灵根是否拥有可切换的基础/觉醒配对形态。
 local function _lg_can_dual_switch(mainIdx)
     mainIdx = tonumber(mainIdx or 0) or 0
     local pairIdx = npc._config and npc._config.awaken_pairs and npc._config.awaken_pairs[mainIdx] or nil
     return pairIdx and pairIdx > 0 and _lg_has_root(pairIdx), pairIdx
 end
 
+-- 将觉醒灵根 ID 映射回基础灵根 ID；基础灵根本身直接返回。
 local function _lg_base_root_idx(idx)
     idx = tonumber(idx or 0) or 0
     if idx <= 0 then
@@ -556,6 +626,7 @@ local function _lg_base_root_idx(idx)
     return tonumber(npc._config and npc._config.awaken_pairs and npc._config.awaken_pairs[idx] or 0) or 0
 end
 
+-- 将基础灵根 ID 映射到觉醒灵根 ID；觉醒灵根本身直接返回。
 local function _lg_awaken_root_idx(idx)
     idx = tonumber(idx or 0) or 0
     if idx <= 0 then
@@ -567,6 +638,7 @@ local function _lg_awaken_root_idx(idx)
     return tonumber(npc._config and npc._config.awaken_pairs and npc._config.awaken_pairs[idx] or 0) or 0
 end
 
+-- 读取左侧形态卡素材路径，基础/觉醒都使用对应基础五行的 x_* 卡片。
 local function _lg_element_card_path(idx)
     local baseIdx = _lg_base_root_idx(idx)
     if baseIdx <= 0 then
@@ -607,10 +679,12 @@ local function _lg_attr_display_parts(attrId, value)
     return tostring(name or attrId or ""), tostring(textValue or value or 0), (attConfig and attConfig.color) or 255
 end
 
+-- 将属性配置里的颜色样式 ID 转成富文本可用的十六进制颜色。
 local function _lg_attr_color_hex(color)
     return SL:GetHexColorByStyleId(color or 255)
 end
 
+-- 拼一条属性展示富文本，例如“攻击+10-20”。
 local function _lg_total_attr_line(name, valueText, color)
     return string.format("<font color='%s'>%s+%s</font>", _lg_attr_color_hex(color), tostring(name or ""), tostring(valueText or 0))
 end
@@ -656,6 +730,7 @@ local function _lg_build_total_attr_lines(attrs)
     return lines
 end
 
+-- 格式化特殊效果展示行，例如切割、回血等不属于普通属性表的效果。
 local function _lg_format_special_line(one)
     if not one then
         return ""
@@ -663,6 +738,7 @@ local function _lg_format_special_line(one)
     return string.format("<font color='#A7D58D'>%s+%s%s</font>", tostring(one.name or "特殊效果"), tostring(one.value or 0), tostring(one.unit or ""))
 end
 
+-- 汇总并排序特殊效果展示行，供主界面/培养界面总属性区使用。
 local function _lg_build_total_special_lines(list)
     local map = {}
     local order = {}
@@ -684,6 +760,7 @@ local function _lg_build_total_special_lines(list)
     return lines
 end
 
+-- 生成升级预览中的单条普通属性变化行。
 local function _lg_attr_preview_range_line(name, currentText, nextText, color, isMaxLevel)
     local currentLine = _lg_total_attr_line(name, currentText, color)
     if isMaxLevel then
@@ -740,6 +817,7 @@ local function _lg_build_attr_preview_lines(currentAttrs, nextAttrs, isMaxLevel)
     return lines
 end
 
+-- 生成升级预览中的特殊效果变化行。
 local function _lg_build_special_preview_lines(currentList, nextList, isMaxLevel)
     local nextMap = {}
     for _, one in ipairs(nextList or {}) do
@@ -822,6 +900,52 @@ local function _lg_build_attr_preview_html(idx)
     return table.concat(lines, "\n")
 end
 
+-- 只给灵根详情 tooltip 使用的手动换行：每行约 25 个可见字符，数字/百分比整体不断开。
+local function _lg_wrap_detail_tip_text(text, limit, prefix)
+    text = tostring(text or "")
+    limit = tonumber(limit or 25) or 25
+    prefix = tostring(prefix or "")
+    local lines = {}
+    local current = ""
+    local count = 0
+    local i = 1
+    while i <= #text do
+        local token = text:sub(i):match("^%d+%.?%d*%%?")
+        if not token or token == "" then
+            local b = string.byte(text, i) or 0
+            local len = 1
+            if b >= 240 then
+                len = 4
+            elseif b >= 224 then
+                len = 3
+            elseif b >= 192 then
+                len = 2
+            end
+            token = text:sub(i, i + len - 1)
+        end
+        local tokenLen = 1
+        if token:match("^%d") then
+            tokenLen = 0
+            for _ in token:gmatch("[%z\1-\127\194-\244][\128-\191]*") do
+                tokenLen = tokenLen + 1
+            end
+        end
+        if count > 0 and count + tokenLen > limit then
+            lines[#lines + 1] = prefix .. current
+            current = token
+            count = tokenLen
+        else
+            current = current .. token
+            count = count + tokenLen
+        end
+        i = i + #token
+    end
+    if current ~= "" then
+        lines[#lines + 1] = prefix .. current
+    end
+    return table.concat(lines, "\n")
+end
+
 -- 构建主界面点击灵根时的只读详情，不展示升级预览值。
 local function _lg_build_attr_detail_html(idx)
     if not idx or idx <= 0 then
@@ -853,16 +977,99 @@ local function _lg_build_attr_detail_html(idx)
     end
 
     lines[#lines + 1] = "<font color='#DE0000'>被动技能：</font>"
-    lines[#lines + 1] = "　　" .. tostring(cfg.passive or "暂无")
+    lines[#lines + 1] = _lg_wrap_detail_tip_text(cfg.passive or "暂无", 25, "　　")
     lines[#lines + 1] = "<font color='#4169E1'>主动技能：</font>"
-    lines[#lines + 1] = "　　" .. tostring(cfg.active or "暂未接入主动技能逻辑")
+    lines[#lines + 1] = _lg_wrap_detail_tip_text(cfg.active or "暂未接入主动技能逻辑", 25, "　　")
     lines[#lines + 1] = "<font color='#F4D179'>灵兽专属协同：</font>"
-    lines[#lines + 1] = "　　" .. tostring(cfg.synergy or "暂无")
+    lines[#lines + 1] = _lg_wrap_detail_tip_text(cfg.synergy or "暂无", 25, "　　")
     lines[#lines + 1] = "<font color='#A7D58D'>天书回响共鸣：</font>"
-    lines[#lines + 1] = "　　" .. tostring(cfg.echo_name or "未配置") .. "：" .. tostring(cfg.echo_desc or "")
+    lines[#lines + 1] = _lg_wrap_detail_tip_text(tostring(cfg.echo_name or "未配置") .. "：" .. tostring(cfg.echo_desc or ""), 25, "　　")
     lines[#lines + 1] = "<u><font color='#F4D179'>满级技能效果预览：</font></u>"
-    lines[#lines + 1] = "　　" .. tostring(cfg.active or "暂未接入主动技能逻辑")
+    lines[#lines + 1] = _lg_wrap_detail_tip_text(cfg.active or "暂未接入主动技能逻辑", 25, "　　")
     return table.concat(lines, "\n")
+end
+
+-- 给灵根图标/卡片绑定属性与效果预览；PC 悬停，移动端点击。
+local function _lg_bind_detail_tip(widget, idx)
+    if not widget or not idx or idx <= 0 then
+        return
+    end
+    local function openTip()
+        local pos = GUI:getWorldPosition(widget)
+        SL:OpenCommonDescTipsPop({
+            str = _lg_build_attr_detail_html(idx),
+            worldPos = {x = pos.x + 20, y = pos.y + 20},
+            anchorPoint = {x = 0, y = 0},
+            formatWay = 1,
+        })
+    end
+    if SL:GetMetaValue("WINPLAYMODE") then
+        GUI:addMouseMoveEvent(widget, {
+            onEnterFunc = function()
+                openTip()
+            end,
+            onLeaveFunc = function()
+                SL:CloseCommonDescTipsPop()
+            end,
+        })
+    else
+        GUI:setTouchEnabled(widget, true)
+        GUI:addOnTouchEvent(widget, function(_, touchType)
+            if touchType == SLDefine.TouchEventType.ended then
+                openTip()
+            end
+        end)
+    end
+end
+
+-- 构建技能预览 tooltip 文案，主界面/培养界面的被动、协同技能图标共用。
+local function _lg_build_skill_tip_html(idx, skillType)
+    local cfg = _lg_root_cfg(idx)
+    if not cfg then
+        return "<font color='#6b6257'>暂无技能数据</font>"
+    end
+    local title = skillType == "active" and "主动技能" or (skillType == "synergy" and "协同技能" or "被动技能")
+    local color = skillType == "active" and "#F4D179" or (skillType == "synergy" and "#F4D179" or "#9FE2FF")
+    local desc = skillType == "active" and cfg.active or (skillType == "synergy" and cfg.synergy or cfg.passive)
+    local lines = {
+        string.format("<font color='%s'>[%s灵根]</font>", ROOT_COLORS[idx] or "#FFFFFF", tostring(cfg.name or "")),
+        string.format("<font color='%s'>%s：</font>", color, title),
+        "　　" .. tostring(desc or "暂无"),
+    }
+    return table.concat(lines, "\n")
+end
+
+-- 给技能图标绑定效果预览；PC 悬停，移动端点击。
+local function _lg_bind_skill_tip(widget, idx, skillType)
+    if not widget or not idx or idx <= 0 then
+        return
+    end
+    GUI:setTouchEnabled(widget, true)
+    local function openTip()
+        local pos = GUI:getWorldPosition(widget)
+        SL:OpenCommonDescTipsPop({
+            str = _lg_build_skill_tip_html(idx, skillType),
+            worldPos = {x = pos.x + 20, y = pos.y + 20},
+            anchorPoint = {x = 0, y = 0},
+            formatWay = 1,
+        })
+    end
+    if SL:GetMetaValue("WINPLAYMODE") then
+        GUI:addMouseMoveEvent(widget, {
+            onEnterFunc = function()
+                openTip()
+            end,
+            onLeaveFunc = function()
+                SL:CloseCommonDescTipsPop()
+            end,
+        })
+    else
+        GUI:addOnTouchEvent(widget, function(_, touchType)
+            if touchType == SLDefine.TouchEventType.ended then
+                openTip()
+            end
+        end)
+    end
 end
 
 -- 渲染升级弹窗右侧的消耗物品格子。
@@ -883,6 +1090,7 @@ local function _lg_create_cost_items(parent, costList, positions)
     end
 end
 
+-- 渲染灵根主界面的静态底图组件；旧版主界面右侧属性/技能框仍通过配置表批量创建。
 local function _lg_render_main_static_parts(parent)
     local rendered = {}
     for _, part in ipairs(MAIN_STATIC_PARTS) do
@@ -897,7 +1105,7 @@ local function _lg_render_main_static_parts(parent)
     end
 end
 
--- 将左下总属性区域渲染为可滚动面板，避免属性过多被截断。
+-- 将主界面总属性区域渲染为可滚动面板，负责展示全部已激活灵根的普通属性和特殊效果。
 local function _lg_render_attr_scroll(parent, attrs, specials)
     local attrPos = _lg_adapt_pos(ATTR_BOX_POS, "right", "top")
     local scroll = GUI:ScrollView_Create(parent, "attr_scroll", attrPos.x + 60, attrPos.y + 9, ATTR_BOX_SIZE.width, ATTR_BOX_SIZE.height, 1)
@@ -930,7 +1138,7 @@ local function _lg_render_attr_scroll(parent, attrs, specials)
     return scroll
 end
 
--- 将升级弹窗左侧属性预览区域渲染为可滚动面板，避免效果描述过长被截断。
+-- 将升级弹窗左侧属性预览区域渲染为可滚动面板，负责显示当前等级、下级属性和技能描述。
 local function _lg_render_preview_scroll(parent, html)
     local scroll = GUI:ScrollView_Create(parent, "preview_scroll", UPGRADE_PREVIEW_POS.x, UPGRADE_PREVIEW_POS.y, UPGRADE_PREVIEW_SIZE.width, UPGRADE_PREVIEW_SIZE.height, 1)
     GUI:ScrollView_setBounceEnabled(scroll, true)
@@ -946,19 +1154,27 @@ local function _lg_render_preview_scroll(parent, html)
     return scroll
 end
 
--- 在指定位置绘制灵根图标。
+-- 在指定位置绘制灵根本体图标；这里不做缩放，保证素材按原始尺寸显示。
 local function _lg_show_root_icon(parent, name, x, y, idx, scale)
     if not idx or idx <= 0 then
         return nil
     end
     local item = GUI:Image_Create(parent, name, x, y, _lg_root_item_path(idx))
     GUI:setAnchorPoint(item, 0.5, 0.5)
-    if scale and scale ~= 1 then
-        GUI:setScale(item, scale)
-    end
     return item
 end
 
+-- 渲染灵根主界面同款动态图标，用于培养页顶部选择栏和左侧形态预览。
+local function _lg_show_root_anim(parent, name, x, y, idx)
+    if not idx or idx <= 0 then
+        return nil
+    end
+    local anim = GUI:Frames_Create(parent, name, idx > 5 and (x - 8) or x, y, "res/custom/linggen/UI内/" .. tostring(idx) .. "/show_2_", ".png", 0, 15, {speed = 75, count = 16, loop = -1})
+    GUI:setAnchorPoint(anim, 0.5, 0.5)
+    return anim
+end
+
+-- 渲染主界面旧版左侧“基础形态/觉醒形态”卡片；当前主界面主要保留点击切换能力。
 local function _lg_render_form_card(parent, name, idx, pos, npcid)
     if not idx or idx <= 0 or not pos then
         return nil
@@ -986,28 +1202,13 @@ local function _lg_render_form_card(parent, name, idx, pos, npcid)
     local touch = GUI:Layout_Create(parent, name .. "_touch", cardPos.x, cardPos.y, FORM_CARD_SIZE.width, FORM_CARD_SIZE.height, false)
     GUI:setTouchEnabled(touch, true)
     GUI:addOnClickEvent(touch, function()
-        if active then
-            npc.current_idx = idx
-            _lg_refresh_main_page(npcid, parent)
-            return
-        end
-        if idx <= 5 and _lg_can_unlock_basic(idx) then
-            SL:OpenCommonTipsPop({
-                str = string.format("确定消耗1次基础灵根解锁，选择【%s灵根】吗？", tostring(cfg.name or "")),
-                btnType = 2,
-                callback = function(atype)
-                    if atype == 1 then
-                        SL:SendLuaNetMsg(100, npcid, 1, idx, "")
-                    end
-                end,
-            })
-        else
-            SL:ShowSystemTips(idx > 5 and "请先完成对应基础灵根试炼觉醒" or "该灵根未激活，暂无解锁机会")
-        end
+        npc.current_idx = idx
+        _lg_refresh_main_page(npcid, parent)
     end)
     return card
 end
 
+-- 渲染主界面旧版左侧两张形态卡：上方基础形态、下方觉醒形态。
 local function _lg_render_left_form_cards(parent, npcid, idx)
     local baseIdx = _lg_base_root_idx(idx)
     if baseIdx <= 0 then
@@ -1058,11 +1259,6 @@ local function _lg_render_skill_icons(parent)
         end
         local icon = GUI:Image_Create(panel, name, SKILL_PANEL_CHILD_POS.iconX, SKILL_PANEL_CHILD_POS.iconY, _lg_skill_icon_path(iconKey))
         GUI:setAnchorPoint(icon, 0.5, 0.5)
-        local size = GUI:getContentSize(icon)
-        if size and size.width > 0 then
-            local s = math.min(58 / size.width, 58 / size.height)
-            GUI:setScale(icon, s)
-        end
         -- GUI:addOnClickEvent(icon, function()
         --     if sourceText and sourceText ~= "" then
         --         local posWorld = GUI:getWorldPosition(icon)
@@ -1081,14 +1277,391 @@ local function _lg_render_skill_icons(parent)
 
     local iconCfg = SKILL_ICON_BY_ROOT[tonumber(mainIdx or 0) or 0] or {}
     renderOne("skill_passive", "skill_panel_passive", mainCfg and mainCfg.passive or "", "#9FE2FF", iconCfg.passive)
-    renderOne("skill_synergy", "skill_panel_synergy", mainCfg and mainCfg.synergy or "", "#F4D179", iconCfg.synergy)
+    renderOne("skill_active", "skill_panel_synergy", mainCfg and mainCfg.active or "", "#F4D179", iconCfg.active)
 end
 
--- 刷新灵根主界面：顶部列表、主副槽位、属性区、技能区、装配/升级入口。
+-- 创建通用文字按钮；主界面“培养/激活”、培养界面“升级/切换/返回”共用。
+local function _lg_button(parent, name, x, y, text, callback)
+    local btn = GUI:Button_Create(parent, name, x, y, "res/custom/linggen/quchu.png")
+    GUI:setAnchorPoint(btn, 0.5, 0.5)
+    GUI:Button_setTitleText(btn, tostring(text or ""))
+    GUI:Button_setTitleFontSize(btn, 18)
+    GUI:Button_setTitleColor(btn, "#F4E7B5")
+    GUI:Button_titleEnableOutline(btn, "#110b05", 2)
+    if callback then
+        GUI:addOnClickEvent(btn, callback)
+    end
+    return btn
+end
+
+-- 培养页和主界面大按钮统一使用 502 字体与粗描边。
+local function _lg_apply_big_button_style(btn)
+    if not btn then
+        return
+    end
+    GUI:Button_setTitleFontName(btn, "fonts/502.ttf")
+    GUI:Button_setTitleFontSize(btn, 24)
+    GUI:Button_titleEnableOutline(btn, "#110b05", 3)
+end
+
+-- 创建图片并设置锚点；保留 scale 参数兼容旧调用，但当前不缩放素材。
+local function _lg_scaled_image(parent, name, x, y, skin, scale, anchorX, anchorY)
+    local img = GUI:Image_Create(parent, name, x, y, skin)
+    GUI:setAnchorPoint(img, anchorX or 0, anchorY or 0)
+    return img
+end
+
+-- 渲染小标题条，主界面中间/右侧标题和培养界面各区域标题共用。
+local function _lg_title_bar(parent, name, x, y, text, width)
+    local bar = _lg_scaled_image(parent, name .. "_bar", x, y, "res/custom/linggen/new/main/di.png", nil, 0.5, 0.5)
+    local label = strokeText(parent, name .. "_text", x, y + 1, 19, "#FFFFFF", text, "fonts/font4.ttf")
+    GUI:setAnchorPoint(label, 0.5, 0.5)
+    return bar, label
+end
+
+-- 渲染培养界面的滚动文本区，主要用于右上“总体属性加成”面板。
+local function _lg_render_cultivate_text_scroll(parent, name, x, y, width, height, lines)
+    local scroll = GUI:ScrollView_Create(parent, name, x, y, width, height, 1)
+    GUI:ScrollView_setBounceEnabled(scroll, true)
+    GUI:ScrollView_setInnerContainerSize(scroll, width, height)
+    local html = table.concat(lines or {}, "\n")
+    local content = richText(scroll, name .. "_content", 0, height - 8, html, width - 8, 15, 1)
+    GUI:setAnchorPoint(content, 0, 1)
+    local contentHeight = GUI:getBoundingBox(content).height
+    local innerH = math.max(height, contentHeight + 16)
+    GUI:ScrollView_setInnerContainerSize(scroll, width, innerH)
+    GUI:setPosition(content, 0, innerH - 8)
+    return scroll
+end
+
+-- 培养界面顶部灵根点击处理：只切换当前预览灵根，不在这里做激活。
+local function _lg_select_or_unlock_root(npcid, parent, idx)
+    -- 培养界面只负责切换查看，激活统一回到主页按钮处理。
+    npc.current_idx = idx
+    _lg_refresh_cultivate_window(npcid, parent)
+end
+
+-- 渲染培养界面顶部五个基础灵根入口，负责选中框、置灰和等级状态入口。
+local function _lg_render_cultivate_roots(parent, npcid, selectedIdx)
+    for idx = 1, 5 do
+        local x = CULTIVATE_ROOT_POS.startX + (idx - 1) * CULTIVATE_ROOT_POS.gapX
+        local slot = GUI:Layout_Create(parent, "cultivate_root_" .. idx, x - 50 - 100, CULTIVATE_ROOT_POS.y - 20, 100, 100, false)
+        local item = _lg_show_root_anim(slot, "item", 50, 50, idx)
+        local active = _lg_has_root(idx)
+        if item then
+            GUI:setScale(item, CULTIVATE_ROOT_ICON_SCALE)
+            GUI:setGrey(item, not active)
+        end
+        GUI:setTouchEnabled(slot, true)
+        GUI:addOnClickEvent(slot, function()
+            _lg_select_or_unlock_root(npcid, parent, idx)
+        end)
+        if selectedIdx == idx then
+            local sel = GUI:Image_Create(slot, "selected", 50, 50, "res/custom/linggen/new/main/selected_frame.png")
+            GUI:setAnchorPoint(sel, 0.5, 0.5)
+            GUI:setLocalZOrder(sel, 2)
+        end
+        local cfg = _lg_root_cfg(idx) or {}
+        local label = strokeText(parent, "cultivate_root_name_" .. idx, x - 100, CULTIVATE_ROOT_POS.y - 22, 15, ROOT_COLORS[idx] or "#FFFFFF", tostring(cfg.name or "") .. "灵根", "fonts/font4.ttf")
+        GUI:setAnchorPoint(label, 0.5, 0.5)
+    end
+end
+
+-- 渲染培养界面左侧单张形态卡，用于“基础形态”和“觉醒形态”两块。
+local function _lg_render_cultivate_form(parent, npcid, name, idx, pos, title)
+    local active = _lg_has_root(idx)
+    local centerX = CULTIVATE_FORM_CENTER_X
+    local centerY = pos.y + 84
+    local anim = _lg_show_root_anim(parent, name .. "_anim", centerX, centerY, idx)
+    if anim and not active then
+        GUI:setGrey(anim, true)
+    end
+    if anim and idx <= 5 then
+        GUI:setScale(anim, CULTIVATE_FORM_ICON_SCALE)
+    end
+    strokeText(parent, name .. "_title", centerX, centerY + 54, 18, "#F4D179", title, "fonts/font4.ttf")
+    GUI:setAnchorPoint(GUI:getChildByName(parent, name .. "_title"), 0.5, 0.5)
+    local state = active and ("Lv." .. tostring(_lg_level_value(idx))) or (idx > 5 and "未觉醒" or "未激活")
+    strokeText(parent, name .. "_state", centerX, centerY - 60, 16, active and "#FFFFFF" or "#FF6B6B", state, "fonts/font4.ttf")
+    GUI:setAnchorPoint(GUI:getChildByName(parent, name .. "_state"), 0.5, 0.5)
+    -- local touch = GUI:Layout_Create(parent, name .. "_touch", centerX - 50, centerY - 60, 100, 120, false)
+    -- GUI:setTouchEnabled(touch, true)
+    -- GUI:addOnClickEvent(touch, function()
+    --     _lg_select_or_unlock_root(npcid, parent, idx)
+    -- end)
+end
+
+-- 渲染培养界面右侧技能区域：被动、主动、协同三个技能竖排显示。
+local function _lg_render_cultivate_skills(iconParent, idx)
+    local cfg = _lg_root_cfg(idx) or {}
+    local iconCfg = SKILL_ICON_BY_ROOT[tonumber(idx or 0) or 0] or {}
+    local skillList = {
+        {name = "passive", text = "被动技能", icon = iconCfg.passive},
+        {name = "active", text = "主动技能", icon = iconCfg.active},
+        {name = "synergy", text = "协同技能", icon = iconCfg.synergy},
+    }
+    for i, one in ipairs(skillList) do
+        local pos = CULTIVATE_SKILL_SLOT_POS[i]
+        local slotX = pos.x
+        local slotY = pos.y
+        local kuang = GUI:Image_Create(iconParent, "cultivate_skill_kuang_" .. i, slotX, slotY, "res/custom/linggen/new/main/slot_bg.png")
+        GUI:setAnchorPoint(kuang, 0.5, 0.5)
+        local iconPath = _lg_skill_icon_path(one.icon)
+        local labelParent = iconParent
+        local labelX = slotX
+        local labelY = slotY - 52
+        if iconPath then
+            local icon = GUI:Image_Create(iconParent, "cultivate_skill_icon_" .. i, slotX, slotY, iconPath)
+            GUI:setAnchorPoint(icon, 0.5, 0.5)
+            labelParent = icon
+            local iconSize = GUI:getContentSize(icon)
+            labelX = iconSize.width / 2
+            labelY = -14
+        end
+        local label = strokeText(labelParent, "cultivate_skill_name_" .. i, labelX, labelY, 14, "#F4D179", tostring(one.text), "fonts/font4.ttf")
+        GUI:setAnchorPoint(label, 0.5, 0.5)
+        local touch = GUI:Layout_Create(iconParent, "cultivate_skill_touch_" .. i, slotX - 45, slotY - 45, 90, 100, false)
+        GUI:setLocalZOrder(touch, 20)
+        _lg_bind_skill_tip(touch, idx, one.name)
+    end
+end
+
+-- 刷新整个培养灵根弹窗：顶部灵根选择、左侧形态卡、中间本命灵根、右侧属性/技能和底部按钮。
+_lg_refresh_cultivate_window = function(npcid, node)
+    if not node then
+        return
+    end
+    GUI:removeAllChildren(node)
+    local selectedIdx = tonumber(npc.current_idx or 0) or 0
+    if selectedIdx <= 0 then
+        selectedIdx = _lg_default_selected_idx()
+        npc.current_idx = selectedIdx
+    end
+    local baseIdx = _lg_base_root_idx(selectedIdx)
+    if baseIdx <= 0 then
+        baseIdx = math.max(1, math.min(5, selectedIdx))
+    end
+    local awakenIdx = _lg_awaken_root_idx(baseIdx)
+    local mainIdx = npc.data and npc.data.T_data and npc.data.T_data.main or 0
+    local eff_1 = GUI:Frames_Create(node, "eff_1", 25, 13, "res/custom/linggen/eff/eff_", ".png", 0, 25, {speed = 75,count = 25,loop = -1,})
+    GUI:setContentSize(eff_1, 730, 450)
+    local icon = GUI:Image_Create(node, "icon",364, 230, "res/custom/linggen/bufi/icon_"..selectedIdx..".png")
+    GUI:setAnchorPoint(icon, 0.5, 0.5)
+    GUI:setContentSize(icon,300,300)
+
+
+    -- _lg_title_bar(node, "cultivate_roots_title", 392, 428, "选择培养灵根", 210)
+    _lg_render_cultivate_roots(node, npcid, baseIdx)
+    -- _lg_title_bar(node, "cultivate_form_title", 128, 360, "形态选择", 168)
+    _lg_render_cultivate_form(node, npcid, "cultivate_basic", baseIdx, CULTIVATE_FORM_POS.basic, "基础形态")
+    if awakenIdx > 0 then
+        _lg_render_cultivate_form(node, npcid, "cultivate_awaken", awakenIdx, CULTIVATE_FORM_POS.awaken, "觉醒形态")
+    end
+    -- strokeText(node, "cultivate_main_title", CULTIVATE_MAIN_POS.x, CULTIVATE_MAIN_POS.y + 108, 24, "#FF6B6B", "本命灵根", "fonts/font4.ttf")
+    -- GUI:setAnchorPoint(GUI:getChildByName(node, "cultivate_main_title"), 0.5, 0.5)
+    local cfg = _lg_root_cfg(selectedIdx) or {}
+    strokeText(icon, "cultivate_main_name", 150, 150 - 50, 18, ROOT_COLORS[selectedIdx] or "#FFFFFF", tostring(cfg.name or "") .. "灵根", "fonts/font4.ttf")
+    GUI:setAnchorPoint(GUI:getChildByName(icon, "cultivate_main_name"), 0.5, 0.5)
+
+    local cultivate_attr_panel = GUI:Image_Create(node, "cultivate_attr_panel", CULTIVATE_ATTR_POS.x + 20, CULTIVATE_ATTR_POS.y - 8 + 35, "res/custom/linggen/new/main/itme5.png")
+    local cultivateAttrPanelSize = GUI:getContentSize(cultivate_attr_panel)
+    GUI:setContentSize(cultivate_attr_panel,166,170)
+    cultivateAttrPanelSize = GUI:getContentSize(cultivate_attr_panel)
+    _lg_title_bar(cultivate_attr_panel, "cultivate_attr_title", cultivateAttrPanelSize.width / 2, cultivateAttrPanelSize.height - 14, "总体属性加成", 188)
+    local attrLines = {}
+    for _, line in ipairs(_lg_build_total_attr_lines(_lg_collect_total_attrs())) do
+        attrLines[#attrLines + 1] = line
+    end
+    for _, line in ipairs(_lg_build_total_special_lines(_lg_collect_total_specials())) do
+        attrLines[#attrLines + 1] = line
+    end
+    if #attrLines <= 0 then
+        attrLines[#attrLines + 1] = "<font color='#8E8E8E'>暂无已激活灵根属性</font>"
+    end
+    _lg_render_cultivate_text_scroll(cultivate_attr_panel, "cultivate_attr_scroll", 10 + 10, 0, CULTIVATE_ATTR_POS.width, CULTIVATE_ATTR_POS.height - 5, attrLines)
+    local cultivate_skill_panel = GUI:Layout_Create(node, "cultivate_skill_panel", CULTIVATE_SKILL_BOX_POS.x, CULTIVATE_SKILL_BOX_POS.y, CULTIVATE_SKILL_BOX_POS.width, CULTIVATE_SKILL_BOX_POS.height, false)
+    _lg_render_cultivate_skills(cultivate_skill_panel, mainIdx and mainIdx > 0 and mainIdx or selectedIdx)
+
+    local upgradeBtn = _lg_button(node, "cultivate_btn_upgrade", CULTIVATE_BTN_POS.upgrade.x - 80, CULTIVATE_BTN_POS.upgrade.y, "升级灵根", function()
+        local xNode = ensureUpgradeWindow(npcid)
+        if xNode then
+            _lg_refresh_upgrade_window(npcid, xNode)
+        end
+    end)
+    _lg_apply_big_button_style(upgradeBtn)
+    local canSwitch, pairIdx = _lg_can_dual_switch(mainIdx)
+    local switchBtn = _lg_button(node, "cultivate_btn_switch", CULTIVATE_BTN_POS.switch.x - 25, CULTIVATE_BTN_POS.switch.y, "切换形态", function()
+        if canSwitch then
+            SL:SendLuaNetMsg(100, npcid, 6, pairIdx, "")
+        else
+            SL:ShowSystemTips("需要同时拥有本命灵根与对应觉醒灵根后才可切换")
+        end
+    end)
+    _lg_apply_big_button_style(switchBtn)
+    GUI:Button_setBright(switchBtn, canSwitch == true)
+    local backBtn = _lg_button(node, "cultivate_btn_back", CULTIVATE_BTN_POS.back.x + 88, CULTIVATE_BTN_POS.back.y, "返回上级", function()
+        NPC_UI_HELPER.closeWindow(npc.cultivate_window)
+        npc.cultivate_window = nil
+        npc.cultivate_node = nil
+    end)
+    _lg_apply_big_button_style(backBtn)
+end
+
+-- 构建主界面中间“觉醒路径”文案，显示当前基础灵根后续可觉醒到哪一系。
+local function _lg_awaken_path_text(idx)
+    local pairIdx = _lg_awaken_root_idx(_lg_base_root_idx(idx))
+    local pairCfg = _lg_root_cfg(pairIdx) or {}
+    if pairIdx and pairIdx > 0 then
+        return "后续可觉醒为——" .. tostring(pairCfg.name or "") .. "灵根"
+    end
+    return "暂无觉醒路径"
+end
+
+-- 主页顶部只选择基础灵根；中间展示区在已觉醒时展示对应觉醒形态。
+local function _lg_main_display_idx(selectedIdx)
+    selectedIdx = tonumber(selectedIdx or 0) or 0
+    if selectedIdx > 0 and selectedIdx <= 5 then
+        local awakenIdx = _lg_awaken_root_idx(selectedIdx)
+        if awakenIdx > 0 and _lg_has_root(awakenIdx) then
+            return awakenIdx
+        end
+    end
+    return selectedIdx
+end
+
+-- 渲染主界面主体信息区：
+-- 左侧为当前激活/选中的灵根图标和本命按钮；
+-- 中间为流派特性、觉醒路径、灵根等级；
+-- 右侧为被动/协同技能预览占位和培养入口。
+local function _lg_render_main_overview(node, npcid, selectedIdx, mainIdx)
+    local displayIdx = _lg_main_display_idx(selectedIdx)
+    local cfg = _lg_root_cfg(displayIdx) or _lg_root_cfg(selectedIdx) or {}
+    local selectedActive = _lg_has_root(selectedIdx)
+    local active = _lg_has_root(displayIdx)
+    local baseIdx = _lg_base_root_idx(displayIdx)
+    if baseIdx <= 0 then
+        baseIdx = selectedIdx
+    end
+
+    local rootCard = MAIN_OVERVIEW_POS.rootCard
+    -- res\custom\linggen\eff
+    -- _lg_scaled_image(node, "main_root_card_bg", rootCard.x + rootCard.width / 2, rootCard.y + rootCard.height / 2, "res/custom/linggen/new/main/itme6.png", nil, 0.5, 0.5)
+    -- GUI:Frames_Create(node, "main_root_card_frame", rootCard.x + rootCard.width / 2 - 140, rootCard.y + rootCard.height / 2 - 138, "res/custom/linggen/eff/0_", ".png", 0, 15, {speed = 75,count = 15,loop = -1,})
+    local main_overview_root_icon = GUI:Frames_Create(node, "main_overview_root_icon", rootCard.x + rootCard.width / 2 - 40, rootCard.y + 106, "res/custom/linggen/UI内/"..displayIdx.."/show_2_", ".png", 0, 15, {speed = 75,count = 16,loop = -1,})
+    GUI:setAnchorPoint(main_overview_root_icon, 0.5, 0.5)
+    local rootTitle = strokeText(node, "main_overview_root_title", rootCard.x + rootCard.width / 2 - 38, rootCard.y + rootCard.height, 26, ROOT_COLORS[displayIdx] or "#FFFFFF", tostring(cfg.name or "") .. "灵根", "fonts/font4.ttf")
+    GUI:setAnchorPoint(rootTitle, 0.5, 0.5)
+    GUI:Text_setFontSize(rootTitle, 26)
+    GUI:Text_enableOutline(rootTitle, "#110b05", 3)
+    GUI:Text_setFontName(rootTitle, "fonts/502.ttf")
+    -- _lg_show_root_icon(node, "main_overview_root_icon", rootCard.x + rootCard.width / 2 - 40, rootCard.y + 106, displayIdx, 0.98)
+
+    if not active then
+        GUI:setGrey(main_overview_root_icon,true)
+    end
+    local setText = active and ((mainIdx == displayIdx) and "卸下灵根" or "设为灵根") or "未激活"
+    local setBtn = _lg_button(node, "main_overview_set_btn", rootCard.x + rootCard.width / 2 - 40, MAIN_OVERVIEW_POS.skillCard.y - 36, setText, function()
+        if not active then
+            SL:ShowSystemTips("该灵根未激活，无法设为本命灵根")
+            return
+        end
+        SL:SendLuaNetMsg(100, npcid, 2, (mainIdx == displayIdx) and 0 or displayIdx, "")
+    end)
+    GUI:Button_setTitleFontName(setBtn, "fonts/502.ttf")
+    GUI:Button_setTitleFontSize(setBtn, 24)
+    GUI:Button_titleEnableOutline(setBtn, "#110b05", 3)
+    GUI:Button_setBright(setBtn, active)
+    local overviewTipTouch = GUI:Layout_Create(node, "main_overview_tip_touch", rootCard.x, rootCard.y + 72, rootCard.width, rootCard.height - 72)
+    GUI:setTouchEnabled(overviewTipTouch, true)
+    _lg_bind_detail_tip(overviewTipTouch, active and displayIdx or selectedIdx)
+
+    local trait = MAIN_OVERVIEW_POS.traitCard
+    local main_trait_bg = _lg_scaled_image(node, "main_trait_bg", trait.x - 50, trait.y - 125, "res/custom/linggen/new/main/itme3.png", nil, 0, 0)
+    GUI:setContentSize(main_trait_bg, GUI:getContentSize(main_trait_bg).width, 270 + 50)
+    _lg_title_bar(main_trait_bg, "main_trait_title", GUI:getContentSize(main_trait_bg).width / 2, 270, "流派特性", 188)
+    local flowText = MAIN_FLOW_SUMMARY[baseIdx] or tostring(cfg.flow or "")
+    local commaPos = flowText:find("，", 1, true) or flowText:find(",", 1, true)
+    local flowTop = commaPos and flowText:sub(1, commaPos - 1) or flowText
+    local flowBottom = commaPos and flowText:sub(commaPos + 3) or ""
+    if commaPos and flowText:sub(commaPos, commaPos) == "," then
+        flowBottom = flowText:sub(commaPos + 1)
+    end
+    local flowTopText = strokeText(main_trait_bg, "main_trait_flow_top", 30, 246, 26, "#FF5B50", flowTop, "fonts/502.ttf")
+    GUI:setAnchorPoint(flowTopText, 0, 1)
+    if flowBottom ~= "" then
+        local flowBottomText = strokeText(main_trait_bg, "main_trait_flow_bottom", GUI:getContentSize(main_trait_bg).width - 30, 214, 26, "#FF5B50", flowBottom, "fonts/502.ttf")
+        GUI:setAnchorPoint(flowBottomText, 1, 1)
+    end
+    _lg_title_bar(main_trait_bg, "main_path_title", GUI:getContentSize(main_trait_bg).width / 2, 150, "觉醒路径", 188)
+    local path = strokeText(main_trait_bg, "main_awaken_path", GUI:getContentSize(main_trait_bg).width / 2, 104, 26, "#FFFFFF", _lg_awaken_path_text(selectedIdx), "fonts/font4.ttf")
+    GUI:setAnchorPoint(path, 0.5, 0.5)
+    GUI:Text_setFontName(path, "fonts/502.ttf")
+
+    local skill = MAIN_OVERVIEW_POS.skillCard
+    local main_skill_kuang = GUI:Image_Create(node, "main_skill_kuang", skill.x - 30, skill.y, "res/custom/linggen/new/main/itme3.png")
+    local skillKuangSize = GUI:getContentSize(main_skill_kuang)
+    _lg_title_bar(main_skill_kuang, "main_skill_title", skillKuangSize.width / 2, skillKuangSize.height - 35, "灵根技能预览", 188)
+    local iconCfg = SKILL_ICON_BY_ROOT[tonumber(displayIdx or 0) or 0] or {}
+    local previewSlots = {
+        {name = "passive", text = "被动技能", icon = iconCfg.passive, x = 146 - 30, y = 92},
+        {name = "active", text = "主动技能", icon = iconCfg.active, x = 300 - 30, y = 92},
+    }
+    for i, one in ipairs(previewSlots) do
+        local kuang = GUI:Image_Create(main_skill_kuang, "main_skill_preview_kuang_" .. i, one.x, one.y, "res/custom/linggen/new/main/slot_bg.png")
+        GUI:setAnchorPoint(kuang, 0.5, 0.5)
+        local iconPath = _lg_skill_icon_path(one.icon)
+        local labelParent = main_skill_kuang
+        local labelX = one.x
+        local labelY = one.y - 52
+        if iconPath then
+            local icon = GUI:Image_Create(main_skill_kuang, "main_skill_preview_icon_" .. i, one.x, one.y, iconPath)
+            GUI:setAnchorPoint(icon, 0.5, 0.5)
+            labelParent = icon
+            local iconSize = GUI:getContentSize(icon)
+            labelX = iconSize.width / 2
+            labelY = -14
+        end
+        local label = strokeText(labelParent, "main_skill_preview_name_" .. i, labelX, labelY, 14, "#F4D179", tostring(one.text), "fonts/font4.ttf")
+        GUI:setAnchorPoint(label, 0.5, 0.5)
+        local touch = GUI:Layout_Create(main_skill_kuang, "main_skill_preview_touch_" .. i, one.x - 45, one.y - 66, 90, 118, false)
+        GUI:setLocalZOrder(touch, 20)
+        _lg_bind_skill_tip(touch, displayIdx, one.name)
+    end
+    local cultivateText = selectedActive and "培养灵根" or "激活灵根"
+    local cultivateBtn = _lg_button(node, "main_open_cultivate", skill.x + skill.width / 2 - 30, skill.y - 36, cultivateText, function()
+        if not selectedActive then
+            if selectedIdx <= 5 and _lg_can_unlock_basic(selectedIdx) then
+                SL:OpenCommonTipsPop({
+                    str = string.format("确定消耗1次基础灵根解锁，激活【%s灵根】吗？", tostring((_lg_root_cfg(selectedIdx) or cfg).name or "")),
+                    btnType = 2,
+                    callback = function(atype)
+                        if atype == 1 then
+                            SL:SendLuaNetMsg(100, npcid, 1, selectedIdx, "")
+                        end
+                    end,
+                })
+            else
+                SL:ShowSystemTips(selectedIdx <= 5 and "该灵根未激活，暂无解锁机会" or "请先完成对应基础灵根试炼觉醒")
+            end
+            return
+        end
+        local cNode = ensureCultivateWindow(npcid)
+        if cNode then
+            _lg_refresh_cultivate_window(npcid, cNode)
+        end
+    end)
+    GUI:Button_setTitleFontName(cultivateBtn, "fonts/502.ttf")
+    GUI:Button_setTitleFontSize(cultivateBtn, 24)
+    GUI:Button_titleEnableOutline(cultivateBtn, "#110b05", 3)
+    if selectedIdx > 0 and (_lg_can_upgrade(selectedIdx) or ((not selectedActive) and _lg_can_unlock_basic(selectedIdx))) then
+        NPC_UI_HELPER.redpoint_create(cultivateBtn, {x = 130, y = 33})
+    end
+end
+
+-- 刷新灵根主界面：顶部五灵根列表负责选择灵根，下方主体区由 _lg_render_main_overview 渲染。
 _lg_refresh_main_page = function(npcid, node)
     GUI:removeAllChildren(node)
     _lg_bind_move_events(npcid)
-    _lg_render_main_static_parts(node)
 
     local selectedIdx = tonumber(npc.current_idx or 0) or 0
     if selectedIdx <= 0 then
@@ -1096,7 +1669,6 @@ _lg_refresh_main_page = function(npcid, node)
         npc.current_idx = selectedIdx
     end
     local mainIdx = npc.data and npc.data.T_data and npc.data.T_data.main or 0
-    _lg_render_left_form_cards(node, npcid, (mainIdx and mainIdx > 0) and mainIdx or selectedIdx)
 
     for idx, cfg in ipairs(npc._config.main_r or {}) do
         if idx > 5 then
@@ -1104,55 +1676,20 @@ _lg_refresh_main_page = function(npcid, node)
         end
         local row = math.floor((idx - 1) / ROOT_GRID_POS.cols)
         local col = (idx - 1) % ROOT_GRID_POS.cols
-        local x = _lg_adapt_x(ROOT_GRID_POS.startX + col * ROOT_GRID_POS.gapX, "left")
-        local y = _lg_adapt_y(ROOT_GRID_POS.startY - row * ROOT_GRID_POS.gapY, "top")
+        local x = _lg_adapt_x(ROOT_GRID_POS.startX + col * ROOT_GRID_POS.gapX, "left") - 83
+        local y = _lg_adapt_y(ROOT_GRID_POS.startY - row * ROOT_GRID_POS.gapY, "top") - 51
         -- 每个灵根格子都提前缓存激活状态，后续点击与置灰共用同一份判断。
         local rootActive = _lg_has_root(idx)
         local slot = GUI:Layout_Create(node, "root_slot_" .. idx, x - ROOT_SLOT_SIZE.width / 2, y - ROOT_SLOT_SIZE.height / 2, ROOT_SLOT_SIZE.width, ROOT_SLOT_SIZE.height, false)
         GUI:Image_Create(slot, "bg", 0, 0, "res/custom/linggen/new/main/slot_bg.png")
-        local rootItem = _lg_show_root_icon(slot, "item", ROOT_SLOT_SIZE.width / 2, ROOT_SLOT_SIZE.height / 2, idx, ROOT_ICON_SCALE)
-        GUI:setTouchEnabled(slot, rootActive or _lg_can_unlock_basic(idx))
+        -- local rootItem = _lg_show_root_icon(slot, "item", ROOT_SLOT_SIZE.width / 2, ROOT_SLOT_SIZE.height / 2, idx, ROOT_ICON_SCALE)
+        local rootItem = GUI:Frames_Create(slot, "root_icon_" .. idx, ROOT_SLOT_SIZE.width / 2, ROOT_SLOT_SIZE.height / 2 - 3, "res/custom/linggen/UI内/"..idx.."/show_2_", ".png", 0, 15, {speed = 75,count = 16,loop = -1,})
+        GUI:setTouchEnabled(slot, true)
+        GUI:setAnchorPoint(rootItem, 0.5, 0.5)
+        GUI:setScale(rootItem, 0.5)
         GUI:addOnTouchEvent(slot, function(sender, type)
-            -- 未激活灵根只保留灰态展示，不允许再被选中或触发长按预览。
-            if not rootActive then
-                sender._clicking = false
-                if type == SLDefine.TouchEventType.ended then
-                    if _lg_can_unlock_basic(idx) then
-                        local cfg = _lg_root_cfg(idx) or {}
-                        SL:OpenCommonTipsPop({
-                            str = string.format("确定消耗1次基础灵根解锁，选择【%s灵根】吗？", tostring(cfg.name or "")),
-                            btnType = 2,
-                            callback = function(atype)
-                                if atype == 1 then
-                                    SL:SendLuaNetMsg(100, npcid, 1, idx, "")
-                                end
-                            end,
-                        })
-                    else
-                        SL:ShowSystemTips(idx <= 5 and "该灵根未激活，暂无解锁机会" or "请先完成对应基础灵根试炼觉醒")
-                    end
-                end
-                return
-            end
-            -- 触发控件（sender）：控件本身
-            -- 事件类型（type）：触摸阶段 0-3
-            if type == SLDefine.TouchEventType.began then           -- 0 触摸开始
-                
-                if not sender._clicking then
-                    sender._clicking = true
-                    SL:scheduleOnce(sender, function()
-                        if sender._clicking then
-                            local pos = GUI:getWorldPosition(slot)
-                            local attrTipPos = _lg_adapt_pos(ATTR_BOX_POS, "right", "top")
-                            SL:OpenCommonDescTipsPop({str = _lg_build_attr_detail_html(idx), worldPos = {x = attrTipPos.x, y = attrTipPos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 1})
-                        end
-                    end, 0.1)
-                end
-            elseif type == SLDefine.TouchEventType.moved then       -- 1 触摸移动
-                
-
-            elseif type == SLDefine.TouchEventType.ended or type == SLDefine.TouchEventType.canceled then       -- 2 触摸结束 3 触摸取消
-                sender._clicking = false
+            -- 顶部灵根列表只负责切换当前选择，激活统一交给右下按钮。
+            if type == SLDefine.TouchEventType.ended then
                 npc.current_idx = idx
                 _lg_refresh_main_page(npcid, node)
             end
@@ -1178,85 +1715,10 @@ _lg_refresh_main_page = function(npcid, node)
         GUI:setAnchorPoint(GUI:getChildByName(slot, "lv"), 0.5, 0.5)
     end
 
-    -- if mainIdx and mainIdx > 0 then
-    --     local mainItemPos = _lg_adapt_pos(MAIN_SLOT_ITEM_POS, "center", "center")
-    --     _lg_show_root_icon(node, "main_item", mainItemPos.x, mainItemPos.y, mainIdx, 1.42)
-    --     _lg_create_slot_name(node, "main_name", mainItemPos.x, mainItemPos.y, mainIdx)
-    --     local pairIdx = npc._config and npc._config.awaken_pairs and npc._config.awaken_pairs[mainIdx] or nil
-    --     if mainIdx <= 5 and pairIdx and not _lg_has_root(pairIdx) then
-    --         local awakenTip = strokeText(node, "awaken_tip", mainItemPos.x + 72, mainItemPos.y + 18, 18, "#FF6B4A", "未觉醒", "fonts/font4.ttf")
-    --         GUI:setAnchorPoint(awakenTip, 0.5, 0.5)
-    --         GUI:setTouchEnabled(awakenTip, true)
-    --         GUI:addOnClickEvent(awakenTip, function()
-    --             local pairCfg = _lg_root_cfg(pairIdx) or {}
-    --             SL:ShowSystemTips("请前往四大陆灵根试炼NPC处觉醒" .. tostring(pairCfg.name or "") .. "灵根")
-    --         end)
-    --     elseif pairIdx and _lg_has_root(pairIdx) then
-    --         local okText = strokeText(node, "awaken_tip", mainItemPos.x + 72, mainItemPos.y + 18, 18, "#54FF9F", "已觉醒", "fonts/font4.ttf")
-    --         GUI:setAnchorPoint(okText, 0.5, 0.5)
-    --     end
-    -- end
-    local mainTipPos = _lg_adapt_pos(MAIN_SLOT_ITEM_POS, "center", "center")
-    strokeText(node, "unlock_chance_tip", 110, mainTipPos.y + 92 + 230, 20, "#F4D179", "基础灵根点数：" .. tostring(_lg_unlock_chance()), "fonts/font4.ttf")
-    GUI:setAnchorPoint(GUI:getChildByName(node, "unlock_chance_tip"), 0, 0.5)
-
-    _lg_render_attr_scroll(node, _lg_collect_total_attrs(), _lg_collect_total_specials())
-
-    _lg_render_skill_icons(node)
-
-    if selectedIdx > 0 and _lg_has_root(selectedIdx) and (not mainIdx or mainIdx <= 0) then
-        local equipPos = _lg_adapt_pos(MAIN_EQUIP_BTN_POS, "left", "bottom")
-        local btnEquipMain = GUI:Button_Create(node, "btn_equip_main", equipPos.x, equipPos.y, "res/custom/linggen/new/main/btn_equip.png")
-        GUI:setAnchorPoint(btnEquipMain, 0.5, 0.5)
-        GUI:addOnClickEvent(btnEquipMain, function()
-            SL:SendLuaNetMsg(100, npcid, 2, selectedIdx, "")
-        end)
-    elseif mainIdx and mainIdx > 0 then
-        local equipPos = _lg_adapt_pos(MAIN_EQUIP_BTN_POS, "left", "bottom")
-        local btnUnequipMain = GUI:Button_Create(node, "btn_unequip_main", equipPos.x, equipPos.y, "res/custom/linggen/new/main/btn_unequip.png")
-        GUI:setAnchorPoint(btnUnequipMain, 0.5, 0.5)
-        GUI:addOnClickEvent(btnUnequipMain, function()
-            SL:SendLuaNetMsg(100, npcid, 2, 0, "")
-        end)
-    end
-    local canSwitch, pairIdx = _lg_can_dual_switch(mainIdx)
-    if mainIdx and mainIdx > 0 and canSwitch then
-        local switchPos = _lg_adapt_pos(DUAL_SWITCH_BTN_POS, "right", "bottom")
-        local btnSwitch = GUI:Button_Create(node, "btn_dual_switch", switchPos.x, switchPos.y, "res/custom/linggen/new/main/btn_equip.png")
-        GUI:setAnchorPoint(btnSwitch, 0.5, 0.5)
-        GUI:Button_setTitleText(btnSwitch, "切换形态")
-        GUI:Button_setTitleFontSize(btnSwitch, 18)
-        GUI:Button_setTitleColor(btnSwitch, "#F4E7B5")
-        GUI:Button_titleEnableOutline(btnSwitch, "#110b05", 2)
-        GUI:addOnClickEvent(btnSwitch, function()
-            SL:SendLuaNetMsg(100, npcid, 6, pairIdx, "")
-        end)
-    end
-    local upgradePos = _lg_adapt_pos(PAGE_UPGRADE_BTN_POS, "right", "bottom")
-    local btnUpgradePage = GUI:Button_Create(node, "btn_open_upgrade", upgradePos.x - 300, upgradePos.y - 5, "res/custom/linggen/new/main/btn_upgrade.png")
-    GUI:setAnchorPoint(btnUpgradePage, 0.5, 0.5)
-    GUI:addOnClickEvent(btnUpgradePage, function()
-        local xNode = ensureUpgradeWindow(npcid)
-        if xNode then
-            _lg_refresh_upgrade_window(npcid, xNode)
-        end
-    end)
-    -- 当前版本只保留按钮卸下，不再创建拖拽卸下区域。
-    npc.out_moveWidget = nil
-
-    local mainPos = _lg_adapt_pos(MAIN_SLOT_POS, "center", "center")
-    local mainTouch = GUI:Layout_Create(node, "main_slot_touch", mainPos.x - SLOT_TOUCH_SIZE.width / 2, mainPos.y - SLOT_TOUCH_SIZE.height / 2, SLOT_TOUCH_SIZE.width, SLOT_TOUCH_SIZE.height, false)
-    GUI:setTouchEnabled(mainTouch, true)
-    GUI:addOnClickEvent(mainTouch, function()
-        local idx = tonumber(mainIdx or 0) or 0
-        if idx > 0 then
-            npc.current_idx = idx
-            _lg_refresh_main_page(npcid, node)
-        end
-    end)
+    _lg_render_main_overview(node, npcid, selectedIdx, mainIdx)
 end
 
--- 刷新灵根升级弹窗：预览属性、当前灵根、消耗、升级按钮。
+-- 刷新灵根升级弹窗：左侧预览当前/下级属性，右侧显示当前灵根图标、升级消耗和升级按钮。
 _lg_refresh_upgrade_window = function(npcid, xNode)
     if not xNode then
         return
@@ -1298,6 +1760,10 @@ _lg_refresh_upgrade_window = function(npcid, xNode)
     end
 end
 
+-- 服务端推送入口：
+-- p2=0 首次打开主界面；
+-- p2=1 数据刷新后同步刷新主界面/升级弹窗/培养弹窗；
+-- p2=2 直接打开升级弹窗。
 function npc.main(npcid, p2, p3, msgData)
     if p2 == 0 then
         npc.data = SL:JsonDecode(msgData, false) or {}
@@ -1313,6 +1779,9 @@ function npc.main(npcid, p2, p3, msgData)
         _lg_refresh_main_page(npcid, npc.node)
         if npc.xjm_node then
             _lg_refresh_upgrade_window(npcid, npc.xjm_node)
+        end
+        if npc.cultivate_node then
+            _lg_refresh_cultivate_window(npcid, npc.cultivate_node)
         end
         _lg_try_finish_xyl_and_close()
     elseif p2 == 2 then

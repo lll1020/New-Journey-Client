@@ -228,8 +228,8 @@ local function getAdaptAttrPreview(idx)
 end
 
 local function buildPreviewRichText(idx)
-    local baseStr = Player:showAttr(getBaseAttrPreview())
-    local adaptStr = Player:showAttr(getAdaptAttrPreview(idx))
+    local baseStr = Player:showAttrMergedRange(getBaseAttrPreview())
+    local adaptStr = Player:showAttrMergedRange(getAdaptAttrPreview(idx))
     local lines = {}
     if baseStr and baseStr ~= "" then
         table.insert(lines, "<font color='#F4D179'>自身基础属性</font>")

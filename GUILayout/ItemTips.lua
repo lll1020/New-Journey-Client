@@ -373,8 +373,8 @@ local function pushDiffEquipHeader(contentPanel, itemData, richWidth)
         0,
         string.format("[可回收:%s]", rewardText),
         richWidth,
-        12,
-        "#28EF01",
+        14,
+        "#808080",
         vspace,
         nil
     )
@@ -2838,7 +2838,11 @@ function ItemTips.CreateEquipPanel(data, itemData, isWear, panelInsertIndex)
     local nameStr = string.format("<font color='%s' size='%s'>%s</font>", SL:GetHexColorByStyleId(color), _TextSize, name) 
     local r_name = GUI:RichText_Create(contentPanel, "r_name", 0, 0, nameStr, richWidth, _TextSize, SL:GetHexColorByStyleId(color), vspace, nil, fontPath)
     ItemTips.PushItem(contentPanel, r_name)
+    pushDiffEquipHeader(contentPanel, itemData, richWidth)
+
     ItemTips.PushItem(contentPanel, ItemTips.CreateIntervalPanel(contentPanel, _DefaultSpace, true))
+
+
 
     local itemDescs = GUIFunction:GetParseItemDesc(itemData.Desc)
     -- 顶部描述
@@ -2921,7 +2925,7 @@ function ItemTips.CreateEquipPanel(data, itemData, isWear, panelInsertIndex)
     --     icon_bg._itemWid = math.max(icon_bg._itemWid, modeSize.width + size.width + 20)
     -- end
     --回收详情
-    pushDiffEquipHeader(contentPanel, itemData, richWidth)
+
 
     local mode_img = GUI:Image_Create(GUI:ItemShow_GetLayoutExtra(item), "mode_img", size.width - 35, iconMoveY - 15, "res/private/item_tips/mode/mode_"..(Player:getEquipFieldByIndex(itemData.Index, 2) ~= "" and Player:getEquipFieldByIndex(itemData.Index, 2) or 9)..".png")
     GUI:RefPosByParent(mode_img)
@@ -3331,7 +3335,7 @@ function ItemTips.CreateItemPanel(data, itemData)
     --     icon_bg._itemWid = math.max(icon_bg._itemWid, bindSize.width + size.width + 20)
     -- end
 
-    local mode_img = GUI:Image_Create(GUI:ItemShow_GetLayoutExtra(item), "mode_img", size.width - 50, iconMoveY - 15, "res/private/item_tips/mode/mode_"..(Player:getEquipFieldByIndex(itemData.Index, 2) ~= "" and Player:getEquipFieldByIndex(itemData.Index, 2) or 12)..".png")
+    local mode_img = GUI:Image_Create(GUI:ItemShow_GetLayoutExtra(item), "mode_img", size.width - 35, iconMoveY - 15, "res/private/item_tips/mode/mode_"..(Player:getEquipFieldByIndex(itemData.Index, 2) ~= "" and Player:getEquipFieldByIndex(itemData.Index, 2) or 12)..".png")
     GUI:RefPosByParent(mode_img)
     local modeSize = GUI:getContentSize(mode_img)
     maxWidth = math.max(maxWidth, modeSize.width + size.width - 60)

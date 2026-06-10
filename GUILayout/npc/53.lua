@@ -1002,7 +1002,7 @@ local function _render_embed_attr_panel(node)
         if entry and entry.item_name and entry.item_name ~= "" then
             local equipData = SL:GetMetaValue("EQUIP_DATA", _toint(entry.where, 0))
             if equipData then
-                local attr = _strip_stone_name_from_attr_text(Player:showEquipAttr(equipData) or "")
+                local attr = _strip_stone_name_from_attr_text(Player:showEquipAttrMergedRange(equipData) or "")
                 if attr ~= "" then
                     attrText[#attrText + 1] = attr
                 end
@@ -1404,7 +1404,7 @@ local function _show_box_result_popup(resultData)
         end)
         local reopenBtn = GUI:Button_Create(panel, "result_reopen_btn", 297, 90 - 10, "res/custom/three_city/sshc/new/宝箱下级面板/恭喜获得/再次开启.png")
         GUI:addOnClickEvent(reopenBtn, function()
-            _close_box_popup()
+            -- _close_box_popup()
             _send_open_box(npc._npcid or 53, tostring(resultData.box_name or _get_current_box_name()))
         end)
         GUI:addOnClickEvent(overlay, function()

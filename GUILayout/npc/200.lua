@@ -37,10 +37,10 @@ local RAW_MAP_CONFIG = {
     [227] = {"世界禁墟",100,100,nil,nil,5, mob_name = "≮文明终点·禁墟尊≯", mob_shape = 16170, min_map = "027156"},
 
     --特殊地图npc
-    [300] = {"虚妄山脉", 92, 50,nil,nil,3, mob_name = "★南境荒王★", mob_shape = 12057, min_map = "027343"},
-    [301] = {"鬼嘲深渊", 273, 33,nil,nil,3, mob_name = "≮北寒碎霜王≯", mob_shape = 12059, min_map = "027960"},
-    [302] = {"叹息旷野", 34, 41,nil,nil,3, mob_name = "「灰翼风痕主」", mob_shape = 12039, min_map = "027941"},
-    [303] = {"禁忌之海", 33, 133,nil,nil,3, mob_name = "★西海古皇★[道法合一]", mob_shape = 12105, min_map = "027961"},
+    [300] = {"山脉入口", 92, 50,nil,nil,3, mob_name = "★南境荒王★", mob_shape = 12057, min_map = "027343"},
+    [301] = {"旷野之原", 273, 33,nil,nil,3, mob_name = "≮北寒碎霜王≯", mob_shape = 12059, min_map = "027960"},
+    [302] = {"恐怖裂隙", 34, 41,nil,nil,3, mob_name = "「灰翼风痕主」", mob_shape = 12039, min_map = "027941"},
+    [303] = {"海峰孤岛", 33, 133,nil,nil,3, mob_name = "★西海古皇★[道法合一]", mob_shape = 12105, min_map = "027961"},
     [304] = {"葬星海滩", 184, 40,nil,nil,3, mob_name = "「海殇巨皇」[至高神灵]", mob_shape = 16166, min_map = "027241"},
     [305] = {"船长室", 40, 46,nil,nil,3, mob_name = "「幽航鬼主」[通灵]", mob_shape = 16147, min_map = "027802"},
     [306] = {"水手舱", 59, 11,nil,nil,3, mob_name = "≮水手怨皇≯[通灵]", mob_shape = 16150, min_map = "027975"},

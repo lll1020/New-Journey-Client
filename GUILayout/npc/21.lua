@@ -137,6 +137,12 @@ function npc.main(npcid, p2, p3, msgData)
             if NPC_UI_HELPER.isCurrentXylTask({"筑基", "提升修为至筑基境"}) then
                 NPC_UI_HELPER.closeGuideByDomain("xyl")
             end
+            NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, Button, node, npcid, "foundation_realm_upgrade", {
+                taskMap = {[npcid] = 32},
+                keyPrefix = "mainline_foundation_realm",
+                dir = 5,
+                desc = "点击提升境界",
+            })
         else
             GUI:Image_Create(node, "Button", 460, 10.00, "res/wy/public/15.png")
             NPC_UI_HELPER.closeGuideByDomain("mainline")

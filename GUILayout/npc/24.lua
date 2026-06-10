@@ -11,6 +11,13 @@ local level_coler = {
     [4] = "#EFAD21",
     [5] = "#FF0000",
 }
+local XIANFA_ATLAS_QUALITY_NAME = {
+    [1] = "凡品",
+    [2] = "优品",
+    [3] = "仙品",
+    [4] = "圣品",
+    [5] = "极品",
+}
 local XIANFA_SKIP_ANIM_KEY = "tianshu_xianfa_skip_anim"
 local function _get_xianfa_skip_anim_default()
     return tostring(SL:GetLocalString(XIANFA_SKIP_ANIM_KEY) or "") == "1"
@@ -158,6 +165,190 @@ function npc.main(npcid, p2, p3, msgData)
         end
         _refresh_without_best_token()
     end
+    local function _xianfa_atlas_tip(widget, info, quality, owned)
+        if not widget or not info then
+            return
+        end
+        local qualityName = XIANFA_ATLAS_QUALITY_NAME[quality] or "仙法"
+        local stateText = owned and "<font color='#45FF93'>已获得</font>" or "<font color='#A0A0A0'>未获得</font>"
+        local desc = string.format(
+            "<font color='%s' size='20'>%s</font><font color='#F4D179'>（%s）</font>\n%s\n<font color='#FFFFFF'>%s</font>",
+            level_coler[quality] or "#FFFFFF",
+            tostring(info.name or ""),
+            qualityName,
+            stateText,
+            tostring(info.wz or "")
+        )
+        local pos = GUI:getWorldPosition(widget)
+        SL:OpenCommonDescTipsPop({
+            str = desc,
+            worldPos = {x = pos.x, y = pos.y},
+            anchorPoint = {x = 0, y = 0},
+            formatWay = 1
+        })
+    end
+    local function _xianfa_bind_atlas_tip(widget, info, quality, owned)
+        GUI:setTouchEnabled(widget, true)
+        if SL:GetMetaValue("WINPLAYMODE") then
+            GUI:addMouseMoveEvent(widget, {
+                onEnterFunc = function()
+                    _xianfa_atlas_tip(widget, info, quality, owned)
+                end,
+                onLeaveFunc = function()
+                    SL:CloseCommonDescTipsPop()
+                end
+            })
+        else
+            GUI:addOnTouchEvent(widget, function()
+                _xianfa_atlas_tip(widget, info, quality, owned)
+            end)
+        end
+    end
+    local function _open_xianfa_atlas()
+        local parent = GUI:GetWindow(nil, "tianshu_xianfa_atlas")
+        if parent then
+            GUI:removeAllChildren(parent)
+        else
+            parent = GUI:Win_Create("tianshu_xianfa_atlas", 0, 0, 0, 0, false, false, true, true, true, nil, 120)
+        end
+        local function close_atlas()
+            SL:CloseCommonDescTipsPop()
+            GUI:Win_Close(parent)
+        end
+        local overlay = GUI:Image_Create(parent, "overlay", cogin.w / 2, cogin.h / 2, "res/public/1900000651_1.png")
+        GUI:setAnchorPoint(overlay, 0.5, 0.5)
+        GUI:setContentSize(overlay, cogin.w + 100, cogin.h + 100)
+        GUI:setTouchEnabled(overlay, true)
+        GUI:addOnClickEvent(overlay, close_atlas)
+
+        local bg = GUI:Image_Create(parent, "bg", cogin.w / 2, cogin.h / 2, "res/custom/tianshu/tj/xbg.png")
+        GUI:setAnchorPoint(bg, 0.5, 0.5)
+        GUI:setTouchEnabled(bg, true)
+        local closeBtn = GUI:Button_Create(bg, "close_btn", 724, 330 + 80, "res/wy/public/close_red_big.png")
+        GUI:setAnchorPoint(closeBtn, 0.5, 0.5)
+        GUI:addOnClickEvent(closeBtn, close_atlas)
+
+        local quality = tonumber(npc._xianfa_atlas_quality or 1) or 1
+        local function render_content()
+            GUI:removeChildByName(bg, "content_node")
+            local content = GUI:Node_Create(bg, "content_node", 0, 0)
+            npc._xianfa_atlas_quality = quality
+            for i = 1, 5 do
+                local btn = GUI:Button_Create(content, "quality_btn_" .. i, 60 + (i - 1) * 132, 347, "res/custom/tianshu/tj/up_btn/btn_" .. i .. ".png")
+                GUI:setOpacity(btn, quality == i and 255 or 170)
+                GUI:addOnClickEvent(btn, function()
+                    if quality == i then
+                        return
+                    end
+                    quality = i
+                    npc._xianfa_atlas_page = 1
+                    render_content()
+                end)
+            end
+
+            local cfg = npc._config.details[2]
+            local details = cfg and cfg.details and cfg.details[quality] or {}
+            local T_data = npc.data and npc.data.T_data or {}
+            local tj = T_data.tj or {}
+            local ownedMap = {}
+            for key, value in pairs(tj) do
+                if value == 1 or value == true then
+                    ownedMap[tostring(key)] = true
+                end
+            end
+            for _, value in pairs(T_data.caowei or {}) do
+                if type(value) == "table" and value[1] and value[2] then
+                    ownedMap[tostring(value[1]) .. "_" .. tostring(value[2])] = true
+                end
+            end
+            local ownedCount = 0
+            for idx2, _ in ipairs(details) do
+                if ownedMap[quality .. "_" .. idx2] then
+                    ownedCount = ownedCount + 1
+                end
+            end
+
+            local pageSize = 8
+            local pageCount = math.max(1, math.ceil(#details / pageSize))
+            local page = math.max(1, math.min(tonumber(npc._xianfa_atlas_page or 1) or 1, pageCount))
+            npc._xianfa_atlas_page = page
+            local listNode = GUI:Layout_Create(content, "list_node", 58, 94, 648, 236, false)
+
+            for slot = 1, pageSize do
+                local idx2 = (page - 1) * pageSize + slot
+                local info = details[idx2]
+                if not info then
+                    break
+                end
+                local col = (slot - 1) % 4
+                local row = math.floor((slot - 1) / 4)
+                local x = col * 162
+                local y = 106 - row * (112 + 40)
+                local item = GUI:Image_Create(listNode, "atlas_item_" .. idx2, x, y, "res/custom/tianshu/tj/item_kuang.png")
+                
+                local owned = ownedMap[quality .. "_" .. idx2] == true
+                if not owned then
+                    GUI:Image_setGrey(item, true)
+                    GUI:setOpacity(item, 165)
+                end
+                local title = GUI:Image_Create(item, "title", 7, 146, "res/custom/tianshu/tj/title/title_" .. quality .. ".png")
+                GUI:setAnchorPoint(title, 0, 1)
+                local iconPath = tostring(info.icon or "")
+                if iconPath ~= "" then
+                    local icon = GUI:Image_Create(item, "xianfa_icon", 81, 78 + 13, iconPath)
+                    GUI:setTouchEnabled(icon, true)
+                    _xianfa_bind_atlas_tip(icon, info, quality, owned)
+                    GUI:setAnchorPoint(icon, 0.5, 0.5)
+                    if not owned then
+                        GUI:Image_setGrey(title, true)
+                        -- GUI:Image_setGrey(icon, true)
+                    end
+                elseif not owned then
+                    GUI:Image_setGrey(title, true)
+                end
+                local name = GUI:Text_Create(item, "name", 84, 23 + 110, 17, owned and (level_coler[quality] or "#FFFFFF") or "#9C9C9C", tostring(info.name or "未知仙法"))
+                GUI:setAnchorPoint(name, 0.5, 0.5)
+                GUI:Text_enableOutline(name, "#000000", 1)
+                
+            end
+
+            -- GUI:Image_Create(content, "bottom_tip", 51 - 60 + 9, -14, "res/custom/tianshu/tj/img.png")
+            -- local allText = GUI:Text_Create(content, "all_text", 80, 38, 18, "#FFFFFF", "本图鉴全部点亮可获得：")
+            -- GUI:Text_enableOutline(allText, "#000000", 1)
+            -- local progressText = GUI:Text_Create(content, "progress_text", 80, 14, 18, "#FFFFFF", string.format("当前已获得仙法：%d/%d", ownedCount, #details))
+            -- GUI:Text_enableOutline(progressText, "#000000", 1)
+            local prevBtn = GUI:Button_Create(content, "prev_page", 504 - 80, 25, "res/wy/public/kb_btn.png")
+            GUI:setAnchorPoint(prevBtn, 0.5, 0.5)
+            GUI:Button_setTitleText(prevBtn, "上一页")
+            GUI:Button_setTitleFontSize(prevBtn, 16)
+            GUI:Button_titleEnableOutline(prevBtn, "#000000", 1)
+            GUI:Button_setGrey(prevBtn, page <= 1)
+            GUI:addOnClickEvent(prevBtn, function()
+                if page <= 1 then
+                    return
+                end
+                npc._xianfa_atlas_page = page - 1
+                render_content()
+            end)
+            local pageText = GUI:Text_Create(content, "page_text", 596 - 80, 25, 18, "#FFFFFF", string.format("%d/%d", page, pageCount))
+            GUI:setAnchorPoint(pageText, 0.5, 0.5)
+            GUI:Text_enableOutline(pageText, "#000000", 1)
+            local nextBtn = GUI:Button_Create(content, "next_page", 688 - 80, 25, "res/wy/public/kb_btn.png")
+            GUI:setAnchorPoint(nextBtn, 0.5, 0.5)
+            GUI:Button_setTitleText(nextBtn, "下一页")
+            GUI:Button_setTitleFontSize(nextBtn, 16)
+            GUI:Button_titleEnableOutline(nextBtn, "#000000", 1)
+            GUI:Button_setGrey(nextBtn, page >= pageCount)
+            GUI:addOnClickEvent(nextBtn, function()
+                if page >= pageCount then
+                    return
+                end
+                npc._xianfa_atlas_page = page + 1
+                render_content()
+            end)
+        end
+        render_content()
+    end
     local function _has_any_xianfa_equipped()
         local T_data = npc.data and npc.data.T_data or {}
         local caowei = T_data.caowei or {}
@@ -171,7 +362,8 @@ function npc.main(npcid, p2, p3, msgData)
     local function _get_default_tianshu_tab()
         local taskName = tostring(rawget(_G, "XYL_CURRENT_TASK_NAME") or "")
         SL:release_print("当前任务", taskName)
-        if taskName == "初识仙法" or taskName == "查看仙法" or taskName == "进行天书仙法抽取" then
+        local rwid = tonumber(cogin and cogin.sjtb and (cogin.sjtb.zxrwid or cogin.sjtb.rwid) or 0) or 0
+        if rwid == 18 or taskName == "初识仙法" or taskName == "查看仙法" or taskName == "天书仙法" or taskName == "进行天书仙法抽取" then
             return 2
         end
         local tianshuLevel = tonumber(npc.data and npc.data.T_data and npc.data.T_data.level or 0) or 0
@@ -266,6 +458,12 @@ function npc.main(npcid, p2, p3, msgData)
                             NPC_UI_HELPER.redpoint_create_eff(Button,{x = 219,y = 35,autoScale = 1})
                             NPC_UI_HELPER.tryStartXylGuide(npc, Button, Label_node, "tianshu_upgrade", {
                                 taskNames = {"天书强化", "进行天书强化1次"},
+                                dir = 5,
+                                desc = "点击强化天书",
+                            })
+                            NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, Button, Label_node, npcid, "tianshu_upgrade", {
+                                taskMap = {[npcid] = 17},
+                                keyPrefix = "mainline_tianshu_upgrade",
                                 dir = 5,
                                 desc = "点击强化天书",
                             })
@@ -387,7 +585,7 @@ function npc.main(npcid, p2, p3, msgData)
                         GUI:setAnchorPoint(lockText, 0.5, 0.5)
                         GUI:Text_enableOutline(lockText, "#000000", 1)
                     end
-                    local guang = GUI:Image_Create(npc.xf_node, "cost_once_value_img", 50 + 549 + 70, 150, "res/wy/public/guang.png")
+                    local guang = GUI:Image_Create(npc.xf_node, "cost_once_value_img", 50 + 549 + 150 - 8, 150, "res/wy/public/guang.png")
                     GUI:setContentSize(guang, 180, 30)
                     GUI:setContentSize(GUI:Image_Create(guang, "img1", 0, 0, "res/wy/public/input.png"), 180, 30)
                     GUI:setContentSize(GUI:Image_Create(guang, "img2", 0, 0, "res/wy/public/jdtk_1.png"), 100, 30)
@@ -401,20 +599,24 @@ function npc.main(npcid, p2, p3, msgData)
                     if npc._xf_skip_anim == nil then
                         npc._xf_skip_anim = _get_xianfa_skip_anim_default()
                     end
-                    local skipLabel = GUI:Text_Create(npc.xf_node, "skip_label", 50 + 549 + 20, 52 + 18 + 50, 18, "#FFFFFF", "跳过动画")
+                    local skipLabel = GUI:Text_Create(npc.xf_node, "skip_label", 50 + 549 + 20 - 8, 52 + 18 + 50 + 33, 18, "#FFFFFF", "跳过动画")
                     GUI:Text_enableOutline(skipLabel, "#000000", 1)
-                    local skipCheck = GUI:CheckBox_Create(npc.xf_node, "skip_anim", 50 + 549 + 140 - 40, 53 + 18 + 52, "res/wy/public/xz_1.png", "res/wy/public/xz_0.png")
+                    local skipCheck = GUI:CheckBox_Create(npc.xf_node, "skip_anim", 50 + 549 + 140 - 40 - 8, 53 + 18 + 52 + 33, "res/wy/public/xz_1.png", "res/wy/public/xz_0.png")
                     GUI:CheckBox_setSelected(skipCheck, npc._xf_skip_anim)
                     GUI:CheckBox_addOnEvent(skipCheck, function(sender)
                         npc._xf_skip_anim = GUI:CheckBox_isSelected(sender)
                         _set_xianfa_skip_anim_default(npc._xf_skip_anim)
                     end)
-                    local Button = GUI:Button_Create(npc.xf_node, "Button", 50 + 549 + 76 + 80,80, "res/custom/tianshu/xf/btn_up.png")
+                    local Button = GUI:Button_Create(npc.xf_node, "Button", 50 + 549 + 76 + 80 + 5,80, "res/custom/tianshu/xf/btn_up.png")
                     local slot_unlocked = is_slot_unlocked(slot, slot_data)
                     if not slot_unlocked then
                         GUI:setOpacity(Button, 120)
                         GUI:setTouchEnabled(Button, false)
                     end
+                    local atlasBtn = GUI:Button_Create(npc.xf_node, "Button_chat_1", 50 + 549,80, "res/custom/tianshu/xf/btn_tj.png")
+                    GUI:addOnClickEvent(atlasBtn, function()
+                        _open_xianfa_atlas()
+                    end)
                     -- if checkItemNum({{"极品仙法卷轴",1}}) then
                     --     NPC_UI_HELPER.redpoint_create(Button)
                     -- end
@@ -439,9 +641,16 @@ function npc.main(npcid, p2, p3, msgData)
                     NPC_UI_HELPER.tryStartXylGuide(npc, Button, npc.xf_node, "tianshu_xianfa_" .. tostring(slot), {
                         idx = 1,
                         once = true,
-                        taskNames = {"初识仙法", "进行天书仙法抽取"},
+                        taskNames = {"初识仙法", "天书仙法", "进行天书仙法抽取"},
                         dir = 5,
                         desc = "点击刷新仙法",
+                    })
+                    NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, Button, npc.xf_node, npcid, "tianshu_xianfa_" .. tostring(slot), {
+                        taskMap = {[npcid] = 18},
+                        keyPrefix = "mainline_tianshu_xianfa",
+                        dir = 5,
+                        desc = "点击刷新仙法",
+                        idx = 1,
                     })
                 end
                 for i = 1, 10 do
@@ -494,12 +703,34 @@ function npc.main(npcid, p2, p3, msgData)
                 GUI:ScrollView_setInnerContainerSize(ScrollView, 333, ((157 + 10) * #npc._config.details[3]))
                 local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 0,0, 312, ((157 + 10) * #npc._config.details[3]))
                 npc.data.T_data.caowei = npc.data.T_data.caowei or {}
+                local function build_wangshi_desc(config, values)
+                    local args = {}
+                    for n, v in ipairs(values or {}) do
+                        local color = n == 1 and "#56F4FF" or "#FFD45A"
+                        args[n] = string.format("<font color='%s'>%s</font>", color, tostring(v or ""))
+                    end
+                    return string.format(config.desc, unpack(args))
+                end
+                local function render_wangshi_title(parent, name, text)
+                    local title = GUI:Text_Create(parent, name, 156, 118, 21, "#FFD45A", "[ " .. text .. " ]")
+                    GUI:setAnchorPoint(title, 0.5, 0.5)
+                    GUI:Text_setFontName(title, "fonts/502.ttf")
+                    GUI:Text_enableOutline(title, "#100808", 3)
+                    return title
+                end
                 for i = 1, #npc._config.details[3] do
                     local config = npc._config.details[3][i]
                     local kuang = GUI:Image_Create(dbLayout, "kuang"..i, 0, 0, "res/custom/tianshu/ws/xnj_bg.png")
-                    GUI:Text_Create(kuang, "name", 20, 110, 20, "#FFFFFF", config.name)
+                    render_wangshi_title(kuang, "name", config.name)
+                    local line = GUI:Text_Create(kuang, "line", 156, 96, 16, "#8A5A22", "----------------")
+                    GUI:setAnchorPoint(line, 0.5, 0.5)
+                    GUI:Text_enableOutline(line, "#100808", 1)
                     if npc.data.T_data.wangshi[""..i] then
-                        local desc = GUI:RichText_Create(kuang, "desc", 20, 100, string.format(config.desc,unpack(npc.data.T_data.wangshi[""..i])), 290, 16, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+                        local html = build_wangshi_desc(config, npc.data.T_data.wangshi[""..i])
+                        local desc = GUI:RichText_Create(kuang, "desc", 22, 82, html, 270, 17, "#FFF2B0", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+                        GUI:setAnchorPoint(desc, 0, 1)
+                    else
+                        local desc = GUI:RichText_Create(kuang, "desc", 22, 82, "<font color='#8D8D8D'>尚未解锁，完成对应事件后记录天书往事</font>", 270, 17, "#8D8D8D", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
                         GUI:setAnchorPoint(desc, 0, 1)
                     end
                 end

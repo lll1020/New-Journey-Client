@@ -106,6 +106,12 @@ function npc.main(npcid, p2, p3, msgData)
                     dir = 5,
                     desc = "点击进行气运占卜",
                 })
+                NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, Button, node, npcid, "fortune_divination", {
+                    taskMap = {[npcid] = 20},
+                    keyPrefix = "mainline_fortune_divination",
+                    dir = 5,
+                    desc = "点击进行气运占卜",
+                })
             end
 
             if isFirstFree then

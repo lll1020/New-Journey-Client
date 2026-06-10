@@ -117,6 +117,12 @@ local function _refresh_ui(node, npcid)
             dir = 7,
             desc = "点击修复聚宝盆",
         })
+        NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, claimBtn, node, npcid, "treasure_basin_rebuild", {
+            taskMap = {[npcid] = 23},
+            keyPrefix = "mainline_treasure_basin",
+            dir = 7,
+            desc = "点击修复聚宝盆",
+        })
         if _can_rebuild() then
             NPC_UI_HELPER.redpoint_create_eff(claimBtn, {x = 200, y = 155})
         end

@@ -80,7 +80,7 @@ function MainAssist.ChangeHideStatus(status)
     GUI:stopAllActions(MainAssist._Panel_assist)
     GUI:stopAllActions(MainAssist._Panel_hide)
     if MainAssist._hideAssist then
-        local movePosHide = { x = hideX - assistSize.width, y = hideY }
+        local movePosHide = { x = hideX - assistSize.width + 40, y = hideY }
         GUI:Timeline_EaseSineIn_MoveTo(MainAssist._Panel_hide, movePosHide, 0.2)
         local movePosAssist = { x = assitX - assistSize.width, y = assitY }
         GUI:Timeline_EaseSineIn_MoveTo(MainAssist._Panel_assist, movePosAssist, 0.2, function()

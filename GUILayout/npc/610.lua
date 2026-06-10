@@ -67,6 +67,12 @@ function npc.main(npcid, p2, p3, msgData)
                 end
                 SL:SendLuaNetMsg(100, npcid, 2, 0, "")
             end)
+            NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, Button, node, npcid, "story_610_submit", {
+                taskMap = {[npcid] = 29},
+                keyPrefix = "mainline_story_610",
+                dir = 5,
+                desc = showFirstOpenTake and "点击领取任务" or "点击提交任务",
+            })
         elseif npc.data.jq_data[key] == 2 then
             GUI:Image_Create(node, "Button", btn_pos[1], btn_pos[2], "res/wy/public/7_1.png")
         end

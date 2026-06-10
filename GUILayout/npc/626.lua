@@ -17,6 +17,10 @@ local CHALLENGE_TIP = "进入后双击【净化宝石】可获得护体效果，
 local OPTIONAL_PREP_TIP = "前置任务为独立可选线路，可直接挑战讨伐。"
 local GUIDE_TASK_NAME = "讨伐忌灾"
 
+local function isValidNode(node)
+    return node and not tolua.isnull(node)
+end
+
 local function ensureWindow(npcid)
     local opts = {}
     for k, v in pairs(WINDOW_OPTS) do
@@ -132,7 +136,7 @@ local function renderChallengeSection(node, npcid, data, key, prepDone)
 end
 
 local function updateUI(npcid, node)
-    if not node then
+    if not isValidNode(node) then
         return
     end
 
@@ -157,6 +161,9 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data = npc.data or {}
         npc.data.T_dljq = npc.data.T_dljq or {}
         npc.data.T_dljq[KEY .. "_rw"] = p3
+        if not isValidNode(npc.node) then
+            return
+        end
         updateUI(npcid, npc.node)
     end
 end

@@ -163,47 +163,47 @@ local function _render_reward_page(parent, npcid)
     local loserRewardItems = _is_fixed_reward_mode() and _get_fixed_reward_list("loser") or {{rewardItemName, _get_reward_value(loserReward, loserPoints, myPoints)}}
     local chairmanRewardItems = _is_fixed_reward_mode() and _get_fixed_reward_list("chairman") or nil
 
-    _create_reward_desc(parent, "winner_reward", 20, 462, "胜利方奖励", winnerRewardItems, "#FFFFFF")
-    _create_reward_desc(parent, "loser_reward", 20, 304, "失败方奖励", loserRewardItems, "#F4B7B7")
-    _create_reward_desc(parent, "chairman_reward", 20, 146, "胜方会长额外奖励", chairmanRewardItems, "#7DF19D")
+    _create_reward_desc(parent, "winner_reward", 20, 462 - 70, "", winnerRewardItems, "#FFFFFF")
+    _create_reward_desc(parent, "loser_reward", 20, 304 - 22, "", loserRewardItems, "#F4B7B7")
+    _create_reward_desc(parent, "chairman_reward", 20, 146 + 18, "", chairmanRewardItems, "#7DF19D")
 
     local titleItemName = _resolve_title_item()
-    if titleItemName then
-        local titleNode = ItemNumByTable_img_new({{titleItemName, 1}}, nil, GUI:Node_Create(parent, "title_preview", 470, 214))
-        GUI:setScale(titleNode, 1.05)
-    else
-        local titleBox = GUI:Image_Create(parent, "title_preview_empty", 498, 243, "res/wy/public/70_70_k.png")
-        GUI:setAnchorPoint(titleBox, 0.5, 0.5)
-        _create_text(parent, "title_preview_label", 498, 243, 16, "#D7D7D7", "称号占位", 0.5, 0.5, "fonts/font4.ttf", "#000000", 1)
-    end
+    -- if titleItemName then
+    --     local titleNode = ItemNumByTable_img_new({{titleItemName, 1}}, nil, GUI:Node_Create(parent, "title_preview", 470, 214))
+    --     GUI:setScale(titleNode, 1.05)
+    -- else
+    --     local titleBox = GUI:Image_Create(parent, "title_preview_empty", 498, 243, "res/wy/public/70_70_k.png")
+    --     GUI:setAnchorPoint(titleBox, 0.5, 0.5)
+    --     _create_text(parent, "title_preview_label", 498, 243, 16, "#D7D7D7", "称号占位", 0.5, 0.5, "fonts/font4.ttf", "#000000", 1)
+    -- end
 
     local winnerGuildName = _to_string(data.winnerGuildName, "")
     local guildText = winnerGuildName ~= "" and winnerGuildName or "当前暂无胜利行会"
-    _create_text(parent, "guild_name", 498, 192, 18, "#F2F2F2", guildText, 0.5, 0.5, "fonts/font4.ttf", "#000000", 1)
+    _create_text(parent, "guild_name", 498 - 53, 192, 18, "#F2F2F2", guildText, 0.5, 0.5, "fonts/font4.ttf", "#000000", 1)
 
     local progressText = string.format("我的积分：%s/%s", _format_num(myPoints), _format_num(minimum))
-    _create_text(parent, "my_points", 20, 380, 18, "#F7F3E8", progressText, 0, 1, "fonts/font4.ttf", "#000000", 1)
+    -- _create_text(parent, "my_points", 20, 380, 18, "#F7F3E8", progressText, 0, 1, "fonts/font4.ttf", "#000000", 1)
 
     local campText = string.format("当前阵营：%s", _get_camp_name())
-    _create_text(parent, "camp_text", 20, 352, 18, "#F7F3E8", campText, 0, 1, "fonts/font4.ttf", "#000000", 1)
+    -- _create_text(parent, "camp_text", 20, 352, 18, "#F7F3E8", campText, 0, 1, "fonts/font4.ttf", "#000000", 1)
 
     local winnerPointsText = string.format("胜利方达标积分：%s", _format_num(winnerPoints))
-    _create_text(parent, "winner_points", 20, 324, 18, "#F7F3E8", winnerPointsText, 0, 1, "fonts/font4.ttf", "#000000", 1)
+    -- _create_text(parent, "winner_points", 20, 324, 18, "#F7F3E8", winnerPointsText, 0, 1, "fonts/font4.ttf", "#000000", 1)
 
     local loserPointsText = string.format("失败方达标积分：%s", _format_num(loserPoints))
-    _create_text(parent, "loser_points", 20, 296, 18, "#F7F3E8", loserPointsText, 0, 1, "fonts/font4.ttf", "#000000", 1)
+    -- _create_text(parent, "loser_points", 20, 296, 18, "#F7F3E8", loserPointsText, 0, 1, "fonts/font4.ttf", "#000000", 1)
 
     local stateText, stateColor = _get_claim_state_text()
-    _create_text(parent, "claim_state", 20, 94, 18, stateColor, stateText, 0, 1, "fonts/font4.ttf", "#000000", 1)
+    -- _create_text(parent, "claim_state", 20, 94, 18, stateColor, stateText, 0, 1, "fonts/font4.ttf", "#000000", 1)
 
-    local claimBtn = GUI:Button_Create(parent, "claim_btn", 498, 78, "res/custom/one_city/btn_2.png")
+    local claimBtn = GUI:Button_Create(parent, "claim_btn", 458, 78, "res/wy/public/npc_19_tip_jl.png")
     GUI:setAnchorPoint(claimBtn, 0.5, 0.5)
-    _create_text(claimBtn, "claim_btn_text", 101, 24, 22, "#FFF7E8", "领取奖励", 0.5, 0.5, "fonts/font4.ttf", "#6F3A00", 1)
+    -- _create_text(claimBtn, "claim_btn_text", 101, 24, 22, "#FFF7E8", "领取奖励", 0.5, 0.5, "fonts/font4.ttf", "#6F3A00", 1)
 
     local canClaim = _to_number(data.claimed, 0) < 1
         and myPoints >= minimum
         and (_to_number(data.need_first_charge, 0) ~= 1 or _to_number(data.has_first_charge, 0) == 1)
-    GUI:Button_setBright(claimBtn, canClaim)
+    -- GUI:Button_setBright(claimBtn, canClaim)
     GUI:addOnClickEvent(claimBtn, function()
         if not canClaim then
             if _to_number(data.need_first_charge, 0) == 1 and _to_number(data.has_first_charge, 0) ~= 1 then

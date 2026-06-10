@@ -73,7 +73,7 @@ local config = {
 		sShowName = "野火帮大营",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[8] = { 
 		ID = 8,
@@ -83,7 +83,7 @@ local config = {
 		sShowName = "神秘森林",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[9] = { 
 		ID = 9,
@@ -93,7 +93,7 @@ local config = {
 		sShowName = "乱葬岗",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[10] = { 
 		ID = 10,
@@ -103,7 +103,7 @@ local config = {
 		sShowName = "洞穴深处",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[11] = { 
 		ID = 11,
@@ -113,7 +113,7 @@ local config = {
 		sShowName = "洞穴秘境",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[12] = { 
 		ID = 12,
@@ -123,7 +123,7 @@ local config = {
 		sShowName = "灰界南部",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[13] = { 
 		ID = 13,
@@ -133,7 +133,7 @@ local config = {
 		sShowName = "灰界北部",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[14] = { 
 		ID = 14,
@@ -143,7 +143,7 @@ local config = {
 		sShowName = "灰界东部",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[15] = { 
 		ID = 15,
@@ -153,7 +153,7 @@ local config = {
 		sShowName = "灰界西部",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[16] = { 
 		ID = 16,
@@ -163,7 +163,7 @@ local config = {
 		sShowName = "虚妄山脉",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[17] = { 
 		ID = 17,
@@ -173,7 +173,7 @@ local config = {
 		sShowName = "鬼嘲深渊",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[18] = { 
 		ID = 18,
@@ -183,7 +183,7 @@ local config = {
 		sShowName = "叹息旷野",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[19] = { 
 		ID = 19,
@@ -193,7 +193,7 @@ local config = {
 		sShowName = "禁忌之海",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[20] = { 
 		ID = 20,
@@ -203,7 +203,7 @@ local config = {
 		sShowName = "藏星外海",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[21] = { 
 		ID = 21,
@@ -213,7 +213,7 @@ local config = {
 		sShowName = "藏星内海",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[22] = { 
 		ID = 22,
@@ -223,7 +223,7 @@ local config = {
 		sShowName = "葬星海滩",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[23] = { 
 		ID = 23,
@@ -233,7 +233,7 @@ local config = {
 		sShowName = "神秘岛屿",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[24] = { 
 		ID = 24,
@@ -243,7 +243,7 @@ local config = {
 		sShowName = "千年沉船",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[25] = { 
 		ID = 25,
@@ -253,7 +253,7 @@ local config = {
 		sShowName = "黑暗洞窟",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[26] = { 
 		ID = 26,
@@ -263,7 +263,7 @@ local config = {
 		sShowName = "船长室",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[27] = { 
 		ID = 27,
@@ -273,7 +273,7 @@ local config = {
 		sShowName = "水手舱",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[28] = { 
 		ID = 28,
@@ -283,7 +283,7 @@ local config = {
 		sShowName = "七星岛",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[29] = { 
 		ID = 29,
@@ -293,7 +293,7 @@ local config = {
 		sShowName = "葬星城",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[30] = { 
 		ID = 30,
@@ -303,7 +303,7 @@ local config = {
 		sShowName = "苍云城郊外",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[31] = { 
 		ID = 31,
@@ -313,7 +313,7 @@ local config = {
 		sShowName = "苍云内城",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[32] = { 
 		ID = 32,
@@ -323,7 +323,7 @@ local config = {
 		sShowName = "苍云客栈",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[33] = { 
 		ID = 33,
@@ -333,7 +333,7 @@ local config = {
 		sShowName = "仙草田",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[34] = { 
 		ID = 34,
@@ -343,7 +343,7 @@ local config = {
 		sShowName = "草药古深处",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[35] = { 
 		ID = 35,
@@ -353,7 +353,7 @@ local config = {
 		sShowName = "丹道古藏",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[36] = { 
 		ID = 36,
@@ -363,7 +363,7 @@ local config = {
 		sShowName = "鬼门关",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[37] = { 
 		ID = 37,
@@ -373,7 +373,7 @@ local config = {
 		sShowName = "黄泉路",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[38] = { 
 		ID = 38,
@@ -383,7 +383,7 @@ local config = {
 		sShowName = "奈何桥",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[39] = { 
 		ID = 39,
@@ -393,7 +393,7 @@ local config = {
 		sShowName = "罗酆六天",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[40] = { 
 		ID = 40,
@@ -403,7 +403,7 @@ local config = {
 		sShowName = "十八层地狱",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[41] = { 
 		ID = 41,
@@ -413,7 +413,7 @@ local config = {
 		sShowName = "六道轮回",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[42] = { 
 		ID = 42,
@@ -423,7 +423,7 @@ local config = {
 		sShowName = "东海龙宫",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[43] = { 
 		ID = 43,
@@ -433,7 +433,7 @@ local config = {
 		sShowName = "黑风山",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[44] = { 
 		ID = 44,
@@ -443,7 +443,7 @@ local config = {
 		sShowName = "黄风岭",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[45] = { 
 		ID = 45,
@@ -453,7 +453,7 @@ local config = {
 		sShowName = "女儿国",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[46] = { 
 		ID = 46,
@@ -463,7 +463,7 @@ local config = {
 		sShowName = "火焰山",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[47] = { 
 		ID = 47,
@@ -473,7 +473,7 @@ local config = {
 		sShowName = "通天河",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[48] = { 
 		ID = 48,
@@ -483,7 +483,7 @@ local config = {
 		sShowName = "狮驼岭",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[49] = { 
 		ID = 49,
@@ -493,7 +493,7 @@ local config = {
 		sShowName = "天竺山",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[50] = { 
 		ID = 50,
@@ -503,7 +503,7 @@ local config = {
 		sShowName = "灵域·一层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[51] = { 
 		ID = 51,
@@ -513,7 +513,7 @@ local config = {
 		sShowName = "子鼠灵域",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[52] = { 
 		ID = 52,
@@ -523,7 +523,7 @@ local config = {
 		sShowName = "丑牛灵域",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[53] = { 
 		ID = 53,
@@ -533,7 +533,7 @@ local config = {
 		sShowName = "寅虎灵域",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[54] = { 
 		ID = 54,
@@ -543,7 +543,7 @@ local config = {
 		sShowName = "卯兔灵域",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[55] = { 
 		ID = 55,
@@ -553,7 +553,7 @@ local config = {
 		sShowName = "灵域·二层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[56] = { 
 		ID = 56,
@@ -563,7 +563,7 @@ local config = {
 		sShowName = "辰龙灵域",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[57] = { 
 		ID = 57,
@@ -573,7 +573,7 @@ local config = {
 		sShowName = "巳蛇灵域",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[58] = { 
 		ID = 58,
@@ -583,7 +583,7 @@ local config = {
 		sShowName = "午马灵域",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[59] = { 
 		ID = 59,
@@ -593,7 +593,7 @@ local config = {
 		sShowName = "未羊灵域",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[60] = { 
 		ID = 60,
@@ -603,7 +603,7 @@ local config = {
 		sShowName = "灵域·三层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[61] = { 
 		ID = 61,
@@ -613,7 +613,7 @@ local config = {
 		sShowName = "灵域·秘境",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[62] = { 
 		ID = 62,
@@ -623,7 +623,7 @@ local config = {
 		sShowName = "申猴灵域",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[63] = { 
 		ID = 63,
@@ -633,7 +633,7 @@ local config = {
 		sShowName = "酉鸡灵域",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[64] = { 
 		ID = 64,
@@ -643,7 +643,7 @@ local config = {
 		sShowName = "戌狗灵域",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[65] = { 
 		ID = 65,
@@ -653,7 +653,7 @@ local config = {
 		sShowName = "亥猪灵域",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[66] = { 
 		ID = 66,
@@ -663,7 +663,7 @@ local config = {
 		sShowName = "盘古开天",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[67] = { 
 		ID = 67,
@@ -673,7 +673,7 @@ local config = {
 		sShowName = "羿射九日",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[68] = { 
 		ID = 68,
@@ -683,7 +683,7 @@ local config = {
 		sShowName = "不周山",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[69] = { 
 		ID = 69,
@@ -693,7 +693,7 @@ local config = {
 		sShowName = "黑白无常",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[70] = { 
 		ID = 70,
@@ -703,7 +703,7 @@ local config = {
 		sShowName = "女娲补天",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[71] = { 
 		ID = 71,
@@ -713,7 +713,7 @@ local config = {
 		sShowName = "后土娘娘",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[72] = { 
 		ID = 72,
@@ -723,7 +723,7 @@ local config = {
 		sShowName = "真假玉帝",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[73] = { 
 		ID = 73,
@@ -733,7 +733,7 @@ local config = {
 		sShowName = "白蛇传说",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[74] = { 
 		ID = 74,
@@ -743,7 +743,7 @@ local config = {
 		sShowName = "青龙之境",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[75] = { 
 		ID = 75,
@@ -753,7 +753,7 @@ local config = {
 		sShowName = "朱雀之境",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[76] = { 
 		ID = 76,
@@ -763,7 +763,7 @@ local config = {
 		sShowName = "玄武之境",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[77] = { 
 		ID = 77,
@@ -773,7 +773,7 @@ local config = {
 		sShowName = "白虎之境",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[78] = { 
 		ID = 78,
@@ -783,7 +783,7 @@ local config = {
 		sShowName = "麒麟之境",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[79] = { 
 		ID = 79,
@@ -793,7 +793,7 @@ local config = {
 		sShowName = "倚天江湖",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[80] = { 
 		ID = 80,
@@ -803,7 +803,7 @@ local config = {
 		sShowName = "三国乱世",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[81] = { 
 		ID = 81,
@@ -813,7 +813,7 @@ local config = {
 		sShowName = "水浒再临",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[82] = { 
 		ID = 82,
@@ -823,7 +823,7 @@ local config = {
 		sShowName = "冰火岛",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[83] = { 
 		ID = 83,
@@ -833,7 +833,7 @@ local config = {
 		sShowName = "光明顶",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[84] = { 
 		ID = 84,
@@ -843,7 +843,7 @@ local config = {
 		sShowName = "虎牢关",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[85] = { 
 		ID = 85,
@@ -853,7 +853,7 @@ local config = {
 		sShowName = "赤壁",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[86] = { 
 		ID = 86,
@@ -863,7 +863,7 @@ local config = {
 		sShowName = "景阳冈",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[87] = { 
 		ID = 87,
@@ -873,7 +873,7 @@ local config = {
 		sShowName = "狮子楼",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[88] = { 
 		ID = 88,
@@ -883,7 +883,7 @@ local config = {
 		sShowName = "白骨神庙",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[89] = { 
 		ID = 89,
@@ -893,7 +893,7 @@ local config = {
 		sShowName = "诡冥墨河",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[90] = { 
 		ID = 90,
@@ -903,7 +903,7 @@ local config = {
 		sShowName = "赤焰焚殿",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[91] = { 
 		ID = 91,
@@ -913,7 +913,7 @@ local config = {
 		sShowName = "葬天旧土",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[92] = { 
 		ID = 92,
@@ -923,7 +923,7 @@ local config = {
 		sShowName = "神庙暗廊",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[93] = { 
 		ID = 93,
@@ -933,7 +933,7 @@ local config = {
 		sShowName = "河神寝宫",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[94] = { 
 		ID = 94,
@@ -943,7 +943,7 @@ local config = {
 		sShowName = "赤焰焚殿二层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[95] = { 
 		ID = 95,
@@ -953,7 +953,7 @@ local config = {
 		sShowName = "赤焰焚殿三层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[96] = { 
 		ID = 96,
@@ -963,7 +963,7 @@ local config = {
 		sShowName = "兰若寺",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[97] = { 
 		ID = 97,
@@ -973,7 +973,7 @@ local config = {
 		sShowName = "画壁",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[98] = { 
 		ID = 98,
@@ -983,7 +983,7 @@ local config = {
 		sShowName = "崂山",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[99] = { 
 		ID = 99,
@@ -993,7 +993,7 @@ local config = {
 		sShowName = "罗刹海市",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[100] = { 
 		ID = 100,
@@ -1003,7 +1003,7 @@ local config = {
 		sShowName = "莫高窟",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[101] = { 
 		ID = 101,
@@ -1013,7 +1013,7 @@ local config = {
 		sShowName = "月牙泉",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[102] = { 
 		ID = 102,
@@ -1023,7 +1023,7 @@ local config = {
 		sShowName = "玉门关",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[103] = { 
 		ID = 103,
@@ -1033,7 +1033,7 @@ local config = {
 		sShowName = "阳关道",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[104] = { 
 		ID = 104,
@@ -1043,7 +1043,7 @@ local config = {
 		sShowName = "大地禁墟一层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[105] = { 
 		ID = 105,
@@ -1053,7 +1053,7 @@ local config = {
 		sShowName = "天空禁墟一层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[106] = { 
 		ID = 106,
@@ -1063,7 +1063,7 @@ local config = {
 		sShowName = "海洋禁墟一层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[107] = { 
 		ID = 107,
@@ -1073,7 +1073,7 @@ local config = {
 		sShowName = "青铜禁墟一层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[108] = { 
 		ID = 108,
@@ -1083,7 +1083,7 @@ local config = {
 		sShowName = "大地禁墟二层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[109] = { 
 		ID = 109,
@@ -1093,7 +1093,7 @@ local config = {
 		sShowName = "大地禁墟三层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[110] = { 
 		ID = 110,
@@ -1103,7 +1103,7 @@ local config = {
 		sShowName = "天空禁墟二层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[111] = { 
 		ID = 111,
@@ -1113,7 +1113,7 @@ local config = {
 		sShowName = "天空禁墟三层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[112] = { 
 		ID = 112,
@@ -1123,7 +1123,7 @@ local config = {
 		sShowName = "海洋禁墟二层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[113] = { 
 		ID = 113,
@@ -1133,7 +1133,7 @@ local config = {
 		sShowName = "海洋禁墟三层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[114] = { 
 		ID = 114,
@@ -1143,7 +1143,7 @@ local config = {
 		sShowName = "青铜禁墟二层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[115] = { 
 		ID = 115,
@@ -1153,7 +1153,7 @@ local config = {
 		sShowName = "青铜禁墟三层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[116] = { 
 		ID = 116,
@@ -1163,7 +1163,7 @@ local config = {
 		sShowName = "野火帮",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[117] = { 
 		ID = 117,
@@ -1173,7 +1173,7 @@ local config = {
 		sShowName = "极光城郊",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[118] = { 
 		ID = 118,
@@ -1183,7 +1183,7 @@ local config = {
 		sShowName = "兵道古藏",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[119] = { 
 		ID = 119,
@@ -1193,7 +1193,7 @@ local config = {
 		sShowName = "夜魔洞",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[120] = { 
 		ID = 120,
@@ -1203,7 +1203,7 @@ local config = {
 		sShowName = "夜魔洞",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[121] = { 
 		ID = 121,
@@ -1213,7 +1213,7 @@ local config = {
 		sShowName = "灰界",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[122] = { 
 		ID = 122,
@@ -1223,7 +1223,7 @@ local config = {
 		sShowName = "灰界",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[123] = { 
 		ID = 123,
@@ -1233,7 +1233,7 @@ local config = {
 		sShowName = "灰界",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[124] = { 
 		ID = 124,
@@ -1243,7 +1243,7 @@ local config = {
 		sShowName = "灰界",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[125] = { 
 		ID = 125,
@@ -1253,7 +1253,7 @@ local config = {
 		sShowName = "灰界南部",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[126] = { 
 		ID = 126,
@@ -1263,7 +1263,7 @@ local config = {
 		sShowName = "灰界北部",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[127] = { 
 		ID = 127,
@@ -1273,7 +1273,7 @@ local config = {
 		sShowName = "灰界东部",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[128] = { 
 		ID = 128,
@@ -1283,7 +1283,7 @@ local config = {
 		sShowName = "灰界西部",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[129] = { 
 		ID = 129,
@@ -1293,7 +1293,7 @@ local config = {
 		sShowName = "藏星海",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[130] = { 
 		ID = 130,
@@ -1303,7 +1303,7 @@ local config = {
 		sShowName = "藏星海",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[131] = { 
 		ID = 131,
@@ -1313,7 +1313,7 @@ local config = {
 		sShowName = "藏星海",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[132] = { 
 		ID = 132,
@@ -1323,7 +1323,7 @@ local config = {
 		sShowName = "藏星外海",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[133] = { 
 		ID = 133,
@@ -1333,7 +1333,7 @@ local config = {
 		sShowName = "藏星外海",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[134] = { 
 		ID = 134,
@@ -1343,7 +1343,7 @@ local config = {
 		sShowName = "神秘岛屿",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[135] = { 
 		ID = 135,
@@ -1353,7 +1353,7 @@ local config = {
 		sShowName = "千年沉船",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[136] = { 
 		ID = 136,
@@ -1363,7 +1363,7 @@ local config = {
 		sShowName = "千年沉船",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[137] = { 
 		ID = 137,
@@ -1373,7 +1373,7 @@ local config = {
 		sShowName = "藏星内海",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[138] = { 
 		ID = 138,
@@ -1383,7 +1383,7 @@ local config = {
 		sShowName = "七星岛",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[139] = { 
 		ID = 139,
@@ -1393,7 +1393,7 @@ local config = {
 		sShowName = "苍云城",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[140] = { 
 		ID = 140,
@@ -1403,7 +1403,7 @@ local config = {
 		sShowName = "苍云城郊外",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[141] = { 
 		ID = 141,
@@ -1413,7 +1413,7 @@ local config = {
 		sShowName = "苍云内城",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[142] = { 
 		ID = 142,
@@ -1423,7 +1423,7 @@ local config = {
 		sShowName = "草药谷",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[143] = { 
 		ID = 143,
@@ -1433,7 +1433,7 @@ local config = {
 		sShowName = "草药谷",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[144] = { 
 		ID = 144,
@@ -1443,7 +1443,7 @@ local config = {
 		sShowName = "草药古深处",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[145] = { 
 		ID = 145,
@@ -1453,7 +1453,7 @@ local config = {
 		sShowName = "酆都鬼城",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[146] = { 
 		ID = 146,
@@ -1463,7 +1463,7 @@ local config = {
 		sShowName = "鬼门关",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[147] = { 
 		ID = 147,
@@ -1473,7 +1473,7 @@ local config = {
 		sShowName = "鬼门关",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[148] = { 
 		ID = 148,
@@ -1483,7 +1483,7 @@ local config = {
 		sShowName = "奈何桥",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[149] = { 
 		ID = 149,
@@ -1493,7 +1493,7 @@ local config = {
 		sShowName = "罗酆六天",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[150] = { 
 		ID = 150,
@@ -1503,7 +1503,7 @@ local config = {
 		sShowName = "十八层地狱",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[151] = { 
 		ID = 151,
@@ -1513,7 +1513,7 @@ local config = {
 		sShowName = "大唐·长安城",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[152] = { 
 		ID = 152,
@@ -1523,7 +1523,7 @@ local config = {
 		sShowName = "东海龙宫",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[153] = { 
 		ID = 153,
@@ -1533,7 +1533,7 @@ local config = {
 		sShowName = "黑风山",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[154] = { 
 		ID = 154,
@@ -1543,7 +1543,7 @@ local config = {
 		sShowName = "黄风岭",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[155] = { 
 		ID = 155,
@@ -1553,7 +1553,7 @@ local config = {
 		sShowName = "黄风岭",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[156] = { 
 		ID = 156,
@@ -1563,7 +1563,7 @@ local config = {
 		sShowName = "女儿国",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[157] = { 
 		ID = 157,
@@ -1573,7 +1573,7 @@ local config = {
 		sShowName = "通天河",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[158] = { 
 		ID = 158,
@@ -1583,7 +1583,7 @@ local config = {
 		sShowName = "狮驼岭",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[159] = { 
 		ID = 159,
@@ -1593,7 +1593,7 @@ local config = {
 		sShowName = "生肖灵域",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[160] = { 
 		ID = 160,
@@ -1603,7 +1603,7 @@ local config = {
 		sShowName = "灵域·一层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[161] = { 
 		ID = 161,
@@ -1613,7 +1613,7 @@ local config = {
 		sShowName = "灵域·一层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[162] = { 
 		ID = 162,
@@ -1623,7 +1623,7 @@ local config = {
 		sShowName = "灵域·一层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[163] = { 
 		ID = 163,
@@ -1633,7 +1633,7 @@ local config = {
 		sShowName = "灵域·一层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[164] = { 
 		ID = 164,
@@ -1643,7 +1643,7 @@ local config = {
 		sShowName = "灵域·一层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[165] = { 
 		ID = 165,
@@ -1653,7 +1653,7 @@ local config = {
 		sShowName = "灵域·二层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[166] = { 
 		ID = 166,
@@ -1663,7 +1663,7 @@ local config = {
 		sShowName = "灵域·二层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[167] = { 
 		ID = 167,
@@ -1673,7 +1673,7 @@ local config = {
 		sShowName = "灵域·二层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[168] = { 
 		ID = 168,
@@ -1683,7 +1683,7 @@ local config = {
 		sShowName = "灵域·二层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[169] = { 
 		ID = 169,
@@ -1693,7 +1693,7 @@ local config = {
 		sShowName = "灵域·二层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[170] = { 
 		ID = 170,
@@ -1703,7 +1703,7 @@ local config = {
 		sShowName = "灵域·三层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[171] = { 
 		ID = 171,
@@ -1713,7 +1713,7 @@ local config = {
 		sShowName = "灵域·三层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[172] = { 
 		ID = 172,
@@ -1723,7 +1723,7 @@ local config = {
 		sShowName = "灵域·三层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[173] = { 
 		ID = 173,
@@ -1733,7 +1733,7 @@ local config = {
 		sShowName = "灵域·三层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[174] = { 
 		ID = 174,
@@ -1743,7 +1743,7 @@ local config = {
 		sShowName = "灵域·三层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[175] = { 
 		ID = 175,
@@ -1753,7 +1753,7 @@ local config = {
 		sShowName = "传说之地",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[176] = { 
 		ID = 176,
@@ -1763,7 +1763,7 @@ local config = {
 		sShowName = "盘古开天",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[177] = { 
 		ID = 177,
@@ -1773,7 +1773,7 @@ local config = {
 		sShowName = "羿射九日",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[178] = { 
 		ID = 178,
@@ -1783,7 +1783,7 @@ local config = {
 		sShowName = "羿射九日",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[179] = { 
 		ID = 179,
@@ -1793,7 +1793,7 @@ local config = {
 		sShowName = "不周山",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[180] = { 
 		ID = 180,
@@ -1803,7 +1803,7 @@ local config = {
 		sShowName = "黑白无常",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[181] = { 
 		ID = 181,
@@ -1813,7 +1813,7 @@ local config = {
 		sShowName = "后土娘娘",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[182] = { 
 		ID = 182,
@@ -1823,7 +1823,7 @@ local config = {
 		sShowName = "后土娘娘",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[183] = { 
 		ID = 183,
@@ -1833,7 +1833,7 @@ local config = {
 		sShowName = "灵兽谷",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[184] = { 
 		ID = 184,
@@ -1843,7 +1843,7 @@ local config = {
 		sShowName = "灵兽谷",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[185] = { 
 		ID = 185,
@@ -1853,7 +1853,7 @@ local config = {
 		sShowName = "灵兽谷",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[186] = { 
 		ID = 186,
@@ -1863,7 +1863,7 @@ local config = {
 		sShowName = "灵兽谷",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[187] = { 
 		ID = 187,
@@ -1873,7 +1873,7 @@ local config = {
 		sShowName = "灵兽谷",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[188] = { 
 		ID = 188,
@@ -1883,7 +1883,7 @@ local config = {
 		sShowName = "时空裂隙",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[189] = { 
 		ID = 189,
@@ -1893,7 +1893,7 @@ local config = {
 		sShowName = "时空裂隙",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[190] = { 
 		ID = 190,
@@ -1903,7 +1903,7 @@ local config = {
 		sShowName = "时空裂隙",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[191] = { 
 		ID = 191,
@@ -1913,7 +1913,7 @@ local config = {
 		sShowName = "倚天江湖",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[192] = { 
 		ID = 192,
@@ -1923,7 +1923,7 @@ local config = {
 		sShowName = "冰火岛",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[193] = { 
 		ID = 193,
@@ -1933,7 +1933,7 @@ local config = {
 		sShowName = "三国乱世",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[194] = { 
 		ID = 194,
@@ -1943,7 +1943,7 @@ local config = {
 		sShowName = "虎牢关",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[195] = { 
 		ID = 195,
@@ -1953,7 +1953,7 @@ local config = {
 		sShowName = "水浒再临",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[196] = { 
 		ID = 196,
@@ -1963,7 +1963,7 @@ local config = {
 		sShowName = "景阳冈",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[197] = { 
 		ID = 197,
@@ -1973,7 +1973,7 @@ local config = {
 		sShowName = "生命边界",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[198] = { 
 		ID = 198,
@@ -1983,7 +1983,7 @@ local config = {
 		sShowName = "生命边界",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[199] = { 
 		ID = 199,
@@ -1993,7 +1993,7 @@ local config = {
 		sShowName = "生命边界",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[200] = { 
 		ID = 200,
@@ -2003,7 +2003,7 @@ local config = {
 		sShowName = "生命边界",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[201] = { 
 		ID = 201,
@@ -2013,7 +2013,7 @@ local config = {
 		sShowName = "白骨神庙",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[202] = { 
 		ID = 202,
@@ -2023,7 +2023,7 @@ local config = {
 		sShowName = "诡冥墨河",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[203] = { 
 		ID = 203,
@@ -2033,7 +2033,7 @@ local config = {
 		sShowName = "赤焰焚殿",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[204] = { 
 		ID = 204,
@@ -2043,7 +2043,7 @@ local config = {
 		sShowName = "赤焰焚殿二层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[205] = { 
 		ID = 205,
@@ -2053,7 +2053,7 @@ local config = {
 		sShowName = "聊斋志异",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[206] = { 
 		ID = 206,
@@ -2063,7 +2063,7 @@ local config = {
 		sShowName = "兰若寺",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[207] = { 
 		ID = 207,
@@ -2073,7 +2073,7 @@ local config = {
 		sShowName = "画壁",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[208] = { 
 		ID = 208,
@@ -2083,7 +2083,7 @@ local config = {
 		sShowName = "崂山",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[209] = { 
 		ID = 209,
@@ -2093,7 +2093,7 @@ local config = {
 		sShowName = "敦煌遗梦",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[210] = { 
 		ID = 210,
@@ -2103,7 +2103,7 @@ local config = {
 		sShowName = "莫高窟",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[211] = { 
 		ID = 211,
@@ -2113,7 +2113,7 @@ local config = {
 		sShowName = "月牙泉",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[212] = { 
 		ID = 212,
@@ -2123,7 +2123,7 @@ local config = {
 		sShowName = "玉门关",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[213] = { 
 		ID = 213,
@@ -2133,7 +2133,7 @@ local config = {
 		sShowName = "世界禁墟",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[214] = { 
 		ID = 214,
@@ -2143,7 +2143,7 @@ local config = {
 		sShowName = "世界禁墟",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[215] = { 
 		ID = 215,
@@ -2153,7 +2153,7 @@ local config = {
 		sShowName = "世界禁墟",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[216] = { 
 		ID = 216,
@@ -2163,7 +2163,7 @@ local config = {
 		sShowName = "世界禁墟",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[217] = { 
 		ID = 217,
@@ -2173,7 +2173,7 @@ local config = {
 		sShowName = "大地禁墟一层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[218] = { 
 		ID = 218,
@@ -2183,7 +2183,7 @@ local config = {
 		sShowName = "大地禁墟二层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[219] = { 
 		ID = 219,
@@ -2193,7 +2193,7 @@ local config = {
 		sShowName = "天空禁墟一层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[220] = { 
 		ID = 220,
@@ -2203,7 +2203,7 @@ local config = {
 		sShowName = "天空禁墟二层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[221] = { 
 		ID = 221,
@@ -2213,7 +2213,7 @@ local config = {
 		sShowName = "海洋禁墟一层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[222] = { 
 		ID = 222,
@@ -2223,7 +2223,7 @@ local config = {
 		sShowName = "海洋禁墟二层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[223] = { 
 		ID = 223,
@@ -2233,7 +2233,7 @@ local config = {
 		sShowName = "青铜禁墟一层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[224] = { 
 		ID = 224,
@@ -2243,7 +2243,7 @@ local config = {
 		sShowName = "青铜禁墟二层",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "icon_xdtzy_01.png",
 	},
 	[227] = { 
 		ID = 227,
@@ -3063,7 +3063,7 @@ local config = {
 		sShowName = "苍云[秘境]",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "333.png",
 	},
 	[311] = { 
 		ID = 311,
@@ -3073,7 +3073,7 @@ local config = {
 		sShowName = "若水[秘境]",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "333.png",
 	},
 	[312] = { 
 		ID = 312,
@@ -3083,7 +3083,7 @@ local config = {
 		sShowName = "红尘[秘境]",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "333.png",
 	},
 	[313] = { 
 		ID = 313,
@@ -3093,7 +3093,7 @@ local config = {
 		sShowName = "灵虚[秘境]",
 		nColor = 168,
 		bOutLine = 1,
-		sImgPath = "1900012106.png",
+		sImgPath = "333.png",
 	},
 }
 return config

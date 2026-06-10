@@ -92,16 +92,56 @@ local function _get_baby_choice()
     return tonumber(data.baby_choice or 0) or 0
 end
 
+local function _refresh_top_shortcut()
+    local topNpc = Npclib and Npclib["anniu"]
+    if not topNpc then
+        return
+    end
+    if topNpc.removeShortcutByNpcId then
+        topNpc.removeShortcutByNpcId(64)
+        return
+    end
+    topNpc._shortcut_render_signature = nil
+    if topNpc.db_anniu and topNpc.db_anniu["64"] then
+        pcall(function()
+            GUI:removeFromParent(topNpc.db_anniu["64"])
+        end)
+        topNpc.db_anniu["64"] = nil
+    end
+    if topNpc.db_shortcut_entries then
+        for i = #topNpc.db_shortcut_entries, 1, -1 do
+            local entry = topNpc.db_shortcut_entries[i]
+            if tonumber(entry and entry.cfg and entry.cfg[3] or 0) == 64 then
+                pcall(function()
+                    GUI:removeFromParent(entry.button)
+                end)
+                table.remove(topNpc.db_shortcut_entries, i)
+            end
+        end
+    end
+    if topNpc[1] then
+        SL:ScheduleOnce(function()
+            topNpc[1](0, 1, "")
+        end, 0)
+    end
+end
+
 local function _sync_shortcut_pet_data()
     local data = npc.ls_data and npc.ls_data.T_data
     if type(data) ~= "table" then
         return
     end
     rawset(_G, "NPC64_LAST_T_DATA", data)
-    if Npclib and Npclib["anniu"] and Npclib["anniu"][1] then
-        SL:ScheduleOnce(function()
-            Npclib["anniu"][1](0, 1, "")
-        end, 0)
+    if (tonumber(data.dqzh or 0) or 0) > 0 then
+        rawset(_G, "NPC64_HIDE_CONTRACT_SHORTCUT", true)
+        _refresh_top_shortcut()
+    else
+        rawset(_G, "NPC64_HIDE_CONTRACT_SHORTCUT", nil)
+        if Npclib and Npclib["anniu"] and Npclib["anniu"][1] then
+            SL:ScheduleOnce(function()
+                Npclib["anniu"][1](0, 1, "")
+            end, 0)
+        end
     end
 end
 
@@ -129,16 +169,16 @@ function npc.main(npcid, p2, p3, msgData)
             -- GUI:Image_Create(localNode, "wz3", 490, 380 - 140, "res/custom/four_city/lingshou/xjm/tip_4.png")
 
             
-            GUI:Text_setFontName(GUI:Text_Create(localNode, "b_skill",500,360, 18, "#FFFFFF", npc._config.config.ls[npc.titles_sign].b_skill)
-            , "fonts/500.ttf")
-            local s_skill = GUI:Text_Create(localNode, "s_skill",500,360 - 45, 18, "#FFFFFF", npc._config.config.ls[npc.titles_sign].s_skill)
-            GUI:Text_setFontName(s_skill, "fonts/500.ttf")
+            GUI:Text_setFontName(GUI:Text_Create(localNode, "b_skill",500,360 - 5, 18, "#FFFFFF", npc._config.config.ls[npc.titles_sign].b_skill)
+            , "fonts/font4.ttf")
+            local s_skill = GUI:Text_Create(localNode, "s_skill",500,360 - 45 - 5, 18, "#FFFFFF", npc._config.config.ls[npc.titles_sign].s_skill)
+            GUI:Text_setFontName(s_skill, "fonts/font4.ttf")
             GUI:setAnchorPoint(s_skill,0, 1)
 
 
             if npc.ls_data.T_data.ls[""..npc.titles_sign] >= npc._config.config.wy.max_level then
-        GUI:Text_setFontName(GUI:Text_Create(localNode, "tip_max",490, 170, 30, "#FF0000", "已达最高等级亲密度")
-                    , "fonts/500.ttf")
+                GUI:Text_setFontName(GUI:Text_Create(localNode, "tip_max",490, 170, 30, "#FF0000", "已达最高等级亲密度")
+                , "fonts/font4.ttf")
                 return
             end
             GUI:Image_Create(localNode, "cost_img", 490, 170, "res/custom/four_city/lingshou/xjm/cost.png")
@@ -157,19 +197,19 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:Image_Create(localNode, "wz1", 490, 380, "res/custom/four_city/lingshou/xjm/tip_2.png")
             GUI:Image_Create(localNode, "wz2", 490, 380 - 100, "res/custom/four_city/lingshou/xjm/tip_3.png")
 
-            GUI:Text_setFontName(GUI:Text_Create(localNode, "attr_give_wz",500,360, 18, "#FFFFFF", npc._config.config.ls[npc.titles_sign].attr_give_wz)
-            , "fonts/500.ttf")
-            GUI:Text_setFontName(GUI:Text_Create(localNode, "attr_wz",500,360 - 100, 18, "#FFFFFF", npc._config.config.ls[npc.titles_sign].attr_wz)
-            , "fonts/500.ttf")
+            GUI:Text_setFontName(GUI:Text_Create(localNode, "attr_give_wz",500,360 - 40, 18, "#FFFFFF", npc._config.config.ls[npc.titles_sign].attr_give_wz)
+            , "fonts/font4.ttf")
+            GUI:Text_setFontName(GUI:Text_Create(localNode, "attr_wz",500,360 - 100 - 40, 18, "#FFFFFF", npc._config.config.ls[npc.titles_sign].attr_wz)
+            , "fonts/font4.ttf")
 
             local attr = deepCopy(npc._config.config.wy.det[npc.ls_data.T_data.ls[""..npc.titles_sign] or 1].attr)
-            for v,k in pairs(attr) do
-                local kuang = GUI:Image_Create(localNode, "kuang"..v, 500, 360 - (v-1)*20 - 30, "res/custom/tianshu/qh/tip.png")
-                -- k[2] = k[2] * npc.data.T_data.level[""..npc.current_idx]
-                GUI:RichText_Create(kuang, "attr_desc", 20, 0, Player:showAttr({{k[1],k[2]}}), 200, 17, "#f7f7de", 3,nil,nil)
-                GUI:Image_Create(kuang, "jt", 150, 0, "res/custom/tianshu/qh/jt.png")
-                GUI:Text_Create(kuang, "old_attr_v",200,3, 17, "#00FFFF", (npc.ls_data.T_data.ls[""..npc.titles_sign] < npc._config.config.wy.max_level) and (npc._config.config.wy.det[(npc.ls_data.T_data.ls[""..npc.titles_sign] or 1) + 1].attr[v][2]) .. "(下一等级亲密度)" or "已满级")
-            end
+            -- for v,k in pairs(attr) do
+            --     local kuang = GUI:Image_Create(localNode, "kuang"..v, 500, 360 - (v-1)*20 - 30, "res/custom/tianshu/qh/tip.png")
+            --     -- k[2] = k[2] * npc.data.T_data.level[""..npc.current_idx]
+            --     GUI:RichText_Create(kuang, "attr_desc", 20, 0, Player:showAttr({{k[1],k[2]}}), 200, 17, "#f7f7de", 3,nil,nil)
+            --     GUI:Image_Create(kuang, "jt", 150, 0, "res/custom/tianshu/qh/jt.png")
+            --     GUI:Text_Create(kuang, "old_attr_v",200,3, 17, "#00FFFF", (npc.ls_data.T_data.ls[""..npc.titles_sign] < npc._config.config.wy.max_level) and (npc._config.config.wy.det[(npc.ls_data.T_data.ls[""..npc.titles_sign] or 1) + 1].attr[v][2]) .. "(下一等级亲密度)" or "已满级")
+            -- end
 
         end
     end
@@ -206,7 +246,6 @@ function npc.main(npcid, p2, p3, msgData)
 
         GUI:addOnClickEvent(Button, function()
             npc.ls_data.T_data.dqzh = npc.titles_sign
-            _sync_shortcut_pet_data()
             SL:SendLuaNetMsg(100, npcid, 2, 0, SL:JsonEncode({idx = npc.titles_sign}, false))
         end)
         local sywName = npc._config.config.ls[npc.titles_sign] and npc._config.config.ls[npc.titles_sign].syw
@@ -298,7 +337,7 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:setTouchEnabled(petImg, false)
         local name = GUI:Text_Create(node, "pet_name", 290, 430, 28, "#F7DE91", petCfg.name or "")
         GUI:setAnchorPoint(name, 0.5, 0.5)
-        GUI:Text_setFontName(name, "fonts/500.ttf")
+        --GUI:Text_setFontName(name, "fonts/font4.ttf")
         GUI:Text_enableOutline(name, "#000000", 1)
 
         -- local statusNode = GUI:Text_Create(node, "status", 290, 388, 20, color, status)
@@ -318,17 +357,17 @@ function npc.main(npcid, p2, p3, msgData)
             if previewPage == 1 then
                 GUI:Image_Create(infoNode, "wz1", 490, 380, "res/custom/four_city/lingshou/xjm/tip_1.png")
                 GUI:Image_Create(infoNode, "wz2", 490, 380 - 70, "res/custom/four_city/lingshou/xjm/tip_5.png")
-                GUI:Text_setFontName(GUI:Text_Create(infoNode, "b_skill", 500, 360, 18, "#FFFFFF", tostring(petCfg.b_skill or "")), "fonts/500.ttf")
+                GUI:Text_setFontName(GUI:Text_Create(infoNode, "b_skill", 500, 360, 18, "#FFFFFF", tostring(petCfg.b_skill or "")), "fonts/font4.ttf")
                 local sSkill = GUI:Text_Create(infoNode, "s_skill", 500, 360 - 45, 18, "#FFFFFF", tostring(petCfg.s_skill or ""))
-                GUI:Text_setFontName(sSkill, "fonts/500.ttf")
+                GUI:Text_setFontName(sSkill, "fonts/font4.ttf")
                 GUI:setAnchorPoint(sSkill, 0, 1)
             else
                 GUI:Image_Create(infoNode, "wz1", 490, 380, "res/custom/four_city/lingshou/xjm/tip_2.png")
                 GUI:Image_Create(infoNode, "wz2", 490, 380 - 100, "res/custom/four_city/lingshou/xjm/tip_3.png")
                 local attrGiveWz = GUI:Text_Create(infoNode, "attr_give_wz", 500, 360 + 15, 18, "#FFFFFF", tostring(petCfg.attr_give_wz or ""))
                 local attrWz = GUI:Text_Create(infoNode, "attr_wz", 500, 360 - 100 + 15, 18, "#FFFFFF", tostring(petCfg.attr_wz or ""))
-                GUI:Text_setFontName(attrGiveWz, "fonts/500.ttf")
-                GUI:Text_setFontName(attrWz, "fonts/500.ttf")
+                GUI:Text_setFontName(attrGiveWz, "fonts/font4.ttf")
+                GUI:Text_setFontName(attrWz, "fonts/font4.ttf")
                 GUI:setAnchorPoint(attrGiveWz, 0, 1)
                 GUI:setAnchorPoint(attrWz, 0, 1)
             end
@@ -350,12 +389,12 @@ function npc.main(npcid, p2, p3, msgData)
 
         local quickHatchTip = GUI:Text_Create(node, "quick_hatch_tip", 695, 118, 18, "#F7DE91", "真实累计充值达到99元 可以立即孵化")
         GUI:setAnchorPoint(quickHatchTip, 0.5, 0.5)
-        GUI:Text_setFontName(quickHatchTip, "fonts/500.ttf")
+        GUI:Text_setFontName(quickHatchTip, "fonts/font4.ttf")
         GUI:Text_enableOutline(quickHatchTip, "#000000", 1)
 
         local backBtn = GUI:Button_Create(node, "back_btn", 500 + 100, 70 + 95, "res/custom/four_city/lingshou/xjm/an7.png")
         GUI:Button_setTitleText(backBtn, opts.fromList and "返回选择" or "关闭")
-        GUI:Button_setTitleFontName(backBtn, "fonts/500.ttf")
+        GUI:Button_setTitleFontName(backBtn, "fonts/font4.ttf")
         GUI:Button_setTitleFontSize(backBtn, 20)
         GUI:Button_setTitleColor(backBtn, "#FF0000")
         GUI:addOnClickEvent(backBtn, function()
@@ -371,7 +410,7 @@ function npc.main(npcid, p2, p3, msgData)
         local claimBtn = GUI:Button_Create(node, "claim_btn", 690 + 100, 70 + 95, canDeploy and "res/custom/four_city/lingshou/xjm/btn_cz.png" or "res/custom/four_city/lingshou/xjm/an7.png")
         if not canDeploy then
             GUI:Button_setTitleText(claimBtn, canClaim and "领取幼崽" or status)
-            GUI:Button_setTitleFontName(claimBtn, "fonts/500.ttf")
+            GUI:Button_setTitleFontName(claimBtn, "fonts/font4.ttf")
             GUI:Button_setTitleFontSize(claimBtn, 20)
             GUI:Button_setTitleColor(claimBtn, "#00FF00")
             GUI:setTouchEnabled(claimBtn, canClaim)
@@ -381,7 +420,6 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:addOnClickEvent(claimBtn, function()
                 if npc.ls_data and npc.ls_data.T_data then
                     npc.ls_data.T_data.dqzh = idx
-                    _sync_shortcut_pet_data()
                 end
                 SL:SendLuaNetMsg(100, npcid, 2, 0, SL:JsonEncode({idx = idx}, false))
             end)
@@ -431,7 +469,7 @@ function npc.main(npcid, p2, p3, msgData)
 
         -- local title = GUI:Text_Create(node, "title", 499 + 200, 480, 26, "#F7DE91", "选择一只灵兽幼崽")
         -- GUI:setAnchorPoint(title, 0.5, 0.5)
-        -- GUI:Text_setFontName(title, "fonts/500.ttf")
+        -- GUI:Text_setFontName(title, "fonts/font4.ttf")
         -- GUI:Text_enableOutline(title, "#000000", 1)
 
         -- local desc = GUI:Text_Create(node, "desc", 499, 420, 18, "#FFFFFF", "每个角色只能领取一次幼崽，请确认后再选择。")
@@ -462,7 +500,7 @@ function npc.main(npcid, p2, p3, msgData)
             local label = npc._config.config.ls[i] and npc._config.config.ls[i].name or LINGSHOU_BABY_ITEMS[i]
             local nameText = GUI:Text_Create(lay, "name_" .. i, 70, 0, 24, "#FFFFFF", label)
             GUI:setAnchorPoint(nameText, 0.5, 0.5)
-            GUI:Text_setFontName(nameText, "fonts/500.ttf")
+            GUI:Text_setFontName(nameText, "fonts/font4.ttf")
             GUI:Text_enableOutline(nameText, "#000000", 1)
 
             -- local status, color, canClaim = _baby_state(i, data, now, babyChoice)
@@ -561,6 +599,20 @@ function npc.main(npcid, p2, p3, msgData)
         npc.ls_data = SL:JsonDecode(msgData,false)
         _sync_shortcut_pet_data()
         UI_updata(npc.node)
+    elseif p2 == 2 then
+        npc.ls_data = SL:JsonDecode(msgData,false)
+        _sync_shortcut_pet_data()
+        if npc.node then
+            UI_updata(npc.node)
+        end
+        if npc.contract_window then
+            NPC_UI_HELPER.closeWindow(npc.contract_window)
+            npc.contract_window = nil
+        end
+        if npc.baby_preview_window then
+            NPC_UI_HELPER.closeWindow(npc.baby_preview_window)
+            npc.baby_preview_window = nil
+        end
     elseif p2 == 3 then
         npc.ls_data = SL:JsonDecode(msgData,false)
         _sync_shortcut_pet_data()

@@ -8,9 +8,9 @@ local function _add_reward_item_effect(parent, name, x, y, scale, effectId)
     end
     local effect = GUI:Effect_Create(parent, name or "reward_item_eff", x or 0, y or 0, 0, effectId or REWARD_ITEM_EFFECT_14193, 0, 0, 0, 1)
     GUI:setScale(effect, scale or 1)
-    -- if effect then
-    --     GUI:setLocalZOrder(effect, 999)
-    -- end
+    if effect then
+        GUI:setLocalZOrder(effect, -1)
+    end
     return effect
 end
 local function _add_reward_effect_for_table(node, effectName, x, y, scale, effectId)
@@ -365,6 +365,10 @@ local function ensureWindow(name, npcid, extraOpts)
     windowCache[name] = NPC_UI_HELPER.ensureWindow(windowCache[name], npcid or 0, opts)
     return windowCache[name]
 end
+local function closeActivityWindow()
+    NPC_UI_HELPER.closeWindow(windowCache.activity)
+    windowCache.activity = nil
+end
 local function openFirstChargeWelfareConfirm()
     SL:OpenCommonTipsPop({
         str = "你可以领取全部的限时福利了！无需等待！是否立即领取？",
@@ -451,12 +455,12 @@ local function _shortcut_has_title(titleName)
     return false
 end
 local function _shortcut_get_server_json(varName)
+    if varName == "T50" and type(rawget(_G, "NPC64_LAST_T_DATA")) == "table" then
+        return rawget(_G, "NPC64_LAST_T_DATA")
+    end
     if not Player or not Player.getServerVar or not Player.JsonToTbl then
         return {
         }
-    end
-    if varName == "T50" and type(rawget(_G, "NPC64_LAST_T_DATA")) == "table" then
-        return rawget(_G, "NPC64_LAST_T_DATA")
     end
     local raw = Player:getServerVar(varName)
     if not raw or raw == "" then
@@ -730,13 +734,26 @@ local function _shortcut_has_reached_xyl_task(taskName)
     end
     return _shortcut_is_current_xyl_task(taskName)
 end
+local function _shortcut_get_mainline_rwid()
+    local rwid = tonumber(cogin and cogin.sjtb and (cogin.sjtb.zxrwid or cogin.sjtb.rwid) or 0) or 0
+    if rwid <= 0 and Player and type(Player.getServerVar) == "function" then
+        rwid = tonumber(Player:getServerVar("U11") or 0) or 0
+    end
+    return rwid
+end
 local function _shortcut_should_show_pet_contract()
+    if rawget(_G, "NPC64_HIDE_CONTRACT_SHORTCUT") == true then
+        return false
+    end
     local data = _shortcut_get_server_json("T50")
     local battlePet = tonumber(data.dqzh or 0) or 0
     if battlePet > 0 then
         return false
     end
-    return (tonumber(data.baby_choice or 0) or 0) > 0 or _shortcut_has_reached_xyl_task("灵兽孵化")
+    if _shortcut_get_mainline_rwid() >= 28 then
+        return true
+    end
+    return _shortcut_has_reached_xyl_task("灵兽孵化")
 end
 local function _huti_get_card_states()
     local result = {
@@ -934,6 +951,15 @@ local function _build_shortcut_render_signature()
         for _, cfg in ipairs(row or {
         }) do
             if _shortcut_should_show(cfg) then
+                local extraState = ""
+                if tonumber(cfg[3] or 0) == 64 then
+                    local petData = _shortcut_get_server_json("T50")
+                    extraState = table.concat({
+                        tostring(_shortcut_get_mainline_rwid()),
+                        tostring(petData.dqzh or 0),
+                        tostring(petData.baby_choice or 0),
+                    }, ",")
+                end
                 count = count + 1
                 parts[#parts + 1] = table.concat({
                     rowIndex,
@@ -942,6 +968,7 @@ local function _build_shortcut_render_signature()
                     tostring(cfg[3] or ""),
                     tostring(cfg[4] or ""),
                     _shortcut_should_show_persistent_redpoint(cfg) and "1" or "0",
+                    extraState,
                 }, ":")
             end
         end
@@ -988,6 +1015,49 @@ local function rebuildShortcutButtons(filterKey)
     renderRow(npc.iconpx[2], -10, "anniu_2")
     npc._shortcut_render_signature = signature
     _refresh_shortcut_collapsed_state(false)
+end
+npc.removeShortcutByNpcId = function(npcid)
+    npcid = tonumber(npcid)
+    if not npcid then
+        return
+    end
+    if npc.db_anniu then
+        for key, button in pairs(npc.db_anniu) do
+            local matched = false
+            for _, row in ipairs(npc.iconpx or {}) do
+                for _, cfg in ipairs(row or {}) do
+                    if tostring(cfg and cfg[4] or "") == tostring(key) and tonumber(cfg and cfg[3] or 0) == npcid then
+                        matched = true
+                        break
+                    end
+                end
+                if matched then
+                    break
+                end
+            end
+            if matched then
+                pcall(function()
+                    GUI:removeFromParent(button)
+                end)
+                npc.db_anniu[key] = nil
+            end
+        end
+    end
+    if npc.db_shortcut_entries then
+        for i = #npc.db_shortcut_entries, 1, -1 do
+            local entry = npc.db_shortcut_entries[i]
+            if tonumber(entry and entry.cfg and entry.cfg[3] or 0) == npcid then
+                pcall(function()
+                    GUI:removeFromParent(entry.button)
+                end)
+                table.remove(npc.db_shortcut_entries, i)
+            end
+        end
+    end
+    npc._shortcut_render_signature = nil
+    if npc.dbLayout then
+        rebuildShortcutButtons("")
+    end
 end
 -- 按 NPCID 从顶部快捷栏缓存中查找按钮，用于异闻录任务引导直接指向顶部入口。
 local function findShortcutButtonByNpcId(npcid)
@@ -1141,6 +1211,18 @@ local function openRoleGuide()
         })
     end
 end
+local function openNpcPanelForGuide(npcid)
+    npcid = tonumber(npcid) or 0
+    if npcid <= 0 then
+        return
+    end
+    SL:SendLuaNetMsg(105, npcid, npcid, 0, "")
+end
+local MAINLINE_PANEL_GUIDE = {
+    [17] = 24, -- 天书强化
+    [18] = 24, -- 天书仙法
+    [26] = 43, -- 江湖称号升级
+}
 local guideDispatch = {
     [1] = function(data)
         startGuideOnButton(data)
@@ -1162,12 +1244,22 @@ local guideDispatch = {
         end, 0.2)
     end,
     [3] = function(data)
-        openClientBagForGuide()
         if data.rwid then
             cogin.sjtb.zxrwid = data.rwid
             cogin.sjtb.rwid = math.max(tonumber(cogin.sjtb.rwid) or 0, tonumber(data.rwid) or 0)
             rebuildShortcutButtons("")
         end
+        local rwid = tonumber(data and data.rwid) or 0
+        if rwid == 22 or rwid == 32 then
+            openRoleGuide()
+            return
+        end
+        local npcid = MAINLINE_PANEL_GUIDE[rwid]
+        if npcid then
+            openNpcPanelForGuide(npcid)
+            return
+        end
+        openClientBagForGuide()
     end,
     [4] = function(data)
         SL:ScheduleOnce(function()
@@ -2479,15 +2571,18 @@ npc[11] = function(p2, p3, Data)
         end
         return name == "灰界开篇" or name == "仙府功能"
     end
-    local function _ywl_append_reward_entries(outList, rewardList, seenMap)
+    local function _ywl_append_reward_entries(outList, rewardList, seenMap, continent)
         if type(rewardList) ~= "table" then
             return
         end
+        local skipJqd = (tonumber(continent or 0) or 0) >= 3
         for _, entry in ipairs(rewardList) do
             if type(entry) == "table" and entry[1] ~= nil and entry[2] ~= nil then
                 local key = tostring(entry[1])
                 local count = tonumber(entry[2]) or 0
-                if key ~= "" and count > 0 then
+                if skipJqd and key == "剧情点" then
+                    -- 三大陆及之后伏妖录不再展示剧情点奖励。
+                elseif key ~= "" and count > 0 then
                     local pos = seenMap[key]
                     if pos then
                         outList[pos][2] = (tonumber(outList[pos][2]) or 0) + count
@@ -2501,6 +2596,21 @@ npc[11] = function(p2, p3, Data)
                 end
             end
         end
+    end
+    local function _ywl_filter_reward_entries(rewardList, continent)
+        if type(rewardList) ~= "table" then
+            return rewardList
+        end
+        if (tonumber(continent or 0) or 0) < 3 then
+            return rewardList
+        end
+        local out = {}
+        for _, entry in ipairs(rewardList) do
+            if not (type(entry) == "table" and tostring(entry[1] or "") == "剧情点") then
+                out[#out + 1] = entry
+            end
+        end
+        return out
     end
     local function _ywl_normalize_title_reward_name(titleName)
         if type(titleName) ~= "string" then
@@ -2569,7 +2679,7 @@ npc[11] = function(p2, p3, Data)
         end
         return result
     end
-    local function _ywl_collect_task_rewards(task)
+    local function _ywl_collect_task_rewards(task, continent)
         if type(task) ~= "table" then
             return {
             }
@@ -2578,9 +2688,9 @@ npc[11] = function(p2, p3, Data)
         }
         local seenMap = {
         }
-        _ywl_append_reward_entries(rewardList, task.jl, seenMap)
-        _ywl_append_reward_entries(rewardList, task.rwjl, seenMap)
-        _ywl_append_reward_entries(rewardList, task.give, seenMap)
+        _ywl_append_reward_entries(rewardList, task.jl, seenMap, continent)
+        _ywl_append_reward_entries(rewardList, task.rwjl, seenMap, continent)
+        _ywl_append_reward_entries(rewardList, task.give, seenMap, continent)
         _ywl_append_title_reward(rewardList, task.ch, seenMap)
         local handledNpcIds = {
         }
@@ -2592,9 +2702,9 @@ npc[11] = function(p2, p3, Data)
             handledNpcIds[npcId] = true
             local cfg = teshudata and teshudata["npc_" .. tostring(npcId)]
             if type(cfg) == "table" then
-                _ywl_append_reward_entries(rewardList, cfg.rwjl, seenMap)
-                _ywl_append_reward_entries(rewardList, cfg.jl, seenMap)
-                _ywl_append_reward_entries(rewardList, cfg.give, seenMap)
+                _ywl_append_reward_entries(rewardList, cfg.rwjl, seenMap, continent)
+                _ywl_append_reward_entries(rewardList, cfg.jl, seenMap, continent)
+                _ywl_append_reward_entries(rewardList, cfg.give, seenMap, continent)
                 _ywl_append_title_reward(rewardList, cfg.ch, seenMap)
             end
         end
@@ -2935,7 +3045,7 @@ npc[11] = function(p2, p3, Data)
                         end
                         local taskTitle = task[1] or task.title or "任务"
                         local taskDesc = _ywl_build_task_desc(task)
-                        local rewardData = _ywl_collect_task_rewards(task)
+                        local rewardData = _ywl_collect_task_rewards(task, npc.l)
                         local size = GUI:getContentSize(img)
                         local imgPos = GUI:getPosition(img)
                         local coverWidth = size.width - 50
@@ -3064,8 +3174,9 @@ npc[11] = function(p2, p3, Data)
                 end
                 _relayout_task_cards(false)
                 GUI:Image_Create(node, "wz1", 340, 100, 'res/custom/ywl/wz.png')
-                if zjCfg.jl and not _ywl_is_auto_chapter_continent(npc.l) then
-                    local rewardNode = ItemNumByTable_img(zjCfg.jl, nil, node)
+                local chapterReward = _ywl_filter_reward_entries(zjCfg.jl, npc.l)
+                if chapterReward and #chapterReward > 0 and not _ywl_is_auto_chapter_continent(npc.l) then
+                    local rewardNode = ItemNumByTable_img(chapterReward, nil, node)
                     GUI:setPosition(rewardNode, 560, 40)
                     _add_reward_effect_for_table(rewardNode, "ywl_chapter_reward_eff", 25, 25, 0.9, REWARD_ITEM_EFFECT_14193)
                 end
@@ -3098,59 +3209,63 @@ npc[11] = function(p2, p3, Data)
                 end
                 _ywl_try_start_chapter_reward_guide(node, false)
             end
-            local TMONEY = GUI:Text_Create(node, "TMONEY", 50 + 278, 40 + 9, 25, "#FF0000", SL:GetMetaValue("TMONEY", "剧情点"))
-            SL:release_print("当前剧情点", SL:GetMetaValue("TMONEY", "剧情点"))
-            GUI:Text_setFontName(TMONEY, "fonts/font4.ttf")
-            GUI:setAnchorPoint(TMONEY, 0.5, 0.5)
+            if (tonumber(npc.l) or 0) < 3 then
+                local TMONEY = GUI:Text_Create(node, "TMONEY", 50 + 278, 40 + 9, 25, "#FF0000", SL:GetMetaValue("TMONEY", "剧情点"))
+                SL:release_print("当前剧情点", SL:GetMetaValue("TMONEY", "剧情点"))
+                GUI:Text_setFontName(TMONEY, "fonts/font4.ttf")
+                GUI:setAnchorPoint(TMONEY, 0.5, 0.5)
+            end
         end
         local function renderChapterList()
             GUI:removeAllChildren(chapterList)
             for i = 2, #npc.xyl do
-                local btn = GUI:Button_Create(chapterList, "chap_" .. i, 0, 0, 'res/custom/ywl/list/dl_' .. i .. '.png')
-                GUI:addOnClickEvent(btn, function()
-                    if i == 3 then
-                        if not _ywl_has_third_continent_half_entry() then
-                            NPC_UI_HELPER.guochang_3()
-                            return
-                        end
-                    elseif dl_sz and not dl_sz(i) then
-                        SL:ShowSystemTips("<font color='#FF0000'>还未解锁该大章节</font>")
-                        return
-                    end
-                    npc.l = i
-                    npc.zj = 1
-                    renderChapterList()
-                    renderTasks(npc.node_11)
-                end)
-                if i == npc.l then
-                    for y = 1, #npc.xyl[npc.l] do
-                        local x_chap = GUI:Layout_Create(chapterList, "x_chap_" .. y, 0, 0, 84, 40, false)
-                        local x_btn = GUI:Button_Create(x_chap, "x_chap", 84 / 2, 40 / 2, 'res/custom/ywl/list/xz.png')
-                        GUI:setAnchorPoint(x_btn, 0.5, 0.5)
-                        local zj_name = GUI:Text_Create(x_chap, "wz", 84 / 2, 40 / 2, 23, "#FFFFFF", npc.xyl[npc.l][y].name)
-                        GUI:Text_setFontName(zj_name, "fonts/font4.ttf")
-                        GUI:Text_enableOutline(zj_name, "#000000", 2)
-                        GUI:setAnchorPoint(zj_name, 0.5, 0.5)
-                        GUI:addOnClickEvent(x_btn, function()
-                            if npc.l == 3 and not _ywl_is_third_continent_half_chapter(npc.xyl[npc.l][y].name) then
-                                if not _ywl_has_third_continent_full_entry() then
-                                    SL:ShowSystemTips("<font color='#FF0000'>需要完成灾厄入侵后才能进入该章节</font>")
-                                    return
-                                end
-                            end
-                            local curJqd = tonumber(SL:GetMetaValue("TMONEY", "剧情点")) or 0
-                            local lockInfo = npc.xyl and npc.xyl.get_chapter_lock_info and npc.xyl.get_chapter_lock_info(npc.l, y, curJqd) or nil
-                            if lockInfo and lockInfo.locked then
-                                SL:ShowSystemTips(string.format("<font color='#FF0000'>%s</font>", tostring(lockInfo.tip or "章节未解锁")))
+                if type(npc.xyl[i]) == "table" and #npc.xyl[i] > 0 then
+                    local btn = GUI:Button_Create(chapterList, "chap_" .. i, 0, 0, 'res/custom/ywl/list/dl_' .. i .. '.png')
+                    GUI:addOnClickEvent(btn, function()
+                        if i == 3 then
+                            if not _ywl_has_third_continent_half_entry() then
+                                NPC_UI_HELPER.guochang_3()
                                 return
                             end
-                            GUI:Text_setTextColor(GUI:ui_delegate(GUI:ui_delegate(chapterList)["x_chap_" .. npc.zj]).wz, "#FFFFFF")
-                            npc.zj = y
-                            GUI:Text_setTextColor(GUI:ui_delegate(GUI:ui_delegate(chapterList)["x_chap_" .. npc.zj]).wz, "#FF0000")
-                            renderTasks(npc.node_11)
-                        end)
-                        if y == npc.zj then
-                            GUI:Text_setTextColor(GUI:ui_delegate(GUI:ui_delegate(chapterList)["x_chap_" .. npc.zj]).wz, "#FF0000")
+                        elseif dl_sz and not dl_sz(i) then
+                            SL:ShowSystemTips("<font color='#FF0000'>还未解锁该大章节</font>")
+                            return
+                        end
+                        npc.l = i
+                        npc.zj = 1
+                        renderChapterList()
+                        renderTasks(npc.node_11)
+                    end)
+                    if i == npc.l then
+                        for y = 1, #npc.xyl[npc.l] do
+                            local x_chap = GUI:Layout_Create(chapterList, "x_chap_" .. y, 0, 0, 84, 40, false)
+                            local x_btn = GUI:Button_Create(x_chap, "x_chap", 84 / 2, 40 / 2, 'res/custom/ywl/list/xz.png')
+                            GUI:setAnchorPoint(x_btn, 0.5, 0.5)
+                            local zj_name = GUI:Text_Create(x_chap, "wz", 84 / 2, 40 / 2, 23, "#FFFFFF", npc.xyl[npc.l][y].name)
+                            GUI:Text_setFontName(zj_name, "fonts/font4.ttf")
+                            GUI:Text_enableOutline(zj_name, "#000000", 2)
+                            GUI:setAnchorPoint(zj_name, 0.5, 0.5)
+                            GUI:addOnClickEvent(x_btn, function()
+                                if npc.l == 3 and not _ywl_is_third_continent_half_chapter(npc.xyl[npc.l][y].name) then
+                                    if not _ywl_has_third_continent_full_entry() then
+                                        SL:ShowSystemTips("<font color='#FF0000'>需要完成灾厄入侵后才能进入该章节</font>")
+                                        return
+                                    end
+                                end
+                                local curJqd = tonumber(SL:GetMetaValue("TMONEY", "剧情点")) or 0
+                                local lockInfo = npc.xyl and npc.xyl.get_chapter_lock_info and npc.xyl.get_chapter_lock_info(npc.l, y, curJqd) or nil
+                                if lockInfo and lockInfo.locked then
+                                    SL:ShowSystemTips(string.format("<font color='#FF0000'>%s</font>", tostring(lockInfo.tip or "章节未解锁")))
+                                    return
+                                end
+                                GUI:Text_setTextColor(GUI:ui_delegate(GUI:ui_delegate(chapterList)["x_chap_" .. npc.zj]).wz, "#FFFFFF")
+                                npc.zj = y
+                                GUI:Text_setTextColor(GUI:ui_delegate(GUI:ui_delegate(chapterList)["x_chap_" .. npc.zj]).wz, "#FF0000")
+                                renderTasks(npc.node_11)
+                            end)
+                            if y == npc.zj then
+                                GUI:Text_setTextColor(GUI:ui_delegate(GUI:ui_delegate(chapterList)["x_chap_" .. npc.zj]).wz, "#FF0000")
+                            end
                         end
                     end
                 end
@@ -3209,34 +3324,53 @@ end
 npc[12] = function(p2, p3, Data)
     local function openActivityEntry(kf, idx)
         idx = tonumber(idx) or 0
+        closeActivityWindow()
         if idx == 7 then
             SL:SendLuaNetMsg(101, 506, 0, 0, "")
             return
         end
         SL:SendLuaNetMsg(101, 507, tonumber(kf) or 1, idx, "")
     end
+    local function closeActivityShortcut()
+        local autoRunCheck = npc.hdan and GUI:getChildByName(npc.hdan, "CheckBox")
+        if autoRunCheck and GUI:CheckBox_isSelected(autoRunCheck) then
+            SL:UnRegisterLUAEvent(LUA_EVENT_AUTOMOVEEND, "跑酷寻路结束")
+            SL:SetMetaValue("BATTLE_MOVE_END")
+        end
+        if npc.hdan then
+            GUI:removeFromParent(npc.hdan)
+            npc.hdan = nil
+        end
+        local parent = GUI:GetWindow(nil, "npc_hdtb_bj")
+        if parent then
+            GUI:Win_Close(parent)
+        end
+    end
+    local function addActivityShortcutClose(parent)
+        local closeBtn = GUI:Button_Create(parent, "shortcut_close", 306, 86, "res/wy/public/close_sm.png")
+        GUI:setScale(closeBtn, 0.75)
+        GUI:setLocalZOrder(closeBtn, 10)
+        GUI:addOnClickEvent(closeBtn, function()
+            closeActivityShortcut()
+        end)
+    end
 
     if p2 == 1 then
         npc.hd_data = SL:JsonDecode(Data, false)
         if npc.hdan then
-            GUI:removeFromParent(npc.hdan)
-            npc.hdan = nil
+            closeActivityShortcut()
         end
         if cogin.isWin32 then
             npc.hdan = GUI:Button_Create(npc.RightTop, "hdan", -367, -300, "res/custom/activity/" .. p3 .. ".png")
             GUI:addOnClickEvent(npc.hdan, function()
                 openActivityEntry(1, p3)
             end)
+            addActivityShortcutClose(npc.hdan)
             npc.djs = GUI:Text_Create(npc.hdan, "djs", 32 + 130, 19, 16, "#F7F7DE", npc.hd_data.sk * 60)
             GUI:setAnchorPoint(npc.djs, 0.5, 0.5)
             GUI:Text_COUNTDOWN(npc.djs, npc.hd_data.sk * 60, function()
                 if npc.hdan then
-                    GUI:removeFromParent(npc.hdan)
-                    local parent = GUI:GetWindow(nil, "npc_hdtb_bj")
-                    if parent then
-                        GUI:Win_Close(parent)
-                    end
-                    npc.hdan = nil
+                    closeActivityShortcut()
                 end
             end)
         else
@@ -3244,16 +3378,12 @@ npc[12] = function(p2, p3, Data)
             GUI:addOnClickEvent(npc.hdan, function()
                 openActivityEntry(npc.hd_data.kf, npc.hd_data.idx)
             end)
+            addActivityShortcutClose(npc.hdan)
             npc.djs = GUI:Text_Create(npc.hdan, "djs", 32 + 130, 19, 16, "#F7F7DE", npc.hd_data.sk * 60)
             GUI:setAnchorPoint(npc.djs, 0.5, 0.5)
             GUI:Text_COUNTDOWN(npc.djs, npc.hd_data.sk * 60, function()
                 if npc.hdan then
-                    GUI:removeFromParent(npc.hdan)
-                    local parent = GUI:GetWindow(nil, "npc_hdtb_bj")
-                    if parent then
-                        GUI:Win_Close(parent)
-                    end
-                    npc.hdan = nil
+                    closeActivityShortcut()
                 end
             end)
         end
@@ -3283,12 +3413,7 @@ npc[12] = function(p2, p3, Data)
         end
     elseif p2 == 4 then
         if npc.hdan then
-            GUI:removeFromParent(npc.hdan)
-            npc.hdan = nil
-            local parent = GUI:GetWindow(nil, "npc_hdtb_bj")
-            if parent then
-                GUI:Win_Close(parent)
-            end
+            closeActivityShortcut()
         end
     end
 end
@@ -4754,11 +4879,15 @@ npc[498] = function(p2, p3, Data)
         GUI:runAction(npc.tyec, GUI:ActionMoveBy(0.3, 0, -height))
         local desc = GUI:Text_Create(npc.tyec, "Text", 70.0, 164.0, 14, "#d6a573", "排名数据/10s刷新")
         GUI:Text_enableOutline(desc, "#000000", 1)
+        local campScore = GUI:Text_Create(npc.tyec, "camp_score", 108.0, 145.0, 14, "#d6a573", "正方:0  邪方:0")
+        GUI:setAnchorPoint(campScore, 0.5, 0.5)
+        GUI:Text_enableOutline(campScore, "#000000", 1)
+        npc.tyeccamp = campScore
         local scoreLabel = GUI:Text_Create(npc.tyec, "Text_1", 72.0, 6.0, 14, "#d6a573", "当前个人积分:")
         GUI:Text_enableOutline(scoreLabel, "#000000", 1)
         npc.tyecgr = GUI:Text_Create(scoreLabel, "Textxx", 92.0, 0.0, 14, "#d6a573", "0")
         GUI:Text_enableOutline(npc.tyecgr, "#000000", 1)
-        local list = GUI:ListView_Create(npc.tyec, "ListView", 0.0, 29.0, 261.0, 135.0, 1)
+        local list = GUI:ListView_Create(npc.tyec, "ListView", 0.0, 29.0, 261.0, 112.0, 1)
         GUI:ListView_setItemsMargin(list, 2)
         npc.tyecpmm = {
         }
@@ -4788,6 +4917,9 @@ npc[498] = function(p2, p3, Data)
             end
         end
         GUI:Text_setString(npc.tyecgr, data.grjf or 0)
+        if npc.tyeccamp then
+            GUI:Text_setString(npc.tyeccamp, string.format("正方:%s  邪方:%s", data.hjf or 0, data.ljf or 0))
+        end
     end
     if p2 == 0 then
         npc.tyecsj = SL:JsonDecode(Data, false)
@@ -5829,9 +5961,16 @@ npc[507] = function(p2, p3, Data)
             end)
         elseif i == 8 then
             cfg.title = "正邪大战"
-            cfg.time = "当前暂未开放，开放后可通过本页直接参与"
-            cfg.desc = "活动开启后玩家将分为正邪两方进行阵营对抗，通过击杀、占点和团队推进累积优势，最终结算阵营胜负。"
-            cfg.reward = "开放后公布活动奖励"
+            local open = tonumber((((npc.data_507 or {}).open_state or {})[8]) or 0) or 0
+            cfg.time = "每日22:00开启，持续10分钟"
+            if open == 1 then
+                cfg.time = cfg.time .. "\n当前活动进行中，可直接点击参与"
+            end
+            cfg.desc = "进入活动地图后自动分为正方/邪方阵营，正方红色、邪方蓝色，并切换为阵营攻击模式。地图内每3秒获得个人积分和阵营积分，击杀玩家可获得大量积分，活动结束按个人排行与胜负阵营结算。"
+            cfg.reward = "个人前三：跨服积分30/20/15；胜利方：跨服积分50；失败方：跨服积分20"
+            cfg.rewardItems = buildRewardItems(function(out, seen)
+                appendRewardItem(out, seen, "跨服积分", 30)
+            end)
         elseif i == 9 then
             cfg.title = "武林盟主"
             cfg.time = "活动开启时可直接传送进入【比武大会】地图"
@@ -5843,10 +5982,17 @@ npc[507] = function(p2, p3, Data)
                 appendRewardItem(out, seen, "武林盟主[称号]", 1)
             end)
         elseif i == 10 then
-            cfg.title = "敬请期待"
-            cfg.time = "该分页当前未启用"
-            cfg.desc = "该活动位目前仍为预留状态，后续有新活动接入时会直接补充到这里。"
-            cfg.reward = "暂无奖励信息"
+            local open = tonumber((((npc.data_507 or {}).open_state or {})[10]) or 0) or 0
+            cfg.title = "武道大会"
+            cfg.time = "每周一至周五20:00-22:00开启；周日24:00结算排行"
+            if open == 1 then
+                cfg.time = cfg.time .. "\n当前活动进行中，可进入跨服报名匹配"
+            end
+            cfg.desc = "跨服匹配 1V1 对战玩法。胜利获得10排位分，失败获得2排位分，排位分用于每周排行结算；每局结束时胜利方当场获得10跨服积分，失败方当场获得2跨服积分。"
+            cfg.reward = "周排行奖励：第1名100跨服积分，第2名80，第3名70，第4名60，第5名50，第6名40，第7名30，第8名25，第9名20，第10名15，10名后10"
+            cfg.rewardItems = buildRewardItems(function(out, seen)
+                appendRewardItem(out, seen, "跨服积分", 100)
+            end)
         elseif i == 11 then
             cfg.title = "沙巴克"
             cfg.time = "请通过沙巴克专属入口参与攻城"
@@ -5891,6 +6037,7 @@ npc[507] = function(p2, p3, Data)
         GUI:Image_Create(label, "img_bj", 6, 350, "res/custom/activity/img/img_" .. i .. ".png")
         local btn = GUI:Button_Create(label, "btn", 340, 14, cfg.btnSkin or "res/custom/activity/btn.png")
         GUI:addOnClickEvent(btn, function()
+            closeActivityWindow()
             if tonumber(i) == 7 then
                 SL:SendLuaNetMsg(101, 506, 0, 0, "")
                 return
@@ -5917,6 +6064,7 @@ npc[507] = function(p2, p3, Data)
             6,
             7,
             9,
+            10,
             11,
             13,
             14,
@@ -6900,6 +7048,39 @@ npc[512] = function(p2, p3, Data)
     end
 end
 npc[514] = function(p2, p3, Data)
+    local function storyNodeDone(node)
+        if node == nil then
+            return false
+        end
+        if type(node) == "number" then
+            return tonumber(node) >= 2
+        end
+        if type(node) == "table" then
+            if tonumber(node[1] or node["1"] or 0) >= 2 then
+                return true
+            end
+            if tonumber(node.wc or node.finish or node.done or node.ok or 0) >= 1 then
+                return true
+            end
+            if tonumber(node.cnt or node.num or 0) >= 2 then
+                return true
+            end
+        end
+        return false
+    end
+    local function hasThirdContinentHalfEntry()
+        local raw = Player and Player.getServerVar and Player:getServerVar("T13") or ""
+        if not raw or raw == "" then
+            return false
+        end
+        local ok, storyData = pcall(function()
+            return Player:JsonToTbl(raw)
+        end)
+        if not ok or type(storyData) ~= "table" then
+            return false
+        end
+        return storyNodeDone(storyData["npc_46"])
+    end
     local pos = {
         {
             100 + 123 - 58,
@@ -6966,7 +7147,7 @@ npc[514] = function(p2, p3, Data)
                     return
                 end
                 if i == 3 then
-                    if not _ywl_has_third_continent_half_entry() then
+                    if not hasThirdContinentHalfEntry() then
                         NPC_UI_HELPER.guochang_3()
                         return
                     end

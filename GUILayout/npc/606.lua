@@ -43,6 +43,12 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 1, 0, "")
             end)
+            NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, Button, node, npcid, "story_606_take", {
+                taskMap = {[npcid] = 31},
+                keyPrefix = "mainline_story_606",
+                dir = 5,
+                desc = "点击领取任务",
+            })
         elseif npc.data.jq_data[key] == 1 then
             local desc = GUI:Text_Create(node, "desc",100,100, 20, "#FFFFFF", "当前击杀：\n[红名怪] "..(npc.data.sg_data[key] or 0).."/"..(npc._config.num or 0))
             GUI:Text_setFontName(desc, "fonts/font4.ttf")
@@ -52,6 +58,12 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 2, 0, "")
             end)
+            NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, Button, node, npcid, "story_606_submit", {
+                taskMap = {[npcid] = 31},
+                keyPrefix = "mainline_story_606",
+                dir = 5,
+                desc = "点击提交任务",
+            })
         elseif npc.data.jq_data[key] == 2 then
             GUI:Image_Create(node, "Button", btn_pos[1], btn_pos[2], "res/wy/public/7_1.png")
         end

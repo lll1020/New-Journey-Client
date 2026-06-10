@@ -46,7 +46,7 @@ function npc.main(npcid, p2, p3, msgData)
         for k,v in ipairs(npc._config.details) do
             if npc.data.T_data[""..k] and npc.data.T_data[""..k] == 1 then
                 local kuang = GUI:Image_Create(dbLayout, "kuang"..k, 0, 0.00, "res/custom/three_city/cqbg/kuang/"..k..".png")
-                GUI:setAnchorPoint(GUI:RichText_Create(kuang, "attr_desc", 106/2, 45, Player:showAttr(v.attr), 0, 0, "#f7f7de", 3,nil,nil)
+    GUI:setAnchorPoint(GUI:RichText_Create(kuang, "attr_desc", 106/2, 45, Player:showAttrMergedRange(v.attr), 0, 0, "#f7f7de", 3,nil,nil)
                 , 0.5, 1)
             else
                 local kuang = GUI:Image_Create(dbLayout, "kuang"..k, 0, 0.00, "res/custom/three_city/cqbg/kuang_b.png")

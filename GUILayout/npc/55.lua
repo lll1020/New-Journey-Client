@@ -11,6 +11,22 @@ local WINDOW_OPTS = {
     title = {x = 56, y = 464, skin = "res/custom/three_city/xfts/title.png"},
 }
 
+local function createText(parent, name, x, y, size, color, text)
+    local label = GUI:Text_Create(parent, name, x, y, size, color, text)
+    GUI:setAnchorPoint(label, 0.5, 0.5)
+    GUI:Text_enableOutline(label, "#100808", 2)
+    return label
+end
+
+local function createOpenWayShow(parent, name, x, title, items, tip)
+    local group = GUI:Node_Create(parent, name, x, 0)
+    -- createText(group, "title", 0, 135, 22, "#FFF2D7", title)
+    local itemShow = ItemNumByTable_img_new(items, nil, GUI:Node_Create(group, "items", -35, 55 + 44))
+    GUI:setScale(itemShow, 0.9)
+    createText(group, "tip", 0, 38 + 40, 16, "#9CFF87", tip)
+    return group
+end
+
 function npc.main(npcid, p2, p3, msgData)
 
 
@@ -55,11 +71,17 @@ function npc.main(npcid, p2, p3, msgData)
 
 
 
-            local Button= GUI:Button_Create(node, "Button1", 450 - 100, 10.00, "res/custom/three_city/xfts/btn1.png")
+            local openCfg = npc.data.open_cfg or {}
+            local permitItem = openCfg.permit_item or "开辟许可证"
+            local forceCost = openCfg.force_cost or {{"碎岩锤", 20}}
+            createOpenWayShow(node, "permit_way_show", 350 + 110, "", {{permitItem, 1}}, "拥有即可，不消耗")
+            createOpenWayShow(node, "force_way_show", 550 + 110, "", forceCost, "消耗材料开辟")
+
+            local Button= GUI:Button_Create(node, "Button1", 450 - 100, 0.00, "res/custom/three_city/xfts/btn1.png")
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 1, 0, "")
             end)
-            local Button= GUI:Button_Create(node, "Button2", 450 + 100, 10.00, "res/custom/three_city/xfts/btn2.png")
+            local Button= GUI:Button_Create(node, "Button2", 450 + 100, 0.00, "res/custom/three_city/xfts/btn2.png")
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 2, 0, "")
             end)

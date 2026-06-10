@@ -194,6 +194,86 @@ local function _fmt_percent(value)
     return string.format("%.1f", num)
 end
 
+local function _clean_attr_name(name)
+    name = tostring(name or "")
+    name = string.gsub(name, " ", "")
+    name = string.gsub(name, "　", "")
+    return name
+end
+
+local function _format_attr_value(attConfig, value)
+    if attConfig and attConfig.type == 2 then
+        return _fmt_percent((tonumber(value) or 0) / 100) .. "%"
+    end
+    if attConfig and attConfig.type == 3 then
+        return _fmt_percent(value) .. "%"
+    end
+    return tostring(value or 0)
+end
+
+local function _attr_line(name, value, color)
+    color = color or 255
+    return string.format("<font color='%s'>%s+%s</font>", SL:GetHexColorByStyleId(color), tostring(name or ""), tostring(value or 0))
+end
+
+local function _show_attr_merged_from_entries(entries)
+    local sorted = {}
+    for _, entry in ipairs(entries or {}) do
+        local attConfig = SL:GetMetaValue("ATTR_CONFIG", entry.id)
+        local cleanName = _clean_attr_name(attConfig and attConfig.name or "")
+        local isPercent = attConfig and (attConfig.type == 2 or attConfig.type == 3)
+        table.insert(sorted, {id = entry.id, value = entry.value, attConfig = attConfig, name = cleanName, isPercent = isPercent})
+    end
+    table.sort(sorted, function(a, b)
+        if #a.name ~= #b.name then
+            return #a.name < #b.name
+        end
+        if a.isPercent ~= b.isPercent then
+            return not a.isPercent
+        end
+        return a.name < b.name
+    end)
+
+    local rangeNames = {["攻击"] = true, ["魔法"] = true, ["道术"] = true, ["防御"] = true, ["魔防"] = true}
+    local pending = {}
+    local result = {}
+    for _, entry in ipairs(sorted) do
+        local baseName = entry.name:match("^(.-)下限$")
+        local side = baseName and "下限" or nil
+        if not baseName then
+            baseName = entry.name:match("^(.-)上限$")
+            side = baseName and "上限" or nil
+        end
+        if baseName and rangeNames[baseName] then
+            if not pending[baseName] then
+                pending[baseName] = {color = (entry.attConfig and entry.attConfig.color) or 255}
+                table.insert(result, {rangeName = baseName})
+            end
+            pending[baseName][side == "下限" and "low" or "high"] = _format_attr_value(entry.attConfig, entry.value)
+        else
+            table.insert(result, _attr_line(entry.name, _format_attr_value(entry.attConfig, entry.value), (entry.attConfig and entry.attConfig.color) or 255))
+        end
+    end
+
+    local lines = {}
+    for _, entry in ipairs(result) do
+        if type(entry) == "table" and entry.rangeName then
+            local name = entry.rangeName
+            local one = pending[name]
+            if one.low and one.high then
+                table.insert(lines, _attr_line(name, one.low .. "-" .. one.high, one.color))
+            elseif one.low then
+                table.insert(lines, _attr_line(name .. "下限", one.low, one.color))
+            elseif one.high then
+                table.insert(lines, _attr_line(name .. "上限", one.high, one.color))
+            end
+        else
+            table.insert(lines, entry)
+        end
+    end
+    return table.concat(lines, "\n")
+end
+
 
 function Player:showEquipBaseAttr(item)
     local attList = GUIFunction:ParseItemBaseAtt(item.attribute)
@@ -248,101 +328,31 @@ end
 
 
 function Player:showEquipAttr(item)
+    return self:showEquipAttrMergedRange(item)
+end
+
+function Player:showEquipAttrMergedRange(item)
+    if not item or not item.attribute then
+        return ""
+    end
     local attList = GUIFunction:ParseItemBaseAtt(item.attribute)
-    local attr_desc = ""
-    local sorted = {}
-
-    for _, v in pairs(attList) do
-        local attConfig = SL:GetMetaValue("ATTR_CONFIG", v.id)
-        local cleanName = attConfig and attConfig.name or ""
-        cleanName = string.gsub(cleanName, " ", "")
-        cleanName = string.gsub(cleanName, "　", "")
-        local isPercent = attConfig and (attConfig.type == 2 or attConfig.type == 3)
-        table.insert(sorted, {data = v, attConfig = attConfig, name = cleanName, isPercent = isPercent})
+    local entries = {}
+    for _, v in pairs(attList or {}) do
+        table.insert(entries, {id = v.id, value = v.value})
     end
-
-    table.sort(sorted, function(a, b)
-        if #a.name ~= #b.name then
-            return #a.name < #b.name
-        end
-        if a.isPercent ~= b.isPercent then
-            return not a.isPercent -- 数值在前，百分比在后
-        end
-        return a.name < b.name
-    end)
-
-    for _, entry in ipairs(sorted) do
-        local v = entry.data
-        local attConfig = entry.attConfig
-        local name = entry.name
-        local value = v.value
-        if (attConfig and attConfig.type == 2) then --万分比除100
-            value = _fmt_percent(value / 100) .. "%"
-        end
-        if (attConfig and attConfig.type == 3) then --百分比
-            value = _fmt_percent(value) .. "%"
-        end
-        local oneStr = name .."+".. value
-        local color = (attConfig and attConfig.color) or 255
-        
-        if color and color > 0 then
-            -- SL:release_print(string.format("<font color='%s'>%s</font>", SL:GetHexColorByStyleId(color), oneStr))
-            attr_desc = attr_desc .. string.format("<font color='%s'>%s</font>", SL:GetHexColorByStyleId(color), oneStr)
-            if #attList >= 2 then
-                attr_desc = attr_desc .. "\n"
-            end
-        end
-    end
-    return attr_desc
+    return _show_attr_merged_from_entries(entries)
 end
 
 function Player:showAttr(attr)
-    local attr_desc = ""
-    local sorted = {}
+    return self:showAttrMergedRange(attr)
+end
 
-    for _, v in pairs(attr) do
-        local originId = v[1]
-        local attConfig = SL:GetMetaValue("ATTR_CONFIG", originId)
-        local cleanName = attConfig and attConfig.name or ""
-        cleanName = string.gsub(cleanName, " ", "")
-        cleanName = string.gsub(cleanName, "　", "")
-        local isPercent = attConfig and (attConfig.type == 2 or attConfig.type == 3)
-        table.insert(sorted, {data = v, attConfig = attConfig, name = cleanName, isPercent = isPercent})
+function Player:showAttrMergedRange(attr)
+    local entries = {}
+    for _, v in pairs(attr or {}) do
+        table.insert(entries, {id = v[1], value = v[2]})
     end
-
-    table.sort(sorted, function(a, b)
-        if #a.name ~= #b.name then
-            return #a.name < #b.name
-        end
-        if a.isPercent ~= b.isPercent then
-            return not a.isPercent -- 数值在前，百分比在后
-        end
-        return a.name < b.name
-    end)
-
-    for _, entry in ipairs(sorted) do
-        local v = entry.data
-        local attConfig = entry.attConfig
-        local name = entry.name
-        local value = v[2]
-        if (attConfig and attConfig.type == 2) then --万分比除100
-            value = _fmt_percent(value / 100) .. "%"
-        end
-        if (attConfig and attConfig.type == 3) then --百分比
-            value = _fmt_percent(value) .. "%"
-        end
-        local oneStr = name .."+".. value
-        local color = (attConfig and attConfig.color) or 255
-        
-        if color and color > 0 then
-            -- SL:release_print(string.format("<font color='%s'>%s</font>", SL:GetHexColorByStyleId(color), oneStr))
-            attr_desc = attr_desc .. string.format("<font color='%s'>%s</font>", SL:GetHexColorByStyleId(color), oneStr)
-            if #attr >= 2 then
-                attr_desc = attr_desc .. "\n"
-            end
-        end
-    end
-    return attr_desc
+    return _show_attr_merged_from_entries(entries)
 end
 
 

@@ -500,7 +500,7 @@ local function renderBottomInfo(node, stageIdx)
     createScrollRichText(node, "skill_scroll", 18, 6, 338, 60, buildSkillDesc())
 
     local totalAttr = collectTotalAttrs()
-    createScrollRichText(node, "attr_scroll", 470, 6, 210, 72, Player:showAttr(totalAttr))
+        createScrollRichText(node, "attr_scroll", 470, 6, 210, 72, Player:showAttrMergedRange(totalAttr))
 end
 
 -- 说明：渲染星象圣图主界面。
@@ -538,7 +538,7 @@ local function renderDetail(npcid, stageIdx, nodeIdx)
     end
 
     createText(node, "attr_title", 308, 430, 24, "#1E1A12", "点亮获得", FONT_TITLE, 0.5, 0.5)
-    createScrollRichText(node, "attr_preview", 110, 274, 400, 108, Player:showAttr(nodeCfg.attr or {}))
+        createScrollRichText(node, "attr_preview", 110, 274, 400, 108, Player:showAttrMergedRange(nodeCfg.attr or {}))
 
     GUI:Image_Create(node, "cost_label", 260, 252, COST_LABEL)
     renderEntryCostBoxes(node, nodeCfg.cost or {}, DETAIL_COST_POS, DETAIL_ITEM_BOX_SKIN)

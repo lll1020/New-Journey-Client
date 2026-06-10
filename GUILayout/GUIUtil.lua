@@ -252,6 +252,7 @@ function ItemNumByTable_img_new(t, multiple,parent)
     GUI:ListView_setClippingEnabled(cllist, false)
     GUI:ListView_setItemsMargin(cllist, 10)
     GUI:setTouchEnabled(cllist, false)
+    GUI:setLocalZOrder(cllist, 99)
     for i,item in ipairs(t) do
         local idx,num = SL:GetMetaValue("ITEM_INDEX_BY_NAME",item[1]),item[2]
         if multiple then num=num*multiple end
@@ -473,30 +474,30 @@ local function _dl_check(dl)
         end
         return false, "需完成主线引导后才可进入二大陆"
     elseif dl == 3 then
-        if zslv >= 20 and jqd >= 11 then
+        if zslv >= 20 then
             return true
         end
-        return false, "需完成二大陆转生且剧情点达到11后才可进入三大陆"
+        return false, "需完成二大陆转生后才可进入三大陆"
     elseif dl == 4 then
-        if zslv >= 30 and jqd >= 40 and level >= 150 then
+        if zslv >= 30 and level >= 150 then
             return true
         end
-        return false, "需完成三大陆转生且剧情点达到40、人物等级达到150级后才可进入四大陆"
+        return false, "需完成三大陆转生且人物等级达到150级后才可进入四大陆"
     elseif dl == 5 then
-        if zslv >= 40 and jqd >= 90 and _dl_has_all_linggen() then
+        if zslv >= 40 and _dl_has_all_linggen() then
             return true
         end
-        return false, "需完成四大陆转生且剧情点达到90，并激活全部灵根后才可进入五大陆"
+        return false, "需完成四大陆转生且激活全部灵根后才可进入五大陆"
     elseif dl == 6 then
-        if zslv >= 50 and jqd >= 100 and _dl_has_all_destiny() then
+        if zslv >= 50 and _dl_has_all_destiny() then
             return true
         end
-        return false, "需完成五大陆转生且剧情点达到100，并完成天道命盘后才可进入六大陆"
+        return false, "需完成五大陆转生且完成天道命盘后才可进入六大陆"
     elseif dl == 7 then
-        if zslv >= 60 and jqd >= 100 and _dl_has_title("世界符文·[真我]") then
+        if zslv >= 60 and _dl_has_title("世界符文·[真我]") then
             return true
         end
-        return false, "需完成六大陆转生且剧情点达到100，并获得世界符文·[真我]后才可进入七大陆"
+        return false, "需完成六大陆转生且获得世界符文·[真我]后才可进入七大陆"
     elseif dl == 8 then
         if zslv >= 70 then
             return true

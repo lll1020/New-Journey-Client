@@ -92627,7 +92627,7 @@ local config = {
 		blendmode = 0,
 		stand_pos_x = 0,
 		stand_pos_y = 1,
-		idle_interval = 0.1,
+		idle_interval = 0.08,
 	},
 	[6360] = { 
 		index = 8427,
@@ -92638,7 +92638,7 @@ local config = {
 		blendmode = 0,
 		stand_pos_x = 0,
 		stand_pos_y = 1,
-		idle_interval = 0.1,
+		idle_interval = 0.08,
 	},
 	[6361] = { 
 		index = 8428,
@@ -92671,7 +92671,7 @@ local config = {
 		blendmode = 0,
 		stand_pos_x = 0,
 		stand_pos_y = 1,
-		idle_interval = 0.1,
+		idle_interval = 0.08,
 	},
 	[6364] = { 
 		index = 8431,
@@ -99265,7 +99265,7 @@ local config = {
 		blendmode = 0,
 		stand_pos_x = 0,
 		stand_pos_y = 1,
-		idle_interval = 0.1,
+		idle_interval = 0.08,
 	},
 	[6949] = { 
 		index = 9016,
@@ -99276,7 +99276,7 @@ local config = {
 		blendmode = 0,
 		stand_pos_x = 0,
 		stand_pos_y = 1,
-		idle_interval = 0.1,
+		idle_interval = 0.08,
 	},
 	[6950] = { 
 		index = 9017,

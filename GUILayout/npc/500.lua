@@ -25,15 +25,15 @@ local function getEnterNeedText(dl)
     elseif dl == 2 then
         return "完成主线引导"
     elseif dl == 3 then
-        return "完成二大陆转生 + 剧情点11"
+        return "完成二大陆转生"
     elseif dl == 4 then
-        return "完成三大陆转生 + 剧情点40"
+        return "完成三大陆转生 + 等级150"
     elseif dl == 5 then
-        return "完成四大陆转生 + 剧情点90"
+        return "完成四大陆转生 + 激活全部灵根"
     elseif dl == 6 then
-        return "完成五大陆转生"
+        return "完成五大陆转生 + 完成天道命盘"
     elseif dl == 7 then
-        return "完成六大陆转生"
+        return "完成六大陆转生 + 世界符文·[真我]"
     elseif dl == 8 then
         return "完成七大陆转生"
     end
@@ -51,6 +51,39 @@ local function canEnterByCfg(cfg)
         return rebirthLevel >= (dl - 1) * 10
     end
     return true
+end
+local function _story_node_done(node)
+    if node == nil then
+        return false
+    end
+    if type(node) == "number" then
+        return tonumber(node) >= 2
+    end
+    if type(node) == "table" then
+        if tonumber(node[1] or node["1"] or 0) >= 2 then
+            return true
+        end
+        if tonumber(node.wc or node.finish or node.done or node.ok or 0) >= 1 then
+            return true
+        end
+        if tonumber(node.cnt or node.num or 0) >= 2 then
+            return true
+        end
+    end
+    return false
+end
+local function hasThirdContinentHalfEntry()
+    local raw = Player and Player.getServerVar and Player:getServerVar("T13") or ""
+    if not raw or raw == "" then
+        return false
+    end
+    local ok, storyData = pcall(function()
+        return Player:JsonToTbl(raw)
+    end)
+    if not ok or type(storyData) ~= "table" then
+        return false
+    end
+    return _story_node_done(storyData["npc_46"])
 end
 function npc.main(npcid, p2, p3, msgData)
     local function ensureWindow(npcid)
@@ -90,7 +123,7 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:setAnchorPoint(button, 0.5, 0.5)
         GUI:addOnClickEvent(button, function()
             if npcid == 503 then
-                if not _ywl_has_third_continent_half_entry() then
+                if not hasThirdContinentHalfEntry() then
                     NPC_UI_HELPER.guochang_3()
                     return
                 end

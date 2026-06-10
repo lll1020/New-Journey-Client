@@ -1,4 +1,4 @@
-local MainAssistXylHelper = {}
+﻿local MainAssistXylHelper = {}
 
 -- 备注：伏妖录当前任务变更事件名。
 MainAssistXylHelper.EVENT_CURRENT_TASK_CHANGE = "伏妖录当前任务变更"
@@ -49,11 +49,17 @@ local GRAY_WORLD_SINGLE_FLOW_WIDTH = 136
 local GRAY_WORLD_SINGLE_FLOW_FONT_SIZE = 13
 local GRAY_WORLD_FINAL_BTN_POS = {x = 100, y = 95}
 local GRAY_WORLD_FINAL_BTN_TEXT = ""
+local XYL_FINAL_ENTRY_RWID = 36
+local XYL_FINAL_ENTRY_BTN_TEXT = "    降妖录\n进入伏妖录"
 local GRAY_WORLD_LINE_MAP_ALIASES = {
     ["虚妄山脉"] = 4,
+    ["山脉入口"] = 4,
     ["叹息旷野"] = 2,
+    ["恐怖裂隙"] = 2,
     ["鬼嘲深渊"] = 1,
+    ["旷野之原"] = 1,
     ["禁忌之海"] = 3,
+    ["海峰孤岛"] = 3,
     ["讨伐嘲灾"] = 1,
     ["讨伐息灾"] = 2,
     ["讨伐忌灾"] = 3,
@@ -78,9 +84,13 @@ local GRAY_WORLD_MAP_NAMES = {
     ["灰界东部"] = true,
     ["灰界西部"] = true,
     ["虚妄山脉"] = true,
+    ["山脉入口"] = true,
     ["鬼嘲深渊"] = true,
+    ["旷野之原"] = true,
     ["叹息旷野"] = true,
+    ["恐怖裂隙"] = true,
     ["禁忌之海"] = true,
+    ["海峰孤岛"] = true,
     ["讨伐嘲灾"] = true,
     ["讨伐忌灾"] = true,
     ["讨伐息灾"] = true,
@@ -93,7 +103,7 @@ local GRAY_WORLD_MAP_IDS = {
     ["302"] = true,
     ["303"] = true,
 }
-local GRAY_WORLD_MAP_KEYWORDS = {"灰界", "虚妄山脉", "鬼嘲深渊", "叹息旷野", "禁忌之海", "讨伐嘲灾", "讨伐忌灾", "讨伐息灾", "讨伐妄灾"}
+local GRAY_WORLD_MAP_KEYWORDS = {"灰界", "虚妄山脉", "山脉入口", "鬼嘲深渊", "旷野之原", "叹息旷野", "恐怖裂隙", "禁忌之海", "海峰孤岛", "讨伐嘲灾", "讨伐忌灾", "讨伐息灾", "讨伐妄灾"}
 local GRAY_WORLD_MAP_SUFFIXES = {
     "_npc625",
     "_npc626",
@@ -101,6 +111,73 @@ local GRAY_WORLD_MAP_SUFFIXES = {
     "_npc628",
 }
 local GRAY_WORLD_LINE_MAP_CACHE = nil
+local REWARD_ITEM_EFFECT_14193 = 14193
+local MAINLINE_CURRENT_TASK_REWARD_CONFIG = {
+    [2] = {{"天书残卷一", 1}},
+    [5] = {{"天书残卷二", 1}},
+    [6] = {{"玫瑰花", 20}},
+    [8] = {{"天书残卷三", 1}},
+    [11] = {{"天书残卷四", 1}},
+    [13] = {{"绑定金币", 100000},{"天书", 1}},
+    [14] = {{"绑定金币", 100000}, {"一重转生石", 10}},
+    [17] = {{"仙法卷轴", 1}},
+    [19] = {{"野火燎原[称号]", 1}},
+    [20] = {{"1元真实充值", 1}, {"基础灵根解锁", 1}},
+    [21] = {{"基础灵根解锁", 1}, {"除魔卫道[称号]", 1}},
+    [22] = {{"基础灵根解锁", 1}},
+    [23] = {{"聚宝盆", 1}},
+    [25] = {{"1元真实充值", 1}, {"基础灵根解锁", 1}, {"绑定金币", 200000}, {"称号卷轴", 5}},
+    [27] = {{"绑定金币", 300000}, {"千年玄铁", 30}},
+    [29] = {{"绑定金币", 150000}, {"摸金校尉[称号]", 1}},
+    [30] = {{"1元真实充值", 1}, {"基础灵根解锁", 1}, {"轩辕剑传人[称号]", 1}},
+    [31] = {{"绑定金币", 150000}, {"玫瑰花", 50}},
+    [33] = {{"绑定金币", 150000}, {"古刹魔瓶", 1}},
+    [34] = {{"1元真实充值", 1}, {"仙法卷轴", 1}},
+}
+
+local function _get_mainline_rwid_value()
+    local rwid = tonumber(cogin and cogin.sjtb and (cogin.sjtb.zxrwid or cogin.sjtb.rwid) or 0) or 0
+    if rwid > 0 then
+        return rwid
+    end
+    if Player and type(Player.getServerVar) == "function" then
+        rwid = tonumber(Player:getServerVar("U11") or 0) or 0
+        if rwid <= 0 then
+            rwid = tonumber(Player:getServerVar("U_zxrw") or 0) or 0
+        end
+    end
+    return rwid
+end
+
+local function _is_mainline_final_entry_open_value()
+    return _get_mainline_rwid_value() >= XYL_FINAL_ENTRY_RWID
+end
+
+local function _add_reward_item_effect(parent, name, x, y, scale, effectId)
+    if not parent or tolua.isnull(parent) then
+        return nil
+    end
+    local effect = GUI:Effect_Create(parent, name or "reward_item_eff", x or 0, y or 0, 0, effectId or REWARD_ITEM_EFFECT_14193, 0, 0, 0, 1)
+    GUI:setScale(effect, scale or 1)
+    GUI:setLocalZOrder(effect, 1)
+    return effect
+end
+
+local function _add_reward_effect_for_table(node, effectName, x, y, scale, effectId)
+    if not node or tolua.isnull(node) then
+        return
+    end
+    local listView = GUI:getChildByName(node, "cllist")
+    if not listView or tolua.isnull(listView) then
+        return
+    end
+    local children = GUI:getChildren(listView) or {}
+    for _, child in pairs(children) do
+        if child and not tolua.isnull(child) then
+            _add_reward_item_effect(child, effectName, x, y, scale, effectId)
+        end
+    end
+end
 
 -- 备注：给任务栏挂载伏妖录当前任务的通用逻辑。
 function MainAssistXylHelper.bind(MainAssist)
@@ -121,6 +198,11 @@ function MainAssistXylHelper.bind(MainAssist)
     MainAssist._xylDynamicRefreshTimer = nil
     MainAssist._xylLastTraceKey = nil
     MainAssist._xylLastPrintTaskKey = nil
+    local function _safe_set_visible(target, visible)
+        if target and not tolua.isnull(target) then
+            GUI:setVisible(target, visible)
+        end
+    end
 
     local function _debug_xyl_trace(tag, data)
         return
@@ -1450,6 +1532,13 @@ function MainAssistXylHelper.bind(MainAssist)
 
 
     function MainAssist.UpdateGrayWorldTaskIcon(eventData)
+        if _is_mainline_final_entry_open_value() then
+            if MainAssist._grayWorldTaskIcon then
+                GUI:setVisible(MainAssist._grayWorldTaskIcon, false)
+            end
+            NPC_UI_HELPER.closeGuideByDomain("gray_world")
+            return
+        end
         if type(eventData) == "table" then
             MainAssist._grayWorldLastMapEvent = {
                 mapID = tostring(eventData.mapID or ""),
@@ -1631,6 +1720,8 @@ function MainAssistXylHelper.bind(MainAssist)
         return result
     end
 
+
+
     local function _xyl_prepare_reward_display_data(rewardList)
         if type(rewardList) ~= "table" then
             return {}
@@ -1647,6 +1738,29 @@ function MainAssistXylHelper.bind(MainAssist)
             end
         end
         return result
+    end
+
+    local function _get_current_mainline_rwid()
+        return _get_mainline_rwid_value()
+    end
+
+    local function _is_mainline_final_entry_open()
+        return _is_mainline_final_entry_open_value()
+    end
+
+    local function _collect_mainline_reward_display_data()
+        local rwid = _get_current_mainline_rwid()
+        local rewardCfg = MAINLINE_CURRENT_TASK_REWARD_CONFIG[tonumber(rwid) or 0]
+        if type(rewardCfg) ~= "table" or #rewardCfg <= 0 then
+            return {}
+        end
+        local rewardList = {}
+        for i, entry in ipairs(rewardCfg) do
+            if type(entry) == "table" and entry[1] ~= nil then
+                rewardList[i] = {entry[1], tonumber(entry[2]) or 1}
+            end
+        end
+        return _xyl_prepare_reward_display_data(_xyl_trim_reward_display(rewardList))
     end
 
     local function _xyl_collect_task_reward_data(task, info)
@@ -1810,11 +1924,11 @@ function MainAssistXylHelper.bind(MainAssist)
         GUI:setAnchorPoint(nameText, 0, 0.5)
         GUI:Text_enableOutline(nameText, "#110b05", 2)
 
-        local rewardTitle = GUI:Text_Create(panel, "reward", 0, 70, 16, "#00FB00", "任务\n奖励")
-        GUI:setAnchorPoint(rewardTitle, 0, 0.5)
-        GUI:Text_enableOutline(rewardTitle, "#110b05", 2)
+        -- local rewardTitle = GUI:Text_Create(panel, "reward", 0, 30, 16, "#00FB00", "任务\n奖励")
+        -- GUI:setAnchorPoint(rewardTitle, 0, 0.5)
+        -- GUI:Text_enableOutline(rewardTitle, "#110b05", 2)
 
-        local rewardRoot = GUI:Node_Create(panel, "reward_root", 50, 45)
+        local rewardRoot = GUI:Node_Create(panel, "reward_root", 40, 20)
         -- GUI:setLocalZOrder(rewardRoot, 999)
 
 
@@ -1849,7 +1963,9 @@ function MainAssistXylHelper.bind(MainAssist)
 
         MainAssist._xylCurrentWidget = {
             panel = panel,
+            title = title,
             nameText = nameText,
+            rewardTitle = rewardTitle,
             rewardRoot = rewardRoot,
             rewardNode = nil,
             detailBtn = detailBtn,
@@ -1858,12 +1974,120 @@ function MainAssistXylHelper.bind(MainAssist)
         return MainAssist._xylCurrentWidget
     end
 
+    local function _close_xyl_final_entry_widget()
+        if MainAssist._xylFinalEntryWidget and MainAssist._xylFinalEntryWidget.panel then
+            GUI:setVisible(MainAssist._xylFinalEntryWidget.panel, false)
+        end
+    end
+
+    local function _ensure_xyl_final_entry_widget()
+        if MainAssist._xylFinalEntryWidget and MainAssist._xylFinalEntryWidget.panel then
+            return MainAssist._xylFinalEntryWidget
+        end
+
+        local parent = MainAssist._ui and MainAssist._ui["Panel_assist"]
+        if not parent then
+            return nil
+        end
+
+        local panel = GUI:Layout_Create(parent, "Panel_ywl_final_entry", GRAY_WORLD_PANEL_POS.x, GRAY_WORLD_PANEL_POS.y, GRAY_WORLD_PANEL_SIZE.width, GRAY_WORLD_PANEL_SIZE.height, false)
+        GUI:setLocalZOrder(panel, 1002)
+        GUI:setTouchEnabled(panel, true)
+
+        local bg = GUI:Image_Create(panel, "bg", 0, 0, GRAY_WORLD_BG_PATH)
+        if bg then
+            GUI:setAnchorPoint(bg, 0, 0)
+            local bgSize = GUI:getContentSize(bg)
+            if bgSize and bgSize.width > 0 and bgSize.height > 0 then
+                GUI:setScaleX(bg, GRAY_WORLD_PANEL_SIZE.width / bgSize.width)
+                GUI:setScaleY(bg, GRAY_WORLD_PANEL_SIZE.height / bgSize.height)
+            end
+        end
+
+        local btn = NPC_UI_HELPER.createPrimaryButton(panel, "xyl_final_entry_btn", GRAY_WORLD_FINAL_BTN_POS.x, GRAY_WORLD_FINAL_BTN_POS.y, "", function()
+            SL:SendLuaNetMsg(101, 11, 0, 0, "")
+        end, {
+            skin = "res/custom/all_story_mission/5/689/list/l/4.png",
+            fontSize = 14,
+            color = "#F4E7B5",
+        })
+        GUI:setAnchorPoint(btn, 0.5, 0.5)
+
+        local tipText = GUI:Text_Create(btn, "entry_text", 162 / 2, 164 / 2, 20, "#FF0000", XYL_FINAL_ENTRY_BTN_TEXT)
+        GUI:setAnchorPoint(tipText, 0.5, 0.5)
+        GUI:Text_setFontName(tipText, "fonts/502.ttf")
+        GUI:Text_enableOutline(tipText, "#000000", 2)
+
+        MainAssist._xylFinalEntryWidget = {
+            panel = panel,
+            bg = bg,
+            btn = btn,
+        }
+        return MainAssist._xylFinalEntryWidget
+    end
+
+    local function _show_xyl_final_entry_widget()
+        local widget = _ensure_xyl_final_entry_widget()
+        if not widget then
+            return false
+        end
+        _safe_set_visible(widget.panel, true)
+        if MainAssist._grayWorldTaskIcon then
+            _safe_set_visible(MainAssist._grayWorldTaskIcon, false)
+        end
+        NPC_UI_HELPER.closeGuideByDomain("gray_world")
+        if MainAssist._xylCurrentWidget and MainAssist._xylCurrentWidget.panel then
+            _safe_set_visible(MainAssist._xylCurrentWidget.panel, false)
+        end
+        _close_current_xyl_detail()
+        if MainAssist.ListView_mission then
+            GUI:setContentSize(MainAssist.ListView_mission, 200, 185)
+            GUI:setPosition(MainAssist.ListView_mission, 101, 94)
+        end
+        return true
+    end
+
     function MainAssist.UpdateCurrentXylTaskWidget()
         MainAssist.UpdateGrayWorldTaskIcon()
+        if _is_mainline_final_entry_open() then
+            _show_xyl_final_entry_widget()
+            return
+        end
+        _close_xyl_final_entry_widget()
+        local mainlineRewardData = _collect_mainline_reward_display_data()
 
         if not XYL_CURRENT_TASK_WIDGET_VISIBLE then
+            if #mainlineRewardData > 0 then
+                local widget = _ensure_xyl_current_widget()
+                if not widget then
+                    return
+                end
+                _safe_set_visible(widget.panel, true)
+                _safe_set_visible(widget.title, false)
+                _safe_set_visible(widget.nameText, false)
+                _safe_set_visible(widget.rewardTitle, true)
+                _safe_set_visible(widget.detailBtn, false)
+                _safe_set_visible(widget.goBtn, false)
+                if widget.rewardNode then
+                    GUI:removeFromParent(widget.rewardNode)
+                    widget.rewardNode = nil
+                end
+                local okReward, rewardNode = pcall(function()
+                    return ItemNumByTable_img_new(mainlineRewardData, nil, widget.rewardRoot)
+                end)
+                if okReward and rewardNode then
+                    GUI:setPosition(rewardNode, 0, 0)
+                    _add_reward_effect_for_table(rewardNode, "mainline_reward_eff", 29, 30, 1, REWARD_ITEM_EFFECT_14193)
+                    widget.rewardNode = rewardNode
+                end
+                if MainAssist.ListView_mission then
+                    GUI:setContentSize(MainAssist.ListView_mission, 200, 145)
+                    GUI:setPosition(MainAssist.ListView_mission, 101, 114)
+                end
+                return
+            end
             if MainAssist._xylCurrentWidget and MainAssist._xylCurrentWidget.panel then
-                GUI:setVisible(MainAssist._xylCurrentWidget.panel, false)
+                _safe_set_visible(MainAssist._xylCurrentWidget.panel, false)
             end
             _close_current_xyl_detail()
             if MainAssist.ListView_mission then
@@ -1877,10 +2101,15 @@ function MainAssistXylHelper.bind(MainAssist)
         if not widget then
             return
         end
+        _safe_set_visible(widget.title, true)
+        _safe_set_visible(widget.nameText, true)
+        _safe_set_visible(widget.rewardTitle, true)
+        _safe_set_visible(widget.detailBtn, true)
+        _safe_set_visible(widget.goBtn, true)
 
         local info = _get_xyl_current_task_info(MainAssist._xylCurrentTask)
         local hasTask = info and info.name and info.name ~= ""
-        GUI:setVisible(widget.panel, hasTask)
+        _safe_set_visible(widget.panel, hasTask)
         if not hasTask then
             if widget.rewardNode then
                 GUI:removeFromParent(widget.rewardNode)
@@ -1924,6 +2153,7 @@ function MainAssistXylHelper.bind(MainAssist)
             end)
             if okReward and rewardNode then
                 GUI:setPosition(rewardNode, 0, 0)
+                _add_reward_effect_for_table(rewardNode, "xyl_current_reward_eff", 29, 30, 0.8, REWARD_ITEM_EFFECT_14193)
                 widget.rewardNode = rewardNode
             end
         end

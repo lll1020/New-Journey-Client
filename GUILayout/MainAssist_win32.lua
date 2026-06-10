@@ -45,9 +45,9 @@ function MainAssist.main()
     local isShow = (SL:GetMetaValue("GAME_DATA", "PCAssistNearShow") or 0) == 1
     GUI:setVisible(MainAssist._ui["Panel_group"], isShow)
     GUI:setContentSize(Panel_assist, isShow and 244 or 202, GUI:getContentSize(Panel_assist).height)
-    GUI:setPositionX(GUI:getChildByName(Panel_assist, "Panel_content"), isShow and 42 or 0)
+    GUI:setPositionX(GUI:getChildByName(Panel_assist, "Panel_content"), isShow and 42 - 36 or 0)
 
-    GUI:setPositionX(Panel_hide, isShow and 245 or 203)
+    GUI:setPositionX(Panel_hide, 250 - 40)
     MainAssist._hidePos = GUI:getPosition(Panel_hide)
 
     MainAssist.RegisterEvent()
@@ -70,7 +70,7 @@ function MainAssist.ChangeHideStatus(status)
     GUI:stopAllActions(MainAssist._Panel_hide)
 
     if MainAssist._hideAssist then
-        local movePosHide = { x = hideX - assistSize.width, y = hideY }
+        local movePosHide = { x = hideX - assistSize.width + 40, y = hideY }
         GUI:Timeline_EaseSineIn_MoveTo(MainAssist._Panel_hide, movePosHide, 0.2)
         local movePosAssist = { x = assitX - assistSize.width, y = assitY }
         GUI:Timeline_EaseSineIn_MoveTo(MainAssist._Panel_assist, movePosAssist, 0.2, function()

@@ -61,6 +61,12 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 1, 0, "")
             end)
+            NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, Button, node, npcid, "xuanyuan_fix", {
+                taskMap = {[npcid] = 30},
+                keyPrefix = "mainline_xuanyuan_fix",
+                dir = 5,
+                desc = "点击修复轩辕剑",
+            })
         end
     end
 

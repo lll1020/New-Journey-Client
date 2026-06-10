@@ -518,16 +518,23 @@ local function createRewardCell(parent, name, x, y, rewardPack, stateText, state
 end
 
 local function closeBoxPopup()
-    if npc.boxPopup then
-        GUI:removeFromParent(npc.boxPopup)
-        npc.boxPopup = nil
+    local popup = npc.boxPopup
+    npc.boxPopup = nil
+    if popup then
+        pcall(function()
+            GUI:removeFromParent(popup)
+        end)
     end
 end
 
 local function closeBuyPopup()
-    if npc.buyPopup then
-        GUI:removeFromParent(npc.buyPopup)
-        npc.buyPopup = nil
+    local popup = npc.buyPopup
+    npc.buyPopup = nil
+    npc.buyPopupInput = nil
+    if popup then
+        pcall(function()
+            GUI:removeFromParent(popup)
+        end)
     end
 end
 
@@ -546,6 +553,8 @@ local function openBuyPopup()
     closeBuyPopup()
 
     npc.buyPopup = GUI:Node_Create(npc.bg, "buy_popup", 0, 0)
+
+    GUI:setLocalZOrder(npc.buyPopup, 100) -- 确保在其他界面元素之上
 
     local overlay = GUI:Image_Create(npc.buyPopup, "overlay", 0, 0, "res/public/1900000651_1.png")
     GUI:setAnchorPoint(overlay, 0, 0)
