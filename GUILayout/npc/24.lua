@@ -287,10 +287,6 @@ function npc.main(npcid, p2, p3, msgData)
                 local item = GUI:Image_Create(listNode, "atlas_item_" .. idx2, x, y, "res/custom/tianshu/tj/item_kuang.png")
                 
                 local owned = ownedMap[quality .. "_" .. idx2] == true
-                if not owned then
-                    GUI:Image_setGrey(item, true)
-                    GUI:setOpacity(item, 165)
-                end
                 local title = GUI:Image_Create(item, "title", 7, 146, "res/custom/tianshu/tj/title/title_" .. quality .. ".png")
                 GUI:setAnchorPoint(title, 0, 1)
                 local iconPath = tostring(info.icon or "")
@@ -299,16 +295,20 @@ function npc.main(npcid, p2, p3, msgData)
                     GUI:setTouchEnabled(icon, true)
                     _xianfa_bind_atlas_tip(icon, info, quality, owned)
                     GUI:setAnchorPoint(icon, 0.5, 0.5)
-                    if not owned then
-                        GUI:Image_setGrey(title, true)
-                        -- GUI:Image_setGrey(icon, true)
-                    end
-                elseif not owned then
-                    GUI:Image_setGrey(title, true)
                 end
-                local name = GUI:Text_Create(item, "name", 84, 23 + 110, 17, owned and (level_coler[quality] or "#FFFFFF") or "#9C9C9C", tostring(info.name or "未知仙法"))
+                local name = GUI:Text_Create(item, "name", 84, 23 + 110, 17, level_coler[quality] or "#FFFFFF", tostring(info.name or "未知仙法"))
                 GUI:setAnchorPoint(name, 0.5, 0.5)
                 GUI:Text_enableOutline(name, "#000000", 1)
+                local statusColor = owned and "#45FF93" or "#FF6B6B"
+                local statusText = owned and "已激活" or "未激活"
+                local statusBg = GUI:Image_Create(item, "status_bg", 84, 34, "res/wy/public/input.png")
+                GUI:setAnchorPoint(statusBg, 0.5, 0.5)
+                GUI:setContentSize(statusBg, 118, 26)
+                GUI:setOpacity(statusBg, 95)
+                local status = GUI:Text_Create(item, "status", 84, 34, 18, statusColor, statusText)
+                GUI:setAnchorPoint(status, 0.5, 0.5)
+                GUI:Text_setFontName(status, "fonts/502.ttf")
+                GUI:Text_enableOutline(status, "#000000", 1)
                 
             end
 
@@ -516,20 +516,49 @@ function npc.main(npcid, p2, p3, msgData)
                 local caowei = npc.data.T_data.caowei
                 local cfg = npc._config.details[2]
                 local cfg_details = cfg.details
-                local unlock_lv = cfg.unlock_lv or {}
+                local unlock_cond = cfg.unlock_cond or {}
                 local cur_lv = npc.data.T_data.level or 0
                 local xianfa_all_unlock = tonumber(npc.data and npc.data.xianfa_all_unlock or 0) == 1
                 local label_delegate = GUI:ui_delegate(Label_node)
                 local layout_delegate = GUI:ui_delegate(dbLayout)
-                local function is_slot_unlocked(slot, slot_data)
+                local function get_actor_level()
+                    return tonumber(SL:GetMetaValue("LEVEL") or SL:GetMetaValue("ACTOR_LEVEL") or SL:GetMetaValue("ACTOR_LEVEL", SL:GetMetaValue("MAIN_ACTOR_ID")) or 0) or 0
+                end
+                local function has_title(title)
+                    if not title or title == "" then
+                        return false
+                    end
+                    local idx = SL:GetMetaValue("ITEM_INDEX_BY_NAME", title)
+                    return idx and SL:GetMetaValue("TITLE_DATA_BY_ID", idx) ~= nil
+                end
+                local function get_slot_unlock_state(slot, slot_data)
                     if slot_data then
-                        return true
+                        return true, "已解锁"
                     end
                     if xianfa_all_unlock then
-                        return true
+                        return true, "已解锁"
                     end
-                    local need_lv = unlock_lv[slot] or 1
-                    return cur_lv >= need_lv
+                    local cond = unlock_cond[slot]
+                    if not cond then
+                        local need_lv = cfg.unlock_lv and cfg.unlock_lv[slot] or 1
+                        return cur_lv >= need_lv, "天书等级"..need_lv.."级"
+                    end
+                    if cond.kind == "free" then
+                        return true, cond.desc or "免费解锁"
+                    elseif cond.kind == "level" then
+                        local lv = tonumber(cond.level) or 0
+                        return get_actor_level() >= lv, cond.desc or ("玩家等级Lv"..lv)
+                    elseif cond.kind == "story" then
+                        return has_title(cond.title), cond.desc or "完成指定剧情任务"
+                    elseif cond.kind == "tianshu" then
+                        local lv = tonumber(cond.level) or 0
+                        return cur_lv >= lv, cond.desc or ("天书等级"..lv.."级")
+                    end
+                    return false, cond.desc or "未满足解锁条件"
+                end
+                local function is_slot_unlocked(slot, slot_data)
+                    local unlocked = get_slot_unlock_state(slot, slot_data)
+                    return unlocked
                 end
                 local function get_slot_info(slot, slot_data)
                     if slot_data then
@@ -537,17 +566,14 @@ function npc.main(npcid, p2, p3, msgData)
                         local idx2 = slot_data[2]
                         local info = cfg_details[group] and cfg_details[group][idx2]
                         if info then
-                            return info.name, level_coler[group] or "#FFFFFF", info.wz
+                            return info.name, level_coler[group] or "#FFFFFF", info.wz, info
                         end
                     end
-                    if xianfa_all_unlock then
+                    local unlocked, desc = get_slot_unlock_state(slot, slot_data)
+                    if unlocked then
                         return "已解锁", "#00FF00", nil
                     end
-                    local need_lv = unlock_lv[slot] or 1
-                    if cur_lv >= need_lv then
-                        return "已解锁", "#00FF00", nil
-                    end
-                    return "解锁需天书等级："..need_lv, "#A0A0A4", nil
+                    return "解锁需："..desc, "#A0A0A4", nil
                 end
                 local function render_slot_detail(slot)
                     local slot_key = ""..slot
@@ -560,25 +586,39 @@ function npc.main(npcid, p2, p3, msgData)
                         npc.xf_node = GUI:Node_Create(Label_node, "xf_node", 0, 0)
                     end
                     if wz then
-                        -- GUI:setAnchorPoint(GUI:Text_Create(npc.xf_node, "wz5",50 + 549,16 + 480, 20, "#FF0000", wz), 0, 1)
-                        GUI:setAnchorPoint(GUI:Image_Create(npc.xf_node, "wz5", 30 + 549, 16 + 480 + 50, "res/custom/tianshu/xf/l_"..slot_data[1]..".png")
-                        , 0, 1)
-                        GUI:setAnchorPoint(GUI:RichText_Create(npc.xf_node, "attr_desc_next", 50 + 549 + 60,16 + 480,  wz, 310 - 40, 17, level_coler[slot_data[1]], 3,nil,nil)
-                        , 0, 1)
+                        local group = slot_data[1]
+                        local idx2 = slot_data[2]
+                        local info = cfg_details[group] and cfg_details[group][idx2] or {}
+                        local detailX = 50 + 549
+                        local detailTop = 16 + 480
+                        GUI:setAnchorPoint(GUI:Image_Create(npc.xf_node, "quality_deco", detailX - 18, detailTop + 22, "res/custom/tianshu/xf/l_"..group..".png"), 0, 1)
+                        local iconBox = GUI:Image_Create(npc.xf_node, "xianfa_icon_box", detailX + 62, detailTop - 8, "res/wy/public/70_70_k.png")
+                        GUI:setAnchorPoint(iconBox, 0, 1)
+                        GUI:setContentSize(iconBox, 58, 58)
+                        local iconPath = tostring(info.icon or "")
+                        if iconPath ~= "" then
+                            local icon = GUI:Image_Create(iconBox, "xianfa_icon", 29, 29, iconPath)
+                            GUI:setAnchorPoint(icon, 0.5, 0.5)
+                            GUI:setContentSize(icon, 42, 42)
+                        end
+                        local nameText = GUI:Text_Create(npc.xf_node, "xianfa_name", detailX + 128, detailTop - 28, 22, level_coler[group] or "#FFFFFF", tostring(info.name or "未知仙法"))
+                        GUI:setAnchorPoint(nameText, 0, 0.5)
+                        GUI:Text_setFontName(nameText, "fonts/502.ttf")
+                        GUI:Text_enableOutline(nameText, "#100808", 2)
+                        local descBg = GUI:Image_Create(npc.xf_node, "xianfa_desc_bg", detailX + 62, detailTop - 74, "res/wy/public/input.png")
+                        GUI:setAnchorPoint(descBg, 0, 1)
+                        GUI:setContentSize(descBg, 266, 88)
+                        GUI:setOpacity(descBg, 70)
+                        GUI:setAnchorPoint(GUI:RichText_Create(npc.xf_node, "attr_desc_next", detailX + 74, detailTop - 84, tostring(wz or ""), 246, 18, level_coler[group] or "#FFFFFF", 1,nil,nil), 0, 1)
                     else
                         local text = nil
                         local color = "#A0A0A4"
-                        if xianfa_all_unlock then
+                        local unlocked, desc = get_slot_unlock_state(slot, slot_data)
+                        if unlocked then
                             text = "已解锁"
                             color = "#00FF00"
                         else
-                            local need_lv = unlock_lv[slot] or 1
-                            if cur_lv >= need_lv then
-                                text = "已解锁"
-                                color = "#00FF00"
-                            else
-                                text = "解锁天书等级："..need_lv
-                            end
+                            text = "解锁需："..desc
                         end
                         -- 未解锁提示改为居中显示，避免与左侧信息区重叠。
                         local lockText = GUI:Text_Create(npc.xf_node, "wz5", 50 + 549 + 155, 16 + 480 - 12, 20, color, text)
@@ -813,15 +853,32 @@ function npc.main(npcid, p2, p3, msgData)
                     local cfg = npc._config.details[2]
                     local cfg_details = cfg.details
                     local info = cfg_details[data.group] and cfg_details[data.group][data.idx]
-                    -- info.name, level_coler[group] or "#FFFFFF", info.wz
-                    local name = GUI:Text_Create(parent, "name", cogin.w/2,  cogin.h/2 + 30, 50, level_coler[data.group] or "#FFFFFF", info.name)
-                    GUI:setAnchorPoint(name, 0.5, 0)
+                    local detailX = cogin.w / 2 - 140
+                    local detailY = cogin.h / 2 + 92
+                    local iconBox = GUI:Image_Create(parent, "xianfa_icon_box", detailX, detailY, "res/wy/public/70_70_k.png")
+                    GUI:setAnchorPoint(iconBox, 0, 1)
+                    GUI:setContentSize(iconBox, 76, 76)
+                    GUI:setOpacity(iconBox, 0)
+                    GUI:Timeline_FadeIn(iconBox, 1, nil)
+                    local iconPath = info and tostring(info.icon or "") or ""
+                    if iconPath ~= "" then
+                        local icon = GUI:Image_Create(iconBox, "xianfa_icon", 38, 38, iconPath)
+                        GUI:setAnchorPoint(icon, 0.5, 0.5)
+                        GUI:setContentSize(icon, 54, 54)
+                    end
+                    local name = GUI:Text_Create(parent, "name", detailX + 92, detailY - 22, 40, level_coler[data.group] or "#FFFFFF", info and info.name or "未知仙法")
+                    GUI:setAnchorPoint(name, 0, 0.5)
                     GUI:Text_setFontName(name, "fonts/448.ttf")
                     GUI:Text_enableOutline(name, "#000000", 2)
                     GUI:setOpacity(name, 0)
                     GUI:Timeline_FadeIn(name, 1,nil)
-                    local attr_desc = GUI:RichText_Create(parent, "attr_desc", cogin.w/2,  cogin.h/2,  info.wz, 310, 17, "#f7f7de", 3,nil,nil)
-                    GUI:setAnchorPoint(attr_desc, 0.5, 1)
+                    local descBg = GUI:Image_Create(parent, "xianfa_desc_bg", detailX, detailY - 92, "res/wy/public/input.png")
+                    GUI:setAnchorPoint(descBg, 0, 1)
+                    GUI:setContentSize(descBg, 330, 88)
+                    GUI:setOpacity(descBg, 0)
+                    GUI:Timeline_FadeIn(descBg, 1, nil)
+                    local attr_desc = GUI:RichText_Create(parent, "attr_desc", detailX + 14, detailY - 105,  info and info.wz or "", 302, 18, "#f7f7de", 1,nil,nil)
+                    GUI:setAnchorPoint(attr_desc, 0, 1)
                     GUI:setOpacity(attr_desc, 0)
                     GUI:Timeline_FadeIn(attr_desc, 1,nil)
                     local skipLabel = GUI:Text_Create(parent, "skip_label", cogin.w/2 - 60, 80, 20, "#FFFFFF", "跳过动画")

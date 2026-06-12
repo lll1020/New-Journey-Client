@@ -249,6 +249,38 @@ function GUIFunction:CheckEquipExcludePos(item)
     return nil
 end
 
+local function showSoftBuffTitleTip(text)
+    text = tostring(text or "")
+    if text == "" then
+        return
+    end
+    local winName = "soft_buff_title_tip"
+    local parent = GUI:GetWindow(nil, winName)
+    if parent then
+        GUI:removeAllChildren(parent)
+    else
+        parent = GUI:Win_Create(winName, 0, 0, 0, 0, false, false, true, false, true, nil, 300)
+    end
+    if not parent then
+        SL:ShowSystemTips(string.format("<font color='#C8C8C8' size='14'>%s</font>", text))
+        return
+    end
+    local width = 320
+    local x = ((cogin and cogin.w) or 960) - width - 70
+    local y = 172
+    local tip = GUI:RichText_Create(parent, "tip", x, y, string.format("<font color='#C8C8C8' size='14'>%s</font>", text), width, 14, "#C8C8C8", 0, nil, nil, {
+        outlineSize = 1,
+        outlineColor = SL:ConvertColorFromHexString("#000000"),
+    })
+    GUI:setAnchorPoint(tip, 0, 0.5)
+    SL:scheduleOnce(parent, function()
+        local cur = GUI:GetWindow(nil, winName)
+        if cur then
+            GUI:Win_Close(cur)
+        end
+    end, 2)
+end
+
 -- 检测显示自动使用Tips
 -- checkItem: 检测装备数据     pos: 要穿戴的装备位置    playerType: 人物类型(1: 人物; 2: 英雄)
 function GUIFunction:CheckAutoUseTips(checkItem, pos, playerType)
@@ -338,7 +370,7 @@ function GUIFunction:OnAutoUseCheckItem(item)
         if buffID then
             local config = SL:GetMetaValue("BUFF_CONFIG", buffID)
             if config and config.bufftitle then
-                SL:ShowSystemTips(config.bufftitle)
+                showSoftBuffTitleTip(config.bufftitle)
             end
         end
         return

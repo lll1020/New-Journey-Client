@@ -64,6 +64,15 @@ SL:RegisterLuaNetMsg(103, function(msgID, p1, p2, p3, msgData)
         end
         if msgData.rwid then
             cogin.sjtb.rwid = msgData.rwid
+            cogin.sjtb.zxrwid = msgData.rwid
+            if MainAssist and type(MainAssist.UpdateCurrentXylTaskWidget) == "function" then
+                MainAssist.UpdateCurrentXylTaskWidget()
+                SL:ScheduleOnce(function()
+                    if MainAssist and type(MainAssist.UpdateCurrentXylTaskWidget) == "function" then
+                        MainAssist.UpdateCurrentXylTaskWidget()
+                    end
+                end, 0.05)
+            end
             if (tonumber(msgData.rwid) or 0) >= 16 and Npclib["anniu"] and Npclib["anniu"][1] then
                 -- 二大陆主线节点生效后，立即刷新快捷栏，显示“马上发财”按钮。
                 Npclib["anniu"][1](0, 1, "")

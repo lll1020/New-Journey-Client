@@ -735,7 +735,10 @@ local function _shortcut_has_reached_xyl_task(taskName)
     return _shortcut_is_current_xyl_task(taskName)
 end
 local function _shortcut_get_mainline_rwid()
-    local rwid = tonumber(cogin and cogin.sjtb and (cogin.sjtb.zxrwid or cogin.sjtb.rwid) or 0) or 0
+    local rwid = math.max(
+        tonumber(cogin and cogin.sjtb and cogin.sjtb.zxrwid or 0) or 0,
+        tonumber(cogin and cogin.sjtb and cogin.sjtb.rwid or 0) or 0
+    )
     if rwid <= 0 and Player and type(Player.getServerVar) == "function" then
         rwid = tonumber(Player:getServerVar("U11") or 0) or 0
     end
@@ -798,8 +801,136 @@ local function _shortcut_should_show(cfg)
         return not _shortcut_is_unbind_completed()
     end
     if npcid == 64 then
-        return _shortcut_should_show_pet_contract()
+        return false
     end
+    return true
+end
+local function _format_pet_countdown(seconds)
+    seconds = math.max(0, math.floor(tonumber(seconds) or 0))
+    local h = math.floor(seconds / 3600)
+    local m = math.floor((seconds % 3600) / 60)
+    local s = seconds % 60
+    if h > 0 then
+        return string.format("%02d:%02d:%02d", h, m, s)
+    end
+    return string.format("%02d:%02d", m, s)
+end
+local function _get_lingshou_main_data()
+    local data = _shortcut_get_server_json("T50")
+    data.hatch = type(data.hatch) == "table" and data.hatch or {}
+    return data
+end
+local function _should_show_lingshou_main_entry(data)
+    data = data or _get_lingshou_main_data()
+    if (tonumber(data.dqzh or 0) or 0) > 0 then
+        return false
+    end
+    if npc._force_show_lingshou_main_entry == true then
+        return true
+    end
+    if (tonumber(data.baby_choice or 0) or 0) > 0 then
+        return true
+    end
+    if _shortcut_get_mainline_rwid() >= 28 then
+        return true
+    end
+    return _shortcut_has_reached_xyl_task("灵兽孵化")
+end
+local function _get_lingshou_hatch_left(data)
+    data = data or _get_lingshou_main_data()
+    local choice = tonumber(data.baby_choice or 0) or 0
+    local hatch = choice > 0 and data.hatch and data.hatch[tostring(choice)] or nil
+    local expireAt = tonumber(hatch and hatch.expireAt or 0) or 0
+    if expireAt <= 0 then
+        return nil
+    end
+    return math.max(0, expireAt - os.time())
+end
+local function _open_lingshou_contract_entry()
+    rawset(_G, "NPC64_OPEN_CONTRACT_ONCE", true)
+    SL:SendLuaNetMsg(105, 64, 1064, 0, "")
+end
+npc.refreshLingshouMainEntry = function()
+    local data = _get_lingshou_main_data()
+    local hasBabyChoice = (tonumber(data.baby_choice or 0) or 0) > 0
+    if npc._lingshou_main_guiding == true then
+        if not hasBabyChoice then
+            return
+        end
+        npc._lingshou_main_guiding = nil
+    end
+    if npc.lingshou_main_entry and not tolua.isnull(npc.lingshou_main_entry) then
+        GUI:removeFromParent(npc.lingshou_main_entry)
+    end
+    npc.lingshou_main_entry = nil
+    npc.lingshou_main_button = nil
+    if not _should_show_lingshou_main_entry(data) then
+        return
+    end
+    local node = GUI:Layout_Create(npc.LeftTop, "lingshou_main_entry", 330, -195, 90, 100, false)
+    npc.lingshou_main_entry = node
+    local btn = GUI:Button_Create(node, "button", 0, 0, "res/wy/icon/lignshou.png")
+    GUI:setScale(btn, 0.7)
+    npc.lingshou_main_button = btn
+    GUI:addOnClickEvent(btn, function()
+        npc._force_show_lingshou_main_entry = nil
+        _open_lingshou_contract_entry()
+    end)
+    local left = _get_lingshou_hatch_left(data)
+    if left ~= nil and left > 0 then
+        local cd = GUI:Text_Create(node, "countdown", (145 * 0.7) / 2, 0, 13, "#45FF93", _format_pet_countdown(left))
+        GUI:setAnchorPoint(cd, 0.5, 0.5)
+        GUI:Text_enableOutline(cd, "#000000", 1)
+        GUI:Text_COUNTDOWN(cd, left, function()
+            if npc.refreshLingshouMainEntry then
+                npc.refreshLingshouMainEntry()
+            end
+        end)
+    elseif left ~= nil then
+        NPC_UI_HELPER.redpoint_create_eff(btn, {
+            x = 76 + 53 + 10,
+            y = 70 + 29 + 10,
+        })
+    end
+end
+local function refreshLingshouMainEntrySoon()
+    if npc.refreshLingshouMainEntry then
+        npc.refreshLingshouMainEntry()
+        SL:ScheduleOnce(function()
+            if npc.refreshLingshouMainEntry then
+                npc.refreshLingshouMainEntry()
+            end
+        end, 0.1)
+    end
+end
+local function startLingshouMainGuide(retryCount)
+    npc._force_show_lingshou_main_entry = true
+    if npc.refreshLingshouMainEntry then
+        npc.refreshLingshouMainEntry()
+    end
+    if not npc.lingshou_main_button or tolua.isnull(npc.lingshou_main_button) then
+        retryCount = tonumber(retryCount or 0) or 0
+        if retryCount > 0 then
+            SL:ScheduleOnce(function()
+                startLingshouMainGuide(retryCount - 1)
+            end, 0.2)
+        end
+        return false
+    end
+    local guideParent = GUI:getParent(npc.lingshou_main_button) or npc.LeftTop
+    npc._lingshou_main_guiding = true
+    NPC_UI_HELPER.startGuide({
+        dir = 3,
+        guideWidget = npc.lingshou_main_button,
+        guideParent = guideParent,
+        guideDesc = "点击领取灵兽蛋",
+        isForce = false,
+        hideMask = false,
+    })
+    GUI:Timeline_FadeIn(npc.lingshou_main_button, 0.2)
+    SL:ScheduleOnce(function()
+        npc._lingshou_main_guiding = nil
+    end, 1)
     return true
 end
 local SHORTCUT_COLLAPSED_SHOW_COUNT = 3
@@ -1281,6 +1412,13 @@ local guideDispatch = {
 npc[0] = function(p2, p3, msgData)
     if p2 == 1 then
         local zysj = SL:JsonDecode(msgData, false)
+        if tonumber(zysj and zysj.an or 0) == 64 and tonumber(zysj and zysj.rwid or 0) >= 28 then
+            cogin.sjtb.zxrwid = math.max(tonumber(cogin.sjtb.zxrwid) or 0, tonumber(zysj.rwid) or 28)
+            cogin.sjtb.rwid = math.max(tonumber(cogin.sjtb.rwid) or 0, tonumber(zysj.rwid) or 28)
+            refreshLingshouMainEntrySoon()
+            startLingshouMainGuide(3)
+            return
+        end
         local handler = guideDispatch[zysj.lx]
         if handler then
             handler(zysj)
@@ -1524,12 +1662,14 @@ npc[1] = function(p2, p3, msgData)
                 _refresh_shortcut_collapsed_state(true)
             end)
             rebuildShortcutButtons("")
+            refreshLingshouMainEntrySoon()
             registerShortcutTitleRefresh()
             UPGRADE_HELPER.registerOpenNpcButtons()
             UPGRADE_HELPER.startEquipChangeRefresh()
             UPGRADE_HELPER.startAutoRefresh(20 * 1)
         elseif p3 == 1 then
             rebuildShortcutButtons(msgData or "")
+            refreshLingshouMainEntrySoon()
             registerShortcutTitleRefresh()
             
             SL:WinClick(widget)
@@ -3148,16 +3288,10 @@ npc[11] = function(p2, p3, Data)
                                             autoGuideDesc = "点击江湖称号"
                                         end
                                     elseif taskName == "灵兽孵化" then
-                                        ensureTopPanelExpanded()
-                                        local petShortcut = findShortcutButtonByNpcId(64)
-                                        if not petShortcut then
-                                            rebuildShortcutButtons("")
-                                            ensureTopPanelExpanded()
-                                            petShortcut = findShortcutButtonByNpcId(64)
-                                        end
-                                        if petShortcut then
-                                            autoGuideWidget = petShortcut
-                                            autoGuideDesc = "点击顶部灵兽契约"
+                                        startLingshouMainGuide(3)
+                                        if npc.lingshou_main_button and not tolua.isnull(npc.lingshou_main_button) then
+                                            autoGuideWidget = npc.lingshou_main_button
+                                            autoGuideDesc = "点击灵兽孵化"
                                         end
                                     end
                                     if not autoGuideWidget and taskName ~= "灵兽孵化" then
@@ -4883,6 +5017,10 @@ npc[498] = function(p2, p3, Data)
         GUI:setAnchorPoint(campScore, 0.5, 0.5)
         GUI:Text_enableOutline(campScore, "#000000", 1)
         npc.tyeccamp = campScore
+        local activityState = GUI:Text_Create(npc.tyec, "activity_state", 108.0, 128.0, 14, "#d6a573", "")
+        GUI:setAnchorPoint(activityState, 0.5, 0.5)
+        GUI:Text_enableOutline(activityState, "#000000", 1)
+        npc.tyecstate = activityState
         local scoreLabel = GUI:Text_Create(npc.tyec, "Text_1", 72.0, 6.0, 14, "#d6a573", "当前个人积分:")
         GUI:Text_enableOutline(scoreLabel, "#000000", 1)
         npc.tyecgr = GUI:Text_Create(scoreLabel, "Textxx", 92.0, 0.0, 14, "#d6a573", "0")
@@ -4918,7 +5056,18 @@ npc[498] = function(p2, p3, Data)
         end
         GUI:Text_setString(npc.tyecgr, data.grjf or 0)
         if npc.tyeccamp then
-            GUI:Text_setString(npc.tyeccamp, string.format("正方:%s  邪方:%s", data.hjf or 0, data.ljf or 0))
+            if data.wave_name or data.left_mon then
+                GUI:Text_setString(npc.tyeccamp, string.format("军团:%s", tostring(data.wave_name or "未知")))
+            else
+                GUI:Text_setString(npc.tyeccamp, string.format("正方:%s  邪方:%s", data.hjf or 0, data.ljf or 0))
+            end
+        end
+        if npc.tyecstate then
+            if data.wave_name or data.left_mon then
+                GUI:Text_setString(npc.tyecstate, string.format("剩余怪物:%s", tostring(data.left_mon or 0)))
+            else
+                GUI:Text_setString(npc.tyecstate, "")
+            end
         end
     end
     if p2 == 0 then
@@ -5862,6 +6011,9 @@ npc[507] = function(p2, p3, Data)
                 cfg.time = cfg.time .. "\n当前活动进行中，可直接点击参与"
             end
             cfg.desc = string.format("进入【%s】后怪物按波次刷新。活动怪物只受1点固定伤害，对玩家造成0伤害。当前累计功勋：%s，当前称号：%s。", tostring(bwcz.display_map or bwcz.map or "村庄"), tostring(tonumber(myData.gx or 0) or 0), tostring(myData.title or "暂无称号"))
+            if open == 1 then
+                cfg.desc = cfg.desc .. string.format("\n当前进攻军团：%s，剩余怪物：%s。", tostring(myData.wave_name or "未知"), tostring(myData.left_mon or 0))
+            end
             cfg.reward = "击杀奖励：金币18W、金币88W、元宝5W；前三名达到镇境武侯可得50元真实充值"
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 local killReward = bwcz.kill_reward or {}
@@ -5872,7 +6024,7 @@ npc[507] = function(p2, p3, Data)
             end)
         elseif i == 2 then
             cfg.title = "全民夺矿"
-            cfg.time = string.format("开服第%s分钟开启，持续%s分钟", tostring(qmdk.start_minute or 26), tostring(qmdk.duration_min or 8))
+            cfg.time = string.format("每日%02d:%02d开启，持续%s分钟", tonumber(qmdk.start_hour or 19) or 19, tonumber(qmdk.start_minute_clock or 0) or 0, tostring(qmdk.duration_min or 20))
             cfg.desc = string.format("进入【%s】地图后停留在矿区即可持续得分，每%s秒获得%s点积分；活动结束后按照积分排行发奖。当前个人积分：%s。", tostring(qmdk.map or "全民夺矿"), tostring(qmdk.score_tick_sec or 10), tostring(qmdk.score_per_tick or 1), tostring(tonumber(qmdkState.grjf or 0) or 0))
             cfg.reward = "参与奖励：" .. makeRewardText(qmdk.join_reward)
             cfg.rewardItems = buildRewardItems(function(out, seen)
@@ -6063,6 +6215,7 @@ npc[507] = function(p2, p3, Data)
             5,
             6,
             7,
+            8,
             9,
             10,
             11,
@@ -7270,10 +7423,12 @@ npc[516] = function(p2, p3, Data)
         local needCz502, needCz502Idx = mfzz_get_cz502_requirement(cfg)
         local needPay21 = tonumber(cfg.need_pay21 or 0) or 0
         local needMoney23 = tonumber(cfg.need_money23 or 0) or 0
+        local needRealCharge = tonumber(cfg.need_real_charge or 0) or 0
         local needCharge = tonumber(cfg.need_charge or cfg.sgsl or 0) or 0
         local autoPay = tonumber(cfg.auto_pay or 0) or 0
         local curData = mfzz_get_data()
         local totalCharge = tonumber(curData.charge or curData.sgsl or 0) or 0
+        local realCharge = tonumber(curData.real_charge or 0) or 0
         local charge23 = tonumber(curData.money23 or 0) or 0
         if needCz502 > 0 then
             if needCz502Idx > 0 then
@@ -7288,14 +7443,17 @@ npc[516] = function(p2, p3, Data)
             end
             return string.format("%s元礼包", tostring(autoPay > 0 and autoPay or needPay21)), false, false
         end
-        if autoPay > 0 and needMoney23 <= 0 and needCharge <= 0 then
+        if autoPay > 0 and needMoney23 <= 0 and needRealCharge <= 0 and needCharge <= 0 then
             return string.format("%s元礼包", tostring(autoPay)), false, false
         end
         if needMoney23 > 0 then
             return string.format("充值%s元", tostring(needMoney23)), charge23 >= needMoney23, false
         end
+        if needRealCharge > 0 then
+            return string.format("累计充值%s元", tostring(needRealCharge)), realCharge >= needRealCharge, false
+        end
         if needCharge > 0 then
-            return string.format("需要：累计充值%s元", tostring(needCharge)), totalCharge >= needCharge, false
+            return string.format("充值%s元", tostring(needCharge)), totalCharge >= needCharge, false
         end
         return "免费领取", true, false
     end
@@ -7365,35 +7523,23 @@ npc[516] = function(p2, p3, Data)
         local card = GUI:Layout_Create(node, "card_" .. idx, cardPos.x, cardPos.y, 165, 320)
         GUI:setAnchorPoint(card, 0, 0)
         local rewardList = mfzz_get_reward_list(cfg)
-        local gridPos = {
-            {
-                35,
-                108,
-            },
-            {
-                83 + 10,
-                108,
-            },
-            {
-                131,
-                108,
-            },
-            {
-                35,
-                66,
-            },
-            {
-                83,
-                66,
-            },
-            {
-                131,
-                66,
-            },
-        }
-        for j = 1, math.min(#rewardList, #gridPos) do
-            local pos = gridPos[j]
-            mfzz_render_item(card, rewardList[j][1], rewardList[j][2], pos[1] + 23, pos[2] + 10, idx .. "_" .. j)
+        local function getRewardGridPos(index, total)
+            local maxPerRow = 3
+            local gap = 55
+            local centerX = 84
+            local startY = 118
+            local rowGap = 42
+            local row = math.floor((index - 1) / maxPerRow)
+            local col = (index - 1) % maxPerRow
+            local rowStart = row * maxPerRow + 1
+            local rowCount = math.min(maxPerRow, total - rowStart + 1)
+            local rowWidth = (rowCount - 1) * gap
+            return centerX - rowWidth / 2 + col * gap, startY - row * rowGap
+        end
+        local showCount = math.min(#rewardList, 6)
+        for j = 1, showCount do
+            local itemX, itemY = getRewardGridPos(j, showCount)
+            mfzz_render_item(card, rewardList[j][1], rewardList[j][2], itemX, itemY, idx .. "_" .. j)
         end
         -- local detailDesc = tostring(cfg and cfg.desc or "")
         -- if detailDesc ~= "" then
@@ -7407,7 +7553,7 @@ npc[516] = function(p2, p3, Data)
         local conditionColor = conditionOk and "#57ff8d" or "#ff4636"
         local conditionRich = nil
         if idx == 2 then
-            conditionRich = GUI:RichText_Create(card, "condition", 95, 70, string.format("<font color='%s'>%s</font>", conditionColor, conditionText), 150, 18, "#f7f7de", 0, nil, nil, {
+            conditionRich = GUI:RichText_Create(card, "condition", 95 + 13, 70, string.format("<font color='%s'>%s</font>", conditionColor, conditionText), 150, 16, "#f7f7de", 0, nil, nil, {
                 outlineSize = 1,
                 outlineColor = "#000000",
             })

@@ -97,6 +97,10 @@ local function _refresh_top_shortcut()
     if not topNpc then
         return
     end
+    if topNpc.refreshLingshouMainEntry then
+        topNpc.refreshLingshouMainEntry()
+        return
+    end
     if topNpc.removeShortcutByNpcId then
         topNpc.removeShortcutByNpcId(64)
         return
@@ -132,9 +136,9 @@ local function _sync_shortcut_pet_data()
         return
     end
     rawset(_G, "NPC64_LAST_T_DATA", data)
+    _refresh_top_shortcut()
     if (tonumber(data.dqzh or 0) or 0) > 0 then
         rawset(_G, "NPC64_HIDE_CONTRACT_SHORTCUT", true)
-        _refresh_top_shortcut()
     else
         rawset(_G, "NPC64_HIDE_CONTRACT_SHORTCUT", nil)
         if Npclib and Npclib["anniu"] and Npclib["anniu"][1] then

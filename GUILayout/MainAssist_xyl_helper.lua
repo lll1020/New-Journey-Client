@@ -136,7 +136,10 @@ local MAINLINE_CURRENT_TASK_REWARD_CONFIG = {
 }
 
 local function _get_mainline_rwid_value()
-    local rwid = tonumber(cogin and cogin.sjtb and (cogin.sjtb.zxrwid or cogin.sjtb.rwid) or 0) or 0
+    local rwid = tonumber(cogin and cogin.sjtb and cogin.sjtb.rwid or 0) or 0
+    if rwid <= 0 then
+        rwid = tonumber(cogin and cogin.sjtb and cogin.sjtb.zxrwid or 0) or 0
+    end
     if rwid > 0 then
         return rwid
     end
@@ -1924,11 +1927,12 @@ function MainAssistXylHelper.bind(MainAssist)
         GUI:setAnchorPoint(nameText, 0, 0.5)
         GUI:Text_enableOutline(nameText, "#110b05", 2)
 
-        -- local rewardTitle = GUI:Text_Create(panel, "reward", 0, 30, 16, "#00FB00", "任务\n奖励")
-        -- GUI:setAnchorPoint(rewardTitle, 0, 0.5)
-        -- GUI:Text_enableOutline(rewardTitle, "#110b05", 2)
+        local rewardTitle = GUI:Text_Create(panel, "reward", 0 + 51 + 4 + 50, 30 + 56, 21, "#FFD45A", "---[任务奖励]---")
+        GUI:setAnchorPoint(rewardTitle, 0.5, 0.5)
+        GUI:Text_setFontName(rewardTitle, "fonts/502.ttf")
+        GUI:Text_enableOutline(rewardTitle, "#100808", 3)
 
-        local rewardRoot = GUI:Node_Create(panel, "reward_root", 40, 20)
+        local rewardRoot = GUI:Node_Create(panel, "reward_root", 40, 15)
         -- GUI:setLocalZOrder(rewardRoot, 999)
 
 
