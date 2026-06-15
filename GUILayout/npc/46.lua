@@ -157,10 +157,19 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data = SL:JsonDecode(msgData,false) or {}
         npc.data.T_data = npc.data.T_data or {}
         npc.data.T_data["npc_46"] = npc.data.T_data["npc_46"] or {}
+        if NPC_UI_HELPER and NPC_UI_HELPER.setThreeCityIntroSeen then
+            NPC_UI_HELPER.setThreeCityIntroSeen(npc.data.three_city_intro_seen or 0)
+        end
         ensureWindow(npcid)
         UI_updata(npc.node)
     elseif p2 == 1 then
         UI_updata(npc.node)
+    elseif p2 == 8 then
+        local data = SL:JsonDecode(msgData, false) or {}
+        if NPC_UI_HELPER and NPC_UI_HELPER.setThreeCityIntroSeen then
+            NPC_UI_HELPER.setThreeCityIntroSeen(data.three_city_intro_seen or 0)
+            NPC_UI_HELPER.guochang_3(true)
+        end
     end
 end
 

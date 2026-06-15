@@ -104,6 +104,7 @@ function PlayerEquip.main(data)
     ----------------------
     PlayerEquip.RegisterEvent()
     PlayerEquip.InitEquipFramekuang()
+    NPC_UI_HELPER.renderLinggenEquipSlot(PlayerEquip)
     local EquipShow_90 = GUI:EquipShow_Create(
             GUI:Image_Create(PlayerEquip._ui.Panel_1, "duihuan_wz1", 140.00, 100.00, "res/wy/public/70_70_k.png")
     , "EquipShow_90", 35, 35, 90, false, {look = true, movable = true, bgVisible = false, doubleTakeOff = true})
@@ -680,6 +681,9 @@ function PlayerEquip.RegisterEvent()
     -- 首饰盒状态改变
     SL:RegisterLUAEvent(LUA_EVENT_BESTRINGBOX_STATE, "PlayerEquip", PlayerEquip.RefreshPlayerBestRingsOpenState)
     SL:RegisterLUAEvent(LUA_EVENT_YWL_CURRENT_TASK_CHANGE, "PlayerEquip", PlayerEquip.OnXylCurrentTaskChange)
+    SL:RegisterLUAEvent(LUA_EVENT_SERVER_VALUE_CHANGE, "PlayerEquip_linggen_slot", function()
+        NPC_UI_HELPER.renderLinggenEquipSlot(PlayerEquip)
+    end)
 end
 function PlayerEquip.UnRegisterEvent()
     SL:UnRegisterLUAEvent(LUA_EVENT_PLAYER_GUILD_INFO_CHANGE, "PlayerEquip")
@@ -690,4 +694,5 @@ function PlayerEquip.UnRegisterEvent()
     SL:UnRegisterLUAEvent(LUA_EVENT_CLOSEWIN, "PlayerEquip")
     SL:UnRegisterLUAEvent(LUA_EVENT_BESTRINGBOX_STATE, "PlayerEquip")
     SL:UnRegisterLUAEvent(LUA_EVENT_YWL_CURRENT_TASK_CHANGE, "PlayerEquip")
+    SL:UnRegisterLUAEvent(LUA_EVENT_SERVER_VALUE_CHANGE, "PlayerEquip_linggen_slot")
 end

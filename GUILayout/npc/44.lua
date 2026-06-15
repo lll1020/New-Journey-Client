@@ -2386,6 +2386,11 @@ local function drawRefine(node, snapshot, npcid)
         --     GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 6,gap = {x=0, y=0}})
         -- end,{skin = "res/custom/three_city/xianfu/ldl/btn_tj.png"})
         -- GUI:setAnchorPoint(btn, 0.5, 0.5)
+        local recipeNames_f = {
+            "下品丹药",
+            "中品丹药",
+            "上品丹药",
+        }
 
         btn = NPC_UI_HELPER.createPrimaryButton(Label_node, 'btn_xz', 750/2 + 230, 80, "", function()
             npc.xxjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
@@ -2399,21 +2404,28 @@ local function drawRefine(node, snapshot, npcid)
 
             local ScrollView = GUI:ScrollView_Create(npc.xx_Label, "ScrollView", 45, 40, 280, 240, 1)
             GUI:ScrollView_setBounceEnabled(ScrollView, true)
+            GUI:ScrollView_setClippingEnabled(ScrollView, false)
             local iconHeight = math.max(240, (52 + 70) * math.ceil(#recipeNames / 4))
             GUI:ScrollView_setInnerContainerSize(ScrollView, 280, iconHeight + 70)
             local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 10, 0, 280, iconHeight + 70)
-            for _, recipeName in ipairs(recipeNames) do
+
+            for i, recipeName in ipairs(recipeNames) do
                 local kuang = GUI:Image_Create(dbLayout, "kuang"..recipeName, 0, 0, "res/custom/three_city/xianfu/ldl/kuang.png")
 
                 local itemShow = GUI:ItemShow_Create(kuang, "item", 48 / 2, 52 / 2, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME",recipeName), look = true, bgVisible = false })
                 GUI:setAnchorPoint(itemShow, 0.5, 0.5)
 
-                local desc = GUI:Text_Create(kuang, "desc",48 / 2,-10, 20, "#808080", recipeName)
+                local desc = GUI:Text_Create(kuang, "desc",48 / 2,-10, 20, "#FF00FF", recipeNames_f[(i-1)%3 + 1])
                 GUI:setAnchorPoint(desc, 0.5, 0.5)
-                GUI:Text_setFontName(desc, "fonts/500.ttf")
-                GUI:Text_enableOutline(desc, "#00FFFF", 2)
+                GUI:Text_setFontName(desc, "fonts/502.ttf")
+                GUI:Text_enableOutline(desc, "#100808", 1)
 
-                local btn = NPC_UI_HELPER.createPrimaryButton(kuang, 'btn', 25, -40, "", function()
+                desc = GUI:Text_Create(kuang, "desc2",48 / 2,-10 - 20, 20, "#8A5A22", recipeName)
+                GUI:setAnchorPoint(desc, 0.5, 0.5)
+                GUI:Text_setFontName(desc, "fonts/502.ttf")
+                GUI:Text_enableOutline(desc, "#100808", 1)
+
+                local btn = NPC_UI_HELPER.createPrimaryButton(kuang, 'btn', 25, -40 - 20, "", function()
                     npc.name_sign = recipeName
                     GUI_Refine_createLabel(npc.Label,npc.name_sign)
                     local parent = GUI:GetWindow(nil, "npc_anniu_44_xxjm")
@@ -2424,7 +2436,7 @@ local function drawRefine(node, snapshot, npcid)
                 GUI:setAnchorPoint(btn, 0.5, 0.5)
                 
             end
-            GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 4,gap = {x=20, y=50}})
+            GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 4,gap = {x=50, y=50}})
 
         end,{skin = "res/custom/three_city/xianfu/ldl/btn_xz.png"})
         GUI:setAnchorPoint(btn, 0.5, 0.5)
@@ -2437,9 +2449,9 @@ local function drawRefine(node, snapshot, npcid)
         local itemShow = GUI:ItemShow_Create(xz_kuang, "item", 48 / 2, 52 / 2, { index = SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc.name_sign), look = true, bgVisible = false })
         GUI:setAnchorPoint(itemShow, 0.5, 0.5)
 
-        local desc = GUI:Text_Create(xz_kuang, "desc",50,0, 20, "#808080", npc.name_sign)
-        GUI:Text_setFontName(desc, "fonts/500.ttf")
-        GUI:Text_enableOutline(desc, "#00FFFF", 2)
+        local desc = GUI:Text_Create(xz_kuang, "desc",50,0, 20, "#8A5A22", npc.name_sign)
+        GUI:Text_setFontName(desc, "fonts/502.ttf")
+        GUI:Text_enableOutline(desc, "#100808", 1)
     end
 
         

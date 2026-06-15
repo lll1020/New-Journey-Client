@@ -23,17 +23,17 @@ local function getEnterNeedText(dl)
     if dl <= 1 then
         return "无"
     elseif dl == 2 then
-        return "完成主线引导"
+        return "跟随主线引导进入"
     elseif dl == 3 then
-        return "完成二大陆转生"
+        return "跟随主线引导进入"
     elseif dl == 4 then
-        return "完成三大陆转生 + 等级150"
+        return "三大陆剧情完成度85% + 三大陆转生 + 等级150"
     elseif dl == 5 then
-        return "完成四大陆转生 + 激活全部灵根"
+        return "四大陆剧情完成度95% + 四大陆转生 + 激活全部灵根"
     elseif dl == 6 then
-        return "完成五大陆转生 + 完成天道命盘"
+        return "五大陆剧情完成度95% + 五大陆转生 + 完成天道命盘"
     elseif dl == 7 then
-        return "完成六大陆转生 + 世界符文·[真我]"
+        return "六大陆剧情完成度100% + 六大陆转生 + 世界符文·[真我]"
     elseif dl == 8 then
         return "完成七大陆转生"
     end
@@ -42,13 +42,7 @@ end
 local function canEnterByCfg(cfg)
     local dl = _to_num(cfg and cfg[6], 1)
     if type(dl_sz) == "function" then
-        if dl <= 5 then
-            return dl_sz(dl) == true
-        end
-    end
-    if dl >= 6 and dl <= 8 then
-        local rebirthLevel = _to_num(SL:GetMetaValue("RELEVEL"), 0)
-        return rebirthLevel >= (dl - 1) * 10
+        return dl_sz(dl) == true
     end
     return true
 end

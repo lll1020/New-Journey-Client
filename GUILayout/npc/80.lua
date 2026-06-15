@@ -3,12 +3,12 @@ local npc = {}
 local UIHelper = NPC_UI_HELPER
 local FONT_MAIN = "fonts/font4.ttf"
 local FONT_TITLE = "fonts/502.ttf"
-local LOCAL_BG = "res/custom/six_city/兵 鬼道秘宝/兵道秘宝.png"
-local LOCAL_TITLE = "res/custom/six_city/兵 鬼道秘宝/标题.png"
+local LOCAL_BG = "res/custom/six_city/兵 鬼道秘宝/鬼道秘宝.png"
+local LOCAL_TITLE = "res/custom/six_city/兵 鬼道秘宝/标题1.png"
 local ITEM_BOX = "res/custom/six_city/兵 鬼道秘宝/装备框-.png"
 local COMPOSE_BTN = "res/custom/six_city/兵 鬼道秘宝/立即合成.png"
 
-npc._config = teshudata["npc_79"] or {}
+npc._config = teshudata["npc_80"] or {}
 
 local function toNumber(value, defaultValue)
     local num = tonumber(value)

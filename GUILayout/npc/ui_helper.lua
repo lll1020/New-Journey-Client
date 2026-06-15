@@ -4,10 +4,7 @@
 --   * 支持通过 WINDOW_STYLE + ensureWindow 快速复用窗口
 --   * 采用懒加载（NPC_UI_HELPER 全局单例），避免重复 require
 local existingHelper = rawget(_G, "NPC_UI_HELPER")
-if existingHelper then
-    return existingHelper
-end
-local UIHelper = {}
+local UIHelper = existingHelper or {}
 -- ===== 默认素材配置 =====
 local DEFAULT_OVERLAY = 'res/wy/public/40-40.png'  -- 全屏遮罩：点击关闭窗口
 local DEFAULT_BG = 'res/wy/public/tongyong_0.png'              -- 背景面板：承载 UI 内容
@@ -596,7 +593,206 @@ function UIHelper.redpoint_create(parent, opts)
     GUI:setAnchorPoint(eff, opts.anchorX or 1, opts.anchorY or 0.5)
     return eff
 end
-function UIHelper.guochang_3()
+
+local function _linggen_slot_toint(v, d)
+    v = tonumber(v)
+    if v == nil then
+        return d or 0
+    end
+    return math.floor(v)
+end
+
+local function _linggen_slot_data_from_server()
+    local raw = SL:GetMetaValue("SERVER_VALUE", "T41")
+    if type(raw) == "table" then
+        return raw
+    end
+    if type(raw) == "string" and raw ~= "" then
+        return SL:JsonDecode(raw, false) or {}
+    end
+    return {}
+end
+
+local function _linggen_slot_current(data)
+    if type(data) == "string" and data ~= "" then
+        data = SL:JsonDecode(data, false) or {}
+    end
+    data = type(data) == "table" and data or {}
+    local mainIdx = _linggen_slot_toint(data.main or data.main_idx or data.idx, 0)
+    local formIdx = _linggen_slot_toint(data.form or data.form_idx, 0)
+    local idx = formIdx > 0 and formIdx or mainIdx
+    local rawLevel = data.level
+    local levelMap = type(rawLevel) == "table" and rawLevel or {}
+    local level = _linggen_slot_toint(levelMap[tostring(idx)] or levelMap[idx] or data.lv or data.root_level or rawLevel, 0)
+    if idx <= 0 or level <= 0 then
+        return 0, 0
+    end
+    return idx, level
+end
+
+local function _linggen_slot_tip(data)
+    local idx, level = _linggen_slot_current(data)
+    local cfg = teshudata and teshudata["npc_22"] and teshudata["npc_22"].main_r and teshudata["npc_22"].main_r[idx]
+    if not cfg then
+        return "<font color='#CFCFCF'>暂未装配本命灵根</font>"
+    end
+    local function cleanText(text)
+        text = tostring(text or "")
+        text = text:gsub("主动技能逻辑待接入。", "")
+        text = text:gsub("主动技能逻辑待接入", "")
+        text = text:gsub("。%s*$", "")
+        if text == "" then
+            text = "暂无"
+        end
+        return text
+    end
+    local function wrapText(text, limit, prefix)
+        text = cleanText(text)
+        limit = tonumber(limit or 24) or 24
+        prefix = tostring(prefix or "")
+        local lines = {}
+        local current = ""
+        local count = 0
+        local i = 1
+        while i <= #text do
+            local token = text:sub(i):match("^%d+%.?%d*%%?")
+            if not token or token == "" then
+                local b = string.byte(text, i) or 0
+                local len = 1
+                if b >= 240 then
+                    len = 4
+                elseif b >= 224 then
+                    len = 3
+                elseif b >= 192 then
+                    len = 2
+                end
+                token = text:sub(i, i + len - 1)
+            end
+            local tokenLen = token:match("^%d") and #token or 1
+            if count > 0 and count + tokenLen > limit then
+                lines[#lines + 1] = prefix .. current
+                current = token
+                count = tokenLen
+            else
+                current = current .. token
+                count = count + tokenLen
+            end
+            i = i + #token
+        end
+        if current ~= "" then
+            lines[#lines + 1] = prefix .. current
+        end
+        return table.concat(lines, "\n")
+    end
+    local function splitSkill(value)
+        value = cleanText(value)
+        local skillName, desc = value:match("^【([^】]+)】(.+)$")
+        if skillName then
+            return skillName, desc
+        end
+        return nil, value
+    end
+    local function section(label, value, color)
+        local skillName, desc = splitSkill(value or "暂无")
+        local title = tostring(label or "")
+        if skillName and skillName ~= "" then
+            title = title .. " · " .. skillName
+        end
+        return string.format("<font color='#E8C879'>%s</font>\n<font color='%s'>%s</font>",
+            title, color or "#D9D2C2", wrapText(desc or "暂无", 24, "　　"))
+    end
+    local rootColor = "#F4D179"
+    if idx == 1 or idx == 6 then
+        rootColor = "#FFD966"
+    elseif idx == 2 or idx == 7 then
+        rootColor = "#79FF79"
+    elseif idx == 3 or idx == 8 then
+        rootColor = "#8FD8FF"
+    elseif idx == 4 or idx == 9 then
+        rootColor = "#FF7666"
+    elseif idx == 5 or idx == 10 then
+        rootColor = "#D7B37A"
+    end
+    local lines = {
+        "<font color='#E8C879'>【本命灵根】</font>",
+        string.format("<font color='%s'>%s灵根</font> <font color='#CFC6B4'>Lv.%d</font>", rootColor, tostring(cfg.name or ""), level),
+        "<font color='#6B5630'>━━━━━━━━━━━━━━━━</font>",
+        string.format("<font color='#E8C879'>流派定位</font>\n<font color='#D9D2C2'>　　%s</font>", tostring(cfg.flow or "未配置")),
+        "",
+    }
+    lines[#lines + 1] = section("被动技能", cfg.passive, "#B9F6C5")
+    lines[#lines + 1] = ""
+    lines[#lines + 1] = section("主动技能", cfg.active, "#F2E7C8")
+    lines[#lines + 1] = ""
+    lines[#lines + 1] = section("灵兽协同", cfg.synergy, "#B9F6C5")
+    return table.concat(lines, "\n")
+end
+
+local function _linggen_slot_open_tip(widget, data)
+    local pos = GUI:getWorldPosition(widget)
+    SL:OpenCommonDescTipsPop({
+        str = _linggen_slot_tip(data),
+        worldPos = {x = pos.x, y = pos.y},
+        anchorPoint = {x = 0, y = 0},
+        formatWay = 1
+    })
+end
+
+function UIHelper.renderLinggenEquipSlot(owner, opts)
+    opts = opts or {}
+    local ui = owner and owner._ui
+    local parent = opts.parent or (ui and ui.Panel_1)
+    if not parent then
+        return nil
+    end
+    GUI:removeChildByName(parent, "linggen_equip_slot")
+    local data = opts.data
+    if data == nil and not opts.lookPlayer then
+        data = _linggen_slot_data_from_server()
+    end
+    local idx, level = _linggen_slot_current(data)
+    if idx <= 0 then
+        return nil
+    end
+
+    local basePanel = ui and (ui.Panel_pos13 or ui.Panel_pos2 or ui.Panel_pos0)
+    local pos = basePanel and GUI:getPosition(basePanel) or {x = 96, y = 328}
+    local x = (opts.x ~= nil) and opts.x or pos.x
+    local y = (opts.y ~= nil) and opts.y or (pos.y + 78)
+    local slot = GUI:Layout_Create(parent, "linggen_equip_slot", x, y, 72, 82, false)
+    GUI:setAnchorPoint(slot, 0.5, 0.5)
+    GUI:setLocalZOrder(slot, opts.zOrder or 20)
+    GUI:setTouchEnabled(slot, true)
+
+    local icon = GUI:Image_Create(slot, "icon", 36, 49, string.format("res/custom/linggen/icon/%d.png", idx))
+    GUI:setAnchorPoint(icon, 0.5, 0.5)
+    GUI:setScale(icon, opts.iconScale or 1.15)
+    if SL:GetMetaValue("WINPLAYMODE") then
+        GUI:addMouseMoveEvent(slot, {
+            onEnterFunc = function()
+                _linggen_slot_open_tip(slot, data)
+            end,
+            onLeaveFunc = function()
+                SL:CloseCommonDescTipsPop()
+            end
+        })
+    else
+        GUI:setTouchEnabled(slot, true)
+        GUI:addOnTouchEvent(slot, function()
+            _linggen_slot_open_tip(slot, data)
+        end)
+    end
+    return slot
+end
+function UIHelper.setThreeCityIntroSeen(seen)
+    UIHelper._threeCityIntroSeen = tonumber(seen or 0) == 1
+end
+
+function UIHelper.guochang_3(skipStateQuery)
+    if UIHelper._threeCityIntroSeen == nil and not skipStateQuery then
+        SL:SendLuaNetMsg(100, 46, 8, 0, "")
+        return
+    end
     local parent = GUI:GetWindow(nil, "guochang_3")
     if parent then
         GUI:removeAllChildren(parent)
@@ -608,7 +804,15 @@ function UIHelper.guochang_3()
     GUI:setContentSize(bjt, cogin.w, cogin.h)
     GUI:setTouchEnabled(bjt, true)
     GUI:addMouseOverTips(bjt, "", {x = 0, y = 0}, {x = 0, y = 0})
-    if not UIHelper._firstOpen3 then
+    local introSeen = UIHelper._threeCityIntroSeen == true
+    local function markIntroSeen()
+        UIHelper._threeCityIntroSeen = true
+        SL:SendLuaNetMsg(100, 46, 9, 0, "")
+    end
+    local function closeIntro(parentNode)
+        GUI:Win_Close(parentNode)
+    end
+    if not introSeen then
         local x_bjt = GUI:Image_Create(parent, "x_bjt", cogin.w / 2, cogin.h / 2, "res/custom/three_city/zerq/xx_bg2.png")
         GUI:setAnchorPoint(x_bjt, 0.5, 0.5)
         GUI:setContentSize(x_bjt, cogin.w, cogin.h)
@@ -619,6 +823,7 @@ function UIHelper.guochang_3()
         GUI:addOnClickEvent(x_bjt, function(widget)
             local bg = GUI:Frames_Create(x_bjt, "bg", cogin.w/2,  cogin.h/2, "res/wy/eff/3_guochang/eff_", ".jpg", 1, 1092,
                 { speed = 1, count = 1092, loop = 1,callback = function()
+                    markIntroSeen()
                     SL:SendLuaNetMsg(100, 503, 1, 0, "")
                     SL:ShowSystemTips("<font color='#FF0000'>灾厄还未消退，不能展开三大陆剧情任务</font>")
                     local xx_bjt = GUI:Image_Create(parent, "xx_bjt", cogin.w / 2, cogin.h / 2, "res/custom/three_city/zerq/xx_bg1.png")
@@ -629,14 +834,13 @@ function UIHelper.guochang_3()
                         { speed = 100, count = 30, loop = -1})
                     GUI:setAnchorPoint(wz, 0.5, 0.5)
                     GUI:addOnClickEvent(xx_bjt, function(widget)
-                        GUI:Win_Close(parent)
+                        closeIntro(parent)
                     end)
                 end})
             GUI:setContentSize(bg, cogin.w, cogin.h)
             GUI:setAnchorPoint(bg, 0.5, 0.5)
             GUI:setTouchEnabled(x_bjt, false)
         end)
-        UIHelper._firstOpen3 = true
     else
         local x_bjt = GUI:Image_Create(parent, "x_bjt", cogin.w / 2, cogin.h / 2, "res/custom/three_city/zerq/xx_bg3.png")
         GUI:setAnchorPoint(x_bjt, 0.5, 0.5)

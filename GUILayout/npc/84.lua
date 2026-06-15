@@ -18,13 +18,13 @@ local ACTIVE_STAMP = "res/custom/six_city/世界符文/已激活.png"
 local COND_BOX_SKIN = "res/custom/six_city/世界符文/延伸框（激活条件）.png"
 
 local RUNE_POS = {
-    [1] = {x = 78, y = 206, nameX = 38, nameY = 248},
-    [2] = {x = 194, y = 250, nameX = 154, nameY = 292},
-    [3] = {x = 202, y = 76, nameX = 162, nameY = 118},
-    [4] = {x = 350, y = 282, nameX = 310, nameY = 324},
-    [5] = {x = 520, y = 184, nameX = 480, nameY = 226},
-    [6] = {x = 604, y = 84, nameX = 564, nameY = 126},
-    [7] = {x = 684, y = 286, nameX = 644, nameY = 328},
+    [1] = {x = 82, y = 226, nameX = 42, nameY = 270},
+    [2] = {x = 202, y = 246, nameX = 162, nameY = 290},
+    [3] = {x = 210, y = 84, nameX = 170, nameY = 128},
+    [4] = {x = 374, y = 286, nameX = 334, nameY = 330},
+    [5] = {x = 548, y = 196, nameX = 508, nameY = 240},
+    [6] = {x = 626, y = 96, nameX = 586, nameY = 140},
+    [7] = {x = 694, y = 292, nameX = 654, nameY = 336},
 }
 
 local renderMain = nil
@@ -135,10 +135,12 @@ local function renderRuneButtons(node, npcid)
         GUI:Image_Create(node, "rune_name_" .. idx, pos.nameX, pos.nameY, getRuneNameSkin(idx))
 
         if idx == selectedIdx then
-            GUI:Image_Create(node, "select_" .. idx, pos.x - 10, pos.y - 10, SELECT_SKIN)
+            local selectImg = GUI:Image_Create(node, "select_" .. idx, pos.x - 12, pos.y - 12, SELECT_SKIN)
+            GUI:setScale(selectImg, 0.78)
         end
         if isRuneActive(idx) then
-            GUI:Image_Create(node, "active_stamp_" .. idx, pos.x - 24, pos.y - 40, ACTIVE_STAMP)
+            local stamp = GUI:Image_Create(node, "active_stamp_" .. idx, pos.x - 24, pos.y - 40, ACTIVE_STAMP)
+            GUI:setScale(stamp, 0.82)
         elseif canRuneActivate(idx) then
             UIHelper.redpoint_create(btn, {x = 100, y = 72})
         end
@@ -153,16 +155,17 @@ local function renderSelectedDetail(node, npcid)
     local canActive = canRuneActivate(idx)
 
     local detailNode = GUI:Node_Create(node, "detail_node", 0, 0)
-    GUI:Image_Create(detailNode, "cond_box", 314, 174, COND_BOX_SKIN)
-    GUI:Image_Create(detailNode, "cond_img", 352, 200, getConditionSkin(idx))
+    GUI:Image_Create(detailNode, "cond_box", 336, 180, COND_BOX_SKIN)
+    GUI:Image_Create(detailNode, "cond_img", 374, 206, getConditionSkin(idx))
 
-    createText(detailNode, "title_desc", 470, 248, 22, "#F94B42", tostring(runeCfg.name or "符文"), FONT_TITLE, 0.5, 0.5)
-    createText(detailNode, "sub_desc", 470, 216, 18, active and "#6CFF7B" or (canActive and "#FFD66D" or "#FF5A5A"), active and "当前符文已激活" or (canActive and "已满足激活条件" or "尚未满足激活条件"), FONT_MAIN, 0.5, 0.5)
+    createText(detailNode, "title_desc", 492, 252, 22, "#F94B42", tostring(runeCfg.name or "符文"), FONT_TITLE, 0.5, 0.5)
+    createText(detailNode, "sub_desc", 492, 220, 18, active and "#6CFF7B" or (canActive and "#FFD66D" or "#FF5A5A"), active and "当前符文已激活" or (canActive and "已满足激活条件" or "尚未满足激活条件"), FONT_MAIN, 0.5, 0.5)
 
     if active then
-        GUI:Image_Create(detailNode, "selected_active", 470, 138, ACTIVE_STAMP)
+        local activeImg = GUI:Image_Create(detailNode, "selected_active", 492, 140, ACTIVE_STAMP)
+        GUI:setScale(activeImg, 0.82)
     else
-        local btn = GUI:Button_Create(detailNode, "active_btn", 412, 108, BTN_ACTIVE)
+        local btn = GUI:Button_Create(detailNode, "active_btn", 432, 110, BTN_ACTIVE)
         GUI:addOnClickEvent(btn, function()
             SL:SendLuaNetMsg(100, npcid, 1, idx, SL:JsonEncode({idx = idx}, false))
         end)
@@ -182,11 +185,11 @@ local function renderRewardSection(node, npcid)
     local titleName = tostring(npc._config.title_reward or "世界符文·[真我]")
     local allDesc = tostring(npc._config.all_desc or "")
 
-    createText(node, "reward_progress", 34, 84, 17, "#F94B42", string.format("激活进度：%d/%d", allCount, totalNeed), FONT_MAIN, 0, 0.5)
-    createText(node, "reward_title_text", 318, 76, 16, "#F5E6C6", titleName, FONT_MAIN, 0.5, 0.5)
-    createText(node, "reward_desc", 318, 46, 15, claimed and "#6CFF7B" or "#FFD66D", allDesc ~= "" and allDesc or "全部激活后领取总奖励", FONT_MAIN, 0.5, 0.5)
+    createText(node, "reward_progress", 38, 84, 17, "#F94B42", string.format("激活进度：%d/%d", allCount, totalNeed), FONT_MAIN, 0, 0.5)
+    createText(node, "reward_title_text", 300, 76, 16, "#F5E6C6", titleName, FONT_MAIN, 0.5, 0.5)
+    createText(node, "reward_desc", 300, 46, 15, claimed and "#6CFF7B" or "#FFD66D", allDesc ~= "" and allDesc or "全部激活后领取总奖励", FONT_MAIN, 0.5, 0.5)
 
-    local btn = GUI:Button_Create(node, "reward_btn", 552, 18, BTN_REWARD)
+    local btn = GUI:Button_Create(node, "reward_btn", 552, 20, BTN_REWARD)
     GUI:addOnClickEvent(btn, function()
         SL:SendLuaNetMsg(100, npcid, 2, 0, "")
     end)

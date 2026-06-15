@@ -74,6 +74,7 @@ function PlayerEquip_Look.main(data)
     ----------------------
     PlayerEquip_Look.RegisterEvent()
     PlayerEquip_Look.InitEquipFramekuang()
+    NPC_UI_HELPER.renderLinggenEquipSlot(PlayerEquip_Look, {lookPlayer = true, data = cogin and cogin.onther_shuju and cogin.onther_shuju.linggen})
 end
 
 

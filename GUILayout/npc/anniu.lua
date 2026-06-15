@@ -2715,14 +2715,11 @@ npc[11] = function(p2, p3, Data)
         if type(rewardList) ~= "table" then
             return
         end
-        local skipJqd = (tonumber(continent or 0) or 0) >= 3
         for _, entry in ipairs(rewardList) do
             if type(entry) == "table" and entry[1] ~= nil and entry[2] ~= nil then
                 local key = tostring(entry[1])
                 local count = tonumber(entry[2]) or 0
-                if skipJqd and key == "剧情点" then
-                    -- 三大陆及之后伏妖录不再展示剧情点奖励。
-                elseif key ~= "" and count > 0 then
+                if key ~= "" and count > 0 then
                     local pos = seenMap[key]
                     if pos then
                         outList[pos][2] = (tonumber(outList[pos][2]) or 0) + count
@@ -2741,16 +2738,7 @@ npc[11] = function(p2, p3, Data)
         if type(rewardList) ~= "table" then
             return rewardList
         end
-        if (tonumber(continent or 0) or 0) < 3 then
-            return rewardList
-        end
-        local out = {}
-        for _, entry in ipairs(rewardList) do
-            if not (type(entry) == "table" and tostring(entry[1] or "") == "剧情点") then
-                out[#out + 1] = entry
-            end
-        end
-        return out
+        return rewardList
     end
     local function _ywl_normalize_title_reward_name(titleName)
         if type(titleName) ~= "string" then
@@ -2855,6 +2843,73 @@ npc[11] = function(p2, p3, Data)
             appendNpcReward(task.yd[3])
         end
         return _ywl_trim_reward_display(rewardList)
+    end
+    -- 读取单个伏妖录任务奖励中的剧情点数量，用作大陆进度权重。
+    local function _ywl_get_task_story_point(task)
+        local total = 0
+        local rewards = type(task) == "table" and task.jl or nil
+        if type(rewards) ~= "table" then
+            return 0
+        end
+        for _, reward in ipairs(rewards) do
+            if type(reward) == "table" and reward[1] == "剧情点" then
+                total = total + (tonumber(reward[2]) or 0)
+            end
+        end
+        return total
+    end
+    -- 统计当前大陆所有伏妖录剧情点领取进度，用于替代原章节奖励展示。
+    -- 注意：这里只按奖励领取标记统计，任务已完成但未点击领取不计入进度。
+    local function _ywl_collect_continent_progress(continent)
+        local l = tonumber(continent) or 0
+        local chapters = npc.xyl and npc.xyl[l] or nil
+        local ywlData = npc.data and npc.data.ywl or {}
+        local done = 0
+        local total = 0
+        if type(chapters) ~= "table" then
+            return 0, 0, 0
+        end
+        for j, chapter in ipairs(chapters) do
+            local tasks = chapter and chapter.jq or nil
+            if type(tasks) == "table" then
+                local chapterDone = tonumber(ywlData["jl_" .. l .. "_" .. j] or 0) == 1
+                for idx, task in ipairs(tasks) do
+                    local storyPoint = _ywl_get_task_story_point(task)
+                    total = total + storyPoint
+                    local taskDoneByReward = tonumber(ywlData["jl_" .. l .. "_" .. j .. "_" .. idx] or 0) == 1
+                    if chapterDone or taskDoneByReward then
+                        done = done + storyPoint
+                    end
+                end
+            end
+        end
+        local percent = total > 0 and math.floor(done * 100 / total) or 0
+        return done, total, math.max(0, math.min(100, percent))
+    end
+    -- 横向进度条：取消章节奖励概念后，展示本大陆全部伏妖录任务的总完成度。
+    local function _ywl_render_continent_progress(node)
+        local _, _, percent = _ywl_collect_continent_progress(npc.l)
+        local root = GUI:Layout_Create(node, "continent_progress", 515 - 260, 40, 420, 45, false)
+        local title = GUI:Text_Create(root, "title", 0, 22, 20, "#F4D179", "【剧情完成度】")
+        GUI:setAnchorPoint(title, 0, 0.5)
+        GUI:Text_setFontName(title, "fonts/font4.ttf")
+        GUI:Text_enableOutline(title, "#1B0B02", 3)
+
+        local barBg = GUI:Layout_Create(root, "bar_bg", 165, 10, 230, 24, false)
+        GUI:Layout_setBackGroundColorType(barBg, 1)
+        GUI:Layout_setBackGroundColor(barBg, "#2A160B")
+        GUI:Layout_setBackGroundColorOpacity(barBg, 220)
+
+        local fillW = math.max(1, math.floor(228 * percent / 100))
+        local barFill = GUI:Layout_Create(barBg, "bar_fill", 1, 2, fillW, 20, false)
+        GUI:Layout_setBackGroundColorType(barFill, 1)
+        GUI:Layout_setBackGroundColor(barFill, "#D46A18")
+        GUI:Layout_setBackGroundColorOpacity(barFill, 255)
+
+        local percentText = GUI:Text_Create(barBg, "percent", 115, 12, 18, "#FFFF00", tostring(percent) .. "%")
+        GUI:setAnchorPoint(percentText, 0.5, 0.5)
+        GUI:Text_setFontName(percentText, "fonts/font4.ttf")
+        GUI:Text_enableOutline(percentText, "#000000", 2)
     end
     if p2 == 0 then
         npc.data = Data and SL:JsonDecode(Data, false) or {
@@ -3308,6 +3363,9 @@ npc[11] = function(p2, p3, Data)
                 end
                 _relayout_task_cards(false)
                 GUI:Image_Create(node, "wz1", 340, 100, 'res/custom/ywl/wz.png')
+                _ywl_render_continent_progress(node)
+                -- 章节奖励已取消，改为展示本大陆全部伏妖录任务完成进度；旧逻辑保留注释，方便回查。
+                --[[
                 local chapterReward = _ywl_filter_reward_entries(zjCfg.jl, npc.l)
                 if chapterReward and #chapterReward > 0 and not _ywl_is_auto_chapter_continent(npc.l) then
                     local rewardNode = ItemNumByTable_img(chapterReward, nil, node)
@@ -3326,6 +3384,7 @@ npc[11] = function(p2, p3, Data)
                         autoGuideDesc = "点击领取章节奖励"
                     end
                 end
+                ]]
                 local chapterKey = tostring(npc.l) .. "_" .. tostring(npc.zj)
                 if npc._ywl_auto_guided_chapter ~= chapterKey then
                     npc._ywl_auto_guided_chapter = chapterKey
@@ -3341,7 +3400,7 @@ npc[11] = function(p2, p3, Data)
                         })
                     end
                 end
-                _ywl_try_start_chapter_reward_guide(node, false)
+                -- _ywl_try_start_chapter_reward_guide(node, false)
             end
             if (tonumber(npc.l) or 0) < 3 then
                 local TMONEY = GUI:Text_Create(node, "TMONEY", 50 + 278, 40 + 9, 25, "#FF0000", SL:GetMetaValue("TMONEY", "剧情点"))
@@ -3463,7 +3522,9 @@ npc[12] = function(p2, p3, Data)
             SL:SendLuaNetMsg(101, 506, 0, 0, "")
             return
         end
-        SL:SendLuaNetMsg(101, 507, tonumber(kf) or 1, idx, "")
+        -- npc[507] uses p2=1 as "enter activity"; the real activity id is p3.
+        -- The server payload's kf field is activity metadata, not npc[507]'s p2.
+        SL:SendLuaNetMsg(101, 507, 1, idx, "")
     end
     local function closeActivityShortcut()
         local autoRunCheck = npc.hdan and GUI:getChildByName(npc.hdan, "CheckBox")
@@ -3480,48 +3541,114 @@ npc[12] = function(p2, p3, Data)
             GUI:Win_Close(parent)
         end
     end
-    local function addActivityShortcutClose(parent)
-        local closeBtn = GUI:Button_Create(parent, "shortcut_close", 306, 86, "res/wy/public/close_sm.png")
-        GUI:setScale(closeBtn, 0.75)
-        GUI:setLocalZOrder(closeBtn, 10)
-        GUI:addOnClickEvent(closeBtn, function()
+    local function getActivityShortcutName(idx)
+        local names = {
+            [1] = "保卫村庄",
+            [2] = "全民夺矿",
+            [3] = "全民答题",
+            [5] = "土城跑酷",
+            [6] = "美食狂欢",
+            [7] = "天选之人",
+            [8] = "正邪大战",
+            [9] = "武林盟主",
+            [10] = "武道大会",
+            [13] = "随机夺宝",
+            [14] = "黑暗禁地",
+        }
+        return names[tonumber(idx) or 0] or "活动"
+    end
+    local function createShortcutTextButton(parent, name, x, y, w, h, text, color, cb)
+        local btn = GUI:Layout_Create(parent, name, x, y, w, h, false)
+        GUI:setTouchEnabled(btn, true)
+        local label = GUI:Text_Create(btn, name .. "_text", w / 2, h / 2, 16, color or "#F7F7DE", text)
+        GUI:setAnchorPoint(label, 0.5, 0.5)
+        GUI:Text_enableOutline(label, "#000000", 1)
+        GUI:addOnClickEvent(btn, cb)
+        return btn
+    end
+    local function createShortcutImageButton(parent, name, x, y, text, cb)
+        local btn = GUI:Button_Create(parent, name, x, y, "res/wy/public/an15.png")
+        GUI:Button_setTitleText(btn, text)
+        GUI:Button_setTitleFontSize(btn, 16)
+        GUI:Button_titleEnableOutline(btn, "#100808", 2)
+        GUI:addOnClickEvent(btn, cb)
+        return btn
+    end
+    local function setActivityShortcutHidden(hidden, activityIdx)
+        if not npc.hdan then
+            return
+        end
+        local function safeSetVisible(node, visible)
+            if node then
+                GUI:setVisible(node, visible)
+            end
+        end
+        local img = GUI:getChildByName(npc.hdan, "shortcut_img")
+        local enterBtn = GUI:getChildByName(npc.hdan, "shortcut_enter")
+        local hideBtn = GUI:getChildByName(npc.hdan, "shortcut_hide")
+        local closeBtn = GUI:getChildByName(npc.hdan, "shortcut_close")
+        local djs = GUI:getChildByName(npc.hdan, "djs")
+        local nameBtn = GUI:getChildByName(npc.hdan, "shortcut_name")
+        local autoText = GUI:getChildByName(npc.hdan, "Text")
+        local autoCheck = GUI:getChildByName(npc.hdan, "CheckBox")
+        safeSetVisible(img, not hidden)
+        safeSetVisible(enterBtn, not hidden)
+        safeSetVisible(hideBtn, not hidden)
+        safeSetVisible(closeBtn, not hidden)
+        safeSetVisible(djs, not hidden)
+        safeSetVisible(autoText, not hidden)
+        safeSetVisible(autoCheck, not hidden)
+        safeSetVisible(nameBtn, hidden)
+    end
+    local function addActivityShortcutControls(parent, activityIdx)
+        createShortcutTextButton(parent, "shortcut_hide", 210 - 90, 88 - 8, 52, 28, "【隐藏】", "#F7F7DE", function()
+            setActivityShortcutHidden(true, activityIdx)
+        end)
+        createShortcutTextButton(parent, "shortcut_close", 264 - 90, 88 - 8, 52, 28, "【关闭】", "#F7B0A0", function()
             closeActivityShortcut()
         end)
+        createShortcutImageButton(parent, "shortcut_enter", 150 - 70, 42 - 20, "进入", function()
+            openActivityEntry(npc.hd_data and npc.hd_data.kf, activityIdx)
+        end)
+        createShortcutTextButton(parent, "shortcut_name",  210 - 90, 88 - 8, 110, 30, "【" .. getActivityShortcutName(activityIdx) .. "】", "#F7F7DE", function()
+            setActivityShortcutHidden(false, activityIdx)
+        end)
+        GUI:setVisible(GUI:getChildByName(parent, "shortcut_name"), false)
     end
 
     if p2 == 1 then
-        npc.hd_data = SL:JsonDecode(Data, false)
+        npc.hd_data = SL:JsonDecode(Data, false) or {}
+        local activityIdx = tonumber((npc.hd_data and npc.hd_data.idx) or p3) or 0
+        local activitySeconds = (tonumber(npc.hd_data.sk) or 0) * 60
         if npc.hdan then
             closeActivityShortcut()
         end
         if cogin.isWin32 then
-            npc.hdan = GUI:Button_Create(npc.RightTop, "hdan", -367, -300, "res/custom/activity/" .. p3 .. ".png")
-            GUI:addOnClickEvent(npc.hdan, function()
-                openActivityEntry(1, p3)
-            end)
-            addActivityShortcutClose(npc.hdan)
-            npc.djs = GUI:Text_Create(npc.hdan, "djs", 32 + 130, 19, 16, "#F7F7DE", npc.hd_data.sk * 60)
+            npc.hdan = GUI:Layout_Create(npc.RightTop, "hdan", -367, -300, 320, 116, false)
+            GUI:Image_Create(npc.hdan, "shortcut_img", 0, 0, "res/custom/activity/" .. activityIdx .. ".png")
+            addActivityShortcutControls(npc.hdan, activityIdx)
+            npc.djs = GUI:Text_Create(npc.hdan, "djs", 9999, 9999, 16, "#F7F7DE", activitySeconds)
             GUI:setAnchorPoint(npc.djs, 0.5, 0.5)
-            GUI:Text_COUNTDOWN(npc.djs, npc.hd_data.sk * 60, function()
+            GUI:setVisible(npc.djs, true)
+            GUI:Text_COUNTDOWN(npc.djs, activitySeconds, function()
                 if npc.hdan then
                     closeActivityShortcut()
                 end
             end)
         else
-            npc.hdan = GUI:Button_Create(npc.RightTop, "hdan", -390 - 125 + 226 - 55 - 160, -240 - 61 - 31 + 50, "res/custom/activity/" .. p3 .. ".png")
-            GUI:addOnClickEvent(npc.hdan, function()
-                openActivityEntry(npc.hd_data.kf, npc.hd_data.idx)
-            end)
-            addActivityShortcutClose(npc.hdan)
-            npc.djs = GUI:Text_Create(npc.hdan, "djs", 32 + 130, 19, 16, "#F7F7DE", npc.hd_data.sk * 60)
+            npc.hdan = GUI:Layout_Create(npc.RightTop, "hdan", -390 - 125 + 226 - 55 - 160, -240 - 61 - 31 + 50, 320, 116, false)
+            GUI:Image_Create(npc.hdan, "shortcut_img", 0, 0, "res/custom/activity/" .. activityIdx .. ".png")
+            addActivityShortcutControls(npc.hdan, activityIdx)
+            npc.djs = GUI:Text_Create(npc.hdan, "djs", 9999, 9999, 16, "#F7F7DE", activitySeconds)
             GUI:setAnchorPoint(npc.djs, 0.5, 0.5)
-            GUI:Text_COUNTDOWN(npc.djs, npc.hd_data.sk * 60, function()
+            GUI:setVisible(npc.djs, true)
+            GUI:Text_COUNTDOWN(npc.djs, activitySeconds, function()
                 if npc.hdan then
                     closeActivityShortcut()
                 end
             end)
         end
-        if p3 == 5 then
+        if activityIdx == 5 then
             local txt = GUI:Text_Create(npc.hdan, "Text", 10 + 60, -22, 14, "#ffffff", "勾选自动跑酷")
             GUI:Text_enableOutline(txt, "#000000", 1)
             local CheckBox = GUI:CheckBox_Create(npc.hdan, "CheckBox", -20 + 60, -22, "res/public/1900000550.png", "res/public/1900000551.png")
@@ -5013,6 +5140,7 @@ npc[498] = function(p2, p3, Data)
         GUI:runAction(npc.tyec, GUI:ActionMoveBy(0.3, 0, -height))
         local desc = GUI:Text_Create(npc.tyec, "Text", 70.0, 164.0, 14, "#d6a573", "排名数据/10s刷新")
         GUI:Text_enableOutline(desc, "#000000", 1)
+        npc.tyecdesc = desc
         local campScore = GUI:Text_Create(npc.tyec, "camp_score", 108.0, 145.0, 14, "#d6a573", "正方:0  邪方:0")
         GUI:setAnchorPoint(campScore, 0.5, 0.5)
         GUI:Text_enableOutline(campScore, "#000000", 1)
@@ -5023,6 +5151,7 @@ npc[498] = function(p2, p3, Data)
         npc.tyecstate = activityState
         local scoreLabel = GUI:Text_Create(npc.tyec, "Text_1", 72.0, 6.0, 14, "#d6a573", "当前个人积分:")
         GUI:Text_enableOutline(scoreLabel, "#000000", 1)
+        npc.tyecscoreLabel = scoreLabel
         npc.tyecgr = GUI:Text_Create(scoreLabel, "Textxx", 92.0, 0.0, 14, "#d6a573", "0")
         GUI:Text_enableOutline(npc.tyecgr, "#000000", 1)
         local list = GUI:ListView_Create(npc.tyec, "ListView", 0.0, 29.0, 261.0, 112.0, 1)
@@ -5031,11 +5160,14 @@ npc[498] = function(p2, p3, Data)
         }
         npc.tyecpmf = {
         }
+        npc.tyecpmprefix = {
+        }
         for i = 1, 5 do
             local row = GUI:Image_Create(list, "rank_row_" .. i, 0, 0, "res/wy/public/guang.png")
             GUI:setContentSize(row, 260, 25)
             local prefix = GUI:Text_Create(row, "rank_prefix", 10.0, 3.0, 14, "#d6a573", string.format("NO.%d    ", i))
             GUI:Text_enableOutline(prefix, "#000000", 1)
+            npc.tyecpmprefix[i] = prefix
             npc.tyecpmm[i] = GUI:Text_Create(row, "player_" .. i, 55.0, 3.0, 14, "#d6a573", "")
             GUI:Text_enableOutline(npc.tyecpmm[i], "#000000", 1)
             npc.tyecpmf[i] = GUI:Text_Create(row, "score_" .. i, 200.0, 3.0, 14, "#d6a573", "")
@@ -5043,8 +5175,83 @@ npc[498] = function(p2, p3, Data)
         end
     end
     local function updateRankingWidgets(data)
+        local mode = tostring(data.mode or "")
+        if mode == "" and data.question then
+            mode = "qmdt"
+        elseif mode == "" and (data.hjf or data.ljf) then
+            mode = "zxdz"
+        end
+        if mode == "qmdt" then
+            if npc.tyecdesc then
+                GUI:Text_setString(npc.tyecdesc, "当前题目")
+            end
+            if npc.tyecscoreLabel then
+                GUI:Text_setString(npc.tyecscoreLabel, "")
+            end
+            for i = 1, 5 do
+                if npc.tyecpmprefix and npc.tyecpmprefix[i] then
+                    GUI:Text_setString(npc.tyecpmprefix[i], "")
+                end
+                GUI:setPositionX(npc.tyecpmm[i], 16)
+                GUI:Text_setString(npc.tyecpmm[i], "")
+                GUI:Text_setString(npc.tyecpmf[i], "")
+            end
+            local idx = tonumber(data.idx or 0) or 0
+            local total = tonumber(data.total or 0) or 0
+            local question = tostring(data.question or "")
+            GUI:Text_setString(npc.tyecpmm[1], string.format("第%s/%s题", tostring(idx), tostring(total)))
+            GUI:Text_setString(npc.tyecpmm[2], question)
+            GUI:Text_setString(npc.tyecgr, "")
+            if npc.tyeccamp then
+                GUI:Text_setString(npc.tyeccamp, "全民答题")
+            end
+            if npc.tyecstate then
+                GUI:Text_setString(npc.tyecstate, "")
+            end
+            return
+        end
+        if mode == "bwcz" then
+            if npc.tyecdesc then
+                GUI:Text_setString(npc.tyecdesc, "怪物剩余/10s刷新")
+            end
+            if npc.tyecscoreLabel then
+                GUI:Text_setString(npc.tyecscoreLabel, "当前个人积分:")
+            end
+            for i = 1, 5 do
+                if npc.tyecpmprefix and npc.tyecpmprefix[i] then
+                    GUI:Text_setString(npc.tyecpmprefix[i], "")
+                end
+                GUI:setPositionX(npc.tyecpmm[i], 16)
+                local info = data.mon_left and data.mon_left[i]
+                if type(info) == "table" then
+                    GUI:Text_setString(npc.tyecpmm[i], tostring(info.name or ""))
+                    GUI:Text_setString(npc.tyecpmf[i], tostring(info.left or 0))
+                else
+                    GUI:Text_setString(npc.tyecpmm[i], "")
+                    GUI:Text_setString(npc.tyecpmf[i], "")
+                end
+            end
+            GUI:Text_setString(npc.tyecgr, data.grjf or 0)
+            if npc.tyeccamp then
+                GUI:Text_setString(npc.tyeccamp, string.format("军团:%s", tostring(data.wave_name or "未知")))
+            end
+            if npc.tyecstate then
+                GUI:Text_setString(npc.tyecstate, string.format("总剩余:%s", tostring(data.left_mon or 0)))
+            end
+            return
+        end
         local mc = 1
+        if npc.tyecdesc then
+            GUI:Text_setString(npc.tyecdesc, "排名数据/10s刷新")
+        end
+        if npc.tyecscoreLabel then
+            GUI:Text_setString(npc.tyecscoreLabel, "当前个人积分:")
+        end
         for i = 1, 5 do
+            if npc.tyecpmprefix and npc.tyecpmprefix[i] then
+                GUI:Text_setString(npc.tyecpmprefix[i], string.format("NO.%d    ", i))
+            end
+            GUI:setPositionX(npc.tyecpmm[i], 55)
             if data.pmsj and data.pmsj[i * 2] and data.pmsj[i * 2] > 0 then
                 GUI:Text_setString(npc.tyecpmm[i], data.pmsj[mc])
                 GUI:Text_setString(npc.tyecpmf[i], data.pmsj[i * 2])

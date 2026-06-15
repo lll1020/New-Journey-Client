@@ -80,6 +80,7 @@ function PlayerEquip_Look.main(data)
     ----------------------
     PlayerEquip_Look.RegisterEvent()
     PlayerEquip_Look.InitEquipFramekuang()
+    NPC_UI_HELPER.renderLinggenEquipSlot(PlayerEquip_Look, {lookPlayer = true, data = cogin and cogin.onther_shuju and cogin.onther_shuju.linggen})
 
 
     local Button= GUI:Button_Create(PlayerEquip_Look._ui.Panel_1, "Button1", 40, 10.00, "res/private/player_main_layer_ui/btn_1.png")

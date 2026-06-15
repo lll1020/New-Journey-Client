@@ -61,10 +61,9 @@ local function getPanelData()
     return npc.data or {}
 end
 
--- 说明：优先使用服务端下发配置，客户端本地配置只做兜底。
+-- 说明：固定配置只读取客户端 teshudata，服务端只下发动态状态。
 local function getConfig()
-    local data = getPanelData()
-    return data.config or npc._config or DEFAULT_CONFIG
+    return npc._config or DEFAULT_CONFIG
 end
 
 -- 说明：读取血契之门文案配置。

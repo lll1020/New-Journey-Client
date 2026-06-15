@@ -2017,7 +2017,7 @@ function MainAssistXylHelper.bind(MainAssist)
         })
         GUI:setAnchorPoint(btn, 0.5, 0.5)
 
-        local tipText = GUI:Text_Create(btn, "entry_text", 162 / 2, 164 / 2, 20, "#FF0000", XYL_FINAL_ENTRY_BTN_TEXT)
+        local tipText = GUI:Text_Create(btn, "entry_text", 162 / 2, 164 / 2, 20, "#FFD45A", XYL_FINAL_ENTRY_BTN_TEXT)
         GUI:setAnchorPoint(tipText, 0.5, 0.5)
         GUI:Text_setFontName(tipText, "fonts/502.ttf")
         GUI:Text_enableOutline(tipText, "#000000", 2)

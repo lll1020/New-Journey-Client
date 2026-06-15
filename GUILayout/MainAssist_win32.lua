@@ -45,7 +45,7 @@ function MainAssist.main()
     local isShow = (SL:GetMetaValue("GAME_DATA", "PCAssistNearShow") or 0) == 1
     GUI:setVisible(MainAssist._ui["Panel_group"], isShow)
     GUI:setContentSize(Panel_assist, isShow and 244 or 202, GUI:getContentSize(Panel_assist).height)
-    GUI:setPositionX(GUI:getChildByName(Panel_assist, "Panel_content"), isShow and 42 - 36 or 0)
+    GUI:setPositionX(GUI:getChildByName(Panel_assist, "Panel_content"), isShow and 42 or 0)
 
     GUI:setPositionX(Panel_hide, 250 - 40)
     MainAssist._hidePos = GUI:getPosition(Panel_hide)

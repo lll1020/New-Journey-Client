@@ -367,6 +367,8 @@ local function _dl_to_num(v, defaultValue)
     return n
 end
 
+local _dl_get_json
+
 local function _dl_get_mainline_progress()
     local uNum = _dl_to_num(Player:getServerVar("U_zxrw"), 0)
     if uNum > 0 then
@@ -377,6 +379,61 @@ local function _dl_get_mainline_progress()
         return uNum
     end
     return 0
+end
+
+local _dl_xyl_cfg_cache
+local function _dl_get_xyl_cfg()
+    if _dl_xyl_cfg_cache ~= nil then
+        return _dl_xyl_cfg_cache
+    end
+    local ok, cfg = pcall(function()
+        return SL:Require("GUILayout/Data/xyl.lua", true)
+    end)
+    _dl_xyl_cfg_cache = (ok and type(cfg) == "table") and cfg or false
+    return _dl_xyl_cfg_cache
+end
+
+local function _dl_get_story_point(task)
+    local rewards = type(task) == "table" and task.jl or nil
+    if type(rewards) ~= "table" then
+        return 0
+    end
+    local total = 0
+    for _, reward in ipairs(rewards) do
+        if type(reward) == "table" and reward[1] == "剧情点" then
+            total = total + _dl_to_num(reward[2], 0)
+        end
+    end
+    return total
+end
+
+local function _dl_has_story_progress(continent, needPercent)
+    local cfg = _dl_get_xyl_cfg()
+    local chapters = type(cfg) == "table" and cfg[continent] or nil
+    if type(chapters) ~= "table" then
+        return false
+    end
+    local ywl = _dl_get_json("T26")
+    local total = 0
+    local received = 0
+    for chapter_idx, chapter in ipairs(chapters) do
+        local tasks = type(chapter) == "table" and chapter.jq or nil
+        if type(tasks) == "table" then
+            local chapter_key = "jl_" .. continent .. "_" .. chapter_idx
+            local chapter_received = _dl_to_num(ywl[chapter_key], 0) == 1
+            for task_idx, task in ipairs(tasks) do
+                local point = _dl_get_story_point(task)
+                total = total + point
+                if point > 0 and (chapter_received or _dl_to_num(ywl[chapter_key .. "_" .. task_idx], 0) == 1) then
+                    received = received + point
+                end
+            end
+        end
+    end
+    if total <= 0 then
+        return false
+    end
+    return received * 100 >= total * (_dl_to_num(needPercent, 100))
 end
 
 local function _dl_get_jqd()
@@ -417,7 +474,7 @@ local function _dl_get_level()
 end
 
 -- 大陆门槛：读取服务端 JSON 变量，给灵根/命盘判定复用。
-local function _dl_get_json(varName)
+_dl_get_json = function(varName)
     return Player:JsonToTbl(Player:getServerVar(varName))
 end
 
@@ -469,35 +526,35 @@ local function _dl_check(dl)
     local level = _dl_get_level()
 
     if dl == 2 then
-        if zxrw >= 16 or zslv >= 10 then
+        if zxrw >= 16 then
             return true
         end
         return false, "需完成主线引导后才可进入二大陆"
     elseif dl == 3 then
-        if zslv >= 20 then
+        if zxrw >= 35 then
             return true
         end
-        return false, "需完成二大陆转生后才可进入三大陆"
+        return false, "需跟随主线引导后才可进入三大陆"
     elseif dl == 4 then
-        if zslv >= 30 and level >= 150 then
+        if _dl_has_story_progress(3, 85) and zslv >= 30 and level >= 150 then
             return true
         end
-        return false, "需完成三大陆转生且人物等级达到150级后才可进入四大陆"
+        return false, "需三大陆剧情完成度达到85%、完成三大陆转生且人物等级达到150级后才可进入四大陆"
     elseif dl == 5 then
-        if zslv >= 40 and _dl_has_all_linggen() then
+        if _dl_has_story_progress(4, 95) and zslv >= 40 and _dl_has_all_linggen() then
             return true
         end
-        return false, "需完成四大陆转生且激活全部灵根后才可进入五大陆"
+        return false, "需四大陆剧情完成度达到95%、完成四大陆转生且激活全部灵根后才可进入五大陆"
     elseif dl == 6 then
-        if zslv >= 50 and _dl_has_all_destiny() then
+        if _dl_has_story_progress(5, 95) and zslv >= 50 and _dl_has_all_destiny() then
             return true
         end
-        return false, "需完成五大陆转生且完成天道命盘后才可进入六大陆"
+        return false, "需五大陆剧情完成度达到95%、完成五大陆转生且完成天道命盘后才可进入六大陆"
     elseif dl == 7 then
-        if zslv >= 60 and _dl_has_title("世界符文·[真我]") then
+        if _dl_has_story_progress(6, 100) and zslv >= 60 and _dl_has_title("世界符文·[真我]") then
             return true
         end
-        return false, "需完成六大陆转生且获得世界符文·[真我]后才可进入七大陆"
+        return false, "需六大陆剧情完成度达到100%、完成六大陆转生且获得世界符文·[真我]后才可进入七大陆"
     elseif dl == 8 then
         if zslv >= 70 then
             return true

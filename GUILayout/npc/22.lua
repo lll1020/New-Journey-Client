@@ -946,6 +946,54 @@ local function _lg_wrap_detail_tip_text(text, limit, prefix)
     return table.concat(lines, "\n")
 end
 
+local function _lg_tip_label_line(label, value, color)
+    value = tostring(value or "")
+    if value == "" then
+        value = "暂无"
+    end
+    return string.format("<font color='#F4D179'>%s</font>\n<font color='%s'>　　%s</font>", label, color or "#D9D2C2", value)
+end
+
+local function _lg_tip_separator()
+    return "<font color='#6B5630'>━━━━━━━━━━━━━━</font>"
+end
+
+local function _lg_tip_title_line(idx, level)
+    local cfg = _lg_root_cfg(idx) or {}
+    return string.format("<font color='%s'>【%s灵根】</font> <font color='#CFC6B4'>Lv.%d</font>",
+        ROOT_COLORS[idx] or "#F4D179", tostring(cfg.name or ""), tonumber(level or 0) or 0)
+end
+
+local function _lg_tip_section_title(label)
+    return string.format("<font color='#F4D179'>%s</font>", tostring(label or ""))
+end
+
+local function _lg_tip_attr_line(value)
+    return string.format("<font color='#D9D2C2'>　◆ %s</font>", tostring(value or ""))
+end
+
+local function _lg_split_skill_desc(value)
+    value = tostring(value or "")
+    local skillName, desc = value:match("^【([^】]+)】(.+)$")
+    if not skillName then
+        skillName, desc = value:match("^%[([^%]]+)%](.+)$")
+    end
+    if skillName then
+        return skillName, desc
+    end
+    return nil, value
+end
+
+local function _lg_tip_skill_block(label, value, color)
+    local skillName, desc = _lg_split_skill_desc(value or "暂无")
+    local title = tostring(label or "")
+    if skillName and skillName ~= "" then
+        title = title .. " · " .. skillName
+    end
+    local wrapped = _lg_wrap_detail_tip_text(desc or "暂无", 24, "　　")
+    return string.format("%s\n<font color='%s'>%s</font>", _lg_tip_section_title(title), color or "#D9D2C2", wrapped)
+end
+
 -- 构建主界面点击灵根时的只读详情，不展示升级预览值。
 local function _lg_build_attr_detail_html(idx)
     if not idx or idx <= 0 then
@@ -959,33 +1007,30 @@ local function _lg_build_attr_detail_html(idx)
     local currentAttrs = _lg_build_attr_list(idx, 0)
     local currentSpecials = _lg_build_special_list(idx, 0)
     local lines = {
-        string.format("<font color='"..ROOT_COLORS[idx].."'>[%s灵根]</font>", tostring(cfg.name or "")),
-        string.format("<font color='#F4D179'>流派：</font><font color='#FFFFFF'>%s</font>", tostring(cfg.flow or "未配置")),
-        string.format("<font color='#00FF00'>当前等级：</font><font color='#FFFFFF'>%d</font>", _lg_level_value(idx)),
-        "<font color='#FFFFFF'>当前属性：</font>",
+        _lg_tip_title_line(idx, _lg_level_value(idx)),
+        _lg_tip_separator(),
+        _lg_tip_label_line("流派定位", cfg.flow or "未配置", "#D9D2C2"),
+        "",
+        _lg_tip_section_title("灵根属性"),
     }
 
     if #currentAttrs == 0 then
-        lines[#lines + 1] = "<font color='#FF0000'>当前灵根未激活</font>"
+        lines[#lines + 1] = "<font color='#FF6B6B'>　◆ 当前灵根未激活</font>"
     else
         for _, line in ipairs(_lg_build_total_attr_lines(currentAttrs)) do
-            lines[#lines + 1] = line
+            lines[#lines + 1] = _lg_tip_attr_line(line)
         end
         for _, line in ipairs(_lg_build_total_special_lines(currentSpecials)) do
-            lines[#lines + 1] = line
+            lines[#lines + 1] = _lg_tip_attr_line(line)
         end
     end
 
-    lines[#lines + 1] = "<font color='#DE0000'>被动技能：</font>"
-    lines[#lines + 1] = _lg_wrap_detail_tip_text(cfg.passive or "暂无", 25, "　　")
-    lines[#lines + 1] = "<font color='#4169E1'>主动技能：</font>"
-    lines[#lines + 1] = _lg_wrap_detail_tip_text(cfg.active or "暂未接入主动技能逻辑", 25, "　　")
-    lines[#lines + 1] = "<font color='#F4D179'>灵兽专属协同：</font>"
-    lines[#lines + 1] = _lg_wrap_detail_tip_text(cfg.synergy or "暂无", 25, "　　")
-    lines[#lines + 1] = "<font color='#A7D58D'>天书回响共鸣：</font>"
-    lines[#lines + 1] = _lg_wrap_detail_tip_text(tostring(cfg.echo_name or "未配置") .. "：" .. tostring(cfg.echo_desc or ""), 25, "　　")
-    lines[#lines + 1] = "<u><font color='#F4D179'>满级技能效果预览：</font></u>"
-    lines[#lines + 1] = _lg_wrap_detail_tip_text(cfg.active or "暂未接入主动技能逻辑", 25, "　　")
+    lines[#lines + 1] = ""
+    lines[#lines + 1] = _lg_tip_skill_block("被动技能", cfg.passive or "暂无", "#B9F6C5")
+    lines[#lines + 1] = ""
+    lines[#lines + 1] = _lg_tip_skill_block("主动技能", cfg.active or "暂无", "#F2E7C8")
+    lines[#lines + 1] = ""
+    lines[#lines + 1] = _lg_tip_skill_block("灵兽协同", cfg.synergy or "暂无", "#B9F6C5")
     return table.concat(lines, "\n")
 end
 
@@ -1028,13 +1073,13 @@ local function _lg_build_skill_tip_html(idx, skillType)
     if not cfg then
         return "<font color='#6b6257'>暂无技能数据</font>"
     end
-    local title = skillType == "active" and "主动技能" or (skillType == "synergy" and "协同技能" or "被动技能")
-    local color = skillType == "active" and "#F4D179" or (skillType == "synergy" and "#F4D179" or "#9FE2FF")
+    local title = skillType == "active" and "主动技能" or (skillType == "synergy" and "灵兽协同" or "被动技能")
+    local color = skillType == "active" and "#F2E7C8" or (skillType == "synergy" and "#B9F6C5" or "#B9F6C5")
     local desc = skillType == "active" and cfg.active or (skillType == "synergy" and cfg.synergy or cfg.passive)
     local lines = {
-        string.format("<font color='%s'>[%s灵根]</font>", ROOT_COLORS[idx] or "#FFFFFF", tostring(cfg.name or "")),
-        string.format("<font color='%s'>%s：</font>", color, title),
-        "　　" .. tostring(desc or "暂无"),
+        _lg_tip_title_line(idx, _lg_level_value(idx)),
+        _lg_tip_separator(),
+        _lg_tip_skill_block(title, desc or "暂无", color),
     }
     return table.concat(lines, "\n")
 end
