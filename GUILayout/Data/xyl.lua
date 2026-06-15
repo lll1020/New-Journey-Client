@@ -199,7 +199,7 @@ local function _xyl_has_linggen_feed()
     end
     return false
 end
--- 备注：是否已选择本命灵根
+-- 备注：是否已选择一个灵根作为本命灵根
 local function _xyl_has_main_linggen()
     local data = _xyl_get_json("T41")
     return (tonumber(data.main or 0) or 0) > 0
@@ -800,7 +800,7 @@ local npc_xyl = {
                 lock_tip = "需先解锁仙府",
                 tip = "请先完成【开辟仙府】后再进入本章节",
             },
-            jl = {{ "1元真实充值", 2 }, { "基础灵根解锁", 1 }},
+            jl = {{ "1元真实充值", 2 }},
         },
         {
             jq = {
@@ -855,7 +855,7 @@ local npc_xyl = {
             },
             name = "外海之旅",
             jqd = 0,
-            jl = {{ "1元真实充值", 2 }, { "基础灵根解锁", 1 }},
+            jl = {{ "1元真实充值", 2 }},
         },
         {
             jq = {

@@ -37,8 +37,8 @@ local RAW_MAP_CONFIG = {
     [227] = {"世界禁墟",100,100,nil,nil,5, mob_name = "≮文明终点·禁墟尊≯", mob_shape = 16170, min_map = "027156"},
 
     [228] = {"登神之路",0,0,nil,nil,6, mob_name = "神庭执法者・圣光守卫", mob_shape = 16170, min_map = "10244", other_name = "登神之路"},
-    [229] = {"血契之地",0,0,nil,nil,6, mob_name = "血契领主・血屠", mob_shape = 16170, min_map = "10244", other_name = "血契之地"},
     [230] = {"冰川雪域",0,0,nil,nil,6, mob_name = "雪域冰王・寒魄", mob_shape = 16170, min_map = "10244", other_name = "冰川雪域"},
+    [229] = {"血契之地",0,0,nil,nil,6, mob_name = "血契领主・血屠", mob_shape = 16170, min_map = "10244", other_name = "血契之地"},
     [231] = {"森罗魔域",0,0,nil,nil,6, mob_name = "森罗魔主・灭世", mob_shape = 16170, min_map = "10244", other_name = "森罗魔域"},
     [232] = {"边关烽城",0,0,nil,nil,6, mob_name = "镇关大将军・烈锋", mob_shape = 16170, min_map = "10244", other_name = "边关烽城"},
     [233] = {"盛世古城",0,0,nil,nil,6, mob_name = "古城守护神・天佑 [神圣]", mob_shape = 16170, min_map = "10244", other_name = "盛世古城"},

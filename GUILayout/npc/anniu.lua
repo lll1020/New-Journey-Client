@@ -851,6 +851,9 @@ local function _open_lingshou_contract_entry()
     SL:SendLuaNetMsg(105, 64, 1064, 0, "")
 end
 npc.refreshLingshouMainEntry = function()
+    if not npc.LeftTop or tolua.isnull(npc.LeftTop) then
+        return
+    end
     local data = _get_lingshou_main_data()
     local hasBabyChoice = (tonumber(data.baby_choice or 0) or 0) > 0
     if npc._lingshou_main_guiding == true then
@@ -859,12 +862,31 @@ npc.refreshLingshouMainEntry = function()
         end
         npc._lingshou_main_guiding = nil
     end
+    local left = _get_lingshou_hatch_left(data)
+    local showEntry = _should_show_lingshou_main_entry(data)
+    local choice = tonumber(data.baby_choice or 0) or 0
+    local hatch = choice > 0 and data.hatch and data.hatch[tostring(choice)] or nil
+    local expireAt = tonumber(hatch and hatch.expireAt or 0) or 0
+    local renderSig = string.format("%s|%s|%s|%s|%s",
+        tostring(showEntry),
+        tostring(tonumber(data.dqzh or 0) or 0),
+        tostring(choice),
+        tostring(left == nil and "nil" or (left > 0 and "countdown" or "ready")),
+        tostring(expireAt)
+    )
+    if npc._lingshou_main_render_sig == renderSig
+        and npc.lingshou_main_entry
+        and not tolua.isnull(npc.lingshou_main_entry)
+        and showEntry then
+        return
+    end
+    npc._lingshou_main_render_sig = renderSig
     if npc.lingshou_main_entry and not tolua.isnull(npc.lingshou_main_entry) then
         GUI:removeFromParent(npc.lingshou_main_entry)
     end
     npc.lingshou_main_entry = nil
     npc.lingshou_main_button = nil
-    if not _should_show_lingshou_main_entry(data) then
+    if not showEntry then
         return
     end
     local node = GUI:Layout_Create(npc.LeftTop, "lingshou_main_entry", 330, -195, 90, 100, false)
@@ -876,13 +898,13 @@ npc.refreshLingshouMainEntry = function()
         npc._force_show_lingshou_main_entry = nil
         _open_lingshou_contract_entry()
     end)
-    local left = _get_lingshou_hatch_left(data)
     if left ~= nil and left > 0 then
         local cd = GUI:Text_Create(node, "countdown", (145 * 0.7) / 2, 0, 13, "#45FF93", _format_pet_countdown(left))
         GUI:setAnchorPoint(cd, 0.5, 0.5)
         GUI:Text_enableOutline(cd, "#000000", 1)
         GUI:Text_COUNTDOWN(cd, left, function()
             if npc.refreshLingshouMainEntry then
+                npc._lingshou_main_render_sig = nil
                 npc.refreshLingshouMainEntry()
             end
         end)
@@ -901,7 +923,53 @@ local function refreshLingshouMainEntrySoon()
                 npc.refreshLingshouMainEntry()
             end
         end, 0.1)
+        SL:ScheduleOnce(function()
+            if npc.refreshLingshouMainEntry then
+                npc.refreshLingshouMainEntry()
+            end
+        end, 0.6)
+        SL:ScheduleOnce(function()
+            if npc.refreshLingshouMainEntry then
+                npc.refreshLingshouMainEntry()
+            end
+        end, 1.5)
     end
+end
+local function requestLingshouMainDataOnce()
+    if npc._lingshou_main_data_requested then
+        return
+    end
+    if _shortcut_get_mainline_rwid() < 28 and not _shortcut_has_reached_xyl_task("灵兽孵化") then
+        return
+    end
+    npc._lingshou_main_data_requested = true
+    rawset(_G, "NPC64_SILENT_SYNC_ONLY", true)
+    SL:SendLuaNetMsg(105, 64, 1064, 0, "")
+    SL:ScheduleOnce(function()
+        if rawget(_G, "NPC64_SILENT_SYNC_ONLY") then
+            rawset(_G, "NPC64_SILENT_SYNC_ONLY", nil)
+        end
+    end, 3)
+end
+local function startLingshouMainEntryLoginRefresh()
+    if npc._lingshou_login_refresh_started then
+        return
+    end
+    npc._lingshou_login_refresh_started = true
+    local checks = 0
+    local function tick()
+        checks = checks + 1
+        if type(rawget(_G, "NPC64_LAST_T_DATA")) ~= "table" then
+            requestLingshouMainDataOnce()
+        end
+        refreshLingshouMainEntrySoon()
+        local data = _get_lingshou_main_data()
+        if _get_lingshou_hatch_left(data) ~= nil or checks >= 12 then
+            return
+        end
+        SL:ScheduleOnce(tick, 1)
+    end
+    SL:ScheduleOnce(tick, 0.2)
 end
 local function startLingshouMainGuide(retryCount)
     npc._force_show_lingshou_main_entry = true
@@ -1215,11 +1283,13 @@ local function registerShortcutTitleRefresh()
             if npc.dbLayout then
                 rebuildShortcutButtons("")
             end
+            refreshLingshouMainEntrySoon()
         end, 0)
     end
     SL:RegisterLUAEvent(LUA_EVENT_ROLE_PROPERTY_CHANGE, "anniu_shortcut_title_refresh_prop", _refresh_shortcut)
     SL:RegisterLUAEvent(LUA_EVENT_SERVER_VALUE_CHANGE, "anniu_shortcut_title_refresh_server", _refresh_shortcut)
     SL:RegisterLUAEvent(LUA_EVENT_MAINBUFFUPDATE, "anniu_shortcut_title_refresh_buff", _refresh_shortcut)
+    SL:RegisterLUAEvent(LUA_EVENT_MAPINFOCHANGE, "anniu_shortcut_title_refresh_map", _refresh_shortcut)
 end
 local UPGRADE_HELPER = SL:Require("GUILayout/npc/upgrade_helper", true)
 if cogin.isWin32 then
@@ -1292,10 +1362,19 @@ local function startGuideOnButton(data)
     })
 end
 local function triggerNavigate(point, meta)
-    local rwxx = SL:GetMetaValue("ACTOR_MAP_X", SL:GetMetaValue("MAIN_ACTOR_ID"))
-    local safeX = (point.map == rwxx) and (point.x + 1) or point.x
-    SL:release_print(point.map, safeX, point.y, SL:JsonEncode(meta))
-    SL:SetMetaValue("BATTLE_MOVE_BEGIN", point.map, safeX + 1, point.y + 1, meta, 1)
+    if meta and tonumber(meta.type or 0) == 1 then
+        local npcID = tonumber(meta.index or 0) or 0
+        if npcID > 0 and SL.RequestNPCTalk then
+            -- SL:RequestNPCTalk(npcID)
+            SL:SendLuaNetMsg(105, npcID, npcID, 0, "")
+            
+            return
+        end
+    end
+    -- local rwxx = SL:GetMetaValue("ACTOR_MAP_X", SL:GetMetaValue("MAIN_ACTOR_ID"))
+    -- local safeX = (point.map == rwxx) and (point.x + 1) or point.x
+    -- SL:release_print(point.map, safeX, point.y, SL:JsonEncode(meta))
+    -- SL:SetMetaValue("BATTLE_MOVE_BEGIN", point.map, safeX + 1, point.y + 1, meta, 1)
 end
 local function openBagGuide(desc, pcWidget, mobileWidget)
     SL:RefreshBagPos()
@@ -1663,6 +1742,7 @@ npc[1] = function(p2, p3, msgData)
             end)
             rebuildShortcutButtons("")
             refreshLingshouMainEntrySoon()
+            startLingshouMainEntryLoginRefresh()
             registerShortcutTitleRefresh()
             UPGRADE_HELPER.registerOpenNpcButtons()
             UPGRADE_HELPER.startEquipChangeRefresh()
@@ -1670,6 +1750,7 @@ npc[1] = function(p2, p3, msgData)
         elseif p3 == 1 then
             rebuildShortcutButtons(msgData or "")
             refreshLingshouMainEntrySoon()
+            startLingshouMainEntryLoginRefresh()
             registerShortcutTitleRefresh()
             
             SL:WinClick(widget)
@@ -5202,8 +5283,17 @@ npc[498] = function(p2, p3, Data)
             GUI:Text_setString(npc.tyecpmm[1], string.format("第%s/%s题", tostring(idx), tostring(total)))
             GUI:Text_setString(npc.tyecpmm[2], question)
             GUI:Text_setString(npc.tyecgr, "")
+            local remain = tonumber(data.limit_sec or 0) or 0
+            local endTs = tonumber(data.end_ts or 0) or 0
+            if endTs > 0 then
+                local nowTs = tonumber(SL:GetMetaValue("SERVER_TIME") or 0) or 0
+                if nowTs <= 0 then
+                    nowTs = os.time()
+                end
+                remain = math.max(0, math.floor(endTs - nowTs))
+            end
             if npc.tyeccamp then
-                GUI:Text_setString(npc.tyeccamp, "全民答题")
+                GUI:Text_setString(npc.tyeccamp, "答题倒计时：" .. tostring(remain) .. "秒")
             end
             if npc.tyecstate then
                 GUI:Text_setString(npc.tyecstate, "")

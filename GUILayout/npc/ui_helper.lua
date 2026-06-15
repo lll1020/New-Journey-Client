@@ -718,12 +718,9 @@ local function _linggen_slot_tip(data)
         string.format("<font color='%s'>%s灵根</font> <font color='#CFC6B4'>Lv.%d</font>", rootColor, tostring(cfg.name or ""), level),
         "<font color='#6B5630'>━━━━━━━━━━━━━━━━</font>",
         string.format("<font color='#E8C879'>流派定位</font>\n<font color='#D9D2C2'>　　%s</font>", tostring(cfg.flow or "未配置")),
-        "",
     }
     lines[#lines + 1] = section("被动技能", cfg.passive, "#B9F6C5")
-    lines[#lines + 1] = ""
     lines[#lines + 1] = section("主动技能", cfg.active, "#F2E7C8")
-    lines[#lines + 1] = ""
     lines[#lines + 1] = section("灵兽协同", cfg.synergy, "#B9F6C5")
     return table.concat(lines, "\n")
 end

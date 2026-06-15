@@ -592,6 +592,10 @@ function npc.main(npcid, p2, p3, msgData)
         if p2 == 0 then--界面
         npc.ls_data = SL:JsonDecode(msgData,false)
         _sync_shortcut_pet_data()
+        if rawget(_G, "NPC64_SILENT_SYNC_ONLY") then
+            rawset(_G, "NPC64_SILENT_SYNC_ONLY", nil)
+            return
+        end
         if rawget(_G, "NPC64_OPEN_CONTRACT_ONCE") or (npc.ls_data and tonumber(npc.ls_data.open_contract or 0) == 1) then
             rawset(_G, "NPC64_OPEN_CONTRACT_ONCE", nil)
             open_contract_window()
