@@ -848,7 +848,7 @@ local function _get_lingshou_hatch_left(data)
 end
 local function _open_lingshou_contract_entry()
     rawset(_G, "NPC64_OPEN_CONTRACT_ONCE", true)
-    SL:SendLuaNetMsg(105, 64, 1064, 0, "")
+    SL:SendLuaNetMsg(105, 64, 64, 0, "")
 end
 npc.refreshLingshouMainEntry = function()
     if not npc.LeftTop or tolua.isnull(npc.LeftTop) then
@@ -867,6 +867,7 @@ npc.refreshLingshouMainEntry = function()
     local choice = tonumber(data.baby_choice or 0) or 0
     local hatch = choice > 0 and data.hatch and data.hatch[tostring(choice)] or nil
     local expireAt = tonumber(hatch and hatch.expireAt or 0) or 0
+    local isDoneToDeploy = choice > 0 and hatch and hatch.status == "done" and (tonumber((data.ls or {})[tostring(choice)] or 0) or 0) <= 0
     local renderSig = string.format("%s|%s|%s|%s|%s",
         tostring(showEntry),
         tostring(tonumber(data.dqzh or 0) or 0),
@@ -908,7 +909,7 @@ npc.refreshLingshouMainEntry = function()
                 npc.refreshLingshouMainEntry()
             end
         end)
-    elseif left ~= nil then
+    elseif left ~= nil or isDoneToDeploy then
         NPC_UI_HELPER.redpoint_create_eff(btn, {
             x = 76 + 53 + 10,
             y = 70 + 29 + 10,
