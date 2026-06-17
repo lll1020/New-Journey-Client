@@ -59,6 +59,14 @@ local LINGSHOU_BABY_ITEMS = {
     [4] = "白虎幼崽",
     [5] = "玄武幼崽",
 }
+
+local LINGSHOU_BABY_STYLE = {
+    [1] = {title = "山河镇守", desc = "护主承伤，稳守中宫", mark = "承伤守御", color = "#FFE49A"},
+    [2] = {title = "青木回生", desc = "生息绵长，续航护体", mark = "回春续航", color = "#7CFFB2"},
+    [3] = {title = "赤焰焚天", desc = "烈羽燎原，群攻最盛", mark = "群攻爆发", color = "#FF7952"},
+    [4] = {title = "白虎破军", desc = "锋芒入阵，暴击破防", mark = "暴击破防", color = "#F6F0FF"},
+    [5] = {title = "玄水藏珍", desc = "聚运寻宝，控场生财", mark = "聚运控场", color = "#75D9FF"},
+}
 local function _server_now(payload)
     local now = tonumber(payload and payload.server_time or 0) or 0
     if now <= 0 and SL and SL.GetMetaValue then
@@ -274,6 +282,46 @@ function npc.main(npcid, p2, p3, msgData)
     end
 
     local open_contract_window
+    local function _outline_text(parent, name, x, y, size, color, text, opts)
+        opts = opts or {}
+        local node = GUI:Text_Create(parent, name, x, y, size, color, text)
+        GUI:Text_setFontName(node, opts.font or "fonts/font4.ttf")
+        GUI:Text_enableOutline(node, opts.outline or "#000000", opts.outlineSize or 1)
+        return node
+    end
+
+    local function _contract_button(parent, name, x, y, title, color, cb)
+        local btn = GUI:Button_Create(parent, name, x, y, "res/custom/four_city/lingshou/xjm/an7.png")
+        GUI:setAnchorPoint(btn, 0.5, 0.5)
+        GUI:Button_setTitleText(btn, title)
+        GUI:Button_setTitleFontName(btn, "fonts/502.ttf")
+        GUI:Button_setTitleFontSize(btn, 22)
+        GUI:Button_setTitleColor(btn, color or "#FFFFFF")
+        GUI:Button_titleEnableOutline(btn, "#160b05", 3)
+        GUI:addOnClickEvent(btn, cb)
+        return btn
+    end
+
+    local function _contract_title(parent, name, x, y, size, text)
+        local title = _outline_text(parent, name, x, y, size, "#F8DA8B", text, {font = "fonts/502.ttf", outline = "#2A1200", outlineSize = 3})
+        GUI:setAnchorPoint(title, 0.5, 0.5)
+        return title
+    end
+
+    local function _contract_line(parent, name, x, y, text, color, size)
+        local line = _outline_text(parent, name, x, y, size or 16, color or "#F7E8C5", text, {outline = "#170A02", outlineSize = 2})
+        GUI:setAnchorPoint(line, 0, 0.5)
+        return line
+    end
+
+    local function _contract_text_mask(parent, name, x, y, w, h, opacity)
+        local mask = GUI:Image_Create(parent, name, x, y, "res/wy/public/tycccc.png")
+        GUI:setAnchorPoint(mask, 0.5, 0.5)
+        GUI:setContentSize(mask, w, h)
+        GUI:setOpacity(mask, opacity or 185)
+        return mask
+    end
+
     local function _baby_state(idx, data, now, babyChoice)
         data = data or {}
         data.ls = data.ls or {}
@@ -314,6 +362,9 @@ function npc.main(npcid, p2, p3, msgData)
         local status, color, canClaim = _baby_state(idx, data, now, babyChoice)
         local babyName = LINGSHOU_BABY_ITEMS[idx] or (petCfg.name .. "幼崽")
         local canDeploy = (tonumber((data.ls or {})["" .. idx] or 0) or 0) > 0
+        local hatch = _get_hatch(idx)
+        local remain = hatch and math.max(0, (tonumber(hatch.expireAt or 0) or 0) - now) or 0
+        local isHatching = hatch and hatch.status == "hatching" and remain > 0
 
         if npc.contract_window then
             NPC_UI_HELPER.closeWindow(npc.contract_window)
@@ -321,87 +372,87 @@ function npc.main(npcid, p2, p3, msgData)
         end
         npc.baby_preview_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
             windowName = "npc_64_baby_preview",
-            background = {skin = "res/custom/four_city/lingshou/xjm/bg.png", eff = false},
-            closeButton = {x = 9999, y = 9999, skin = "res/wy/public/close_red_big.png"},
-            titleText = "灵兽预览",
-            subTitle = babyName,
+            background = {skin = "res/custom/four_city/lingshou/bg_1_1/eff_1.png", eff = false},
+            closeButton = {x = 885, y = 468, skin = "res/wy/public/close_red_big.png"},
         })
         local node = npc.baby_preview_window.node
+        local bg = npc.baby_preview_window.bg
         GUI:removeAllChildren(node)
+        GUI:setLocalZOrder(GUI:Frames_Create(bg, "contract_bg_eff", 0, 0, "res/custom/four_city/lingshou/bg_1_1/eff_", ".png", 1, 30, {speed = 100, count = 30, loop = -1}), 1)
 
-        local eff = GUI:Frames_Create(node, "eff", 288, 314, "res/custom/four_city/lingshou/xjm/eff/" .. idx .. "/eff_", ".png", 1, 30, {
+        _contract_text_mask(node, "title_text_mask", 596, 486, 635, 108, 165)
+        _contract_text_mask(node, "info_text_mask", 648, 311, 552, 214, 155)
+
+        _contract_title(node, "contract_title", 499, 520, 40, "灵兽契约")
+        local subTitle = _outline_text(node, "contract_subtitle", 488, 482, 22, "#FFF3CF", "缔灵契，启仙兽；孵化完成后，可召唤", {font = "fonts/502.ttf", outline = "#170A02", outlineSize = 2})
+        GUI:setAnchorPoint(subTitle, 0.5, 0.5)
+        local red = _outline_text(node, "contract_subtitle_red", 720, 482, 22, "#FF4C38", "灵兽外显", {font = "fonts/502.ttf", outline = "#2A0000", outlineSize = 2})
+        GUI:setAnchorPoint(red, 0.5, 0.5)
+        local subTail = _outline_text(node, "contract_subtitle_tail", 804, 482, 22, "#FFF3CF", "并肩征战", {font = "fonts/502.ttf", outline = "#170A02", outlineSize = 2})
+        GUI:setAnchorPoint(subTail, 0.5, 0.5)
+
+        local eff = GUI:Frames_Create(node, "egg_eff", 225, 320, "res/custom/four_city/lingshou/xjm/eff/" .. idx .. "/eff_", ".png", 1, 30, {
             speed = 75,
             count = 30,
             loop = -1,
         })
         GUI:setAnchorPoint(eff, 0.5, 0.5)
+        GUI:setScale(eff, 0.78)
 
-        local petImg = GUI:Button_Create(node, "pet_img", 165 + 250, 55 + 85, "res/custom/four_city/lingshou/l_" .. idx .. ".png")
-        GUI:setScale(petImg, 0.75)
-        GUI:setTouchEnabled(petImg, false)
-        local name = GUI:Text_Create(node, "pet_name", 290, 430, 28, "#F7DE91", petCfg.name or "")
+        local eggLabel = GUI:Image_Create(node, "egg_label_bg", 225, 205, "res/wy/public/new_kuang.png")
+        GUI:setAnchorPoint(eggLabel, 0.5, 0.5)
+        GUI:setContentSize(eggLabel, 124, 34)
+        local name = _outline_text(node, "pet_name", 225, 205, 21, "#FFE49A", babyName, {font = "fonts/502.ttf", outline = "#2A1200", outlineSize = 2})
         GUI:setAnchorPoint(name, 0.5, 0.5)
-        --GUI:Text_setFontName(name, "fonts/font4.ttf")
-        GUI:Text_enableOutline(name, "#000000", 1)
 
-        -- local statusNode = GUI:Text_Create(node, "status", 290, 388, 20, color, status)
-        -- GUI:setAnchorPoint(statusNode, 0.5, 0.5)
-        -- GUI:Text_enableOutline(statusNode, "#000000", 1)
+        local progressBg = GUI:Image_Create(node, "hatch_progress_bg", 225, 160, "res/wy/public/new_kuang.png")
+        GUI:setAnchorPoint(progressBg, 0.5, 0.5)
+        GUI:setContentSize(progressBg, 250, 18)
+        local progressText = _outline_text(node, "hatch_progress_text", 225, 184, 19, "#FFE49A", isHatching and ("灵契凝息  " .. _format_seconds(remain)) or (canDeploy and "灵契已成，可出战" or status), {outline = "#1B0A00", outlineSize = 2})
+        GUI:setAnchorPoint(progressText, 0.5, 0.5)
+        local progressFill = GUI:Layout_Create(node, "hatch_progress_fill", 102, 153, isHatching and 80 or 240, 14, false)
+        GUI:Layout_setBackGroundColorType(progressFill, 1)
+        GUI:Layout_setBackGroundColor(progressFill, canDeploy and "#62D878" or "#F0C15A")
+        GUI:Layout_setBackGroundColorOpacity(progressFill, 180)
 
-        -- for star = 1, 3 do
-        --     GUI:Image_Create(node, "star_" .. star, 230 + (star - 1) * 45, 355, "res/custom/four_city/lingshou/star_" .. ((tonumber((data.ls_sp or {})["" .. idx] or 0) or 0) >= star and "l" or "n") .. ".png")
-        -- end
-
-        local infoNode = GUI:Node_Create(node, "preview_info_node", 0, 0)
-        local previewPage = 1
-        local previewTabs = {}
-        local function renderPreviewInfo(page)
-            previewPage = page or 1
-            GUI:removeAllChildren(infoNode)
-            if previewPage == 1 then
-                GUI:Image_Create(infoNode, "wz1", 490, 380, "res/custom/four_city/lingshou/xjm/tip_1.png")
-                GUI:Image_Create(infoNode, "wz2", 490, 380 - 70, "res/custom/four_city/lingshou/xjm/tip_5.png")
-                GUI:Text_setFontName(GUI:Text_Create(infoNode, "b_skill", 500, 360, 18, "#FFFFFF", tostring(petCfg.b_skill or "")), "fonts/font4.ttf")
-                local sSkill = GUI:Text_Create(infoNode, "s_skill", 500, 360 - 45, 18, "#FFFFFF", tostring(petCfg.s_skill or ""))
-                GUI:Text_setFontName(sSkill, "fonts/font4.ttf")
-                GUI:setAnchorPoint(sSkill, 0, 1)
-            else
-                GUI:Image_Create(infoNode, "wz1", 490, 380, "res/custom/four_city/lingshou/xjm/tip_2.png")
-                GUI:Image_Create(infoNode, "wz2", 490, 380 - 100, "res/custom/four_city/lingshou/xjm/tip_3.png")
-                local attrGiveWz = GUI:Text_Create(infoNode, "attr_give_wz", 500, 360 + 15, 18, "#FFFFFF", tostring(petCfg.attr_give_wz or ""))
-                local attrWz = GUI:Text_Create(infoNode, "attr_wz", 500, 360 - 100 + 15, 18, "#FFFFFF", tostring(petCfg.attr_wz or ""))
-                GUI:Text_setFontName(attrGiveWz, "fonts/font4.ttf")
-                GUI:Text_setFontName(attrWz, "fonts/font4.ttf")
-                GUI:setAnchorPoint(attrGiveWz, 0, 1)
-                GUI:setAnchorPoint(attrWz, 0, 1)
-            end
-            for i = 1, 2 do
-                if previewTabs[i] then
-                    GUI:Button_loadTextureNormal(previewTabs[i], "res/custom/four_city/lingshou/xjm/list/" .. (previewPage == i and "l" or "n") .. "/" .. i .. ".png")
-                end
-            end
+        local infoPanel = GUI:Image_Create(node, "info_panel", 520, 294, "res/wy/public/new_kuang.png")
+        GUI:setAnchorPoint(infoPanel, 0.5, 0.5)
+        GUI:setContentSize(infoPanel, 330, 230)
+        _contract_title(node, "info_title", 520, 390, 25, "灵兽修行")
+        local lines = {
+            {"灵兽可淬炼星级，星耀越盛，战力越强。", "#F7E8C5"},
+            {"可佩戴专属圣物，后续大陆可寻得机缘。", "#F7E8C5"},
+            {"可与本命灵根共鸣，激活专属协同被动。", "#FF5A3D"},
+            {"每日灵兽谷击杀神秘灵兽，可获珍稀掉落。", "#F7E8C5"},
+            {"提升亲密好感，可令灵兽成长更快更强。", "#FF5A3D"},
+            {"更多御兽秘法，前往四大陆后自行参悟。", "#F7E8C5"},
+        }
+        for i, line in ipairs(lines) do
+            _contract_line(node, "info_line_" .. i, 366, 366 - i * 25, "· " .. line[1], line[2], 16)
         end
+        local playBox = GUI:Image_Create(node, "preview_box", 790, 294, "res/wy/public/new_kuang.png")
+        GUI:setAnchorPoint(playBox, 0.5, 0.5)
+        GUI:setContentSize(playBox, 140, 190)
+        _contract_title(node, "preview_title", 790, 388, 21, "召灵预览")
+        local playBtn = GUI:Button_Create(node, "preview_play", 790, 294, "res/custom/four_city/lingshou/xjm/an7.png")
+        GUI:setAnchorPoint(playBtn, 0.5, 0.5)
+        GUI:Button_setTitleText(playBtn, "观灵")
+        GUI:Button_setTitleFontName(playBtn, "fonts/502.ttf")
+        GUI:Button_setTitleFontSize(playBtn, 22)
+        GUI:Button_setTitleColor(playBtn, "#FFE49A")
+        GUI:Button_titleEnableOutline(playBtn, "#160b05", 3)
+        GUI:addOnClickEvent(playBtn, function()
+            SL:ShowSystemTips("灵兽召唤预览暂未开放")
+        end)
 
-        for i = 1, 2 do
-            local page = i
-            previewTabs[page] = GUI:Button_Create(node, "preview_tab_" .. page, 570 + (page - 1) * 150, 455, "res/custom/four_city/lingshou/xjm/list/" .. (previewPage == page and "l" or "n") .. "/" .. page .. ".png")
-            GUI:addOnClickEvent(previewTabs[page], function()
-                renderPreviewInfo(page)
-            end)
-        end
-        renderPreviewInfo(previewPage)
+        local quickHatchTip = _outline_text(node, "quick_hatch_tip", 570, 148, 23, "#FFF3CF", "累计充值", {font = "fonts/502.ttf", outline = "#170A02", outlineSize = 2})
+        GUI:setAnchorPoint(quickHatchTip, 1, 0.5)
+        local quickHatchRed = _outline_text(node, "quick_hatch_tip_red", 572, 148, 23, "#FF3B2E", "99元", {font = "fonts/502.ttf", outline = "#2A0000", outlineSize = 2})
+        GUI:setAnchorPoint(quickHatchRed, 0, 0.5)
+        local quickHatchTail = _outline_text(node, "quick_hatch_tip_tail", 625, 148, 23, "#FFF3CF", "即可点化灵胎，无需等待！", {font = "fonts/502.ttf", outline = "#170A02", outlineSize = 2})
+        GUI:setAnchorPoint(quickHatchTail, 0, 0.5)
 
-        local quickHatchTip = GUI:Text_Create(node, "quick_hatch_tip", 695, 118, 18, "#F7DE91", "真实累计充值达到99元 可以立即孵化")
-        GUI:setAnchorPoint(quickHatchTip, 0.5, 0.5)
-        GUI:Text_setFontName(quickHatchTip, "fonts/font4.ttf")
-        GUI:Text_enableOutline(quickHatchTip, "#000000", 1)
-
-        local backBtn = GUI:Button_Create(node, "back_btn", 500 + 100, 70 + 95, "res/custom/four_city/lingshou/xjm/an7.png")
-        GUI:Button_setTitleText(backBtn, opts.fromList and "返回选择" or "关闭")
-        GUI:Button_setTitleFontName(backBtn, "fonts/font4.ttf")
-        GUI:Button_setTitleFontSize(backBtn, 20)
-        GUI:Button_setTitleColor(backBtn, "#FF0000")
-        GUI:addOnClickEvent(backBtn, function()
+        local backBtn = _contract_button(node, "back_btn", 225, 86, opts.fromList and "返回灵契" or "收起契卷", "#7BFFB0", function()
             if npc.baby_preview_window then
                 NPC_UI_HELPER.closeWindow(npc.baby_preview_window)
                 npc.baby_preview_window = nil
@@ -411,12 +462,18 @@ function npc.main(npcid, p2, p3, msgData)
             end
         end)
 
-        local claimBtn = GUI:Button_Create(node, "claim_btn", 690 + 100, 70 + 95, canDeploy and "res/custom/four_city/lingshou/xjm/btn_cz.png" or "res/custom/four_city/lingshou/xjm/an7.png")
+        local hatchNowBtn = _contract_button(node, "quick_hatch_btn", 625, 86, "立即点化", "#FF4D3A", function()
+            SL:ShowSystemTips("真实累计充值达到99元后，可使用灵兽幼崽立即孵化")
+        end)
+
+        local claimBtn = GUI:Button_Create(node, "claim_btn", 790, 86, "res/custom/four_city/lingshou/xjm/an7.png")
+        GUI:setAnchorPoint(claimBtn, 0.5, 0.5)
+        GUI:Button_setTitleText(claimBtn, canDeploy and "召唤出战" or (canClaim and "缔契领取" or status))
+        GUI:Button_setTitleFontName(claimBtn, "fonts/502.ttf")
+        GUI:Button_setTitleFontSize(claimBtn, 22)
+        GUI:Button_setTitleColor(claimBtn, canDeploy and "#7BFFB0" or "#FFE49A")
+        GUI:Button_titleEnableOutline(claimBtn, "#160b05", 3)
         if not canDeploy then
-            GUI:Button_setTitleText(claimBtn, canClaim and "领取幼崽" or status)
-            GUI:Button_setTitleFontName(claimBtn, "fonts/font4.ttf")
-            GUI:Button_setTitleFontSize(claimBtn, 20)
-            GUI:Button_setTitleColor(claimBtn, "#00FF00")
             GUI:setTouchEnabled(claimBtn, canClaim)
             GUI:Button_setBright(claimBtn, canClaim)
         end
@@ -471,30 +528,32 @@ function npc.main(npcid, p2, p3, msgData)
         data.hatch = data.hatch or {}
         local now = _server_now(npc.ls_data)
 
-        -- local title = GUI:Text_Create(node, "title", 499 + 200, 480, 26, "#F7DE91", "选择一只灵兽幼崽")
-        -- GUI:setAnchorPoint(title, 0.5, 0.5)
-        -- GUI:Text_setFontName(title, "fonts/font4.ttf")
-        -- GUI:Text_enableOutline(title, "#000000", 1)
+        _contract_text_mask(node, "choice_title_mask", 556, 500, 610, 92, 150)
+        _contract_title(node, "choice_title", 556, 530, 38, "五灵择契")
+        local choiceDesc = _outline_text(node, "choice_desc", 556, 492, 19, "#FFF3CF", "灵兽契约只能择定其一；择定后将开启孵化，并决定后续成长流派。", {font = "fonts/502.ttf", outline = "#170A02", outlineSize = 2})
+        GUI:setAnchorPoint(choiceDesc, 0.5, 0.5)
+        local choiceTip = _outline_text(node, "choice_tip", 556, 464, 17, "#F8DA8B", "点击灵兽蛋，可查看契约与孵化详情", {font = "fonts/font4.ttf", outline = "#170A02", outlineSize = 2})
+        GUI:setAnchorPoint(choiceTip, 0.5, 0.5)
 
-        -- local desc = GUI:Text_Create(node, "desc", 499, 420, 18, "#FFFFFF", "每个角色只能领取一次幼崽，请确认后再选择。")
-        -- GUI:setAnchorPoint(desc, 0.5, 0.5)
-        -- GUI:Text_enableOutline(desc, "#000000", 1)
         local Pos = {
-            [1] = {x = 100 + 579, y = 250 + 80, eff = 60483 - 10},
-            [2] = {x = 243 + 579, y = 146 + 80, eff = 60484 - 10},
-            [3] = {x = 188 + 579, y = -21 + 80, eff = 60485 - 10},
-            [4] = {x = 12 + 579, y = -21 + 80, eff = 60486 - 10},
-            [5] = {x = -43 + 579, y = 146 + 80, eff = 60487 - 10},
+            [1] = {x = 100 + 479, y = 250 + 80, eff = 60483 - 10, tagX = -96 + 38, tagY = -4 + 60, tagW = 150},
+            [2] = {x = 243 + 479, y = 146 + 80, eff = 60484 - 10, tagX = 122 + 10 + 66, tagY = -18 + 60, tagW = 150},
+            [3] = {x = 188 + 479, y = -21 + 80, eff = 60485 - 10, tagX = 30 + 160, tagY = 58 - 16, tagW = 150},
+            [4] = {x = 12 + 479, y = -21 + 80, eff = 60486 - 10, tagX = -64 + 10, tagY = 36, tagW = 150},
+            [5] = {x = -43 + 479, y = 146 + 80, eff = 60487 - 10, tagX = -60 + 10, tagY = -8 + 60, tagW = 150},
         }
         for i = 1, 5 do
             local x = Pos[i].x
             local y = Pos[i].y
-            -- local btn = GUI:Button_Create(node, "baby_" .. i, x, y, "res/custom/four_city/lingshou/l_" .. i .. ".png")
-            -- GUI:setScale(btn, 0.62)
             local lay = GUI:Layout_Create(node, "lay_" .. i, x, y, 100, 150)
+            local style = LINGSHOU_BABY_STYLE[i] or {}
+            local tag = GUI:Image_Create(lay, "baby_tag_bg_" .. i, Pos[i].tagX, Pos[i].tagY + 8, "res/wy/public/kfzj_bj.png")
+            GUI:setAnchorPoint(tag, 0.5, 0.5)
+            GUI:setContentSize(tag, Pos[i].tagW or 156, 120)
+            GUI:setOpacity(tag, 150)
+            GUI:setLocalZOrder(tag, 3)
             local btn = GUI:Effect_Create(lay, "baby_" .. i, 50, 75, 0, Pos[i].eff, 0, 0, 0, 1)
-            -- GUI:setAnchorPoint(btn, 0.5, 0.5)
-
+            GUI:setLocalZOrder(btn, 2)
 
             local hatch = _get_hatch(i)
             local received = hatch ~= nil
@@ -502,24 +561,37 @@ function npc.main(npcid, p2, p3, msgData)
             local isChoice = babyChoice == i
             local isHatching = hatch and hatch.status == "hatching" and (tonumber(hatch.expireAt or 0) or 0) > now
             local label = npc._config.config.ls[i] and npc._config.config.ls[i].name or LINGSHOU_BABY_ITEMS[i]
-            local nameText = GUI:Text_Create(lay, "name_" .. i, 70, 0, 24, "#FFFFFF", label)
+            local markText = _outline_text(lay, "style_mark_" .. i, Pos[i].tagX, Pos[i].tagY + 37, 14, style.color or "#FFFFFF", tostring(style.mark or "灵契"), {font = "fonts/502.ttf", outline = "#170A02", outlineSize = 2})
+            GUI:setAnchorPoint(markText, 0.5, 0.5)
+            GUI:setLocalZOrder(markText, 4)
+            local nameText = GUI:Text_Create(lay, "name_" .. i, Pos[i].tagX, Pos[i].tagY + 17, 22, style.color or "#FFFFFF", label)
             GUI:setAnchorPoint(nameText, 0.5, 0.5)
-            GUI:Text_setFontName(nameText, "fonts/font4.ttf")
-            GUI:Text_enableOutline(nameText, "#000000", 1)
+            GUI:Text_setFontName(nameText, "fonts/502.ttf")
+            GUI:Text_enableOutline(nameText, "#170A02", 3)
+            GUI:setLocalZOrder(nameText, 4)
+            local titleText = _outline_text(lay, "style_title_" .. i, Pos[i].tagX, Pos[i].tagY - 6, 16, "#F8DA8B", tostring(style.title or "灵契流派"), {font = "fonts/font4.ttf", outline = "#170A02", outlineSize = 2})
+            GUI:setAnchorPoint(titleText, 0.5, 0.5)
+            GUI:setLocalZOrder(titleText, 4)
+            local descText = _outline_text(lay, "style_desc_" .. i, Pos[i].tagX, Pos[i].tagY - 27, 14, "#F4E7C5", tostring(style.desc or "潜力待启"), {font = "fonts/font4.ttf", outline = "#170A02", outlineSize = 2})
+            GUI:setAnchorPoint(descText, 0.5, 0.5)
+            GUI:setLocalZOrder(descText, 4)
+            if isChoice or isHatching then
+                local selected = _outline_text(lay, "selected_" .. i, Pos[i].tagX, Pos[i].tagY + 59, 15, "#7BFFB0", isHatching and "孵化中" or "已择契", {font = "fonts/502.ttf", outline = "#003018", outlineSize = 2})
+                GUI:setAnchorPoint(selected, 0.5, 0.5)
+                GUI:setLocalZOrder(selected, 4)
+            elseif hasChoice then
+                GUI:setOpacity(tag, 95)
+                GUI:setOpacity(markText, 125)
+                GUI:setOpacity(nameText, 125)
+                GUI:setOpacity(titleText, 125)
+                GUI:setOpacity(descText, 125)
+            end
 
-            -- local status, color, canClaim = _baby_state(i, data, now, babyChoice)
-            -- local statusNode = GUI:Text_Create(node, "status_" .. i, x + 68, 115, 17, color, status)
-            -- GUI:setAnchorPoint(statusNode, 0.5, 0.5)
-            -- GUI:Text_enableOutline(statusNode, "#000000", 1)
             GUI:setTouchEnabled(lay, true)
             GUI:addOnClickEvent(lay, function()
                 open_baby_preview_window(i, {fromList = true})
             end)
         end
-
-        -- local tip = GUI:Text_Create(node, "tip", 499, 55, 18, "#F7DE91", "点击灵兽蛋可进入预览界面，确认后领取48小时幼崽。")
-        -- GUI:setAnchorPoint(tip, 0.5, 0.5)
-        -- GUI:Text_enableOutline(tip, "#000000", 1)
     end
 
     local function UI_updata(node) --界面渲染

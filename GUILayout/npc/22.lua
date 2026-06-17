@@ -185,6 +185,32 @@ local SKILL_ICON_BY_ROOT = {
     [10] = {passive = "jian_ru_pan_shi", active = "jian_ru_pan_shi", synergy = "gu_ruo_jin_tang"},
 }
 
+local ACTIVE_SKILL_TEXT_CONFIG = {
+    [1] = {name = "惊雷斩", template = "CD%s秒，向前打出3段斩击，每段造成自身攻击%s伤害；Lv10后命中玩家触发金刚杀，造成目标最大生命%s真实伤害，最高不超过自身攻击%s倍。", values = {{12, 12, ""}, {80, 200, "%"}, {0, 15, "%"}, {0, 10, "倍"}}},
+    [2] = {name = "万物回春", template = "CD%s秒，瞬间恢复自身最大生命%s，接下来3秒受到的所有伤害降低%s。", values = {{45, 45, ""}, {15, 35, "%"}, {4, 12, "%"}}},
+    [3] = {name = "寻宝天眼", template = "CD%s秒，开启5秒寻宝窗口；攻击目标红名怪时专属装备掉落概率增加%s，消耗幸运印记后每层提升秘境爆率%s、古玩爆率%s。", values = {{45, 45, ""}, {20, 200, "%"}, {1, 10, "%"}, {1, 10, "%"}}},
+    [4] = {name = "烈焰旋风", template = "CD%s秒，对自身周围3*3范围释放火焰冲击，对范围内怪物造成自身攻击%s范围伤害。", values = {{10, 10, ""}, {50, 110, "%"}}},
+    [5] = {name = "山河霸体", template = "CD%s秒，接下来5秒内全伤害减免提升%s，受到伤害反弹%s，格挡概率提升%s。", values = {{25, 25, ""}, {7, 18, "%"}, {1, 10, "%"}, {1, 10, "%"}}},
+    [6] = {name = "雷霆灭世斩", template = "CD%s秒，连续打出5段雷霆斩击，每段造成自身攻击%s伤害；命中附带%s控制效果，Lv10附带破防。", values = {{15, 15, ""}, {50, 90, "%"}, {0.6, 1, "秒"}}},
+    [7] = {name = "风影重生", template = "CD%s秒，瞬间恢复%s最大生命，移动速度提升%s，持续%s；自身受治疗效果提升%s。", values = {{35, 35, ""}, {20, 45, "%"}, {5, 30, "%"}, {4, 8, "秒"}, {0, 25, "%"}}},
+    [8] = {name = "寒霜祈运", template = "CD%s秒，开启5秒祈运窗口；目标BOSS额外掉落%s，每层幸运印记提升秘境和古玩爆率%s，并冰封小怪%s。", values = {{50, 50, ""}, {1, 2, "件"}, {1, 10, "%"}, {1, 3, "秒"}}},
+    [9] = {name = "焚天炼狱", template = "CD%s秒，释放全屏烈焰领域，对范围内敌人造成多段灼烧，每段造成自身攻击%s伤害。", values = {{15, 15, ""}, {60, 120, "%"}}},
+    [10] = {name = "镇岳结界", template = "CD%s秒，生成防护结界，自身免伤提升%s，持续%s；身旁行会队友获得%s通用伤害减免。", values = {{25, 25, ""}, {10, 25, "%"}, {5, 8, "秒"}, {5, 10, "%"}}},
+}
+
+local PASSIVE_SKILL_TEXT_CONFIG = {
+    [1] = {name = "金煞破甲", template = "攻击玩家时无视目标%s防御；自身血量高于70%时，暴击伤害额外提升%s。", values = {{5, 20, "%"}, {5, 25, "%"}}},
+    [2] = {name = "枯荣自愈", template = "血量低于30%时触发枯荣自愈，每秒恢复%s最大生命，持续3秒；挂机状态下对怪吸血额外提升%s。", values = {{1, 5, "%"}, {3, 12, "%"}}},
+    [3] = {name = "机缘天赐", template = "击杀任意BOSS叠加1层幸运印记，最多保留%s层；幸运印记死亡不清空、下线保留。", values = {{1, 10, "层"}}},
+    [4] = {name = "烈焰焚身", template = "同时攻击3只以上怪物时，群伤额外提升%s；攻击怪物时有%s概率点燃目标，灼烧造成自身攻击%s伤害。", values = {{5, 20, "%"}, {3, 15, "%"}, {30, 100, "%"}}},
+    [5] = {name = "磐石守御", template = "受到红名怪等BOSS攻击时额外减伤%s；血量低于30%时额外获得%s受怪减伤。", values = {{5, 20, "%"}, {3, 15, "%"}}},
+    [6] = {name = "雷霆震慑", template = "攻击玩家时有%s概率麻痹目标%s；目标被麻痹期间，额外忽视其%s防御。", values = {{1, 5, "%"}, {0.5, 1, "秒"}, {3, 10, "%"}}},
+    [7] = {name = "流云无痕", template = "脱战3秒后回血效率提升%s；挂机状态下受到的治疗效果额外提升%s。", values = {{5, 18, "%"}, {5, 15, "%"}}},
+    [8] = {name = "寒霜锁运", template = "幸运印记上限提升至%s层，金币收益提高%s；攻击怪物时有%s概率冰封目标%s。", values = {{1, 10, "层"}, {1, 8, "%"}, {1, 5, "%"}, {1, 3, "秒"}}},
+    [9] = {name = "焚天灼烧", template = "普攻附带范围灼烧，每段造成自身攻击%s伤害；对战群体怪物时额外造成%s伤害。", values = {{60, 120, "%"}, {5, 15, "%"}}},
+    [10] = {name = "万古不动", template = "受到攻击时有%s概率格挡高额伤害，单次格挡降低%s伤害；格挡成功后短时额外减伤%s。", values = {{3, 12, "%"}, {20, 50, "%"}, {3, 12, "%"}}},
+}
+
 local _lg_refresh_main_page
 local _lg_refresh_upgrade_window
 local _lg_refresh_cultivate_window
@@ -337,9 +363,6 @@ end
 -- 判断指定灵根是否已经激活。
 local function _lg_has_root(idx)
     idx = tonumber(idx or 0) or 0
-    if idx >= 1 and idx <= 5 then
-        return true
-    end
     local levelMap = _lg_level_map()
     return idx > 0 and levelMap and levelMap[tostring(idx)] ~= nil
 end
@@ -503,6 +526,62 @@ local function _lg_format_effect_number(value)
     return text
 end
 
+local _lg_is_max_level
+
+local function _lg_skill_value_by_level(valueCfg, level)
+    if not valueCfg then
+        return 0
+    end
+    level = math.max(1, math.min(10, tonumber(level or 1) or 1))
+    local v1 = tonumber(valueCfg[1] or 0) or 0
+    local v10 = tonumber(valueCfg[2] or v1) or v1
+    return v1 + (v10 - v1) * (level - 1) / 9
+end
+
+local function _lg_format_skill_value(valueCfg, level, previewNext)
+    local unit = tostring(valueCfg and valueCfg[3] or "")
+    local current = _lg_format_effect_number(_lg_skill_value_by_level(valueCfg, level)) .. unit
+    if not previewNext then
+        return current
+    end
+    local nextLevel = math.min(10, (tonumber(level or 1) or 1) + 1)
+    local nextValue = _lg_format_effect_number(_lg_skill_value_by_level(valueCfg, nextLevel)) .. unit
+    if current == nextValue then
+        return current
+    end
+    return string.format("%s<font color='#8C6B35'> -> </font><font color='#4DA3FF'>%s</font><font color='#8C6B35'>[下级属性]</font>", current, nextValue)
+end
+
+local function _lg_build_active_skill_desc(idx, previewNext, levelOverride)
+    local cfg = ACTIVE_SKILL_TEXT_CONFIG[tonumber(idx or 0) or 0]
+    if not cfg then
+        local rootCfg = _lg_root_cfg(idx) or {}
+        return tostring(rootCfg.active or "暂无")
+    end
+    local level = math.max(1, math.min(10, tonumber(levelOverride or _lg_level_value(idx) or 1) or 1))
+    local values = {}
+    for _, valueCfg in ipairs(cfg.values or {}) do
+        values[#values + 1] = _lg_format_skill_value(valueCfg, level, previewNext and not _lg_is_max_level(idx))
+    end
+    local unpackFunc = table.unpack or unpack
+    return string.format("【%s】" .. tostring(cfg.template or ""), tostring(cfg.name or "主动技能"), unpackFunc(values))
+end
+
+local function _lg_build_passive_skill_desc(idx, previewNext, levelOverride)
+    local cfg = PASSIVE_SKILL_TEXT_CONFIG[tonumber(idx or 0) or 0]
+    if not cfg then
+        local rootCfg = _lg_root_cfg(idx) or {}
+        return tostring(rootCfg.passive or "暂无")
+    end
+    local level = math.max(1, math.min(10, tonumber(levelOverride or _lg_level_value(idx) or 1) or 1))
+    local values = {}
+    for _, valueCfg in ipairs(cfg.values or {}) do
+        values[#values + 1] = _lg_format_skill_value(valueCfg, level, previewNext and not _lg_is_max_level(idx))
+    end
+    local unpackFunc = table.unpack or unpack
+    return string.format("【%s】" .. tostring(cfg.template or ""), tostring(cfg.name or "被动技能"), unpackFunc(values))
+end
+
 -- 将灵根效果文案中的“5000*灵根倍率+2000”一类公式直接结算为实际数值。
 local function _lg_strip_html(text)
     local plain = tostring(text or "")
@@ -525,7 +604,6 @@ local function _lg_sum_attr_map(attrs)
 end
 
 local _lg_resolve_effect_text
-local _lg_is_max_level
 
 -- 构建升级预览里的特殊效果变化文案，负责显示当前值 -> 下级值。
 local function _lg_format_effect_preview_text(template, baseValue, idx)
@@ -617,14 +695,49 @@ local function _lg_next_upgrade_cfg(idx)
     return _lg_upgrade_detail(idx)[lv + 1]
 end
 
+-- 灵根升级人物等级限制：基础灵根走平民档，高级/觉醒灵根走大佬档。
+local function _lg_need_role_level(idx, nextLevel)
+    nextLevel = tonumber(nextLevel or 0) or 0
+    if nextLevel <= 0 then
+        return nil
+    elseif nextLevel <= 3 then
+        return (tonumber(idx or 0) or 0) <= 5 and 80 or 152
+    elseif nextLevel <= 6 then
+        return (tonumber(idx or 0) or 0) <= 5 and 100 or 155
+    elseif nextLevel <= 9 then
+        return (tonumber(idx or 0) or 0) <= 5 and 150 or 160
+    elseif nextLevel == 10 then
+        return (tonumber(idx or 0) or 0) <= 5 and 151 or 165
+    end
+    return nil
+end
+
+local function _lg_role_level()
+    return tonumber(SL:GetMetaValue("LEVEL") or 0) or 0
+end
+
+local function _lg_upgrade_level_ok(idx)
+    if not idx or idx <= 0 or _lg_is_max_level(idx) then
+        return true, nil, _lg_role_level(), _lg_level_value(idx)
+    end
+    local nextLevel = _lg_level_value(idx) + 1
+    local needLevel = _lg_need_role_level(idx, nextLevel)
+    local roleLevel = _lg_role_level()
+    return not needLevel or roleLevel >= needLevel, needLevel, roleLevel, nextLevel
+end
+
 -- 判断指定灵根是否已满级。
 _lg_is_max_level = function(idx)
     return _lg_level_value(idx) >= tonumber(npc._config.main_updata.max_level or 0)
 end
 
--- 判断指定灵根是否满足升级条件：已激活、未满级且背包材料足够。
+-- 判断指定灵根是否满足升级条件：已激活、未满级、人物等级达标且背包材料足够。
 local function _lg_can_upgrade(idx)
     if not idx or idx <= 0 or not _lg_has_root(idx) or _lg_is_max_level(idx) then
+        return false
+    end
+    local levelOk = _lg_upgrade_level_ok(idx)
+    if not levelOk then
         return false
     end
     local nextCfg = _lg_next_upgrade_cfg(idx)
@@ -821,11 +934,13 @@ local function _lg_build_attr_preview_lines(currentAttrs, nextAttrs, isMaxLevel)
     local consumed = {}
     local rangeLineByLow = {}
     for _, pair in ipairs(rangePairs) do
-        if currentSum[pair.low] ~= nil and currentSum[pair.high] ~= nil then
-            local _, curLowText, color = _lg_attr_display_parts(pair.low, currentSum[pair.low])
-            local _, curHighText = _lg_attr_display_parts(pair.high, currentSum[pair.high])
-            local _, nextLowText = _lg_attr_display_parts(pair.low, nextSum[pair.low] or currentSum[pair.low])
-            local _, nextHighText = _lg_attr_display_parts(pair.high, nextSum[pair.high] or currentSum[pair.high])
+        local hasCurrentRange = currentSum[pair.low] ~= nil and currentSum[pair.high] ~= nil
+        local hasNextRange = nextSum[pair.low] ~= nil and nextSum[pair.high] ~= nil
+        if hasCurrentRange or hasNextRange then
+            local _, curLowText, color = _lg_attr_display_parts(pair.low, currentSum[pair.low] or 0)
+            local _, curHighText = _lg_attr_display_parts(pair.high, currentSum[pair.high] or 0)
+            local _, nextLowText = _lg_attr_display_parts(pair.low, nextSum[pair.low] or currentSum[pair.low] or 0)
+            local _, nextHighText = _lg_attr_display_parts(pair.high, nextSum[pair.high] or currentSum[pair.high] or 0)
             rangeLineByLow[pair.low] = _lg_attr_preview_range_line(pair.name, curLowText .. "-" .. curHighText, nextLowText .. "-" .. nextHighText, color, isMaxLevel)
             consumed[pair.low] = true
             consumed[pair.high] = true
@@ -836,6 +951,11 @@ local function _lg_build_attr_preview_lines(currentAttrs, nextAttrs, isMaxLevel)
     for attrId, _ in pairs(currentSum) do
         sortedIds[#sortedIds + 1] = attrId
     end
+    for attrId, _ in pairs(nextSum) do
+        if currentSum[attrId] == nil then
+            sortedIds[#sortedIds + 1] = attrId
+        end
+    end
     table.sort(sortedIds)
 
     local lines = {}
@@ -843,8 +963,8 @@ local function _lg_build_attr_preview_lines(currentAttrs, nextAttrs, isMaxLevel)
         if rangeLineByLow[attrId] then
             lines[#lines + 1] = rangeLineByLow[attrId]
         elseif not consumed[attrId] then
-            local name, currentText, color = _lg_attr_display_parts(attrId, currentSum[attrId])
-            local _, nextText = _lg_attr_display_parts(attrId, nextSum[attrId] or currentSum[attrId])
+            local name, currentText, color = _lg_attr_display_parts(attrId, currentSum[attrId] or 0)
+            local _, nextText = _lg_attr_display_parts(attrId, nextSum[attrId] or currentSum[attrId] or 0)
             lines[#lines + 1] = _lg_attr_preview_range_line(name, currentText, nextText, color, isMaxLevel)
         end
     end
@@ -853,14 +973,36 @@ end
 
 -- 生成升级预览中的特殊效果变化行。
 local function _lg_build_special_preview_lines(currentList, nextList, isMaxLevel)
+    local currentMap = {}
     local nextMap = {}
-    for _, one in ipairs(nextList or {}) do
-        nextMap[tostring(one.key or one.name or "")] = one
-    end
-    local lines = {}
+    local keys = {}
+    local exists = {}
     for _, one in ipairs(currentList or {}) do
-        local nextOne = nextMap[tostring(one.key or one.name or "")] or one
-        local currentLine = _lg_format_special_line(one)
+        local key = tostring(one.key or one.name or "")
+        if key ~= "" then
+            currentMap[key] = one
+            if not exists[key] then
+                keys[#keys + 1] = key
+                exists[key] = true
+            end
+        end
+    end
+    for _, one in ipairs(nextList or {}) do
+        local key = tostring(one.key or one.name or "")
+        if key ~= "" then
+            nextMap[key] = one
+            if not exists[key] then
+                keys[#keys + 1] = key
+                exists[key] = true
+            end
+        end
+    end
+    table.sort(keys)
+    local lines = {}
+    for _, key in ipairs(keys) do
+        local one = currentMap[key] or nextMap[key]
+        local nextOne = nextMap[key] or one
+        local currentLine = _lg_format_special_line(currentMap[key] or {name = one.name, value = 0, unit = one.unit})
         if isMaxLevel then
             lines[#lines + 1] = currentLine .. "<font color='#6b6257'>（已满级）</font>"
         else
@@ -874,6 +1016,26 @@ local function _lg_build_special_preview_lines(currentList, nextList, isMaxLevel
         end
     end
     return lines
+end
+
+local function _lg_build_upgrade_need_line(idx)
+    if _lg_is_max_level(idx) then
+        return "<font color='#7CFF7C'>升级条件：当前灵根已满级</font>"
+    end
+    local ok, needLevel, roleLevel, nextLevel = _lg_upgrade_level_ok(idx)
+    if not needLevel then
+        return ""
+    end
+    local color = ok and "#7CFF7C" or "#FF3030"
+    local state = ok and "已完成" or "未完成"
+    return string.format(
+        "<font color='%s'>升级条件：灵根Lv.%d 需要玩家Lv.%d（当前Lv.%d）[%s]</font>",
+        color,
+        tonumber(nextLevel or 0) or 0,
+        tonumber(needLevel or 0) or 0,
+        tonumber(roleLevel or 0) or 0,
+        state
+    )
 end
 
 -- 将展示行拆成左右两列显示。
@@ -905,9 +1067,7 @@ local function _lg_build_attr_preview_html(idx)
     local currentSpecials = _lg_build_special_list(idx, 0)
     local nextSpecials = _lg_build_special_list(idx, 1)
     local lines = {
-        string.format("<font color='"..ROOT_COLORS[idx].."'>[%s灵根]</font>", tostring(cfg.name or "")),
-        string.format("<font color='#F4D179'>流派：</font><font color='#FFFFFF'>%s</font>", tostring(cfg.flow or "未配置")),
-        string.format("<font color='#00FF00'>当前等级：</font><font color='#FFFFFF'>%d</font>", _lg_level_value(idx)),
+        _lg_build_upgrade_need_line(idx),
         "<font color='#FFFFFF'>属性预览：</font>",
     }
     if #currentAttrs == 0 then
@@ -922,15 +1082,16 @@ local function _lg_build_attr_preview_html(idx)
     end
 
     lines[#lines + 1] = "<font color='#DE0000'>被动技能：</font>"
-    lines[#lines + 1] = "　　" .. tostring(cfg.passive or "暂无")
+    lines[#lines + 1] = "　　" .. _lg_build_passive_skill_desc(idx, true)
     lines[#lines + 1] = "<font color='#4169E1'>主动技能：</font>"
-    lines[#lines + 1] = "　　" .. tostring(cfg.active or "暂未接入主动技能逻辑")
+    lines[#lines + 1] = "　　" .. _lg_build_active_skill_desc(idx, true)
     lines[#lines + 1] = "<font color='#F4D179'>灵兽专属协同：</font>"
     lines[#lines + 1] = "　　" .. tostring(cfg.synergy or "暂无")
     lines[#lines + 1] = "<font color='#A7D58D'>天书回响共鸣：</font>"
     lines[#lines + 1] = "　　" .. tostring(cfg.echo_name or "未配置") .. "：" .. tostring(cfg.echo_desc or "")
     lines[#lines + 1] = "<u><font color='#F4D179'>满级技能效果预览：</font></u>"
-    lines[#lines + 1] = "　　" .. tostring(cfg.active or "暂未接入主动技能逻辑")
+    lines[#lines + 1] = "　　" .. _lg_build_passive_skill_desc(idx, false, 10)
+    lines[#lines + 1] = "　　" .. _lg_build_active_skill_desc(idx, false, 10)
     return table.concat(lines, "\n")
 end
 
@@ -985,25 +1146,25 @@ local function _lg_tip_label_line(label, value, color)
     if value == "" then
         value = "暂无"
     end
-    return string.format("<font color='#F4D179'>%s</font>\n<font color='%s'>　　%s</font>", label, color or "#D9D2C2", value)
+    return string.format("<font color='#F4D179' size='15'>%s</font>\n<font color='%s' size='15'>　　%s</font>", label, color or "#D9D2C2", value)
 end
 
 local function _lg_tip_separator()
-    return "<font color='#6B5630'>━━━━━━━━━━━━━━</font>"
+    return "<font color='#6B5630' size='15'>━━━━━━━━━━━━━━</font>"
 end
 
 local function _lg_tip_title_line(idx, level)
     local cfg = _lg_root_cfg(idx) or {}
-    return string.format("<font color='%s'>【%s灵根】</font> <font color='#CFC6B4'>Lv.%d</font>",
+    return string.format("<font color='%s' size='15'>【%s灵根】</font> <font color='#CFC6B4' size='15'>Lv.%d</font>",
         ROOT_COLORS[idx] or "#F4D179", tostring(cfg.name or ""), tonumber(level or 0) or 0)
 end
 
 local function _lg_tip_section_title(label)
-    return string.format("<font color='#F4D179'>%s</font>", tostring(label or ""))
+    return string.format("<font color='#F4D179' size='15'>%s</font>", tostring(label or ""))
 end
 
 local function _lg_tip_attr_line(value)
-    return string.format("<font color='#D9D2C2'>　◆ %s</font>", tostring(value or ""))
+    return string.format("<font color='#D9D2C2' size='12'>　◆ %s</font>", tostring(value or ""))
 end
 
 local function _lg_split_skill_desc(value)
@@ -1025,7 +1186,7 @@ local function _lg_tip_skill_block(label, value, color)
         title = title .. " · " .. skillName
     end
     local wrapped = _lg_wrap_detail_tip_text(desc or "暂无", 24, "　　")
-    return string.format("%s\n<font color='%s'>%s</font>", _lg_tip_section_title(title), color or "#D9D2C2", wrapped)
+    return string.format("%s\n<font color='%s' size='15'>%s</font>", _lg_tip_section_title(title), color or "#D9D2C2", wrapped)
 end
 
 -- 构建主界面点击灵根时的只读详情，不展示升级预览值。
@@ -1058,8 +1219,8 @@ local function _lg_build_attr_detail_html(idx)
         end
     end
 
-    lines[#lines + 1] = _lg_tip_skill_block("被动技能", cfg.passive or "暂无", "#B9F6C5")
-    lines[#lines + 1] = _lg_tip_skill_block("主动技能", cfg.active or "暂无", "#F2E7C8")
+    lines[#lines + 1] = _lg_tip_skill_block("被动技能", _lg_build_passive_skill_desc(idx, false), "#B9F6C5")
+    lines[#lines + 1] = _lg_tip_skill_block("主动技能", _lg_build_active_skill_desc(idx, false), "#F2E7C8")
     lines[#lines + 1] = _lg_tip_skill_block("灵兽协同", cfg.synergy or "暂无", "#B9F6C5")
     return table.concat(lines, "\n")
 end
@@ -1105,7 +1266,7 @@ local function _lg_build_skill_tip_html(idx, skillType)
     end
     local title = skillType == "active" and "主动技能" or (skillType == "synergy" and "灵兽协同" or "被动技能")
     local color = skillType == "active" and "#F2E7C8" or (skillType == "synergy" and "#B9F6C5" or "#B9F6C5")
-    local desc = skillType == "active" and cfg.active or (skillType == "synergy" and cfg.synergy or cfg.passive)
+    local desc = skillType == "active" and _lg_build_active_skill_desc(idx, false) or (skillType == "synergy" and cfg.synergy or _lg_build_passive_skill_desc(idx, false))
     local lines = {
         _lg_tip_title_line(idx, _lg_level_value(idx)),
         _lg_tip_separator(),
@@ -1186,9 +1347,10 @@ local function _lg_render_attr_scroll(parent, attrs, specials)
     local scroll = GUI:ScrollView_Create(parent, "attr_scroll", attrPos.x + 60, attrPos.y + 9, ATTR_BOX_SIZE.width, ATTR_BOX_SIZE.height, 1)
     GUI:ScrollView_setBounceEnabled(scroll, true)
     GUI:ScrollView_setInnerContainerSize(scroll, ATTR_BOX_SIZE.width, ATTR_BOX_SIZE.height)
+    local attrFontSize = 13
 
     if (not attrs or #attrs <= 0) and (not specials or #specials <= 0) then
-        local emptyText = richText(scroll, "total_attr_empty", 0, ATTR_BOX_SIZE.height - 10, "<font color='#6b6257'>暂无灵根属性</font>", ATTR_BOX_SIZE.width, 15, 1)
+        local emptyText = richText(scroll, "total_attr_empty", 0, ATTR_BOX_SIZE.height - 10, "<font color='#6b6257'>暂无灵根属性</font>", ATTR_BOX_SIZE.width, attrFontSize, 1)
         GUI:setAnchorPoint(emptyText, 0, 1)
         return scroll
     end
@@ -1199,9 +1361,9 @@ local function _lg_render_attr_scroll(parent, attrs, specials)
     end
     local line1Attrs, line2Attrs = _lg_split_attr_lines(displayLines)
     local colWidth = math.floor(ATTR_BOX_SIZE.width / 2) - 8
-    local line1 = richText(scroll, "total_attr_1", 0, ATTR_BOX_SIZE.height - 10, table.concat(line1Attrs, "\n"), colWidth, 15, 1)
+    local line1 = richText(scroll, "total_attr_1", 0, ATTR_BOX_SIZE.height - 10, table.concat(line1Attrs, "\n"), colWidth, attrFontSize, 1)
     GUI:setAnchorPoint(line1, 0, 1)
-    local line2 = richText(scroll, "total_attr_2", colWidth + 14, ATTR_BOX_SIZE.height - 10, table.concat(line2Attrs, "\n"), colWidth, 15, 1)
+    local line2 = richText(scroll, "total_attr_2", colWidth + 14, ATTR_BOX_SIZE.height - 10, table.concat(line2Attrs, "\n"), colWidth, attrFontSize, 1)
     GUI:setAnchorPoint(line2, 0, 1)
 
     local h1 = GUI:getBoundingBox(line1).height
@@ -1351,8 +1513,8 @@ local function _lg_render_skill_icons(parent)
     end
 
     local iconCfg = SKILL_ICON_BY_ROOT[tonumber(mainIdx or 0) or 0] or {}
-    renderOne("skill_passive", "skill_panel_passive", mainCfg and mainCfg.passive or "", "#9FE2FF", iconCfg.passive)
-    renderOne("skill_active", "skill_panel_synergy", mainCfg and mainCfg.active or "", "#F4D179", iconCfg.active)
+    renderOne("skill_passive", "skill_panel_passive", mainCfg and _lg_build_passive_skill_desc(mainIdx, false) or "", "#9FE2FF", iconCfg.passive)
+    renderOne("skill_active", "skill_panel_synergy", mainCfg and _lg_build_active_skill_desc(mainIdx, false) or "", "#F4D179", iconCfg.active)
 end
 
 -- 创建通用文字按钮；主界面“培养/激活”、培养界面“升级/切换/返回”共用。
@@ -1642,7 +1804,17 @@ local function _lg_render_main_overview(node, npcid, selectedIdx, mainIdx)
             SL:ShowSystemTips("该灵根未觉醒，无法设为本命灵根")
             return
         end
-        SL:SendLuaNetMsg(100, npcid, 2, (mainIdx == displayIdx) and 0 or displayIdx, "")
+        local targetIdx = (mainIdx == displayIdx) and 0 or displayIdx
+        local actionText = targetIdx == 0 and "卸下本命灵根" or "更换本命灵根"
+        SL:OpenCommonTipsPop({
+            str = actionText .. "需要消耗【卸灵咒】x1，确认继续吗？",
+            btnType = 2,
+            callback = function(atype)
+                if atype == 1 then
+                    SL:SendLuaNetMsg(100, npcid, 2, targetIdx, "")
+                end
+            end,
+        })
     end)
     GUI:Button_setTitleFontName(setBtn, "fonts/502.ttf")
     GUI:Button_setTitleFontSize(setBtn, 24)
@@ -1775,13 +1947,16 @@ _lg_refresh_main_page = function(npcid, node)
             GUI:setLocalZOrder(sel, 1)
         end
         if tonumber(mainIdx or 0) == idx then
-            local mainTagBg = GUI:Image_Create(slot, "main_linggen_tag_bg", ROOT_SLOT_SIZE.width - 8, ROOT_SLOT_SIZE.height - 8, "res/public/1900000660.png")
+            local mainTagBg = GUI:Image_Create(slot, "main_linggen_tag_bg", ROOT_SLOT_SIZE.width - 8 - 80 + 54, ROOT_SLOT_SIZE.height - 8 - 28 + 40, "res/wy/public/new_kuang.png")
             GUI:setAnchorPoint(mainTagBg, 0.5, 0.5)
-            GUI:setScale(mainTagBg, 0.36)
+            GUI:setContentSize(mainTagBg, 120, 35)
             GUI:setLocalZOrder(mainTagBg, 120)
-            local mainTag = strokeText(slot, "main_linggen_tag", ROOT_SLOT_SIZE.width - 8, ROOT_SLOT_SIZE.height - 8, 16, "#FFD45A", "本命", "fonts/font4.ttf")
+            local mainTag = strokeText(slot, "main_linggen_tag", ROOT_SLOT_SIZE.width - 8 - 80 + 54, ROOT_SLOT_SIZE.height - 8 - 28 + 40, 25, "#FFD45A", "本命灵根", "fonts/502.ttf")
+            -- local mainTag = GUI:Text_Create(slot, "main_linggen_tag", ROOT_SLOT_SIZE.width - 8, ROOT_SLOT_SIZE.height - 8, "#FFD45A", "本\n命\n灵\n根")
+            GUI:Text_setFontName(mainTag, "fonts/502.ttf")
             GUI:setAnchorPoint(mainTag, 0.5, 0.5)
             GUI:setLocalZOrder(mainTag, 121)
+            GUI:Text_enableOutline(mainTag, "#000000", 2)
         end
         local level = _lg_has_root(idx) and ("Lv." .. tostring(_lg_level_value(idx))) or "未激活"
         local lv_bar = GUI:Image_Create(slot, "lv_bar", ROOT_LEVEL_BAR_OFFSET.x, ROOT_LEVEL_BAR_OFFSET.y, "res/custom/linggen/new/main/level_bar.png")
@@ -1824,6 +1999,11 @@ _lg_refresh_upgrade_window = function(npcid, xNode)
     GUI:setAnchorPoint(btn, 0.5, 0.5)
     GUI:addOnClickEvent(btn, function()
         if idx > 0 and not _lg_is_max_level(idx) then
+            local levelOk, needLevel, roleLevel = _lg_upgrade_level_ok(idx)
+            if not levelOk then
+                SL:ShowSystemTips(string.format("升级该灵根需要玩家等级达到Lv.%d，当前Lv.%d", tonumber(needLevel or 0) or 0, tonumber(roleLevel or 0) or 0))
+                return
+            end
             SL:SendLuaNetMsg(100, npcid, 5, idx, "")
         end
     end)
