@@ -816,12 +816,18 @@ local function _format_pet_countdown(seconds)
     return string.format("%02d:%02d", m, s)
 end
 local function _get_lingshou_main_data()
-    local data = _shortcut_get_server_json("T50")
+    local data = rawget(_G, "NPC64_LAST_T_DATA")
+    if type(data) ~= "table" then
+        data = _shortcut_get_server_json("T50")
+    end
     data.hatch = type(data.hatch) == "table" and data.hatch or {}
     return data
 end
 local function _should_show_lingshou_main_entry(data)
     data = data or _get_lingshou_main_data()
+    if rawget(_G, "NPC64_HIDE_CONTRACT_SHORTCUT") == true then
+        return false
+    end
     if (tonumber(data.dqzh or 0) or 0) > 0 then
         return false
     end
@@ -852,6 +858,15 @@ local function _open_lingshou_contract_entry()
 end
 npc.refreshLingshouMainEntry = function()
     if not npc.LeftTop or tolua.isnull(npc.LeftTop) then
+        return
+    end
+    if rawget(_G, "NPC64_HIDE_CONTRACT_SHORTCUT") == true then
+        npc._lingshou_main_render_sig = nil
+        if npc.lingshou_main_entry and not tolua.isnull(npc.lingshou_main_entry) then
+            GUI:removeFromParent(npc.lingshou_main_entry)
+        end
+        npc.lingshou_main_entry = nil
+        npc.lingshou_main_button = nil
         return
     end
     local data = _get_lingshou_main_data()
@@ -945,7 +960,7 @@ local function requestLingshouMainDataOnce()
     end
     npc._lingshou_main_data_requested = true
     rawset(_G, "NPC64_SILENT_SYNC_ONLY", true)
-    SL:SendLuaNetMsg(105, 64, 1064, 0, "")
+    SL:SendLuaNetMsg(105, 64, 0, 1064, "")
     SL:ScheduleOnce(function()
         if rawget(_G, "NPC64_SILENT_SYNC_ONLY") then
             rawset(_G, "NPC64_SILENT_SYNC_ONLY", nil)

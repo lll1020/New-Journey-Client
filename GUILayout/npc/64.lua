@@ -144,11 +144,14 @@ local function _sync_shortcut_pet_data()
         return
     end
     rawset(_G, "NPC64_LAST_T_DATA", data)
-    _refresh_top_shortcut()
     if (tonumber(data.dqzh or 0) or 0) > 0 then
+        rawset(_G, "NPC64_OPEN_CONTRACT_ONCE", nil)
+        rawset(_G, "NPC64_SILENT_SYNC_ONLY", nil)
         rawset(_G, "NPC64_HIDE_CONTRACT_SHORTCUT", true)
+        _refresh_top_shortcut()
     else
         rawset(_G, "NPC64_HIDE_CONTRACT_SHORTCUT", nil)
+        _refresh_top_shortcut()
         if Npclib and Npclib["anniu"] and Npclib["anniu"][1] then
             SL:ScheduleOnce(function()
                 Npclib["anniu"][1](0, 1, "")
@@ -666,6 +669,9 @@ function npc.main(npcid, p2, p3, msgData)
         _sync_shortcut_pet_data()
         if rawget(_G, "NPC64_SILENT_SYNC_ONLY") then
             rawset(_G, "NPC64_SILENT_SYNC_ONLY", nil)
+            return
+        end
+        if npc.ls_data and tonumber(npc.ls_data.sync_only or 0) == 1 then
             return
         end
         if rawget(_G, "NPC64_OPEN_CONTRACT_ONCE") or (npc.ls_data and tonumber(npc.ls_data.open_contract or 0) == 1) then

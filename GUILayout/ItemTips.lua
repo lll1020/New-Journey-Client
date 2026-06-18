@@ -2441,7 +2441,9 @@ function ItemTips.GetModelPanel(itemData)
     local tipsPanel = ItemTips.GetNewTipsPanel("model")
     GUI:setContentSize(tipsPanel, size.width, size.height)
 
-    local model = GUI:UIModel_Create(tipsPanel, "model", size.width / 2, size.height / 2, sex, feature, nil, true, job)
+    local model = GUI:UIModel_Create(tipsPanel, "model", size.width / 2, size.height / 2 - 70, sex, feature, nil, true, job)
+    SL:release_print("create model panel", pos, feature.clothID or "", feature.weaponID or "")
+    GUI:setScale(model, 0.4)
 end
 
 function ItemTips.RefreshItemPosition(tips, listView, size)
