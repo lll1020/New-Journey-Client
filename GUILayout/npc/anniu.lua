@@ -7180,7 +7180,7 @@ npc[511] = function(p2, p3, Data)
                 local ownerColor = ownerName ~= "" and "#00FF00" or "#FFFFFF"
                 GUI:Text_Create(l, "owner_" .. i, 300, 8, 18, ownerColor, ownerDisplayName)
                 if v.state == 1 or v.state == 3 then
-                    local Button = GUI:Button_Create(l, "Button", 505, -2, "res/public/1900000660.png")
+                    local Button = GUI:Button_Create(l, "Button", 505 - 55, -2, "res/public/1900000660.png")
                     fldt_apply_state_button(Button, v.state)
                     GUI:addOnClickEvent(Button, function()
                         SL:SendLuaNetMsg(101, 511, 1, 6, '{"qqsb":"' .. (v.idx) .. '"}')

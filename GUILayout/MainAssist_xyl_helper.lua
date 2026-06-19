@@ -1613,6 +1613,9 @@ function MainAssistXylHelper.bind(MainAssist)
         SL:SendLuaNetMsg(101, 11, enable and 3 or 1, 0,
             string.format('{"i":%d,"j":%d,"k":0,"z":%d}', info.i, info.j, info.z))
     end
+    function MainAssist.HasCurrentXylTask()
+        return _get_xyl_current_task_info(MainAssist._xylCurrentTask) ~= nil
+    end
     MainAssist.GoToCurrentXylTask = _go_to_current_xyl_task
 
     local function _get_xyl_current_task_desc(task)

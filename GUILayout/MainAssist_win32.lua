@@ -177,7 +177,11 @@ function MainAssist.CreateMissionCell(data)
     local quickUI = GUI:ui_delegate(layout)
 
     GUI:addOnClickEvent(quickUI.Button_act, function()
-        if type(data) == "table" and tonumber(data.taskid) == 22 and type(MainAssist.GoToCurrentXylTask) == "function" then
+        if type(data) == "table"
+            and tonumber(data.taskid) == 22
+            and type(MainAssist.GoToCurrentXylTask) == "function"
+            and type(MainAssist.HasCurrentXylTask) == "function"
+            and MainAssist.HasCurrentXylTask() then
             MainAssist.GoToCurrentXylTask()
             return
         end
