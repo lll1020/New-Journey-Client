@@ -17,6 +17,16 @@ local EXTRA_BTN_SKIN = {}
 local ACTIONS = {1}
 local ACTION_LABEL = { [1] = "提交" }
 
+local function createText(parent, name, x, y, size, color, text, ax, ay)
+    local label = GUI:Text_Create(parent, name, x, y, size or 22, color or "#FFFFFF", text or "")
+    GUI:Text_setFontName(label, "fonts/502.ttf")
+    GUI:Text_enableOutline(label, "#111111", 2)
+    if ax ~= nil and ay ~= nil then
+        GUI:setAnchorPoint(label, ax, ay)
+    end
+    return label
+end
+
 -- 合并任务奖励与称号奖励，确保称号在奖励区可见。
 local function buildRewardWithTitle(cfg)
     local reward_cfg = nil
@@ -94,7 +104,7 @@ function npc.main(npcid, p2, p3, msgData)
                 return MAIN_BTN_SKIN_DOING
             end
             if MAIN_BTN_SKIN == "res/public/1900000660.png" then
-                return (state <= 0) and "res/custom/all_story_mission/2/btn_take.png" or "res/custom/all_story_mission/2/btn_give.png"
+                return "res/custom/all_story_mission/2/btn_give.png"
             end
             return MAIN_BTN_SKIN
         end
@@ -106,6 +116,8 @@ function npc.main(npcid, p2, p3, msgData)
             if skin == "res/public/1900000660.png" then
                 GUI:Button_setTitleText(btn, ACTION_LABEL[ew] or ("操作" .. tostring(ew)))
                 GUI:Button_setTitleFontSize(btn, 16)
+                GUI:Button_setTitleFontName(btn, "fonts/502.ttf")
+                GUI:Button_setTitleColor(btn, "#FFD685")
             end
             GUI:addOnClickEvent(btn, function()
                 SL:SendLuaNetMsg(100, npcid, ew, 0, "")
@@ -116,13 +128,16 @@ function npc.main(npcid, p2, p3, msgData)
         if ew1 then
             if state >= 2 then
                 GUI:Image_Create(node, "done", btn_pos[1], btn_pos[2], "res/wy/public/7_1.png")
+                createText(node, "done_text", btn_pos[1], btn_pos[2], 24, "#B8FFB8", "已完成", 0.5, 0.5)
             else
                 local skin = resolveMainSkin()
                 local b1 = GUI:Button_Create(node, "btn_action_1", btn_pos[1], btn_pos[2], skin)
                 GUI:setAnchorPoint(b1, 0.5, 0.5)
                 if skin == "res/public/1900000660.png" then
-                    GUI:Button_setTitleText(b1, ACTION_LABEL[ew1] or ("操作" .. tostring(ew1)))
-                    GUI:Button_setTitleFontSize(b1, 16)
+                    GUI:Button_setTitleText(b1, "")
+                    GUI:Button_setTitleFontSize(b1, 18)
+                    GUI:Button_setTitleFontName(b1, "fonts/502.ttf")
+                    GUI:Button_setTitleColor(b1, "#FFD685")
                 end
                 GUI:addOnClickEvent(b1, function()
                     SL:SendLuaNetMsg(100, npcid, ew1, 0, "")
@@ -186,14 +201,12 @@ function npc.main(npcid, p2, p3, msgData)
         elseif type(npc._config and npc._config.cost) == "table" and #(npc._config.cost) > 0 then
             cost_cfg = npc._config.cost
         end
-        -- if cost_cfg then
-        --     local cost = checkItemNumByTable_img_kuang(cost_cfg, nil, GUI:Node_Create(node, "cost", 0, 0))
-        --     GUI:setPosition(cost, cost_pos[1], cost_pos[2])
-        -- end
+        if cost_cfg and state < 2 then
+            local cost = checkItemNumByTable_img_kuang(cost_cfg, nil, GUI:Node_Create(node, "cost", 0 + 70, 0 - 70))
+            GUI:setPosition(cost, cost_pos[1], cost_pos[2])
+        end
         if max_num > 1 then
-            local t = GUI:Text_Create(node, "progress", 470, 150, 20, "#808080", string.format("进度 %d/%d", progress, max_num))
-            GUI:Text_setFontName(t, "fonts/500.ttf")
-            GUI:Text_enableOutline(t, "#00FFFF", 2)
+            createText(node, "progress", 470, 150, 22, "#63F7FF", string.format("提交进度 %d/%d", progress, max_num), 0, 0.5)
         end
 
         createActionButtons(node, state)

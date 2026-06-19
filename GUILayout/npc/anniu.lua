@@ -1340,6 +1340,9 @@ local function openClientBagForGuide()
     end, 0.1)
 end
 local function startGuideOnButton(data)
+    if NPC_UI_HELPER.shouldSuppressGrayWorldGuide and NPC_UI_HELPER.shouldSuppressGrayWorldGuide(data and data.rwid) then
+        return
+    end
     ensureTopPanelExpanded()
     local targetKey = tostring(data.an)
     local target = npc.db_anniu[targetKey]
@@ -1378,6 +1381,9 @@ local function startGuideOnButton(data)
     })
 end
 local function triggerNavigate(point, meta)
+    if NPC_UI_HELPER.shouldSuppressGrayWorldGuide and NPC_UI_HELPER.shouldSuppressGrayWorldGuide() then
+        return
+    end
     if meta and tonumber(meta.type or 0) == 1 then
         local npcID = tonumber(meta.index or 0) or 0
         if npcID > 0 and SL.RequestNPCTalk then
@@ -1438,6 +1444,9 @@ local function openRoleGuide()
     end
 end
 local function openNpcPanelForGuide(npcid)
+    if NPC_UI_HELPER.shouldSuppressGrayWorldGuide and NPC_UI_HELPER.shouldSuppressGrayWorldGuide() then
+        return
+    end
     npcid = tonumber(npcid) or 0
     if npcid <= 0 then
         return
@@ -1454,6 +1463,9 @@ local guideDispatch = {
         startGuideOnButton(data)
     end,
     [2] = function(data)
+        if NPC_UI_HELPER.shouldSuppressGrayWorldGuide and NPC_UI_HELPER.shouldSuppressGrayWorldGuide(data and data.rwid) then
+            return
+        end
         if tostring(data.npcdt or "") == "二大陆主城" and type(dl_sz) == "function" and not dl_sz(2) then
             SL:ShowSystemTips("<font color='#FF0000'>需完成主线引导后才可进入二大陆</font>")
             return
@@ -1475,6 +1487,9 @@ local guideDispatch = {
             cogin.sjtb.rwid = math.max(tonumber(cogin.sjtb.rwid) or 0, tonumber(data.rwid) or 0)
             rebuildShortcutButtons("")
         end
+        if NPC_UI_HELPER.shouldSuppressGrayWorldGuide and NPC_UI_HELPER.shouldSuppressGrayWorldGuide(data and data.rwid) then
+            return
+        end
         local rwid = tonumber(data and data.rwid) or 0
         if rwid == 22 or rwid == 32 then
             openRoleGuide()
@@ -1488,6 +1503,9 @@ local guideDispatch = {
         openClientBagForGuide()
     end,
     [4] = function(data)
+        if NPC_UI_HELPER.shouldSuppressGrayWorldGuide and NPC_UI_HELPER.shouldSuppressGrayWorldGuide(data and data.rwid) then
+            return
+        end
         SL:ScheduleOnce(function()
             local yd = data and data.yd or {
             }
@@ -3485,7 +3503,8 @@ npc[11] = function(p2, p3, Data)
                 local chapterKey = tostring(npc.l) .. "_" .. tostring(npc.zj)
                 if npc._ywl_auto_guided_chapter ~= chapterKey then
                     npc._ywl_auto_guided_chapter = chapterKey
-                    if autoGuideWidget then
+                    if autoGuideWidget
+                        and not (NPC_UI_HELPER.shouldSuppressGrayWorldGuide and NPC_UI_HELPER.shouldSuppressGrayWorldGuide()) then
                         local guideParent = GUI:getParent(autoGuideWidget) or node
                         NPC_UI_HELPER.startGuide({
                             dir = 3,
@@ -3933,23 +3952,7 @@ npc[23] = function(p2, p3, Data)
         GUI:setAnchorPoint(card, 0, 0)
         GUI:setScale(GUI:Effect_Create(card, "effect", 115, 320 - 46, 0, eff[idx], 0, 0, 0, 1), 1)
         GUI:Effect_Create(card, "rw1", 115, 320 - 46, 4, SL:GetMetaValue("EQUIP_DATA", 0) and SL:GetMetaValue("EQUIP_DATA", 0).Shape or 1300, 0, 0, 2, 0.8)
-        if state.canActivate then
-            local activeText = GUI:Text_Create(card, "active_text_" .. idx, 78 + 60, 110 - 30 - 8, 26, "#7CFF7C", "已激活")
-            GUI:setAnchorPoint(activeText, 0.5, 0.5)
-            setCommonText(activeText, "#003300")
-            local switchSkin = state.visible and "res/custom/htgh/open.png" or "res/custom/htgh/close.png"
-            local switchBtn = GUI:Image_Create(card, "switch_btn_" .. idx, 204, 40 + 30, switchSkin)
-            GUI:setAnchorPoint(switchBtn, 0.5, 0.5)
-            GUI:setTouchEnabled(switchBtn, state.canActivate)
-            if state.canActivate then
-                GUI:addOnClickEvent(switchBtn, function()
-                    local nextIdx = state.active and 0 or idx
-                    SL:SendLuaNetMsg(101, 23, 1, nextIdx, "")
-                end)
-            else
-                GUI:setGrey(switchBtn, true)
-            end
-        else
+        if not state.canActivate then
             local btn = GUI:Image_Create(card, "activate_btn_" .. idx, 78 + 60, 110 - 30 - 8, "res/custom/htgh/btn_activate.png")
             GUI:setAnchorPoint(btn, 0.5, 0.5)
             GUI:setTouchEnabled(btn, true)
@@ -4322,9 +4325,10 @@ npc[30] = function(p2, p3, Data)
         local drawTotal = tonumber((doll or {}).draw_total or 0) or 0
         local firstCount = tonumber((cfg or {}).first_draw_count or 0) or 0
         local drawCount = math.max(1, tonumber(count) or 1)
+        local useFirstTenCost = drawTotal <= 0 and drawCount == firstCount and firstCount > 0
         local total = 0
         for _ = 1, drawCount do
-            if drawTotal < firstCount then
+            if useFirstTenCost then
                 total = total + get_doll_cost_count((cfg or {}).first_draw_cost or {}, '仙府币')
             else
                 total = total + get_doll_cost_count((cfg or {}).normal_draw_cost or {}, '仙府币')
@@ -4548,13 +4552,6 @@ npc[30] = function(p2, p3, Data)
             local hint = GUI:Text_Create(resultLayer, 'doll_draw_hint', cogin.w / 2, 88, 18, '#ffffff', '点击关闭返回娃娃机')
             GUI:setAnchorPoint(hint, 0.5, 0.5)
             GUI:Text_enableOutline(hint, '#100808', 2)
-            local skipLabel = GUI:Text_Create(resultLayer, 'skip_label', cogin.w / 2 - 60, 56, 20, '#FFFFFF', '跳过动画')
-            GUI:Text_enableOutline(skipLabel, '#000000', 1)
-            local skipCheck = GUI:CheckBox_Create(resultLayer, 'skip_anim', cogin.w / 2 + 75, 56, 'res/wy/public/xz_1.png', 'res/wy/public/xz_0.png')
-            GUI:CheckBox_setSelected(skipCheck, npc.woodcut_doll.skipAnim == true)
-            GUI:CheckBox_addOnEvent(skipCheck, function(sender)
-                npc.woodcut_doll.skipAnim = GUI:CheckBox_isSelected(sender)
-            end)
             local closeBtn = GUI:Button_Create(resultLayer, 'know_btn', cogin.w / 2, 120, 'res/wy/public/kb_btn.png')
             GUI:setAnchorPoint(closeBtn, 0.5, 0)
             GUI:Button_setTitleText(closeBtn, '关闭')
@@ -4681,18 +4678,6 @@ npc[30] = function(p2, p3, Data)
                 loop = 1
             })
             GUI:setLocalZOrder(eff, 2)
-            local skipWrap = GUI:Layout_Create(overlay, 'overlay_skip_wrap', 600, 66, 180, 36, false)
-            GUI:setLocalZOrder(skipWrap, 6)
-            local skipLabel = GUI:Image_Create(skipWrap, 'overlay_skip_label', 30, -2, 'res/custom/three_city/xianfu/仙府部分/娃娃机/跳过动画.png')
-            GUI:setTouchEnabled(skipLabel, false)
-            local skipBtn = GUI:CheckBox_Create(skipWrap, 'overlay_skip_check', 0, 0, 'res/public/1900000550.png', 'res/public/1900000551.png')
-            GUI:CheckBox_setSelected(skipBtn, npc.woodcut_doll.skipAnim == true)
-            GUI:CheckBox_addOnEvent(skipBtn, function(self)
-                npc.woodcut_doll.skipAnim = GUI:CheckBox_isSelected(self)
-                if npc.woodcut_doll.reveal == reveal then
-                    reveal.skipAnim = npc.woodcut_doll.skipAnim == true
-                end
-            end)
             if not reveal.openingScheduled then
                 reveal.openingScheduled = true
                 local token = reveal.token
@@ -4901,6 +4886,12 @@ npc[30] = function(p2, p3, Data)
         GUI:addOnClickEvent(drawTenBtn, function()
             request_draw_doll_machine(10)
         end)
+        if tonumber(doll.draw_total or 0) <= 0 then
+            local firstTenTips = GUI:Text_Create(parent, 'doll_first_ten_discount', 400, 74 + 10, 20, '#FF0000', '首次十连 2 折')
+            GUI:setAnchorPoint(firstTenTips, 0.5, 0.5)
+            GUI:Text_setFontName(firstTenTips, 'fonts/502.ttf')
+            GUI:Text_enableOutline(firstTenTips, '#100808', 2)
+        end
     end
 
     local function render_doll_cabinet_panel(parent)
@@ -5640,7 +5631,6 @@ npc[501] = function(p2, p3, Data)
         if p2 == 1 and tonumber(p3 or 0) == 1 then
             NPC_UI_HELPER.closeWindow(windowCache.firstCharge)
             windowCache.firstCharge = nil
-            openFirstChargeWelfareConfirm()
             return
         end
         if npc.node and not tolua.isnull(npc.node) then
@@ -6665,6 +6655,7 @@ npc[511] = function(p2, p3, Data)
         table.sort(grss, function(a, b)
             local order = {
                 [1] = 1,
+                [3] = 2,
                 [0] = 2,
                 [2] = 3,
             }
@@ -6689,6 +6680,10 @@ npc[511] = function(p2, p3, Data)
         [2] = {
             color = "#00FF00",
             text = "已领取",
+        },
+        [3] = {
+            color = "#FF0000",
+            text = "需特权",
         },
     }
     local fldt_section_key_map = {
@@ -6749,7 +6744,7 @@ npc[511] = function(p2, p3, Data)
     end
     local function fldt_apply_state_button(button, state)
         local info = state_info[state] or state_info[0]
-        local canClick = state == 1
+        local canClick = state == 1 or state == 3
         GUI:Button_setTitleText(button, info.text)
         GUI:Button_setTitleColor(button, info.color)
         GUI:Button_setTitleFontSize(button, 14)
@@ -7043,7 +7038,7 @@ npc[511] = function(p2, p3, Data)
                 end
                 local v = grss[i]
                 local l = GUI:Image_Create(Label_list, "img_bj_l_" .. i, 0, 0, 'res/custom/fulitating/list_fgx_' .. (v.idx % 2 == 1 and 1 or 2) .. '.png')
-                GUI:setContentSize(l, 500, 40)
+                GUI:setContentSize(l, 580, 40)
                 GUI:Text_Create(l, "wz", 35, 5, 20, "#FF0000", v.name)
                 GUI:RichText_Create(l, "jl", 220, 5, ItemNumByTable(teshudata["fldt"]["grss"][v.idx].give), 500, 18, "#f7f7de", 3, nil, nil, {
                     outlineSize = 2,
@@ -7116,7 +7111,7 @@ npc[511] = function(p2, p3, Data)
                 end
                 local v = grsb[i]
                 local l = GUI:Image_Create(Label_list, "img_bj_l_" .. i, 0, 0, 'res/custom/fulitating/list_fgx_' .. (v.idx % 2 == 1 and 1 or 2) .. '.png')
-                GUI:setContentSize(l, 500, 40)
+                GUI:setContentSize(l, 600, 40)
                 GUI:Text_Create(l, "wz", 35, 5, 20, "#FF0000", v.name)
                 GUI:RichText_Create(l, "jl", 220, 5, ItemNumByTable(teshudata["fldt"]["grsb"][v.idx].give), 500, 18, "#f7f7de", 3, nil, nil, {
                     outlineSize = 2,
@@ -7174,23 +7169,22 @@ npc[511] = function(p2, p3, Data)
                 local v = qqsb[i]
                 local cfg = teshudata["fldt"]["qqsb"][v.idx]
                 local l = GUI:Image_Create(Label_list, "img_bj_l_" .. i, 0, 0, 'res/custom/fulitating/list_fgx_' .. (i % 2 == 1 and 1 or 2) .. '.png')
-                GUI:setContentSize(l, 500, 40)
+                GUI:setContentSize(l, 600, 40)
                 GUI:Text_Create(l, "wz", 20, 5, 20, "#FF0000", v.name)
                 GUI:RichText_Create(l, "jl", 220 - 78, 5, ItemNumByTable(cfg.give), 500, 18, "#f7f7de", 3, nil, nil, {
                     outlineSize = 2,
                     outlineColor = SL:ConvertColorFromHexString("#100808"),
                 })
                 local ownerName = fldt_get_qqsb_owner_name(v.idx)
-        local ownerDisplayName = ownerName ~= "" and ownerName or "※虚位以待※"
+                local ownerDisplayName = ownerName ~= "" and ownerName or "※虚位以待※"
                 local ownerColor = ownerName ~= "" and "#00FF00" or "#FFFFFF"
                 GUI:Text_Create(l, "owner_" .. i, 300, 8, 18, ownerColor, ownerDisplayName)
-                if v.state == 1 then
-                    local Button = GUI:Button_Create(l, "Button", 450, -2, "res/public/1900000660.png")
+                if v.state == 1 or v.state == 3 then
+                    local Button = GUI:Button_Create(l, "Button", 505, -2, "res/public/1900000660.png")
                     fldt_apply_state_button(Button, v.state)
                     GUI:addOnClickEvent(Button, function()
                         SL:SendLuaNetMsg(101, 511, 1, 6, '{"qqsb":"' .. (v.idx) .. '"}')
                     end)
-                elseif ownerName ~= "" then
                 end
             end
             local Button_all = GUI:Button_Create(Label_node, "qqsb_all", 500, 0, "res/public/1900000660.png")
@@ -7587,12 +7581,14 @@ npc[514] = function(p2, p3, Data)
         if continent <= 1 then
             return true
         end
-        if continent <= 7 and type(dl_sz) == "function" then
-            return dl_sz(continent) == true
+        if cogin and cogin.sjtb and tonumber(cogin.sjtb.dl_all_unlock or 0) >= 1 then
+            return true
         end
-        if continent == 8 then
-            local rebirthLevel = tonumber(SL:GetMetaValue("RELEVEL") or 0) or 0
-            return rebirthLevel >= (continent - 1) * 10
+        if (tonumber(SL:GetMetaValue("RELEVEL") or 0) or 0) >= 70 and (tonumber(SL:GetMetaValue("LEVEL") or 0) or 0) >= 150 then
+            return true
+        end
+        if type(dl_sz) == "function" then
+            return dl_sz(continent) == true
         end
         return true
     end
@@ -7622,10 +7618,17 @@ npc[514] = function(p2, p3, Data)
             end)
         end
     end
+    npc.refreshWorldMap = function()
+        local win = npc._worldMapWin
+        if win and win.node and not (tolua and tolua.isnull and tolua.isnull(win.node)) then
+            renderWorldMap(win.node)
+        end
+    end
     if p2 == 0 then
         local win = ensureWindow("worldMap", 514, {
             titleText = "世界地图",
         })
+        npc._worldMapWin = win
         renderWorldMap(win.node)
     end
 end

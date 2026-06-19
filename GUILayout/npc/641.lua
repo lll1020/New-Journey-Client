@@ -12,6 +12,16 @@ local key = "npc_641"
 local btn_pos = {640, 110}
 local cost_pos = {507 + 25, 202 + 10}
 
+local function createText(parent, name, x, y, size, color, text, ax, ay)
+    local label = GUI:Text_Create(parent, name, x, y, size or 22, color or "#FFFFFF", text or "")
+    GUI:Text_setFontName(label, "fonts/502.ttf")
+    GUI:Text_enableOutline(label, "#111111", 2)
+    if ax ~= nil and ay ~= nil then
+        GUI:setAnchorPoint(label, ax, ay)
+    end
+    return label
+end
+
 function npc.main(npcid, p2, p3, msgData)
 
 
@@ -41,6 +51,15 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:Image_Create(node, "fgx", 150, 150, "res/custom/all_story_mission/4/fgx.png")
 
         GUI:Node_Create(list, "box_node"..0, 0, 0)
+        local nextOpenIndex = nil
+        for i, cfg in ipairs(npc._config.xz or {}) do
+            local stateKey = "npc_" .. tostring(cfg.idx)
+            local state = npc.data.T_dljq and npc.data.T_dljq[stateKey] or 0
+            if (tonumber(state) or 0) < 2 then
+                nextOpenIndex = i
+                break
+            end
+        end
         for k,v in ipairs(npc._config.xz) do
             local box_node = GUI:Node_Create(list, "box_node"..k, 0, 0)
             if k%1 == 0 then
@@ -49,9 +68,16 @@ function npc.main(npcid, p2, p3, msgData)
             if k > 0 then
                 local config = teshudata["npc_"..v.idx]
                 npc.data.T_dljq["npc_"..v.idx] = (npc.data.T_dljq and npc.data.T_dljq["npc_"..v.idx]) and npc.data.T_dljq["npc_"..v.idx] or 0
-                GUI:Text_setFontName(GUI:Text_Create(box_node, "lv",15,10, 25, "#00FFFF", config.name), "fonts/501.ttf")     -- 
-                GUI:Text_setFontName(GUI:Text_Create(box_node, "attr_desc",220,10, 25, "#FF00FF", v.wz), "fonts/501.ttf")
-                GUI:Image_Create(box_node, "Button", 560 - 130, 0, "res/wy/public/"..(npc.data.T_dljq["npc_"..v.idx] >= 2 and "rwjd_3" or "rwjd_2")..".png")
+                createText(box_node, "lv", 15, 10, 24, "#63F7FF", config.name)
+                createText(box_node, "attr_desc", 220, 10, 24, "#FF78E8", v.wz)
+                local state = tonumber(npc.data.T_dljq["npc_"..v.idx] or 0) or 0
+                local stateSkin = "rwjd_1"
+                if state >= 2 then
+                    stateSkin = "rwjd_3"
+                elseif nextOpenIndex == k then
+                    stateSkin = "rwjd_2"
+                end
+                GUI:Image_Create(box_node, "Button", 560 - 130, 0, "res/wy/public/"..stateSkin..".png")
 
             end
         end
@@ -67,11 +93,13 @@ function npc.main(npcid, p2, p3, msgData)
         if npc.data.T_dljq[key] == 1 or npc.data.T_dljq[key] == 0 then
             local Button= GUI:Button_Create(node, "Button", btn_pos[1], btn_pos[2], "res/custom/all_story_mission/2/btn_give.png")
             GUI:setAnchorPoint(Button, 0.5, 0.5)
+            -- createText(Button, "btn_text", 112, 26, 26, "#FFD685", "领取奖励", 0.5, 0.5)
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 1, 0, "")
             end)
         elseif npc.data.T_dljq[key] == 2 then
             GUI:Image_Create(node, "Button", btn_pos[1], btn_pos[2], "res/wy/public/7_1.png")
+            -- createText(node, "finish_text", btn_pos[1], btn_pos[2], 24, "#B8FFB8", "已领取", 0.5, 0.5)
         end
 
 

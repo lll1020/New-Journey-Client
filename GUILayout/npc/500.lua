@@ -11,11 +11,19 @@ end
 -- 若资源不存在，则回退到 dlcs/2/bg.png，保证界面可正常打开。
 local function getBgSkinByNpcid(npcid)
     local idx = _to_num(npcid, 0) - 500
-    local skin = string.format("res/custom/dlcs/%s/bg.png", tostring(idx))
+    local skin = string.format("res/custom/dlcs/%s/eff_1.png", tostring(idx))
     if SL and SL.IsFileExist and SL:IsFileExist(skin) then
         return skin
     end
     return "res/custom/dlcs/2/bg.png"
+end
+local function getBgFramePathByNpcid(npcid)
+    local idx = _to_num(npcid, 0) - 500
+    local firstFrame = string.format("res/custom/dlcs/%s/eff_1.png", tostring(idx))
+    if SL and SL.IsFileExist and SL:IsFileExist(firstFrame) then
+        return string.format("res/custom/dlcs/%s/eff_", tostring(idx))
+    end
+    return "res/custom/dlcs/2/eff_"
 end
 -- 根据大陆序号给出进入条件文案（与 GUIUtil 的大陆开放条件保持一致）
 local function getEnterNeedText(dl)
@@ -89,6 +97,14 @@ function npc.main(npcid, p2, p3, msgData)
         opts.subTitle = npc._config and npc._config.title
         npc._window = NPC_UI_HELPER.ensureWindow(npc._window, npcid, opts)
         npc.bg = npc._window.bg
+        npc.bg = GUI:Frames_Create(npc.bg, "dlcs_bg_eff", 0, 0, getBgFramePathByNpcid(npcid), ".png", 1, 150, {
+            speed = 75,
+            count = 150,
+            loop = -1,
+        })
+        -- GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
+        GUI:setTouchEnabled(npc.bg, true)
+        GUI:setLocalZOrder(npc._window.node, 99)
         npc.node = npc._window.node
         return npc.node
     end
@@ -107,8 +123,7 @@ function npc.main(npcid, p2, p3, msgData)
         local condSize = GUI:getContentSize(cond) or {width = 566, height = 82}
         GUI:setPosition(cond, math.floor((bgSize.width - condSize.width) / 2) + 50, 100)
         local stateColor = enterOK and "#00ff00" or "#ff3333"
-        local stateText = enterOK and "（已解锁）" or "（未解锁）"
-        local lockText = GUI:Text_Create(cond, "lock", condSize.width / 2, 14 + 15, 20, stateColor, needText .. stateText)
+        local lockText = GUI:Text_Create(cond, "lock", condSize.width / 2, 14 + 15, 20, stateColor, needText)
         GUI:Text_setFontName(lockText, "fonts/500.ttf")
         GUI:Text_enableOutline(lockText, "#000000", 2)
         GUI:setAnchorPoint(lockText, 0.5, 0.5)

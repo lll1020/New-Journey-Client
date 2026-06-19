@@ -473,7 +473,8 @@ local function _upgrade_check_limited_welfare_105()
     end
     local openTs = _upgrade_to_num(data.welfare_open_time, 0)
     if openTs <= 0 then
-        return false
+        -- 二大陆限时福利需要玩家主动打开一次面板后才开始倒计时；未启动时也显示入口。
+        return true
     end
     local waitSec = _upgrade_to_num(welfare[nextIdx] and welfare[nextIdx].wait_sec, 0)
     local now = _upgrade_to_num(SL:GetMetaValue("SERVER_TIME"), os.time())
@@ -641,7 +642,7 @@ local UPGRADE_CHECKERS = {
     [70] = _upgrade_check_emojiuguan_66,
 }
 local OPEN_BTN_LIST = {
-    {id = 1, label = "限时福利", npcid = 105, continent = 1},
+    {id = 1, label = "限时福利", npcid = 105, continent = 2},
     {id = 6, label = "切割之斧", npcid = 6, continent = 1},
     {id = 7, label = "攻速之镰[★]", npcid = 7, continent = 1},
     {id = 8, label = "斗笠[★]", npcid = 8, continent = 1},

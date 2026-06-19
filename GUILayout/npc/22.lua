@@ -214,6 +214,20 @@ local PASSIVE_SKILL_TEXT_CONFIG = {
 local _lg_refresh_main_page
 local _lg_refresh_upgrade_window
 local _lg_refresh_cultivate_window
+local _lg_base_root_idx
+
+local function _lg_is_valid_node(node)
+    return node and (not (tolua and tolua.isnull) or not tolua.isnull(node))
+end
+
+local function _lg_refresh_open_upgrade_window(npcid)
+    if _lg_is_valid_node(npc.xjm_node) and _lg_refresh_upgrade_window then
+        _lg_refresh_upgrade_window(npcid, npc.xjm_node)
+    else
+        npc.xjm_window = nil
+        npc.xjm_node = nil
+    end
+end
 
 local function _lg_mainline_reached()
     local rwid = tonumber(cogin and cogin.sjtb and (cogin.sjtb.zxrwid or cogin.sjtb.rwid) or 0) or 0
@@ -387,7 +401,7 @@ end
 local function _lg_default_selected_idx()
     local mainIdx = tonumber(npc.data and npc.data.T_data and npc.data.T_data.main or 0) or 0
     if mainIdx > 0 then
-        return mainIdx
+        return mainIdx > 5 and _lg_base_root_idx(mainIdx) or mainIdx
     end
     local activeIdx = _lg_first_active_idx()
     if activeIdx > 0 then
@@ -552,6 +566,24 @@ local function _lg_format_skill_value(valueCfg, level, previewNext)
     return string.format("%s<font color='#8C6B35'> -> </font><font color='#4DA3FF'>%s</font><font color='#8C6B35'>[下级属性]</font>", current, nextValue)
 end
 
+-- 技能文案里会写“70%”这类字面百分号，只保留 %s 等合法占位，避免 string.format 崩溃。
+local function _lg_escape_skill_template(template)
+    local text = tostring(template or "")
+    text = text:gsub("%%([^cdiouxXeEfgGaAqs%%])", "%%%%%1")
+    text = text:gsub("%%$", "%%%%")
+    return text
+end
+
+local function _lg_format_skill_desc(defaultName, cfg, values)
+    local unpackFunc = table.unpack or unpack
+    local fmt = "【%s】" .. _lg_escape_skill_template(cfg and cfg.template or "")
+    local ok, result = pcall(string.format, fmt, tostring(cfg and cfg.name or defaultName or "技能"), unpackFunc(values or {}))
+    if ok then
+        return result
+    end
+    return "【" .. tostring(cfg and cfg.name or defaultName or "技能") .. "】" .. tostring(cfg and cfg.template or "")
+end
+
 local function _lg_build_active_skill_desc(idx, previewNext, levelOverride)
     local cfg = ACTIVE_SKILL_TEXT_CONFIG[tonumber(idx or 0) or 0]
     if not cfg then
@@ -563,8 +595,7 @@ local function _lg_build_active_skill_desc(idx, previewNext, levelOverride)
     for _, valueCfg in ipairs(cfg.values or {}) do
         values[#values + 1] = _lg_format_skill_value(valueCfg, level, previewNext and not _lg_is_max_level(idx))
     end
-    local unpackFunc = table.unpack or unpack
-    return string.format("【%s】" .. tostring(cfg.template or ""), tostring(cfg.name or "主动技能"), unpackFunc(values))
+    return _lg_format_skill_desc("主动技能", cfg, values)
 end
 
 local function _lg_build_passive_skill_desc(idx, previewNext, levelOverride)
@@ -578,8 +609,7 @@ local function _lg_build_passive_skill_desc(idx, previewNext, levelOverride)
     for _, valueCfg in ipairs(cfg.values or {}) do
         values[#values + 1] = _lg_format_skill_value(valueCfg, level, previewNext and not _lg_is_max_level(idx))
     end
-    local unpackFunc = table.unpack or unpack
-    return string.format("【%s】" .. tostring(cfg.template or ""), tostring(cfg.name or "被动技能"), unpackFunc(values))
+    return _lg_format_skill_desc("被动技能", cfg, values)
 end
 
 -- 将灵根效果文案中的“5000*灵根倍率+2000”一类公式直接结算为实际数值。
@@ -762,7 +792,7 @@ local function _lg_can_dual_switch(mainIdx)
 end
 
 -- 将觉醒灵根 ID 映射回基础灵根 ID；基础灵根本身直接返回。
-local function _lg_base_root_idx(idx)
+_lg_base_root_idx = function(idx)
     idx = tonumber(idx or 0) or 0
     if idx <= 0 then
         return 0
@@ -783,6 +813,15 @@ local function _lg_awaken_root_idx(idx)
         return idx
     end
     return tonumber(npc._config and npc._config.awaken_pairs and npc._config.awaken_pairs[idx] or 0) or 0
+end
+
+local function _lg_current_upgrade_idx(selectedIdx, mainIdx)
+    selectedIdx = tonumber(selectedIdx or 0) or 0
+    mainIdx = tonumber(mainIdx or 0) or 0
+    if mainIdx > 5 and selectedIdx > 0 and _lg_base_root_idx(mainIdx) == _lg_base_root_idx(selectedIdx) then
+        return mainIdx
+    end
+    return selectedIdx
 end
 
 -- 读取左侧形态卡素材路径，基础/觉醒都使用对应基础五行的 x_* 卡片。
@@ -1441,6 +1480,7 @@ local function _lg_render_form_card(parent, name, idx, pos, npcid)
     GUI:addOnClickEvent(touch, function()
         npc.current_idx = idx
         _lg_refresh_main_page(npcid, parent)
+        _lg_refresh_open_upgrade_window(npcid)
     end)
     return card
 end
@@ -1576,6 +1616,7 @@ local function _lg_select_or_unlock_root(npcid, parent, idx)
     -- 培养界面只负责切换查看，激活统一回到主页按钮处理。
     npc.current_idx = idx
     _lg_refresh_cultivate_window(npcid, parent)
+    _lg_refresh_open_upgrade_window(npcid)
 end
 
 -- 渲染培养界面顶部五个基础灵根入口，负责选中框、置灰和等级状态入口。
@@ -1719,13 +1760,18 @@ _lg_refresh_cultivate_window = function(npcid, node)
     local cultivate_skill_panel = GUI:Layout_Create(node, "cultivate_skill_panel", CULTIVATE_SKILL_BOX_POS.x, CULTIVATE_SKILL_BOX_POS.y, CULTIVATE_SKILL_BOX_POS.width, CULTIVATE_SKILL_BOX_POS.height, false)
     _lg_render_cultivate_skills(cultivate_skill_panel, mainIdx and mainIdx > 0 and mainIdx or selectedIdx)
 
+    local upgradeIdx = _lg_current_upgrade_idx(selectedIdx, mainIdx)
     local upgradeBtn = _lg_button(node, "cultivate_btn_upgrade", CULTIVATE_BTN_POS.upgrade.x - 80, CULTIVATE_BTN_POS.upgrade.y, "升级灵根", function()
+        npc.current_idx = upgradeIdx
         local xNode = ensureUpgradeWindow(npcid)
         if xNode then
             _lg_refresh_upgrade_window(npcid, xNode)
         end
     end)
     _lg_apply_big_button_style(upgradeBtn)
+    if upgradeIdx > 0 and _lg_can_upgrade(upgradeIdx) then
+        NPC_UI_HELPER.redpoint_create(upgradeBtn, {x = 130, y = 33})
+    end
     local canSwitch, pairIdx = _lg_can_dual_switch(mainIdx)
     local switchBtn = _lg_button(node, "cultivate_btn_switch", CULTIVATE_BTN_POS.switch.x - 25, CULTIVATE_BTN_POS.switch.y, "切换形态", function()
         if canSwitch then
@@ -1754,13 +1800,13 @@ local function _lg_awaken_path_text(idx)
     return "暂无觉醒路径"
 end
 
--- 主页顶部只选择基础灵根；中间展示区在已觉醒时展示对应觉醒形态。
-local function _lg_main_display_idx(selectedIdx)
+-- 主页顶部只选择基础灵根；只有本命已切换为觉醒形态时，中间展示区才显示觉醒形态。
+local function _lg_main_display_idx(selectedIdx, mainIdx)
     selectedIdx = tonumber(selectedIdx or 0) or 0
+    mainIdx = tonumber(mainIdx or 0) or 0
     if selectedIdx > 0 and selectedIdx <= 5 then
-        local awakenIdx = _lg_awaken_root_idx(selectedIdx)
-        if awakenIdx > 0 and _lg_has_root(awakenIdx) then
-            return awakenIdx
+        if mainIdx > 5 and _lg_base_root_idx(mainIdx) == selectedIdx then
+            return mainIdx
         end
     end
     return selectedIdx
@@ -1771,7 +1817,7 @@ end
 -- 中间为流派特性、觉醒路径、灵根等级；
 -- 右侧为被动/协同技能预览占位和培养入口。
 local function _lg_render_main_overview(node, npcid, selectedIdx, mainIdx)
-    local displayIdx = _lg_main_display_idx(selectedIdx)
+    local displayIdx = _lg_main_display_idx(selectedIdx, mainIdx)
     local cfg = _lg_root_cfg(displayIdx) or _lg_root_cfg(selectedIdx) or {}
     local selectedActive = _lg_has_root(selectedIdx)
     local active = _lg_has_root(displayIdx)
@@ -1892,7 +1938,8 @@ local function _lg_render_main_overview(node, npcid, selectedIdx, mainIdx)
     GUI:Button_setTitleFontName(cultivateBtn, "fonts/502.ttf")
     GUI:Button_setTitleFontSize(cultivateBtn, 24)
     GUI:Button_titleEnableOutline(cultivateBtn, "#110b05", 3)
-    if selectedIdx > 0 and _lg_can_upgrade(selectedIdx) then
+    local overviewUpgradeIdx = _lg_current_upgrade_idx(selectedIdx, mainIdx)
+    if overviewUpgradeIdx > 0 and _lg_can_upgrade(overviewUpgradeIdx) then
         NPC_UI_HELPER.redpoint_create(cultivateBtn, {x = 130, y = 33})
     end
 end
@@ -1931,6 +1978,7 @@ _lg_refresh_main_page = function(npcid, node)
             if type == SLDefine.TouchEventType.ended then
                 npc.current_idx = idx
                 _lg_refresh_main_page(npcid, node)
+                _lg_refresh_open_upgrade_window(npcid)
             end
         end)
         if rootItem then
@@ -2037,15 +2085,30 @@ function npc.main(npcid, p2, p3, msgData)
         end
         ensureMainWindow(npcid)
         _lg_refresh_main_page(npcid, npc.node)
-        if npc.xjm_node then
+        if _lg_is_valid_node(npc.xjm_node) then
             _lg_refresh_upgrade_window(npcid, npc.xjm_node)
+        else
+            npc.xjm_window = nil
+            npc.xjm_node = nil
         end
-        if npc.cultivate_node then
+        if _lg_is_valid_node(npc.cultivate_node) then
             _lg_refresh_cultivate_window(npcid, npc.cultivate_node)
+        else
+            npc.cultivate_window = nil
+            npc.cultivate_node = nil
         end
         _lg_try_finish_xyl_and_close()
     elseif p2 == 2 then
         npc.data = SL:JsonDecode(msgData, false) or npc.data or {}
+        if _lg_is_valid_node(npc.node) then
+            _lg_refresh_main_page(npcid, npc.node)
+        end
+        if _lg_is_valid_node(npc.cultivate_node) then
+            _lg_refresh_cultivate_window(npcid, npc.cultivate_node)
+        else
+            npc.cultivate_window = nil
+            npc.cultivate_node = nil
+        end
         local xNode = ensureUpgradeWindow(npcid)
         _lg_refresh_upgrade_window(npcid, xNode)
     end

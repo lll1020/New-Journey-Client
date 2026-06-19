@@ -21,9 +21,101 @@ local GUIDE_DOMAIN_PRIORITY = {
 local MAINLINE_TASK_BY_UPGRADE_NPC = {
     [32] = 15,
 }
+local GRAY_WORLD_GUIDE_RWID = 36
+local GRAY_WORLD_GUIDE_MAP_NAMES = {
+    ["灰界"] = true,
+    ["灰界南部"] = true,
+    ["灰界北部"] = true,
+    ["灰界东部"] = true,
+    ["灰界西部"] = true,
+    ["虚妄山脉"] = true,
+    ["山脉入口"] = true,
+    ["鬼嘲深渊"] = true,
+    ["旷野之原"] = true,
+    ["叹息旷野"] = true,
+    ["恐怖裂隙"] = true,
+    ["禁忌之海"] = true,
+    ["海峰孤岛"] = true,
+    ["讨伐嘲灾"] = true,
+    ["讨伐忌灾"] = true,
+    ["讨伐息灾"] = true,
+    ["讨伐妄灾"] = true,
+}
+local GRAY_WORLD_GUIDE_MAP_IDS = {
+    ["212"] = true,
+    ["300"] = true,
+    ["301"] = true,
+    ["302"] = true,
+    ["303"] = true,
+}
+local GRAY_WORLD_GUIDE_KEYWORDS = {"灰界", "虚妄山脉", "山脉入口", "鬼嘲深渊", "旷野之原", "叹息旷野", "恐怖裂隙", "禁忌之海", "海峰孤岛", "讨伐嘲灾", "讨伐忌灾", "讨伐息灾", "讨伐妄灾"}
 -- ===== 基础工具函数 =====
 -- 空函数：用于 overlay / closeBtn 的默认 onClick，避免频繁创建匿名函数
 local function noop() end
+local function safeGetMetaValue(key, ...)
+    if not SL or type(SL.GetMetaValue) ~= "function" then
+        return nil
+    end
+    local args = {...}
+    local ok, value = pcall(function()
+        return SL:GetMetaValue(key, unpack(args))
+    end)
+    if ok then
+        return value
+    end
+    return nil
+end
+local function getMainlineRwidValue()
+    local rwid = tonumber(cogin and cogin.sjtb and cogin.sjtb.rwid) or 0
+    local zxrwid = tonumber(cogin and cogin.sjtb and cogin.sjtb.zxrwid) or 0
+    rwid = math.max(rwid, zxrwid)
+    if Player and type(Player.getServerVar) == "function" then
+        rwid = math.max(rwid, tonumber(Player:getServerVar("U11") or 0) or 0)
+        rwid = math.max(rwid, tonumber(Player:getServerVar("U_zxrw") or 0) or 0)
+    end
+    return rwid
+end
+local function isGrayWorldMapValue(value)
+    local text = tostring(value or "")
+    if text == "" then
+        return false
+    end
+    if GRAY_WORLD_GUIDE_MAP_NAMES[text] or GRAY_WORLD_GUIDE_MAP_IDS[text] then
+        return true
+    end
+    for _, keyword in ipairs(GRAY_WORLD_GUIDE_KEYWORDS) do
+        if string.find(text, keyword, 1, true) then
+            return true
+        end
+    end
+    return false
+end
+function UIHelper.isGrayWorldMap()
+    local actorId = safeGetMetaValue("MAIN_ACTOR_ID")
+    if isGrayWorldMapValue(safeGetMetaValue("MAP_NAME")) then
+        return true
+    end
+    if isGrayWorldMapValue(safeGetMetaValue("MAP_ID")) then
+        return true
+    end
+    if isGrayWorldMapValue(safeGetMetaValue("MAPID")) then
+        return true
+    end
+    if isGrayWorldMapValue(safeGetMetaValue("ACTOR_MAP", actorId)) then
+        return true
+    end
+    if isGrayWorldMapValue(safeGetMetaValue("ACTOR_MAP_ID", actorId)) then
+        return true
+    end
+    if isGrayWorldMapValue(safeGetMetaValue("ACTOR_MAP_X", actorId)) then
+        return true
+    end
+    return false
+end
+function UIHelper.shouldSuppressGrayWorldGuide(rwid)
+    local mainlineRwid = tonumber(rwid) or getMainlineRwidValue()
+    return mainlineRwid >= GRAY_WORLD_GUIDE_RWID and UIHelper.isGrayWorldMap()
+end
 -- 规范化描边配置：
 --   opts = false -> 不启用描边
 --   opts = nil   -> 使用默认描边
@@ -156,6 +248,10 @@ end
 function UIHelper.requestGuide(domain, guideKey, opts)
     domain = tostring(domain or "default")
     opts = opts or {}
+    if (domain == "xyl" or domain == "mainline" or domain == "gray_world") and UIHelper.shouldSuppressGrayWorldGuide(opts.rwid) then
+        UIHelper.closeGuideByDomain(domain)
+        return false
+    end
     if not isValidGuideNode(opts.guideWidget) then
         return false
     end
@@ -474,6 +570,10 @@ function UIHelper.tryStartXylGuide(guideCache, button, guideParent, marker, opts
         return false
     end
     opts = opts or {}
+    if UIHelper.shouldSuppressGrayWorldGuide(opts.rwid) then
+        _closeXylGuideList()
+        return false
+    end
     local currentTaskName = tostring(opts.currentTaskName or rawget(_G, "XYL_CURRENT_TASK_NAME") or "")
     if currentTaskName == "" then
         return false

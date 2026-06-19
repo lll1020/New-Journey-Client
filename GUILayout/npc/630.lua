@@ -12,6 +12,16 @@ local key = "npc_630"
 local btn_pos = {462 + 158, 70 + 60}
 local cost_pos = {507 - 240 + 180, 202 + 40}
 
+local function createText(parent, name, x, y, size, color, text, ax, ay)
+    local label = GUI:Text_Create(parent, name, x, y, size or 22, color or "#FFFFFF", text or "")
+    GUI:Text_setFontName(label, "fonts/502.ttf")
+    GUI:Text_enableOutline(label, "#111111", 2)
+    if ax ~= nil and ay ~= nil then
+        GUI:setAnchorPoint(label, ax, ay)
+    end
+    return label
+end
+
 function npc.main(npcid, p2, p3, msgData)
 
 
@@ -45,9 +55,7 @@ function npc.main(npcid, p2, p3, msgData)
 
         npc.data.T_dljq[key] = (npc.data.T_dljq and npc.data.T_dljq[key]) and npc.data.T_dljq[key] or 0
         local showFirstOpenTake = NPC_UI_HELPER.shouldShowFirstOpenTakeButton(key, npc._config.cost, npc.data.T_dljq[key])
-        local desc = GUI:Text_Create(node, "desc",500 + 160,120 + 133, 30, "#00FB00", npc._config.max_num - npc.data.T_dljq[key])
-        GUI:Text_setFontName(desc, "fonts/500.ttf")
-        -- GUI:Text_enableOutline(desc, "#F03022", 2)
+        createText(node, "desc", 500 + 160, 120 + 133, 30, "#63F7FF", npc._config.max_num - npc.data.T_dljq[key], 0.5, 0.5)
 
 
 
@@ -63,6 +71,7 @@ function npc.main(npcid, p2, p3, msgData)
             end)
         else
             GUI:Image_Create(node, "Button", btn_pos[1], btn_pos[2], "res/wy/public/7_1.png")
+            createText(node, "finish_text", btn_pos[1], btn_pos[2], 24, "#B8FFB8", "已完成", 0.5, 0.5)
         end
 
     

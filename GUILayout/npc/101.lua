@@ -192,22 +192,31 @@ local function buildPoolTipText()
     local pool = cfg.pool or {}
     local fashionPool = cfg.fashion_pool or {}
     local guaranteeBoxes = cfg.guarantee_boxes or {}
-    local lines = {"<font color='#F6D27F'>概率公示</font>"}
+    local lines = {
+        "<font color='#FFE39A' size='18'>概率公示</font>",
+        "<font color='#8DFFE0'>普通奖励</font>",
+    }
+    local fashionStarted = false
 
     for _, entry in ipairs(pool) do
         if entry.kind == "fashion_random" then
+            if not fashionStarted then
+                lines[#lines + 1] = "<font color='#FF9A6A'>时装奖励</font>"
+                fashionStarted = true
+            end
             for fashionIdx, fashionCfg in ipairs(fashionPool) do
                 local rateText = fashionIdx <= 4 and "0.5%" or "0.25%"
-                lines[#lines + 1] = string.format("<font color='#ffffff'>%s\t%s</font>", tostring(fashionCfg.name or ("时装" .. tostring(fashionIdx))), rateText)
+                lines[#lines + 1] = string.format("<font color='#F3E8D0'>%s</font><font color='#9FFFD2'>  %s</font>", tostring(fashionCfg.name or ("时装" .. tostring(fashionIdx))), rateText)
             end
         else
-            lines[#lines + 1] = string.format("<font color='#ffffff'>%s\t%s</font>", tostring(entry.label or ""), tostring(entry.show_rate or ""))
+            lines[#lines + 1] = string.format("<font color='#F3E8D0'>%s</font><font color='#9FFFD2'>  %s</font>", tostring(entry.label or ""), tostring(entry.show_rate or ""))
         end
     end
 
-    lines[#lines + 1] = string.format("<font color='#ffffff'>每抽%s次必出一个时装</font>", tostring(toNumber(cfg.fashion_pity_every, 200)))
+    lines[#lines + 1] = "<font color='#FFE39A'>保底规则</font>"
+    lines[#lines + 1] = string.format("<font color='#F3E8D0'>每抽%s次</font><font color='#FFCF66'> 必出一个时装</font>", tostring(toNumber(cfg.fashion_pity_every, 200)))
     for _, guaranteeCfg in ipairs(guaranteeBoxes) do
-        lines[#lines + 1] = string.format("<font color='#ffffff'>每%s抽必得：%s</font>", tostring(toNumber(guaranteeCfg.every, 0)), tostring(guaranteeCfg.label or ""))
+        lines[#lines + 1] = string.format("<font color='#F3E8D0'>每%s抽必得：</font><font color='#B8D7FF'>%s</font>", tostring(toNumber(guaranteeCfg.every, 0)), tostring(guaranteeCfg.label or ""))
     end
     return table.concat(lines, "<br>")
 end

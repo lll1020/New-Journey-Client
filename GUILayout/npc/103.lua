@@ -27,29 +27,29 @@ local CLIENT_CONFIG = {
         slots = {
             [1] = {
                 icon = {x = 172 + 86, y = 283 + 60},
-                name = {dx = -36, dy = 58 - 138},
-                desc = {dx = -40, dy = -62},
+                name = {dx = -40, dy = -81},
+                desc = {dx = -25, dy = -46},
                 count = {dx = -10, dy = -96 + 50},
                 button = {dx = -48 - 39, dy = -148 + 10},
             },
             [2] = {
                 icon = {x = 603 + 24, y = 283 + 60},
-                name = {dx = -36, dy = 58 - 138},
-                desc = {dx = -40, dy = -62},
+                name = {dx = -40, dy = -81},
+                desc = {dx = -25, dy = -46},
                 count = {dx = -10, dy = -96 + 50},
                 button = {dx = -48 - 39, dy = -148 + 10},
             },
             [3] = {
                 icon = {x = 172 + 86, y = 155 + 49},
-                name = {dx = -36, dy = 58 - 138},
-                desc = {dx = -40, dy = -62},
+                name = {dx = -40, dy = -81},
+                desc = {dx = -25, dy = -46},
                 count = {dx = -10, dy = -96 + 50},
                 button = {dx = -48 - 39, dy = -148 + 10},
             },
             [4] = {
                 icon = {x = 603 + 24, y = 155 + 49},
-                name = {dx = -36, dy = 58 - 138},
-                desc = {dx = -40, dy = -62},
+                name = {dx = -40, dy = -81},
+                desc = {dx = -25, dy = -46},
                 count = {dx = -10, dy = -96 + 50},
                 button = {dx = -48 - 39, dy = -148 + 10},
             },
@@ -172,6 +172,26 @@ local function buildAttrDescRich(desc)
     suffix = string.gsub(suffix, "^([+-])", "%1 ")
     return string.format("<font color='#f6e39a'>%s </font><font color='#7dff9b'>%s</font>", prefix, suffix)
 end
+local function renderAttrDescText(parent, name, x, y, desc)
+    desc = tostring(desc or "")
+    local node = GUI:Node_Create(parent, name, x, y)
+    local bg = GUI:Image_Create(node, "attr_bg", -15, -13, "res/wy/public/tycccc.png")
+    GUI:setAnchorPoint(bg, 0.5, 0.5)
+    GUI:setContentSize(bg, 150, 20)
+    if desc == "" then
+        createStrokeText(node, "empty", 0, -14, 20, "#b8fff2", "提交后激活属性", 0.5, 0.5, "fonts/502.ttf")
+        return node
+    end
+    local prefix, suffix = string.match(desc, "^(.-)([+-].+)$")
+    if not prefix or not suffix then
+        createStrokeText(node, "text", 0, -14, 20, "#FF7700", desc, 0.5, 0.5, "fonts/502.ttf")
+        return node
+    end
+    suffix = string.gsub(suffix, "^([+-])", "%1 ")
+    createStrokeText(node, "name", -5, -14, 20, "#FF7700", prefix, 1, 0.5, "fonts/502.ttf")
+    createStrokeText(node, "value", 5, -14, 20, "#8dffea", suffix, 0, 0.5, "fonts/502.ttf")
+    return node
+end
 local function getItemDataByName(name)
     if not name or name == "" then
         return nil
@@ -249,7 +269,7 @@ local function renderMaterial(node, npcid, ui, materialCfg, materialData)
     local countX, countY = resolveSlotPos(iconPos, slot.count)
     local descX, descY = resolveSlotPos(iconPos, slot.desc)
     local buttonX, buttonY = resolveSlotPos(iconPos, slot.button)
-    local itemFrame = GUI:Image_Create(node, "item_frame_" .. state.idx, (iconPos.x or 0) - 35, (iconPos.y or 0) - 35, ui.item_frame or "res/wy/public/70_70_k.png")
+    local itemFrame = GUI:Image_Create(node, "item_frame_" .. state.idx, (iconPos.x or 0) - 35, (iconPos.y or 0) - 30, ui.item_frame or "res/wy/public/70_70_k.png")
     local itemData = getItemDataByName(state.name)
     if itemData then
         UiTools.showItemData(itemFrame, itemData)
@@ -259,7 +279,7 @@ local function renderMaterial(node, npcid, ui, materialCfg, materialData)
     else
         createStrokeText(node, "item_missing_" .. state.idx, iconPos.x or 0, iconPos.y or 0, 18, "#ffe9c2", state.name, 0.5, 0.5, "fonts/500.ttf")
     end
-    createStrokeText(node, "item_name_" .. state.idx, nameX, nameY, 18, "#fff3cf", state.name, 0.5, 0.5, "fonts/500.ttf")
+    createStrokeText(node, "item_name_" .. state.idx, nameX, nameY, 18, "#fff3cf", state.name, 0.5, 0.5, "fonts/502.ttf")
     local haveColor = state.have >= state.need and "#7dff9b" or "#ff7e7e"
     local countText = string.format("<font color='%s'>%d</font><font color='#f7f7de'>/%d</font>", haveColor, state.have, state.need)
     if state.submit == 1 then
@@ -268,7 +288,7 @@ local function renderMaterial(node, npcid, ui, materialCfg, materialData)
     local txt = createCenterRich(node, "item_count_" .. state.idx, countX, countY, 150, 18, countText, "#f7f7de")
     if state.submit == 1 then
     end
-    createCenterRich(node, "item_desc_" .. state.idx, descX, descY, 190, 16, buildAttrDescRich(state.desc), "#f7f7de")
+    renderAttrDescText(node, "item_desc_" .. state.idx, descX, descY, state.desc)
     if state.submit == 1 then
         GUI:setPosition(txt, buttonX + 50 , buttonY + 25)
     else

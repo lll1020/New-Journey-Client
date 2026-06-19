@@ -42,13 +42,13 @@ local function updateUI(npcid, node)
     --     node, "hbdh1",
     --     670, 42 + 187,
     --     20, "#ffffff",
-    --     (10 - (data.hbdh1 or 0)) .. "次"
+    --     (999 - (data.hbdh1 or 0)) .. "次"
     -- )
     -- GUI:Text_Create(
     --     node, "hbdh2",
     --     670, 42,
     --     20, "#ffffff",
-    --         (10 - (data.hbdh2 or 0)) .. "次"
+    --         (999 - (data.hbdh2 or 0)) .. "次"
     --     )
 
     GUI:setAnchorPoint(GUI:ItemShow_Create(npc.bg, "item1", 70,300 - 187 + 33 + 87, { index = 1, look = true, bgVisible = false }),0.5, 0.5)

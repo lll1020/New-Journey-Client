@@ -59,7 +59,7 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:Text_setFontName(desc, "fonts/502.ttf")
         GUI:Text_enableOutline(desc, "#000000", 2)
         -- 当前修为统一显示为数值文本，和底图“当前修为”保持一致。
-        local desc = GUI:Text_Create(wz_3, "desc",130,0, 25, "#FFFFFF", tostring(exp or 0))
+        local desc = GUI:Text_Create(wz_3, "desc",130,0, 25, "#00FF00", tostring(exp or 0))
         GUI:Text_setFontName(desc, "fonts/502.ttf")
         GUI:Text_enableOutline(desc, "#000000", 2)
         local attr = {
@@ -103,9 +103,21 @@ function npc.main(npcid, p2, p3, msgData)
             local desc = GUI:Text_Create(wz_4, "desc",100,2, 25, "#FFFFFF", config.gl.."%")
             GUI:Text_setFontName(desc, "fonts/502.ttf")
             GUI:Text_enableOutline(desc, "#000000", 2)
-            local desc = GUI:Text_Create(node, "need_xxz",130 + 290,267, 25, "#FFFFFF", "下一级需要的修为："..config.need_xxz)
-            GUI:Text_setFontName(desc, "fonts/502.ttf")
-            GUI:Text_enableOutline(desc, "#000000", 2)
+            local needXxz = tonumber(config.need_xxz or 0) or 0
+            local curXxz = tonumber(npc.data.exp or 0) or 0
+            local curColor = curXxz >= needXxz and "#00FF00" or "#FF0000"
+            local needX = 130 + 290
+            local needLabel = GUI:Text_Create(node, "need_xxz_label", needX, 267, 25, "#FFFFFF", "所需修为：")
+            GUI:Text_setFontName(needLabel, "fonts/502.ttf")
+            GUI:Text_enableOutline(needLabel, "#000000", 2)
+            local labelSize = GUI:getContentSize(needLabel)
+            local curText = GUI:Text_Create(node, "need_xxz_cur", needX + (labelSize and labelSize.width or 0), 267, 25, curColor, tostring(curXxz))
+            GUI:Text_setFontName(curText, "fonts/502.ttf")
+            GUI:Text_enableOutline(curText, "#000000", 2)
+            local curSize = GUI:getContentSize(curText)
+            local needText = GUI:Text_Create(node, "need_xxz_need", needX + (labelSize and labelSize.width or 0) + (curSize and curSize.width or 0), 267, 25, "#FFFFFF", "/" .. tostring(needXxz))
+            GUI:Text_setFontName(needText, "fonts/502.ttf")
+            GUI:Text_enableOutline(needText, "#000000", 2)
             if level == 9 then
                 local jzColor = tonumber(npc.data.jz_dan_color or 249) == 250 and "#00FF00" or "#FF0000"
                 local jzText = tostring(npc.data.jz_dan_text or "未服用")

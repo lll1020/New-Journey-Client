@@ -39,7 +39,7 @@ function npc.main(npcid, p2, p3, msgData)
             local item_node = GUI:Node_Create(node, "item_node"..i, 0, 220 - (i-1)*61)
 
             GUI:setAnchorPoint(
-                GUI:RichText_Create(item_node, "num" .. i, 200 + 122, 10,
+                GUI:RichText_Create(item_node, "num" .. i, 200 + 122 + 20, 10,
                                 SetCompletionProgress((npc.data.T_data.wins or 0), npc._config.shop[i].win_num)
                 , 500, 30, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
             , 0.5, 0)

@@ -80,16 +80,16 @@ end
         _bind_common_tip(rateTipIcon, rateTipText)
         if npc.data.dj_num < npc._config.max_level then
             local config = npc._config.config[npc.data.dj_num + 1]
-            GUI:Text_setFontName(GUI:Text_Create(node, "desc1",500,351, 25, "#FB0000", _get_percent_text(npc.data.dj_num))
-            , "fonts/font4.ttf")
+            GUI:Text_setFontName(GUI:Text_Create(node, "desc1",500,351, 25, "#00FF00", _get_percent_text(npc.data.dj_num))
+            , "fonts/502.ttf")
             local desc2 = GUI:Text_Create(node, "desc2",490,305, 25, "#9DB9C8", "人物切割 + "..(npc._config.config[npc.data.dj_num + 1].ratio - npc._config.config[npc.data.dj_num].ratio))
             GUI:Text_setFontName(desc2, "fonts/501.ttf")
             GUI:Text_enableOutline(desc2, "#000000", 2)
             local cost_show = checkItemNumByTable_img_kuang(config.cost, nil,GUI:Node_Create(node, "cost_show", 0, 0))
             GUI:setPosition(cost_show, 750 - 250, 120)
             if npc.data.dj_num < npc._config.max_level then
-                GUI:Text_setFontName(GUI:Text_Create(node, "tip_max",390,240, 30, "#FF0000", "好感度达到100%时：")
-                , "fonts/font4.ttf")
+                GUI:Text_setFontName(GUI:Text_Create(node, "tip_max",390,240, 30, "#00FF00", "好感度达到100%时：")
+                , "fonts/502.ttf")
                 local kuang = GUI:Image_Create(node, "kuang10", 850 - 240 + 30, 220, "res/wy/public/70_70_k.png")
                 UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.final_give or npc._config.half_give)))
             end
@@ -101,12 +101,12 @@ end
                 NPC_UI_HELPER.redpoint_create(Button)
             end
         else
-            GUI:Text_setFontName(GUI:Text_Create(node, "desc1",490,353, 25, "#ffffff", _get_percent_text(npc.data.dj_num))
-            , "fonts/font4.ttf")
+            GUI:Text_setFontName(GUI:Text_Create(node, "desc1",490,353, 25, "#00FF00", _get_percent_text(npc.data.dj_num))
+            , "fonts/502.ttf")
             GUI:Text_setFontName(GUI:Text_Create(node, "desc2",490,305, 25, "#ffffff", "人物切割："..npc._config.config[npc.data.dj_num].ratio)
             , "fonts/font4.ttf")
-            GUI:Text_setFontName(GUI:Text_Create(node, "tip_max",400,250, 30, "#FF0000", "好感度已达最高等级")
-            , "fonts/font4.ttf")
+            GUI:Text_setFontName(GUI:Text_Create(node, "tip_max",400,250, 30, "#00FF00", "好感度已达最高等级")
+            , "fonts/502.ttf")
         end
     end
     if p2 == 0 then--界面

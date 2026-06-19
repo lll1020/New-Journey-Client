@@ -514,9 +514,22 @@ local function _dl_has_all_destiny()
     return _dl_to_num(state.all, 0) >= need
 end
 
+local function _dl_is_all_unlocked()
+    if cogin and cogin.sjtb and _dl_to_num(cogin.sjtb.dl_all_unlock, 0) >= 1 then
+        return true
+    end
+    if _dl_get_zslv() >= 70 and _dl_get_level() >= 150 then
+        return true
+    end
+    return _dl_to_num(Player:getServerVar("U_全大陆解锁"), 0) >= 1
+end
+
 local function _dl_check(dl)
     dl = _dl_to_num(dl, 0)
     if dl == 1 then
+        return true
+    end
+    if _dl_is_all_unlocked() then
         return true
     end
 

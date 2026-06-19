@@ -99,6 +99,12 @@ SL:RegisterLuaNetMsg(103, function(msgID, p1, p2, p3, msgData)
         if msgData.U_dlxz_bc then
             cogin.sjtb.U_dlxz_bc = msgData.U_dlxz_bc
         end
+        if msgData.dl_all_unlock then
+            cogin.sjtb.dl_all_unlock = msgData.dl_all_unlock
+            if Npclib["anniu"] and Npclib["anniu"].refreshWorldMap then
+                Npclib["anniu"].refreshWorldMap()
+            end
+        end
         if msgData.zhuboma and msgData.zhuboma == 1 then
             cogin.sjtb.zhuboma = true
             Npclib["anniu"][1](0,0,"")     -- 按钮初始化

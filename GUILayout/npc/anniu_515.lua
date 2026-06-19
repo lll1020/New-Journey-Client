@@ -193,6 +193,10 @@ local function setTextStyle(widget, color, size, fontName)
     GUI:Text_setFontName(widget, fontName or "fonts/font4.ttf")
 end
 
+local function setFairyFateTextStyle(widget, color, size)
+    setTextStyle(widget, color, size, "fonts/502.ttf")
+end
+
 local function getDoneMap()
     return (npc.data and npc.data.T_data and npc.data.T_data.done) or {}
 end
@@ -722,7 +726,7 @@ local function buildUnlockRewardText(detail, info)
 end
 
 -- 右侧属性汇总只统计已激活成就，并按本地配置归一化后的属性聚合。
-local function buildAttrSummaryText()
+local function buildAttrSummaryLines()
     local summaryMap = {}
     local order = {}
 
@@ -805,9 +809,6 @@ local function buildAttrSummaryText()
         end
     end
 
-    if #lines == 0 then
-        return "<font color='#7f8ca3'>暂未激活任何成就属性</font>"
-    end
     table.sort(lines, function(a, b)
         if a.sortLen ~= b.sortLen then
             return a.sortLen < b.sortLen
@@ -817,6 +818,14 @@ local function buildAttrSummaryText()
         end
         return tostring(a.valueText) < tostring(b.valueText)
     end)
+    return lines
+end
+
+local function buildAttrSummaryText()
+    local lines = buildAttrSummaryLines()
+    if #lines == 0 then
+        return "<font color='#7f8ca3'>暂未激活任何成就属性</font>"
+    end
 
     local richLines = {}
     for _, info in ipairs(lines) do
@@ -888,12 +897,30 @@ end
 local function renderAttrPanel(parent)
     local scroll = GUI:ScrollView_Create(parent, "attr_scroll", 526, 18, 168, 336, 1)
     GUI:ScrollView_setBounceEnabled(scroll, true)
-    local rich = GUI:RichText_Create(scroll, "attr_rich", 0, 0, buildAttrSummaryText(), 170, 15, "#dfefff", 0, nil, nil, {outlineSize = 1, outlineColor = "#100808"})
-    GUI:setAnchorPoint(rich, 0, 1)
-    local size = GUI:getContentSize(rich)
-    local innerHeight = math.max(336, size.height + 20)
+
+    local lines = buildAttrSummaryLines()
+    local lineHeight = 20
+    local innerHeight = math.max(336, #lines * lineHeight + 20)
     GUI:ScrollView_setInnerContainerSize(scroll, 160, innerHeight)
-    GUI:setPosition(rich, 0, innerHeight)
+
+    if #lines == 0 then
+        local emptyText = GUI:Text_Create(scroll, "attr_empty", 0, innerHeight - 10, 15, "#8fa0b6", "暂未激活任何成就属性")
+        GUI:setAnchorPoint(emptyText, 0, 1)
+        setFairyFateTextStyle(emptyText, "#8fa0b6", 15)
+        return
+    end
+
+    for idx, info in ipairs(lines) do
+        local y = innerHeight - 10 - (idx - 1) * lineHeight
+        local labelText = GUI:Text_Create(scroll, "attr_label_" .. idx, 0, y, 15, "#f2dfaa", tostring(info.labelText or ""))
+        GUI:setAnchorPoint(labelText, 0, 1)
+        setFairyFateTextStyle(labelText, "#f2dfaa", 15)
+
+        local labelSize = GUI:getContentSize(labelText)
+        local valueText = GUI:Text_Create(scroll, "attr_value_" .. idx, (labelSize and labelSize.width or 0) + 2, y, 15, info.color or "#8dffea", tostring(info.valueText or ""))
+        GUI:setAnchorPoint(valueText, 0, 1)
+        setFairyFateTextStyle(valueText, info.color or "#8dffea", 15)
+    end
 end
 
 -- 总览页主体底板。
@@ -1008,9 +1035,9 @@ local function renderOverview(panel)
     for _, groupName in ipairs(GROUP_PROGRESS_ORDER) do
         local done, total, percent = getGroupProgress(groupName)
         local pos = GROUP_PROGRESS_POS[groupName]
-        local value = GUI:Text_Create(panel, "group_value_" .. groupName, pos.valueX, pos.valueY, 16, "#cad5e5", string.format("%s/%s", tostring(done), tostring(total)))
+        local value = GUI:Text_Create(panel, "group_value_" .. groupName, pos.valueX, pos.valueY, 16, "#f2dfaa", string.format("%s/%s", tostring(done), tostring(total)))
         GUI:setAnchorPoint(value, 1, 0.5)
-        setTextStyle(value, "#cad5e5", 16)
+        setFairyFateTextStyle(value, "#f2dfaa", 16)
 
         local barBg = GUI:Image_Create(panel, "bar_bg_" .. groupName, pos.barX, pos.barY, "res/custom/fairyFate/1/progress_bg.png")
         GUI:setAnchorPoint(barBg, 0.5, 0.5)

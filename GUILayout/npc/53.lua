@@ -255,8 +255,11 @@ local function _strip_stone_name_from_attr_text(attrText)
     if attrText == "" then
         return ""
     end
+    attrText = attrText:gsub("<br%s*/?>", "\n")
+    attrText = attrText:gsub("\r\n", "\n")
+    attrText = attrText:gsub("\r", "\n")
     local out = {}
-    for line in string.gmatch(attrText .. "<br>", "(.-)<br>") do
+    for line in string.gmatch(attrText .. "\n", "(.-)\n") do
         local plain = string.gsub(line, "<.->", "")
         plain = string.gsub(plain, "%s+", "")
         if plain ~= "" and not string.find(plain, "神石", 1, true) then
@@ -264,6 +267,130 @@ local function _strip_stone_name_from_attr_text(attrText)
         end
     end
     return table.concat(out, "<br>")
+end
+
+local function _each_attr_line(attrText, callback)
+    local text = tostring(attrText or "")
+    if text == "" or type(callback) ~= "function" then
+        return
+    end
+    text = text:gsub("<br%s*/?>", "\n")
+    text = text:gsub("\r\n", "\n")
+    text = text:gsub("\r", "\n")
+    for line in string.gmatch(text .. "\n", "(.-)\n") do
+        if tostring(line or "") ~= "" then
+            callback(line)
+        end
+    end
+end
+
+local function _parse_attr_line(line)
+    local raw = tostring(line or "")
+    if raw == "" then
+        return nil
+    end
+    local color = raw:match("<font[^>]-color=['\"]?([^'\">%s]+)")
+    local plain = raw:gsub("<.->", ""):gsub("%s+", "")
+    if plain == "" or plain:find("神石", 1, true) then
+        return nil
+    end
+    local name, low, high = plain:match("^(.-)%+([%-]?%d+)%s*%-%s*([%-]?%d+)$")
+    if name then
+        return {name = name, low = tonumber(low) or 0, high = tonumber(high) or 0, color = color}
+    end
+    name, low = plain:match("^(.-)%+([%-]?%d+)$")
+    if name then
+        return {name = name, low = tonumber(low) or 0, high = nil, color = color}
+    end
+    return nil
+end
+
+local function _add_merged_attr_line(order, map, line)
+    local attr = _parse_attr_line(line)
+    if not attr or attr.name == "" then
+        return
+    end
+    local item = map[attr.name]
+    if not item then
+        item = {name = attr.name, low = 0, high = nil, color = attr.color}
+        map[attr.name] = item
+        order[#order + 1] = attr.name
+    end
+    item.low = item.low + (attr.low or 0)
+    if attr.high ~= nil then
+        item.high = (item.high or 0) + attr.high
+    end
+    if not item.color and attr.color then
+        item.color = attr.color
+    end
+end
+
+local ATTR_SORT_ID_BY_NAME = {
+    ["生命值"] = 1,
+    ["魔法值"] = 2,
+    ["攻击"] = 3,
+    ["攻击上限"] = 4,
+    ["魔法"] = 5,
+    ["魔法上限"] = 6,
+    ["道术"] = 7,
+    ["道术上限"] = 8,
+    ["防御"] = 9,
+    ["防御上限"] = 10,
+    ["魔防"] = 11,
+    ["魔法防御"] = 11,
+    ["魔防上限"] = 12,
+    ["准确"] = 13,
+    ["敏捷"] = 14,
+    ["打怪切割"] = 244,
+}
+
+local function _get_attr_sort_id(name)
+    name = tostring(name or "")
+    if ATTR_SORT_ID_BY_NAME[name] then
+        return ATTR_SORT_ID_BY_NAME[name]
+    end
+    for attrId = 1, 320 do
+        local cfg = SL:GetMetaValue("ATTR_CONFIG", attrId) or {}
+        if tostring(cfg.name or "") == name then
+            ATTR_SORT_ID_BY_NAME[name] = attrId
+            return attrId
+        end
+    end
+    return 999999
+end
+
+local function _escape_rich_text(text)
+    text = tostring(text or "")
+    text = text:gsub("&", "&amp;")
+    text = text:gsub("<", "&lt;")
+    text = text:gsub(">", "&gt;")
+    return text
+end
+
+local function _format_merged_attr_lines(order, map)
+    local lines = {}
+    local sorted = {}
+    local indexMap = {}
+    for index, name in ipairs(order or {}) do
+        indexMap[name] = index
+        sorted[#sorted + 1] = name
+    end
+    table.sort(sorted, function(a, b)
+        local sortA = _get_attr_sort_id(a)
+        local sortB = _get_attr_sort_id(b)
+        if sortA == sortB then
+            return (indexMap[a] or 0) < (indexMap[b] or 0)
+        end
+        return sortA < sortB
+    end)
+    for _, name in ipairs(sorted) do
+        local item = map[name]
+        if item then
+            local valueText = item.high ~= nil and string.format("+%d-%d", item.low or 0, item.high or 0) or string.format("+%d", item.low or 0)
+            lines[#lines + 1] = string.format("<font color='%s'>%s%s</font>", item.color or "#F5E8C9", tostring(item.name or ""), valueText)
+        end
+    end
+    return lines
 end
 
 local function _get_equipped_slot_map()
@@ -322,6 +449,15 @@ local function _create_stroke_text(parent, name, x, y, size, color, text, anchor
     return widget
 end
 
+local function _create_center_rich_text(parent, name, x, y, html, width, size)
+    local rich = GUI:RichText_Create(parent, name, x, y, html or "", width or 360, size or 20, "#FFFFFF", 1, nil, nil, {
+        outlineSize = 2,
+        outlineColor = SL:ConvertColorFromHexString(OUTLINE_COLOR),
+    })
+    GUI:setAnchorPoint(rich, 0.5, 0.5)
+    return rich
+end
+
 local function _create_quality_stone_icon(parent, prefix, x, y, slotIndex, quality, bright, scale)
     quality = _toint(quality, 0)
     if quality > 0 and QUALITY_FRAME_SKIN[quality] then
@@ -358,7 +494,7 @@ local function _show_item_tips_by_name(itemName, anchorNode)
         return
     end
     local pos = anchorNode and GUI:getWorldPosition(anchorNode) or {x = 0, y = 0}
-    SL:OpenItemTips({itemData = itemData, pos = {x = pos.x, y = pos.y}})
+    SL:OpenItemTips({itemData = itemData, pos = {x = pos.x  + 100, y = pos.y}})
 end
 
 local function _create_desc_tip(tipNode, desc)
@@ -903,6 +1039,19 @@ local function _send_claim_box_reward(npcid, token)
     SL:SendLuaNetMsg(100, npcid, 4, 0, SL:JsonEncode({token = tostring(token or "")}, false))
 end
 
+local function _request_panel_refresh(npcid)
+    SL:SendLuaNetMsg(100, npcid or npc._npcid or 53, 7, 0, "")
+end
+
+local function _schedule_panel_refresh(npcid)
+    if not npc.node or (tolua and tolua.isnull and tolua.isnull(npc.node)) then
+        return
+    end
+    SL:scheduleOnce(npc.node, function()
+        _request_panel_refresh(npcid)
+    end, 0.15)
+end
+
 local function _get_user_default()
     if cc and cc.UserDefault and cc.UserDefault.getInstance then
         return cc.UserDefault:getInstance()
@@ -936,10 +1085,12 @@ end
 
 local function _send_take_on_godstone(npcid, makeIndex)
     SL:SendLuaNetMsg(100, npcid, 5, 0, SL:JsonEncode({makeIndex = tostring(makeIndex or "")}, false))
+    _schedule_panel_refresh(npcid)
 end
 
 local function _send_take_off_godstone(npcid, where)
     SL:SendLuaNetMsg(100, npcid, 6, 0, SL:JsonEncode({where = _toint(where, 0)}, false))
+    _schedule_panel_refresh(npcid)
 end
 
 local function _render_page_bg(node)
@@ -961,8 +1112,8 @@ local function _ensure_window(npcid)
             skin = "res/custom/three_city/sshc/new/底板.png",
         },
         closeButton = {
-            x = 808,
-            y = 488 - 80,
+            x = 808 + 15,
+            y = 488 - 80 + 15,
         },
         node = {
             x = 0,
@@ -995,7 +1146,8 @@ local function _render_left_tabs(node, npcid)
 end
 
 local function _render_embed_attr_panel(node)
-    local attrText = {}
+    local attrOrder = {}
+    local attrMap = {}
     local equippedMap = _get_equipped_slot_map()
     for slotIndex = 1, 8 do
         local entry = equippedMap[slotIndex]
@@ -1003,18 +1155,20 @@ local function _render_embed_attr_panel(node)
             local equipData = SL:GetMetaValue("EQUIP_DATA", _toint(entry.where, 0))
             if equipData then
                 local attr = _strip_stone_name_from_attr_text(Player:showEquipAttrMergedRange(equipData) or "")
-                if attr ~= "" then
-                    attrText[#attrText + 1] = attr
-                end
+                _each_attr_line(attr, function(line)
+                    _add_merged_attr_line(attrOrder, attrMap, line)
+                end)
             end
         end
     end
+    local attrText = _format_merged_attr_lines(attrOrder, attrMap)
     if #attrText <= 0 then
         attrText[1] = "<font color='#C8C8C8'>当前尚未装配神石</font>"
     end
-    local scroll = GUI:ScrollView_Create(node, "embed_attr_scroll", 660, 155, 170, 244, 1)
+    local scroll = GUI:ScrollView_Create(node, "embed_attr_scroll", 660, 155 - 100, 170, 244 - 10 + 100, 1)
+    GUI:ScrollView_setBounceEnabled(scroll, true)
     GUI:ScrollView_setInnerContainerSize(scroll, 170, math.max(244, 28 + #attrText * 26))
-    GUI:RichText_Create(scroll, "embed_attr", 8, math.max(18, #attrText * 26) - 30, table.concat(attrText, "<br>"), 154, 16, "#F5E8C9", 1, nil, nil, {
+    GUI:RichText_Create(scroll, "embed_attr", 8, math.max(18, #attrText * 26) - 10 - 30, table.concat(attrText, "\n"), 154, 16, "#F5E8C9", 1, nil, nil, {
         outlineSize = 2,
         outlineColor = SL:ConvertColorFromHexString(OUTLINE_COLOR),
     })
@@ -1065,8 +1219,9 @@ local function _render_embed(node, npcid)
         local hasEquip = entry and entry.item_name and entry.item_name ~= ""
         local baseNode = GUI:Layout_Create(node, "embed_slot_" .. slotIndex, pos.x - 54, pos.y - 54, 108, 120, false)
         local quality = hasEquip and _get_slot_quality(entry.item_name) or 0
+        local stoneSlotIndex = hasEquip and math.max(1, _get_slot_index_by_name(entry.item_name)) or slotIndex
         if hasEquip then
-            _create_quality_stone_icon(baseNode, "slot_" .. slotIndex, 54, 62, slotIndex, quality, true)
+            _create_quality_stone_icon(baseNode, "slot_" .. slotIndex, 54, 62, stoneSlotIndex, quality, true)
         else
             local icon = GUI:Image_Create(baseNode, "slot_icon_" .. slotIndex, 54, 62, EMPTY_STONE_SKIN)
             GUI:setAnchorPoint(icon, 0.5, 0.5)
@@ -1082,7 +1237,7 @@ local function _render_embed(node, npcid)
             end)
         end
         -- local labelColor = not isOpen and "#8E8E8E" or (hasEquip and (QUALITY_COLOR[_get_slot_quality(entry.item_name)] or "#FFFFFF") or "#F3F3F3")
-        -- _create_stroke_text(baseNode, "slot_name_" .. slotIndex, 54, 10, 17, labelColor, _get_embed_slot_label(slotIndex), 0.5, 0.5)
+        -- _create_stroke_text(baseNode, "slot_name_" .. slotIndex, 54, 10, 17, labelColor, hasEquip and _get_short_stone_name(entry.item_name, stoneSlotIndex) or _get_embed_slot_label(slotIndex), 0.5, 0.5)
         if hasEquip then
             -- _create_quality_label(baseNode, "slot_quality_" .. slotIndex, 54, 104, quality)
             local tipBtn = GUI:Layout_Create(baseNode, "slot_tip_" .. slotIndex, 0, 0, 108, 120, false)
@@ -1245,20 +1400,12 @@ local function _render_box_preview(node)
         GUI:ListView_setItemsMargin(list, 4)
     end
     for idx, itemName in ipairs(previewPool) do
-        local itemData = _get_item_data_by_name(itemName)
         local slot = GUI:Layout_Create(-1, "box_preview_slot_" .. idx, 0, 0, 76, 112, false)
         GUI:ListView_pushBackCustomItem(list, slot)
         local slotIndex = math.max(1, _get_slot_index_by_name(itemName))
         local quality = _get_slot_quality(itemName)
         _create_quality_stone_icon(slot, "box_preview_" .. idx, 36, 62, slotIndex, quality, true, quality >= 3 and 0.56 or 0.5)
         -- _create_stroke_text(slot, "box_preview_name_" .. idx, 38, 10, 15, QUALITY_COLOR[quality] or "#F3F3F3", _get_short_stone_name(itemName, slotIndex), 0.5, 0.5)
-        local touch = GUI:Layout_Create(slot, "box_preview_touch_" .. idx, 0, 0, 76, 112, false)
-        GUI:setTouchEnabled(touch, true)
-        GUI:addOnTouchEvent(touch, function()
-            if itemData then
-                _show_item_tips_by_name(itemName, touch)
-            end
-        end)
     end
 end
 
@@ -1370,17 +1517,9 @@ local function _show_box_result_popup(resultData)
         end
         local slot = GUI:Layout_Create(strip, "box_roll_slot_" .. idx, (idx - 1) * cellWidth, 0, 100, 120, false)
         GUI:setAnchorPoint(slot, 0, 0)
-        local itemData = _get_item_data_by_name(itemName)
         local slotIndex = math.max(1, _get_slot_index_by_name(itemName))
         local quality = math.max(1, _get_slot_quality(itemName))
         _create_quality_stone_icon(slot, "box_roll_" .. idx, 50, 62, slotIndex, quality, true, quality >= 3 and 0.62 or 0.56)
-        if itemData then
-            local touch = GUI:Layout_Create(slot, "box_roll_touch_" .. idx, 0, 0, 100, 120, false)
-            GUI:setTouchEnabled(touch, true)
-            GUI:addOnTouchEvent(touch, function()
-                _show_item_tips_by_name(itemName, touch)
-            end)
-        end
         _create_stroke_text(slot, "box_roll_name_" .. idx, 50, 12, 15, QUALITY_COLOR[quality] or "#F3F3F3", _get_short_stone_name(itemName, slotIndex), 0.5, 0.5)
     end
 
@@ -1478,16 +1617,11 @@ local function _render_atlas(node, npcid)
             -- GUI:Image_Create(baseNode, "atlas_lock_" .. slotIndex, 10, 15, "res/custom/three_city/sshc/new/神石icon/锁.png")
         end
         -- _create_stroke_text(baseNode, "atlas_name_" .. slotIndex, 54, 10, 17, owned and (QUALITY_COLOR[quality] or "#F3F3F3") or "#A0A0A0", _get_short_stone_name(itemName, slotIndex), 0.5, 0.5)
-        if owned then
-            -- _create_quality_label(baseNode, "atlas_quality_" .. slotIndex, 54, 104, quality)
-            local touch = GUI:Layout_Create(baseNode, "atlas_touch_" .. slotIndex, 0, 0, 108, 120, false)
-            GUI:setTouchEnabled(touch, true)
-            GUI:addOnTouchEvent(touch, function()
-                _show_item_tips_by_name(itemName, touch)
-            end)
-        else
-
-        end
+        local touch = GUI:Layout_Create(baseNode, "atlas_touch_" .. slotIndex, 0, 0, 108, 120, false)
+        GUI:setTouchEnabled(touch, true)
+        GUI:addOnTouchEvent(touch, function()
+            _show_item_tips_by_name(itemName, touch)
+        end)
 
     end
 
@@ -1497,8 +1631,14 @@ local function _render_atlas(node, npcid)
     local rewardLevel = _toint(progress.reward, 0)
     local line = GUI:Image_Create(node, "atlas_line", 428 + 83, 136, "res/custom/three_city/sshc/new/图鉴/分割线-.png")
     GUI:setAnchorPoint(line, 0.5, 0.5)
-    _create_stroke_text(node, "atlas_progress", 695, 106, 18, "#BFE6FF", string.format("已收集：%d/%d", hit, total), 0.5, 0.5)
-    _create_stroke_text(node, "atlas_reward", 428, 54, 22, "#55F7FF", string.format("%s级全收集后：150级后等级+%d", ATLAS_TAB_NAME[atlasQuality], rewardLevel), 0.5, 0.5, "fonts/500.ttf")
+    _create_center_rich_text(node, "atlas_progress", 695, 106, string.format(
+        "<font color='#F4E6C8' size='21' face='fonts/502.ttf'>已收集：</font><font color='#62F7FF' size='21' face='fonts/502.ttf'>%d/%d</font>",
+        hit, total
+    ), 220, 21)
+    _create_center_rich_text(node, "atlas_reward", 428, 54, string.format(
+        "<font color='#65F6E8' size='25' face='fonts/502.ttf'>%s级全收集后：</font><font color='#FFE08A' size='25' face='fonts/502.ttf'>150级后等级+%d</font>",
+        _escape_rich_text(ATLAS_TAB_NAME[atlasQuality] or ""), rewardLevel
+    ), 560, 25)
 end
 
 local function _render_current_page(node, npcid)
@@ -1539,6 +1679,7 @@ local function _refresh_on_equip_change()
 end
 
 SL:RegisterLUAEvent(LUA_EVENT_PLAYER_EQUIP_CHANGE, "npc_53_equip_change_refresh", _refresh_on_equip_change)
+SL:RegisterLUAEvent(LUA_EVENT_TAKE_ON_EQUIP, "npc_53_take_on_refresh", _refresh_on_equip_change)
 
 --[[
 npc.main(npcid, p2, p3, msgData)

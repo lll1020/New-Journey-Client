@@ -208,11 +208,30 @@ function npc.main(npcid, p2, p3, msgData)
                 GUI:setPosition(costNode, (costIdx == 1) and 85 or 85 + 220, 122 + 20)
             end
         end
-        local previewHost = GUI:Node_Create(node, "preview_host", 433 + 30, 370 - 50)
-        local previewRich = GUI:RichText_Create(previewHost, "preview_text", 0, 0,
-            buildPreviewText(item, nextItem, equipLevel).."\n"..other_wz[cfgIdx][equipLevel], 300, 18, "#f7f7de", 3, nil, nil,
-            {outlineSize = 2, outlineColor = SL:ConvertColorFromHexString("#100808")})
-        GUI:setAnchorPoint(previewRich, 0, 1)
+        local previewCenterX = 610
+        local previewTopY = item and 302 or 280
+        local function createPreviewLine(name, y, size, color, text)
+            local line = GUI:Text_Create(node, name, previewCenterX, y, size, color, text)
+            GUI:setAnchorPoint(line, 0.5, 0.5)
+            GUI:Text_setFontName(line, "fonts/font4.ttf")
+            GUI:Text_enableOutline(line, "#100808", 2)
+            return line
+        end
+        if item then
+            createPreviewLine("preview_cur_title", previewTopY, 18, "#EFAD21", string.format("当前属性  Lv.%d", math.max(1, equipLevel)))
+            createPreviewLine("preview_cur_attr", previewTopY - 26, 17, "#F7F7DE", string.format("人物攻击 + %d%%", equipLevel))
+            if nextItem then
+                createPreviewLine("preview_next_title", previewTopY - 72, 18, "#56D8FF", string.format("升级预览  Lv.%d", equipLevel + 1))
+                createPreviewLine("preview_next_attr", previewTopY - 98, 17, "#F7F7DE", string.format("人物攻击 + %d%%", equipLevel + 1))
+                createPreviewLine("preview_next_desc", previewTopY - 124, 17, "#F7F7DE", other_wz[cfgIdx][equipLevel] or "")
+            else
+                createPreviewLine("preview_max", previewTopY - 72, 18, "#EFAD21", "已达最高等级")
+            end
+        else
+            createPreviewLine("preview_empty_title", previewTopY, 18, "#FF6666", "请先穿戴对应特戒")
+            createPreviewLine("preview_empty_desc1", previewTopY - 30, 16, "#D7D7D7", "穿戴后可在这里查看当前属性")
+            createPreviewLine("preview_empty_desc2", previewTopY - 55, 16, "#D7D7D7", "与升级后的属性预览")
+        end
         if uiCfg.tipSkin then
             GUI:Image_Create(node, "tip_img", 430, 36, uiCfg.tipSkin)
         end

@@ -1,6 +1,7 @@
 local npc = {}
 
 npc._config = teshudata["npc_16"] or {}
+local REWARD_ITEM_EFFECT_ID = 14193
 
 local WINDOW_OPTS = {
     background = {skin = "res/custom/one_city/sbk/bg.png", eff = true},
@@ -41,6 +42,15 @@ local function _create_text(parent, name, x, y, size, color, text, anchorX, anch
         GUI:Text_enableOutline(widget, outlineColor, outlineSize or 1)
     end
     return widget
+end
+
+local function _add_reward_item_effect(parent, name, x, y, scale)
+    if not parent or tolua.isnull(parent) then
+        return nil
+    end
+    local effect = GUI:Effect_Create(parent, name or "reward_item_eff", x or 0, y or 0, 0, REWARD_ITEM_EFFECT_ID, 0, 0, 0, 1)
+    GUI:setScale(effect, scale or 1)
+    return effect
 end
 
 local function _resolve_title_item()
@@ -116,6 +126,13 @@ local function _create_reward_desc(parent, name, x, y, title, rewardItems, color
     if type(rewardItems) == "table" and #rewardItems > 0 then
         local rewardNode = ItemNumByTable_img_new(rewardItems, nil, GUI:Node_Create(group, "reward_items", 0, -48))
         GUI:setScale(rewardNode, 0.9)
+        local effectHost = GUI:getChildByName(rewardNode, "cllist") or rewardNode
+        local children = GUI:getChildren(effectHost) or {}
+        for idx, child in ipairs(children) do
+            if child and not tolua.isnull(child) then
+                _add_reward_item_effect(child, "reward_eff_" .. idx, 29, 30, 0.85)
+            end
+        end
     end
     return group
 end

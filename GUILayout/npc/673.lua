@@ -54,8 +54,9 @@ function npc.main(npcid, p2, p3, msgData)
             end
             if k > 0 then
                 GUI:Image_Create(box_node, "name",15,7, "res/custom/all_story_mission/4/673/name/"..k..".png")
+                local difficulty = tonumber((npc._config.difficulty or {})[k] or 3) or 3
                 for i = 1, 5 do
-                    GUI:Image_Create(box_node, "star_"..i,15 + 180 + (i-1)*30,7, "res/custom/all_story_mission/4/673/star_"..(i <= 3 and 1 or 2)..".png")
+                    GUI:Image_Create(box_node, "star_"..i,15 + 180 + (i-1)*30,7, "res/custom/all_story_mission/4/673/star_"..(i <= difficulty and 1 or 2)..".png")
                 end
                 local config = teshudata["npc_"..v]
 

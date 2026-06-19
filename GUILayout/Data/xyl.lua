@@ -295,8 +295,16 @@ end
 local function _xyl_has_legendary_stone()
     local cfg = teshudata and teshudata["npc_53"]
     local list = cfg and cfg.cost and cfg.cost[3]
-    SL:dump(list, "legendary stone list")
-    return _xyl_has_any_item(list)
+    if _xyl_has_any_item(list) then
+        return true
+    end
+    for where = 103, 110 do
+        local equipName = Player:getEquipNameByPos(where)
+        if equipName and equipName:find("神石", 1, true) and equipName:find("【传说】", 1, true) then
+            return true
+        end
+    end
+    return false
 end
 -- 备注：传说斗笠（装备或背包）是否拥有（上位斗笠也视为完成）
 local function _xyl_has_legendary_hat()

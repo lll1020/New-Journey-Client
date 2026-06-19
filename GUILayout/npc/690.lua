@@ -25,6 +25,16 @@ local REQUIRED_TASKS = {
     {key = "npc_719", name = "血溅狮子楼"},
 }
 
+local function createText(parent, name, x, y, size, color, text, ax, ay)
+    local label = GUI:Text_Create(parent, name, x, y, size or 22, color or "#FFFFFF", text or "")
+    GUI:Text_setFontName(label, "fonts/502.ttf")
+    GUI:Text_enableOutline(label, "#111111", 2)
+    if ax ~= nil and ay ~= nil then
+        GUI:setAnchorPoint(label, ax, ay)
+    end
+    return label
+end
+
 -- 合并任务奖励与称号奖励，确保称号在奖励区可见。
 local function buildRewardWithTitle(cfg)
     local reward_cfg = nil
@@ -54,6 +64,13 @@ local function buildRewardWithTitle(cfg)
         for _, entry in ipairs(reward_cfg) do
             pushReward(entry)
         end
+    end
+
+    local taskCfg = type(cfg and cfg.task_cfg) == "table" and cfg.task_cfg or {}
+    if type(taskCfg.artifact_upgrade_item) == "string" and taskCfg.artifact_upgrade_item ~= "" then
+        pushReward({taskCfg.artifact_upgrade_item, 1})
+    elseif type(taskCfg.artifact_item) == "string" and taskCfg.artifact_item ~= "" then
+        pushReward({taskCfg.artifact_item, 1})
     end
 
     local function pushTitle(name)
@@ -119,7 +136,7 @@ function npc.main(npcid, p2, p3, msgData)
                 return MAIN_BTN_SKIN_DOING
             end
             if MAIN_BTN_SKIN == "res/public/1900000660.png" then
-                return (state <= 0) and "res/custom/all_story_mission/2/btn_take.png" or "res/custom/all_story_mission/2/btn_give.png"
+                return "res/custom/all_story_mission/2/btn_give.png"
             end
             return MAIN_BTN_SKIN
         end
@@ -131,6 +148,8 @@ function npc.main(npcid, p2, p3, msgData)
             if skin == "res/public/1900000660.png" then
                 GUI:Button_setTitleText(btn, ACTION_LABEL[ew] or ("操作" .. tostring(ew)))
                 GUI:Button_setTitleFontSize(btn, 16)
+                GUI:Button_setTitleFontName(btn, "fonts/502.ttf")
+                GUI:Button_setTitleColor(btn, "#FFD685")
             end
             GUI:addOnClickEvent(btn, function()
                 SL:SendLuaNetMsg(100, npcid, ew, 0, "")
@@ -141,6 +160,7 @@ function npc.main(npcid, p2, p3, msgData)
         if ew1 then
             if state >= 2 then
                 GUI:Image_Create(node, "done", btn_pos[1], btn_pos[2], "res/wy/public/7_1.png")
+                createText(node, "done_text", btn_pos[1], btn_pos[2], 24, "#B8FFB8", "已完成", 0.5, 0.5)
             else
                 local skin = resolveMainSkin()
                 local b1 = GUI:Button_Create(node, "btn_action_1", btn_pos[1], btn_pos[2], skin)
@@ -148,6 +168,8 @@ function npc.main(npcid, p2, p3, msgData)
                 if skin == "res/public/1900000660.png" then
                     GUI:Button_setTitleText(b1, ACTION_LABEL[ew1] or ("操作" .. tostring(ew1)))
                     GUI:Button_setTitleFontSize(b1, 16)
+                    GUI:Button_setTitleFontName(b1, "fonts/502.ttf")
+                    GUI:Button_setTitleColor(b1, "#FFD685")
                 end
                 GUI:addOnClickEvent(b1, function()
                     SL:SendLuaNetMsg(100, npcid, ew1, 0, "")
@@ -219,12 +241,12 @@ function npc.main(npcid, p2, p3, msgData)
             local taskState = tonumber(npc.data.T_dljq[info.key] or 0) or 0
             local jdSkin = (taskState >= 2 and "rwjd_3") or (taskState >= 1 and "rwjd_2") or "rwjd_1"
 
-            GUI:Text_setFontName(GUI:Text_Create(row, "name", 15, 10, 24, "#00FFFF", taskName), "fonts/501.ttf")
+            createText(row, "name", 15, 7, 24, "#63F7FF", taskName)
             if rewardList and #rewardList > 0 then
-                local reward = ItemNumByTable_img_new(rewardList, nil, GUI:Node_Create(row, "reward", 195, -8))
+                local reward = ItemNumByTable_img_new(rewardList, nil, GUI:Node_Create(row, "reward", 195 + 70, 5))
                 GUI:setScale(reward, 0.78)
             end
-            GUI:Image_Create(row, "state", 430, 0, "res/wy/public/" .. jdSkin .. ".png")
+            GUI:Image_Create(row, "state", 430 + 30, 0, "res/wy/public/" .. jdSkin .. ".png")
         end
 
         createActionButtons(node, state)
