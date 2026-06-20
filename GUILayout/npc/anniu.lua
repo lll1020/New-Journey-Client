@@ -1,4 +1,4 @@
-﻿local npc = {
+local npc = {
 }
 local REWARD_ITEM_EFFECT_14193 = 14193
 local REWARD_ITEM_EFFECT_13048 = 13048
@@ -3001,30 +3001,31 @@ npc[11] = function(p2, p3, Data)
         local percent = total > 0 and math.floor(done * 100 / total) or 0
         return done, total, math.max(0, math.min(100, percent))
     end
-    -- 横向进度条：取消章节奖励概念后，展示本大陆全部伏妖录任务的总完成度。
+    -- 展示本大陆全部伏妖录任务的剧情点领取进度。
     local function _ywl_render_continent_progress(node)
-        local _, _, percent = _ywl_collect_continent_progress(npc.l)
+        local done, total = _ywl_collect_continent_progress(npc.l)
+        local percent = total > 0 and math.floor(done * 100 / total) or 0
         local root = GUI:Layout_Create(node, "continent_progress", 515 - 260, 40, 420, 45, false)
-        local title = GUI:Text_Create(root, "title", 0, 22, 20, "#F4D179", "【剧情完成度】")
+        local title = GUI:Text_Create(root, "title", 0, 22, 22, "#F4D179", "剧情\n进度")
         GUI:setAnchorPoint(title, 0, 0.5)
-        GUI:Text_setFontName(title, "fonts/font4.ttf")
+        GUI:Text_setFontName(title, "fonts/502.ttf")
         GUI:Text_enableOutline(title, "#1B0B02", 3)
 
-        local barBg = GUI:Layout_Create(root, "bar_bg", 165, 10, 230, 24, false)
+        local barBg = GUI:Layout_Create(root, "bar_bg", 60, 10, 180, 24, false)
         GUI:Layout_setBackGroundColorType(barBg, 1)
         GUI:Layout_setBackGroundColor(barBg, "#2A160B")
         GUI:Layout_setBackGroundColorOpacity(barBg, 220)
 
-        local fillW = math.max(1, math.floor(228 * percent / 100))
+        local fillW = math.max(1, math.floor(178 * percent / 100))
         local barFill = GUI:Layout_Create(barBg, "bar_fill", 1, 2, fillW, 20, false)
         GUI:Layout_setBackGroundColorType(barFill, 1)
         GUI:Layout_setBackGroundColor(barFill, "#D46A18")
         GUI:Layout_setBackGroundColorOpacity(barFill, 255)
 
-        local percentText = GUI:Text_Create(barBg, "percent", 115, 12, 18, "#FFFF00", tostring(percent) .. "%")
-        GUI:setAnchorPoint(percentText, 0.5, 0.5)
-        GUI:Text_setFontName(percentText, "fonts/font4.ttf")
-        GUI:Text_enableOutline(percentText, "#000000", 2)
+        local progressText = GUI:Text_Create(barBg, "progress_text", 90, 12, 20, "#FFFF00", tostring(done) .. "/" .. tostring(total))
+        GUI:setAnchorPoint(progressText, 0.5, 0.5)
+        GUI:Text_setFontName(progressText, "fonts/502.ttf")
+        GUI:Text_enableOutline(progressText, "#000000", 2)
     end
     if p2 == 0 then
         npc.data = Data and SL:JsonDecode(Data, false) or {
@@ -3116,12 +3117,12 @@ npc[11] = function(p2, p3, Data)
                     tip = lackJqd and string.format("剧情点不足：%d/%d", curJqd, need) or "章节未解锁"
                 end
                 local tipText = GUI:Text_Create(node, "lock_tip", 588, 160, 24, "#FFFFFF", tip)
-                GUI:Text_setFontName(tipText, "fonts/font4.ttf")
+                GUI:Text_setFontName(tipText, "fonts/502.ttf")
                 GUI:Text_enableOutline(tipText, "#000000", 2)
                 GUI:setAnchorPoint(tipText, 0.5, 0.5)
                 for i, txt in ipairs(lockExtTips) do
                     local extTip = GUI:Text_Create(node, "lock_tip_ext_" .. i, 588, 128 - ((i - 1) * 30), 20, "#FFE9A3", txt)
-                    GUI:Text_setFontName(extTip, "fonts/500.ttf")
+                    GUI:Text_setFontName(extTip, "fonts/502.ttf")
                     GUI:Text_enableOutline(extTip, "#000000", 2)
                     GUI:setAnchorPoint(extTip, 0.5, 0.5)
                 end
@@ -3215,6 +3216,16 @@ npc[11] = function(p2, p3, Data)
                         end
                     end
                     return (type(task) == "table" and (task.desc or task.wz)) or "暂无任务简介"
+                end
+                local function _ywl_get_task_title_color(taskName, task, taskDesc)
+                    local text = tostring(taskName or "") .. " " .. tostring((type(task) == "table" and (task.desc or task.wz or task.tip)) or "") .. " " .. tostring(taskDesc or "")
+                    if text:find("大陆", 1, true) or text:find("等级", 1, true) or text:find("Lv", 1, true) or text:find("解锁", 1, true) or text:find("达到", 1, true) then
+                        return "#FF4D3A", "#330000"
+                    end
+                    if text:find("剧情", 1, true) or text:find("主线", 1, true) or text:find("章节", 1, true) or text:find("灾厄", 1, true) then
+                        return "#FF8A1C", "#3A1600"
+                    end
+                    return "#FFD66B", "#3A1A06"
                 end
                 local expandedSlot = nil
                 local function _set_task_slot_open(slot, slotUi, isOpen)
@@ -3346,7 +3357,9 @@ npc[11] = function(p2, p3, Data)
                     GUI:Layout_setClippingEnabled(cardSlot, false)
                     table.insert(taskSlots, cardSlot)
                     local card = GUI:Image_Create(cardSlot, "card" .. idx, 0, 0, 'res/custom/ywl/kuang.png')
-                    local img = GUI:Image_Create(card, "img", 214 / 2, 410 / 2 - 20, 'res/custom/ywl/kuang1.png')
+                    local imgSkinIndex = (((tonumber(npc.l) or 0) + (tonumber(npc.zj) or 0) + idx - 3) % 3) + 1
+                    local imgSkin = string.format('res/custom/ywl/kuang%d.png', imgSkinIndex)
+                    local img = GUI:Image_Create(card, "img", 214 / 2, 410 / 2 - 20, imgSkin)
                     GUI:Image_Create(img, "rwjd", 25, 350, rwjdSkin)
                     GUI:setAnchorPoint(img, 0.5, 0.5)
                     local function ensure_cover()
@@ -3355,6 +3368,7 @@ npc[11] = function(p2, p3, Data)
                         end
                         local taskTitle = task[1] or task.title or "任务"
                         local taskDesc = _ywl_build_task_desc(task)
+                        local taskTitleColor, taskTitleOutline = _ywl_get_task_title_color(taskTitle, task, taskDesc)
                         local rewardData = _ywl_collect_task_rewards(task, npc.l)
                         local size = GUI:getContentSize(img)
                         local imgPos = GUI:getPosition(img)
@@ -3375,12 +3389,12 @@ npc[11] = function(p2, p3, Data)
                         GUI:addOnClickEvent(cover, function()
                             _toggle_task_slot(cardSlot)
                         end)
-                        local title = GUI:Text_Create(cover, "title_wz", 10, 310, 20, "#FF00FF", taskTitle)
-                        GUI:Text_setFontName(title, "fonts/font4.ttf")
-                        GUI:Text_enableOutline(title, "#000000", 2)
+                        local title = GUI:Text_Create(cover, "title_wz", 10, 310, 20, taskTitleColor, taskTitle)
+                        GUI:Text_setFontName(title, "fonts/502.ttf")
+                        GUI:Text_enableOutline(title, taskTitleOutline, 2)
                         local jl = GUI:Text_Create(cover, "jl_wz", 10, 280, 20, "#10FF00", "完成奖励")
                         GUI:Text_enableUnderline(jl)
-                        GUI:Text_setFontName(jl, "fonts/font4.ttf")
+                        GUI:Text_setFontName(jl, "fonts/502.ttf")
                         GUI:Text_enableOutline(jl, "#000000", 2)
                         local okReward, rewardNode = pcall(function()
                             return ItemNumByTable_img_new(rewardData, nil, jl)
@@ -3391,15 +3405,17 @@ npc[11] = function(p2, p3, Data)
                         end
                         local desc = GUI:Text_Create(cover, "desc_wz", 10, 172, 20, "#FFFFFF", "任务简介")
                         GUI:Text_enableUnderline(desc)
-                        GUI:Text_setFontName(desc, "fonts/font4.ttf")
+                        GUI:Text_setFontName(desc, "fonts/502.ttf")
                         GUI:Text_enableOutline(desc, "#000000", 2)
                         local okDesc, descNode = pcall(function()
-                            return GUI:RichText_Create(desc, "desc", 0, -5, taskDesc, 160, 15, "#f7f7de", 3, nil, nil)
+                            return GUI:RichText_Create(desc, "desc", 0, -5, "<font face=\'fonts/502.ttf\'>" .. taskDesc .. "</font>", 160, 15, "#f7f7de", 3, nil, nil)
                         end)
                         if okDesc and descNode then
                             GUI:setAnchorPoint(descNode, 0, 1)
                         else
-                            GUI:setAnchorPoint(GUI:Text_Create(desc, "desc_plain", 0, -5, 16, "#f7f7de", taskDesc), 0, 1)
+                            local descPlain = GUI:Text_Create(desc, "desc_plain", 0, -5, 16, "#f7f7de", taskDesc)
+                            GUI:Text_setFontName(descPlain, "fonts/502.ttf")
+                            GUI:setAnchorPoint(descPlain, 0, 1)
                         end
                         slotUi.cover = cover
                         return cover
@@ -3410,11 +3426,12 @@ npc[11] = function(p2, p3, Data)
                         _toggle_task_slot(cardSlot)
                     end)
                     GUI:setTouchEnabled(card, false)
-                    local title = GUI:Text_Create(GUI:Image_Create(img, "name_kuang", 150, 200, "res/custom/ywl/name_kuang.png"), "title", 38, 190, 30, "#FFFFFF", _ywl_vertical_text(taskName))
+                    local titleColor, titleOutline = _ywl_get_task_title_color(taskName, task, _ywl_build_task_desc(task))
+                    local title = GUI:Text_Create(GUI:Image_Create(img, "name_kuang", 150, 200, "res/custom/ywl/name_kuang.png"), "title", 38, 190, 30, titleColor, _ywl_vertical_text(taskName))
                     GUI:setLocalZOrder(title, 100)
                     GUI:setAnchorPoint(title, 0.5, 1)
-                    GUI:Text_setFontName(title, "fonts/font4.ttf")
-                    GUI:Text_enableOutline(title, "#000000", 2)
+                    GUI:Text_setFontName(title, "fonts/502.ttf")
+                    GUI:Text_enableOutline(title, titleOutline, 2)
                     local enable = khdDone
                     if taskDoneByReward or chapterDone then
                         GUI:setAnchorPoint(GUI:Image_Create(img, "ylq", 232 / 2, 90, 'res/custom/ywl/ylq.png'), 0.5, 0.5)
@@ -3479,10 +3496,13 @@ npc[11] = function(p2, p3, Data)
                 _relayout_task_cards(false)
                 GUI:Image_Create(node, "wz1", 340, 100, 'res/custom/ywl/wz.png')
                 _ywl_render_continent_progress(node)
-                -- 章节奖励已取消，改为展示本大陆全部伏妖录任务完成进度；旧逻辑保留注释，方便回查。
-                --[[
+                -- 保留大陆剧情完成度进度条，同时恢复原章节奖励展示与领取。
                 local chapterReward = _ywl_filter_reward_entries(zjCfg.jl, npc.l)
                 if chapterReward and #chapterReward > 0 and not _ywl_is_auto_chapter_continent(npc.l) then
+                    local chapterRewardTitle = GUI:Text_Create(node, "chapter_reward_title", 530, 62, 22, "#F4D179", "章节\n奖励")
+                    GUI:setAnchorPoint(chapterRewardTitle, 0.5, 0.5)
+                    GUI:Text_setFontName(chapterRewardTitle, "fonts/502.ttf")
+                    GUI:Text_enableOutline(chapterRewardTitle, "#1B0B02", 3)
                     local rewardNode = ItemNumByTable_img(chapterReward, nil, node)
                     GUI:setPosition(rewardNode, 560, 40)
                     _add_reward_effect_for_table(rewardNode, "ywl_chapter_reward_eff", 25, 25, 0.9, REWARD_ITEM_EFFECT_14193)
@@ -3499,7 +3519,6 @@ npc[11] = function(p2, p3, Data)
                         autoGuideDesc = "点击领取章节奖励"
                     end
                 end
-                ]]
                 local chapterKey = tostring(npc.l) .. "_" .. tostring(npc.zj)
                 if npc._ywl_auto_guided_chapter ~= chapterKey then
                     npc._ywl_auto_guided_chapter = chapterKey
@@ -3521,7 +3540,7 @@ npc[11] = function(p2, p3, Data)
             if (tonumber(npc.l) or 0) < 3 then
                 local TMONEY = GUI:Text_Create(node, "TMONEY", 50 + 278, 40 + 9, 25, "#FF0000", SL:GetMetaValue("TMONEY", "剧情点"))
                 SL:release_print("当前剧情点", SL:GetMetaValue("TMONEY", "剧情点"))
-                GUI:Text_setFontName(TMONEY, "fonts/font4.ttf")
+                GUI:Text_setFontName(TMONEY, "fonts/502.ttf")
                 GUI:setAnchorPoint(TMONEY, 0.5, 0.5)
             end
         end
@@ -3551,7 +3570,7 @@ npc[11] = function(p2, p3, Data)
                             local x_btn = GUI:Button_Create(x_chap, "x_chap", 84 / 2, 40 / 2, 'res/custom/ywl/list/xz.png')
                             GUI:setAnchorPoint(x_btn, 0.5, 0.5)
                             local zj_name = GUI:Text_Create(x_chap, "wz", 84 / 2, 40 / 2, 23, "#FFFFFF", npc.xyl[npc.l][y].name)
-                            GUI:Text_setFontName(zj_name, "fonts/font4.ttf")
+                            GUI:Text_setFontName(zj_name, "fonts/502.ttf")
                             GUI:Text_enableOutline(zj_name, "#000000", 2)
                             GUI:setAnchorPoint(zj_name, 0.5, 0.5)
                             GUI:addOnClickEvent(x_btn, function()

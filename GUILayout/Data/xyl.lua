@@ -291,7 +291,7 @@ local function _xyl_is_lower_gourd_name(name)
     end
     return name:match("^酒葫芦%[lv%d+%]$") ~= nil
 end
--- 备注：是否拥有传说神石类道具
+-- 备注：是否拥有传说神石类道具，背包或神石装备槽位任意满足即可
 local function _xyl_has_legendary_stone()
     local cfg = teshudata and teshudata["npc_53"]
     local list = cfg and cfg.cost and cfg.cost[3]
@@ -305,8 +305,7 @@ local function _xyl_has_legendary_stone()
         end
     end
     return false
-end
--- 备注：传说斗笠（装备或背包）是否拥有（上位斗笠也视为完成）
+end-- 备注：传说斗笠（装备或背包）是否拥有（上位斗笠也视为完成）
 local function _xyl_has_legendary_hat()
     local item = SL:GetMetaValue("EQUIP_DATA", 13)
     if item then
@@ -506,7 +505,7 @@ local function _xyl_check_task(name)
         ["转生·四"] = function() return _xyl_has_rebirth(40) end,
         ["转生·五"] = function() return _xyl_has_rebirth(50) end,
         ["完成转生·五"] = function() return _xyl_has_rebirth(50) end,
-        ["拥有1传说神石"] = _xyl_has_legendary_stone,
+        ["拥有传说神石"] = _xyl_has_legendary_stone,
         ["传说·斗笠"] = _xyl_has_legendary_hat,
         ["神·酒葫芦"] = _xyl_has_god_gourd,
         ["高级淬体"] = _xyl_has_advanced_quench,
@@ -970,14 +969,14 @@ local npc_xyl = {
         {
             jq = {
                 {
-                    "拥有1传说神石",
+                    "拥有传说神石",
                     id = 999,
                     jl = { { "剧情点", 3 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "三大陆主城", 53, 161, 230 },
-                    desc = "获取任意一枚传说品质神石，证明当前神石养成已达到更高层级。\n<font color='#F4D179'>目标：</font>持有1枚传说神石\n<font color='#F4D179'>进度：</font>%s",
+                    desc = "获取任意一枚传说品质神石，证明当前神石养成已达到更高层级。\n<font color='#F4D179'>目标：</font>持有传说神石\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "传说·斗笠",
@@ -1354,8 +1353,8 @@ local npc_xyl = {
                     id = 999,
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
-                    khdjy = _xyl_khdjy,
                     need_receive = false,
+                    khdjy = _xyl_khdjy,
                     yd = { 0 },
                     desc = "准备好龙珠后提交，是生肖守护中偏收集型的任务节点。\n<font color='#F4D179'>目标：</font>提交龙珠\n<font color='#F4D179'>状态：</font>满足条件后自动计入剧情",
                 },
@@ -1416,8 +1415,8 @@ local npc_xyl = {
                     id = 999,
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
-                    khdjy = _xyl_khdjy,
                     need_receive = false,
+                    khdjy = _xyl_khdjy,
                     yd = { 0 },
                     desc = "需要同时准备天猴的卡牌与元宝，是资源双重提交任务。\n<font color='#F4D179'>目标：</font>\n<font color='#F0B42A'>天猴的卡牌</font>   %s\n<font color='#F0B42A'>元宝</font>   %s",
                 },

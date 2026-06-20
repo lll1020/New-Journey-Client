@@ -1,4 +1,4 @@
-﻿local MainAssistXylHelper = {}
+local MainAssistXylHelper = {}
 
 -- 备注：伏妖录当前任务变更事件名。
 MainAssistXylHelper.EVENT_CURRENT_TASK_CHANGE = "伏妖录当前任务变更"
@@ -726,7 +726,7 @@ function MainAssistXylHelper.bind(MainAssist)
             return {
                 title = baseName ~= "" and baseName or "关键任务",
                 desc = string.format("收集%s", baseName ~= "" and baseName or "关键任务"),
-                progress = string.format("左%s 右%s", leftCurrent < 1 and "口" or "■", rightCurrent < 1 and "口" or "■"),
+                progress = string.format("%s %d/1\n%s %d/1", leftName ~= "" and leftName or "真视之眼左", math.min(1, leftCurrent), rightName ~= "" and rightName or "真视之眼右", math.min(1, rightCurrent)),
                 completed = prepDone,
             }
         end
@@ -774,6 +774,8 @@ function MainAssistXylHelper.bind(MainAssist)
             prepStatus = "<font color='#00FF00'>[已完成]</font>"
         elseif _gray_world_to_num(routeState.prepState, 0) <= 0 then
             prepStatus = string.format("<font color='#f7f7de'>%s</font>\n<font color='#ff3030'>[未领取任务]</font>", tostring(prepDesc.desc or ""))
+        elseif routeCfg.boss == "npc_628" then
+            prepStatus = string.format("<font color='#ffe066'>%s</font>", tostring(prepDesc.progress or "0/0"))
         else
             prepStatus = string.format("<font color='#f7f7de'>%s</font>\n<font color='#f7f7de'>当前进度：</font><font color='#ffe066'>%s</font>", tostring(prepDesc.desc or ""), tostring(prepDesc.progress or "0/0"))
         end

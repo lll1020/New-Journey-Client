@@ -1,4 +1,4 @@
-local npc = {}
+﻿local npc = {}
 npc._config = teshudata["npc_22"]
 
 local MAIN_WINDOW_OPTS = {
@@ -186,12 +186,12 @@ local SKILL_ICON_BY_ROOT = {
 }
 
 local ACTIVE_SKILL_TEXT_CONFIG = {
-    [1] = {name = "惊雷斩", template = "CD%s秒，向前打出3段斩击，每段造成自身攻击%s伤害；Lv10后命中玩家触发金刚杀，造成目标最大生命%s真实伤害，最高不超过自身攻击%s倍。", values = {{12, 12, ""}, {80, 200, "%"}, {0, 15, "%"}, {0, 10, "倍"}}},
+    [1] = {name = "惊雷斩", template = "CD%s秒，向前打出3段斩击，每段造成自身攻击%s伤害。", values = {{12, 12, ""}, {80, 200, "%"}}},
     [2] = {name = "万物回春", template = "CD%s秒，瞬间恢复自身最大生命%s，接下来3秒受到的所有伤害降低%s。", values = {{45, 45, ""}, {15, 35, "%"}, {4, 12, "%"}}},
     [3] = {name = "寻宝天眼", template = "CD%s秒，开启5秒寻宝窗口；攻击目标红名怪时专属装备掉落概率增加%s，消耗幸运印记后每层提升秘境爆率%s、古玩爆率%s。", values = {{45, 45, ""}, {20, 200, "%"}, {1, 10, "%"}, {1, 10, "%"}}},
     [4] = {name = "烈焰旋风", template = "CD%s秒，对自身周围3*3范围释放火焰冲击，对范围内怪物造成自身攻击%s范围伤害。", values = {{10, 10, ""}, {50, 110, "%"}}},
     [5] = {name = "山河霸体", template = "CD%s秒，接下来5秒内全伤害减免提升%s，受到伤害反弹%s，格挡概率提升%s。", values = {{25, 25, ""}, {7, 18, "%"}, {1, 10, "%"}, {1, 10, "%"}}},
-    [6] = {name = "雷霆灭世斩", template = "CD%s秒，连续打出5段雷霆斩击，每段造成自身攻击%s伤害；命中附带%s控制效果，Lv10附带破防。", values = {{15, 15, ""}, {50, 90, "%"}, {0.6, 1, "秒"}}},
+    [6] = {name = "雷霆灭世斩", template = "CD%s秒，连续打出5段雷霆斩击，每段造成自身攻击%s伤害；命中附带%s控制效果。", values = {{15, 15, ""}, {50, 90, "%"}, {0.6, 1, "秒"}}},
     [7] = {name = "风影重生", template = "CD%s秒，瞬间恢复%s最大生命，移动速度提升%s，持续%s；自身受治疗效果提升%s。", values = {{35, 35, ""}, {20, 45, "%"}, {5, 30, "%"}, {4, 8, "秒"}, {0, 25, "%"}}},
     [8] = {name = "寒霜祈运", template = "CD%s秒，开启5秒祈运窗口；目标BOSS额外掉落%s，每层幸运印记提升秘境和古玩爆率%s，并冰封小怪%s。", values = {{50, 50, ""}, {1, 2, "件"}, {1, 10, "%"}, {1, 3, "秒"}}},
     [9] = {name = "焚天炼狱", template = "CD%s秒，释放全屏烈焰领域，对范围内敌人造成多段灼烧，每段造成自身攻击%s伤害。", values = {{15, 15, ""}, {60, 120, "%"}}},
@@ -574,14 +574,65 @@ local function _lg_escape_skill_template(template)
     return text
 end
 
+local function _lg_color_skill_desc(text)
+    text = tostring(text or "")
+    if text == "" or text == "暂无" then
+        return "<font color='#8F8576'>暂无</font>"
+    end
+
+    local placeholders = {}
+    local seq = 0
+    local function tokenFor(value)
+        seq = seq + 1
+        local token = "\1LGHTML" .. string.rep("X", seq) .. "\2"
+        placeholders[token] = value
+        return token
+    end
+    local function restore(value)
+        return (value:gsub("\1LGHTMLX+\2", function(token)
+            return placeholders[token] or ""
+        end))
+    end
+
+    text = text:gsub("<font.-</font>", tokenFor)
+    text = text:gsub("(【.-】)", function(v)
+        return tokenFor("<font color='#FFD45A'>" .. v .. "</font>")
+    end)
+    text = text:gsub("([%+%-]?%d+%.?%d*%%)", function(v)
+        return tokenFor("<font color='#FF5A3D'>" .. v .. "</font>")
+    end)
+    text = text:gsub("([%+%-]?%d+%.?%d*倍)", function(v)
+        return tokenFor("<font color='#FF5A3D'>" .. v .. "</font>")
+    end)
+    text = text:gsub("(CD%d+%.?%d*秒?)", function(v)
+        return tokenFor("<font color='#D7B56D'>" .. v .. "</font>")
+    end)
+    text = text:gsub("([%+%-]?%d+%.?%d*)", function(v)
+        return tokenFor("<font color='#9FE2FF'>" .. v .. "</font>")
+    end)
+    text = text:gsub("(暴击)", function(v)
+        return tokenFor("<font color='#FF7700'>" .. v .. "</font>")
+    end)
+    text = text:gsub("(真实伤害)", function(v)
+        return tokenFor("<font color='#FF7700'>" .. v .. "</font>")
+    end)
+    text = text:gsub("(无视目标防御)", function(v)
+        return tokenFor("<font color='#A7F0C1'>" .. v .. "</font>")
+    end)
+    text = text:gsub("(生命|血量|攻击|防御|麻痹|冰封|忽视防御)", function(v)
+        return tokenFor("<font color='#A7F0C1'>" .. v .. "</font>")
+    end)
+    return restore(text)
+end
 local function _lg_format_skill_desc(defaultName, cfg, values)
     local unpackFunc = table.unpack or unpack
+    local skillName = tostring(cfg and cfg.name or defaultName or "技能")
     local fmt = "【%s】" .. _lg_escape_skill_template(cfg and cfg.template or "")
-    local ok, result = pcall(string.format, fmt, tostring(cfg and cfg.name or defaultName or "技能"), unpackFunc(values or {}))
+    local ok, result = pcall(string.format, fmt, skillName, unpackFunc(values or {}))
     if ok then
-        return result
+        return _lg_color_skill_desc(result)
     end
-    return "【" .. tostring(cfg and cfg.name or defaultName or "技能") .. "】" .. tostring(cfg and cfg.template or "")
+    return _lg_color_skill_desc("【" .. skillName .. "】" .. tostring(cfg and cfg.template or ""))
 end
 
 local function _lg_build_active_skill_desc(idx, previewNext, levelOverride)
@@ -1125,12 +1176,10 @@ local function _lg_build_attr_preview_html(idx)
     lines[#lines + 1] = "<font color='#4169E1'>主动技能：</font>"
     lines[#lines + 1] = "　　" .. _lg_build_active_skill_desc(idx, true)
     lines[#lines + 1] = "<font color='#F4D179'>灵兽专属协同：</font>"
-    lines[#lines + 1] = "　　" .. tostring(cfg.synergy or "暂无")
+    lines[#lines + 1] = "　　" .. _lg_color_skill_desc(tostring(cfg.synergy or "暂无"))
     lines[#lines + 1] = "<font color='#A7D58D'>天书回响共鸣：</font>"
-    lines[#lines + 1] = "　　" .. tostring(cfg.echo_name or "未配置") .. "：" .. tostring(cfg.echo_desc or "")
-    lines[#lines + 1] = "<u><font color='#F4D179'>满级技能效果预览：</font></u>"
-    lines[#lines + 1] = "　　" .. _lg_build_passive_skill_desc(idx, false, 10)
-    lines[#lines + 1] = "　　" .. _lg_build_active_skill_desc(idx, false, 10)
+    lines[#lines + 1] = "　　" .. _lg_color_skill_desc("【" .. tostring(cfg.echo_name or "未配置") .. "】" .. tostring(cfg.echo_desc or ""))
+
     return table.concat(lines, "\n")
 end
 
@@ -1206,6 +1255,54 @@ local function _lg_tip_attr_line(value)
     return string.format("<font color='#D9D2C2' size='12'>　◆ %s</font>", tostring(value or ""))
 end
 
+local function _lg_strip_skill_html(text)
+    local plain = tostring(text or "")
+    plain = plain:gsub("<[^>]->", "")
+    return plain
+end
+
+local function _lg_color_plain_skill_line(text)
+    text = tostring(text or "")
+    if text == "" then
+        return ""
+    end
+
+    local placeholders = {}
+    local seq = 0
+    local function hold(value)
+        seq = seq + 1
+        local token = "\1LGPLAIN" .. string.rep("X", seq) .. "\2"
+        placeholders[token] = value
+        return token
+    end
+    local function color(pattern, colorHex)
+        text = text:gsub(pattern, function(v)
+            return hold("<font color='" .. colorHex .. "'>" .. v .. "</font>")
+        end)
+    end
+
+    color("(【.-】)", "#FFD45A")
+    color("([%+%-]?%d+%.?%d*%%)", "#FF5A3D")
+    color("([%+%-]?%d+%.?%d*倍)", "#FF5A3D")
+    color("(CD%d+%.?%d*秒?)", "#D7B56D")
+    color("([%+%-]?%d+%.?%d*)", "#9FE2FF")
+    color("(暴击|真实伤害)", "#FF7700")
+    color("(无视目标防御|生命|血量|攻击|防御|麻痹|冰封|忽视防御)", "#A7F0C1")
+
+    text = text:gsub("\1LGPLAINX+\2", function(token)
+        return placeholders[token] or ""
+    end)
+    return text
+end
+local function _lg_wrap_rich_tip_text(text, limit, prefix)
+    local plain = _lg_strip_skill_html(text)
+    local wrapped = _lg_wrap_detail_tip_text(plain, limit or 24, prefix or "")
+    local lines = {}
+    for line in tostring(wrapped or ""):gmatch("[^\n]+") do
+        lines[#lines + 1] = _lg_color_plain_skill_line(line)
+    end
+    return table.concat(lines, "\n")
+end
 local function _lg_split_skill_desc(value)
     value = tostring(value or "")
     local skillName, desc = value:match("^【([^】]+)】(.+)$")
@@ -1219,8 +1316,15 @@ local function _lg_split_skill_desc(value)
 end
 
 local function _lg_tip_skill_block(label, value, color)
-    local skillName, desc = _lg_split_skill_desc(value or "暂无")
+    value = tostring(value or "暂无")
     local title = tostring(label or "")
+    if value:find("<font", 1, true) then
+        -- 富文本按可见字符换行，遇到 <font> 标签整体跳过，避免拆断标签。
+        local wrapped = _lg_wrap_rich_tip_text(value, 24, "　　")
+        return string.format("%s\n<font color='%s' size='15'>%s</font>", _lg_tip_section_title(title), color or "#D9D2C2", wrapped)
+    end
+
+    local skillName, desc = _lg_split_skill_desc(value)
     if skillName and skillName ~= "" then
         title = title .. " · " .. skillName
     end
@@ -1548,7 +1652,7 @@ local function _lg_render_skill_icons(parent)
         --     end
         -- end)
         GUI:setTouchEnabled(icon, true)
-        local effect = richText(panel, name .. "_effect", SKILL_PANEL_CHILD_POS.textX, SKILL_PANEL_CHILD_POS.textY, string.format("<font color='%s'>%s</font>", color or "#9FE2FF", tostring(sourceText or "")), SKILL_PANEL_CHILD_POS.textWidth, SKILL_PANEL_CHILD_POS.fontSize, 1)
+        local effect = richText(panel, name .. "_effect", SKILL_PANEL_CHILD_POS.textX, SKILL_PANEL_CHILD_POS.textY, tostring(sourceText or ""), SKILL_PANEL_CHILD_POS.textWidth, SKILL_PANEL_CHILD_POS.fontSize, 1)
         GUI:setAnchorPoint(effect, 0, 1)
     end
 
@@ -2115,3 +2219,13 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
+
+
+
+
+
+
+
+
+
+

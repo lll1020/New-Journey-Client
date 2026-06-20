@@ -193,14 +193,14 @@ local function _refresh_ui(node, npcid)
     -- _outline_text(node, "need_text", 350, 455, 22, "#FFD27A", needText, 0.5, 0.5)
     -- _outline_text(node, "score_text", 350, 490, 18, "#E6D3B0", scoreText, 0.5, 0.5)
     if (current.tip or "尚未获得功勋称号") ~= "尚未获得功勋称号" then
-        GUI:setAnchorPoint(GUI:RichText_Create(node, "cur_tip", 208 - 72, 400,  _title_attr_text(tostring(current.name or "")), 200, 17, "##00FFFF", 3,nil,nil)
+        GUI:setAnchorPoint(GUI:RichText_Create(node, "cur_tip", 208 - 72, 400,  _title_attr_text(tostring(current.name or "")), 200, 17, "#00FFFF", 3,nil,nil)
         , 0, 1)
     else
         GUI:setAnchorPoint(GUI:RichText_Create(node, "cur_tip", 208 - 50, 400,  "<font color='#00FF00' size='18' >「墨纸未书，\n             侠名待启」</font>\n<font color='#00FFFF' size='16' >这张空白的宣纸，\n正等待你的故事。\n用文书与铜钱\n写下第一笔江湖印记，\n从此你的名字，\n将在这片大陆流传。</font>", 200, 17, "#f7f7de", 3,nil,nil)
         , 0, 1)
     end
     if (nextInfo.tip or "当前已达到最高称号") ~= "当前已达到最高称号" then
-        GUI:setAnchorPoint(GUI:RichText_Create(node, "next_tip", 500 + 60, 400,  _title_attr_text(tostring(nextInfo.name or "")), 200, 17, "##00FFFF", 3,nil,nil)
+        GUI:setAnchorPoint(GUI:RichText_Create(node, "next_tip", 500 + 60, 400,  _title_attr_text(tostring(nextInfo.name or "")), 200, 17, "#00FFFF", 3,nil,nil)
         , 0, 1)
     else
         GUI:setAnchorPoint(GUI:RichText_Create(node, "next_tip", 500 + 80, 400,  "<font color='#00FF00' size='18' >「墨纸未书，\n             侠名待启」</font>\n\n<font color='#00FFFF' size='16' >这张空白的宣纸，\n正等待你的故事。\n用文书与铜钱\n写下第一笔江湖印记，\n从此你的名字，\n将在这片大陆流传。</font>", 200, 17, "#f7f7de", 3,nil,nil)

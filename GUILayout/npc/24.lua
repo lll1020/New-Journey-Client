@@ -437,12 +437,12 @@ function npc.main(npcid, p2, p3, msgData)
                     }
                     for v,k in pairs(attr) do
                         local kuang = GUI:Image_Create(dbLayout, "kuang"..v, 0, 0, "res/custom/tianshu/qh/tip.png")
-                        GUI:Text_setFontName(GUI:Text_Create(kuang, "attr_name",25,-2, 20, "##00FFFF", k.attr_name.." +")
+                        GUI:Text_setFontName(GUI:Text_Create(kuang, "attr_name",25,-2, 20, "#00FFFF", k.attr_name.." +")
                         , "fonts/502.ttf")
-                        GUI:Text_setFontName(GUI:Text_Create(kuang, "new_attr_v",125,-2, 20, "##00FFFF", old_config and old_config.attr[k.idx][2] or 0)
+                        GUI:Text_setFontName(GUI:Text_Create(kuang, "new_attr_v",125,-2, 20, "#00FFFF", old_config and old_config.attr[k.idx][2] or 0)
                         , "fonts/502.ttf")
                         GUI:Image_Create(kuang, "jt", 170, -2, "res/custom/tianshu/qh/jt.png")
-                        GUI:Text_setFontName(GUI:Text_Create(kuang, "old_attr_v",215,-2, 20, "##109C18", new_config and ("+"..new_config.attr[k.idx][2]) or "已满级")
+                        GUI:Text_setFontName(GUI:Text_Create(kuang, "old_attr_v",215,-2, 20, "#109C18", new_config and ("+"..new_config.attr[k.idx][2]) or "已满级")
                         , "fonts/502.ttf")
                         GUI:Image_Create(kuang, "up", 290, 3, "res/custom/tianshu/qh/up.png")
                     end

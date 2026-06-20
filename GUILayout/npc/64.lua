@@ -466,7 +466,7 @@ function npc.main(npcid, p2, p3, msgData)
         end)
 
         local hatchNowBtn = _contract_button(node, "quick_hatch_btn", 625, 86, "立即点化", "#FF4D3A", function()
-            SL:ShowSystemTips("真实累计充值达到99元后，可使用灵兽幼崽立即孵化")
+            SL:SendLuaNetMsg(100, npcid, 7, 0, SL:JsonEncode({idx = idx}, false))
         end)
 
         local claimBtn = GUI:Button_Create(node, "claim_btn", 790, 86, "res/custom/four_city/lingshou/xjm/an7.png")
