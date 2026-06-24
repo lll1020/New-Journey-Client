@@ -58,8 +58,8 @@ function npc.main(npcid, p2, p3, msgData)
             end
         end
         
-        local desc = GUI:Text_Create(node, "desc",180,130, 20, "#FFFFFF", "当前击杀："..(npc.data.sg_data[key] or 0).."可搜查次数："..math.floor((npc.data.sg_data[key] or 0)/npc._config.jl_num) - #npc.data.T_dljq[key.."_s"])
-        GUI:Text_setFontName(desc, "fonts/font4.ttf")
+        local desc = GUI:Text_Create(node, "desc",180,130, 20, "#F4D179", "当前击杀："..(npc.data.sg_data[key] or 0).."可搜查次数："..math.floor((npc.data.sg_data[key] or 0)/npc._config.jl_num) - #npc.data.T_dljq[key.."_s"])
+        GUI:Text_setFontName(desc, "fonts/502.ttf")
         GUI:Text_enableOutline(desc, "#CA352C", 2)
 
         local ch_kuang = GUI:Image_Create(node, "ch_kuang", 240 + 320, 145, "res/wy/public/70_70_k.png")

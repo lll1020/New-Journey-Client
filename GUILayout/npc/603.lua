@@ -66,8 +66,8 @@ function npc.main(npcid, p2, p3, msgData)
                 desc = "点击领取任务",
             })
         elseif npc.data.jq_data[key] == 1 then --领取奖励
-            local desc = GUI:Text_Create(node, "desc",500,200, 20, "#FFFFFF", "当前击杀："..(npc.data.sg_data[key] or 0))
-            GUI:Text_setFontName(desc, "fonts/font4.ttf")
+            local desc = GUI:Text_Create(node, "desc",500,200, 20, "#F4D179", "当前击杀："..(npc.data.sg_data[key] or 0))
+            GUI:Text_setFontName(desc, "fonts/502.ttf")
             GUI:Text_enableOutline(desc, "#CA352C", 2)
         
             

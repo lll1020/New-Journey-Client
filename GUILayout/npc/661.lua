@@ -51,8 +51,8 @@ function npc.main(npcid, p2, p3, msgData)
                 SL:SendLuaNetMsg(100, npcid, 1, 0, "")
             end)
         elseif npc.data.T_dljq[key] == 1 then --领取奖励
-            local desc = GUI:Text_Create(node, "desc",500,180, 20, "#FFFFFF", "当前击杀："..(npc.data.sg_data[key] or 0))
-            GUI:Text_setFontName(desc, "fonts/font4.ttf")
+            local desc = GUI:Text_Create(node, "desc",500,180, 20, "#F4D179", "当前击杀："..(npc.data.sg_data[key] or 0))
+            GUI:Text_setFontName(desc, "fonts/502.ttf")
             GUI:Text_enableOutline(desc, "#CA352C", 2)
         
             

@@ -46,7 +46,7 @@ end
 
 local function createOutlineText(parent, name, x, y, text, color, size)
     local label = GUI:Text_Create(parent, name, x, y, size or 20, color or "#FF0000", tostring(text or ""))
-    GUI:Text_setFontName(label, "fonts/font4.ttf")
+    GUI:Text_setFontName(label, "fonts/502.ttf")
     GUI:Text_enableOutline(label, "#000000", 2)
     return label
 end
@@ -92,7 +92,7 @@ local function renderPrepSection(node, npcid, cfg, data, key)
     local prep = cfg.prep_task or {}
     local need = tonumber(prep.need or 50) or 50
     local killCount = safeKill(data, key .. "_rw")
-    local prepLine = createOutlineText(node, "prep_line_1", 455 + 170, 240, string.format("当前击杀：%d/%d", killCount, need), "#FFFFFF", 20)
+    local prepLine = createOutlineText(node, "prep_line_1", 455 + 170, 240, string.format("当前击杀：%d/%d", killCount, need), "#7BFFB0", 20)
     GUI:Text_enableOutline(prepLine, "#CA352C", 2)
 
     -- if prepState >= 2 then

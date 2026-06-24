@@ -48,7 +48,7 @@ end
 
 local function createOutlineText(parent, name, x, y, text, color, size)
     local label = GUI:Text_Create(parent, name, x, y, size or 20, color or "#FF0000", tostring(text or ""))
-    GUI:Text_setFontName(label, "fonts/font4.ttf")
+    GUI:Text_setFontName(label, "fonts/502.ttf")
     GUI:Text_enableOutline(label, "#000000", 2)
     return label
 end

@@ -50,9 +50,9 @@ function npc.main(npcid, p2, p3, msgData)
                 SL:SendLuaNetMsg(100, npcid, 1, 0, "")
             end)
         elseif npc.data.jq_data[key] == 1 then
-            local desc = GUI:Text_Create(node, "desc",360 + 73,220, 18, "#808080", 
+            local desc = GUI:Text_Create(node, "desc",360 + 73,220, 18, "#F4D179", 
                 "当前击杀：\n"..((npc.data.sg_data[key.."_a"] or 0) > 0 and "已讨伐" or "未击败").."\n"..((npc.data.sg_data[key.."_b"] or 0) > 0 and "已讨伐" or "未击败").."\n"..((npc.data.sg_data[key.."_c"] or 0) > 0 and "已讨伐" or "未击败"))
-            GUI:Text_setFontName(desc, "fonts/font4.ttf")
+            GUI:Text_setFontName(desc, "fonts/502.ttf")
             GUI:Text_enableOutline(desc, "#FFFF00", 2)
 
             local Button= GUI:Button_Create(node, "Button", btn_pos[1], btn_pos[2], "res/custom/all_story_mission/3/btn_key.png")

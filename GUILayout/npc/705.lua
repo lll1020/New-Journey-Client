@@ -117,7 +117,7 @@ local function renderAcceptStage(node, state)
         
         local progressText = string.format("当前进度：BOSS %d/%d  小怪 %d/%d",
             progress.boss, needBoss, progress.small, needSmall)
-        local rich = GUI:RichText_Create(node, "progress", 0, -130, progressText, 360, 20, "#FFFFFF", 0, nil, nil, {outlineSize = 1, outlineColor = "#000000"})
+        local rich = GUI:RichText_Create(node, "progress", 0, -130, progressText, 360, 20, "#F4D179", 0, nil, nil, {outlineSize = 1, outlineColor = "#000000"})
         GUI:setAnchorPoint(rich, 0.5, 0.5)
         if isStageOneDone() and step < 1 then
             local btn = GUI:Button_Create(node, "btn_submit_step1", 0, -250, "res/custom/public/btn_tijiao.png")
@@ -131,7 +131,7 @@ local function renderAcceptStage(node, state)
         else
             local tip = GUI:Text_Create(node, "doing_tip", 0, -200, 22, isStageOneDone() and "#4AE74A" or "#F4D179", isStageOneDone() and "委托已提交，继续下方流程" or "委托进行中")
             GUI:setAnchorPoint(tip, 0.5, 0.5)
-            GUI:Text_setFontName(tip, "fonts/font4.ttf")
+            GUI:Text_setFontName(tip, "fonts/502.ttf")
             GUI:Text_enableOutline(tip, "#000000", 1)
         end
     end

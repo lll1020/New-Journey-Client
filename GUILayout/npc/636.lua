@@ -75,6 +75,10 @@ function npc.main(npcid, p2, p3, msgData)
         ensureWindow(npcid)
         UI_updata(npc.node)
     elseif p2 == 1 then
+        local newData = SL:JsonDecode(msgData or "", false) or {}
+        if newData.T_dljq then
+            npc.data.T_dljq = newData.T_dljq
+        end
         npc.data.T_dljq[key] = p3
         UI_updata(npc.node)
     end

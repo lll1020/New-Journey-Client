@@ -811,7 +811,9 @@ function npc.main(npcid, p2, p3, msgData)
     elseif p2 == 1 then
         npc.data = SL:JsonDecode(msgData,false)
         UI_updata(npc.node)
-        if NPC_UI_HELPER.isCurrentXylTask({"天书强化", "进行天书强化1次"})
+        local isXianfaMainline = NPC_UI_HELPER.isCurrentXylTask({"初识仙法", "查看仙法", "天书仙法", "进行天书仙法抽取"})
+        if (not isXianfaMainline)
+            and NPC_UI_HELPER.isCurrentXylTask({"天书强化", "进行天书强化1次"})
             and (tonumber(npc.data and npc.data.T_data and npc.data.T_data.level or 0) or 0) >= 1 then
             NPC_UI_HELPER.closeWindow(npc._window)
         end
@@ -820,14 +822,24 @@ function npc.main(npcid, p2, p3, msgData)
         GUI_createLabel(npc.Label,npc.titles_sign)
     elseif p2 == 10 then
         local data = SL:JsonDecode(msgData,false)
+        npc._xf_skip_anim = npc._xf_skip_anim == true
+        if npc._xf_skip_anim then
+            local oldParent = GUI:GetWindow(nil, "xf_xjm")
+            if oldParent then
+                GUI:Win_Close(oldParent)
+            end
+            if npc.Label and npc.titles_sign then
+                GUI_createLabel(npc.Label, npc.titles_sign)
+            end
+            return
+        end
         local parent = GUI:GetWindow(nil, "xf_xjm")
         if parent then
             GUI:removeAllChildren(parent)
         else
             parent = GUI:Win_Create("xf_xjm", 0, 0, 0, 0, false, false, true, true, true, nil, 24)
         end
-        npc._xf_skip_anim = npc._xf_skip_anim == true
-        local startFrame = npc._xf_skip_anim and 104 or 1
+        local startFrame = 1
         local endFrame = 158
         local function close_popup()
             GUI:Win_Close(parent)

@@ -48,7 +48,7 @@ end
 
 local function createOutlineText(parent, name, x, y, text, color, size)
     local label = GUI:Text_Create(parent, name, x, y, size or 20, color or "#FF0000", tostring(text or ""))
-    GUI:Text_setFontName(label, "fonts/font4.ttf")
+    GUI:Text_setFontName(label, "fonts/502.ttf")
     GUI:Text_enableOutline(label, "#000000", 2)
     return label
 end
@@ -102,7 +102,7 @@ local function renderPrepSection(node, npcid, cfg, data, key)
     local leftReady = math.min(1, bagCount(prep.left_name or "真视之眼左"))
     local rightReady = math.min(1, bagCount(prep.right_name or "真视之眼右"))
     for idx, line in ipairs(lines) do
-        createOutlineText(node, "prep_line_" .. idx, 455 + 170 - 70, 240 - (idx - 1) * 30 + 40, line, "#FF0000", 20)
+        createOutlineText(node, "prep_line_" .. idx, 455 + 170 - 70, 240 - (idx - 1) * 30 + 40, line, "#FF6B4A", 20)
     end
 
     local prepBtn = createActionButton(node, "prep_btn", PREP_POS[1], PREP_POS[2], prepState == 0 and TAKE_BUTTON_SKIN or PREP_BUTTON_SKIN, function()
