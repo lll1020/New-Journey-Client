@@ -1,4 +1,4 @@
-local npc = {}
+﻿local npc = {}
 
 npc._config = teshudata["npc_84"] or {}
 
@@ -16,15 +16,29 @@ local BTN_REWARD = "res/custom/six_city/世界符文/领取奖励.png"
 local SELECT_SKIN = "res/custom/six_city/世界符文/选中框.png"
 local ACTIVE_STAMP = "res/custom/six_city/世界符文/已激活.png"
 local COND_BOX_SKIN = "res/custom/six_city/世界符文/延伸框（激活条件）.png"
+local REWARD_BOX_SKIN = "res/custom/six_city/世界符文/装备框-.png"
 
 local RUNE_POS = {
-    [1] = {x = 82, y = 226, nameX = 42, nameY = 270},
-    [2] = {x = 202, y = 246, nameX = 162, nameY = 290},
-    [3] = {x = 210, y = 84, nameX = 170, nameY = 128},
+    [1] = {x = 82 - 15, y = 226 + 50, nameX = 42 - 10, nameY = 270 + 50},
+    [2] = {x = 202 - 30, y = 246 - 70, nameX = 162 - 30, nameY = 290 - 70 - 30},
+    [3] = {x = 82 - 15, y = 84, nameX = 42 - 10, nameY = 128},
     [4] = {x = 374, y = 286, nameX = 334, nameY = 330},
-    [5] = {x = 548, y = 196, nameX = 508, nameY = 240},
-    [6] = {x = 626, y = 96, nameX = 586, nameY = 140},
-    [7] = {x = 694, y = 292, nameX = 654, nameY = 336},
+    [5] = {x = 548 - 60, y = 196, nameX = 508 - 60 + 10, nameY = 240 - 10},
+    [6] = {x = 626 - 260, y = 96, nameX = 586 - 260, nameY = 140},
+    [7] = {x = 694 - 100, y = 96, nameX = 654 - 100, nameY = 140},
+}
+
+local COND_OFFSET = {x = 88 - 66, y = -32}
+local WINDOW_CLICK_MAX_X = 662
+
+local STAMP_OFFSET = {
+    [1] = {x = -16, y = -42},
+    [2] = {x = -18, y = -46},
+    [3] = {x = -18, y = -42},
+    [4] = {x = -20, y = -42},
+    [5] = {x = -12, y = -44},
+    [6] = {x = -34, y = -42},
+    [7] = {x = -26, y = -78},
 }
 
 local renderMain = nil
@@ -36,6 +50,13 @@ local function toNumber(value, defaultValue)
         return defaultValue or 0
     end
     return num
+end
+
+local function clampClickX(x)
+    if x > WINDOW_CLICK_MAX_X then
+        return WINDOW_CLICK_MAX_X
+    end
+    return x
 end
 
 -- 说明：创建并复用主窗口。
@@ -135,12 +156,11 @@ local function renderRuneButtons(node, npcid)
         GUI:Image_Create(node, "rune_name_" .. idx, pos.nameX, pos.nameY, getRuneNameSkin(idx))
 
         if idx == selectedIdx then
-            local selectImg = GUI:Image_Create(node, "select_" .. idx, pos.x - 12, pos.y - 12, SELECT_SKIN)
-            GUI:setScale(selectImg, 0.78)
+            local selectImg = GUI:Image_Create(node, "select_" .. idx, pos.x - 9, pos.y - 17, SELECT_SKIN)
         end
         if isRuneActive(idx) then
-            local stamp = GUI:Image_Create(node, "active_stamp_" .. idx, pos.x - 24, pos.y - 40, ACTIVE_STAMP)
-            GUI:setScale(stamp, 0.82)
+            local stampOffset = STAMP_OFFSET[idx] or {x = -24, y = -40}
+            local stamp = GUI:Image_Create(node, "active_stamp_" .. idx, pos.x + stampOffset.x, pos.y + stampOffset.y, ACTIVE_STAMP)
         elseif canRuneActivate(idx) then
             UIHelper.redpoint_create(btn, {x = 100, y = 72})
         end
@@ -150,29 +170,25 @@ end
 -- 说明：渲染右侧当前选中符文详情。
 local function renderSelectedDetail(node, npcid)
     local idx = getSelectedIdx()
-    local runeCfg = getRuneCfg(idx)
     local active = isRuneActive(idx)
     local canActive = canRuneActivate(idx)
+    local pos = RUNE_POS[idx] or {x = 374, y = 286}
+    local boxX = pos.x + COND_OFFSET.x
+    local boxY = pos.y + COND_OFFSET.y
 
     local detailNode = GUI:Node_Create(node, "detail_node", 0, 0)
-    GUI:Image_Create(detailNode, "cond_box", 336, 180, COND_BOX_SKIN)
-    GUI:Image_Create(detailNode, "cond_img", 374, 206, getConditionSkin(idx))
-
-    createText(detailNode, "title_desc", 492, 252, 22, "#F94B42", tostring(runeCfg.name or "符文"), FONT_TITLE, 0.5, 0.5)
-    createText(detailNode, "sub_desc", 492, 220, 18, active and "#6CFF7B" or (canActive and "#FFD66D" or "#FF5A5A"), active and "当前符文已激活" or (canActive and "已满足激活条件" or "尚未满足激活条件"), FONT_MAIN, 0.5, 0.5)
+    local condBox = GUI:Image_Create(detailNode, "cond_box", boxX, boxY, COND_BOX_SKIN)
+    GUI:Image_Create(detailNode, "cond_img", boxX + 37 + 59, boxY + 25 + 55, getConditionSkin(idx))
 
     if active then
-        local activeImg = GUI:Image_Create(detailNode, "selected_active", 492, 140, ACTIVE_STAMP)
-        GUI:setScale(activeImg, 0.82)
+        local activeImg = GUI:Image_Create(detailNode, "selected_active", boxX + 88, boxY - 13, ACTIVE_STAMP)
     else
-        local btn = GUI:Button_Create(detailNode, "active_btn", 432, 110, BTN_ACTIVE)
+        local btn = GUI:Button_Create(detailNode, "active_btn", boxX + 130, boxY + 5 + 30, BTN_ACTIVE)
         GUI:addOnClickEvent(btn, function()
             SL:SendLuaNetMsg(100, npcid, 1, idx, SL:JsonEncode({idx = idx}, false))
         end)
         if canActive then
-            UIHelper.redpoint_create(btn, {x = 150, y = 42})
-        else
-            GUI:setOpacity(btn, 180)
+            UIHelper.redpoint_create(btn, {x = 118, y = 36})
         end
     end
 end
@@ -183,25 +199,22 @@ local function renderRewardSection(node, npcid)
     local totalNeed = #(npc._config.rune_order or {})
     local claimed = toNumber(getPanelData().claim, 0) == 1 or toNumber(getPanelData().has_title, 0) == 1
     local titleName = tostring(npc._config.title_reward or "世界符文·[真我]")
+    local titleShowName = titleName .. "[称号]"
     local allDesc = tostring(npc._config.all_desc or "")
 
-    createText(node, "reward_progress", 38, 84, 17, "#F94B42", string.format("激活进度：%d/%d", allCount, totalNeed), FONT_MAIN, 0, 0.5)
-    createText(node, "reward_title_text", 300, 76, 16, "#F5E6C6", titleName, FONT_MAIN, 0.5, 0.5)
-    createText(node, "reward_desc", 300, 46, 15, claimed and "#6CFF7B" or "#FFD66D", allDesc ~= "" and allDesc or "全部激活后领取总奖励", FONT_MAIN, 0.5, 0.5)
+    local rewardBox = GUI:Image_Create(node, "reward_box", 282, 56, REWARD_BOX_SKIN)
+    GUI:setAnchorPoint(rewardBox, 0.5, 0.5)
+    UiTools.showItemData(rewardBox, SL:GetMetaValue("ITEM_DATA", SL:GetMetaValue("ITEM_INDEX_BY_NAME", titleShowName)))
+    -- createText(node, "reward_title_text", 342, 70, 17, "#F5E6C6", titleShowName, FONT_MAIN, 0, 0.5)
+    -- createText(node, "reward_desc", 342, 44, 15, claimed and "#6CFF7B" or "#FFD66D", allDesc ~= "" and allDesc or string.format("激活进度：%d/%d", allCount, totalNeed), FONT_MAIN, 0, 0.5)
 
-    local btn = GUI:Button_Create(node, "reward_btn", 552, 20, BTN_REWARD)
+    local btn = GUI:Button_Create(node, "reward_btn", 548 - 220, 0, BTN_REWARD)
     GUI:addOnClickEvent(btn, function()
         SL:SendLuaNetMsg(100, npcid, 2, 0, "")
     end)
     if (allCount >= totalNeed) and (not claimed) then
         UIHelper.redpoint_create(btn, {x = 176, y = 50})
-    else
-        GUI:setOpacity(btn, claimed and 150 or 180)
     end
-
-    local stateText = claimed and "奖励已领取" or ((allCount >= totalNeed) and "可领取总奖励" or "激活全部符文后解锁")
-    local stateColor = claimed and "#6CFF7B" or ((allCount >= totalNeed) and "#FFD66D" or "#A0A0A0")
-    createText(node, "reward_state", 646, 90, 15, stateColor, stateText, FONT_MAIN, 0.5, 0.5)
 end
 
 -- 说明：渲染整个世界符文界面。
@@ -225,3 +238,4 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
+

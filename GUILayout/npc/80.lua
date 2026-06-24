@@ -80,8 +80,8 @@ end
 
 local function renderCost(parent, cfg)
     local pos = {
-        {432, 205}, {504, 205}, {576, 205}, {648, 205},
-        {468, 124}, {540, 124}, {612, 124},
+        {456, 204}, {524, 204}, {592, 204},
+        {422, 130}, {490, 130}, {558, 130}, {626, 130},
     }
     for i, v in ipairs(cfg.cost or {}) do
         local p = pos[i]
@@ -89,8 +89,7 @@ local function renderCost(parent, cfg)
             local name = formatCostName(v)
             local count = formatCostCount(v)
             renderItem(parent, "cost_" .. i, p[1], p[2], name, count)
-            createText(parent, "cost_name_" .. i, p[1], p[2] - 38, 13, "#E9D6B1", name, FONT_MAIN, 0.5, 0.5)
-            createText(parent, "cost_num_" .. i, p[1], p[2] - 55, 12, "#FFCF6A", "x" .. tostring(count), FONT_MAIN, 0.5, 0.5)
+            createText(parent, "cost_num_" .. i, p[1], p[2] - 34, 13, "#FFCF6A", "x" .. tostring(count), FONT_MAIN, 0.5, 0.5)
         end
     end
 end
@@ -100,19 +99,15 @@ local function render(node, npcid)
     local cfg = getConfig()
     local title = GUI:Image_Create(node, "title_img", 557, 356, LOCAL_TITLE)
     GUI:setAnchorPoint(title, 0.5, 0.5)
-    createText(node, "item_name", 557, 325, 22, "#FF4135", tostring(cfg.item_name or cfg.name or "道基秘宝"), FONT_TITLE, 0.5, 0.5)
-    createRich(node, "desc", 386, 289, "<font color='#F5E6C6'>" .. tostring(cfg.desc or "") .. "</font>", 338, 17)
-
-    local certOk = toNumber(npc.data and npc.data.has_cert, 0) == 1
-    createText(node, "cert_state", 557, 238, 16, certOk and "#75FF83" or "#FF5A4A", certOk and "已完成对应神道自证" or "需先完成对应神道自证", FONT_TITLE, 0.5, 0.5)
+    createText(node, "item_name", 557, 326, 24, "#B985FF", tostring(cfg.item_name or cfg.name or "道基秘宝"), FONT_TITLE, 0.5, 0.5)
+    createText(node, "cost_title", 470, 260, 22, "#F5E6C6", "所需消耗：", FONT_TITLE, 0, 0.5)
     renderCost(node, cfg)
 
     local hasItem = toNumber(npc.data and npc.data.has_item, 0) == 1
     local btn = GUI:Button_Create(node, "compose_btn", 557, 38, COMPOSE_BTN)
     GUI:setAnchorPoint(btn, 0.5, 0.5)
     if hasItem then
-        GUI:setOpacity(btn, 150)
-        createText(node, "owned", 557, 38, 22, "#8DFF72", "已拥有", FONT_TITLE, 0.5, 0.5)
+        createText(node, "owned", 557, 82, 20, "#8DFF72", "已拥有", FONT_TITLE, 0.5, 0.5)
     else
         GUI:addOnClickEvent(btn, function()
             SL:OpenCommonTipsPop({

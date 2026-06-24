@@ -25,11 +25,11 @@ local ITEM_BOX_SKIN = "res/custom/six_city/星象圣图/装备框-.png"
 local DETAIL_ITEM_BOX_SKIN = "res/custom/six_city/星象圣图/次级页面/装备框-.png"
 
 local MAIN_NODE_POS = {
-    {x = 120, y = 230},
-    {x = 330, y = 354},
-    {x = 596, y = 276},
-    {x = 560, y = 78},
-    {x = 258, y = 82},
+    {x = 126, y = 224},
+    {x = 334, y = 350},
+    {x = 584, y = 260},
+    {x = 554, y = 76},
+    {x = 260, y = 82},
 }
 
 local DETAIL_COST_POS = {
@@ -42,6 +42,7 @@ local DETAIL_COST_POS = {
 }
 
 local renderMain = nil
+local renderDetail = nil
 
 local NODE_ICON_NAME_OVERRIDE = {
     [7] = {
@@ -412,28 +413,15 @@ local function renderNodeButtons(node, npcid, stageIdx)
     local nextNodeIdx = getNextNodeIdx(stageIdx)
 
     for nodeIdx, pos in ipairs(MAIN_NODE_POS) do
+        if nodeIdx == selectedNodeIdx then
+            GUI:Image_Create(node, "node_select_" .. nodeIdx, pos.x - 18, pos.y - 18, SELECT_SKIN)
+        end
         local iconBtn = GUI:Button_Create(node, "node_btn_" .. nodeIdx, pos.x, pos.y, getNodeIconSkin(stageIdx, nodeIdx))
         GUI:addOnClickEvent(iconBtn, function()
             npc.selectedStageIdx = stageIdx
             npc.selectedNodeIdx = nodeIdx
             renderMain(npc.node, npcid)
-            if stageUnlocked then
-                local detailNode = ensureDetailWindow(npcid)
-                GUI:removeAllChildren(detailNode)
-                npc.detailStageIdx = stageIdx
-                npc.detailNodeIdx = nodeIdx
-                local renderDetail = rawget(npc, "_renderDetail")
-                if renderDetail then
-                    renderDetail(npcid, stageIdx, nodeIdx)
-                end
-            end
         end)
-        if not isNodeLit(stageIdx, nodeIdx) then
-            GUI:setOpacity(iconBtn, stageUnlocked and 210 or 140)
-        end
-        if nodeIdx == selectedNodeIdx then
-            GUI:Image_Create(node, "node_select_" .. nodeIdx, pos.x - 18, pos.y - 18, SELECT_SKIN)
-        end
         if stageUnlocked and (not isNodeLit(stageIdx, nodeIdx)) and nodeIdx == nextNodeIdx and hasEnoughEntryCost(((stageCfg.nodes or {})[nodeIdx] or {}).cost or {}) then
             UIHelper.redpoint_create(iconBtn, {x = 110, y = 86})
         end
@@ -453,30 +441,33 @@ local function renderUnlockArea(node, npcid, stageIdx)
         displayEntries = {}
     end
 
-    GUI:Image_Create(node, "cost_label", 696, 286, COST_LABEL)
+    GUI:Image_Create(node, "cost_label", 672, 282, COST_LABEL)
     renderEntryCostBoxes(node, displayEntries, {
-        {x = 688, y = 206},
-        {x = 760, y = 206},
-        {x = 832, y = 206},
-        {x = 688, y = 134},
-        {x = 760, y = 134},
-        {x = 832, y = 134},
+        {x = 724, y = 246},
+        {x = 782, y = 246},
+        {x = 840, y = 246},
+        {x = 724, y = 186},
+        {x = 782, y = 186},
+        {x = 840, y = 186},
     }, ITEM_BOX_SKIN)
 
-    local btn = GUI:Button_Create(node, "unlock_btn", 710, 48, BTN_UNLOCK)
+    local btn = GUI:Button_Create(node, "unlock_btn", 704, 54, BTN_UNLOCK)
     GUI:addOnClickEvent(btn, function()
-        SL:SendLuaNetMsg(100, npcid, 1, 0, SL:JsonEncode({stage = stageIdx}, false))
+        local nodeIdx = getSelectedNodeIdx(stageIdx)
+        npc.detailStageIdx = stageIdx
+        npc.detailNodeIdx = nodeIdx
+        renderDetail(npcid, stageIdx, nodeIdx)
     end)
     if not unlocked then
         if hasEnoughEntryCost(stageCfg.unlock_cost or {}) then
             UIHelper.redpoint_create(btn, {x = 174, y = 60})
         end
-        createText(node, "unlock_state", 718, 24, 16, "#FFD66D", "解锁当前圣图后可继续点亮星宿", FONT_MAIN, 0.5, 0.5)
+        createText(node, "unlock_state", 704, 38, 16, "#FFD66D", "解锁当前圣图后可继续点亮星宿", FONT_MAIN, 0.5, 0.5)
     else
         GUI:setVisible(btn, false)
         local stateText = full and "当前阶段已全部点亮" or "当前阶段已解锁，点击星宿查看点亮"
         local stateColor = full and "#6CFF7B" or "#FFD66D"
-        createText(node, "unlock_state", 718, 24, 16, stateColor, stateText, FONT_MAIN, 0.5, 0.5)
+        createText(node, "unlock_state", 704, 38, 16, stateColor, stateText, FONT_MAIN, 0.5, 0.5)
     end
 end
 
@@ -493,14 +484,14 @@ local function renderBottomInfo(node, stageIdx)
         end
     end
 
-    GUI:Image_Create(node, "reward_label", 342, 146, REWARD_LABEL)
-    renderRewardPreview(GUI:Node_Create(node, "reward_preview_node", 392, 90), stageCfg.reward)
+    GUI:Image_Create(node, "reward_label", 28, 42, REWARD_LABEL)
+    renderRewardPreview(GUI:Node_Create(node, "reward_preview_node", 86, 44), stageCfg.reward)
 
-    createText(node, "stage_progress", 196, 18, 18, "#F5E6C6", string.format("当前阶段：%s  %d/%d", stageName, litCount, totalNodes), FONT_MAIN, 0, 0.5)
-    createScrollRichText(node, "skill_scroll", 18, 6, 338, 60, buildSkillDesc())
+    createText(node, "stage_progress", 250, 44, 18, "#F5E6C6", string.format("当前阶段：%s  %d/%d", stageName, litCount, totalNodes), FONT_MAIN, 0, 0.5)
+    createScrollRichText(node, "skill_scroll", 250, 64, 360, 46, buildSkillDesc())
 
     local totalAttr = collectTotalAttrs()
-        createScrollRichText(node, "attr_scroll", 470, 6, 210, 72, Player:showAttrMergedRange(totalAttr))
+        createScrollRichText(node, "attr_scroll", 628, 52, 228, 52, Player:showAttrMergedRange(totalAttr))
 end
 
 -- 说明：渲染星象圣图主界面。
@@ -521,21 +512,19 @@ renderMain = function(node, npcid)
 end
 
 -- 说明：渲染次级页面内容，负责单个星宿的顺序点亮。
-local function renderDetail(npcid, stageIdx, nodeIdx)
+renderDetail = function(npcid, stageIdx, nodeIdx)
     local node = ensureDetailWindow(npcid)
     GUI:removeAllChildren(node)
 
     local stageCfg = getStageCfg(stageIdx)
     local nodeCfg = (stageCfg.nodes or {})[nodeIdx] or {}
-    local canLight = isStageUnlocked(stageIdx) and (not isStageFull(stageIdx)) and (getNextNodeIdx(stageIdx) == nodeIdx)
+    local stageUnlocked = isStageUnlocked(stageIdx)
+    local canLight = stageUnlocked and (not isStageFull(stageIdx)) and (getNextNodeIdx(stageIdx) == nodeIdx)
     local lit = isNodeLit(stageIdx, nodeIdx)
 
+    GUI:Image_Create(node, "node_select", 228, 438, SELECT_SKIN)
     local icon = GUI:Image_Create(node, "node_icon", 310, 520, getNodeIconSkin(stageIdx, nodeIdx))
     GUI:setAnchorPoint(icon, 0.5, 0.5)
-    GUI:setScale(icon, 1.08)
-    if lit then
-        GUI:Image_Create(node, "node_select", 228, 438, SELECT_SKIN)
-    end
 
     createText(node, "attr_title", 308, 430, 24, "#1E1A12", "点亮获得", FONT_TITLE, 0.5, 0.5)
         createScrollRichText(node, "attr_preview", 110, 274, 400, 108, Player:showAttrMergedRange(nodeCfg.attr or {}))
@@ -544,21 +533,27 @@ local function renderDetail(npcid, stageIdx, nodeIdx)
     renderEntryCostBoxes(node, nodeCfg.cost or {}, DETAIL_COST_POS, DETAIL_ITEM_BOX_SKIN)
 
     local btn = GUI:Button_Create(node, "light_btn", 192, 118, BTN_LIGHT)
-    if not lit then
-        GUI:addOnClickEvent(btn, function()
+    GUI:addOnClickEvent(btn, function()
+        if not stageUnlocked then
+            SL:SendLuaNetMsg(100, npcid, 1, 0, SL:JsonEncode({stage = stageIdx}, false))
+            return
+        end
+        if not lit then
             SL:SendLuaNetMsg(100, npcid, 2, 0, SL:JsonEncode({stage = stageIdx, node = nodeIdx}, false))
-        end)
-    end
-    if canLight and (not lit) then
+        end
+    end)
+    if not stageUnlocked then
+        if hasEnoughEntryCost(stageCfg.unlock_cost or {}) then
+            UIHelper.redpoint_create(btn, {x = 214, y = 62})
+        end
+    elseif canLight and (not lit) then
         if hasEnoughEntryCost(nodeCfg.cost or {}) then
             UIHelper.redpoint_create(btn, {x = 214, y = 62})
         end
-    else
-        GUI:setOpacity(btn, 160)
     end
 
-    local stateText = lit and "该星宿已点亮" or (canLight and "可点亮当前星宿" or "请按顺序点亮星宿")
-    local stateColor = lit and "#6CFF7B" or (canLight and "#FFD66D" or "#FF5A5A")
+    local stateText = (not stageUnlocked) and "解锁圣图后开启星宿点亮" or (lit and "该星宿已点亮" or (canLight and "可点亮当前星宿" or "请按顺序点亮星宿"))
+    local stateColor = lit and "#6CFF7B" or ((canLight or not stageUnlocked) and "#FFD66D" or "#FF5A5A")
     createText(node, "node_state", 310, 88, 18, stateColor, stateText, FONT_MAIN, 0.5, 0.5)
 end
 
@@ -570,7 +565,7 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data = SL:JsonDecode(msgData, false) or {}
         ensureWindow(npcid)
         renderMain(npc.node, npcid)
-        if npc.detailWindow and npc.selectedStageIdx and npc.selectedNodeIdx and isStageUnlocked(npc.selectedStageIdx) then
+        if npc.detailWindow and npc.selectedStageIdx and npc.selectedNodeIdx then
             renderDetail(npcid, npc.selectedStageIdx, npc.selectedNodeIdx)
         end
     end

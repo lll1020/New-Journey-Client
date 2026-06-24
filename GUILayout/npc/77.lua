@@ -4,8 +4,6 @@ local UIHelper = NPC_UI_HELPER
 local FONT_MAIN = "fonts/font4.ttf"
 local FONT_TITLE = "fonts/502.ttf"
 local BTN = "res/public/1900000660.png"
-local BG = "res/custom/six_city/世界符文/世界符文.png"
-local CARD_BG = "res/custom/six_city/世界符文/延伸框（激活条件）.png"
 
 npc._config = teshudata["npc_77"] or {}
 
@@ -50,8 +48,6 @@ local function ensureWindow(npcid)
     npc._window = UIHelper.ensureWindow(npc._window, npcid, {
         titleText = UIHelper.formatNpcTitle(npcid, npc._config),
         subTitle = npc._config.name,
-        background = {skin = BG, eff = false},
-        closeButton = {x = 784, y = 500, skin = "res/wy/public/close_red_big.png"},
     })
     npc.node = npc._window.node
     npc.bg = npc._window.bg
@@ -67,30 +63,18 @@ local function renderPathCard(parent, npcid, god, x, y, selected)
     if cfg.paths and cfg.paths[pathIdx] then
         pathNameText = tostring(cfg.paths[pathIdx].name or "")
     end
-    local card = GUI:Image_Create(parent, "card_" .. god, x, y, CARD_BG)
-    GUI:setAnchorPoint(card, 0.5, 0.5)
-    GUI:setContentSize(card, 296, 272)
-    GUI:setOpacity(card, 218)
-    if selected then
-        local sel = GUI:Image_Create(card, "sel_" .. god, 148, 136, "res/custom/six_city/世界符文/选中框.png")
-        GUI:setAnchorPoint(sel, 0.5, 0.5)
-        GUI:setScale(sel, 0.72)
-    end
+    local card = GUI:Node_Create(parent, "card_" .. god, x, y)
+    createText(card, "name_" .. god, 150, 170, 24, selected and "#9DFF7A" or "#FFE08A", cfg.name or "神道", FONT_TITLE, 0.5, 0.5)
+    createText(card, "power_" .. god, 150, 142, 18, "#8DFF72", string.format("%s：%d/%d", tostring(cfg.power_name or "神力值"), getPower(state, god), toNumber(npc._config.power_max, 1000)), FONT_MAIN, 0.5, 0.5)
+    createText(card, "cert_state_" .. god, 150, 118, 17, isCert(state, god) and "#6CFF7B" or "#FF6A5A", isCert(state, god) and "自证奖励：已领取" or ("自证奖励：" .. tostring(cfg.certify_title or "")), FONT_MAIN, 0.5, 0.5)
+    createText(card, "map_" .. god, 150, 96, 15, "#C9B390", tostring(cfg.map_desc or ""), FONT_MAIN, 0.5, 0.5)
 
-    createText(card, "name_" .. god, 148, 238, 22, "#FFE08A", cfg.name or "神道", FONT_TITLE, 0.5, 0.5)
-    createText(card, "power_" .. god, 148, 211, 18, "#80FF5E", string.format("%s：%d/%d", tostring(cfg.power_name or "神力值"), getPower(state, god), toNumber(npc._config.power_max, 1000)), FONT_MAIN, 0.5, 0.5)
-    createText(card, "cert_state_" .. god, 148, 187, 17, isCert(state, god) and "#6CFF7B" or "#FF5A4A", isCert(state, god) and "自证奖励：已领取" or ("自证奖励：" .. tostring(cfg.certify_title or "")), FONT_MAIN, 0.5, 0.5)
-    createText(card, "map_" .. god, 148, 164, 15, "#C9B390", tostring(cfg.map_desc or ""), FONT_MAIN, 0.5, 0.5)
-
-    local y0 = 117
+    local y0 = 62
     for path, pcfg in ipairs(cfg.paths or {}) do
-        local line = GUI:Image_Create(card, "line_" .. god .. "_" .. path, 18, y0 + 22, "res/custom/six_city/世界符文/装备框-.png")
-        GUI:setAnchorPoint(line, 0, 0.5)
-        GUI:setContentSize(line, 258, 58)
-        GUI:setOpacity(line, 176)
-        createText(card, "path_name_" .. god .. "_" .. path, 28, y0 + 38, 17, "#F7E2B0", pcfg.name or "路径", FONT_TITLE, 0, 0.5)
-        createRich(card, "path_desc_" .. god .. "_" .. path, 28, y0 + 17, tostring(pcfg.desc or ""), 180, 14)
-        local btn = GUI:Button_Create(card, "select_" .. god .. "_" .. path, 220, y0 + 12, BTN)
+        local chosen = pathIdx == path
+        createText(card, "path_name_" .. god .. "_" .. path, 10, y0 + 42, 18, chosen and "#9DFF7A" or "#F7E2B0", pcfg.name or "路径", FONT_TITLE, 0, 0.5)
+        createRich(card, "path_desc_" .. god .. "_" .. path, 10, y0 + 24, tostring(pcfg.desc or ""), 210, 14)
+        local btn = GUI:Button_Create(card, "select_" .. god .. "_" .. path, 218, y0 + 18, BTN)
         GUI:Button_setTitleText(btn, "选择")
         GUI:Button_setTitleFontSize(btn, 16)
         GUI:addOnClickEvent(btn, function()
@@ -104,20 +88,17 @@ local function renderPathCard(parent, npcid, god, x, y, selected)
                 end,
             })
         end)
-        if toNumber(info.path, 0) > 0 then
-            GUI:setOpacity(btn, 130)
-        end
-        y0 = y0 - 70
+        y0 = y0 - 66
     end
 
-    local up = GUI:Button_Create(card, "upgrade_" .. god, 84, 18, BTN)
+    local up = GUI:Button_Create(card, "upgrade_" .. god, 56, -94, BTN)
     GUI:Button_setTitleText(up, "升阶")
     GUI:Button_setTitleFontSize(up, 18)
     GUI:addOnClickEvent(up, function()
         SL:SendLuaNetMsg(100, npcid, 2, god, SL:JsonEncode({god = god}, false))
     end)
 
-    local cert = GUI:Button_Create(card, "cert_btn_" .. god, 212, 18, BTN)
+    local cert = GUI:Button_Create(card, "cert_btn_" .. god, 188, -94, BTN)
     GUI:Button_setTitleText(cert, "自证")
     GUI:Button_setTitleFontSize(cert, 18)
     GUI:addOnClickEvent(cert, function()
@@ -128,7 +109,7 @@ end
 local function render(node, npcid)
     GUI:removeAllChildren(node)
     local state = getState()
-    createText(node, "title", 394, 464, 34, "#FFE08A", "登神之路", FONT_TITLE, 0.5, 0.5)
+    createText(node, "title", 394, 424, 34, "#FFE08A", "登神之路", FONT_TITLE, 0.5, 0.5)
     local chosen = {}
     for god in pairs(npc._config.shendao or {}) do
         local info = getGodState(state, god)
@@ -143,15 +124,15 @@ local function render(node, npcid)
         end
     end
     if #chosen > 0 then
-        createText(node, "cur", 394, 434, 18, "#8DFF72", "当前路线：" .. table.concat(chosen, "    "), FONT_MAIN, 0.5, 0.5)
+        createText(node, "cur", 394, 392, 18, "#8DFF72", "当前路线：" .. table.concat(chosen, "    "), FONT_MAIN, 0.5, 0.5)
     else
-        createText(node, "hint", 394, 434, 18, "#FFD86B", "兵神道、鬼神道可各选一条路线，自证后不可重复切换。", FONT_MAIN, 0.5, 0.5)
+        createText(node, "hint", 394, 392, 18, "#FFD86B", "兵神道、鬼神道可各选一条路线，自证后不可重复切换。", FONT_MAIN, 0.5, 0.5)
     end
 
     local state = getState()
-    renderPathCard(node, npcid, 1, 244, 274, toNumber(getGodState(state, 1).path, 0) > 0)
-    renderPathCard(node, npcid, 2, 544, 274, toNumber(getGodState(state, 2).path, 0) > 0)
-    createText(node, "all_reward", 36, 62, 22, "#FF4B3B", "全部激活后获得：", FONT_TITLE, 0, 0.5)
+    renderPathCard(node, npcid, 1, 112, 202, toNumber(getGodState(state, 1).path, 0) > 0)
+    renderPathCard(node, npcid, 2, 420, 202, toNumber(getGodState(state, 2).path, 0) > 0)
+    createText(node, "all_reward", 70, 54, 22, "#FF4B3B", "全部激活后获得：", FONT_TITLE, 0, 0.5)
 end
 
 function npc.main(npcid, p2, p3, msgData)

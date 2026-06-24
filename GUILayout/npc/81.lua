@@ -22,29 +22,20 @@ local ITEM_BOX_SKIN = "res/custom/six_city/血契之门/装备框-.png"
 local FONT_MAIN = "fonts/font4.ttf"
 local FONT_TITLE = "fonts/502.ttf"
 
-local PREVIEW_POS = {x = 250, y = 270}
-local ENTER_BTN_POS = {x = 116, y = 56}
-local SIGN_BTN_POS = {x = 548, y = 72}
-local CHECK_POS = {x = 708, y = 48}
+local PREVIEW_POS = {x = 254, y = 272}
+local ENTER_BTN_POS = {x = 124, y = 58}
+local SIGN_BTN_POS = {x = 560, y = 72}
+local CHECK_POS = {x = 712, y = 58}
 local CONDITION_LAYOUT = {
     idxX = 148,
     textX = 186,
-    rowY = {188, 140},
+    rowY = {190, 144},
 }
 local RISK_LAYOUT = {
-    x = 486,
-    y = 336,
-    width = 248,
-    size = 16,
-}
-local STAT_LAYOUT = {
-    openX = 50,
-    countX = 220,
-    extraDropX = 384,
-    deathDropX = 542,
-    rowY = 50,
-    noticeX = 402,
-    noticeY = 18,
+    x = 500,
+    y = 350,
+    width = 244,
+    size = 17,
 }
 
 -- 说明：统一转数字，避免服务端字段为空时界面渲染报错。
@@ -145,15 +136,9 @@ end
 
 -- 说明：构建右侧风险说明富文本。
 local function buildRiskRichText()
-    local cfg = getConfig()
-    local dropCfg = cfg.drop or {}
-    local extraDrop = cfg.extra_drop or {}
-    local deathCfg = cfg.death or {}
-    local extraItem = tostring(extraDrop.item or "高阶星尘")
     return table.concat({
-        string.format("<font color='#FF3C2F'>1. 爆率提高</font>\n<font color='#EED8BF'>小怪双倍爆率，BOSS三倍爆率。</font>\n<font color='#DFA070'>额外补发：</font><font color='#FFDF7A'>小怪+%d，BOSS+%d</font>\n\n", toNumber(dropCfg.normal_extra, 0), toNumber(dropCfg.boss_extra, 0)),
-        string.format("<font color='#FF3C2F'>2. 死亡惩罚</font>\n<font color='#EED8BF'>死亡时随机掉落一件</font><font color='#FFDF7A'>未绑定装备</font><font color='#EED8BF'>。</font>\n<font color='#DFA070'>掉落保留：</font><font color='#FFDF7A'>%d秒</font>\n\n", toNumber(deathCfg.keep_sec, 0)),
-        string.format("<font color='#FF3C2F'>3. 额外收益</font>\n<font color='#EED8BF'>击杀小怪有概率额外掉落</font><font color='#FFDF7A'>%s</font><font color='#EED8BF'>。</font>", extraItem)
+        "<font color='#FF3C2F'>1. 爆率提高</font>\n<font color='#EED8BF'>小怪双倍爆率，BOSS三倍爆率。</font>\n\n",
+        "<font color='#FF3C2F'>2. 死亡惩罚</font>\n<font color='#EED8BF'>死亡时随机掉落一件</font><font color='#FFDF7A'>未绑定装备</font><font color='#EED8BF'>。</font>"
     }, "")
 end
 
@@ -187,26 +172,8 @@ end
 -- 说明：渲染左侧产出预览区。
 local function renderPreviewSection(node)
     local cfg = getConfig()
-    local previewName = tostring(cfg.preview_item or "")
     local previewNode = GUI:Node_Create(node, "preview_node", PREVIEW_POS.x, PREVIEW_POS.y)
     renderPreviewItem(previewNode)
-    if previewName ~= "" then
-        createText(node, "preview_name", PREVIEW_POS.x + 28, PREVIEW_POS.y - 34, 18, "#FFD86B", previewName, FONT_MAIN, 0.5, 0.5)
-    end
-end
-
--- 说明：渲染底部统计信息与提醒文案。
-local function renderStats(node)
-    local data = getPanelData()
-    local cfg = getConfig()
-    local notice = tostring(cfg.notice or "")
-    createText(node, "open_desc", STAT_LAYOUT.openX, STAT_LAYOUT.rowY, 16, "#F5E6C6", "开放时间：" .. tostring(data.open_desc or "全天开放"), FONT_MAIN, 0, 0.5)
-    createText(node, "enter_count", STAT_LAYOUT.countX, STAT_LAYOUT.rowY, 16, "#F5E6C6", "进入次数：" .. tostring(toNumber(data.enter_count, 0)), FONT_MAIN, 0, 0.5)
-    createText(node, "drop_kill", STAT_LAYOUT.extraDropX, STAT_LAYOUT.rowY, 16, "#FFD86B", "额外掉落：" .. tostring(toNumber(data.drop_kill, 0)), FONT_MAIN, 0, 0.5)
-    createText(node, "drop_death", STAT_LAYOUT.deathDropX, STAT_LAYOUT.rowY, 16, "#FF8A67", "死亡掉装：" .. tostring(toNumber(data.drop_death, 0)), FONT_MAIN, 0, 0.5)
-    if notice ~= "" then
-        createText(node, "notice", STAT_LAYOUT.noticeX, STAT_LAYOUT.noticeY, 15, "#C9B390", notice, FONT_MAIN, 0.5, 0.5)
-    end
 end
 
 -- 说明：渲染主界面按钮区与状态区。
@@ -219,8 +186,6 @@ local function renderActionArea(node, npcid)
     end)
     if not signed then
         UIHelper.redpoint_create(signBtn, {x = 140, y = 36})
-    else
-        GUI:setOpacity(signBtn, 210)
     end
 
     local enterBtn = GUI:Button_Create(node, "enter_btn", ENTER_BTN_POS.x, ENTER_BTN_POS.y, ENTER_BTN_SKIN)
@@ -229,8 +194,6 @@ local function renderActionArea(node, npcid)
     end)
     if canEnter() and (not inMap) then
         UIHelper.redpoint_create(enterBtn, {x = 150, y = 40})
-    else
-        GUI:setOpacity(enterBtn, 190)
     end
 
     local checkBg = GUI:Image_Create(node, "check_bg", CHECK_POS.x, CHECK_POS.y, CHECK_BG_SKIN)
@@ -240,12 +203,10 @@ local function renderActionArea(node, npcid)
         GUI:setAnchorPoint(checkOk, 0.5, 0.5)
     end
 
-    local signText, signColor = getContractStateInfo()
-    createText(node, "sign_state", 646, 60, 18, signColor, signText, FONT_MAIN, 0.5, 0.5)
-    createText(node, "check_state", CHECK_POS.x, 22, 16, signed and "#6CFF7B" or "#B5A18B", signed and "血契已签" or "等待签订", FONT_MAIN, 0.5, 0.5)
-
-    local enterText, enterColor = getEnterStateInfo()
-    createText(node, "enter_state", 168, 38, 16, enterColor, enterText, FONT_MAIN, 0, 0.5)
+    if not canEnter() then
+        local enterText, enterColor = getEnterStateInfo()
+        createText(node, "enter_state", 176, 42, 16, enterColor, enterText, FONT_MAIN, 0, 0.5)
+    end
 end
 
 -- 说明：渲染整个血契之门界面。
@@ -263,7 +224,6 @@ local function renderMain(node, npcid)
     GUI:setAnchorPoint(riskRich, 0, 1)
 
     renderActionArea(node, npcid)
-    renderStats(node)
 end
 
 -- 说明：处理服务端回包并刷新界面。

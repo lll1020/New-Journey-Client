@@ -15,6 +15,10 @@ local function cfg()
     return npc._config or {}
 end
 
+local function activityCfg()
+    return (teshudata and teshudata["anniu_507"] and teshudata["anniu_507"].mskh) or {}
+end
+
 local function panelData()
     return npc.data or {}
 end
@@ -95,7 +99,20 @@ end
 local function renderSellPage(node, npcid)
     local data = panelData()
     createText(node, "point", 650, 405 + 130, 18, "#7CFB9A", "美食积分：" .. tostring(toNum(data.point, 0)), 1, 0.5)
-    local meats = data.meats or {}
+    local counts = data.meat_counts or {}
+    if next(counts) == nil and type(data.meats) == "table" then
+        for _, one in ipairs(data.meats) do
+            counts[tostring(one.name or "")] = toNum(one.count, 0)
+        end
+    end
+    local meats = {}
+    for itemName, one in pairs(activityCfg().meats or {}) do
+        meats[#meats + 1] = {
+            name = itemName,
+            point = toNum(one.point, 0),
+            count = toNum(counts[itemName], 0),
+        }
+    end
     table.sort(meats, function(a, b)
         return toNum(a.point, 0) < toNum(b.point, 0)
     end)
@@ -125,7 +142,7 @@ local function renderShopPage(node, npcid)
     local data = panelData()
     local point = toNum(data.point, 0)
     createText(node, "point", 650, 405 + 130, 18, "#7CFB9A", "美食积分：" .. tostring(point), 1, 0.5)
-    local shop = data.shop or {}
+    local shop = activityCfg().shop or {}
     local buyMap = data.shop_buy or {}
     for i, one in ipairs(shop) do
         local y = 288 + (i - 1) * 59 - 54 - 59 * 2
