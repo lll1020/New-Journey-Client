@@ -50,6 +50,7 @@ local function _add_reward_item_effect(parent, name, x, y, scale)
     end
     local effect = GUI:Effect_Create(parent, name or "reward_item_eff", x or 0, y or 0, 0, REWARD_ITEM_EFFECT_ID, 0, 0, 0, 1)
     GUI:setScale(effect, scale or 1)
+    GUI:setLocalZOrder(effect, 5)
     return effect
 end
 

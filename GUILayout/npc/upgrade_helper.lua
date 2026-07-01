@@ -787,5 +787,18 @@ SL:release_print("startEquipChangeRefresh")
     SL:RegisterLUAEvent(LUA_EVENT_PLAYER_EQUIP_CHANGE, "upgrade_helper_equip_on", _refresh_on_equip_change)
 end
 -- 兼容旧调用名
+function UpgradeHelper.treasureBasinRedState(data)
+    data = type(data) == "table" and data or rawget(_G, "__TREASURE_BASIN_517_DATA__") or {}
+    local energy = tonumber(data.energy_sec or 0) or 0
+    local reward = type(data.energy_reward) == "table" and data.energy_reward or {}
+    local hasEnergy = energy >= 60 or (tonumber(reward.gold or 0) or 0) > 0 or (tonumber(reward.iron or 0) or 0) > 0 or (tonumber(reward.hat or 0) or 0) > 0
+    local refine = type(data.refine) == "table" and data.refine or {}
+    local refineDone = tonumber(refine.active or 0) >= 1 and tonumber(refine.done or 0) >= 1
+    return {
+        energy = hasEnergy,
+        refine = refineDone,
+        any = hasEnergy or refineDone,
+    }
+end
 UpgradeHelper.registerUpgradeButtons = UpgradeHelper.registerOpenNpcButtons
 return UpgradeHelper

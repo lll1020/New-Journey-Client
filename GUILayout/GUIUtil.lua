@@ -240,7 +240,11 @@ function ItemNumByTable_img(t, multiple,parent)
         local idx,num = SL:GetMetaValue("ITEM_INDEX_BY_NAME",item[1]),item[2]
         if multiple then num=num*multiple end
         local kuang = GUI:Image_Create(cllist, "kuang"..i, 0, 0, "res/wy/public/50-50_k.png")
-        GUI:ItemShow_Create(kuang, "item", 9, 9, {index=idx,count = num,look= true})
+        GUI:setLocalZOrder(kuang, 1)
+        local itemLayer = GUI:Node_Create(kuang, "item_layer", 0, 0)
+        GUI:setLocalZOrder(itemLayer, 20)
+        local itemShow = GUI:ItemShow_Create(itemLayer, "item", 9, 9, {index=idx,count = num,look= true})
+        GUI:setLocalZOrder(itemShow, 20)
     end
     return Node
 end
@@ -257,9 +261,12 @@ function ItemNumByTable_img_new(t, multiple,parent)
         local idx,num = SL:GetMetaValue("ITEM_INDEX_BY_NAME",item[1]),item[2]
         if multiple then num=num*multiple end
         local kuang = GUI:Image_Create(cllist, "kuang"..i, 0, 0, "res/wy/public/58-60.png")
-        
-        GUI:setAnchorPoint(GUI:ItemShow_Create(kuang, "item", 58/2, 60/2, {index=idx,count = num,look= true})
-        , 0.5, 0.5)
+        GUI:setLocalZOrder(kuang, 1)
+        local itemLayer = GUI:Node_Create(kuang, "item_layer", 0, 0)
+        GUI:setLocalZOrder(itemLayer, 20)
+        local itemShow = GUI:ItemShow_Create(itemLayer, "item", 58/2, 60/2, {index=idx,count = num,look= true})
+        GUI:setAnchorPoint(itemShow, 0.5, 0.5)
+        GUI:setLocalZOrder(itemShow, 20)
     end
     return Node
 end
@@ -277,27 +284,26 @@ function checkItemNumByTable_img_kuang(t, multiple,parent)
         if multiple then num=num*multiple end
         GUI:Layout_Create(cllist, "itemkk"..i, 0, 0, 5, 50, 1)
         local kuang = GUI:Image_Create(cllist, "item_kuang_"..idx, 0.00, 0.00, "res/wy/public/58-60.png")
-        
-        GUI:setAnchorPoint(GUI:ItemShow_Create(kuang, "item"..i, 58/2, 60/2, {index=idx,look= true})
-        , 0.5, 0.5)
+        GUI:setLocalZOrder(kuang, 1)
+        local itemLayer = GUI:Node_Create(kuang, "item_layer", 0, 0)
+        GUI:setLocalZOrder(itemLayer, 20)
+        local itemShow = GUI:ItemShow_Create(itemLayer, "item"..i, 58/2, 60/2, {index=idx,look= true})
+        GUI:setAnchorPoint(itemShow, 0.5, 0.5)
+        GUI:setLocalZOrder(itemShow, 20)
+        local currentText
         if bind_money[item[1]] then
-            GUI:setAnchorPoint(
-                GUI:Text_Create(kuang, "sl"..i, 40, 0, 14,
-                        (SL:GetMetaValue("ITEM_COUNT", bind_money[item[1]][1]) + SL:GetMetaValue("ITEM_COUNT", bind_money[item[1]][2])) >= num and "#4AE74A" or "#FB0000"
-                , SL:GetSimpleNumber((SL:GetMetaValue("ITEM_COUNT", bind_money[item[1]][1]) + SL:GetMetaValue("ITEM_COUNT", bind_money[item[1]][2])),0))
-            , 1, 0)
-            
+            currentText = GUI:Text_Create(itemLayer, "sl"..i, 40, 0, 14,
+                    (SL:GetMetaValue("ITEM_COUNT", bind_money[item[1]][1]) + SL:GetMetaValue("ITEM_COUNT", bind_money[item[1]][2])) >= num and "#4AE74A" or "#FB0000"
+            , SL:GetSimpleNumber((SL:GetMetaValue("ITEM_COUNT", bind_money[item[1]][1]) + SL:GetMetaValue("ITEM_COUNT", bind_money[item[1]][2])),0))
         else
-            GUI:setAnchorPoint(
-                GUI:Text_Create(kuang, "sl"..i, 40, 0, 14, SL:GetMetaValue("ITEM_COUNT", idx) >= num and "#4AE74A" or "#FB0000", SL:GetSimpleNumber(SL:GetMetaValue("ITEM_COUNT",idx),2))
-            , 1, 0)
-            
-
+            currentText = GUI:Text_Create(itemLayer, "sl"..i, 40, 0, 14, SL:GetMetaValue("ITEM_COUNT", idx) >= num and "#4AE74A" or "#FB0000", SL:GetSimpleNumber(SL:GetMetaValue("ITEM_COUNT",idx),2))
         end
-        
-            GUI:setAnchorPoint(
-                GUI:Text_Create(kuang, "xysl"..i, 40, 0, 14, "#FFFFFF", "/"..SL:GetSimpleNumber(num,2))
-            , 0, 0)
+        GUI:setAnchorPoint(currentText, 1, 0)
+        GUI:setLocalZOrder(currentText, 30)
+
+        local needText = GUI:Text_Create(itemLayer, "xysl"..i, 40, 0, 14, "#FFFFFF", "/"..SL:GetSimpleNumber(num,2))
+        GUI:setAnchorPoint(needText, 0, 0)
+        GUI:setLocalZOrder(needText, 30)
     end
     return Node
 end

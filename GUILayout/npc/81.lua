@@ -23,20 +23,8 @@ local FONT_MAIN = "fonts/font4.ttf"
 local FONT_TITLE = "fonts/502.ttf"
 
 local PREVIEW_POS = {x = 254, y = 272}
-local ENTER_BTN_POS = {x = 124, y = 58}
-local SIGN_BTN_POS = {x = 560, y = 72}
+local ACTION_BTN_POS = {x = 560, y = 72}
 local CHECK_POS = {x = 712, y = 58}
-local CONDITION_LAYOUT = {
-    idxX = 148,
-    textX = 186,
-    rowY = {190, 144},
-}
-local RISK_LAYOUT = {
-    x = 500,
-    y = 350,
-    width = 244,
-    size = 17,
-}
 
 -- 说明：统一转数字，避免服务端字段为空时界面渲染报错。
 local function toNumber(value, defaultValue)
@@ -122,24 +110,9 @@ local function renderPreviewItem(parent)
     local itemIndex = previewName ~= "" and toNumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", previewName), 0) or 0
     local box = GUI:Image_Create(parent, "preview_box", 0, 0, ITEM_BOX_SKIN)
     if itemIndex > 0 then
-        GUI:setAnchorPoint(GUI:ItemShow_Create(box, "preview_item", 29, 30, {index = itemIndex, look = true, movable = false, bgVisible = false}), 0.5, 0.5)
+        GUI:setAnchorPoint(GUI:ItemShow_Create(box, "preview_item", 25, 26, {index = itemIndex, look = true, movable = false, bgVisible = false}), 0.5, 0.5)
     end
     return box
-end
-
--- 说明：渲染进入条件单行文案。
-local function renderConditionRow(parent, idx, text, passed, y)
-    local color = passed and "#6CFF7B" or "#FF4A4A"
-    createText(parent, "cond_idx_" .. idx, CONDITION_LAYOUT.idxX, y, 22, "#F5E6C6", tostring(idx) .. ".", FONT_TITLE, 0, 0.5)
-    createText(parent, "cond_text_" .. idx, CONDITION_LAYOUT.textX, y, 20, color, text, FONT_TITLE, 0, 0.5)
-end
-
--- 说明：构建右侧风险说明富文本。
-local function buildRiskRichText()
-    return table.concat({
-        "<font color='#FF3C2F'>1. 爆率提高</font>\n<font color='#EED8BF'>小怪双倍爆率，BOSS三倍爆率。</font>\n\n",
-        "<font color='#FF3C2F'>2. 死亡惩罚</font>\n<font color='#EED8BF'>死亡时随机掉落一件</font><font color='#FFDF7A'>未绑定装备</font><font color='#EED8BF'>。</font>"
-    }, "")
 end
 
 -- 说明：返回进入按钮的当前状态文案与颜色。
@@ -180,20 +153,20 @@ end
 local function renderActionArea(node, npcid)
     local signed = hasContract()
     local inMap = inContractMap()
-    local signBtn = GUI:Button_Create(node, "sign_btn", SIGN_BTN_POS.x, SIGN_BTN_POS.y, CONTRACT_BTN_SKIN)
-    GUI:addOnClickEvent(signBtn, function()
-        SL:SendLuaNetMsg(100, npcid, 1, 0, "")
-    end)
-    if not signed then
+    if signed then
+        local enterBtn = GUI:Button_Create(node, "enter_btn", ACTION_BTN_POS.x, ACTION_BTN_POS.y, ENTER_BTN_SKIN)
+        GUI:addOnClickEvent(enterBtn, function()
+            SL:SendLuaNetMsg(100, npcid, 2, 0, "")
+        end)
+        if canEnter() and (not inMap) then
+            UIHelper.redpoint_create(enterBtn, {x = 150, y = 40})
+        end
+    else
+        local signBtn = GUI:Button_Create(node, "sign_btn", ACTION_BTN_POS.x, ACTION_BTN_POS.y, CONTRACT_BTN_SKIN)
+        GUI:addOnClickEvent(signBtn, function()
+            SL:SendLuaNetMsg(100, npcid, 1, 0, "")
+        end)
         UIHelper.redpoint_create(signBtn, {x = 140, y = 36})
-    end
-
-    local enterBtn = GUI:Button_Create(node, "enter_btn", ENTER_BTN_POS.x, ENTER_BTN_POS.y, ENTER_BTN_SKIN)
-    GUI:addOnClickEvent(enterBtn, function()
-        SL:SendLuaNetMsg(100, npcid, 2, 0, "")
-    end)
-    if canEnter() and (not inMap) then
-        UIHelper.redpoint_create(enterBtn, {x = 150, y = 40})
     end
 
     local checkBg = GUI:Image_Create(node, "check_bg", CHECK_POS.x, CHECK_POS.y, CHECK_BG_SKIN)
@@ -203,10 +176,6 @@ local function renderActionArea(node, npcid)
         GUI:setAnchorPoint(checkOk, 0.5, 0.5)
     end
 
-    if not canEnter() then
-        local enterText, enterColor = getEnterStateInfo()
-        createText(node, "enter_state", 176, 42, 16, enterColor, enterText, FONT_MAIN, 0, 0.5)
-    end
 end
 
 -- 说明：渲染整个血契之门界面。
@@ -217,12 +186,6 @@ local function renderMain(node, npcid)
     GUI:removeAllChildren(node)
 
     renderPreviewSection(node)
-    renderConditionRow(node, 1, "开启狂暴之力", hasTitleNeed(), CONDITION_LAYOUT.rowY[1])
-    renderConditionRow(node, 2, "签订血色契约", hasContract(), CONDITION_LAYOUT.rowY[2])
-
-    local riskRich = createRichText(node, "risk_desc", RISK_LAYOUT.x, RISK_LAYOUT.y, buildRiskRichText(), RISK_LAYOUT.width, RISK_LAYOUT.size, 0, 1)
-    GUI:setAnchorPoint(riskRich, 0, 1)
-
     renderActionArea(node, npcid)
 end
 
