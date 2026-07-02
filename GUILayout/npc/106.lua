@@ -195,8 +195,7 @@ local function openBasinLevelPopup()
                 SL:ShowSystemTips("累计充值不足，还差 " .. fmt(lackCharge))
                 return
             end
-            closeBasinLevelPopup()
-            SL:SendLuaNetMsg(101, 106, 9, 0, "")
+            SL:ShowSystemTips("请从顶部聚宝盆按钮进入功能界面同步品阶")
         end)
     end
 end

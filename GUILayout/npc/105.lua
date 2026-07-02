@@ -5,7 +5,7 @@ local WINDOW_OPTS = {
     closeButton = {x = 810 - 40, y = 454 - 79, skin = "res/wy/public/close_red_big.png"},
 }
 local CARD_SKIN = "res/custom/xianshifuli/框.png"
-local CHOOSE_BTN_SKIN = "res/custom/xianshifuli/选择.png"
+local CHOOSE_BTN_SKIN = "res/wy/public/an15.png"
 local CLAIM_ALL_BTN_SKIN = "res/custom/xianshifuli/我全都要.png"
 local REWARD_ITEM_EFFECT_ID = 13048
 local CARD_POS_LIST = {
@@ -158,7 +158,7 @@ local function _claim_all(npcid, payload, T_data)
         SL:SendLuaNetMsg(100, npcid, idx, 0, "")
     end
 end
-local function _render_card(node, npcid, payload, T_data, idx)
+local function _render_card(node, npcid, payload, T_data, idx, hideCardButton)
     local cfg = _get_welfare()[idx] or {}
     local pos = CARD_POS_LIST[idx]
     if not pos then
@@ -201,26 +201,33 @@ local function _render_card(node, npcid, payload, T_data, idx)
         GUI:Text_setString(status,"当前选择")
         GUI:setAnchorPoint(create_outline_text(node, "sysj", 64 + 494 + 20, 147 + 205 + 15, 18, state.statusColor, _format_left_minutes(state.left), "#22140F"), 0.5, 0.5)
     end
-    local btn = GUI:Button_Create(card, "card_btn_" .. idx, 20, 8, CHOOSE_BTN_SKIN)
-    if state.disabled then
-        GUI:Button_setGrey(btn, true)
-        GUI:setOpacity(btn, 220)
+    if not hideCardButton then
+        local btn = GUI:Button_Create(card, "card_btn_" .. idx, 20, 8, CHOOSE_BTN_SKIN)
+        GUI:Button_setTitleText(btn, "领取")
+        GUI:Button_setTitleFontName(btn, "fonts/502.ttf")
+        GUI:Button_setTitleFontSize(btn, 22)
+        GUI:Button_setTitleColor(btn, "#7BFFB0")
+        GUI:Button_titleEnableOutline(btn, "#160b05", 1)
+        if state.disabled then
+            GUI:Button_setGrey(btn, true)
+            GUI:setOpacity(btn, 220)
+        end
+        GUI:addOnClickEvent(btn, function()
+            if state.action > 0 then
+                SL:SendLuaNetMsg(100, npcid, state.action, 0, "")
+                return
+            end
+            if state.claimedDone then
+                _show_tip("该档奖励已领取")
+            elseif idx ~= state.expected then
+                _show_tip("请按顺序领取限时福利")
+            elseif state.left > 0 then
+                _show_tip("倒计时未结束")
+            else
+                _show_tip("当前档位暂不可操作")
+            end
+        end)
     end
-    GUI:addOnClickEvent(btn, function()
-        if state.action > 0 then
-            SL:SendLuaNetMsg(100, npcid, state.action, 0, "")
-            return
-        end
-        if state.claimedDone then
-            _show_tip("该档奖励已领取")
-        elseif idx ~= state.expected then
-            _show_tip("请按顺序领取限时福利")
-        elseif state.left > 0 then
-            _show_tip("倒计时未结束")
-        else
-            _show_tip("当前档位暂不可操作")
-        end
-    end)
 end
 local function _render_footer(node, npcid, payload, T_data)
     local total = _get_total_welfare_count(payload)
@@ -244,6 +251,9 @@ local function _render_footer(node, npcid, payload, T_data)
     end
     -- local hintText = create_outline_text(node, "footer_hint", 488, 136, 16, hintColor, hint, "#20120D")
     -- GUI:setAnchorPoint(hintText, 0.5, 0.5)
+    if tonumber(payload.first_charge_ready or 0) < 1 then
+        return
+    end
     local claimAllBtn = GUI:Button_Create(node, "claim_all_btn", 347 + 66, 106, CLAIM_ALL_BTN_SKIN)
     if claimed >= total then
         GUI:Button_setGrey(claimAllBtn, true)
@@ -270,7 +280,7 @@ function UI_updata(node, npcid)
     --     GUI:setAnchorPoint(GUI:ui_delegate(node).bottom_tip, 0.5, 0.5)
     -- end
     for i = 1, math.min(total, #CARD_POS_LIST) do
-        _render_card(node, npcid, payload, T_data, i)
+        _render_card(node, npcid, payload, T_data, i, tonumber(payload.first_charge_ready or 0) >= 1)
     end
     _render_footer(node, npcid, payload, T_data)
 end

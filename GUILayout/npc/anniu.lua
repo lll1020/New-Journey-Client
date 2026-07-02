@@ -7751,6 +7751,7 @@ npc[514] = function(p2, p3, Data)
             local btn = GUI:Button_Create(bg, 'btn' .. i, pos[i][1], pos[i][2], 'res/custom/sjdt/dl/' .. skinState .. '/' .. i .. '.png')
             GUI:addOnClickEvent(btn, function()
                 if not isUnlocked then
+                    SL:ShowSystemTips("<font color='#FF0000'>还未达到进入条件，不能传送</font>")
                     return
                 end
                 if i == 3 then

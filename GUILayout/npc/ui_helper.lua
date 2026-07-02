@@ -886,6 +886,10 @@ function UIHelper.setThreeCityIntroSeen(seen)
 end
 
 function UIHelper.guochang_3(skipStateQuery)
+    if not skipStateQuery and type(dl_sz) == "function" and dl_sz(3) ~= true then
+        SL:ShowSystemTips("<font color='#FF0000'>还未达到进入三大陆条件，不能传送</font>")
+        return
+    end
     if UIHelper._threeCityIntroSeen == nil and not skipStateQuery then
         SL:SendLuaNetMsg(100, 46, 8, 0, "")
         return

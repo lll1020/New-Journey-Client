@@ -585,7 +585,7 @@ local function renderForbidden(node, npcid)
     GUI:LoadingBar_setPercent(pointBar, pointPercent)
     text(node, "point_value", -58 + fx, 49, 17, "#FFFFFF", string.format("%s/%s", fmt(point), fmt(needPoint)), 0.5, 0.5)
     text(node, "forbid_tip", 194 + fx, 49, 17, "#B9F6C5", "击杀+1  炼化=大陆*10", 0.5, 0.5)
-    titleReward(node, "forbid_all_title", "初识禁器", -78 + fx, -348, n(d.has_forbidden_title) >= 1)
+    titleReward(node, "forbid_all_title", "初识禁器", -78 + fx, -220, n(d.has_forbidden_title) >= 1)
     local list = d.forbidden or {}
     local cardW = 250
     local gap = 20
@@ -593,7 +593,7 @@ local function renderForbidden(node, npcid)
     local viewW = 536
     local viewH = 250
     local innerW = cardW * 3 + gap * 2
-    local scroll = GUI:ScrollView_Create(node, "forbid_scroll", -265 + fx, -230, viewW, viewH, 2)
+    local scroll = GUI:ScrollView_Create(node, "forbid_scroll", -265 + fx, -190, viewW, viewH, 2)
     GUI:ScrollView_setBounceEnabled(scroll, true)
     GUI:ScrollView_setInnerContainerSize(scroll, innerW, viewH)
     local listNode = GUI:Layout_Create(scroll, "forbid_list_node", 0, 0, innerW, viewH)

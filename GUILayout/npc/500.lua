@@ -131,6 +131,10 @@ function npc.main(npcid, p2, p3, msgData)
         local button = GUI:Button_Create(node, "btn_enter", math.floor(bgSize.width / 2) + 50, 50, "res/custom/dlcs/btn.png")
         GUI:setAnchorPoint(button, 0.5, 0.5)
         GUI:addOnClickEvent(button, function()
+            if not enterOK then
+                SL:ShowSystemTips("<font color='#FF0000'>还未达到进入条件，不能传送</font>")
+                return
+            end
             if npcid == 503 then
                 if not hasThirdContinentHalfEntry() then
                     NPC_UI_HELPER.guochang_3()
