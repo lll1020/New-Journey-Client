@@ -1009,9 +1009,22 @@ npc.refreshLingshouMainEntry = function()
     if not showEntry then
         return
     end
+    if not npc.LeftTop or tolua.isnull(npc.LeftTop) then
+        return
+    end
+    local oldEntry = GUI:getChildByName(npc.LeftTop, "lingshou_main_entry")
+    if oldEntry and not tolua.isnull(oldEntry) then
+        GUI:removeFromParent(oldEntry)
+    end
     local node = GUI:Layout_Create(npc.LeftTop, "lingshou_main_entry", 330 - 110, -195, 90, 100, false)
+    if not node or tolua.isnull(node) then
+        return
+    end
     npc.lingshou_main_entry = node
     local btn = GUI:Button_Create(node, "button", 0, 0, "res/wy/icon/lignshou.png")
+    if not btn or tolua.isnull(btn) then
+        return
+    end
     GUI:setScale(btn, 0.7)
     npc.lingshou_main_button = btn
     GUI:addOnClickEvent(btn, function()
@@ -1019,15 +1032,20 @@ npc.refreshLingshouMainEntry = function()
         _open_lingshou_contract_entry()
     end)
     if left ~= nil and left > 0 then
-        local cd = GUI:Text_Create(node, "countdown", (145 * 0.7) / 2, 0, 13, "#45FF93", _format_pet_countdown(left))
-        GUI:setAnchorPoint(cd, 0.5, 0.5)
-        GUI:Text_enableOutline(cd, "#000000", 1)
-        GUI:Text_COUNTDOWN(cd, left, function()
-            if npc.refreshLingshouMainEntry then
-                npc._lingshou_main_render_sig = nil
-                npc.refreshLingshouMainEntry()
-            end
-        end)
+        local cd = nil
+        if node and not tolua.isnull(node) then
+            cd = GUI:Text_Create(node, "countdown", (145 * 0.7) / 2, 0, 13, "#45FF93", _format_pet_countdown(left))
+        end
+        if cd and not tolua.isnull(cd) then
+            GUI:setAnchorPoint(cd, 0.5, 0.5)
+            GUI:Text_enableOutline(cd, "#000000", 1)
+            GUI:Text_COUNTDOWN(cd, left, function()
+                if npc.refreshLingshouMainEntry then
+                    npc._lingshou_main_render_sig = nil
+                    npc.refreshLingshouMainEntry()
+                end
+            end)
+        end
     elseif left ~= nil or isDoneToDeploy then
         NPC_UI_HELPER.redpoint_create_eff(btn, {
             x = 76 + 53 + 10,
@@ -8088,7 +8106,8 @@ npc[516] = function(p2, p3, Data)
 end
 -- 顶部按钮聚宝盆入口：独立功能界面，NPC 106 只保留主线修复任务界面。
 npc[517] = function(p2, p3, Data)
-    local mod = package.loaded["GUILayout/npc/anniu_517"] or SL:Require("GUILayout/npc/anniu_517.lua", true)
+    npc._anniu_517_mod = npc._anniu_517_mod or package.loaded["GUILayout/npc/anniu_517"] or SL:Require("GUILayout/npc/anniu_517.lua", true)
+    local mod = npc._anniu_517_mod
     if mod and type(mod.main) == "function" then
         mod.main(517, p2, p3, Data)
     end

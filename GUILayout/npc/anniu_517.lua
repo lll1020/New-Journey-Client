@@ -1,4 +1,5 @@
 local npc = {}
+rawset(_G, "__TREASURE_BASIN_517_UI__", nil)
 local UPGRADE_HELPER = SL:Require("GUILayout/npc/upgrade_helper", true)
 
 local RES = "res/custom/treasureBasin/"
@@ -12,7 +13,7 @@ local selectedStone = 1
 local expandedContinent = nil
 
 local CONTINENT_LABELS = {
-    [1] = "第一大陆",
+    [1] = "通用材料",
     [2] = "第二大陆",
     [3] = "第三大陆",
     [4] = "第四大陆",
@@ -86,11 +87,59 @@ local function data()
     return npc.data or {}
 end
 
+local function isValidNode(node)
+    return node ~= nil and (not tolua or not tolua.isnull or not tolua.isnull(node))
+end
+
+local function removeChildIfExists(parent, name)
+    if not isValidNode(parent) then return end
+    local child = GUI:getChildByName(parent, name)
+    if isValidNode(child) then
+        GUI:removeChildByName(parent, name)
+    end
+end
+
 local function fmt(v)
     v = math.floor(n(v))
     if v >= 100000000 then return tostring(math.floor(v / 100000000)) .. "亿" end
     if v >= 10000 then return tostring(math.floor(v / 10000)) .. "万" end
     return tostring(v)
+end
+
+local function fmtTime(sec)
+    sec = math.max(0, math.floor(n(sec)))
+    local h = math.floor(sec / 3600)
+    local m = math.floor((sec % 3600) / 60)
+    local s = sec % 60
+    if h > 0 then
+        return string.format("%02d:%02d:%02d", h, m, s)
+    end
+    return string.format("%02d:%02d", m, s)
+end
+
+local function fmtDuration(value)
+    if type(value) == "string" and value ~= "" then
+        return value
+    end
+    return fmtTime(value or 0)
+end
+
+local function bindCountdownText(widget, sec, onDone)
+    if not widget then return end
+    local left = math.max(0, math.floor(n(sec)))
+    GUI:Text_setString(widget, fmtTime(left))
+    if left <= 0 then
+        if onDone then onDone() end
+        return
+    end
+    SL:schedule(widget, function()
+        left = math.max(0, left - 1)
+        GUI:Text_setString(widget, fmtTime(left))
+        if left <= 0 and onDone then
+            onDone()
+            onDone = nil
+        end
+    end, 1)
 end
 
 local function fontText(widget, font)
@@ -107,8 +156,9 @@ local function text(parent, name, x, y, size, color, value, ax, ay, font)
     return t
 end
 
-local function rich(parent, name, x, y, html, width, size, align)
+local function rich(parent, name, x, y, html, width, size, align, ax, ay)
     local r = GUI:RichText_Create(parent, name, x, y, tostring(html or ""), width or 260, size or 16, "#F6E8C8", align or 1, nil, nil, {outlineSize = 1, outlineColor = "#120805"})
+    GUI:setAnchorPoint(r, ax or 0, ay or 0)
     return r
 end
 
@@ -151,15 +201,19 @@ local function tipButton(parent, name, x, y, desc)
     return tip
 end
 
-local function button(parent, name, x, y, title, cb)
-    local btn = GUI:Button_Create(parent, name, x, y, "res/wy/public/an_tongyong.png")
+local function button(parent, name, x, y, title, cb, scale)
+    local btn = GUI:Button_Create(parent, name, x, y, "res/wy/public/an15.png")
     GUI:setAnchorPoint(btn, 0.5, 0.5)
-    -- GUI:setContentSize(btn, 188, 50)
-    local text = GUI:Text_Create(btn, name .. "_text", 115, 47, 24, "#FFF1B8", tostring(title or ""))
-    GUI:setAnchorPoint(text, 0.5, 0.5)
-    GUI:Text_enableOutline(text, "#120805", 3)
-    GUI:Text_setFontName(text, "fonts/502.ttf")
-    GUI:Text_setFontSize(text, 24)
+    if scale and scale ~= 1 then
+        GUI:setContentSize(btn, math.floor(104 * scale), math.floor(32 * scale))
+    else
+        GUI:setContentSize(btn, 104, 32)
+    end
+    GUI:Button_setTitleText(btn, tostring(title or ""))
+    GUI:Button_setTitleFontName(btn, "fonts/502.ttf")
+    GUI:Button_setTitleFontSize(btn, 24)
+    GUI:Button_setTitleColor(btn, "#FFF1B8")
+    GUI:Button_titleEnableOutline(btn, "#120805", 3)
     
     if cb then GUI:addOnClickEvent(btn, cb) end
     return btn
@@ -196,7 +250,27 @@ local function rewardItem(parent, key, itemName, count, x, y)
     return box
 end
 
-local function titleReward(parent, key, titleName, x, y, active)
+local function stoneBagItem(parent, key, itemName, x, y)
+    local idx = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", itemName) or 0) or 0
+    local count = 0
+    if idx > 0 then
+        count = tonumber(SL:GetMetaValue("ITEM_COUNT", idx) or 0) or 0
+    end
+    local box = GUI:Image_Create(parent, "stone_item_box_" .. tostring(key), x, y, "res/custom/ditu/58_58_kuang.png")
+    GUI:setAnchorPoint(box, 0.5, 0.5)
+    GUI:setContentSize(box, 30, 30)
+    if idx > 0 then
+        local item = GUI:ItemShow_Create(box, "item", 15, 15, {
+            index = idx,
+            count = count,
+            look = true,
+        })
+        GUI:setAnchorPoint(item, 0.5, 0.5)
+    end
+    return box
+end
+
+local function titleReward(parent, key, titleName, x, y, active, mode)
     local itemName = tostring(titleName or "") .. "[称号]"
     local idx = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", itemName) or 0) or 0
     local box = GUI:Image_Create(parent, "title_reward_box_" .. tostring(key), x, y, "res/custom/ditu/58_58_kuang.png")
@@ -210,8 +284,13 @@ local function titleReward(parent, key, titleName, x, y, active)
     else
         text(box, "fallback_title", 29, 31, 13, "#FFD66A", tostring(titleName or "称号"), 0.5, 0.5)
     end
-    text(parent, "title_reward_name_" .. tostring(key), x + 70, y + 14, 18, active and "#9DFF7C" or "#FFD66A", tostring(titleName or "称号"), 0, 0.5)
-    text(parent, "title_reward_state_" .. tostring(key), x + 70, y - 14, 16, active and "#9DFF7C" or "#FFB85A", active and "称号已获得" or "激活三件禁器后获得", 0, 0.5)
+    if mode == "bottom" then
+        text(parent, "title_reward_name_" .. tostring(key), x + 40, y + 14, 24, active and "#9DFF7C" or "#FFD66A", tostring(titleName or "称号"), 0, 0.5)
+        text(parent, "title_reward_state_" .. tostring(key), x + 40, y - 14, 24, active and "#9DFF7C" or "#FFB85A", active and "称号已获得" or "激活三件禁器后获得", 0, 0.5)
+    else
+        text(parent, "title_reward_name_" .. tostring(key), x + 40, y + 14, 24, active and "#9DFF7C" or "#FFD66A", tostring(titleName or "称号"), 0, 0.5)
+        text(parent, "title_reward_state_" .. tostring(key), x + 40, y - 14, 24, active and "#9DFF7C" or "#FFB85A", active and "称号已获得" or "激活三件禁器后获得", 0, 0.5)
+    end
     return box
 end
 
@@ -251,6 +330,10 @@ local function openBasinLevelPopup()
     local bg = npc.basinLevelPopup and npc.basinLevelPopup.node
     if not bg then return end
 
+    local function levelDesc(one)
+        return string.format("倍率 %s%%  上限 %s", tostring(one.speed or 100), tostring(one.cap_text or "无存储"))
+    end
+
     text(bg, "title", 300, 338, 30, "#FFE8A8", "聚宝盆品阶", 0.5, 0.5)
     local curIcon = GUI:Image_Create(bg, "cur_icon", 165, 192, RES .. "itme_" .. tostring(lv) .. ".png")
     GUI:setAnchorPoint(curIcon, 0.5, 0.5)
@@ -258,22 +341,23 @@ local function openBasinLevelPopup()
     GUI:setAnchorPoint(nextIcon, 0.5, 0.5)
     GUI:Image_Create(bg, "arrow", 300, 204, RES .. "jt.png")
 
-    text(bg, "cur_name", 165, 76, 22, "#FFD66A", tostring(curCfg.name or "聚宝盆"), 0.5, 0.5)
-    text(bg, "cur_lv", 165, 48, 19, "#9FE2FF", "当前 Lv." .. tostring(lv), 0.5, 0.5)
-    text(bg, "next_name", 435, 76, 22, maxed and "#9DFF7C" or "#FFD66A", maxed and "已达极品" or tostring(nextCfg.name or "聚宝盆"), 0.5, 0.5)
-    text(bg, "next_lv", 435, 48, 19, maxed and "#9DFF7C" or "#9FE2FF", maxed and "满级" or ("目标 Lv." .. tostring(nextLv)), 0.5, 0.5)
-
-    panel(bg, "info_bg", 300, 94, 250, 72, "res/wy/public/tycccc.png")
+    text(bg, "cur_name", 165, 284, 25, "#FFF1B8", tostring(curCfg.name or "聚宝盆"), 0.5, 0.5)
+    text(bg, "next_name", 435, 284, 25, maxed and "#9DFF7C" or "#FFF1B8", maxed and "已达极品" or tostring(nextCfg.name or "聚宝盆"), 0.5, 0.5)
+    text(bg, "cur_reward_title", 165, 247, 23, "#B9F6FF", "聚宝奖励", 0.5, 0.5)
+    text(bg, "next_reward_title", 435, 247, 23, "#B9F6FF", "聚宝奖励", 0.5, 0.5)
+    text(bg, "cur_reward_desc", 165, 215, 18, "#F6D08A", levelDesc(curCfg), 0.5, 0.5)
+    text(bg, "next_reward_desc", 435, 215, 18, maxed and "#9DFF7C" or "#F6D08A", maxed and "已达最高收益" or levelDesc(nextCfg), 0.5, 0.5)
+    text(bg, "cur_condition_title", 165, 162, 23, "#EFD7A0", "升级条件", 0.5, 0.5)
+    text(bg, "next_condition_title", 435, 162, 23, "#EFD7A0", "升级条件", 0.5, 0.5)
+    text(bg, "cur_condition_desc", 165, 130, 18, "#9DFF7C", "当前 Lv." .. tostring(lv), 0.5, 0.5)
     if maxed then
-        text(bg, "condition", 300, 106, 20, "#9DFF7C", "当前已是最高品阶", 0.5, 0.5)
-        text(bg, "bonus", 300, 78, 18, "#F6D08A", "炼灵倍率 " .. tostring(curCfg.speed or 100) .. "%  存储上限 " .. tostring(curCfg.cap_text or "无存储"), 0.5, 0.5)
+        text(bg, "next_condition_desc", 435, 130, 18, "#9DFF7C", "当前已是最高品阶", 0.5, 0.5)
         button(bg, "level_confirm", 300, 22, "已满级", function()
             SL:ShowSystemTips("当前已是最高品阶")
         end)
     else
-        text(bg, "condition", 300, 116, 20, lackCharge <= 0 and "#9DFF7C" or "#FF5A3D", string.format("累计充值 %s/%s", fmt(charge), fmt(needCharge)), 0.5, 0.5)
-        text(bg, "lack", 300, 92, 18, lackCharge <= 0 and "#9DFF7C" or "#FFB85A", lackCharge <= 0 and "条件已达成，重新打开后自动同步" or ("还差 " .. fmt(lackCharge)), 0.5, 0.5)
-        text(bg, "bonus", 300, 68, 17, "#F6D08A", "下阶：倍率 " .. tostring(nextCfg.speed or 100) .. "%  上限 " .. tostring(nextCfg.cap_text or "无存储"), 0.5, 0.5)
+        text(bg, "next_condition_desc", 435, 136, 18, lackCharge <= 0 and "#9DFF7C" or "#FF5A3D", string.format("累计充值 %s/%s", fmt(charge), fmt(needCharge)), 0.5, 0.5)
+        text(bg, "next_condition_lack", 435, 114, 17, lackCharge <= 0 and "#9DFF7C" or "#FFB85A", lackCharge <= 0 and "条件已达成" or ("还差 " .. fmt(lackCharge)), 0.5, 0.5)
         button(bg, "level_confirm", 300, 22, lackCharge <= 0 and "确认升级" or "条件不足", function()
             if lackCharge > 0 then
                 SL:ShowSystemTips("累计充值不足，还差 " .. fmt(lackCharge))
@@ -333,21 +417,49 @@ local function openForbiddenUpgradePopup(npcid, id, lv)
     end)
 end
 
-local function ensureWindow(npcid)
+local function ensureWindow(npcid, keepCurrent)
+    if keepCurrent and isValidNode(npc.node) then
+        return npc.node
+    end
+    if keepCurrent then
+        npc.node = nil
+        npc.bg = nil
+        npc._window = nil
+    end
     npc._window = NPC_UI_HELPER.ensureWindow(npc._window, npcid, WINDOW_OPTS)
     local root = npc._window.bg
     GUI:setLocalZOrder(npc._window.node, 99)
-    GUI:removeChildByName(root, "eff")
+    removeChildIfExists(root, "eff")
     npc.bg = GUI:Frames_Create(root, "eff", 0, 0, RES .. "bg/eff_", ".png", 1, 75, {speed = 75, count = 75, loop = -1})
     GUI:setAnchorPoint(npc.bg, 0.5, 0.5)
     GUI:setTouchEnabled(npc.bg, true)
-    GUI:removeChildByName(npc.bg, "node")
+    removeChildIfExists(npc.bg, "node")
     npc.node = GUI:Node_Create(npc.bg, "node", 500, 360)
     return npc.node
 end
 
 local function renderBase(node)
     image(npc.bg, "title", 500, 520, RES .. "title.png")
+end
+
+local renderLevelInfo
+local renderEnergy
+local renderRefine
+local renderForbidden
+
+local function renderContent(node, npcid)
+    if not isValidNode(node) then return end
+    removeChildIfExists(node, "content_layer")
+    local content = GUI:Node_Create(node, "content_layer", 0, 0)
+    if not isValidNode(content) then return end
+    if tab == 1 then
+        renderLevelInfo(content, npcid)
+        renderEnergy(content, npcid)
+    elseif tab == 2 then
+        renderRefine(content, npcid)
+    else
+        renderForbidden(content, npcid)
+    end
 end
 
 local function renderTabs(node, npcid)
@@ -372,19 +484,19 @@ local function renderTabs(node, npcid)
         end
         text(node, "tab_mark_" .. i, -420, y, selected and 27 or 20, selected and "#FFF4B0" or "#A96A2E", selected and "◆" or "◇", 0.5, 0.5)
         text(node, "tab_text_" .. i, -337, y + 1, selected and 28 or 22, selected and "#FFF1B8" or "#C98C45", name, 0.5, 0.5)
-        if (i == 1 and redState.energy) or (i == 2 and redState.refine) then
+        if not selected and ((i == 1 and redState.energy) or (i == 2 and redState.refine)) then
             NPC_UI_HELPER.redpoint_create_eff(bg, {x = 178, y = 42, autoScale = 0.75})
         end
         local touch = GUI:Layout_Create(node, "tab_touch_" .. i, -455, y - 25, 220, 50, false)
         GUI:setTouchEnabled(touch, true)
         GUI:addOnClickEvent(touch, function()
             tab = i
-            npc.render(npcid)
+            npc.render(npcid, false)
         end)
     end
 end
 
-local function renderLevelInfo(node, npcid)
+renderLevelInfo = function(node, npcid)
     local lx = 30
     panel(node, "level_info_panel", 306 + lx, -48, 292, 254, "res/wy/public/tycccc.png")
     local d = data()
@@ -404,10 +516,12 @@ local function renderLevelInfo(node, npcid)
     text(node, "level_state", 306 + lx, -85, 20, color, state, 0.5, 0.5)
     text(node, "level_speed", 306 + lx, -113, 18, "#9FE2FF", "炼灵倍率  " .. tostring(lc.speed or 100) .. "%", 0.5, 0.5)
     text(node, "level_cap", 306 + lx, -140, 18, "#FFD07A", "存储上限  " .. tostring(lc.cap_text or "无存储"), 0.5, 0.5)
-    smallButton(node, "level_up_btn", 306 + lx, -173, "品阶", openBasinLevelPopup, "#FFE7A8")
+    button(node, "level_up_btn", 306 + lx, -203, "提升品阶", function()
+        openBasinLevelPopup()
+    end,1.5)
 end
 
-local function renderEnergy(node, npcid)
+renderEnergy = function(node, npcid)
     local ex = 40
     panel(node, "energy_info_panel", -72 + ex, -48, 430, 286, "res/wy/public/tycccc.png")
     local d = data()
@@ -447,16 +561,16 @@ local function renderEnergy(node, npcid)
     rewardItem(node, "energy_iron", "千年玄铁", r.iron, -72 + ex, -84)
     rewardItem(node, "energy_hat", "斗笠碎片", r.hat, 0 + ex, -84)
     tipButton(node, "energy_rule_tip", 83 + ex, -45, "<font color='#F2E0B6'>在线完整累计，离线收益为在线的</font><font color='#7FE9FF'>50%</font><br/><font color='#F2E0B6'>存储上限跟聚宝盆品阶有关，领取后清空当前存储。</font>")
-    local claimBtn = button(node, "claim_energy", -72 + ex, -174, "领取聚能", function()
+    local claimBtn = button(node, "claim_energy", -72 + ex, -164, "领取聚能", function()
         SL:SendLuaNetMsg(101, npcid, 1, 0, "")
-    end)
+    end, 1.5)
     local redState = UPGRADE_HELPER and UPGRADE_HELPER.treasureBasinRedState and UPGRADE_HELPER.treasureBasinRedState(d) or {}
     if redState.energy then
         NPC_UI_HELPER.redpoint_create_eff(claimBtn, {x = 205, y = 60, autoScale = 0.75})
     end
 end
 
-local function renderRefine(node, npcid)
+renderRefine = function(node, npcid)
     local rx = 100
     panel(node, "refine_list_panel", -132 + rx, -50, 300, 280, "res/wy/public/tycccc.png")
     panel(node, "refine_state_panel", 306, -50, 292, 280, "res/wy/public/tycccc.png")
@@ -492,81 +606,117 @@ local function renderRefine(node, npcid)
     if not expandedContinent and groupOrder[1] then
         expandedContinent = groupOrder[1]
     end
-    titleBar(node, "refine_title", -132 + rx, 78, "宝石选择", 210)
-    text(node, "stone_tip", -132 + rx, 51, 16, "#E9D7B2", "按大陆折叠显示，仅列出已解锁宝石", 0.5, 0.5)
-    local cursorY = 22
+    titleBar(node, "refine_title", -132 + rx, 82, "宝石选择", 218)
+    text(node, "stone_tip", -132 + rx, 54, 17, "#E9D7B2", "已解锁大陆宝石列表", 0.5, 0.5)
+
+    local viewW = 280
+    local viewH = 216
+    local innerH = 18
+    for _, continent in ipairs(groupOrder) do
+        innerH = innerH + 42
+        if expandedContinent == continent then
+            local group = groups[continent] or {bind = {}, free = {}}
+            innerH = innerH + math.max(#group.bind, #group.free) * 36 + 6
+        end
+    end
+    innerH = math.max(viewH, innerH)
+    local scroll = GUI:ScrollView_Create(node, "stone_scroll", -272 + rx, -182, viewW, viewH, 1)
+    GUI:ScrollView_setBounceEnabled(scroll, true)
+    GUI:ScrollView_setInnerContainerSize(scroll, viewW, innerH)
+    local listNode = GUI:Layout_Create(scroll, "stone_list_node", 0, 0, viewW, innerH, false)
+
+    local cursorY = innerH - 22
     for _, continent in ipairs(groupOrder) do
         local isOpen = expandedContinent == continent
         local group = groups[continent] or {bind = {}, free = {}}
         local headerSkin = "res/wy/public/000.png"
-        local headerBg = GUI:Image_Create(node, "stone_group_bg_" .. continent, -132 + rx, cursorY, headerSkin)
+        local headerBg = GUI:Image_Create(listNode, "stone_group_bg_" .. continent, viewW / 2, cursorY, headerSkin)
         GUI:setAnchorPoint(headerBg, 0.5, 0.5)
         GUI:setLocalZOrder(headerBg, -1)
-        text(node, "stone_group_arrow_" .. continent, -232 + rx, cursorY + 1, 20, isOpen and "#9DFF7C" or "#D8AA68", isOpen and "◆" or "◇", 0.5, 0.5)
-        text(node, "stone_group_text_" .. continent, -132 + rx, cursorY + 1, 24, isOpen and "#FFF1B8" or "#F4D179", continentName(continent), 0.5, 0.5)
-        local headerTouch = GUI:Layout_Create(node, "stone_group_touch_" .. continent, -257 + rx, cursorY - 15, 250, 30, false)
+        GUI:setContentSize(headerBg, 260, 38)
+        text(listNode, "stone_group_arrow_" .. continent, 36, cursorY + 1, 23, isOpen and "#78FF7A" or "#C58A3E", isOpen and "◆" or "◇", 0.5, 0.5)
+        text(listNode, "stone_group_text_" .. continent, 136, cursorY + 1, 27, isOpen and "#FFF1B8" or "#E8B86D", continentName(continent), 0.5, 0.5)
+        local headerTouch = GUI:Layout_Create(listNode, "stone_group_touch_" .. continent, 10, cursorY - 19, 260, 38, false)
         GUI:setTouchEnabled(headerTouch, true)
         GUI:addOnClickEvent(headerTouch, function()
             expandedContinent = isOpen and nil or continent
-            npc.render(npcid)
+            npc.render(npcid, true)
         end)
-        cursorY = cursorY - 34
+        cursorY = cursorY - 42
         if isOpen then
             local function renderStoneItem(item, col)
                 local i = item.idx
                 local one = item.cfg
-                local x = -132 + rx
+                local x = viewW / 2
                 local y = cursorY
                 local selected = selectedStone == i
-                local rowBg = GUI:Image_Create(node, "stone_row_bg_" .. i, x, y, "res/wy/public/new_kuang.png")
+                local rowBg = GUI:Image_Create(listNode, "stone_row_bg_" .. i, x + 8, y, "res/wy/public/new_kuang.png")
                 GUI:setAnchorPoint(rowBg, 0.5, 0.5)
+                GUI:setContentSize(rowBg, selected and 234 or 222, 32)
                 GUI:setLocalZOrder(rowBg, -1)
-                text(node, "stone_" .. i, x, y + 1, selected and 17 or 16, selected and "#9DFF7C" or (col == 1 and "#F4D179" or "#9FE2FF"), (selected and "◆ " or "") .. tostring(one.name or ""), 0.5, 0.5)
-                local touch = GUI:Layout_Create(node, "stone_touch_" .. i, x - 125, y - 14, 250, 28, false)
+                local displayName = tostring(one.name or "")
+                if tonumber(one.continent or 0) > 1 then
+                    displayName = col == 1 and "宝石·绑定" or "宝石·非绑"
+                end
+                stoneBagItem(listNode, "stone_" .. i, tostring(one.name or ""), x - 88, y + 1)
+                text(listNode, "stone_dot_" .. i, x - 56, y + 1, selected and 20 or 17, selected and "#78FF7A" or "#9B7141", selected and "◆" or "◇", 0.5, 0.5)
+                text(listNode, "stone_" .. i, x - 32, y + 1, selected and 20 or 18, selected and "#9DFF7C" or (col == 1 and "#D9C08A" or "#8FC8E8"), displayName, 0, 0.5)
+                local touch = GUI:Layout_Create(listNode, "stone_touch_" .. i, x - 112, y - 16, 234, 32, false)
                 GUI:setTouchEnabled(touch, true)
                 GUI:addOnClickEvent(touch, function()
                     selectedStone = i
                     expandedContinent = continent
-                    npc.render(npcid)
+                    npc.render(npcid, true)
                 end)
-                cursorY = cursorY - 28
+                cursorY = cursorY - 36
             end
             local maxRows = math.max(#group.bind, #group.free)
             for row = 1, maxRows do
                 if group.bind[row] then renderStoneItem(group.bind[row], 1) end
                 if group.free[row] then renderStoneItem(group.free[row], 2) end
             end
-            cursorY = cursorY - 4
+            cursorY = cursorY - 6
         end
     end
     if #visible <= 1 then
-        text(node, "stone_empty_tip", -34 + rx, -13, 16, "#FFB85A", "解锁新大陆后开放专属宝石", 0.5, 0.5)
+        text(listNode, "stone_empty_tip", viewW / 2, innerH / 2, 16, "#FFB85A", "解锁新大陆后开放专属宝石", 0.5, 0.5)
     end
     local cfg = stonesCfg()[selectedStone] or stonesCfg()[1] or {}
-    titleBar(node, "play_title", 306, 78, "玩法说明", 230)
-    panel(node, "sel_info_bg", 306, 18, 236, 82, "res/wy/public/new_kuang.png")
-    text(node, "sel_name", 306, 45, 20, "#FFD66A", cfg.name, 0.5, 0.5)
-    text(node, "sel_time", 306, 15, 18, "#9FE2FF", "炼灵耗时  " .. tostring(cfg.time or 0) .. " 秒", 0.5, 0.5)
-    panel(node, "sel_desc_bg", 306, -66, 236, 94, "res/wy/public/new_kuang.png")
-    rich(node, "sel_desc", 196, -33, "<font color='#E9D7B2'>产出规则：</font><font color='#F6D08A'>" .. tostring(cfg.desc or "") .. "</font>", 220, 18, 1)
+    titleBar(node, "play_title", 306, 82, "炼灵信息", 230)
+    panel(node, "sel_info_bg", 306, 22, 244, 86, "res/wy/public/new_kuang.png")
+    text(node, "sel_label", 306, 51, 17, "#B9F6FF", "当前选择", 0.5, 0.5)
+    text(node, "sel_name", 306, 25, 22, "#FFD66A", cfg.name, 0.5, 0.5)
+    text(node, "sel_time", 306, -2, 18, "#9FE2FF", "炼灵耗时  " .. fmtDuration(cfg.time), 0.5, 0.5)
+    panel(node, "sel_desc_bg", 306, -70, 244, 86, "res/wy/public/new_kuang.png")
+    rich(node, "sel_desc", 196, -32 - 5, "<font color='#E9D7B2'>产出：</font><font color='#F6D08A'>" .. tostring(cfg.desc or "") .. "</font>", 222, 16, 1, 0, 1)
     if n(ref.active) >= 1 then
         local done = n(ref.done) >= 1
-        text(node, "ref_status", 306, -124, 20, done and "#9DFF7C" or "#FFB85A", done and "炼灵完成，可领取" or ("炼灵中 " .. tostring(ref.left or 0) .. "秒"), 0.5, 0.5)
-        local claimBtn = button(node, "claim_refine", 306, -194, "领取产物", function()
+        panel(node, "ref_countdown_bg", 306, -135, 244, 54, "res/wy/public/000.png")
+        text(node, "ref_status_label", 252, -124, 18, done and "#9DFF7C" or "#FFB85A", done and "炼灵完成" or "剩余倒计时", 0.5, 0.5)
+        local countdownText = text(node, "ref_status_time", 356, -124, 26, done and "#9DFF7C" or "#FF5A3D", done and "可领取" or fmtTime(ref.left or 0), 0.5, 0.5)
+        if not done then
+            bindCountdownText(countdownText, ref.left or 0, function()
+                GUI:Text_setString(countdownText, "可领取")
+                npc.render(npcid, true)
+            end)
+        end
+        local claimBtn = button(node, "claim_refine", 266 + 40, -194, "领取产物", function()
             SL:SendLuaNetMsg(101, npcid, 3, 0, "")
-        end)
+        end, 1.5)
         if done then
-            NPC_UI_HELPER.redpoint_create_eff(claimBtn, {x = 205, y = 60, autoScale = 0.75})
+            NPC_UI_HELPER.redpoint_create_eff(claimBtn, {x = 205, y = 40, autoScale = 0.6})
         end
     else
-        text(node, "ref_status", 306, -124, 20, "#B9F6C5", "当前空闲，可放入一枚宝石", 0.5, 0.5)
-        button(node, "start_refine", 306, -194, "开始炼灵", function()
+        panel(node, "ref_countdown_bg", 306, -135, 244, 54, "res/wy/public/000.png")
+        text(node, "ref_status_label", 252, -124, 18, "#B9F6C5", "炼灵状态", 0.5, 0.5)
+        text(node, "ref_status_time", 356, -124, 22, "#9DFF7C", "空闲", 0.5, 0.5)
+        button(node, "start_refine", 266 + 40, -194, "开始炼灵", function()
             SL:SendLuaNetMsg(101, npcid, 2, 0, SL:JsonEncode({stone = cfg.name}))
-        end)
+        end, 1.5)
     end
 end
 
-local function renderForbidden(node, npcid)
+renderForbidden = function(node, npcid)
     local fx = 95
     panel(node, "forbid_list_panel", -16 + fx, -82, 570, 392, "res/wy/public/tycccc.png")
     local d = data()
@@ -585,15 +735,15 @@ local function renderForbidden(node, npcid)
     GUI:LoadingBar_setPercent(pointBar, pointPercent)
     text(node, "point_value", -58 + fx, 49, 17, "#FFFFFF", string.format("%s/%s", fmt(point), fmt(needPoint)), 0.5, 0.5)
     text(node, "forbid_tip", 194 + fx, 49, 17, "#B9F6C5", "击杀+1  炼化=大陆*10", 0.5, 0.5)
-    titleReward(node, "forbid_all_title", "初识禁器", -78 + fx, -220, n(d.has_forbidden_title) >= 1)
+    titleReward(node, "forbid_all_title", "初识禁器", -16 + fx - 244, -188 - 120, n(d.has_forbidden_title) >= 1, "bottom")
     local list = d.forbidden or {}
     local cardW = 250
     local gap = 20
     local cardH = 236
     local viewW = 536
-    local viewH = 250
+    local viewH = 286 + 60
     local innerW = cardW * 3 + gap * 2
-    local scroll = GUI:ScrollView_Create(node, "forbid_scroll", -265 + fx, -190, viewW, viewH, 2)
+    local scroll = GUI:ScrollView_Create(node, "forbid_scroll", -265 + fx - 33, -232 - 30, viewW + 33, viewH, 2)
     GUI:ScrollView_setBounceEnabled(scroll, true)
     GUI:ScrollView_setInnerContainerSize(scroll, innerW, viewH)
     local listNode = GUI:Layout_Create(scroll, "forbid_list_node", 0, 0, innerW, viewH)
@@ -607,47 +757,44 @@ local function renderForbidden(node, npcid)
         local buttonAction = selected and 7 or 6
         local cardX = (i - 1) * (cardW + gap)
         local card = GUI:Layout_Create(listNode, "forbid_card_" .. i, cardX, 0, cardW, viewH, false)
-        panel(card, "forbid_row_bg_" .. i, cardW / 2, viewH / 2, cardW, cardH, "res/wy/public/new_kuang.png")
-        rewardItem(card, "forbid_equip_" .. i, tostring(fc.name or "禁器"), 1, cardW / 2, 182)
-        text(card, "forbid_lv_" .. i, cardW / 2 + 28, 155, 15, active and "#9DFF7C" or "#9A9A9A", "Lv." .. tostring(lv), 1, 0)
-        text(card, "forbid_name_" .. i, cardW / 2, 132, 19, "#FFD66A", tostring(fc.name or "禁器"), 0.5, 0.5)
-        text(card, "forbid_grade_" .. i, cardW / 2, 105, 17, selected and "#FFE7A8" or (active and "#9FE2FF" or "#FF5A3D"), selected and "当前外显" or (active and "已激活" or "未激活"), 0.5, 0.5)
-        text(card, "forbid_plus_" .. i, cardW / 2, 78, 16, "#B9F6C5", tostring(fc.plus or ""), 0.5, 0.5)
-        local stateIcon = GUI:Image_Create(card, "forbid_state_" .. i, cardW / 2 + 44, 126, active and "res/wy/public/10_2.png" or "res/wy/public/10_1.png")
+        panel(card, "forbid_row_bg_" .. i, cardW / 2, viewH / 2 - 20, cardW, cardH + 60, "res/wy/public/anniu_999_bj.png")
+        rewardItem(card, "forbid_equip_" .. i, tostring(fc.name or "禁器"), 1, cardW / 2, 192 + 30)
+        text(card, "forbid_lv_" .. i, cardW / 2 + 30, 166 + 30, 15, active and "#9DFF7C" or "#9A9A9A", "Lv." .. tostring(lv), 1, 0)
+        text(card, "forbid_name_" .. i, cardW / 2, 145 + 30, 19, "#FFD66A", tostring(fc.name or "禁器"), 0.5, 0.5)
+        local stateIcon = GUI:Image_Create(card, "forbid_state_" .. i, cardW / 2 + 44, 128 + 30, active and "res/wy/public/10_2.png" or "res/wy/public/10_1.png")
         GUI:setAnchorPoint(stateIcon, 0.5, 0.5)
-        smallButton(card, "forbid_select_" .. i, cardW / 2, 45, buttonText, function()
+        text(card, "forbid_grade_" .. i, cardW / 2, 102 + 30, 17, selected and "#FFE7A8" or (active and "#9FE2FF" or "#FF5A3D"), selected and "当前外显" or (active and "已激活" or "未激活"), 0.5, 0.5)
+        text(card, "forbid_plus_" .. i, cardW / 2, 74 + 30, 16, "#B9F6C5", tostring(fc.plus or ""), 0.5, 0.5)
+        smallButton(card, "forbid_select_" .. i, cardW / 2, 43 + 30, buttonText, function()
             SL:SendLuaNetMsg(101, npcid, buttonAction, i, "")
         end, selected and "#FFE7A8" or (active and "#9FE2FF" or "#9DFF7C"))
         if not active then
-            smallButton(card, "forbid_unlock_" .. i, cardW / 2, 10, "激活", function()
+            smallButton(card, "forbid_unlock_" .. i, cardW / 2, 8 + 30, "激活", function()
                 SL:SendLuaNetMsg(101, npcid, 4, i, "")
             end, "#FFD66A")
         elseif lv < 5 then
-            smallButton(card, "forbid_upgrade_" .. i, cardW / 2, 10, "升级", function()
+            smallButton(card, "forbid_upgrade_" .. i, cardW / 2, 8 + 30, "升级", function()
                 openForbiddenUpgradePopup(npcid, i, lv)
             end, "#FFD66A")
         end
     end
 end
 
-function npc.render(npcid)
-    local node = ensureWindow(npcid)
-    renderBase(node)
-    renderTabs(node, npcid)
-    if tab == 1 then
-        renderLevelInfo(node, npcid)
+function npc.render(npcid, contentOnly)
+    local node = ensureWindow(npcid, contentOnly == true)
+    contentOnly = contentOnly == true and isValidNode(node)
+    if not contentOnly then
+        renderBase(node)
+        renderTabs(node, npcid)
     end
-    if tab == 1 then
-        renderEnergy(node, npcid)
-    elseif tab == 2 then
-        renderRefine(node, npcid)
-    else
-        renderForbidden(node, npcid)
-    end
+    renderContent(node, npcid)
 end
 
 function npc.main(npcid, p2, p3, msgData)
+    local forceFullRefresh = false
+    local hasWindow = isValidNode(npc.node)
     if tonumber(p2 or 0) >= 4 and tonumber(p2 or 0) <= 7 then
+        forceFullRefresh = tab ~= 3
         tab = 3
     end
     if msgData and msgData ~= "" then
@@ -656,7 +803,7 @@ function npc.main(npcid, p2, p3, msgData)
     else
         npc.data = npc.data or {}
     end
-    npc.render(npcid)
+    npc.render(npcid, hasWindow and not forceFullRefresh)
 end
 
 return npc

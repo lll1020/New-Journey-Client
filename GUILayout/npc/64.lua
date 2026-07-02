@@ -67,6 +67,12 @@ local LINGSHOU_BABY_STYLE = {
     [4] = {title = "白虎破军", desc = "锋芒入阵，暴击破防", mark = "暴击破防", color = "#F6F0FF"},
     [5] = {title = "玄水藏珍", desc = "聚运寻宝，控场生财", mark = "聚运控场", color = "#75D9FF"},
 }
+local LINGSHOU_BABY_SECONDS = 48 * 3600
+
+local function _valid_node(node)
+    return node ~= nil and (not tolua or not tolua.isnull or not tolua.isnull(node))
+end
+
 local function _server_now(payload)
     local now = tonumber(payload and payload.server_time or 0) or 0
     if now <= 0 and SL and SL.GetMetaValue then
@@ -87,6 +93,45 @@ local function _format_seconds(seconds)
         return string.format("%02d:%02d:%02d", h, m, s)
     end
     return string.format("%02d:%02d", m, s)
+end
+
+local function _hatch_total_seconds(hatch, remain)
+    local startAt = tonumber(hatch and hatch.startAt or 0) or 0
+    local expireAt = tonumber(hatch and hatch.expireAt or 0) or 0
+    if expireAt > startAt then
+        return expireAt - startAt
+    end
+    return math.max(LINGSHOU_BABY_SECONDS, tonumber(remain or 0) or 0)
+end
+
+local function _set_hatch_progress(fill, left, total, maxW)
+    if not _valid_node(fill) then return end
+    total = math.max(1, tonumber(total or 0) or 1)
+    left = math.max(0, tonumber(left or 0) or 0)
+    local percent = math.max(0, math.min(1, (total - left) / total))
+    GUI:setContentSize(fill, math.floor((maxW or 244) * percent), 16)
+end
+
+local function _bind_hatch_countdown(textNode, fillNode, remain, total)
+    if not _valid_node(textNode) then return end
+    local left = math.max(0, math.floor(tonumber(remain or 0) or 0))
+    local maxW = 244
+    local function update()
+        if not _valid_node(textNode) then return false end
+        if left <= 0 then
+            GUI:Text_setString(textNode, "灵契已成，可出战")
+            _set_hatch_progress(fillNode, 0, total, maxW)
+            return false
+        end
+        GUI:Text_setString(textNode, "灵契凝息  " .. _format_seconds(left))
+        _set_hatch_progress(fillNode, left, total, maxW)
+        return true
+    end
+    if not update() then return end
+    SL:schedule(textNode, function()
+        left = math.max(0, left - 1)
+        update()
+    end, 1)
 end
 
 local function _get_hatch(idx)
@@ -408,27 +453,37 @@ function npc.main(npcid, p2, p3, msgData)
         local name = _outline_text(node, "pet_name", 225, 205, 21, "#FFE49A", babyName, {font = "fonts/502.ttf", outline = "#2A1200", outlineSize = 2})
         GUI:setAnchorPoint(name, 0.5, 0.5)
 
-        local progressBg = GUI:Image_Create(node, "hatch_progress_bg", 225, 160, "res/wy/public/new_kuang.png")
+        local progressBg = GUI:Image_Create(node, "hatch_progress_bg", 225, 154, "res/wy/public/new_kuang.png")
         GUI:setAnchorPoint(progressBg, 0.5, 0.5)
-        GUI:setContentSize(progressBg, 250, 18)
-        local progressText = _outline_text(node, "hatch_progress_text", 225, 184, 19, "#FFE49A", isHatching and ("灵契凝息  " .. _format_seconds(remain)) or (canDeploy and "灵契已成，可出战" or status), {outline = "#1B0A00", outlineSize = 2})
+        GUI:setContentSize(progressBg, 252, 16)
+        local progressText = _outline_text(node, "hatch_progress_text", 225, 180, 19, "#FFE49A", isHatching and ("灵契凝息  " .. _format_seconds(remain)) or (canDeploy and "灵契已成，可出战" or status), {outline = "#1B0A00", outlineSize = 2})
         GUI:setAnchorPoint(progressText, 0.5, 0.5)
-        local progressFill = GUI:Layout_Create(node, "hatch_progress_fill", 102, 153, isHatching and 80 or 240, 14, false)
+        local total = _hatch_total_seconds(hatch, remain)
+        local progressFill = GUI:Layout_Create(node, "hatch_progress_fill", 101, 146, isHatching and 1 or 244, 16, false)
         GUI:Layout_setBackGroundColorType(progressFill, 1)
         GUI:Layout_setBackGroundColor(progressFill, canDeploy and "#62D878" or "#F0C15A")
-        GUI:Layout_setBackGroundColorOpacity(progressFill, 180)
+        GUI:Layout_setBackGroundColorOpacity(progressFill, 205)
+        if isHatching then
+            _bind_hatch_countdown(progressText, progressFill, remain, total)
+        else
+            _set_hatch_progress(progressFill, 0, 1, 244)
+        end
 
         local infoPanel = GUI:Image_Create(node, "info_panel", 520, 294, "res/wy/public/new_kuang.png")
         GUI:setAnchorPoint(infoPanel, 0.5, 0.5)
         GUI:setContentSize(infoPanel, 330, 230)
-        _contract_title(node, "info_title", 520, 390, 25, "灵兽修行")
+        _contract_title(node, "info_title", 520, 390, 25, "灵兽特性")
+        local style = LINGSHOU_BABY_STYLE[idx] or {}
+        local title = tostring(style.title or "灵兽本源")
+        local mark = tostring(style.mark or "协同作战")
+        local desc = tostring(style.desc or "成长出战，并肩征战")
         local lines = {
-            {"灵兽可淬炼星级，星耀越盛，战力越强。", "#F7E8C5"},
-            {"可佩戴专属圣物，后续大陆可寻得机缘。", "#F7E8C5"},
-            {"可与本命灵根共鸣，激活专属协同被动。", "#FF5A3D"},
-            {"每日灵兽谷击杀神秘灵兽，可获珍稀掉落。", "#F7E8C5"},
-            {"提升亲密好感，可令灵兽成长更快更强。", "#FF5A3D"},
-            {"更多御兽秘法，前往四大陆后自行参悟。", "#F7E8C5"},
+            {"本源：" .. title .. "，" .. desc .. "。", style.color or "#FFD66A"},
+            {"定位：" .. mark .. "，出战后提供对应战斗特性。", "#F7E8C5"},
+            {"属性：生命、防御、攻击会随成长逐步提升。", "#B9F6C5"},
+            {"亲密：提升亲密度可提高灵兽成长和协同强度。", "#FFB85A"},
+            {"星级：淬炼星级越高，灵兽基础属性越强。", "#F7E8C5"},
+            {"协同：后续可与灵根/圣物形成专属被动效果。", "#FF5A3D"},
         }
         for i, line in ipairs(lines) do
             _contract_line(node, "info_line_" .. i, 366, 366 - i * 25, "· " .. line[1], line[2], 16)
