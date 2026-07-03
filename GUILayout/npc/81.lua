@@ -19,14 +19,14 @@ local ENTER_BTN_SKIN = "res/custom/six_city/血契之门/进入秘境.png"
 local CHECK_BG_SKIN = "res/custom/six_city/血契之门/对勾底.png"
 local CHECK_OK_SKIN = "res/custom/six_city/血契之门/对勾.png"
 local ITEM_BOX_SKIN = "res/custom/six_city/血契之门/装备框-.png"
+local CONFIRM_BTN_SKIN = "res/wy/public/an15.png"
 local FONT_MAIN = "fonts/font4.ttf"
 local FONT_TITLE = "fonts/502.ttf"
 
 local PREVIEW_POS = {x = 254, y = 272}
-local ACTION_BTN_POS = {x = 560, y = 72}
+local ACTION_BTN_POS = {x = 470, y = 72}
 local CHECK_POS = {x = 712, y = 58}
 
--- 说明：统一转数字，避免服务端字段为空时界面渲染报错。
 local function toNumber(value, defaultValue)
     local num = tonumber(value)
     if num == nil then
@@ -35,22 +35,18 @@ local function toNumber(value, defaultValue)
     return num
 end
 
--- 说明：返回当前面板数据。
 local function getPanelData()
     return npc.data or {}
 end
 
--- 说明：固定配置只读取客户端 teshudata，服务端只下发动态状态。
 local function getConfig()
     return npc._config or DEFAULT_CONFIG
 end
 
--- 说明：读取血契之门文案配置。
 local function getTextPack()
     return getConfig().texts or {}
 end
 
--- 说明：创建并复用主窗口。
 local function ensureWindow(npcid)
     local opts = {}
     local cfg = getConfig()
@@ -65,27 +61,22 @@ local function ensureWindow(npcid)
     return npc.node
 end
 
--- 说明：读取签订契约状态。
 local function hasContract()
     return toNumber(getPanelData().contract, 0) == 1
 end
 
--- 说明：读取是否满足前置称号条件。
 local function hasTitleNeed()
     return toNumber(getPanelData().has_title, 0) == 1
 end
 
--- 说明：读取当前是否处于可进入状态。
 local function canEnter()
     return toNumber(getPanelData().can_enter, 0) == 1
 end
 
--- 说明：读取玩家是否已处于血契地图内。
 local function inContractMap()
     return toNumber(getPanelData().in_map, 0) == 1
 end
 
--- 说明：统一创建带描边的文本。
 local function createText(parent, name, x, y, size, color, text, fontName, anchorX, anchorY)
     local label = GUI:Text_Create(parent, name, x, y, size or 18, color or "#FFFFFF", tostring(text or ""))
     GUI:Text_setFontName(label, fontName or FONT_MAIN)
@@ -96,26 +87,80 @@ local function createText(parent, name, x, y, size, color, text, fontName, ancho
     return label
 end
 
--- 说明：统一创建富文本区域，便于描述信息换行展示。
 local function createRichText(parent, name, x, y, text, width, size, anchorX, anchorY)
     local rich = GUI:RichText_Create(parent, name, x, y, tostring(text or ""), width or 260, size or 18, "#FFFFFF", 0, nil, nil)
     GUI:setAnchorPoint(rich, anchorX or 0, anchorY or 0)
     return rich
 end
 
--- 说明：渲染掉落预览图标。
+local function closeContractConfirm()
+    if npc.contractConfirmWindow then
+        UIHelper.closeWindow(npc.contractConfirmWindow)
+        npc.contractConfirmWindow = nil
+        npc.contractConfirmNode = nil
+    end
+end
+
+local function openContractConfirm(npcid)
+    closeContractConfirm()
+    local opts = {
+        windowName = "npc_81_contract_confirm",
+        background = {skin = "res/wy/public/tongyong_0.png", eff = false},
+        closeButton = {x = 390, y = 230, skin = "res/wy/public/close_red_big.png", onClick = closeContractConfirm},
+    }
+    npc.contractConfirmWindow = UIHelper.ensureWindow(npc.contractConfirmWindow, npcid, opts)
+    npc.contractConfirmNode = npc.contractConfirmWindow and npc.contractConfirmWindow.node or nil
+    local node = npc.contractConfirmNode
+    if not node then
+        return
+    end
+    GUI:removeAllChildren(node)
+
+    createText(node, "confirm_title", 210, 214, 26, "#FFE2A5", "签订血色契约", FONT_TITLE, 0.5, 0.5)
+    createRichText(
+        node,
+        "confirm_risk",
+        44,
+        160,
+        "<font color='#FFB85A'>签订前请确认风险：</font><br/>"
+            .. "<font color='#F5E6C6'>1. 秘境内爆率提高，但死亡会掉落一件非系统绑定装备。</font><br/>"
+            .. "<font color='#F5E6C6'>2. 签订后方可进入血契秘境，请谨慎操作。</font>",
+        330,
+        18,
+        0,
+        0
+    )
+
+    local confirmBtn = GUI:Button_Create(node, "confirm_btn", 92, 34, CONFIRM_BTN_SKIN)
+    GUI:setContentSize(confirmBtn, 104, 32)
+    GUI:Button_setTitleText(confirmBtn, "确定签约")
+    GUI:addOnClickEvent(confirmBtn, function()
+        closeContractConfirm()
+        SL:SendLuaNetMsg(100, npcid, 1, 0, "")
+    end)
+
+    local cancelBtn = GUI:Button_Create(node, "cancel_btn", 224, 34, CONFIRM_BTN_SKIN)
+    GUI:setContentSize(cancelBtn, 104, 32)
+    GUI:Button_setTitleText(cancelBtn, "暂不签约")
+    GUI:addOnClickEvent(cancelBtn, closeContractConfirm)
+end
+
 local function renderPreviewItem(parent)
     local cfg = getConfig()
     local previewName = tostring(cfg.preview_item or "")
     local itemIndex = previewName ~= "" and toNumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", previewName), 0) or 0
     local box = GUI:Image_Create(parent, "preview_box", 0, 0, ITEM_BOX_SKIN)
     if itemIndex > 0 then
-        GUI:setAnchorPoint(GUI:ItemShow_Create(box, "preview_item", 25, 26, {index = itemIndex, look = true, movable = false, bgVisible = false}), 0.5, 0.5)
+        GUI:setAnchorPoint(GUI:ItemShow_Create(box, "preview_item", 29, 30, {
+            index = itemIndex,
+            look = true,
+            movable = false,
+            bgVisible = false,
+        }), 0.5, 0.5)
     end
     return box
 end
 
--- 说明：返回进入按钮的当前状态文案与颜色。
 local function getEnterStateInfo()
     local textPack = getTextPack()
     if inContractMap() then
@@ -133,7 +178,6 @@ local function getEnterStateInfo()
     return textPack.not_open or "血契之门当前未开启", "#FF9A66"
 end
 
--- 说明：返回契约按钮的当前状态文案与颜色。
 local function getContractStateInfo()
     local textPack = getTextPack()
     if hasContract() then
@@ -142,31 +186,25 @@ local function getContractStateInfo()
     return "点击签订血色契约", "#FF6A6A"
 end
 
--- 说明：渲染左侧产出预览区。
 local function renderPreviewSection(node)
-    local cfg = getConfig()
     local previewNode = GUI:Node_Create(node, "preview_node", PREVIEW_POS.x, PREVIEW_POS.y)
     renderPreviewItem(previewNode)
 end
 
--- 说明：渲染主界面按钮区与状态区。
 local function renderActionArea(node, npcid)
     local signed = hasContract()
     local inMap = inContractMap()
+
     if signed then
         local enterBtn = GUI:Button_Create(node, "enter_btn", ACTION_BTN_POS.x, ACTION_BTN_POS.y, ENTER_BTN_SKIN)
         GUI:addOnClickEvent(enterBtn, function()
             SL:SendLuaNetMsg(100, npcid, 2, 0, "")
         end)
-        if canEnter() and (not inMap) then
-            UIHelper.redpoint_create(enterBtn, {x = 150, y = 40})
-        end
     else
         local signBtn = GUI:Button_Create(node, "sign_btn", ACTION_BTN_POS.x, ACTION_BTN_POS.y, CONTRACT_BTN_SKIN)
         GUI:addOnClickEvent(signBtn, function()
-            SL:SendLuaNetMsg(100, npcid, 1, 0, "")
+            openContractConfirm(npcid)
         end)
-        UIHelper.redpoint_create(signBtn, {x = 140, y = 36})
     end
 
     local checkBg = GUI:Image_Create(node, "check_bg", CHECK_POS.x, CHECK_POS.y, CHECK_BG_SKIN)
@@ -178,18 +216,15 @@ local function renderActionArea(node, npcid)
 
 end
 
--- 说明：渲染整个血契之门界面。
 local function renderMain(node, npcid)
     if not node then
         return
     end
     GUI:removeAllChildren(node)
-
     renderPreviewSection(node)
     renderActionArea(node, npcid)
 end
 
--- 说明：处理服务端回包并刷新界面。
 function npc.main(npcid, p2, p3, msgData)
     if p2 == 0 or p2 == 1 or p2 == 2 or p2 == 9 then
         npc.data = SL:JsonDecode(msgData, false) or {}

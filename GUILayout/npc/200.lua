@@ -42,6 +42,8 @@ local RAW_MAP_CONFIG = {
     [231] = {"森罗魔域",0,0,nil,nil,6, mob_name = "森罗魔主・灭世", mob_shape = 16170, min_map = "10244", other_name = "森罗魔域"},
     [232] = {"边关烽城",0,0,nil,nil,6, mob_name = "镇关大将军・烈锋", mob_shape = 16170, min_map = "10244", other_name = "边关烽城"},
     [233] = {"盛世古城",0,0,nil,nil,6, mob_name = "古城守护神・天佑 [神圣]", mob_shape = 16170, min_map = "10244", other_name = "盛世古城"},
+    [234] = {"兵道古藏",0,0,nil,nil,6, mob_name = "神道兵魂", mob_shape = 16170, min_map = "10244", other_name = "兵道古藏"},
+    [235] = {"鬼道古藏",0,0,nil,nil,6, mob_name = "鬼道残魂", mob_shape = 16170, min_map = "10244", other_name = "鬼道古藏"},
 
     --特殊地图npc
     [300] = {"山脉入口", 92, 50,nil,nil,3, mob_name = "★南境荒王★", mob_shape = 12057, min_map = "027343"},

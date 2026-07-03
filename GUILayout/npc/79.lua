@@ -1,4 +1,4 @@
-local npc = {}
+﻿local npc = {}
 
 local UIHelper = NPC_UI_HELPER
 local FONT_MAIN = "fonts/font4.ttf"
@@ -32,12 +32,6 @@ local function createText(parent, name, x, y, size, color, value, fontName, ax, 
     return label
 end
 
-local function createRich(parent, name, x, y, value, width, size)
-    local rich = GUI:RichText_Create(parent, name, x, y, tostring(value or ""), width or 360, size or 18, "#FFFFFF", 0, nil, nil)
-    GUI:setAnchorPoint(rich, 0, 1)
-    return rich
-end
-
 local function ensureWindow(npcid)
     local cfg = getConfig()
     npc._window = UIHelper.ensureWindow(npc._window, npcid, {
@@ -45,6 +39,7 @@ local function ensureWindow(npcid)
         subTitle = cfg.name,
         background = {skin = LOCAL_BG, eff = false},
         closeButton = {x = 744, y = 507, skin = "res/wy/public/close_red_big.png"},
+        title = {x = 56, y = 464, skin = LOCAL_TITLE},
     })
     npc.bg = npc._window.bg
     npc.node = npc._window.node
@@ -56,12 +51,28 @@ local function renderItem(parent, name, x, y, itemName, count)
     GUI:setAnchorPoint(box, 0.5, 0.5)
     local idx = toNumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", tostring(itemName or "")), 0)
     if idx > 0 then
-        local item = GUI:ItemShow_Create(box, name, 27, 27, {index = idx, count = count or 1, look = true, movable = false, bgVisible = false})
+        local item = GUI:ItemShow_Create(box, name, 29, 30, {index = idx, count = count or 1, look = true, movable = false, bgVisible = false})
         GUI:setAnchorPoint(item, 0.5, 0.5)
     else
         createText(box, name .. "_txt", 27, 27, 11, "#F7D58A", itemName, FONT_MAIN, 0.5, 0.5)
     end
     return box
+end
+
+local function renderTargetItem(parent, name, x, y, itemName)
+    local idx = toNumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", tostring(itemName or "")), 0)
+    if idx > 0 then
+        local item = GUI:ItemShow_Create(parent, name, x, y, {
+            index = idx,
+            count = 1,
+            look = true,
+            movable = false,
+            bgVisible = false,
+        })
+        GUI:setAnchorPoint(item, 0.5, 0.5)
+        return item
+    end
+    return createText(parent, name .. "_txt", x, y, 14, "#F7D58A", itemName, FONT_MAIN, 0.5, 0.5)
 end
 
 local function formatCostName(v)
@@ -80,8 +91,8 @@ end
 
 local function renderCost(parent, cfg)
     local pos = {
-        {456, 204}, {524, 204}, {592, 204},
-        {422, 130}, {490, 130}, {558, 130}, {626, 130},
+        {490, 210}, {558, 210}, {626, 210},
+        {456, 136}, {524, 136}, {592, 136}, {660, 136},
     }
     for i, v in ipairs(cfg.cost or {}) do
         local p = pos[i]
@@ -97,17 +108,18 @@ end
 local function render(node, npcid)
     GUI:removeAllChildren(node)
     local cfg = getConfig()
-    local title = GUI:Image_Create(node, "title_img", 557, 356, LOCAL_TITLE)
-    GUI:setAnchorPoint(title, 0.5, 0.5)
-    createText(node, "item_name", 557, 326, 24, "#FF4135", tostring(cfg.item_name or cfg.name or "道基秘宝"), FONT_TITLE, 0.5, 0.5)
-    createText(node, "cost_title", 470, 260, 22, "#F5E6C6", "所需消耗：", FONT_TITLE, 0, 0.5)
+    renderTargetItem(node, "target_item", 600 - 38, 324 - 20, cfg.item_name or cfg.name or "道基秘宝")
+    -- local title = GUI:Image_Create(node, "title_img", 560, 352, LOCAL_TITLE)
+    -- GUI:setAnchorPoint(title, 0.5, 0.5)
+    -- createText(node, "item_name", 560, 318, 26, "#FF4135", tostring(cfg.item_name or cfg.name or "道基秘宝"), FONT_TITLE, 0.5, 0.5)
+    -- createText(node, "cost_title", 560, 266, 22, "#F5E6C6", "所需消耗：", FONT_TITLE, 0.5, 0.5)
     renderCost(node, cfg)
 
     local hasItem = toNumber(npc.data and npc.data.has_item, 0) == 1
-    local btn = GUI:Button_Create(node, "compose_btn", 557, 38, COMPOSE_BTN)
+    local btn = GUI:Button_Create(node, "compose_btn", 560, 38, COMPOSE_BTN)
     GUI:setAnchorPoint(btn, 0.5, 0.5)
     if hasItem then
-        createText(node, "owned", 557, 82, 20, "#8DFF72", "已拥有", FONT_TITLE, 0.5, 0.5)
+        createText(node, "owned", 560, 82, 20, "#8DFF72", "已拥有", FONT_TITLE, 0.5, 0.5)
     else
         GUI:addOnClickEvent(btn, function()
             SL:OpenCommonTipsPop({

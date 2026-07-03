@@ -501,7 +501,7 @@ local function createRewardCell(parent, name, x, y, rewardPack, stateText, state
     local reward = entries[1]
     if reward then
         if reward.index > 0 then
-            local item = GUI:ItemShow_Create(bg, "item", 25, 26, {index = reward.index, look = true})
+            local item = GUI:ItemShow_Create(bg, "item", 29, 30, {index = reward.index, look = true})
             GUI:setAnchorPoint(item, 0.5, 0.5)
             if "未冠名" == stateText then
             end
@@ -967,7 +967,7 @@ function npc.renderRika(node)
         local rewardCount = reward and reward[2] or 1
         local rewardIndex = toNumber(rewardName and SL:GetMetaValue("ITEM_INDEX_BY_NAME", rewardName) or 0, 0)
         if rewardIndex > 0 then
-            local item = GUI:ItemShow_Create(box, "item", 25, 26, {index = rewardIndex, look = true})
+            local item = GUI:ItemShow_Create(box, "item", 29, 30, {index = rewardIndex, look = true})
             GUI:setAnchorPoint(item, 0.5, 0.5)
             if toNumber(rewardCount, 1) > 1 then
                 local countText = GUI:Text_Create(box, "num", 25, 1, 12, "#ffffff", tostring(rewardCount))

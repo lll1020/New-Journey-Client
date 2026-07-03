@@ -160,9 +160,10 @@ local function renderRuneButtons(node, npcid)
         end
         if isRuneActive(idx) then
             local stampOffset = STAMP_OFFSET[idx] or {x = -24, y = -40}
-            local stamp = GUI:Image_Create(node, "active_stamp_" .. idx, pos.x + stampOffset.x, pos.y + stampOffset.y, ACTIVE_STAMP)
+            -- local stamp = GUI:Image_Create(node, "active_stamp_" .. idx, pos.x + stampOffset.x + 37, pos.y + stampOffset.y + 20, ACTIVE_STAMP)
         elseif canRuneActivate(idx) then
             UIHelper.redpoint_create(btn, {x = 100, y = 72})
+            GUI:Image_setGrey(btn, not canRuneActivate(idx))
         end
     end
 end
@@ -181,7 +182,7 @@ local function renderSelectedDetail(node, npcid)
     GUI:Image_Create(detailNode, "cond_img", boxX + 37 + 59, boxY + 25 + 55, getConditionSkin(idx))
 
     if active then
-        local activeImg = GUI:Image_Create(detailNode, "selected_active", boxX + 88, boxY - 13, ACTIVE_STAMP)
+        local activeImg = GUI:Image_Create(detailNode, "selected_active", boxX + 88 + 100, boxY - 13 + 48, ACTIVE_STAMP)
     else
         local btn = GUI:Button_Create(detailNode, "active_btn", boxX + 130, boxY + 5 + 30, BTN_ACTIVE)
         GUI:addOnClickEvent(btn, function()

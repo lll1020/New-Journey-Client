@@ -166,7 +166,7 @@ local function _render_single_reward(parent, name, idx, count, x, y)
     end
     local frame = GUI:Image_Create(parent, "frame_" .. tostring(name), x, y, FRAME)
     GUI:setAnchorPoint(frame, 0.5, 0.5)
-    local item = GUI:ItemShow_Create(frame, "item", 25, 25, {index = idx, look = true, bgVisible = false})
+    local item = GUI:ItemShow_Create(frame, "item", 29, 30, {index = idx, look = true, bgVisible = false})
     GUI:setAnchorPoint(item, 0.5, 0.5)
     if _toint(count) > 1 then
         local countText = _outline_text(frame, "count", 47, 9, 15, "#F8E0A0", tostring(count), 1, 0.5)

@@ -324,7 +324,7 @@ local function openBasinLevelPopup()
         windowName = "treasure_basin_level_popup",
         overlay = {skin = "res/custom/treasureBasin/x.png"},
         background = {skin = RES .. "xjm_bg.png"},
-        closeButton = {x = 555, y = 338, skin = "res/wy/public/close_red_big.png", onClick = closeBasinLevelPopup},
+        closeButton = {x = 555, y = 338 + 24, skin = "res/wy/public/close_red_big.png", onClick = closeBasinLevelPopup},
         zOrder = 200,
     })
     local bg = npc.basinLevelPopup and npc.basinLevelPopup.node
@@ -334,38 +334,38 @@ local function openBasinLevelPopup()
         return string.format("倍率 %s%%  上限 %s", tostring(one.speed or 100), tostring(one.cap_text or "无存储"))
     end
 
-    text(bg, "title", 300, 338, 30, "#FFE8A8", "聚宝盆品阶", 0.5, 0.5)
-    local curIcon = GUI:Image_Create(bg, "cur_icon", 165, 192, RES .. "itme_" .. tostring(lv) .. ".png")
+    -- text(bg, "title", 300, 338, 30, "#FFE8A8", "聚宝盆品阶", 0.5, 0.5)
+    local curIcon = GUI:Image_Create(bg, "cur_icon", 165 - 32, 192, RES .. "itme_" .. tostring(lv) .. ".png")
     GUI:setAnchorPoint(curIcon, 0.5, 0.5)
-    local nextIcon = GUI:Image_Create(bg, "next_icon", 435, 192, RES .. "itme_" .. tostring(nextLv) .. ".png")
+    local nextIcon = GUI:Image_Create(bg, "next_icon", 435 + 32, 192, RES .. "itme_" .. tostring(nextLv) .. ".png")
     GUI:setAnchorPoint(nextIcon, 0.5, 0.5)
-    GUI:Image_Create(bg, "arrow", 300, 204, RES .. "jt.png")
+    GUI:Image_Create(bg, "arrow", 300 - 32, 204 - 60, RES .. "jt.png")
 
-    text(bg, "cur_name", 165, 284, 25, "#FFF1B8", tostring(curCfg.name or "聚宝盆"), 0.5, 0.5)
-    text(bg, "next_name", 435, 284, 25, maxed and "#9DFF7C" or "#FFF1B8", maxed and "已达极品" or tostring(nextCfg.name or "聚宝盆"), 0.5, 0.5)
-    text(bg, "cur_reward_title", 165, 247, 23, "#B9F6FF", "聚宝奖励", 0.5, 0.5)
-    text(bg, "next_reward_title", 435, 247, 23, "#B9F6FF", "聚宝奖励", 0.5, 0.5)
-    text(bg, "cur_reward_desc", 165, 215, 18, "#F6D08A", levelDesc(curCfg), 0.5, 0.5)
-    text(bg, "next_reward_desc", 435, 215, 18, maxed and "#9DFF7C" or "#F6D08A", maxed and "已达最高收益" or levelDesc(nextCfg), 0.5, 0.5)
-    text(bg, "cur_condition_title", 165, 162, 23, "#EFD7A0", "升级条件", 0.5, 0.5)
-    text(bg, "next_condition_title", 435, 162, 23, "#EFD7A0", "升级条件", 0.5, 0.5)
-    text(bg, "cur_condition_desc", 165, 130, 18, "#9DFF7C", "当前 Lv." .. tostring(lv), 0.5, 0.5)
+    -- text(bg, "cur_name", 165, 284, 25, "#FFF1B8", tostring(curCfg.name or "聚宝盆"), 0.5, 0.5)
+    -- text(bg, "next_name", 435, 284, 25, maxed and "#9DFF7C" or "#FFF1B8", maxed and "已达极品" or tostring(nextCfg.name or "聚宝盆"), 0.5, 0.5)
+    -- text(bg, "cur_reward_title", 165, 247, 23, "#B9F6FF", "聚宝奖励", 0.5, 0.5)
+    -- text(bg, "next_reward_title", 435, 247, 23, "#B9F6FF", "聚宝奖励", 0.5, 0.5)
+    text(bg, "cur_reward_desc", 165 - 32, 215 + 20, 18, "#F6D08A", levelDesc(curCfg), 0.5, 0.5)
+    text(bg, "next_reward_desc", 435 + 32, 215 + 20, 18, maxed and "#9DFF7C" or "#F6D08A", maxed and "已达最高收益" or levelDesc(nextCfg), 0.5, 0.5)
+    -- text(bg, "cur_condition_title", 165, 162, 23, "#EFD7A0", "升级条件", 0.5, 0.5)
+    -- text(bg, "next_condition_title", 435, 162, 23, "#EFD7A0", "升级条件", 0.5, 0.5)
+    text(bg, "cur_condition_desc", 165 - 32, 130 + 20, 18, "#9DFF7C", "当前 Lv." .. tostring(lv), 0.5, 0.5)
     if maxed then
-        text(bg, "next_condition_desc", 435, 130, 18, "#9DFF7C", "当前已是最高品阶", 0.5, 0.5)
-        button(bg, "level_confirm", 300, 22, "已满级", function()
-            SL:ShowSystemTips("当前已是最高品阶")
-        end)
+        text(bg, "next_condition_desc", 435 + 32, 130 + 20, 18, "#9DFF7C", "当前已是最高品阶", 0.5, 0.5)
+        -- button(bg, "level_confirm", 300, 22 + 24 + 32, "已满级", function()
+        --     SL:ShowSystemTips("当前已是最高品阶")
+        -- end)
     else
-        text(bg, "next_condition_desc", 435, 136, 18, lackCharge <= 0 and "#9DFF7C" or "#FF5A3D", string.format("累计充值 %s/%s", fmt(charge), fmt(needCharge)), 0.5, 0.5)
-        text(bg, "next_condition_lack", 435, 114, 17, lackCharge <= 0 and "#9DFF7C" or "#FFB85A", lackCharge <= 0 and "条件已达成" or ("还差 " .. fmt(lackCharge)), 0.5, 0.5)
-        button(bg, "level_confirm", 300, 22, lackCharge <= 0 and "确认升级" or "条件不足", function()
+        text(bg, "next_condition_desc", 435 + 32, 130 + 20, 18, lackCharge <= 0 and "#9DFF7C" or "#FF5A3D", string.format("累计充值 %s/%s", fmt(charge), fmt(needCharge)), 0.5, 0.5)
+        -- text(bg, "next_condition_lack", 435, 114, 17, lackCharge <= 0 and "#9DFF7C" or "#FFB85A", lackCharge <= 0 and "条件已达成" or ("还差 " .. fmt(lackCharge)), 0.5, 0.5)
+        button(bg, "level_confirm", 300, 22 + 24, "确认升级", function()
             if lackCharge > 0 then
                 SL:ShowSystemTips("累计充值不足，还差 " .. fmt(lackCharge))
                 return
             end
             closeBasinLevelPopup()
             SL:SendLuaNetMsg(101, 517, 9, 0, "")
-        end)
+        end, 1.3)
     end
 end
 
@@ -518,7 +518,7 @@ renderLevelInfo = function(node, npcid)
     text(node, "level_cap", 306 + lx, -140, 18, "#FFD07A", "存储上限  " .. tostring(lc.cap_text or "无存储"), 0.5, 0.5)
     button(node, "level_up_btn", 306 + lx, -203, "提升品阶", function()
         openBasinLevelPopup()
-    end,1.5)
+    end,1.4)
 end
 
 renderEnergy = function(node, npcid)
@@ -759,7 +759,7 @@ renderForbidden = function(node, npcid)
         local card = GUI:Layout_Create(listNode, "forbid_card_" .. i, cardX, 0, cardW, viewH, false)
         panel(card, "forbid_row_bg_" .. i, cardW / 2, viewH / 2 - 20, cardW, cardH + 60, "res/wy/public/anniu_999_bj.png")
         rewardItem(card, "forbid_equip_" .. i, tostring(fc.name or "禁器"), 1, cardW / 2, 192 + 30)
-        text(card, "forbid_lv_" .. i, cardW / 2 + 30, 166 + 30, 15, active and "#9DFF7C" or "#9A9A9A", "Lv." .. tostring(lv), 1, 0)
+    text(card, "forbid_lv_" .. i, cardW / 2 + 30, 166 + 30, 15, "#FF3B30", "Lv." .. tostring(lv), 1, 0)
         text(card, "forbid_name_" .. i, cardW / 2, 145 + 30, 19, "#FFD66A", tostring(fc.name or "禁器"), 0.5, 0.5)
         local stateIcon = GUI:Image_Create(card, "forbid_state_" .. i, cardW / 2 + 44, 128 + 30, active and "res/wy/public/10_2.png" or "res/wy/public/10_1.png")
         GUI:setAnchorPoint(stateIcon, 0.5, 0.5)

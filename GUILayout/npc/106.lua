@@ -280,19 +280,22 @@ local function renderEnergy(node, npcid)
     local capText = tostring(levelCfg(d.level).cap_text or "无存储")
     text(node, "energy_time", -155, 48, 22, "#9FE2FF", "当前存储  " .. tostring(d.energy_text or "00:00"), 0.5, 0.5)
     text(node, "energy_cap", -155, 18, 19, "#F6D08A", "存储上限  " .. capText, 0.5, 0.5)
-    local percent = 0
     local energy = n(d.energy_sec)
     local cap = n(d.cap_sec or d.cap)
-    if cap > 0 then percent = math.max(0, math.min(100, energy / cap * 100)) end
-    local barBg = GUI:Image_Create(node, "energy_bar_bg", -155, -14, RES .. "jdt_k.png")
-    GUI:setAnchorPoint(barBg, 0.5, 0.5)
-    GUI:setContentSize(barBg, 280, 16)
-    GUI:setLocalZOrder(barBg, -1)
-    local bar = GUI:LoadingBar_Create(node, "energy_bar", -155, -14, RES .. "jdt_m.png", 0)
-    GUI:setAnchorPoint(bar, 0.5, 0.5)
-    GUI:setContentSize(bar, 280, 16)
-    GUI:LoadingBar_setPercent(bar, percent)
-    text(node, "energy_percent", -155, -14, 17, "#FFFFFF", tostring(math.floor(percent)) .. "%", 0.5, 0.5)
+    if cap > 0 then
+        local percent = math.max(0, math.min(100, energy / cap * 100))
+        local barBg = GUI:Image_Create(node, "energy_bar_bg", -155, -14, RES .. "jdt_k.png")
+        GUI:setAnchorPoint(barBg, 0.5, 0.5)
+        GUI:setContentSize(barBg, 280, 16)
+        GUI:setLocalZOrder(barBg, -1)
+        local bar = GUI:LoadingBar_Create(node, "energy_bar", -155, -14, RES .. "jdt_m.png", 0)
+        GUI:setAnchorPoint(bar, 0.5, 0.5)
+        GUI:setContentSize(bar, 280, 16)
+        GUI:LoadingBar_setPercent(bar, percent)
+        text(node, "energy_percent", -155, -14, 17, "#FFFFFF", tostring(math.floor(percent)) .. "%", 0.5, 0.5)
+    else
+        text(node, "energy_no_cap", -155, -14, 18, "#B8A07B", "当前品阶暂无储能进度", 0.5, 0.5)
+    end
     local r = d.energy_reward or {}
     local rewardBg = GUI:Image_Create(node, "energy_reward_bg", -155, -58, "res/wy/public/tycccc.png")
     GUI:setAnchorPoint(rewardBg, 0.5, 0.5)
@@ -488,4 +491,3 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
-
