@@ -310,7 +310,7 @@ local function renderCurrentPanel(node, data)
     GUI:setAnchorPoint(panel, 0, 0)
     local current = getCurrentChoice(data)
     if current.name ~= "" then
-        createRich(node, "current_summary", 135, 120, 360, 20, buildChoiceRichText(current, nil, true), "#f7f7de", 0, 0.5)
+        createRich(node, "current_summary", 135 + 190, 120 + 80, 360, 20, buildChoiceRichText(current, nil, true), "#f7f7de", 0, 0.5)
     end
 end
 local function renderMain(node, npcid, data)

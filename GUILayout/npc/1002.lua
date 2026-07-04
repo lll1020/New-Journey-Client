@@ -121,7 +121,7 @@ function npc.main(npcid, p2, p3, msgData)
             SL:ScheduleOnce(function()
                 npc._body_aura_refresh_pending = false
                 if npc.node and not tolua.isnull(npc.node) and npc.npcid and npc.titles_sign == 4 then
-                    SL:SendLuaNetMsg(100, npc.npcid, 0, 0, "")
+                    SL:SendLuaNetMsg(100, npc.npcid, 3, -1, "")
                 end
             end, 0)
         end
@@ -165,9 +165,7 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:setAnchorPoint(switchBtn, 0.5, 0.5)
             GUI:addOnClickEvent(switchBtn, function()
                 local nextIdx = state.active and 0 or state.idx
-                SL:SendLuaNetMsg(101, 23, 1, nextIdx, "")
-                state.visible = true
-                GUI_createLabel(npc.Label,npc.titles_sign)
+                SL:SendLuaNetMsg(100, npcid, 3, nextIdx, "")
             end)
         else
             local lockedBtn = GUI:Image_Create(card, "activate_btn_" .. state.idx, 83, 0, "res/custom/one_city/shape/bz1.png")
@@ -175,7 +173,7 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:setTouchEnabled(lockedBtn, true)
             GUI:addOnClickEvent(lockedBtn, function()
                 if state.canActivate then
-                    SL:SendLuaNetMsg(101, 23, 1, state.idx, "")
+                    SL:SendLuaNetMsg(100, npcid, 3, state.idx, "")
                     
                 else
                     SL:ShowSystemTips(state.lockedTip or "当前条件未满足")

@@ -188,7 +188,7 @@ local function _render_card(node, npcid, payload, T_data, idx, hideCardButton)
     if state.claimedDone then
         GUI:Image_setGrey(card, true)
     end
-    local title = create_outline_text(card, "reward_label_" .. idx, 60, 52 + 8, 15, "#FF00FF", rewardLabel, "#081800")
+    local title = create_outline_text(card, "reward_label_" .. idx, 60, 52 + 8, 15, "#BD8C31", rewardLabel, "#081800")
     GUI:setAnchorPoint(title, 0.5, 0.5)
     local status = create_outline_text(card, "status_" .. idx, 64, 147, 18, state.statusColor, state.statusText, "#22140F")
     GUI:setAnchorPoint(status, 0.5, 0.5)

@@ -3223,6 +3223,14 @@ function ItemTips.CreateEquipPanel(data, itemData, isWear, panelInsertIndex)
         ItemTips.ResetEquipPosition()
     end
 
+    if itemData.Weight > 0 and cogin.texiaodaxiao[itemData.Weight] then
+        local wai = GUI:getContentSize(ListBg)
+        local waik = GUI:Frames_Create(ListBg, "tetete",-cogin.texiaodaxiao[itemData.Weight][2],-cogin.texiaodaxiao[itemData.Weight][5], "res/wy/tips/tx"..itemData.Weight.."_", ".png", 1, cogin.texiaodaxiao[itemData.Weight][1],{count=cogin.texiaodaxiao[itemData.Weight][1],speed=150,loop=-1})
+        local nei = GUI:getContentSize(waik)
+        GUI:setContentSize(waik, wai.width + cogin.texiaodaxiao[itemData.Weight][2] + cogin.texiaodaxiao[itemData.Weight][4] , wai.height + cogin.texiaodaxiao[itemData.Weight][3] + cogin.texiaodaxiao[itemData.Weight][5])
+        GUI:setOpacity(waik, cogin.texiaodaxiao[itemData.Weight][8])
+    end
+
     --
     ItemTips.AddFrameEffect(ListBg, itemDescs)
 end

@@ -1,4 +1,4 @@
-local npc = {}
+﻿local npc = {}
 
 npc._config = teshudata["npc_64"]
 local UIHelper = NPC_UI_HELPER
@@ -503,7 +503,7 @@ function npc.main(npcid, p2, p3, msgData)
             SL:ShowSystemTips("灵兽召唤预览暂未开放")
         end)
 
-        local quickHatchTip = _outline_text(node, "quick_hatch_tip", 570, 148, 23, "#FFF3CF", "累计充值", {font = "fonts/502.ttf", outline = "#170A02", outlineSize = 2})
+        local quickHatchTip = _outline_text(node, "quick_hatch_tip", 570, 148, 23, "#FFF3CF", "真实充值", {font = "fonts/502.ttf", outline = "#170A02", outlineSize = 2})
         GUI:setAnchorPoint(quickHatchTip, 1, 0.5)
         local quickHatchRed = _outline_text(node, "quick_hatch_tip_red", 572, 148, 23, "#FF3B2E", "99元", {font = "fonts/502.ttf", outline = "#2A0000", outlineSize = 2})
         GUI:setAnchorPoint(quickHatchRed, 0, 0.5)

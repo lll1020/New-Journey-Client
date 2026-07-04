@@ -331,7 +331,7 @@ local function openBasinLevelPopup()
     if not bg then return end
 
     local function levelDesc(one)
-        return string.format("倍率 %s%%  上限 %s", tostring(one.speed or 100), tostring(one.cap_text or "无存储"))
+        return string.format("存储上限 %s", tostring(one.cap_text or "无存储"))
     end
 
     -- text(bg, "title", 300, 338, 30, "#FFE8A8", "聚宝盆品阶", 0.5, 0.5)
@@ -356,11 +356,11 @@ local function openBasinLevelPopup()
         --     SL:ShowSystemTips("当前已是最高品阶")
         -- end)
     else
-        text(bg, "next_condition_desc", 435 + 32, 130 + 20, 18, lackCharge <= 0 and "#9DFF7C" or "#FF5A3D", string.format("累计充值 %s/%s", fmt(charge), fmt(needCharge)), 0.5, 0.5)
+        text(bg, "next_condition_desc", 435 + 32, 130 + 20, 18, lackCharge <= 0 and "#9DFF7C" or "#FF5A3D", string.format("真实充值 %s/%s", fmt(charge), fmt(needCharge)), 0.5, 0.5)
         -- text(bg, "next_condition_lack", 435, 114, 17, lackCharge <= 0 and "#9DFF7C" or "#FFB85A", lackCharge <= 0 and "条件已达成" or ("还差 " .. fmt(lackCharge)), 0.5, 0.5)
         button(bg, "level_confirm", 300, 22 + 24, "确认升级", function()
             if lackCharge > 0 then
-                SL:ShowSystemTips("累计充值不足，还差 " .. fmt(lackCharge))
+                SL:ShowSystemTips("真实充值不足，还差 " .. fmt(lackCharge))
                 return
             end
             closeBasinLevelPopup()
@@ -514,7 +514,7 @@ renderLevelInfo = function(node, npcid)
     rewardItem(node, "level_hat", "斗笠碎片", r.hat, 366 + lx, 5)
     text(node, "level_need_title", 306 + lx, -58, 21, "#FFE8A8", "当前状态", 0.5, 0.5)
     text(node, "level_state", 306 + lx, -85, 20, color, state, 0.5, 0.5)
-    text(node, "level_speed", 306 + lx, -113, 18, "#9FE2FF", "炼灵倍率  " .. tostring(lc.speed or 100) .. "%", 0.5, 0.5)
+    text(node, "level_speed", 306 + lx, -113, 18, "#9FE2FF", "收益效率  固定", 0.5, 0.5)
     text(node, "level_cap", 306 + lx, -140, 18, "#FFD07A", "存储上限  " .. tostring(lc.cap_text or "无存储"), 0.5, 0.5)
     button(node, "level_up_btn", 306 + lx, -203, "提升品阶", function()
         openBasinLevelPopup()

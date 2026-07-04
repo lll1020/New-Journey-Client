@@ -1,4 +1,4 @@
-local npc = {
+﻿local npc = {
 }
 local REWARD_ITEM_EFFECT_14193 = 14193
 local REWARD_ITEM_EFFECT_13048 = 13048
@@ -5508,8 +5508,10 @@ npc[498] = function(p2, p3, Data)
         if npc.tyeccamp then
             if data.wave_name or data.left_mon then
                 GUI:Text_setString(npc.tyeccamp, string.format("军团:%s", tostring(data.wave_name or "未知")))
-            else
+            elseif mode == "zxdz" or data.hjf ~= nil or data.ljf ~= nil then
                 GUI:Text_setString(npc.tyeccamp, string.format("正方:%s  邪方:%s", data.hjf or 0, data.ljf or 0))
+            else
+                GUI:Text_setString(npc.tyeccamp, "")
             end
         end
         if npc.tyecstate then
@@ -6462,7 +6464,7 @@ npc[507] = function(p2, p3, Data)
         local cfg = {
             title = detailCfg and detailCfg.name or ("活动" .. tostring(i)),
             time = "活动时间请关注游戏内公告",
-            desc = "该活动正在整理中，具体规则以服务端实际开启内容为准。",
+            desc = "活动开启后可通过当前入口参与，具体目标、奖励与结算规则以游戏内实际开启内容为准。",
             reward = "奖励以活动实际结算为准",
             rewardItems = {
             },
@@ -6476,10 +6478,7 @@ npc[507] = function(p2, p3, Data)
             if open == 1 then
                 cfg.time = cfg.time .. "\n当前活动进行中，可直接点击参与"
             end
-            cfg.desc = string.format("进入【%s】后怪物按波次刷新。活动怪物只受1点固定伤害，对玩家造成0伤害。当前累计功勋：%s，当前称号：%s。", tostring(bwcz.display_map or bwcz.map or "村庄"), tostring(tonumber(myData.gx or 0) or 0), tostring(myData.title or "暂无称号"))
-            if open == 1 then
-                cfg.desc = cfg.desc .. string.format("\n当前进攻军团：%s，剩余怪物：%s。", tostring(myData.wave_name or "未知"), tostring(myData.left_mon or 0))
-            end
+            cfg.desc = string.format("进入【%s】后，怪物会按波次进攻村庄。活动怪物只受1点固定伤害，对玩家造成0伤害，核心是持续清怪拿功勋并提升称号。活动结束后会按击杀、功勋和称号结算奖励。", tostring(bwcz.display_map or bwcz.map or "村庄"))
             cfg.reward = "击杀奖励：金币18W、金币88W、元宝5W；前三名达到镇境武侯可得50元真实充值"
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 local killReward = bwcz.kill_reward or {}
@@ -6491,7 +6490,7 @@ npc[507] = function(p2, p3, Data)
         elseif i == 2 then
             cfg.title = "全民夺矿"
             cfg.time = string.format("每日%02d:%02d开启，持续%s分钟", tonumber(qmdk.start_hour or 19) or 19, tonumber(qmdk.start_minute_clock or 0) or 0, tostring(qmdk.duration_min or 20))
-            cfg.desc = string.format("进入【%s】地图后停留在矿区即可持续得分，每%s秒获得%s点积分；活动结束后按照积分排行发奖。当前个人积分：%s。", tostring(qmdk.map or "全民夺矿"), tostring(qmdk.score_tick_sec or 10), tostring(qmdk.score_per_tick or 1), tostring(tonumber(qmdkState.grjf or 0) or 0))
+            cfg.desc = string.format("进入【%s】后，停留在矿区内即可持续得分，每%s秒获得%s点积分。这个活动的重点是抢矿区、守矿区，并阻止其他玩家长时间占点，结束后按个人积分排行发奖。", tostring(qmdk.map or "全民夺矿"), tostring(qmdk.score_tick_sec or 10), tostring(qmdk.score_per_tick or 1))
             cfg.reward = "参与奖励：" .. makeRewardText(qmdk.join_reward)
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 appendRewardList(out, seen, qmdk.join_reward)
@@ -6503,10 +6502,7 @@ npc[507] = function(p2, p3, Data)
             local remain = tonumber(qmdtState.limit_sec or 0) or 0
             cfg.title = "全民答题"
             cfg.time = string.format("开服第%s分钟开启，持续%s分钟；共%s题，每题%s秒", tostring(qmdt.start_minute or 33), tostring(qmdt.duration_min or 5), tostring(qmdt.question_count or 5), tostring(qmdt.per_question_sec or 60))
-            cfg.desc = "活动开启后通过当前入口参与答题，按题目序号提交答案。答对即可获得积分，最终按照总分排名发放奖励。"
-            if open == 1 and currentIdx > 0 then
-                cfg.desc = cfg.desc .. string.format("\n当前正在进行第%s/%s题，剩余%s秒。", tostring(currentIdx), tostring(qmdt.question_count or 5), tostring(remain))
-            end
+            cfg.desc = "活动开启后通过当前入口参与答题，系统会按顺序放出题目。每题都有时间限制，答对即可获得积分，答错则会影响最终排名。活动结束后按总积分排行发放奖励。"
             cfg.reward = "参与奖励：" .. makeRewardText(qmdt.join_reward)
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 appendRewardList(out, seen, qmdt.join_reward)
@@ -6515,12 +6511,12 @@ npc[507] = function(p2, p3, Data)
         elseif i == 4 then
             cfg.title = "勇夺镖车"
             cfg.time = "当前暂未开放，开放后可通过本页直接参与"
-            cfg.desc = "活动开启后护送或争夺镖车，安全将镖车送达终点即可获得高额收益，途中也可拦截其他玩家的镖车。"
+            cfg.desc = "活动开启后可围绕镖车进行护送或争夺。护送方要保证镖车安全到达终点，争夺方则可以中途拦截其他玩家的镖车。最终收益会按护送完成度和活动表现结算。"
             cfg.reward = "开放后公布活动奖励"
         elseif i == 5 then
             cfg.title = "土城跑酷"
             cfg.time = "活动入口直达土城地图，具体开启时段以游戏公告为准"
-            cfg.desc = "活动开启后前往土城跑酷"
+            cfg.desc = "活动开启后进入土城跑酷地图，沿指定路线前进并尽快到达目标位置。这个玩法更看走位、反应和路线熟悉度，不是单纯打怪，完成越快收益通常越高。"
             cfg.reward = "奖励丰厚"
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 appendNamedRewards(out, seen, {
@@ -6546,7 +6542,7 @@ npc[507] = function(p2, p3, Data)
             if open == 1 then
                 cfg.time = cfg.time .. "\n当前活动进行中，可直接点击参与"
             end
-            cfg.desc = string.format("进入【%s】后会刷新鸡、羊、鹿三种动物。击杀后会直接掉落对应肉类，当前美食积分：%s，当前活动积分：%s，时光之杖等级：%s。", tostring(mskh.map or "天材地宝"), tostring(tonumber(myData.point or 0) or 0), tostring(tonumber(myData.grjf or 0) or 0), tostring(tonumber(myData.weapon_level or 0) or 0))
+            cfg.desc = string.format("进入【%s】后会持续刷新鸡、羊、鹿三种动物，击杀后直接掉落对应肉类。肉类可以兑换美食积分和活动奖励，价值越高的肉越值得优先抢。活动里尽量多打、多捡、多换即可。", tostring(mskh.map or "天材地宝"))
             cfg.reward = "鸡肉=1积分，羊肉=5积分，鹿肉=10积分；可在屠夫处兑换美食家、时光之杖、时光鉴定石"
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 local shop = mskh.shop or {}
@@ -6565,7 +6561,7 @@ npc[507] = function(p2, p3, Data)
             cfg.time = table.concat(txzr.notice or {
                 "30分钟一轮，共四轮开启",
             }, "；")
-            cfg.desc = "活动每轮会进行 roll 点排名，排名第一的玩家可获得额外奖励。"
+            cfg.desc = "活动会按轮次进行 roll 点排名，每轮参与玩家都会独立比拼点数。点数越高，排名越靠前，排名第一的玩家可以拿到额外奖励。这个活动主要看轮次参与和运气结果。"
             cfg.reward = "查看具体页面可以预览奖励"
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 for rewardIdx = 1, 10 do
@@ -6584,15 +6580,15 @@ npc[507] = function(p2, p3, Data)
             if open == 1 then
                 cfg.time = cfg.time .. "\n当前活动进行中，可直接点击参与"
             end
-            cfg.desc = "进入活动地图后自动分为正方/邪方阵营，正方红色、邪方蓝色，并切换为阵营攻击模式。地图内每3秒获得个人积分和阵营积分，击杀玩家可获得大量积分，活动结束按个人排行与胜负阵营结算。"
+            cfg.desc = "进入活动地图后会自动分为正方和邪方，并切换为阵营攻击模式。地图内每隔一段时间都会获得个人积分和阵营积分，击杀敌对玩家还能拿到更多分数，最后按个人排行和阵营胜负一起结算。"
             cfg.reward = "个人前三：跨服积分30/20/15；胜利方：跨服积分50；失败方：跨服积分20"
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 appendRewardItem(out, seen, "跨服积分", 30)
             end)
         elseif i == 9 then
             cfg.title = "武林盟主"
-            cfg.time = "活动开启时可直接传送进入【比武大会】地图"
-            cfg.desc = "进入比武大会后进行全场混战，活动期间尽可能击败更多对手并保持生存，最终胜者可争夺武林盟主之位。"
+            cfg.time = "开服第25分钟开启，持续5分钟"
+            cfg.desc = "活动开启后可直接进入【比武大会】地图，场内为自由混战模式。你需要在限定时间内尽量击败更多对手，同时保证自己能活到最后，最终胜者可争夺【武林盟主】头衔和对应结算奖励。"
             cfg.reward = "胜者可获得盟主荣誉与活动结算奖励"
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 appendRewardItem(out, seen, "绑定元宝", 380000)
@@ -6606,7 +6602,7 @@ npc[507] = function(p2, p3, Data)
             if open == 1 then
                 cfg.time = cfg.time .. "\n当前活动进行中，可进入跨服报名匹配"
             end
-            cfg.desc = "跨服匹配 1V1 对战玩法。胜利获得10排位分，失败获得2排位分，排位分用于每周排行结算；每局结束时胜利方当场获得10跨服积分，失败方当场获得2跨服积分。"
+            cfg.desc = "武道大会是跨服 1V1 匹配玩法。活动开启后可通过当前入口报名，系统会匹配对手进行单挑。单局胜利可获得10点排位分和10点跨服积分，失败也有基础积分，周结算时会按累计排位分进行排行发奖。"
             cfg.reward = "周排行奖励：第1名100跨服积分，第2名80，第3名70，第4名60，第5名50，第6名40，第7名30，第8名25，第9名20，第10名15，10名后10"
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 appendRewardItem(out, seen, "跨服积分", 100)
@@ -6614,7 +6610,7 @@ npc[507] = function(p2, p3, Data)
         elseif i == 11 then
             cfg.title = "沙巴克"
             cfg.time = "请通过沙巴克专属入口参与攻城"
-            cfg.desc = "沙巴克为大型行会攻城玩法，需要通过专属入口进入战场。争夺皇宫归属、守住核心据点即可拿下城主荣耀。"
+            cfg.desc = "沙巴克是大型行会攻城玩法，需要通过专属入口进入战场。参战行会会围绕皇宫和核心据点展开攻防，进攻方要抢归属，防守方要守关键点，活动结束后按皇宫归属判定城主和行会奖励。"
             cfg.reward = "行会奖励"
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 local rewardItemName = tostring(sbk.money or "绑定灵符")
@@ -6628,12 +6624,12 @@ npc[507] = function(p2, p3, Data)
         elseif i == 12 then
             cfg.title = "讨伐BOSS"
             cfg.time = "当前暂未开放，开放后可通过本页直接参与"
-            cfg.desc = "活动开启后会投放特殊首领，玩家需要在限定时间内集火讨伐，按参与度与掉落归属结算奖励。"
+            cfg.desc = "活动开启后会投放特殊首领，玩家需要在限定时间内集火输出。首领血量较高，通常需要多人参与，既要争夺伤害贡献，也要注意最终掉落归属，最后按参与情况和活动规则结算奖励。"
             cfg.reward = "开放后公布活动奖励"
         elseif i == 13 then
             cfg.title = "随机夺宝"
-            cfg.time = string.format("活动开启后在【%s】地图持续%s秒投放宝物", tostring(sjdb.map or "天降财宝"), tostring(sjdb.keep_sec or 300))
-            cfg.desc = "宝物会以三圈形式投放：外圈覆盖范围最大、中圈奖励提升、内圈数量最少但价值最高，越靠近中心收益越高。"
+            cfg.time = string.format("开服第15分钟开启，在【%s】地图持续%s秒投放宝物", tostring(sjdb.map or "天降财宝"), tostring(sjdb.keep_sec or 300))
+            cfg.desc = string.format("活动开启后会在【%s】地图持续投放宝物，宝物按外圈、中圈、内圈三层区域刷新。越靠近中心奖励越高，但竞争也越激烈，适合根据自身实力选择位置抢收益。", tostring(sjdb.map or "天降财宝"))
             cfg.reward = "随机夺宝"
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 appendSjdbRewards(out, seen, sjdb.circles)
@@ -6641,7 +6637,7 @@ npc[507] = function(p2, p3, Data)
         elseif i == 14 then
             cfg.title = "黑暗禁地"
             cfg.time = string.format("每日%02d:%02d开启，持续%s分钟", tonumber(hdjd.start_hour or 19) or 19, tonumber(hdjd.start_minute_clock or 30) or 30, tostring(hdjd.duration_min or 20))
-            cfg.desc = string.format("进入【%s】后全图会随机刷新【%s】，采集%s秒即可直接获得奖励。活动期间视野会被大幅压低，宝箱会按固定间隔持续补刷。", tostring(hdjd.map or "黑暗禁地"), tostring(hdjd.chest_mob or "黑暗宝箱"), tostring(hdjd.collect_sec or 3))
+            cfg.desc = string.format("进入【%s】后，全图会随机刷新【%s】。找到后原地采集%s秒即可直接获得奖励，活动期间视野会被大幅压低，宝箱也会持续补刷，所以重点是找箱效率、路线判断和采集时机。", tostring(hdjd.map or "黑暗禁地"), tostring(hdjd.chest_mob or "黑暗宝箱"), tostring(hdjd.collect_sec or 3))
             cfg.reward = "金币*38W、元宝*2000-8000、1元真实充值*1、五行石/杀伐神石[小]/千年玄铁随机其一"
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 appendHdjdRewards(out, seen, hdjd.rewards)
@@ -7930,7 +7926,7 @@ npc[516] = function(p2, p3, Data)
             return string.format("充值%s元", tostring(needMoney23)), charge23 >= needMoney23, false
         end
         if needRealCharge > 0 then
-            return string.format("累计充值%s元", tostring(needRealCharge)), realCharge >= needRealCharge, false
+            return string.format("真实充值%s元", tostring(needRealCharge)), realCharge >= needRealCharge, false
         end
         if needCharge > 0 then
             return string.format("充值%s元", tostring(needCharge)), totalCharge >= needCharge, false
@@ -8043,7 +8039,7 @@ npc[516] = function(p2, p3, Data)
             GUI:setAnchorPoint(conditionRich, 0.5, 0.5)
         end
         if needQuestion then
-            local question = GUI:Button_Create(card, "question", 140, 70, "res/custom/mfzz/question.png")
+            local question = GUI:Button_Create(card, "question", 140, 58, "res/custom/mfzz/question.png")
             GUI:setAnchorPoint(question, 0.5, 0.5)
             GUI:addOnClickEvent(question, function()
                 SL:SendLuaNetMsg(101, 502, 0, 0, "")

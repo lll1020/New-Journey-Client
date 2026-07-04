@@ -546,7 +546,10 @@ local function _lg_skill_value_by_level(valueCfg, level)
     if not valueCfg then
         return 0
     end
-    level = math.max(1, math.min(10, tonumber(level or 1) or 1))
+    level = math.max(0, math.min(10, tonumber(level or 0) or 0))
+    if level <= 0 then
+        return 0
+    end
     local v1 = tonumber(valueCfg[1] or 0) or 0
     local v10 = tonumber(valueCfg[2] or v1) or v1
     return v1 + (v10 - v1) * (level - 1) / 9
@@ -554,6 +557,7 @@ end
 
 local function _lg_format_skill_value(valueCfg, level, previewNext)
     local unit = tostring(valueCfg and valueCfg[3] or "")
+    level = tonumber(level or 0) or 0
     local current = _lg_format_effect_number(_lg_skill_value_by_level(valueCfg, level)) .. unit
     if not previewNext then
         return current
@@ -636,31 +640,53 @@ local function _lg_format_skill_desc(defaultName, cfg, values)
 end
 
 local function _lg_build_active_skill_desc(idx, previewNext, levelOverride)
+    local rootCfg = _lg_root_cfg(idx) or {}
+    local level = math.max(0, math.min(10, tonumber(levelOverride or _lg_level_value(idx) or 0) or 0))
+    local text = tostring(rootCfg.active or "")
     local cfg = ACTIVE_SKILL_TEXT_CONFIG[tonumber(idx or 0) or 0]
-    if not cfg then
-        local rootCfg = _lg_root_cfg(idx) or {}
-        return tostring(rootCfg.active or "暂无")
+    if cfg then
+        if level <= 0 and not previewNext then
+            return _lg_color_skill_desc("【" .. tostring(cfg.name or "主动技能") .. "】灵根达到Lv.1后激活。")
+        end
+        local values = {}
+        for _, valueCfg in ipairs(cfg.values or {}) do
+            values[#values + 1] = _lg_format_skill_value(valueCfg, level, previewNext and not _lg_is_max_level(idx))
+        end
+        return _lg_format_skill_desc("主动技能", cfg, values)
     end
-    local level = math.max(1, math.min(10, tonumber(levelOverride or _lg_level_value(idx) or 1) or 1))
-    local values = {}
-    for _, valueCfg in ipairs(cfg.values or {}) do
-        values[#values + 1] = _lg_format_skill_value(valueCfg, level, previewNext and not _lg_is_max_level(idx))
+    if text == "" or text == "暂无" then
+        return "暂无"
     end
-    return _lg_format_skill_desc("主动技能", cfg, values)
+    if level <= 0 and not previewNext then
+        local skillName = text:match("【(.-)】") or "主动技能"
+        return _lg_color_skill_desc("【" .. tostring(skillName) .. "】灵根达到Lv.1后激活。")
+    end
+    return _lg_color_skill_desc(text)
 end
 
 local function _lg_build_passive_skill_desc(idx, previewNext, levelOverride)
+    local rootCfg = _lg_root_cfg(idx) or {}
+    local level = math.max(0, math.min(10, tonumber(levelOverride or _lg_level_value(idx) or 0) or 0))
+    local text = tostring(rootCfg.passive or "")
     local cfg = PASSIVE_SKILL_TEXT_CONFIG[tonumber(idx or 0) or 0]
-    if not cfg then
-        local rootCfg = _lg_root_cfg(idx) or {}
-        return tostring(rootCfg.passive or "暂无")
+    if cfg then
+        if level <= 0 and not previewNext then
+            return _lg_color_skill_desc("【" .. tostring(cfg.name or "被动技能") .. "】灵根达到Lv.1后激活。")
+        end
+        local values = {}
+        for _, valueCfg in ipairs(cfg.values or {}) do
+            values[#values + 1] = _lg_format_skill_value(valueCfg, level, previewNext and not _lg_is_max_level(idx))
+        end
+        return _lg_format_skill_desc("被动技能", cfg, values)
     end
-    local level = math.max(1, math.min(10, tonumber(levelOverride or _lg_level_value(idx) or 1) or 1))
-    local values = {}
-    for _, valueCfg in ipairs(cfg.values or {}) do
-        values[#values + 1] = _lg_format_skill_value(valueCfg, level, previewNext and not _lg_is_max_level(idx))
+    if text == "" or text == "暂无" then
+        return "暂无"
     end
-    return _lg_format_skill_desc("被动技能", cfg, values)
+    if level <= 0 and not previewNext then
+        local skillName = text:match("【(.-)】") or "被动技能"
+        return _lg_color_skill_desc("【" .. tostring(skillName) .. "】灵根达到Lv.1后激活。")
+    end
+    return _lg_color_skill_desc(text)
 end
 
 -- 将灵根效果文案中的“5000*灵根倍率+2000”一类公式直接结算为实际数值。
@@ -1862,7 +1888,7 @@ _lg_refresh_cultivate_window = function(npcid, node)
     end
     _lg_render_cultivate_text_scroll(cultivate_attr_panel, "cultivate_attr_scroll", 10 + 10, 0, CULTIVATE_ATTR_POS.width, CULTIVATE_ATTR_POS.height - 5, attrLines)
     local cultivate_skill_panel = GUI:Layout_Create(node, "cultivate_skill_panel", CULTIVATE_SKILL_BOX_POS.x, CULTIVATE_SKILL_BOX_POS.y, CULTIVATE_SKILL_BOX_POS.width, CULTIVATE_SKILL_BOX_POS.height, false)
-    _lg_render_cultivate_skills(cultivate_skill_panel, mainIdx and mainIdx > 0 and mainIdx or selectedIdx)
+    _lg_render_cultivate_skills(cultivate_skill_panel, selectedIdx)
 
     local upgradeIdx = _lg_current_upgrade_idx(selectedIdx, mainIdx)
     local upgradeBtn = _lg_button(node, "cultivate_btn_upgrade", CULTIVATE_BTN_POS.upgrade.x - 80, CULTIVATE_BTN_POS.upgrade.y, "升级灵根", function()
