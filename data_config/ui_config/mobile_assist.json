@@ -1,1 +1,1 @@
-{"#Node#Panel_hide#Button_hide":{"width":12,"height":46,"offsetx":0,"offsety":0,"visible":1},"#Node#Panel_hide":{"width":21,"height":188,"offsetx":-4,"offsety":4,"visible":1},"#Node#Panel_assist":{"width":244,"height":188,"offsetx":-4,"offsety":4,"visible":1}}
+{"#Node#Panel_hide#Button_hide":{"visible":1,"offsety":0,"offsetx":0,"width":12,"height":46},"#Node#Panel_hide":{"visible":1,"offsety":4,"offsetx":-4,"width":21,"height":188},"#Node#Panel_assist":{"visible":1,"offsety":4,"offsetx":-4,"width":244,"height":188}}

@@ -25,6 +25,14 @@ local PERSONALITY_SKIN = {
     lumang = "res/custom/six_city/武器性格/鲁莽.png",
 }
 
+local function createText(parent, name, x, y, size, color, value, font, ax, ay)
+    local label = GUI:Text_Create(parent, name, x, y, size or 18, color or "#FFFFFF", tostring(value or ""))
+    GUI:Text_setFontName(label, font or "fonts/font4.ttf")
+    GUI:Text_enableOutline(label, "#100808", 2)
+    GUI:setAnchorPoint(label, ax == nil and 0.5 or ax, ay == nil and 0.5 or ay)
+    return label
+end
+
 -- 说明：统一转数字，便于处理服务端回包中的可空字段。
 local function toNumber(value, defaultValue)
     local num = tonumber(value)
@@ -82,6 +90,11 @@ local function renderCurrentTitle(node, data)
     GUI:setAnchorPoint(personalityImg, 0.5, 0.5)
 end
 
+local function renderLockedState(node, data)
+    createText(node, "locked_name", 389, 300, 32, "#F8DA8B", "[无武器性格]", "fonts/502.ttf")
+    createText(node, "locked_desc", 389, 250, 18, "#E7D6B2", tostring(data.current_desc or "六大陆解锁后开启"), "fonts/font4.ttf")
+end
+
 -- 说明：渲染底部关闭按钮。
 local function renderButton(node)
     local btn = GUI:Button_Create(node, "know_btn", 282, 20, BTN_OK)
@@ -99,7 +112,11 @@ local function renderMain(node)
     end
     GUI:removeAllChildren(node)
     local data = getPanelData()
-    renderCurrentTitle(node, data)
+    if toNumber(data.unlocked, 0) == 1 then
+        renderCurrentTitle(node, data)
+    else
+        renderLockedState(node, data)
+    end
     renderButton(node)
 end
 

@@ -936,7 +936,16 @@ local function _should_show_lingshou_main_entry(data)
     if npc._force_show_lingshou_main_entry == true then
         return true
     end
-    if (tonumber(data.baby_choice or 0) or 0) > 0 then
+    local choice = tonumber(data.baby_choice or 0) or 0
+    if choice > 0 then
+        local hatch = data.hatch and data.hatch[tostring(choice)] or nil
+        local status = tostring(hatch and hatch.status or "")
+        if status == "hatching" then
+            return true
+        end
+        if status == "done" or (tonumber((data.ls or {})[tostring(choice)] or 0) or 0) > 0 then
+            return false
+        end
         return true
     end
     if _shortcut_get_mainline_rwid() >= 28 then
@@ -1082,7 +1091,7 @@ local function requestLingshouMainDataOnce()
     end
     npc._lingshou_main_data_requested = true
     rawset(_G, "NPC64_SILENT_SYNC_ONLY", true)
-    SL:SendLuaNetMsg(105, 64, 0, 1064, "")
+    -- SL:SendLuaNetMsg(105, 64, 0, 64, "")
     SL:ScheduleOnce(function()
         if rawget(_G, "NPC64_SILENT_SYNC_ONLY") then
             rawset(_G, "NPC64_SILENT_SYNC_ONLY", nil)
@@ -6117,7 +6126,7 @@ npc[505] = function(p2, p3, Data)
         -- 巡航界面标题与提示统一使用“自动巡航”文案，和当前首充解锁规则保持一致。
         local unlockText = patrolOpen and "已解锁：领取首充礼包后激活自动巡航/传送3秒CD" or "解锁条件：领取首充礼包"
         local unlockColor = patrolOpen and "#33ff99" or "#ff7056"
-        local tip = GUI:Text_Create(panel, "patrol_unlock_tip", 309, 420, 16, unlockColor, unlockText)
+        local tip = GUI:Text_Create(panel, "patrol_unlock_tip", 309 - 214, 420, 16, unlockColor, unlockText)
         GUI:Text_enableOutline(tip, "#000000", 1)
         local listView = GUI:ListView_Create(panel, "ListView", 26.0 - 134, 22.0 - 57, 300.0, 445.0, 1)
         GUI:ListView_setGravity(listView, 5)

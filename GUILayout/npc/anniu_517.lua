@@ -20,6 +20,11 @@ local CONTINENT_LABELS = {
     [5] = "第五大陆",
     [6] = "第六大陆",
 }
+local model = {
+    ["焚天禁器·炎狱龙尊"] = 30004,
+    ["幽狱禁器·冥河鬼主"] = 30013,
+    ["万灵禁器·太古神凰"] = 30019,
+}
 
 local function cfg()
     return (teshudata and teshudata["npc_106"]) or {}
@@ -117,6 +122,20 @@ local function fmtTime(sec)
     return string.format("%02d:%02d", m, s)
 end
 
+local function fmtCountdownText(sec)
+    sec = math.max(0, math.floor(n(sec)))
+    local h = math.floor(sec / 3600)
+    local m = math.floor((sec % 3600) / 60)
+    local s = sec % 60
+    if h > 0 then
+        return string.format("%d小时%d分%d秒", h, m, s)
+    end
+    if m > 0 then
+        return string.format("%d分%d秒", m, s)
+    end
+    return string.format("%d秒", s)
+end
+
 local function fmtDuration(value)
     if type(value) == "string" and value ~= "" then
         return value
@@ -138,6 +157,23 @@ local function bindCountdownText(widget, sec, onDone)
         if left <= 0 and onDone then
             onDone()
             onDone = nil
+        end
+    end, 1)
+end
+
+local function bindCountdownTextWithPrefix(widget, sec, prefix, doneText)
+    if not widget then return end
+    local left = math.max(0, math.floor(n(sec)))
+    local prefixText = tostring(prefix or "")
+    GUI:Text_setString(widget, left > 0 and (prefixText .. fmtCountdownText(left)) or tostring(doneText or ""))
+    if left <= 0 then
+        return
+    end
+    SL:schedule(widget, function()
+        left = math.max(0, left - 1)
+        GUI:Text_setString(widget, left > 0 and (prefixText .. fmtCountdownText(left)) or tostring(doneText or ""))
+        if left <= 0 and GUI.Text_setTextColor then
+            GUI:Text_setTextColor(widget, "#9DFF7C")
         end
     end, 1)
 end
@@ -388,7 +424,7 @@ local function openForbiddenUpgradePopup(npcid, id, lv)
         windowName = "treasure_basin_forbidden_upgrade_popup",
         overlay = {skin = "res/custom/treasureBasin/x.png"},
         background = {skin = RES .. "xjm_bg.png"},
-        closeButton = {x = 426, y = 266, skin = "res/wy/public/close_red_big.png", onClick = closeForbiddenUpgradePopup},
+        closeButton = {x = 555, y = 362, skin = "res/wy/public/close_red_big.png", onClick = closeForbiddenUpgradePopup},
         zOrder = 201,
     })
     local bg = npc.forbiddenUpgradePopup and npc.forbiddenUpgradePopup.node
@@ -398,23 +434,36 @@ local function openForbiddenUpgradePopup(npcid, id, lv)
     local yuanbao = n(cost.yuanbao)
     local crystal = n(cost.crystal)
     local levelOk = n(data().level) >= needLevel
+    panel(bg, "title_bg", 300, 313, 548, 78, "res/wy/public/tycccc.png")
+    panel(bg, "item_bg", 158, 154, 224, 210, "res/wy/public/tycccc.png")
+    panel(bg, "preview_bg", 416, 207, 280, 92, "res/wy/public/tycccc.png")
+    panel(bg, "cost_bg", 416, 95, 280, 104, "res/wy/public/tycccc.png")
 
-    text(bg, "title", 230, 262, 28, "#FFE8A8", "禁器升级", 0.5, 0.5)
-    rewardItem(bg, "upgrade_forbid_item", tostring(fc.name or "禁器"), 1, 82, 166)
-    text(bg, "name", 142, 205, 22, "#FFD66A", tostring(fc.name or "禁器"), 0, 0.5)
-    text(bg, "level", 142, 174, 20, "#9FE2FF", string.format("当前 Lv.%d  →  目标 Lv.%d", lv, nextLv), 0, 0.5)
-    text(bg, "attr", 142, 145, 19, "#B9F6C5", tostring(fc.plus or ""), 0, 0.5)
-    GUI:Image_Create(bg, "arrow", 230, 166, RES .. "jt.png")
-    panel(bg, "cost_bg", 230, 86, 282, 92, "res/wy/public/tycccc.png")
-    text(bg, "cost_title", 230, 124, 20, "#F6D08A", "升级消耗", 0.5, 0.5)
-    text(bg, "cost_yb", 116, 96, 18, "#FFF1B8", "元宝：" .. fmt(yuanbao), 0, 0.5)
-    text(bg, "cost_jy", 274, 96, 18, "#FFF1B8", "禁元神晶：" .. fmt(crystal), 0, 0.5)
-    text(bg, "need_level", 230, 66, 18, levelOk and "#9DFF7C" or "#FF5A3D", "聚宝盆品阶要求 Lv." .. tostring(needLevel), 0.5, 0.5)
+    -- text(bg, "title", 300, 318, 29, "#FFE8A8", "禁器升级", 0.5, 0.5)
+    -- GUI:Image_Create(bg, "arrow", 278, 266, RES .. "jt.png")
 
-    button(bg, "confirm", 230, 22, "确认升级", function()
+    -- rewardItem(bg, "upgrade_forbid_item", tostring(fc.name or "禁器"), 1, 158, 218)
+    local model_eff = GUI:Effect_Create(bg, "model", 158, 200, 0, model[fc.name], 0, 0, 2, 0.8)
+    -- GUI:setScale(model_eff, 0.5)
+
+    text(bg, "name", 158, 30, 23, "#FFD66A", tostring(fc.name or "禁器"), 0.5, 0.5)
+    
+
+    text(bg, "level_label", 416, 247 + 100, 25, "#F6D08A", "升级预览", 0.5, 0.5)
+    text(bg, "level", 416, 216 + 85, 22, "#9FE2FF", string.format("当前 Lv.%d  →  目标 Lv.%d", lv, nextLv), 0.5, 0.5)
+    text(bg, "attr_label", 416, 184 + 80, 23, "#F6D08A", "属性加成", 0.5, 0.5)
+    text(bg, "attr", 416, 157 + 80, 19, "#B9F6C5", tostring(fc.plus or ""), 0.5, 0.5)
+
+    text(bg, "cost_title", 416, 136 + 75, 23, "#F6D08A", "升级消耗", 0.5, 0.5)
+    -- text(bg, "cost_jy", 334, 107, 19, "#FFF1B8", "禁元神晶：" .. fmt(crystal), 0, 0.5)
+    -- text(bg, "cost_yb", 112, 94, 19, "#FFF1B8", "元宝：" .. fmt(yuanbao), 0, 0.5)
+    checkItemNumByTable_img_kuang({{"禁元神晶",crystal},{"元宝",yuanbao}},1, GUI:Node_Create(bg, "cost_items", 416 - 103, 95 + 30))
+    text(bg, "need_level", 416, 78, 18, levelOk and "#9DFF7C" or "#FF5A3D", "聚宝盆品阶要求 Lv." .. tostring(needLevel), 0.5, 0.5)
+
+    button(bg, "confirm", 300 + 145 - 28, 23 + 23, "确认升级", function()
         closeForbiddenUpgradePopup()
         SL:SendLuaNetMsg(101, npcid, 5, id, "")
-    end)
+    end, 1.35)
 end
 
 local function ensureWindow(npcid, keepCurrent)
@@ -566,7 +615,7 @@ renderEnergy = function(node, npcid)
     end, 1.5)
     local redState = UPGRADE_HELPER and UPGRADE_HELPER.treasureBasinRedState and UPGRADE_HELPER.treasureBasinRedState(d) or {}
     if redState.energy then
-        NPC_UI_HELPER.redpoint_create_eff(claimBtn, {x = 205, y = 60, autoScale = 0.75})
+        NPC_UI_HELPER.redpoint_create_eff(claimBtn, {x = 205, y = 35, autoScale = 0.6})
     end
 end
 
@@ -758,22 +807,46 @@ renderForbidden = function(node, npcid)
         local cardX = (i - 1) * (cardW + gap)
         local card = GUI:Layout_Create(listNode, "forbid_card_" .. i, cardX, 0, cardW, viewH, false)
         panel(card, "forbid_row_bg_" .. i, cardW / 2, viewH / 2 - 20, cardW, cardH + 60, "res/wy/public/anniu_999_bj.png")
-        rewardItem(card, "forbid_equip_" .. i, tostring(fc.name or "禁器"), 1, cardW / 2, 192 + 30)
-    text(card, "forbid_lv_" .. i, cardW / 2 + 30, 166 + 30, 15, "#FF3B30", "Lv." .. tostring(lv), 1, 0)
-        text(card, "forbid_name_" .. i, cardW / 2, 145 + 30, 19, "#FFD66A", tostring(fc.name or "禁器"), 0.5, 0.5)
-        local stateIcon = GUI:Image_Create(card, "forbid_state_" .. i, cardW / 2 + 44, 128 + 30, active and "res/wy/public/10_2.png" or "res/wy/public/10_1.png")
+        local model_eff = GUI:Effect_Create(card, "model", cardW / 2 - 12, 192 + 30, 0,model[fc.name], 0, 0, 2, 0.8)
+        GUI:setScale(model_eff, 0.5)
+        if selected and active then
+            local cdLeft = n(d.forbidden_skill_cd_left)
+            local cdText = text(card, "forbid_skill_cd_" .. i, cardW / 2, 272, 18, cdLeft > 0 and "#FF5A3D" or "#9DFF7C", "", 0.5, 0.5)
+            bindCountdownTextWithPrefix(cdText, cdLeft, "冷却  ", "技能可释放")
+        end
+        -- rewardItem(card, "forbid_equip_" .. i, tostring(fc.name or "禁器"), 1, cardW / 2, 192 + 30)
+        local stateIcon = GUI:Image_Create(card, "forbid_state_" .. i, cardW / 2 + 30 , 128 + 30, active and "res/wy/public/10_2.png" or "res/wy/public/10_1.png")
         GUI:setAnchorPoint(stateIcon, 0.5, 0.5)
-        text(card, "forbid_grade_" .. i, cardW / 2, 102 + 30, 17, selected and "#FFE7A8" or (active and "#9FE2FF" or "#FF5A3D"), selected and "当前外显" or (active and "已激活" or "未激活"), 0.5, 0.5)
-        text(card, "forbid_plus_" .. i, cardW / 2, 74 + 30, 16, "#B9F6C5", tostring(fc.plus or ""), 0.5, 0.5)
-        smallButton(card, "forbid_select_" .. i, cardW / 2, 43 + 30, buttonText, function()
-            SL:SendLuaNetMsg(101, npcid, buttonAction, i, "")
+       
+        text(card, "forbid_lv_" .. i, cardW / 2 + 30 + 60, 166 - 30, 20, "#FF3B30", "Lv." .. tostring(lv), 1, 0)
+        text(card, "forbid_name_" .. i, cardW / 2, 145 + 30 - 55, 19, "#FFD66A", tostring(fc.name or "禁器"), 0.5, 0.5)
+
+        text(card, "forbid_grade_" .. i, cardW / 2, 102 -8, 17, selected and "#FFE7A8" or (active and "#9FE2FF" or "#FF5A3D"), selected and "当前外显" or (active and "已激活" or "未激活"), 0.5, 0.5)
+        text(card, "forbid_plus_" .. i, cardW / 2, 74 -8, 16, "#B9F6C5", tostring(fc.plus or ""), 0.5, 0.5)
+        local touch = GUI:Image_Create(card, "forbid_tips", cardW / 2 + 30 + 45 , 128 + 30 - 100, "res/wy/public/an_tip.png")
+        GUI:setTouchEnabled(touch, true)
+        GUI:addOnTouchEvent(touch, function()
+            local itemData = SL:GetMetaValue("ITEM_DATA", SL:GetMetaValue("ITEM_INDEX_BY_NAME", fc.name))
+            if not itemData then
+                return
+            end
+            local pos = touch and GUI:getWorldPosition(touch) or {x = 0, y = 0}
+            SL:OpenItemTips({itemData = itemData, pos = {x = pos.x  + 100, y = pos.y}})
+        end)
+
+        smallButton(card, "forbid_select_" .. i, cardW / 2 - 55, 8 + 30, buttonText, function()
+        SL:SendLuaNetMsg(101, npcid, buttonAction, i, "")
+
+
+
+
         end, selected and "#FFE7A8" or (active and "#9FE2FF" or "#9DFF7C"))
         if not active then
-            smallButton(card, "forbid_unlock_" .. i, cardW / 2, 8 + 30, "激活", function()
+            smallButton(card, "forbid_unlock_" .. i, cardW / 2 + 55, 8 + 30, "激活", function()
                 SL:SendLuaNetMsg(101, npcid, 4, i, "")
             end, "#FFD66A")
         elseif lv < 5 then
-            smallButton(card, "forbid_upgrade_" .. i, cardW / 2, 8 + 30, "升级", function()
+            smallButton(card, "forbid_upgrade_" .. i, cardW / 2 + 55, 8 + 30, "升级", function()
                 openForbiddenUpgradePopup(npcid, i, lv)
             end, "#FFD66A")
         end

@@ -55,7 +55,7 @@ function npc.main(npcid, p2, p3, msgData)
 
         npc.data.T_dljq[key] = (npc.data.T_dljq and npc.data.T_dljq[key]) and npc.data.T_dljq[key] or 0
         local showFirstOpenTake = NPC_UI_HELPER.shouldShowFirstOpenTakeButton(key, npc._config.cost, npc.data.T_dljq[key])
-        createText(node, "desc", 500 + 160, 120 + 133, 30, "#63F7FF", npc._config.max_num - npc.data.T_dljq[key], 0.5, 0.5)
+        createText(node, "desc", 500 + 160 + 10, 120 + 133 + 17, 30, "#63F7FF", npc._config.max_num - npc.data.T_dljq[key], 0.5, 0.5)
 
 
 

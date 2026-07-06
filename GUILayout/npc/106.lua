@@ -8,6 +8,7 @@ local WINDOW_OPTS = {
 
 local tab = 1
 local selectedStone = 1
+local selectedForbidden = 1
 
 local function cfg()
     return (teshudata and teshudata["npc_106"]) or {}
@@ -378,46 +379,99 @@ local function renderRefine(node, npcid)
 end
 
 local function renderForbidden(node, npcid)
-    panel(node, "forbid_list_panel", -55, -54, 560, 250, "res/wy/public/tycccc.png")
     local d = data()
     local point = n(d.forbidden_point)
     local needPoint = 8888
     local pointPercent = math.max(0, math.min(100, point / needPoint * 100))
-    titleBar(node, "forbid_title", -55, 72, "禁器养成", 200)
-    text(node, "point_label", -232, 38, 18, "#F6D08A", "聚宝值", 0.5, 0.5)
-    local pointBarBg = GUI:Image_Create(node, "forbid_point_bar_bg", -50, 38, RES .. "jdt_k.png")
-    GUI:setAnchorPoint(pointBarBg, 0.5, 0.5)
-    GUI:setContentSize(pointBarBg, 270, 14)
-    GUI:setLocalZOrder(pointBarBg, -1)
-    local pointBar = GUI:LoadingBar_Create(node, "forbid_point_bar", -50, 38, RES .. "jdt_m.png", 0)
-    GUI:setAnchorPoint(pointBar, 0.5, 0.5)
-    GUI:setContentSize(pointBar, 270, 14)
-    GUI:LoadingBar_setPercent(pointBar, pointPercent)
-    text(node, "point_value", -50, 38, 16, "#FFFFFF", string.format("%s/%s", fmt(point), fmt(needPoint)), 0.5, 0.5)
-    text(node, "forbid_tip", 155, 38, 16, "#B9F6C5", "击杀+1  炼化=大陆*10", 0.5, 0.5)
     local list = d.forbidden or {}
+    if selectedForbidden < 1 or selectedForbidden > 3 then selectedForbidden = 1 end
+    local sf = list[selectedForbidden] or {}
+    local sfc = forbiddenCfg(selectedForbidden)
+    local lv = n(sf.lv)
+    local active = lv > 0
+    local nextLv = math.min(5, lv + 1)
+    local maxed = active and lv >= 5
+    local costs = cfg().forbidden_cost or {}
+    local cost = costs[nextLv] or {}
+    local skillCdLeft = n(d.forbidden_skill_cd_left)
+    local skillCdText = tostring(d.forbidden_skill_cd_text or "")
+    local skillCooling = skillCdLeft > 0
+
+    panel(node, "forbid_left_panel", -205, -54, 275, 268, RES .. "xjm_bg.png")
+    panel(node, "forbid_top_panel", 150, 48, 300, 82, "res/wy/public/tycccc.png")
+    panel(node, "forbid_detail_panel", 150, -74, 300, 156, RES .. "xjm_bg.png")
+    panel(node, "forbid_cost_panel", 150, -168, 230, 58, "res/wy/public/tycccc.png")
+
+    titleBar(node, "forbid_title", 150, 84, "禁器养成", 210)
+    rich(node, "forbid_rule", 18, 52, "<font color='#E9D7B2'>禁器技能三件共享24小时CD：</font><font color='" .. (skillCooling and "#FFB85A" or "#9DFF7C") .. "'>" .. (skillCooling and ("冷却中 " .. skillCdText) or "当前可释放") .. "</font>", 260, 17, 1)
+
+    titleBar(node, "forbid_left_title", -205, 70, "三大禁器", 205)
+    text(node, "point_label", -318, 42, 17, "#F6D08A", "聚宝值", 0.5, 0.5)
+    local pointBarBg = GUI:Image_Create(node, "forbid_point_bar_bg", -196, 42, RES .. "jdt_k.png")
+    GUI:setAnchorPoint(pointBarBg, 0.5, 0.5)
+    GUI:setContentSize(pointBarBg, 190, 13)
+    GUI:setLocalZOrder(pointBarBg, -1)
+    local pointBar = GUI:LoadingBar_Create(node, "forbid_point_bar", -196, 42, RES .. "jdt_m.png", 0)
+    GUI:setAnchorPoint(pointBar, 0.5, 0.5)
+    GUI:setContentSize(pointBar, 190, 13)
+    GUI:LoadingBar_setPercent(pointBar, pointPercent)
+    text(node, "point_value", -196, 42, 15, "#FFFFFF", string.format("%s/%s", fmt(point), fmt(needPoint)), 0.5, 0.5)
+
     for i = 1, 3 do
         local f = list[i] or {}
         local fc = forbiddenCfg(i)
-        local y = -18 - (i - 1) * 58
-        panel(node, "forbid_row_bg_" .. i, -55, y - 4, 520, 54, "res/wy/public/new_kuang.png")
-        text(node, "forbid_name_" .. i, -298, y + 16, 19, "#FFD66A", tostring(fc.name or "禁器"), 0, 0.5)
-        text(node, "forbid_grade_" .. i, -298, y - 10, 17, "#9FE2FF", "品阶 " .. gradeName(f.lv), 0, 0.5)
-        text(node, "forbid_plus_" .. i, -92, y + 4, 17, "#B9F6C5", tostring(fc.plus or ""), 0.5, 0.5)
-        local active = n(f.lv) > 0
-        local claimed = n(f.used) >= 1
-        local stateText = active and (claimed and "今日已领取" or "今日可领取") or "未激活"
-        text(node, "forbid_state_" .. i, 52, y + 4, 17, claimed and "#FFB85A" or (active and "#9DFF7C" or "#FF5A3D"), stateText, 0.5, 0.5)
-        smallButton(node, "forbid_unlock_" .. i, 170, y + 12, active and "升级" or "激活", function()
-            SL:SendLuaNetMsg(100, npcid, n(f.lv) > 0 and 5 or 4, i, "")
-        end, active and "#FFE7A8" or "#9DFF7C")
-        smallButton(node, "forbid_show_" .. i, 270, y + 12, n(f.show) >= 1 and "外显中" or "外显", function()
-            SL:SendLuaNetMsg(100, npcid, 6, i, "")
-        end, n(f.show) >= 1 and "#9FE2FF" or "#FFE7A8")
-        smallButton(node, "forbid_claim_" .. i, 220, y - 22, claimed and "已领取" or "领取收益", function()
-            SL:SendLuaNetMsg(100, npcid, 7, i, "")
-        end, claimed and "#FFB85A" or "#FFD66A")
+        local rowActive = n(f.lv) > 0
+        local claimed = n(f.used) >= 1 or skillCooling
+        local y = 5 - (i - 1) * 58
+        local selected = selectedForbidden == i
+        panel(node, "forbid_row_bg_" .. i, -205, y, selected and 244 or 222, selected and 51 or 43, "res/wy/public/new_kuang.png")
+        text(node, "forbid_mark_" .. i, -314, y + 1, selected and 22 or 18, selected and "#9DFF7C" or "#B77A39", selected and "◆" or "◇", 0.5, 0.5)
+        text(node, "forbid_name_" .. i, -292, y + 12, 18, selected and "#FFE7A8" or "#D7A86A", tostring(fc.name or "禁器"), 0, 0.5)
+        text(node, "forbid_grade_" .. i, -292, y - 12, 16, rowActive and "#9FE2FF" or "#FF8A65", rowActive and ("品阶 " .. gradeName(f.lv)) or "未激活", 0, 0.5)
+        text(node, "forbid_state_" .. i, -110, y - 12, 15, claimed and "#FFB85A" or (rowActive and "#9DFF7C" or "#FF5A3D"), n(f.show) >= 1 and (skillCooling and "冷却中" or "外显中") or (claimed and "冷却中" or ""), 0.5, 0.5)
+        local touch = GUI:Layout_Create(node, "forbid_touch_" .. i, -326, y - 25, 244, 50, 0)
+        GUI:setTouchEnabled(touch, true)
+        GUI:addOnClickEvent(touch, function()
+            selectedForbidden = i
+            npc.render(npcid)
+        end)
     end
+
+    local iconNode = GUI:Node_Create(node, "forbid_icon_node", -302, -174)
+    if type(ItemNumByTable_img_new) == "function" then
+        ItemNumByTable_img_new({{tostring(sfc.name or "禁器"), 1}}, nil, iconNode)
+    end
+    text(node, "forbid_selected_name", -188, -152, 20, "#FFD66A", tostring(sfc.name or "禁器"), 0, 0.5)
+    text(node, "forbid_selected_plus", -188, -178, 17, "#B9F6C5", tostring(sfc.plus or ""), 0, 0.5)
+
+    text(node, "detail_name", 150, 14, 22, "#FFE7A8", tostring(sfc.name or "禁器"), 0.5, 0.5)
+    text(node, "detail_lv", 150, -16, 19, "#9FE2FF", active and ("当前 Lv." .. tostring(lv) .. "  →  目标 Lv." .. tostring(nextLv)) or "当前未激活", 0.5, 0.5)
+    text(node, "detail_skill", 150, -45, 18, "#F6D08A", "禁器技能：" .. tostring(sfc.skill or "未知"), 0.5, 0.5)
+    text(node, "detail_bonus", 150, -74, 18, "#B9F6C5", "属性加成：" .. tostring(sfc.plus or ""), 0.5, 0.5)
+    text(node, "detail_state", 150, -104, 18, skillCooling and "#FFB85A" or (maxed and "#9DFF7C" or (active and "#FFD66A" or "#FF8A65")), skillCooling and ("公共CD剩余：" .. skillCdText) or (maxed and "已炼至极品" or (active and ("下阶需要聚宝盆 Lv." .. tostring(cost.need_level or 0)) or "消耗聚宝值可激活")), 0.5, 0.5)
+
+    if active and not maxed then
+        text(node, "cost_yb", 76, -161, 17, "#F6D08A", "元宝：" .. fmt(cost.yuanbao or 0), 0.5, 0.5)
+        text(node, "cost_crystal", 223, -161, 17, "#F6D08A", "禁元神晶：" .. fmt(cost.crystal or 0), 0.5, 0.5)
+    elseif active and maxed then
+        text(node, "cost_max", 150, -161, 18, "#9DFF7C", "当前禁器已达到最高品阶", 0.5, 0.5)
+    else
+        text(node, "cost_unlock", 150, -161, 18, "#F6D08A", "激活消耗：聚宝值 8888", 0.5, 0.5)
+    end
+
+    smallButton(node, "forbid_main_action", 150, -208, maxed and "已满级" or (active and "确认升级" or "激活禁器"), function()
+        if maxed then
+            SL:ShowSystemTips("该禁器已是极品")
+            return
+        end
+        SL:SendLuaNetMsg(100, npcid, active and 5 or 4, selectedForbidden, "")
+    end, active and "#FFE7A8" or "#9DFF7C")
+    smallButton(node, "forbid_show_btn", 48, -208, n(sf.show) >= 1 and "外显中" or "设为外显", function()
+        SL:SendLuaNetMsg(100, npcid, 6, selectedForbidden, "")
+    end, n(sf.show) >= 1 and "#9FE2FF" or "#FFE7A8")
+    smallButton(node, "forbid_claim_btn", 252, -208, skillCooling and "冷却中" or "释放技能", function()
+        SL:SendLuaNetMsg(100, npcid, 7, selectedForbidden, "")
+    end, skillCooling and "#FFB85A" or "#FFD66A")
 end
 
 local function canRebuildTask()
