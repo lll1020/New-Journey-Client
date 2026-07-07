@@ -1,4 +1,4 @@
-ï»¿local npc = {
+local npc = {
 }
 local REWARD_ITEM_EFFECT_14193 = 14193
 local REWARD_ITEM_EFFECT_13048 = 13048
@@ -106,10 +106,10 @@ local function _add_reward_effect_for_table(node, effectName, x, y, scale, effec
 end
 npc.iconpx = {
     {
-        {15, "å¤©å¤©çœé’±",509,1}, {3, "ç¦åˆ©å¤§å…",511,2}, {17, "æ¸¸æˆæ”»ç•¥",512,3},{4, "æ´»åŠ¨å¤§å…",507,4},{14, "é¦–å……ç¤¼åŒ…",501,5},{16, "ä»™é€”å¥‡ç¼˜",515,515},{20, "æŠ¤ä½“å…‰ç¯",23,23},{21, "é©¬ä¸Šå‘è´¢",31,31}
+        {15, "ÌìÌìÊ¡Ç®",509,1}, {3, "¸£Àû´óÌü",511,2}, {17, "ÓÎÏ·¹¥ÂÔ",512,3},{4, "»î¶¯´óÌü",507,4},{14, "Ê×³äÀñ°ü",501,5},{16, "ÏÉÍ¾ÆæÔµ",515,515},{20, "»¤Ìå¹â»·",23,23},{21, "ÂíÉÏ·¢²Æ",31,31}
     },
     {
-        {19, "åœ¨çº¿å……å€¼", 502,11}, {5, "äº¤æ˜“è¡Œ",510,12},{2, "è§£ç»‘ç‰¹æƒ",504,13},{7, "ç‹‚æš´ä¹‹åŠ›",513,14},{12, "ä¸–ç•Œåœ°å›¾",514,15},{10, "å…è´¹èµåŠ©",516,16},{22, "çµå…½å¥‘çº¦",64,64},{6, "èšå®ç›†",517,517},
+        {19, "ÔÚÏß³äÖµ", 502,11}, {5, "½»Ò×ĞĞ",510,12},{2, "½â°óÌØÈ¨",504,13},{7, "¿ñ±©Ö®Á¦",513,14},{12, "ÊÀ½çµØÍ¼",514,15},{10, "Ãâ·ÑÔŞÖú",516,16},{22, "ÁéÊŞÆõÔ¼",64,64},{6, "¾Û±¦Åè",517,517},
     }
 }
 npc.LeftTop = GUI:Attach_LeftTop()
@@ -446,7 +446,7 @@ local function closeActivityWindow()
 end
 local function openFirstChargeWelfareConfirm()
     SL:OpenCommonTipsPop({
-        str = "ä½ å¯ä»¥é¢†å–å…¨éƒ¨çš„é™æ—¶ç¦åˆ©äº†ï¼æ— éœ€ç­‰å¾…ï¼æ˜¯å¦ç«‹å³é¢†å–ï¼Ÿ",
+        str = "Äã¿ÉÒÔÁìÈ¡È«²¿µÄÏŞÊ±¸£ÀûÁË£¡ÎŞĞèµÈ´ı£¡ÊÇ·ñÁ¢¼´ÁìÈ¡£¿",
         btnType = 2,
         callback = function(atype)
             if atype == 1 then
@@ -457,7 +457,7 @@ local function openFirstChargeWelfareConfirm()
         end,
     })
 end
--- è¿™ä¸¤ä¸ªå¿«æ·å…¥å£åˆ¤å®šä¼šåœ¨å‡½æ•°å®šä¹‰å‰è¢«å¼•ç”¨ï¼Œå…ˆå‰ç½®å£°æ˜ï¼Œé¿å…è¿è¡Œæ—¶è½åˆ°å…¨å±€æŸ¥æ‰¾ã€‚
+-- ÕâÁ½¸ö¿ì½İÈë¿ÚÅĞ¶¨»áÔÚº¯Êı¶¨ÒåÇ°±»ÒıÓÃ£¬ÏÈÇ°ÖÃÉùÃ÷£¬±ÜÃâÔËĞĞÊ±Âäµ½È«¾Ö²éÕÒ¡£
 local _shortcut_is_firstcharge_completed
 local _shortcut_is_unbind_completed
 local function _shortcut_should_show_persistent_redpoint(cfg)
@@ -523,10 +523,10 @@ local function _shortcut_has_title(titleName)
     local titleList = {
         tostring(titleName or ""),
     }
-    if string.find(titleName, "%[ç§°å·%]") then
-        titleList[#titleList + 1] = string.gsub(titleName, "%[ç§°å·%]$", "")
+    if string.find(titleName, "%[³ÆºÅ%]") then
+        titleList[#titleList + 1] = string.gsub(titleName, "%[³ÆºÅ%]$", "")
     else
-        titleList[#titleList + 1] = tostring(titleName) .. "[ç§°å·]"
+        titleList[#titleList + 1] = tostring(titleName) .. "[³ÆºÅ]"
     end
     local used = {
     }
@@ -604,7 +604,7 @@ _shortcut_is_firstcharge_completed = function()
 end
 local function _shortcut_is_kuangbao_completed()
     local cfg = teshudata and teshudata["npc_15"]
-    local titleName = cfg and cfg.give and cfg.give.ch or "ç‹‚æš´ä¹‹åŠ›"
+    local titleName = cfg and cfg.give and cfg.give.ch or "¿ñ±©Ö®Á¦"
     return _shortcut_has_title(titleName)
 end
 local function _feijian_has_main_buff(buffId)
@@ -701,27 +701,27 @@ _shortcut_is_unbind_completed = function()
         return true
     end
     local cfg = teshudata and teshudata["anniu_504"]
-    local titleName = (cfg and cfg.ch) or "è¶…çº§ç‰¹æƒ"
+    local titleName = (cfg and cfg.ch) or "³¬¼¶ÌØÈ¨"
     return _shortcut_has_title(titleName)
 end
 local HUTI_CARD_CFG = {
     [1] = {
-        name = "æ”»å‡»",
-        effect = "æ¯3åˆ€é¢å¤–é€ æˆ1000ä¼¤å®³",
-        need = "è½¬ç”Ÿç­‰çº§è¾¾åˆ°10çº§",
-        lockedTip = "éœ€è¦è½¬ç”Ÿç­‰çº§è¾¾åˆ°10çº§",
+        name = "¹¥»÷",
+        effect = "Ã¿3µ¶¶îÍâÔì³É1000ÉËº¦",
+        need = "×ªÉúµÈ¼¶´ïµ½10¼¶",
+        lockedTip = "ĞèÒª×ªÉúµÈ¼¶´ïµ½10¼¶",
     },
     [2] = {
-        name = "é˜²å¾¡",
-        effect = "æ¯3åˆ€é¢å¤–é€ æˆ888ä¼¤å®³",
-        need = "é¢†å–é¦–å……ç¤¼åŒ…",
-        lockedTip = "éœ€è¦å…ˆé¢†å–é¦–å……ç¤¼åŒ…",
+        name = "·ÀÓù",
+        effect = "Ã¿3µ¶¶îÍâÔì³É888ÉËº¦",
+        need = "ÁìÈ¡Ê×³äÀñ°ü",
+        lockedTip = "ĞèÒªÏÈÁìÈ¡Ê×³äÀñ°ü",
     },
     [3] = {
-        name = "æ–©æ€",
-        effect = "æ¯3åˆ€é¢å¤–é€ æˆ1000ä¼¤å®³",
-        need = "è´­ä¹°è¶…çº§ç‰¹æƒ",
-        lockedTip = "éœ€è¦å…ˆæ¿€æ´»è¶…çº§ç‰¹æƒ",
+        name = "Õ¶É±",
+        effect = "Ã¿3µ¶¶îÍâÔì³É1000ÉËº¦",
+        need = "¹ºÂò³¬¼¶ÌØÈ¨",
+        lockedTip = "ĞèÒªÏÈ¼¤»î³¬¼¶ÌØÈ¨",
     },
 }
 local function _huti_get_server_data()
@@ -786,7 +786,7 @@ local function _shortcut_is_current_xyl_task(taskName)
     local function normalize(name)
         local value = tostring(name or "")
         value = value:gsub("%s+", "")
-        value = value:gsub("ï¼ˆ.-ï¼‰", "")
+        value = value:gsub("£¨.-£©", "")
         value = value:gsub("%(.-%)", "")
         return value
     end
@@ -843,7 +843,7 @@ local function _shortcut_should_show_pet_contract()
     if _shortcut_get_mainline_rwid() >= 28 then
         return true
     end
-    return _shortcut_has_reached_xyl_task("çµå…½å­µåŒ–")
+    return _shortcut_has_reached_xyl_task("ÁéÊŞ·õ»¯")
 end
 local function _huti_get_card_states()
     local result = {
@@ -869,7 +869,7 @@ end
 local function _shortcut_should_show(cfg)
     local npcid = tonumber(cfg and cfg[3] or 0)
     if npcid == 31 then
-        -- é©¬ä¸Šå‘è´¢ï¼šäºŒå¤§é™†ä¸»çº¿é˜¶æ®µï¼ˆrwid >= 16ï¼‰åæ‰æ˜¾ç¤ºå¿«æ·æŒ‰é’®ã€‚
+        -- ÂíÉÏ·¢²Æ£º¶ş´óÂ½Ö÷Ïß½×¶Î£¨rwid >= 16£©ºó²ÅÏÔÊ¾¿ì½İ°´Å¥¡£
         return (tonumber(cogin and cogin.sjtb and cogin.sjtb.rwid) or 0) >= 16
     end
     if npcid == 516 then
@@ -951,7 +951,7 @@ local function _should_show_lingshou_main_entry(data)
     if _shortcut_get_mainline_rwid() >= 28 then
         return true
     end
-    return _shortcut_has_reached_xyl_task("çµå…½å­µåŒ–")
+    return _shortcut_has_reached_xyl_task("ÁéÊŞ·õ»¯")
 end
 local function _get_lingshou_hatch_left(data)
     data = data or _get_lingshou_main_data()
@@ -1086,12 +1086,12 @@ local function requestLingshouMainDataOnce()
     if npc._lingshou_main_data_requested then
         return
     end
-    if _shortcut_get_mainline_rwid() < 28 and not _shortcut_has_reached_xyl_task("çµå…½å­µåŒ–") then
+    if _shortcut_get_mainline_rwid() < 28 and not _shortcut_has_reached_xyl_task("ÁéÊŞ·õ»¯") then
         return
     end
     npc._lingshou_main_data_requested = true
     rawset(_G, "NPC64_SILENT_SYNC_ONLY", true)
-    -- SL:SendLuaNetMsg(105, 64, 0, 64, "")
+    SL:SendLuaNetMsg(100, 64, 8, 0, "")
     SL:ScheduleOnce(function()
         if rawget(_G, "NPC64_SILENT_SYNC_ONLY") then
             rawset(_G, "NPC64_SILENT_SYNC_ONLY", nil)
@@ -1138,7 +1138,7 @@ local function startLingshouMainGuide(retryCount)
         dir = 3,
         guideWidget = npc.lingshou_main_button,
         guideParent = guideParent,
-        guideDesc = "ç‚¹å‡»é¢†å–çµå…½è›‹",
+        guideDesc = "µã»÷ÁìÈ¡ÁéÊŞµ°",
         isForce = false,
         hideMask = false,
     })
@@ -1405,7 +1405,7 @@ npc.removeShortcutByNpcId = function(npcid)
         rebuildShortcutButtons("")
     end
 end
--- æŒ‰ NPCID ä»é¡¶éƒ¨å¿«æ·æ ç¼“å­˜ä¸­æŸ¥æ‰¾æŒ‰é’®ï¼Œç”¨äºå¼‚é—»å½•ä»»åŠ¡å¼•å¯¼ç›´æ¥æŒ‡å‘é¡¶éƒ¨å…¥å£ã€‚
+-- °´ NPCID ´Ó¶¥²¿¿ì½İÀ¸»º´æÖĞ²éÕÒ°´Å¥£¬ÓÃÓÚÒìÎÅÂ¼ÈÎÎñÒıµ¼Ö±½ÓÖ¸Ïò¶¥²¿Èë¿Ú¡£
 local function findShortcutButtonByNpcId(npcid)
     npcid = tonumber(npcid)
     for _, entry in ipairs(npc.db_shortcut_entries or {}) do
@@ -1558,7 +1558,7 @@ local function openRoleGuide()
             dir = 3,
             guideWidget = MainProperty._ui.Button_role,
             guideParent = MainProperty._ui.Panel_act,
-            guideDesc = "æ‰“å¼€äººç‰©ç•Œé¢",
+            guideDesc = "´ò¿ªÈËÎï½çÃæ",
             isForce = false,
             hideMask = false,
         })
@@ -1568,7 +1568,7 @@ local function openRoleGuide()
             dir = 1,
             guideWidget = npc.jueshe,
             guideParent = npc.RightTop,
-            guideDesc = "æ‰“å¼€äººç‰©ç•Œé¢",
+            guideDesc = "´ò¿ªÈËÎï½çÃæ",
             isForce = false,
             hideMask = false,
         })
@@ -1585,9 +1585,9 @@ local function openNpcPanelForGuide(npcid)
     SL:SendLuaNetMsg(105, npcid, npcid, 0, "")
 end
 local MAINLINE_PANEL_GUIDE = {
-    [17] = 24, -- å¤©ä¹¦å¼ºåŒ–
-    [18] = 24, -- å¤©ä¹¦ä»™æ³•
-    [26] = 43, -- æ±Ÿæ¹–ç§°å·å‡çº§
+    [17] = 24, -- ÌìÊéÇ¿»¯
+    [18] = 24, -- ÌìÊéÏÉ·¨
+    [26] = 43, -- ½­ºş³ÆºÅÉı¼¶
 }
 local guideDispatch = {
     [1] = function(data)
@@ -1597,8 +1597,8 @@ local guideDispatch = {
         if NPC_UI_HELPER.shouldSuppressGrayWorldGuide and NPC_UI_HELPER.shouldSuppressGrayWorldGuide(data and data.rwid) then
             return
         end
-        if tostring(data.npcdt or "") == "äºŒå¤§é™†ä¸»åŸ" and type(dl_sz) == "function" and not dl_sz(2) then
-            SL:ShowSystemTips("<font color='#FF0000'>éœ€å®Œæˆä¸»çº¿å¼•å¯¼åæ‰å¯è¿›å…¥äºŒå¤§é™†</font>")
+        if tostring(data.npcdt or "") == "¶ş´óÂ½Ö÷³Ç" and type(dl_sz) == "function" and not dl_sz(2) then
+            SL:ShowSystemTips("<font color='#FF0000'>ĞèÍê³ÉÖ÷ÏßÒıµ¼ºó²Å¿É½øÈë¶ş´óÂ½</font>")
             return
         end
         SL:ScheduleOnce(function()
@@ -1670,7 +1670,7 @@ npc[0] = function(p2, p3, msgData)
     elseif p2 == 9 then
         local da = SL:JsonDecode(msgData, false)
         local rewardWindow = ensureWindow("reward", 0, {
-            titleText = "å¥–åŠ±é¢„è§ˆ",
+            titleText = "½±ÀøÔ¤ÀÀ",
             background = {
                 skin = "res/wy/public/0-" .. (p3 == 1000 and 2 or 1) .. ".png",
             },
@@ -1712,9 +1712,9 @@ npc[1] = function(p2, p3, msgData)
             }
             if cogin.isWin32 then
                 guaji[1] = GUI:Button_Create(npc.RightBottom, "guaji", -80, 500, "res/wy/icon/base.png")
-                if SL:GetMetaValue("USER_NAME") == "ç©å®¶åå­—k" or SL:GetMetaValue("USER_NAME") == "ç©å®¶åå­—" or true then
+                if SL:GetMetaValue("USER_NAME") == "Íæ¼ÒÃû×Ök" or SL:GetMetaValue("USER_NAME") == "Íæ¼ÒÃû×Ö" or true then
                     local Button_1 = GUI:Button_Create(npc.RightBottom, "Button_1", -150, 340 + 100, "res/private/player_main_layer_ui/player_main_layer_ui_win32/1900015011.png")
-                    GUI:Button_setTitleText(Button_1, "æµ‹è¯•")
+                    GUI:Button_setTitleText(Button_1, "²âÊÔ")
                     GUI:addOnClickEvent(Button_1, function()
                         SL:SendLuaNetMsg(105, 9999, 9999, 0, "")
                     end)
@@ -1811,11 +1811,11 @@ npc[1] = function(p2, p3, msgData)
                             local equipLevel = Player:getEquipFieldByIndex(item.Index, 1)
                             equipLevel = tonumber(equipLevel)
                             if equipLevel < 13 then
-                                SL:ShowSystemTips("éœ€è¦å…ˆè¿›å…¥æ»¡é†‰æ„å€¼çŠ¶æ€")
+                                SL:ShowSystemTips("ĞèÒªÏÈ½øÈëÂú×íÒâÖµ×´Ì¬")
                                 return
                             end
                         else
-                            SL:ShowSystemTips("éœ€è¦å…ˆè¿›å…¥æ»¡é†‰æ„å€¼çŠ¶æ€")
+                            SL:ShowSystemTips("ĞèÒªÏÈ½øÈëÂú×íÒâÖµ×´Ì¬")
                             return
                         end
                         if GUI:getChildByName(zjkmw, "img_bj") then
@@ -1833,7 +1833,7 @@ npc[1] = function(p2, p3, msgData)
                         GUI:addOnClickEvent(Button, function()
                             SL:SendLuaNetMsg(100, 70, 2, 0, "")
                         end)
-                        SL:RegisterLUAEvent(LUA_EVENT_MAINBUFFUPDATE, "ä¸»ç©å®¶buffåˆ·æ–°", function(data)
+                        SL:RegisterLUAEvent(LUA_EVENT_MAINBUFFUPDATE, "Ö÷Íæ¼ÒbuffË¢ĞÂ", function(data)
                             if data.buffID == 20103 then
                                 local buff = SL:GetMetaValue("ACTOR_BUFF_DATA_BY_ID", SL:GetMetaValue("MAIN_ACTOR_ID"), 20103)
                                 GUI:Button_loadTextures(Button, "res/custom/five_city/zjkmw/btn_" .. (buff and 2 or 1) .. ".png")
@@ -1868,10 +1868,10 @@ npc[1] = function(p2, p3, msgData)
                     SL:SetMetaValue("BATTLE_AFK_BEGIN")
                 end
             end)
-            SL:RegisterLUAEvent(LUA_EVENT_AFKBEGIN, "å¼€å§‹è‡ªåŠ¨æŒ‚æœº", function()
+            SL:RegisterLUAEvent(LUA_EVENT_AFKBEGIN, "¿ªÊ¼×Ô¶¯¹Ò»ú", function()
                 guaji[3] = GUI:Effect_Create(guaji[1], "moji", 32, 32, 0, 4005, 0, 0, 0, 1)
                 GUI:setScale(guaji[3], 0.6)
-                SL:RegisterLUAEvent(LUA_EVENT_PLAYER_ACTION_BEGIN, "ä¸»ç©å®¶è¡Œä¸ºåŠ¨ä½œå¼€å§‹-æŒ‚æœºç”¨", function(data)
+                SL:RegisterLUAEvent(LUA_EVENT_PLAYER_ACTION_BEGIN, "Ö÷Íæ¼ÒĞĞÎª¶¯×÷¿ªÊ¼-¹Ò»úÓÃ", function(data)
                     if SL:GetMetaValue("BATTLE_IS_AFK") then
                         if data.act == 25 then
                             if cogin.guajikawei[1] == 6 or cogin.guajikawei[1] == 1 then
@@ -1892,8 +1892,8 @@ npc[1] = function(p2, p3, msgData)
                     end
                 end)
             end)
-            SL:RegisterLUAEvent(LUA_EVENT_AFKEND, "ç»“æŸè‡ªåŠ¨æŒ‚æœº", function()
-                SL:UnRegisterLUAEvent(LUA_EVENT_PLAYER_ACTION_BEGIN, "ä¸»ç©å®¶è¡Œä¸ºåŠ¨ä½œå¼€å§‹-æŒ‚æœºç”¨")
+            SL:RegisterLUAEvent(LUA_EVENT_AFKEND, "½áÊø×Ô¶¯¹Ò»ú", function()
+                SL:UnRegisterLUAEvent(LUA_EVENT_PLAYER_ACTION_BEGIN, "Ö÷Íæ¼ÒĞĞÎª¶¯×÷¿ªÊ¼-¹Ò»úÓÃ")
                 if guaji[3] then
                     GUI:removeFromParent(guaji[3])
                 end
@@ -1945,7 +1945,7 @@ npc[2] = function(p2, p3, msgData)
         shuju.kg = shuju.kg or {
         }
         local recycleWindow = ensureWindow("recycle", 2, {
-            titleText = "è£…å¤‡å›æ”¶",
+            titleText = "×°±¸»ØÊÕ",
         })
         local parent = recycleWindow.parent
         npc.bg = recycleWindow.bg
@@ -2009,62 +2009,62 @@ npc[2] = function(p2, p3, msgData)
                 end
                 return tier
             end
-            local startTier = string.match(text, "åˆ¶å¼è£…å¤‡(%d+)%-%d+")
+            local startTier = string.match(text, "ÖÆÊ½×°±¸(%d+)%-%d+")
             if startTier then
                 local tier = tonumber(startTier) or 1
                 return colorByTier[clampTier(tier)]
             end
-            startTier = string.match(text, "åŸºç¡€è£…å¤‡(%d+)%-%d+")
+            startTier = string.match(text, "»ù´¡×°±¸(%d+)%-%d+")
             if startTier then
                 local tier = tonumber(startTier) or 1
                 return colorByTier[clampTier(tier)]
             end
-            local zishuTier = string.match(text, "ä¸“å±é™„åŠ (%d+)")
+            local zishuTier = string.match(text, "×¨Êô¸½¼Ó(%d+)")
             if zishuTier then
                 return colorByTier[clampTier(zishuTier)]
             end
             local dlNameTierMap = {
-                ["ä¸–ç•Œä¸“å±"] = 1,
-                ["æå…‰åŸ"] = 2,
-                ["è‹äº‘åŸ"] = 3,
-                ["è‹¥æ°´"] = 4,
-                ["çº¢å°˜"] = 5,
-                ["çµè™š"] = 6,
-                ["ä¸ƒå¤§é™†ä¸»åŸ"] = 7,
-                ["å…«å¤§é™†ä¸»åŸ"] = 8,
-                ["ä¹å¤§é™†ä¸»åŸ"] = 9,
+                ["ÊÀ½ç×¨Êô"] = 1,
+                ["¼«¹â³Ç"] = 2,
+                ["²ÔÔÆ³Ç"] = 3,
+                ["ÈôË®"] = 4,
+                ["ºì³¾"] = 5,
+                ["ÁéĞé"] = 6,
+                ["Æß´óÂ½Ö÷³Ç"] = 7,
+                ["°Ë´óÂ½Ö÷³Ç"] = 8,
+                ["¾Å´óÂ½Ö÷³Ç"] = 9,
             }
             if dlNameTierMap[text] then
                 return colorByTier[clampTier(dlNameTierMap[text])]
             end
-            local dlTier = string.match(text, "([ä¸‰å››äº”å…­ä¸ƒå…«ä¹])å¤§é™†")
+            local dlTier = string.match(text, "([ÈıËÄÎåÁùÆß°Ë¾Å])´óÂ½")
             if dlTier then
                 local tierMap = {
-                    ["ä¸‰"] = 3,
-                    ["å››"] = 4,
-                    ["äº”"] = 5,
-                    ["å…­"] = 6,
-                    ["ä¸ƒ"] = 7,
-                    ["å…«"] = 8,
-                    ["ä¹"] = 9,
+                    ["Èı"] = 3,
+                    ["ËÄ"] = 4,
+                    ["Îå"] = 5,
+                    ["Áù"] = 6,
+                    ["Æß"] = 7,
+                    ["°Ë"] = 8,
+                    ["¾Å"] = 9,
                 }
                 return colorByTier[clampTier(tierMap[dlTier] or 3)]
             end
-            local shizhuangTier = string.match(text, "æ—¶è£…é¦–é¥°(%d+)")
+            local shizhuangTier = string.match(text, "Ê±×°Ê×ÊÎ(%d+)")
             if shizhuangTier then
                 return colorByTier[clampTier((tonumber(shizhuangTier) or 1) + 5)]
             end
-            local shengxiaoTier = string.match(text, "ç”Ÿè‚–(%d+)")
+            local shengxiaoTier = string.match(text, "ÉúĞ¤(%d+)")
             if shengxiaoTier then
                 return colorByTier[clampTier((tonumber(shengxiaoTier) or 1) + 1)]
             end
             local guwanTierMap = {
-                ["å”ä»£"] = 1,
-                ["å®‹ä»£"] = 3,
-                ["å…ƒä»£"] = 5,
-                ["æ˜ä»£"] = 7,
-                ["æ¸…ä»£"] = 9,
-                ["è¿‘ä»£"] = 11,
+                ["ÌÆ´ú"] = 1,
+                ["ËÎ´ú"] = 3,
+                ["Ôª´ú"] = 5,
+                ["Ã÷´ú"] = 7,
+                ["Çå´ú"] = 9,
+                ["½ü´ú"] = 11,
             }
             for key, tier in pairs(guwanTierMap) do
                 if string.find(text, key) then
@@ -2072,10 +2072,10 @@ npc[2] = function(p2, p3, msgData)
                 end
             end
             local shenshiTierMap = {
-                ["ç¨€æœ‰"] = 4,
-                ["å²è¯—"] = 7,
-                ["ç¥è¯"] = 11,
-                ["ä¼ è¯´"] = 14,
+                ["Ï¡ÓĞ"] = 4,
+                ["Ê·Ê«"] = 7,
+                ["Éñ»°"] = 11,
+                ["´«Ëµ"] = 14,
             }
             for key, tier in pairs(shenshiTierMap) do
                 if string.find(text, key) then
@@ -2083,10 +2083,10 @@ npc[2] = function(p2, p3, msgData)
                 end
             end
             local cailiaoTierMap = {
-                ["å¸¸è§„ææ–™"] = 1,
-                ["ä¸»çº¿ææ–™"] = 5,
-                ["æµ·åŸŸææ–™"] = 9,
-                ["è¥¿æ¸¸ææ–™"] = 13,
+                ["³£¹æ²ÄÁÏ"] = 1,
+                ["Ö÷Ïß²ÄÁÏ"] = 5,
+                ["º£Óò²ÄÁÏ"] = 9,
+                ["Î÷ÓÎ²ÄÁÏ"] = 13,
             }
             for key, tier in pairs(cailiaoTierMap) do
                 if string.find(text, key) then
@@ -2105,26 +2105,26 @@ npc[2] = function(p2, p3, msgData)
             local countC = tonumber(cfg[6] or 0) or 0
             if groupType == 2 then
                 if countB == 1 then
-                    return "è¾‰è€€æ°´æ™¶*" .. tostring(countA)
+                    return "»ÔÒ«Ë®¾§*" .. tostring(countA)
                 end
                 if countC == 1 then
-                    return "å¹»çµçŸ³*" .. tostring(countA)
+                    return "»ÃÁéÊ¯*" .. tostring(countA)
                 end
-                return "ä¸è¿”è¿˜"
+                return "²»·µ»¹"
             end
             local parts = {
             }
             if countA > 0 then
-                parts[#parts + 1] = "é‡‘å¸*" .. tostring(countA)
+                parts[#parts + 1] = "½ğ±Ò*" .. tostring(countA)
             end
             if countB > 0 then
-                parts[#parts + 1] = "å…ƒå®*" .. tostring(countB)
+                parts[#parts + 1] = "Ôª±¦*" .. tostring(countB)
             end
-            return #parts > 0 and table.concat(parts, " ") or "æ— "
+            return #parts > 0 and table.concat(parts, " ") or "ÎŞ"
         end
         local function isRecycleTitleItem(cfg)
             local itemName = tostring(cfg and cfg[3] or "")
-            return string.find(itemName, "^Â·%-%-%-") ~= nil
+            return string.find(itemName, "^¡¤%-%-%-") ~= nil
         end
         local function collect_current_select_keys()
             local keyMap = {
@@ -2467,7 +2467,7 @@ npc[2] = function(p2, p3, msgData)
                 GUI:setContentSize(npc.hs_xbj, 252, 300)
                 GUI:Win_SetZPanel(jm_node, npc.hs_xbj)
                 GUI:setLocalZOrder(npc.hs_xbj, 99)
-                local titleText = GUI:Text_Create(npc.hs_xbj, "popup_title", 126, 268, 24, "#F4D879", subgroup_cfg.name or "å›æ”¶åˆ†ç»„")
+                local titleText = GUI:Text_Create(npc.hs_xbj, "popup_title", 126, 268, 24, "#F4D879", subgroup_cfg.name or "»ØÊÕ·Ö×é")
                 GUI:setAnchorPoint(titleText, 0.5, 0.5)
                 setRecycleText(titleText, "#F4D879", 24, "#110b05")
                 local x_close = GUI:Button_Create(npc.hs_xbj, "close", 252, 300, "res/public/1900000511.png")
@@ -2524,7 +2524,7 @@ npc[2] = function(p2, p3, msgData)
                 end
                 local allSelectBtn = GUI:Button_Create(npc.hs_xbj, "all_select", 126, 4, "res/public/1900000660.png")
                 GUI:setAnchorPoint(allSelectBtn, 0.5, 0)
-                GUI:Button_setTitleText(allSelectBtn, popup_is_all_selected() and "å–æ¶ˆå…¨é€‰" or "å…¨é€‰")
+                GUI:Button_setTitleText(allSelectBtn, popup_is_all_selected() and "È¡ÏûÈ«Ñ¡" or "È«Ñ¡")
                 GUI:Button_setTitleColor(allSelectBtn, "#F4E7B5")
                 GUI:Button_setTitleFontSize(allSelectBtn, 20)
                 GUI:Button_titleEnableOutline(allSelectBtn, "#110b05", 2)
@@ -2566,7 +2566,7 @@ npc[2] = function(p2, p3, msgData)
                                     clearSelectionIfNeeded(group_key)
                                 end
                             end)
-                            local group_name = subgroup_cfg.name or ("åˆ†ç»„" .. tostring(vv))
+                            local group_name = subgroup_cfg.name or ("·Ö×é" .. tostring(vv))
                             local color = getGroupNameColor(group_name)
                             local s_s_wz = GUI:Text_Create(s_s_btn, "wz", 84, 26, 18, color, group_name)
                             GUI:setAnchorPoint(s_s_wz, 0.5, 0.5)
@@ -2680,9 +2680,9 @@ npc[2] = function(p2, p3, msgData)
                 end
                 if #hs > 0 then
                     SL:SendLuaNetMsg(101, 2, 5, 1, SL:JsonEncode(hs, false))
-                    SL:ShowSystemTips("<font color='#00ff00'>ä¸€é”®å›æ”¶æ‰§è¡Œå®Œæˆ</font>")
+                    SL:ShowSystemTips("<font color='#00ff00'>Ò»¼ü»ØÊÕÖ´ĞĞÍê³É</font>")
                 else
-                    SL:ShowSystemTips("<font color='#ff0000'>æœªå‘ç°å¯åˆ†è§£ç‰©å“</font>")
+                    SL:ShowSystemTips("<font color='#ff0000'>Î´·¢ÏÖ¿É·Ö½âÎïÆ·</font>")
                 end
             end
         end)
@@ -2704,40 +2704,40 @@ npc[2] = function(p2, p3, msgData)
     end)
 end
 npc.xyl = SL:Require("GUILayout/Data/xyl.lua", true)
-local LUA_EVENT_YWL_CURRENT_TASK_CHANGE = "ä¼å¦–å½•å½“å‰ä»»åŠ¡å˜æ›´"
+local LUA_EVENT_YWL_CURRENT_TASK_CHANGE = "·üÑıÂ¼µ±Ç°ÈÎÎñ±ä¸ü"
 npc[11] = function(p2, p3, Data)
     local AUTO_GUIDE_TASKS = {
-        ["å¤©ä¹¦å¼ºåŒ–"] = true,
-        ["åˆè¯†ä»™æ³•"] = true,
-        ["å¤©ä¹¦ä»™æ³•"] = true,
-        ["é™æ—¶ç¦åˆ©"] = true,
-        ["æ‰«è¡é‡ç«å¸®"] = true,
-        ["æ°”è¿å åœ"] = true,
-        ["æ·±å…¥é‡ç«"] = true,
-        ["æœ¬å‘½çµæ ¹"] = true,
-        ["ä¿®å¤èšå®ç›†"] = true,
-        ["èšå®ç›†"] = true,
-        ["èšå®ç›†ä»»åŠ¡"] = true,
-        ["æ´—ç‚¼å¤©ä¹¦"] = true,
-        ["å¼•å¯¼å¤©ä¹¦ä½¿è€…æ´—ç‚¼ä¸€æ¬¡"] = true,
-        ["è£…å¤‡å¼ºåŒ–"] = true,
-        ["è£…å¤‡å¼ºåŒ–1æ¬¡"] = true,
-        ["å®ˆæŠ¤æ£®æ—"] = true,
-        ["æ±Ÿæ¹–ç§°å·å‡çº§1æ¬¡"] = true,
-        ["æ€ä¼ä¹‹è·¯"] = true,
-        ["çµå…½å­µåŒ–"] = true,
-        ["æ˜å¢“äºº"] = true,
-        ["è®¨ä¼å¤œé­”"] = true,
-        ["å¤åˆ¹ä¹‹è°œ"] = true,
-        ["ä¿®å¤è½©è¾•å‰‘"] = true,
-        ["ç­‘åŸº"] = true,
-        ["æå‡ä¿®ä¸ºè‡³ç­‘åŸºå¢ƒ"] = true,
-        ["è½¬ç”ŸÂ·äºŒ"] = true,
-        ["å®Œæˆè½¬ç”Ÿ"] = true,
-        ["å®Œè½¬ç”Ÿ"] = true,
-        ["å®Œæˆ2å¤§é™†è½¬ç”Ÿ"] = true,
-        ["å¼€è¾Ÿä»™åºœ"] = true,
-        ["å¯»å®å¤§å¸ˆ"] = true,
+        ["ÌìÊéÇ¿»¯"] = true,
+        ["³õÊ¶ÏÉ·¨"] = true,
+        ["ÌìÊéÏÉ·¨"] = true,
+        ["ÏŞÊ±¸£Àû"] = true,
+        ["É¨µ´Ò°»ğ°ï"] = true,
+        ["ÆøÔËÕ¼²·"] = true,
+        ["ÉîÈëÒ°»ğ"] = true,
+        ["±¾ÃüÁé¸ù"] = true,
+        ["ĞŞ¸´¾Û±¦Åè"] = true,
+        ["¾Û±¦Åè"] = true,
+        ["¾Û±¦ÅèÈÎÎñ"] = true,
+        ["Ï´Á¶ÌìÊé"] = true,
+        ["Òıµ¼ÌìÊéÊ¹ÕßÏ´Á¶Ò»´Î"] = true,
+        ["×°±¸Ç¿»¯"] = true,
+        ["×°±¸Ç¿»¯1´Î"] = true,
+        ["ÊØ»¤É­ÁÖ"] = true,
+        ["½­ºş³ÆºÅÉı¼¶1´Î"] = true,
+        ["É±·¥Ö®Â·"] = true,
+        ["ÁéÊŞ·õ»¯"] = true,
+        ["¾òÄ¹ÈË"] = true,
+        ["ÌÖ·¥Ò¹Ä§"] = true,
+        ["¹ÅÉ²Ö®ÃÕ"] = true,
+        ["ĞŞ¸´ĞùÔ¯½£"] = true,
+        ["Öş»ù"] = true,
+        ["ÌáÉıĞŞÎªÖÁÖş»ù¾³"] = true,
+        ["×ªÉú¡¤¶ş"] = true,
+        ["Íê³É×ªÉú"] = true,
+        ["Íê×ªÉú"] = true,
+        ["Íê³É2´óÂ½×ªÉú"] = true,
+        ["¿ª±ÙÏÉ¸®"] = true,
+        ["Ñ°±¦´óÊ¦"] = true,
     }
     local function _ywl_get_task_name_from_current_task(currentTask)
         if type(currentTask) ~= "table" then
@@ -2830,7 +2830,7 @@ npc[11] = function(p2, p3, Data)
             dir = 3,
             guideWidget = npc.jl,
             guideParent = guideParent or GUI:getParent(npc.jl),
-            guideDesc = "ç‚¹å‡»é¢†å–ç« èŠ‚å¥–åŠ±",
+            guideDesc = "µã»÷ÁìÈ¡ÕÂ½Ú½±Àø",
             isForce = false,
             hideMask = true,
         })
@@ -2914,7 +2914,7 @@ npc[11] = function(p2, p3, Data)
         if tk and _ywl_story_node_started(storyData[tk]) then
             return true
         end
-        if taskName == "å¼€è¾Ÿä»™åºœ" then
+        if taskName == "¿ª±ÙÏÉ¸®" then
             local xianfuRaw = Player:getServerVar("T47")
             if xianfuRaw and xianfuRaw ~= "" then
                 local xianfuOk, xianfuData = pcall(function()
@@ -2955,7 +2955,7 @@ npc[11] = function(p2, p3, Data)
         if not name or name == "" then
             return false
         end
-        return name == "ç°ç•Œå¼€ç¯‡" or name == "ä»™åºœåŠŸèƒ½"
+        return name == "»Ò½ç¿ªÆª" or name == "ÏÉ¸®¹¦ÄÜ"
     end
     local function _ywl_append_reward_entries(outList, rewardList, seenMap, continent)
         if type(rewardList) ~= "table" then
@@ -2995,13 +2995,13 @@ npc[11] = function(p2, p3, Data)
         if rewardName == "" then
             return ""
         end
-        local oldTitleName = string.match(rewardName, "^ç§°å·%[(.-)%]$")
+        local oldTitleName = string.match(rewardName, "^³ÆºÅ%[(.-)%]$")
         if type(oldTitleName) == "string" and oldTitleName ~= "" then
             rewardName = oldTitleName
         else
-            rewardName = string.gsub(rewardName, "%[ç§°å·%]$", "")
+            rewardName = string.gsub(rewardName, "%[³ÆºÅ%]$", "")
         end
-        return rewardName .. "[ç§°å·]"
+        return rewardName .. "[³ÆºÅ]"
     end
     local function _ywl_append_title_reward(outList, titleName, seenMap)
         local rewardName = _ywl_normalize_title_reward_name(titleName)
@@ -3020,7 +3020,7 @@ npc[11] = function(p2, p3, Data)
         end
     end
     local function _ywl_is_title_reward_name(name)
-        return type(name) == "string" and (string.find(name, "%[ç§°å·%]") ~= nil or string.match(name, "^ç§°å·%[.+%]$") ~= nil)
+        return type(name) == "string" and (string.find(name, "%[³ÆºÅ%]") ~= nil or string.match(name, "^³ÆºÅ%[.+%]$") ~= nil)
     end
     local function _ywl_trim_reward_display(rewardList)
         if type(rewardList) ~= "table" or #rewardList <= 0 then
@@ -3090,7 +3090,7 @@ npc[11] = function(p2, p3, Data)
         end
         return _ywl_trim_reward_display(rewardList)
     end
-    -- è¯»å–å•ä¸ªä¼å¦–å½•ä»»åŠ¡å¥–åŠ±ä¸­çš„å‰§æƒ…ç‚¹æ•°é‡ï¼Œç”¨ä½œå¤§é™†è¿›åº¦æƒé‡ã€‚
+    -- ¶ÁÈ¡µ¥¸ö·üÑıÂ¼ÈÎÎñ½±ÀøÖĞµÄ¾çÇéµãÊıÁ¿£¬ÓÃ×÷´óÂ½½ø¶ÈÈ¨ÖØ¡£
     local function _ywl_get_task_story_point(task)
         local total = 0
         local rewards = type(task) == "table" and task.jl or nil
@@ -3098,14 +3098,14 @@ npc[11] = function(p2, p3, Data)
             return 0
         end
         for _, reward in ipairs(rewards) do
-            if type(reward) == "table" and reward[1] == "å‰§æƒ…ç‚¹" then
+            if type(reward) == "table" and reward[1] == "¾çÇéµã" then
                 total = total + (tonumber(reward[2]) or 0)
             end
         end
         return total
     end
-    -- ç»Ÿè®¡å½“å‰å¤§é™†æ‰€æœ‰ä¼å¦–å½•å‰§æƒ…ç‚¹é¢†å–è¿›åº¦ï¼Œç”¨äºæ›¿ä»£åŸç« èŠ‚å¥–åŠ±å±•ç¤ºã€‚
-    -- æ³¨æ„ï¼šè¿™é‡ŒåªæŒ‰å¥–åŠ±é¢†å–æ ‡è®°ç»Ÿè®¡ï¼Œä»»åŠ¡å·²å®Œæˆä½†æœªç‚¹å‡»é¢†å–ä¸è®¡å…¥è¿›åº¦ã€‚
+    -- Í³¼Æµ±Ç°´óÂ½ËùÓĞ·üÑıÂ¼¾çÇéµãÁìÈ¡½ø¶È£¬ÓÃÓÚÌæ´úÔ­ÕÂ½Ú½±ÀøÕ¹Ê¾¡£
+    -- ×¢Òâ£ºÕâÀïÖ»°´½±ÀøÁìÈ¡±ê¼ÇÍ³¼Æ£¬ÈÎÎñÒÑÍê³Éµ«Î´µã»÷ÁìÈ¡²»¼ÆÈë½ø¶È¡£
     local function _ywl_collect_continent_progress(continent)
         local l = tonumber(continent) or 0
         local chapters = npc.xyl and npc.xyl[l] or nil
@@ -3132,12 +3132,12 @@ npc[11] = function(p2, p3, Data)
         local percent = total > 0 and math.floor(done * 100 / total) or 0
         return done, total, math.max(0, math.min(100, percent))
     end
-    -- å±•ç¤ºæœ¬å¤§é™†å…¨éƒ¨ä¼å¦–å½•ä»»åŠ¡çš„å‰§æƒ…ç‚¹é¢†å–è¿›åº¦ã€‚
+    -- Õ¹Ê¾±¾´óÂ½È«²¿·üÑıÂ¼ÈÎÎñµÄ¾çÇéµãÁìÈ¡½ø¶È¡£
     local function _ywl_render_continent_progress(node)
         local done, total = _ywl_collect_continent_progress(npc.l)
         local percent = total > 0 and math.floor(done * 100 / total) or 0
         local root = GUI:Layout_Create(node, "continent_progress", 515 - 260, 40, 420, 45, false)
-        local title = GUI:Text_Create(root, "title", 0, 22, 22, "#F4D179", "å‰§æƒ…\nè¿›åº¦")
+        local title = GUI:Text_Create(root, "title", 0, 22, 22, "#F4D179", "¾çÇé\n½ø¶È")
         GUI:setAnchorPoint(title, 0, 0.5)
         GUI:Text_setFontName(title, "fonts/502.ttf")
         GUI:Text_enableOutline(title, "#1B0B02", 3)
@@ -3204,7 +3204,7 @@ npc[11] = function(p2, p3, Data)
             npc.l, npc.zj = 2, 1
         end
         local win = ensureWindow("storyLog", 11, {
-            titleText = "å¼‚é—»å½•",
+            titleText = "ÒìÎÅÂ¼",
         })
         npc.bg = win.bg
         npc.node_11 = win.node
@@ -3225,7 +3225,7 @@ npc[11] = function(p2, p3, Data)
             end
             local tasks = zjCfg.jq or zjCfg
             local taskCount = #tasks
-            local curJqd = tonumber(SL:GetMetaValue("TMONEY", "å‰§æƒ…ç‚¹")) or 0
+            local curJqd = tonumber(SL:GetMetaValue("TMONEY", "¾çÇéµã")) or 0
             local need = tonumber(zjCfg.jqd) or 0
             local lackJqd = zjCfg.jqd and curJqd < need
             local lockInfo = npc.xyl and npc.xyl.get_chapter_lock_info and npc.xyl.get_chapter_lock_info(npc.l, npc.zj, curJqd) or nil
@@ -3245,7 +3245,7 @@ npc[11] = function(p2, p3, Data)
                 GUI:setContentSize(GUI:ui_delegate(node)["500-300"], 675, 414)
                 local tip = lockInfo and lockInfo.tip or nil
                 if not tip or tip == "" then
-                    tip = lackJqd and string.format("å‰§æƒ…ç‚¹ä¸è¶³ï¼š%d/%d", curJqd, need) or "ç« èŠ‚æœªè§£é”"
+                    tip = lackJqd and string.format("¾çÇéµã²»×ã£º%d/%d", curJqd, need) or "ÕÂ½ÚÎ´½âËø"
                 end
                 local tipText = GUI:Text_Create(node, "lock_tip", 588, 160, 24, "#FFFFFF", tip)
                 GUI:Text_setFontName(tipText, "fonts/502.ttf")
@@ -3311,8 +3311,8 @@ npc[11] = function(p2, p3, Data)
                             len = 2
                         end
                         local ch = string.sub(s, i, i + len - 1)
-                        if ch == "ï¼ˆ" or ch == "(" then
-                            local close = (ch == "ï¼ˆ") and "ï¼‰" or ")"
+                        if ch == "£¨" or ch == "(" then
+                            local close = (ch == "£¨") and "£©" or ")"
                             local j = i + len
                             while j <= #s do
                                 local cb = string.byte(s, j)
@@ -3346,14 +3346,14 @@ npc[11] = function(p2, p3, Data)
                             return built
                         end
                     end
-                    return (type(task) == "table" and (task.desc or task.wz)) or "æš‚æ— ä»»åŠ¡ç®€ä»‹"
+                    return (type(task) == "table" and (task.desc or task.wz)) or "ÔİÎŞÈÎÎñ¼ò½é"
                 end
                 local function _ywl_get_task_title_color(taskName, task, taskDesc)
                     local text = tostring(taskName or "") .. " " .. tostring((type(task) == "table" and (task.desc or task.wz or task.tip)) or "") .. " " .. tostring(taskDesc or "")
-                    if text:find("å¤§é™†", 1, true) or text:find("ç­‰çº§", 1, true) or text:find("Lv", 1, true) or text:find("è§£é”", 1, true) or text:find("è¾¾åˆ°", 1, true) then
+                    if text:find("´óÂ½", 1, true) or text:find("µÈ¼¶", 1, true) or text:find("Lv", 1, true) or text:find("½âËø", 1, true) or text:find("´ïµ½", 1, true) then
                         return "#FF4D3A", "#330000"
                     end
-                    if text:find("å‰§æƒ…", 1, true) or text:find("ä¸»çº¿", 1, true) or text:find("ç« èŠ‚", 1, true) or text:find("ç¾å„", 1, true) then
+                    if text:find("¾çÇé", 1, true) or text:find("Ö÷Ïß", 1, true) or text:find("ÕÂ½Ú", 1, true) or text:find("ÔÖ¶ò", 1, true) then
                         return "#FF8A1C", "#3A1600"
                     end
                     return "#FFD66B", "#3A1A06"
@@ -3460,7 +3460,7 @@ npc[11] = function(p2, p3, Data)
                     end
                 end
                 for idx, task in ipairs(tasks) do
-                    local taskName = task[1] or task.title or "ä»»åŠ¡"
+                    local taskName = task[1] or task.title or "ÈÎÎñ"
                     local chapterDone = npc.data and npc.data.ywl and npc.data.ywl["jl_" .. npc.l .. "_" .. npc.zj] == 1
                     local taskDoneByReward = npc.data and npc.data.ywl and npc.data.ywl["jl_" .. npc.l .. "_" .. npc.zj .. "_" .. idx] == 1
                     local khdDone = (task.id == 999 and task.khdjy) and (task.khdjy(task) == true) or false
@@ -3497,7 +3497,7 @@ npc[11] = function(p2, p3, Data)
                         if slotUi.cover then
                             return slotUi.cover
                         end
-                        local taskTitle = task[1] or task.title or "ä»»åŠ¡"
+                        local taskTitle = task[1] or task.title or "ÈÎÎñ"
                         local taskDesc = _ywl_build_task_desc(task)
                         local taskTitleColor, taskTitleOutline = _ywl_get_task_title_color(taskTitle, task, taskDesc)
                         local rewardData = _ywl_collect_task_rewards(task, npc.l)
@@ -3523,7 +3523,7 @@ npc[11] = function(p2, p3, Data)
                         local title = GUI:Text_Create(cover, "title_wz", 10, 310, 20, taskTitleColor, taskTitle)
                         GUI:Text_setFontName(title, "fonts/502.ttf")
                         GUI:Text_enableOutline(title, taskTitleOutline, 2)
-                        local jl = GUI:Text_Create(cover, "jl_wz", 10, 280, 20, "#10FF00", "å®Œæˆå¥–åŠ±")
+                        local jl = GUI:Text_Create(cover, "jl_wz", 10, 280, 20, "#10FF00", "Íê³É½±Àø")
                         GUI:Text_enableUnderline(jl)
                         GUI:Text_setFontName(jl, "fonts/502.ttf")
                         GUI:Text_enableOutline(jl, "#000000", 2)
@@ -3534,7 +3534,7 @@ npc[11] = function(p2, p3, Data)
                             GUI:setPosition(rewardNode, 0, -60)
                             _add_reward_effect_for_table(rewardNode, "ywl_reward_eff", 29, 30, 0.9, REWARD_ITEM_EFFECT_14193)
                         end
-                        local desc = GUI:Text_Create(cover, "desc_wz", 10, 172, 20, "#FFFFFF", "ä»»åŠ¡ç®€ä»‹")
+                        local desc = GUI:Text_Create(cover, "desc_wz", 10, 172, 20, "#FFFFFF", "ÈÎÎñ¼ò½é")
                         GUI:Text_enableUnderline(desc)
                         GUI:Text_setFontName(desc, "fonts/502.ttf")
                         GUI:Text_enableOutline(desc, "#000000", 2)
@@ -3568,7 +3568,7 @@ npc[11] = function(p2, p3, Data)
                         GUI:setAnchorPoint(GUI:Image_Create(img, "ylq", 232 / 2, 90, 'res/custom/ywl/ylq.png'), 0.5, 0.5)
                     else
                         if lockedByJqd then
-                            local lockText = GUI:Text_Create(img, "lock", 232 / 2, 90, 22, "#FF3B30", "æœªè§£é”")
+                            local lockText = GUI:Text_Create(img, "lock", 232 / 2, 90, 22, "#FF3B30", "Î´½âËø")
                             GUI:setAnchorPoint(lockText, 0.5, 0.5)
                         else
                             local btnSkin = enable and 'res/custom/ywl/btn_1.png' or 'res/custom/ywl/btn_2.png'
@@ -3584,16 +3584,16 @@ npc[11] = function(p2, p3, Data)
                             end)
                             if AUTO_GUIDE_TASKS[taskName] and not autoGuideWidget then
                                 if not chapterDone and not taskDoneByReward and not khdDone and not storyStarted then
-                                    if taskName == "æœ¬å‘½çµæ ¹"
-                                        or taskName == "ç­‘åŸº"
-                                        or taskName == "æå‡ä¿®ä¸ºè‡³ç­‘åŸºå¢ƒ" then
+                                    if taskName == "±¾ÃüÁé¸ù"
+                                        or taskName == "Öş»ù"
+                                        or taskName == "ÌáÉıĞŞÎªÖÁÖş»ù¾³" then
                                         if cogin.isWin32 and MainProperty and MainProperty._ui then
                                             autoGuideWidget = MainProperty._ui.Button_role
                                         else
                                             autoGuideWidget = npc.jueshe
                                         end
-                                        autoGuideDesc = "æ‰“å¼€äººç‰©ç•Œé¢"
-                                    elseif taskName == "æ±Ÿæ¹–ç§°å·å‡çº§1æ¬¡" then
+                                        autoGuideDesc = "´ò¿ªÈËÎï½çÃæ"
+                                    elseif taskName == "½­ºş³ÆºÅÉı¼¶1´Î" then
                                         ensureTopPanelExpanded()
                                         local titleShortcut = findShortcutButtonByNpcId(43)
                                         if not titleShortcut then
@@ -3603,18 +3603,18 @@ npc[11] = function(p2, p3, Data)
                                         end
                                         if titleShortcut then
                                             autoGuideWidget = titleShortcut
-                                            autoGuideDesc = "ç‚¹å‡»æ±Ÿæ¹–ç§°å·"
+                                            autoGuideDesc = "µã»÷½­ºş³ÆºÅ"
                                         end
-                                    elseif taskName == "çµå…½å­µåŒ–" then
+                                    elseif taskName == "ÁéÊŞ·õ»¯" then
                                         startLingshouMainGuide(3)
                                         if npc.lingshou_main_button and not tolua.isnull(npc.lingshou_main_button) then
                                             autoGuideWidget = npc.lingshou_main_button
-                                            autoGuideDesc = "ç‚¹å‡»çµå…½å­µåŒ–"
+                                            autoGuideDesc = "µã»÷ÁéÊŞ·õ»¯"
                                         end
                                     end
-                                    if not autoGuideWidget and taskName ~= "çµå…½å­µåŒ–" then
+                                    if not autoGuideWidget and taskName ~= "ÁéÊŞ·õ»¯" then
                                         autoGuideWidget = goBtn
-                                        autoGuideDesc = "ç‚¹å‡»å‰å¾€" .. taskName
+                                        autoGuideDesc = "µã»÷Ç°Íù" .. taskName
                                     end
                                 end
                             end
@@ -3627,10 +3627,10 @@ npc[11] = function(p2, p3, Data)
                 _relayout_task_cards(false)
                 GUI:Image_Create(node, "wz1", 340, 100, 'res/custom/ywl/wz.png')
                 _ywl_render_continent_progress(node)
-                -- ä¿ç•™å¤§é™†å‰§æƒ…å®Œæˆåº¦è¿›åº¦æ¡ï¼ŒåŒæ—¶æ¢å¤åŸç« èŠ‚å¥–åŠ±å±•ç¤ºä¸é¢†å–ã€‚
+                -- ±£Áô´óÂ½¾çÇéÍê³É¶È½ø¶ÈÌõ£¬Í¬Ê±»Ö¸´Ô­ÕÂ½Ú½±ÀøÕ¹Ê¾ÓëÁìÈ¡¡£
                 local chapterReward = _ywl_filter_reward_entries(zjCfg.jl, npc.l)
                 if chapterReward and #chapterReward > 0 and not _ywl_is_auto_chapter_continent(npc.l) then
-                    local chapterRewardTitle = GUI:Text_Create(node, "chapter_reward_title", 530, 62, 22, "#F4D179", "ç« èŠ‚\nå¥–åŠ±")
+                    local chapterRewardTitle = GUI:Text_Create(node, "chapter_reward_title", 530, 62, 22, "#F4D179", "ÕÂ½Ú\n½±Àø")
                     GUI:setAnchorPoint(chapterRewardTitle, 0.5, 0.5)
                     GUI:Text_setFontName(chapterRewardTitle, "fonts/502.ttf")
                     GUI:Text_enableOutline(chapterRewardTitle, "#1B0B02", 3)
@@ -3647,7 +3647,7 @@ npc[11] = function(p2, p3, Data)
                     end)
                     if not autoGuideWidget and _ywl_is_chapter_reward_ready(npc.l, npc.zj) then
                         autoGuideWidget = npc.jl
-                        autoGuideDesc = "ç‚¹å‡»é¢†å–ç« èŠ‚å¥–åŠ±"
+                        autoGuideDesc = "µã»÷ÁìÈ¡ÕÂ½Ú½±Àø"
                     end
                 end
                 local chapterKey = tostring(npc.l) .. "_" .. tostring(npc.zj)
@@ -3660,7 +3660,7 @@ npc[11] = function(p2, p3, Data)
                             dir = 3,
                             guideWidget = autoGuideWidget,
                             guideParent = guideParent,
-                            guideDesc = autoGuideDesc or "å»ºè®®ä¼˜å…ˆé¢†å–",
+                            guideDesc = autoGuideDesc or "½¨ÒéÓÅÏÈÁìÈ¡",
                             isForce = false,
                             hideMask = true,
                         })
@@ -3669,8 +3669,8 @@ npc[11] = function(p2, p3, Data)
                 -- _ywl_try_start_chapter_reward_guide(node, false)
             end
             if (tonumber(npc.l) or 0) < 3 then
-                local TMONEY = GUI:Text_Create(node, "TMONEY", 50 + 278, 40 + 9, 25, "#FF0000", SL:GetMetaValue("TMONEY", "å‰§æƒ…ç‚¹"))
-                SL:release_print("å½“å‰å‰§æƒ…ç‚¹", SL:GetMetaValue("TMONEY", "å‰§æƒ…ç‚¹"))
+                local TMONEY = GUI:Text_Create(node, "TMONEY", 50 + 278, 40 + 9, 25, "#FF0000", SL:GetMetaValue("TMONEY", "¾çÇéµã"))
+                SL:release_print("µ±Ç°¾çÇéµã", SL:GetMetaValue("TMONEY", "¾çÇéµã"))
                 GUI:Text_setFontName(TMONEY, "fonts/502.ttf")
                 GUI:setAnchorPoint(TMONEY, 0.5, 0.5)
             end
@@ -3687,7 +3687,7 @@ npc[11] = function(p2, p3, Data)
                                 return
                             end
                         elseif dl_sz and not dl_sz(i) then
-                            SL:ShowSystemTips("<font color='#FF0000'>è¿˜æœªè§£é”è¯¥å¤§ç« èŠ‚</font>")
+                            SL:ShowSystemTips("<font color='#FF0000'>»¹Î´½âËø¸Ã´óÕÂ½Ú</font>")
                             return
                         end
                         npc.l = i
@@ -3707,14 +3707,14 @@ npc[11] = function(p2, p3, Data)
                             GUI:addOnClickEvent(x_btn, function()
                                 if npc.l == 3 and not _ywl_is_third_continent_half_chapter(npc.xyl[npc.l][y].name) then
                                     if not _ywl_has_third_continent_full_entry() then
-                                        SL:ShowSystemTips("<font color='#FF0000'>éœ€è¦å®Œæˆç¾å„å…¥ä¾µåæ‰èƒ½è¿›å…¥è¯¥ç« èŠ‚</font>")
+                                        SL:ShowSystemTips("<font color='#FF0000'>ĞèÒªÍê³ÉÔÖ¶òÈëÇÖºó²ÅÄÜ½øÈë¸ÃÕÂ½Ú</font>")
                                         return
                                     end
                                 end
-                                local curJqd = tonumber(SL:GetMetaValue("TMONEY", "å‰§æƒ…ç‚¹")) or 0
+                                local curJqd = tonumber(SL:GetMetaValue("TMONEY", "¾çÇéµã")) or 0
                                 local lockInfo = npc.xyl and npc.xyl.get_chapter_lock_info and npc.xyl.get_chapter_lock_info(npc.l, y, curJqd) or nil
                                 if lockInfo and lockInfo.locked then
-                                    SL:ShowSystemTips(string.format("<font color='#FF0000'>%s</font>", tostring(lockInfo.tip or "ç« èŠ‚æœªè§£é”")))
+                                    SL:ShowSystemTips(string.format("<font color='#FF0000'>%s</font>", tostring(lockInfo.tip or "ÕÂ½ÚÎ´½âËø")))
                                     return
                                 end
                                 GUI:Text_setTextColor(GUI:ui_delegate(GUI:ui_delegate(chapterList)["x_chap_" .. npc.zj]).wz, "#FFFFFF")
@@ -3732,9 +3732,9 @@ npc[11] = function(p2, p3, Data)
         end
         renderChapterList()
         renderTasks(npc.node_11)
-        SL:RegisterLUAEvent(LUA_EVENT_CLOSEWIN, "å…³é—­ç•Œé¢", function(self)
+        SL:RegisterLUAEvent(LUA_EVENT_CLOSEWIN, "¹Ø±Õ½çÃæ", function(self)
             if self == "npc_ywl" then
-                SL:UnRegisterLUAEvent(LUA_EVENT_CLOSEWIN, "å…³é—­ç•Œé¢")
+                SL:UnRegisterLUAEvent(LUA_EVENT_CLOSEWIN, "¹Ø±Õ½çÃæ")
             end
         end)
     elseif p2 == 2 then
@@ -3795,7 +3795,7 @@ npc[12] = function(p2, p3, Data)
     local function closeActivityShortcut()
         local autoRunCheck = npc.hdan and GUI:getChildByName(npc.hdan, "CheckBox")
         if autoRunCheck and GUI:CheckBox_isSelected(autoRunCheck) then
-            SL:UnRegisterLUAEvent(LUA_EVENT_AUTOMOVEEND, "è·‘é…·å¯»è·¯ç»“æŸ")
+            SL:UnRegisterLUAEvent(LUA_EVENT_AUTOMOVEEND, "ÅÜ¿áÑ°Â·½áÊø")
             SL:SetMetaValue("BATTLE_MOVE_END")
         end
         if npc.hdan then
@@ -3809,19 +3809,19 @@ npc[12] = function(p2, p3, Data)
     end
     local function getActivityShortcutName(idx)
         local names = {
-            [1] = "ä¿å«æ‘åº„",
-            [2] = "å…¨æ°‘å¤ºçŸ¿",
-            [3] = "å…¨æ°‘ç­”é¢˜",
-            [5] = "åœŸåŸè·‘é…·",
-            [6] = "ç¾é£Ÿç‹‚æ¬¢",
-            [7] = "å¤©é€‰ä¹‹äºº",
-            [8] = "æ­£é‚ªå¤§æˆ˜",
-            [9] = "æ­¦æ—ç›Ÿä¸»",
-            [10] = "æ­¦é“å¤§ä¼š",
-            [13] = "éšæœºå¤ºå®",
-            [14] = "é»‘æš—ç¦åœ°",
+            [1] = "±£ÎÀ´å×¯",
+            [2] = "È«Ãñ¶á¿ó",
+            [3] = "È«Ãñ´ğÌâ",
+            [5] = "ÍÁ³ÇÅÜ¿á",
+            [6] = "ÃÀÊ³¿ñ»¶",
+            [7] = "ÌìÑ¡Ö®ÈË",
+            [8] = "ÕıĞ°´óÕ½",
+            [9] = "ÎäÁÖÃËÖ÷",
+            [10] = "ÎäµÀ´ó»á",
+            [13] = "Ëæ»ú¶á±¦",
+            [14] = "ºÚ°µ½ûµØ",
         }
-        return names[tonumber(idx) or 0] or "æ´»åŠ¨"
+        return names[tonumber(idx) or 0] or "»î¶¯"
     end
     local function createShortcutTextButton(parent, name, x, y, w, h, text, color, cb)
         local btn = GUI:Layout_Create(parent, name, x, y, w, h, false)
@@ -3867,16 +3867,16 @@ npc[12] = function(p2, p3, Data)
         safeSetVisible(nameBtn, hidden)
     end
     local function addActivityShortcutControls(parent, activityIdx)
-        createShortcutTextButton(parent, "shortcut_hide", 210 - 90, 88 - 8, 52, 28, "ã€éšè—ã€‘", "#F7F7DE", function()
+        createShortcutTextButton(parent, "shortcut_hide", 210 - 90, 88 - 8, 52, 28, "¡¾Òş²Ø¡¿", "#F7F7DE", function()
             setActivityShortcutHidden(true, activityIdx)
         end)
-        createShortcutTextButton(parent, "shortcut_close", 264 - 90, 88 - 8, 52, 28, "ã€å…³é—­ã€‘", "#F7B0A0", function()
+        createShortcutTextButton(parent, "shortcut_close", 264 - 90, 88 - 8, 52, 28, "¡¾¹Ø±Õ¡¿", "#F7B0A0", function()
             closeActivityShortcut()
         end)
-        createShortcutImageButton(parent, "shortcut_enter", 150 - 70, 42 - 20, "è¿›å…¥", function()
+        createShortcutImageButton(parent, "shortcut_enter", 150 - 70, 42 - 20, "½øÈë", function()
             openActivityEntry(npc.hd_data and npc.hd_data.kf, activityIdx)
         end)
-        createShortcutTextButton(parent, "shortcut_name",  210 - 90, 88 - 8, 110, 30, "ã€" .. getActivityShortcutName(activityIdx) .. "ã€‘", "#F7F7DE", function()
+        createShortcutTextButton(parent, "shortcut_name",  210 - 90, 88 - 8, 110, 30, "¡¾" .. getActivityShortcutName(activityIdx) .. "¡¿", "#F7F7DE", function()
             setActivityShortcutHidden(false, activityIdx)
         end)
         GUI:setVisible(GUI:getChildByName(parent, "shortcut_name"), false)
@@ -3915,25 +3915,25 @@ npc[12] = function(p2, p3, Data)
             end)
         end
         if activityIdx == 5 then
-            local txt = GUI:Text_Create(npc.hdan, "Text", 10 + 60, -22, 14, "#ffffff", "å‹¾é€‰è‡ªåŠ¨è·‘é…·")
+            local txt = GUI:Text_Create(npc.hdan, "Text", 10 + 60, -22, 14, "#ffffff", "¹´Ñ¡×Ô¶¯ÅÜ¿á")
             GUI:Text_enableOutline(txt, "#000000", 1)
             local CheckBox = GUI:CheckBox_Create(npc.hdan, "CheckBox", -20 + 60, -22, "res/public/1900000550.png", "res/public/1900000551.png")
             GUI:CheckBox_addOnEvent(CheckBox, function(self)
                 if GUI:CheckBox_isSelected(self) then
                     if SL:GetMetaValue("MAP_ID") == "xtc" then
                         SL:SetMetaValue("BATTLE_MOVE_BEGIN", "xtc", math.random(128, 146), math.random(129, 147))
-                        SL:RegisterLUAEvent(LUA_EVENT_AUTOMOVEEND, "è·‘é…·å¯»è·¯ç»“æŸ", function()
+                        SL:RegisterLUAEvent(LUA_EVENT_AUTOMOVEEND, "ÅÜ¿áÑ°Â·½áÊø", function()
                             if not npc.hdan then
-                                SL:UnRegisterLUAEvent(LUA_EVENT_AUTOMOVEEND, "è·‘é…·å¯»è·¯ç»“æŸ")
+                                SL:UnRegisterLUAEvent(LUA_EVENT_AUTOMOVEEND, "ÅÜ¿áÑ°Â·½áÊø")
                             end
                             SL:SetMetaValue("BATTLE_MOVE_BEGIN", "xtc", math.random(128, 146), math.random(129, 147))
                         end, txt)
                     else
                         GUI:CheckBox_setSelected(self, false)
-                        SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#ff0500'>åªèƒ½åœ¨åœŸåŸæ‰èƒ½ä½¿ç”¨</font></outline>")
+                        SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#ff0500'>Ö»ÄÜÔÚÍÁ³Ç²ÅÄÜÊ¹ÓÃ</font></outline>")
                     end
                 else
-                    SL:UnRegisterLUAEvent(LUA_EVENT_AUTOMOVEEND, "è·‘é…·å¯»è·¯ç»“æŸ")
+                    SL:UnRegisterLUAEvent(LUA_EVENT_AUTOMOVEEND, "ÅÜ¿áÑ°Â·½áÊø")
                     SL:SetMetaValue("BATTLE_MOVE_END")
                 end
             end)
@@ -3951,7 +3951,7 @@ npc[13] = function(p2, p3, msgData)
     end
     local function renderRecordStone(records)
         local win = ensureWindow("recordStone", 13, {
-            titleText = "è®°å½•çŸ³",
+            titleText = "¼ÇÂ¼Ê¯",
         })
         local node = win.node
         GUI:removeAllChildren(node)
@@ -3962,7 +3962,7 @@ npc[13] = function(p2, p3, msgData)
         local content = GUI:Image_Create(scroll, "content", 0, 0.5, "res/wy/public/jys_wz.png")
         for i = 1, 10 do
             local slot = records and records["dtm" .. i]
-            local text = slot and (slot[2] .. "(" .. slot[3] .. "," .. slot[4] .. ")") or "æš‚æœªè®°å½•"
+            local text = slot and (slot[2] .. "(" .. slot[3] .. "," .. slot[4] .. ")") or "ÔİÎ´¼ÇÂ¼"
             npc.recordStoneLabels[i] = GUI:Text_Create(content, "pos_" .. i, 164, 524 - i * 50, 16, "#ffffff", text)
             GUI:setAnchorPoint(npc.recordStoneLabels[i], 0.5, 0.5)
             GUI:Text_enableOutline(npc.recordStoneLabels[i], "#000000", 1)
@@ -3972,7 +3972,7 @@ npc[13] = function(p2, p3, msgData)
             local saveBtn = GUI:Button_Create(content, "btn_save_" .. i, 271, 504 - i * 50, "res/wy/public/jys_jl.png")
             GUI:addOnClickEvent(saveBtn, function()
                 SL:OpenCommonTipsPop({
-                    str = "æ˜¯å¦è®°å½•è¯¥åœ°å›¾ç‚¹ä½ï¼Ÿå°†è¦†ç›–åŸæœ‰è®°å½•ã€‚",
+                    str = "ÊÇ·ñ¼ÇÂ¼¸ÃµØÍ¼µãÎ»£¿½«¸²¸ÇÔ­ÓĞ¼ÇÂ¼¡£",
                     btnType = 2,
                     callback = function(atype)
                         if atype == 1 then
@@ -3986,7 +3986,7 @@ npc[13] = function(p2, p3, msgData)
                 if records and records["dtm" .. i] then
                     SL:SendLuaNetMsg(101, 13, 2, i, "")
                 else
-                    SL:ShowSystemTips("<font color='#ff0000'>æœªè®°å½•è¯¥ä½ç½®ï¼Œæ— æ³•ä¼ é€ï¼</font>")
+                    SL:ShowSystemTips("<font color='#ff0000'>Î´¼ÇÂ¼¸ÃÎ»ÖÃ£¬ÎŞ·¨´«ËÍ£¡</font>")
                 end
             end)
         end
@@ -4023,23 +4023,23 @@ npc[18] = function(p2, p3, Data)
         })
         local jl_itme = {
             {
-                "å¤æ´»æˆ’æŒ‡",
+                "¸´»î½äÖ¸",
                 1,
             },
             {
-                "éº»ç—¹æˆ’æŒ‡",
+                "Âé±Ô½äÖ¸",
                 1,
             },
             {
-                "æ–—ç¬ ",
+                "¶·óÒ",
                 1,
             },
             {
-                "æ”»é€Ÿä¹‹é•°[lv1]",
+                "¹¥ËÙÖ®Á­[lv1]",
                 1,
             },
             {
-                "åˆ‡å‰²ä¹‹æ–§[lv1]",
+                "ÇĞ¸îÖ®¸«[lv1]",
                 1,
             },
         }
@@ -4065,7 +4065,7 @@ npc[18] = function(p2, p3, Data)
             dir = 5,
             guideWidget = btn,
             guideParent = node,
-            guideDesc = "ç‚¹å‡»é¢†å–",
+            guideDesc = "µã»÷ÁìÈ¡",
             isForce = true,
             hideMask = false,
         })
@@ -4074,7 +4074,7 @@ npc[18] = function(p2, p3, Data)
         npc.data_18 = Data and SL:JsonDecode(Data, false) or {
         }
         local win = ensureWindow("newbieGift", 18, {
-            titleText = "æ–°æ‰‹ç¤¼åŒ…",
+            titleText = "ĞÂÊÖÀñ°ü",
         })
         renderNewbieGift(win.node)
     end
@@ -4108,7 +4108,7 @@ npc[23] = function(p2, p3, Data)
             GUI:setTouchEnabled(btn, true)
             GUI:addOnClickEvent(btn, function()
                 if not state.canActivate then
-                    SL:ShowSystemTips(state.lockedTip or "å½“å‰æ¡ä»¶æœªæ»¡è¶³")
+                    SL:ShowSystemTips(state.lockedTip or "µ±Ç°Ìõ¼şÎ´Âú×ã")
                     return
                 end
                 SL:SendLuaNetMsg(101, 23, 1, idx, "")
@@ -4129,7 +4129,7 @@ npc[23] = function(p2, p3, Data)
         } or SL:JsonDecode(Data, false)
         rebuildShortcutButtons("")
         local win = ensureWindow("bodyAura", 23, {
-            titleText = "æŠ¤ä½“å…‰ç¯",
+            titleText = "»¤Ìå¹â»·",
         })
         npc.bg = win.bg
         npc.node = win.node
@@ -4194,7 +4194,7 @@ npc[20] = function(p2, p3, Data)
             logg = PlayerSuperEquip_Look.gzd
         end
         if not logg then
-            SL:ShowSystemTips("<font color='#FF0000'>ç¥çŸ³æ•°æ®å¼‚å¸¸ï¼Œè¯·ç¨åå†è¯•...</font>")
+            SL:ShowSystemTips("<font color='#FF0000'>ÉñÊ¯Êı¾İÒì³££¬ÇëÉÔºóÔÙÊÔ...</font>")
             return
         end
         if GUI:getChildByName(logg, "img_bj") then
@@ -4260,7 +4260,7 @@ npc[21] = function(p2, p3, Data)
             logg = PlayerSuperEquip_Look.gzd
         end
         if not logg then
-            SL:ShowSystemTips("<font color='#FF0000'>å¤ç©æ•°æ®å¼‚å¸¸ï¼Œè¯·ç¨åå†è¯•...</font>")
+            SL:ShowSystemTips("<font color='#FF0000'>¹ÅÍæÊı¾İÒì³££¬ÇëÉÔºóÔÙÊÔ...</font>")
             return
         end
         if GUI:getChildByName(logg, "img_bj") then
@@ -4284,31 +4284,31 @@ npc[22] = function(p2, p3, Data)
                 id = 71,
                 x = 138,
                 y = 131,
-                name = "æ—¶å…‰ä¹‹æ–[æœªæ¿€æ´»]",
+                name = "Ê±¹âÖ®ÕÈ[Î´¼¤»î]",
             },
             {
                 id = 72,
                 x = 246,
                 y = 94,
-                name = "é›·éœ†åŒå­å‰‘[æœªæ¿€æ´»]",
+                name = "À×öªË«×Ó½£[Î´¼¤»î]",
             },
             {
                 id = 73,
                 x = 65,
                 y = 60,
-                name = "ç§˜å®Â·ä¸‡é¬¼å•¸ã€é¬¼ã€‘[æœªæ¿€æ´»]",
+                name = "ÃØ±¦¡¤Íò¹íĞ¥¡¾¹í¡¿[Î´¼¤»î]",
             },
             {
                 id = 74,
                 x = 65,
                 y = 131,
-                name = "ç§˜å®Â·ç ´é¾™åŸã€å…µã€‘[æœªæ¿€æ´»]",
+                name = "ÃØ±¦¡¤ÆÆÁúÒ÷¡¾±ø¡¿[Î´¼¤»î]",
             },
             {
                 id = 75,
                 x = 138,
                 y = 60,
-                name = "é…’ä»™å‰‘[æœªæ¿€æ´»]",
+                name = "¾ÆÏÉ½£[Î´¼¤»î]",
             },
         }
         for _, cfg in ipairs(items) do
@@ -4340,7 +4340,7 @@ npc[22] = function(p2, p3, Data)
             logg = PlayerEquip_Look.gzd
         end
         if not logg then
-            SL:ShowSystemTips("<font color='#FF0000'>æ³•å®æ•°æ®å¼‚å¸¸ï¼Œè¯·ç¨åå†è¯•...</font>")
+            SL:ShowSystemTips("<font color='#FF0000'>·¨±¦Êı¾İÒì³££¬ÇëÉÔºóÔÙÊÔ...</font>")
             return
         end
         if GUI:getChildByName(logg, "img_bj") then
@@ -4425,7 +4425,7 @@ npc[30] = function(p2, p3, Data)
 
     local function format_doll_cost(cost)
         if type(cost) ~= 'table' then
-            return 'â€”'
+            return '¡ª'
         end
         local parts = {}
         for _, value in pairs(cost) do
@@ -4434,7 +4434,7 @@ npc[30] = function(p2, p3, Data)
             end
         end
         table.sort(parts)
-        return (#parts > 0) and table.concat(parts, ' / ') or 'â€”'
+        return (#parts > 0) and table.concat(parts, ' / ') or '¡ª'
     end
 
     local function format_doll_attr_value(value, percent)
@@ -4462,7 +4462,7 @@ npc[30] = function(p2, p3, Data)
     local function get_doll_attr_label(entryCfg)
         local attrDesc = tostring((entryCfg or {}).attr_desc or '')
         if attrDesc == '' then
-            return 'å±æ€§åŠ æˆ'
+            return 'ÊôĞÔ¼Ó³É'
         end
         local label = attrDesc
         label = string.gsub(label, '%s*/%s*.*$', '')
@@ -4479,9 +4479,9 @@ npc[30] = function(p2, p3, Data)
         local total = 0
         for _ = 1, drawCount do
             if useFirstTenCost then
-                total = total + get_doll_cost_count((cfg or {}).first_draw_cost or {}, 'ä»™åºœå¸')
+                total = total + get_doll_cost_count((cfg or {}).first_draw_cost or {}, 'ÏÉ¸®±Ò')
             else
-                total = total + get_doll_cost_count((cfg or {}).normal_draw_cost or {}, 'ä»™åºœå¸')
+                total = total + get_doll_cost_count((cfg or {}).normal_draw_cost or {}, 'ÏÉ¸®±Ò')
             end
             drawTotal = drawTotal + 1
         end
@@ -4502,13 +4502,13 @@ npc[30] = function(p2, p3, Data)
             return nil
         end
         local qualityMap = {
-            normal = 'æ™®é€š',
-            red = 'çº¢',
-            hidden = 'éšè—',
+            normal = 'ÆÕÍ¨',
+            red = 'ºì',
+            hidden = 'Òş²Ø',
         }
         local group = tostring(cfg.asset_group or 1)
-        local quality = qualityMap[cfg.quality or 'normal'] or 'æ™®é€š'
-        return string.format('res/custom/three_city/xianfu/ä»™åºœéƒ¨åˆ†/æ”¶è—æŸœ/å¨ƒå¨ƒ/å¨ƒå¨ƒ%s/%s.png', group, quality)
+        local quality = qualityMap[cfg.quality or 'normal'] or 'ÆÕÍ¨'
+        return string.format('res/custom/three_city/xianfu/ÏÉ¸®²¿·Ö/ÊÕ²Ø¹ñ/ÍŞÍŞ/ÍŞÍŞ%s/%s.png', group, quality)
     end
 
     local function request_open_doll_machine()
@@ -4525,7 +4525,7 @@ npc[30] = function(p2, p3, Data)
 
     local open_doll_machine
 
-    -- Cocos UI èŠ‚ç‚¹æœ‰æ•ˆæ€§åˆ¤å®šï¼Œé¿å…æ—§çª—å£å…³é—­ååŠ¨ç”»/å›è°ƒç»§ç»­æ“ä½œå¤±æ•ˆèŠ‚ç‚¹ã€‚
+    -- Cocos UI ½ÚµãÓĞĞ§ĞÔÅĞ¶¨£¬±ÜÃâ¾É´°¿Ú¹Ø±Õºó¶¯»­/»Øµ÷¼ÌĞø²Ù×÷Ê§Ğ§½Úµã¡£
     local function is_valid_cobj(target)
         if not target then
             return false
@@ -4538,12 +4538,12 @@ npc[30] = function(p2, p3, Data)
 
     local function get_doll_tab_skin(tabId)
         local folderMap = {
-            doll_machine = 'å¨ƒå¨ƒæœº',
-            doll_cabinet = 'æ”¶è—æŸœ',
+            doll_machine = 'ÍŞÍŞ»ú',
+            doll_cabinet = 'ÊÕ²Ø¹ñ',
         }
-        local folder = folderMap[tabId] or 'å¨ƒå¨ƒæœº'
-        local state = npc.woodcut_doll.tab == tabId and 'äº®' or 'æš—'
-        return string.format('res/custom/three_city/xianfu/ä»™åºœéƒ¨åˆ†/å·¦ä¾§æŒ‰é’®/%s/%s.png', folder, state)
+        local folder = folderMap[tabId] or 'ÍŞÍŞ»ú'
+        local state = npc.woodcut_doll.tab == tabId and 'ÁÁ' or '°µ'
+        return string.format('res/custom/three_city/xianfu/ÏÉ¸®²¿·Ö/×ó²à°´Å¥/%s/%s.png', folder, state)
     end
 
     local function build_doll_owned_list(doll)
@@ -4594,7 +4594,7 @@ npc[30] = function(p2, p3, Data)
         local redPool = cfg.red_pool or {}
         local hiddenPool = (cfg.hidden or {}).pool or {}
         if #normalPool > 0 then
-            lines[#lines + 1] = string.format("<font color='#ffffff'>æ™®é€šæ¬¾æ€»æ¦‚ç‡ï¼š%s</font>", format_doll_rate_text(normalRate, cfg.red_rate_base))
+            lines[#lines + 1] = string.format("<font color='#ffffff'>ÆÕÍ¨¿î×Ü¸ÅÂÊ£º%s</font>", format_doll_rate_text(normalRate, cfg.red_rate_base))
             local everyNormal = normalRate / #normalPool
             for _, resultId in ipairs(normalPool) do
                 local resultCfg = get_doll_result_cfg(resultId) or {}
@@ -4602,7 +4602,7 @@ npc[30] = function(p2, p3, Data)
             end
         end
         if #redPool > 0 then
-            lines[#lines + 1] = string.format("<font color='#ffffff'>çº¢æ¬¾æ€»æ¦‚ç‡ï¼š%s</font>", format_doll_rate_text(cfg.red_rate, cfg.red_rate_base))
+            lines[#lines + 1] = string.format("<font color='#ffffff'>ºì¿î×Ü¸ÅÂÊ£º%s</font>", format_doll_rate_text(cfg.red_rate, cfg.red_rate_base))
             local everyRed = (tonumber(cfg.red_rate) or 0) / #redPool
             for _, resultId in ipairs(redPool) do
                 local resultCfg = get_doll_result_cfg(resultId) or {}
@@ -4610,7 +4610,7 @@ npc[30] = function(p2, p3, Data)
             end
         end
         if #hiddenPool > 0 then
-            lines[#lines + 1] = string.format("<font color='#ffffff'>éšè—æ¬¾æ€»æ¦‚ç‡ï¼š%s</font>", format_doll_rate_text((cfg.hidden or {}).rate, (cfg.hidden or {}).rate_base or cfg.red_rate_base))
+            lines[#lines + 1] = string.format("<font color='#ffffff'>Òş²Ø¿î×Ü¸ÅÂÊ£º%s</font>", format_doll_rate_text((cfg.hidden or {}).rate, (cfg.hidden or {}).rate_base or cfg.red_rate_base))
             local everyHidden = (tonumber((cfg.hidden or {}).rate) or 0) / #hiddenPool
             for _, resultId in ipairs(hiddenPool) do
                 local resultCfg = get_doll_result_cfg(resultId) or {}
@@ -4618,10 +4618,10 @@ npc[30] = function(p2, p3, Data)
             end
         end
         if tonumber(cfg.pity_need) and tonumber(cfg.pity_need) > 0 then
-            lines[#lines + 1] = string.format("<font color='#ffffff'>è¿ç»­%sæ¬¡æœªå‡ºçº¢æ¬¾ï¼Œä¸‹æ¬¡å¿…å‡ºçº¢æ¬¾</font>", format_doll_number(cfg.pity_need))
+            lines[#lines + 1] = string.format("<font color='#ffffff'>Á¬Ğø%s´ÎÎ´³öºì¿î£¬ÏÂ´Î±Ø³öºì¿î</font>", format_doll_number(cfg.pity_need))
         end
         if cfg.every_draw_reward and next(cfg.every_draw_reward) then
-            lines[#lines + 1] = string.format("<font color='#ffffff'>æ¯æ¬¡å›ºå®šå¥–åŠ±ï¼š%s</font>", format_doll_cost(cfg.every_draw_reward))
+            lines[#lines + 1] = string.format("<font color='#ffffff'>Ã¿´Î¹Ì¶¨½±Àø£º%s</font>", format_doll_cost(cfg.every_draw_reward))
         end
         return table.concat(lines, "<br>")
     end
@@ -4696,15 +4696,15 @@ npc[30] = function(p2, p3, Data)
             local resultLayer = GUI:Layout_Create(parent, 'doll_result_layer', 0, 0, cogin.w, cogin.h, false)
             GUI:setLocalZOrder(resultLayer, 20)
             GUI:setTouchEnabled(resultLayer, true)
-            local title = GUI:Text_Create(resultLayer, 'doll_draw_title', cogin.w / 2, cogin.h - 92, 28, '#ffe9c2', drawCount >= 10 and 'åè¿æŠ½å–ç»“æœ' or 'æŠ“å–æˆåŠŸ')
+            local title = GUI:Text_Create(resultLayer, 'doll_draw_title', cogin.w / 2, cogin.h - 92, 28, '#ffe9c2', drawCount >= 10 and 'Ê®Á¬³éÈ¡½á¹û' or '×¥È¡³É¹¦')
             GUI:setAnchorPoint(title, 0.5, 0.5)
             GUI:Text_enableOutline(title, '#100808', 2)
-            local hint = GUI:Text_Create(resultLayer, 'doll_draw_hint', cogin.w / 2, 88, 18, '#ffffff', 'ç‚¹å‡»å…³é—­è¿”å›å¨ƒå¨ƒæœº')
+            local hint = GUI:Text_Create(resultLayer, 'doll_draw_hint', cogin.w / 2, 88, 18, '#ffffff', 'µã»÷¹Ø±Õ·µ»ØÍŞÍŞ»ú')
             GUI:setAnchorPoint(hint, 0.5, 0.5)
             GUI:Text_enableOutline(hint, '#100808', 2)
             local closeBtn = GUI:Button_Create(resultLayer, 'know_btn', cogin.w / 2, 120, 'res/wy/public/kb_btn.png')
             GUI:setAnchorPoint(closeBtn, 0.5, 0)
-            GUI:Button_setTitleText(closeBtn, 'å…³é—­')
+            GUI:Button_setTitleText(closeBtn, '¹Ø±Õ')
             GUI:Button_setTitleFontSize(closeBtn, 18)
             GUI:setLocalZOrder(closeBtn, 100)
             GUI:addOnClickEvent(closeBtn, function()
@@ -4783,7 +4783,7 @@ npc[30] = function(p2, p3, Data)
                 ))
             end
         end
-        local bg = GUI:Frames_Create(parent, 'bg', cogin.w / 2, cogin.h / 2 + 100, 'res/custom/three_city/xianfu/ä»™åºœéƒ¨åˆ†/å¨ƒå¨ƒæœº/bg/eff_', '.png', startFrame, endFrame,
+        local bg = GUI:Frames_Create(parent, 'bg', cogin.w / 2, cogin.h / 2 + 100, 'res/custom/three_city/xianfu/ÏÉ¸®²¿·Ö/ÍŞÍŞ»ú/bg/eff_', '.png', startFrame, endFrame,
             { speed = 50, count = 150, loop = 1, callback = function(self)
                 if not is_popup_alive() then
                     return
@@ -4822,7 +4822,7 @@ npc[30] = function(p2, p3, Data)
         GUI:setOpacity(mask, 225)
         GUI:setTouchEnabled(mask, true)
         if reveal.phase == 'opening' then
-            local eff = GUI:Frames_Create(overlay, 'overlay_eff', 0, 0, 'res/custom/three_city/xianfu/ä»™åºœéƒ¨åˆ†/å¨ƒå¨ƒæœº/bg/eff_', '.png', 1, 150, {
+            local eff = GUI:Frames_Create(overlay, 'overlay_eff', 0, 0, 'res/custom/three_city/xianfu/ÏÉ¸®²¿·Ö/ÍŞÍŞ»ú/bg/eff_', '.png', 1, 150, {
                 speed = 75,
                 count = 150,
                 loop = 1
@@ -4844,18 +4844,18 @@ npc[30] = function(p2, p3, Data)
             end
             return
         end
-        local effStatic = GUI:Image_Create(overlay, 'overlay_eff_static', 0, 0, 'res/custom/three_city/xianfu/ä»™åºœéƒ¨åˆ†/å¨ƒå¨ƒæœº/bg/eff_150.png')
+        local effStatic = GUI:Image_Create(overlay, 'overlay_eff_static', 0, 0, 'res/custom/three_city/xianfu/ÏÉ¸®²¿·Ö/ÍŞÍŞ»ú/bg/eff_150.png')
         GUI:setLocalZOrder(effStatic, 2)
-        local title = GUI:Text_Create(overlay, 'overlay_title', cogin.w / 2 - 40, 446, 26, '#ffe9c2', reveal.phase == 'summary' and (#results >= 10 and 'åè¿ç»“æœ' or 'æŠ½å–ç»“æœ') or 'å¨ƒå¨ƒæŠ“å–ä¸­')
+        local title = GUI:Text_Create(overlay, 'overlay_title', cogin.w / 2 - 40, 446, 26, '#ffe9c2', reveal.phase == 'summary' and (#results >= 10 and 'Ê®Á¬½á¹û' or '³éÈ¡½á¹û') or 'ÍŞÍŞ×¥È¡ÖĞ')
         GUI:Text_enableOutline(title, '#100808', 2)
         GUI:setAnchorPoint(title, 0.5, 0.5)
-        local hintText = reveal.phase == 'summary' and 'ç‚¹å‡»å…³é—­è¿”å›å¨ƒå¨ƒæœºï¼Œç‚¹å‡»ä»»æ„ç»“æœæŸ¥çœ‹å±æ€§' or 'å¼€å¥–ç»“æœæ­æ™“ä¸­'
+        local hintText = reveal.phase == 'summary' and 'µã»÷¹Ø±Õ·µ»ØÍŞÍŞ»ú£¬µã»÷ÈÎÒâ½á¹û²é¿´ÊôĞÔ' or '¿ª½±½á¹û½ÒÏşÖĞ'
         local hint = GUI:Text_Create(overlay, 'overlay_hint', cogin.w / 2 - 40, 412, 18, '#ffffff', hintText)
         GUI:Text_enableOutline(hint, '#100808', 2)
         GUI:setAnchorPoint(hint, 0.5, 0.5)
         local closeBtn = GUI:Button_Create(overlay, 'overlay_close', cogin.w / 2 - 150, 86, 'res/wy/public/kb_btn.png')
         GUI:setLocalZOrder(closeBtn, 5)
-        GUI:Button_setTitleText(closeBtn, 'å…³é—­')
+        GUI:Button_setTitleText(closeBtn, '¹Ø±Õ')
         GUI:Button_setTitleFontSize(closeBtn, 18)
         GUI:addOnClickEvent(closeBtn, function()
             npc.woodcut_doll.reveal = nil
@@ -4885,7 +4885,7 @@ npc[30] = function(p2, p3, Data)
             if asset then
                 GUI:Image_Create(card, 'overlay_card_asset_' .. idx, 0, 0, asset)
             end
-            local labelBg = GUI:Image_Create(card, 'overlay_card_labelbg_' .. idx, -8, cardH - 56, 'res/custom/three_city/xianfu/ä»™åºœéƒ¨åˆ†/å¨ƒå¨ƒæœº/ä¸‹æ–¹é€æ˜åº•.png')
+            local labelBg = GUI:Image_Create(card, 'overlay_card_labelbg_' .. idx, -8, cardH - 56, 'res/custom/three_city/xianfu/ÏÉ¸®²¿·Ö/ÍŞÍŞ»ú/ÏÂ·½Í¸Ã÷µ×.png')
             GUI:setScaleX(labelBg, 0.28)
             GUI:setScaleY(labelBg, 0.42)
             GUI:setOpacity(labelBg, 180)
@@ -4952,11 +4952,11 @@ npc[30] = function(p2, p3, Data)
         local payload = npc.woodcut_doll.payload or {}
         local doll = payload.doll or {}
         local cfg = get_doll_cfg()
-        local bg = GUI:Frames_Create(parent, "eff", 0 - 40, 0, "res/custom/three_city/xianfu/ä»™åºœéƒ¨åˆ†/å¨ƒå¨ƒæœº/bg/eff_", ".png", 1, 150,
+        local bg = GUI:Frames_Create(parent, "eff", 0 - 40, 0, "res/custom/three_city/xianfu/ÏÉ¸®²¿·Ö/ÍŞÍŞ»ú/bg/eff_", ".png", 1, 150,
         { speed = 75, count = 150, loop = -1})
-        GUI:Image_Create(parent, 'machine_rule_img', 498 - 40, 273, 'res/custom/three_city/xianfu/ä»™åºœéƒ¨åˆ†/å¨ƒå¨ƒæœº/æ¸¸æˆè§„åˆ™.png')
-        GUI:Image_Create(parent, 'machine_material_title', 58 - 20, 132, 'res/custom/three_city/xianfu/ä»™åºœéƒ¨åˆ†/å¨ƒå¨ƒæœº/æ‰€éœ€ææ–™.png')
-        local panel = GUI:Image_Create(parent, 'machine_info_bg', 42 - 20, 8, 'res/custom/three_city/xianfu/ä»™åºœéƒ¨åˆ†/å¨ƒå¨ƒæœº/ä¸‹æ–¹é€æ˜åº•.png')
+        GUI:Image_Create(parent, 'machine_rule_img', 498 - 40, 273, 'res/custom/three_city/xianfu/ÏÉ¸®²¿·Ö/ÍŞÍŞ»ú/ÓÎÏ·¹æÔò.png')
+        GUI:Image_Create(parent, 'machine_material_title', 58 - 20, 132, 'res/custom/three_city/xianfu/ÏÉ¸®²¿·Ö/ÍŞÍŞ»ú/ËùĞè²ÄÁÏ.png')
+        local panel = GUI:Image_Create(parent, 'machine_info_bg', 42 - 20, 8, 'res/custom/three_city/xianfu/ÏÉ¸®²¿·Ö/ÍŞÍŞ»ú/ÏÂ·½Í¸Ã÷µ×.png')
         local tip = GUI:Image_Create(parent, 'machine_tip', 650 - 40 -553, 402 - 389, 'res/custom/msfc/page1/wenhao.png')
 
         GUI:setAnchorPoint(panel, 0, 0)
@@ -4977,24 +4977,24 @@ npc[30] = function(p2, p3, Data)
             end)
         end
         local pityNeed = doll.pity_need or cfg.pity_need or 0
-        local tokenCount = tonumber(SL:GetMetaValue('TMONEY', 'ä»™åºœå¸') or 0) or 0
+        local tokenCount = tonumber(SL:GetMetaValue('TMONEY', 'ÏÉ¸®±Ò') or 0) or 0
         local singleCost = doll.current_cost or cfg.normal_draw_cost or {}
         local tenNeed = build_doll_preview_batch_cost(doll, cfg, 10)
-        local tenCost = payload.ten_cost or {{'ä»™åºœå¸', tenNeed}}
+        local tenCost = payload.ten_cost or {{'ÏÉ¸®±Ò', tenNeed}}
         local guang = GUI:Image_Create(panel, "cost_ten_value_img",  26, 86, "res/wy/public/guang.png")
         GUI:setContentSize(guang, 180 + 120, 30)
-        GUI:setScale(GUI:ItemShow_Create(guang, "icon", 105, 5, {index = SL:GetMetaValue("ITEM_INDEX_BY_NAME","ä»™åºœå¸")}), 0.6)
-        GUI:Text_setFontName(GUI:Text_Create(guang, "Text_Money2", 3.00, 2.00, 22, "#ffffff", [[æ‰€éœ€æ¶ˆè€—:]]), "fonts/501.ttf")
-        local singleNeed = get_doll_cost_count(singleCost, 'ä»™åºœå¸')
+        GUI:setScale(GUI:ItemShow_Create(guang, "icon", 105, 5, {index = SL:GetMetaValue("ITEM_INDEX_BY_NAME","ÏÉ¸®±Ò")}), 0.6)
+        GUI:Text_setFontName(GUI:Text_Create(guang, "Text_Money2", 3.00, 2.00, 22, "#ffffff", [[ËùĞèÏûºÄ:]]), "fonts/501.ttf")
+        local singleNeed = get_doll_cost_count(singleCost, 'ÏÉ¸®±Ò')
         local currentTokenColor = tokenCount >= singleNeed and "#45ff93" or "#ff6666"
         GUI:RichText_Create(guang, "text", 130, 5, string.format("<font color='%s'>%s</font><font color='#FFFFFF'>/%s</font>", currentTokenColor, format_doll_number(tokenCount), format_doll_cost(singleCost)), 300, 16, "#FFFFFF", 0, nil, nil)
         local tenColor = tokenCount >= tenNeed and '#45ff93' or '#ff6666'
         -- local infoRows = {
-        --     string.format('ç´¯è®¡æŠ“å–ï¼š%s', format_doll_number(doll.draw_total or 0)),
-        --     string.format('æ–°æ‰‹å‰©ä½™ï¼š%s', format_doll_number(doll.newbie_left or 0)),
-        --     string.format('çº¢æ¬¾ä¿åº•ï¼š%s/%s', format_doll_number(doll.pity_progress or 0), format_doll_number(pityNeed)),
-        --     string.format('éšè—å·²å‡ºï¼š%s', format_doll_number(doll.hidden_count or 0)),
-        --     string.format('åè¿æ¶ˆè€—ï¼š%s', format_doll_cost(tenCost)),
+        --     string.format('ÀÛ¼Æ×¥È¡£º%s', format_doll_number(doll.draw_total or 0)),
+        --     string.format('ĞÂÊÖÊ£Óà£º%s', format_doll_number(doll.newbie_left or 0)),
+        --     string.format('ºì¿î±£µ×£º%s/%s', format_doll_number(doll.pity_progress or 0), format_doll_number(pityNeed)),
+        --     string.format('Òş²ØÒÑ³ö£º%s', format_doll_number(doll.hidden_count or 0)),
+        --     string.format('Ê®Á¬ÏûºÄ£º%s', format_doll_cost(tenCost)),
         -- }
         -- local rowColors = {'#ffe1a8', '#9fe8ff', '#ffd38f', '#ffb3a0', tenColor}
         -- for idx, text in ipairs(infoRows) do
@@ -5004,7 +5004,7 @@ npc[30] = function(p2, p3, Data)
         local lastResultId = ((npc.woodcut_doll.lastResult or {}).resultId) or doll.last_result
         local resultCfg = lastResultId and get_doll_result_cfg(lastResultId) or nil
         -- if resultCfg then
-        --     local resultName = GUI:Text_Create(panel, 'machine_result_name', 388, 86, 18, '#ffd66b', string.format('æœ€è¿‘è·å¾—ï¼š%s[%s]', resultCfg.name or '', resultCfg.quality_name or ''))
+        --     local resultName = GUI:Text_Create(panel, 'machine_result_name', 388, 86, 18, '#ffd66b', string.format('×î½ü»ñµÃ£º%s[%s]', resultCfg.name or '', resultCfg.quality_name or ''))
         --     local resultDesc = GUI:Text_Create(panel, 'machine_result_desc', 388, 58, 16, '#ffffff', resultCfg.attr_desc or '')
         --     GUI:Text_enableOutline(resultName, '#100808', 2)
         --     GUI:Text_enableOutline(resultDesc, '#100808', 2)
@@ -5015,7 +5015,7 @@ npc[30] = function(p2, p3, Data)
         --         GUI:setAnchorPoint(preview, 0.5, 0)
         --     end
         -- else
-        --     local emptyText = GUI:Text_Create(panel, 'machine_result_empty', 388, 72, 18, '#ffffff', 'å°šæœªæŠ“åˆ°å¨ƒå¨ƒ')
+        --     local emptyText = GUI:Text_Create(panel, 'machine_result_empty', 388, 72, 18, '#ffffff', 'ÉĞÎ´×¥µ½ÍŞÍŞ')
         --     GUI:Text_enableOutline(emptyText, '#100808', 2)
         -- end
         local skipWrap = GUI:Layout_Create(parent, 'doll_skip_wrap', 560, 92, 160, 28, false)
@@ -5024,20 +5024,20 @@ npc[30] = function(p2, p3, Data)
         GUI:CheckBox_addOnEvent(skipBtn, function(self)
             npc.woodcut_doll.skipAnim = GUI:CheckBox_isSelected(self)
         end)
-        local skipLabel = GUI:Image_Create(skipWrap, 'doll_skip_label', 30, -2, 'res/custom/three_city/xianfu/ä»™åºœéƒ¨åˆ†/å¨ƒå¨ƒæœº/è·³è¿‡åŠ¨ç”».png')
+        local skipLabel = GUI:Image_Create(skipWrap, 'doll_skip_label', 30, -2, 'res/custom/three_city/xianfu/ÏÉ¸®²¿·Ö/ÍŞÍŞ»ú/Ìø¹ı¶¯»­.png')
         GUI:setTouchEnabled(skipLabel, false)
-        local drawBtn = GUI:Button_Create(parent, 'doll_draw_btn', 630, 40, 'res/custom/three_city/xianfu/ä»™åºœéƒ¨åˆ†/å¨ƒå¨ƒæœº/æŠ“ä¸€æ¬¡.png')
+        local drawBtn = GUI:Button_Create(parent, 'doll_draw_btn', 630, 40, 'res/custom/three_city/xianfu/ÏÉ¸®²¿·Ö/ÍŞÍŞ»ú/×¥Ò»´Î.png')
         GUI:setAnchorPoint(drawBtn, 0.5, 0.5)
         GUI:addOnClickEvent(drawBtn, function()
             request_draw_doll_machine(1)
         end)
-        local drawTenBtn = GUI:Button_Create(parent, 'doll_draw_ten_btn', 400, 40, 'res/custom/three_city/xianfu/ä»™åºœéƒ¨åˆ†/å¨ƒå¨ƒæœº/æŠ“åæ¬¡.png')
+        local drawTenBtn = GUI:Button_Create(parent, 'doll_draw_ten_btn', 400, 40, 'res/custom/three_city/xianfu/ÏÉ¸®²¿·Ö/ÍŞÍŞ»ú/×¥Ê®´Î.png')
         GUI:setAnchorPoint(drawTenBtn, 0.5, 0.5)
         GUI:addOnClickEvent(drawTenBtn, function()
             request_draw_doll_machine(10)
         end)
         if tonumber(doll.draw_total or 0) <= 0 then
-            local firstTenTips = GUI:Text_Create(parent, 'doll_first_ten_discount', 400, 74 + 10, 20, '#FF0000', 'é¦–æ¬¡åè¿ 2 æŠ˜')
+            local firstTenTips = GUI:Text_Create(parent, 'doll_first_ten_discount', 400, 74 + 10, 20, '#FF0000', 'Ê×´ÎÊ®Á¬ 2 ÕÛ')
             GUI:setAnchorPoint(firstTenTips, 0.5, 0.5)
             GUI:Text_setFontName(firstTenTips, 'fonts/502.ttf')
             GUI:Text_enableOutline(firstTenTips, '#100808', 2)
@@ -5050,8 +5050,8 @@ npc[30] = function(p2, p3, Data)
         local qualityCount = doll.quality_count or {}
         local order = get_doll_cfg().cabinet_order or {}
         local ownedList = build_doll_owned_list(doll)
-        GUI:Image_Create(parent, 'cabinet_room_bg', 0 - 40, 0, 'res/custom/three_city/xianfu/ä»™åºœéƒ¨åˆ†/æ”¶è—æŸœ/æ”¶è—æŸœèƒŒæ™¯.png')
-        local attrBg = GUI:Image_Create(parent, 'cabinet_attr_bg', 503 - 40, 280 - 50, 'res/custom/three_city/xianfu/ä»™åºœéƒ¨åˆ†/æ”¶è—æŸœ/å³ä¸Šè§’å±æ€§åº•.png')
+        GUI:Image_Create(parent, 'cabinet_room_bg', 0 - 40, 0, 'res/custom/three_city/xianfu/ÏÉ¸®²¿·Ö/ÊÕ²Ø¹ñ/ÊÕ²Ø¹ñ±³¾°.png')
+        local attrBg = GUI:Image_Create(parent, 'cabinet_attr_bg', 503 - 40, 280 - 50, 'res/custom/three_city/xianfu/ÏÉ¸®²¿·Ö/ÊÕ²Ø¹ñ/ÓÒÉÏ½ÇÊôĞÔµ×.png')
         GUI:setAnchorPoint(attrBg, 0, 0)
         GUI:setScaleX(attrBg, 8.6)
         GUI:setScaleY(attrBg, 1.55)
@@ -5059,14 +5059,14 @@ npc[30] = function(p2, p3, Data)
         for _, count in pairs(doll.owned or {}) do
             totalOwned = totalOwned + (tonumber(count) or 0)
         end
-        local titleText = GUI:Text_Create(parent, 'cabinet_title_text', 534, 470 - 50, 20, '#ffe9c2', 'å·²è§£é”å¨ƒå¨ƒ')
+        local titleText = GUI:Text_Create(parent, 'cabinet_title_text', 534, 470 - 50, 20, '#ffe9c2', 'ÒÑ½âËøÍŞÍŞ')
         GUI:Text_enableOutline(titleText, '#100808', 2)
         local infoRows = {
-            string.format('å·²è§£é”ï¼š%s/%s', format_doll_number(#ownedList), format_doll_number(#order)),
-            string.format('æ”¶è—æ€»æ•°ï¼š%s', format_doll_number(totalOwned)),
-            string.format('æ™®é€šï¼š%s', format_doll_number(qualityCount.normal or 0)),
-            string.format('çº¢æ¬¾ï¼š%s', format_doll_number(qualityCount.red or 0)),
-            string.format('éšè—ï¼š%s', format_doll_number(qualityCount.hidden or 0)),
+            string.format('ÒÑ½âËø£º%s/%s', format_doll_number(#ownedList), format_doll_number(#order)),
+            string.format('ÊÕ²Ø×ÜÊı£º%s', format_doll_number(totalOwned)),
+            string.format('ÆÕÍ¨£º%s', format_doll_number(qualityCount.normal or 0)),
+            string.format('ºì¿î£º%s', format_doll_number(qualityCount.red or 0)),
+            string.format('Òş²Ø£º%s', format_doll_number(qualityCount.hidden or 0)),
         }
         for idx, text in ipairs(infoRows) do
             local label = GUI:Text_Create(parent, 'cabinet_info_' .. idx, 534, 438 - (idx - 1) * 28 - 50, 18, '#ffffff', text)
@@ -5096,7 +5096,7 @@ npc[30] = function(p2, p3, Data)
         GUI:ScrollView_setInnerContainerSize(scroll, viewW, innerH)
         local layout = GUI:Layout_Create(scroll, 'cabinet_layout', 0, 0, viewW, innerH, false)
         if #ownedList <= 0 then
-            local emptyText = GUI:Text_Create(layout, 'cabinet_empty_text', 260, math.floor(innerH / 2), 22, '#f3ead4', 'æš‚æ— å·²è§£é”å¨ƒå¨ƒ')
+            local emptyText = GUI:Text_Create(layout, 'cabinet_empty_text', 260, math.floor(innerH / 2), 22, '#f3ead4', 'ÔİÎŞÒÑ½âËøÍŞÍŞ')
             GUI:Text_enableOutline(emptyText, '#100808', 2)
         else
             local qualityColor = {
@@ -5140,7 +5140,7 @@ npc[30] = function(p2, p3, Data)
                 skin = skin,
             },
             closeButton = {x = 782, y = 470},
-            title = {x = 50, y = 464, skin = "res/custom/three_city/xianfu/ä»™åºœéƒ¨åˆ†/æ ‡é¢˜.png"},
+            title = {x = 50, y = 464, skin = "res/custom/three_city/xianfu/ÏÉ¸®²¿·Ö/±êÌâ.png"},
         })
         local node = npc.doll_window and npc.doll_window.node
         if not node then
@@ -5168,12 +5168,12 @@ npc[30] = function(p2, p3, Data)
     --     npc.xjm_node = npc.xjm_window.node
     --     GUI:Text_setFontName(GUI:Text_Create(npc.xjm_node, "cost", 422, 100, 30, "#FFFFFF", (npc.data_30.T_data.dh_num + 1) > #config.dh.details and config.dh.cost[1][2] or config.dh.details[npc.data_30.T_data.dh_num + 1].cost[1][2]), "fonts/501.ttf")
     --     GUI:setAnchorPoint(GUI:ItemShow_Create(npc.xjm_node, "item1", 250, 196, {
-    --         index = SL:GetMetaValue("ITEM_INDEX_BY_NAME", "ä»™åºœå¸"),
+    --         index = SL:GetMetaValue("ITEM_INDEX_BY_NAME", "ÏÉ¸®±Ò"),
     --         count = 1,
     --         look = true,
     --     }), 0.5, 0.5)
     --     GUI:setAnchorPoint(GUI:ItemShow_Create(npc.xjm_node, "item2", 490, 196, {
-    --         index = SL:GetMetaValue("ITEM_INDEX_BY_NAME", "ç æ ‘ç›²ç›’"),
+    --         index = SL:GetMetaValue("ITEM_INDEX_BY_NAME", "¿³Ê÷Ã¤ºĞ"),
     --         count = 1,
     --         look = true,
     --     }), 0.5, 0.5)
@@ -5235,7 +5235,7 @@ npc[30] = function(p2, p3, Data)
         -- local btn_buy = GUI:Button_Create(re_wz, "btn_buy", 278 / 2, 300 - 70, "res/custom/three_city/xianfu/kanshu/btn_buy.png")
         local btn_tip = GUI:Button_Create(re_wz, "btn_tip", 278 / 2, 300, "res/custom/three_city/xianfu/kanshu/btn_tip.png")
         local btn_updata_1 = GUI:Button_Create(re_wz, "btn_updata_", 278 / 2, 300 - 140, "res/custom/three_city/xianfu/kanshu/btn_updata_1.png")
-        local btn_doll = GUI:Button_Create(re_wz, "btn_doll", 278 / 2, 300 - 70, "res/custom/three_city/xianfu/ä»™åºœéƒ¨åˆ†/æŠ“å¨ƒå¨ƒæœº.png")
+        local btn_doll = GUI:Button_Create(re_wz, "btn_doll", 278 / 2, 300 - 70, "res/custom/three_city/xianfu/ÏÉ¸®²¿·Ö/×¥ÍŞÍŞ»ú.png")
         GUI:setAnchorPoint(btn_updata_2, 0.5, 0.5)
         -- GUI:setAnchorPoint(btn_buy, 0.5, 0.5)
         GUI:setAnchorPoint(btn_tip, 0.5, 0.5)
@@ -5275,9 +5275,9 @@ npc[30] = function(p2, p3, Data)
             end)
             GUI:setVisible(btn_updata_2, false)
             NPC_UI_HELPER.tryStartXylGuide(npc, open_auto, re_wz, "woodcut_start", {
-                taskName = "äº†è§£ç æ ‘",
+                taskName = "ÁË½â¿³Ê÷",
                 dir = 5,
-                desc = "å¼€å¯è‡ªåŠ¨ç æ ‘",
+                desc = "¿ªÆô×Ô¶¯¿³Ê÷",
             })
         end
         local closeBtn = GUI:Button_Create(bg, 'close', cogin.w - 100, cogin.h - 70, 'res/wy/public/anniu_4_x_close.png')
@@ -5377,10 +5377,10 @@ npc[498] = function(p2, p3, Data)
         local height = GUI:getContentSize(npc.tyec).height
         GUI:setPositionY(npc.tyec, height)
         GUI:runAction(npc.tyec, GUI:ActionMoveBy(0.3, 0, -height))
-        local desc = GUI:Text_Create(npc.tyec, "Text", 70.0, 164.0, 14, "#d6a573", "æ’åæ•°æ®/10såˆ·æ–°")
+        local desc = GUI:Text_Create(npc.tyec, "Text", 70.0, 164.0, 14, "#d6a573", "ÅÅÃûÊı¾İ/10sË¢ĞÂ")
         GUI:Text_enableOutline(desc, "#000000", 1)
         npc.tyecdesc = desc
-        local campScore = GUI:Text_Create(npc.tyec, "camp_score", 108.0, 145.0, 14, "#d6a573", "æ­£æ–¹:0  é‚ªæ–¹:0")
+        local campScore = GUI:Text_Create(npc.tyec, "camp_score", 108.0, 145.0, 14, "#d6a573", "Õı·½:0  Ğ°·½:0")
         GUI:setAnchorPoint(campScore, 0.5, 0.5)
         GUI:Text_enableOutline(campScore, "#000000", 1)
         npc.tyeccamp = campScore
@@ -5388,7 +5388,7 @@ npc[498] = function(p2, p3, Data)
         GUI:setAnchorPoint(activityState, 0.5, 0.5)
         GUI:Text_enableOutline(activityState, "#000000", 1)
         npc.tyecstate = activityState
-        local scoreLabel = GUI:Text_Create(npc.tyec, "Text_1", 72.0, 6.0, 14, "#d6a573", "å½“å‰ä¸ªäººç§¯åˆ†:")
+        local scoreLabel = GUI:Text_Create(npc.tyec, "Text_1", 72.0, 6.0, 14, "#d6a573", "µ±Ç°¸öÈË»ı·Ö:")
         GUI:Text_enableOutline(scoreLabel, "#000000", 1)
         npc.tyecscoreLabel = scoreLabel
         npc.tyecgr = GUI:Text_Create(scoreLabel, "Textxx", 92.0, 0.0, 14, "#d6a573", "0")
@@ -5426,7 +5426,7 @@ npc[498] = function(p2, p3, Data)
         end
         if mode == "qmdt" then
             if npc.tyecdesc then
-                GUI:Text_setString(npc.tyecdesc, "å½“å‰é¢˜ç›®")
+                GUI:Text_setString(npc.tyecdesc, "µ±Ç°ÌâÄ¿")
             end
             if npc.tyecscoreLabel then
                 GUI:Text_setString(npc.tyecscoreLabel, "")
@@ -5442,7 +5442,7 @@ npc[498] = function(p2, p3, Data)
             local idx = tonumber(data.idx or 0) or 0
             local total = tonumber(data.total or 0) or 0
             local question = tostring(data.question or "")
-            GUI:Text_setString(npc.tyecpmm[1], string.format("ç¬¬%s/%sé¢˜", tostring(idx), tostring(total)))
+            GUI:Text_setString(npc.tyecpmm[1], string.format("µÚ%s/%sÌâ", tostring(idx), tostring(total)))
             GUI:Text_setString(npc.tyecpmm[2], question)
             GUI:Text_setString(npc.tyecgr, "")
             local remain = tonumber(data.limit_sec or 0) or 0
@@ -5455,7 +5455,7 @@ npc[498] = function(p2, p3, Data)
                 remain = math.max(0, math.floor(endTs - nowTs))
             end
             if npc.tyeccamp then
-                GUI:Text_setString(npc.tyeccamp, "ç­”é¢˜å€’è®¡æ—¶ï¼š" .. tostring(remain) .. "ç§’")
+                GUI:Text_setString(npc.tyeccamp, "´ğÌâµ¹¼ÆÊ±£º" .. tostring(remain) .. "Ãë")
             end
             if npc.tyecstate then
                 GUI:Text_setString(npc.tyecstate, "")
@@ -5464,10 +5464,10 @@ npc[498] = function(p2, p3, Data)
         end
         if mode == "bwcz" then
             if npc.tyecdesc then
-                GUI:Text_setString(npc.tyecdesc, "æ€ªç‰©å‰©ä½™/10såˆ·æ–°")
+                GUI:Text_setString(npc.tyecdesc, "¹ÖÎïÊ£Óà/10sË¢ĞÂ")
             end
             if npc.tyecscoreLabel then
-                GUI:Text_setString(npc.tyecscoreLabel, "å½“å‰ä¸ªäººç§¯åˆ†:")
+                GUI:Text_setString(npc.tyecscoreLabel, "µ±Ç°¸öÈË»ı·Ö:")
             end
             for i = 1, 5 do
                 if npc.tyecpmprefix and npc.tyecpmprefix[i] then
@@ -5485,19 +5485,19 @@ npc[498] = function(p2, p3, Data)
             end
             GUI:Text_setString(npc.tyecgr, data.grjf or 0)
             if npc.tyeccamp then
-                GUI:Text_setString(npc.tyeccamp, string.format("å†›å›¢:%s", tostring(data.wave_name or "æœªçŸ¥")))
+                GUI:Text_setString(npc.tyeccamp, string.format("¾üÍÅ:%s", tostring(data.wave_name or "Î´Öª")))
             end
             if npc.tyecstate then
-                GUI:Text_setString(npc.tyecstate, string.format("æ€»å‰©ä½™:%s", tostring(data.left_mon or 0)))
+                GUI:Text_setString(npc.tyecstate, string.format("×ÜÊ£Óà:%s", tostring(data.left_mon or 0)))
             end
             return
         end
         local mc = 1
         if npc.tyecdesc then
-            GUI:Text_setString(npc.tyecdesc, "æ’åæ•°æ®/10såˆ·æ–°")
+            GUI:Text_setString(npc.tyecdesc, "ÅÅÃûÊı¾İ/10sË¢ĞÂ")
         end
         if npc.tyecscoreLabel then
-            GUI:Text_setString(npc.tyecscoreLabel, "å½“å‰ä¸ªäººç§¯åˆ†:")
+            GUI:Text_setString(npc.tyecscoreLabel, "µ±Ç°¸öÈË»ı·Ö:")
         end
         for i = 1, 5 do
             if npc.tyecpmprefix and npc.tyecpmprefix[i] then
@@ -5516,16 +5516,16 @@ npc[498] = function(p2, p3, Data)
         GUI:Text_setString(npc.tyecgr, data.grjf or 0)
         if npc.tyeccamp then
             if data.wave_name or data.left_mon then
-                GUI:Text_setString(npc.tyeccamp, string.format("å†›å›¢:%s", tostring(data.wave_name or "æœªçŸ¥")))
+                GUI:Text_setString(npc.tyeccamp, string.format("¾üÍÅ:%s", tostring(data.wave_name or "Î´Öª")))
             elseif mode == "zxdz" or data.hjf ~= nil or data.ljf ~= nil then
-                GUI:Text_setString(npc.tyeccamp, string.format("æ­£æ–¹:%s  é‚ªæ–¹:%s", data.hjf or 0, data.ljf or 0))
+                GUI:Text_setString(npc.tyeccamp, string.format("Õı·½:%s  Ğ°·½:%s", data.hjf or 0, data.ljf or 0))
             else
                 GUI:Text_setString(npc.tyeccamp, "")
             end
         end
         if npc.tyecstate then
             if data.wave_name or data.left_mon then
-                GUI:Text_setString(npc.tyecstate, string.format("å‰©ä½™æ€ªç‰©:%s", tostring(data.left_mon or 0)))
+                GUI:Text_setString(npc.tyecstate, string.format("Ê£Óà¹ÖÎï:%s", tostring(data.left_mon or 0)))
             else
                 GUI:Text_setString(npc.tyecstate, "")
             end
@@ -5664,12 +5664,12 @@ npc[501] = function(p2, p3, Data)
                 }
                 create_reward_box(node, rewardList[j][1], rewardList[j][2], slotX + pos[1], pos[2])
             end
-            local stateText, stateColor = "æœªæ¿€æ´»", "#ff7056"
+            local stateText, stateColor = "Î´¼¤»î", "#ff7056"
             if tonumber(T_data.main_claimed or 0) >= 1 then
-                stateText = "å·²é¢†å–"
+                stateText = "ÒÑÁìÈ¡"
                 stateColor = "#33ff99"
             elseif tonumber(T_data.ok or 0) == 1 then
-                stateText = "å¯é¢†å–"
+                stateText = "¿ÉÁìÈ¡"
                 stateColor = "#ffe07a"
             end
         end
@@ -5678,7 +5678,7 @@ npc[501] = function(p2, p3, Data)
         GUI:setAnchorPoint(mainBtn, 0.5, 0.5)
         if tonumber(T_data.ok or 0) == 1 and tonumber(T_data.main_claimed or 0) < 1 then
             GUI:Button_loadTextures(mainBtn, "res/wy/public/npc_19_tip_jl.png")
-            -- GUI:Button_setTitleText(mainBtn, "é¢†å–å¥–åŠ±")
+            -- GUI:Button_setTitleText(mainBtn, "ÁìÈ¡½±Àø")
             -- GUI:Button_setTitleColor(mainBtn, "#FFF6D8")
             -- GUI:Button_setTitleFontSize(mainBtn, 20)
             -- GUI:Button_titleEnableOutline(mainBtn, "#5A1D0C", 2)
@@ -5689,7 +5689,7 @@ npc[501] = function(p2, p3, Data)
                 return
             end
             if tonumber(T_data.main_claimed or 0) >= 1 then
-                SL:ShowSystemTips("<font color='#FFCC66'>é¦–å……ä¸»ç¤¼åŒ…å·²é¢†å–</font>")
+                SL:ShowSystemTips("<font color='#FFCC66'>Ê×³äÖ÷Àñ°üÒÑÁìÈ¡</font>")
                 return
             end
             SL:SendLuaNetMsg(101, 501, 1, 0, "")
@@ -5697,34 +5697,34 @@ npc[501] = function(p2, p3, Data)
     end
     local function render_welfare_area(node, payload, T_data, UI_updata)
         local welfare = get_welfare()
-        local title = create_outline_text(node, "welfare_title", 636, 410, 18, "#f7dfb3", "é™æ—¶ç¦åˆ©ï¼ˆæŒ‰é¡ºåºé€‰æ‹©ï¼‰", "#5a1d0c")
+        local title = create_outline_text(node, "welfare_title", 636, 410, 18, "#f7dfb3", "ÏŞÊ±¸£Àû£¨°´Ë³ĞòÑ¡Ôñ£©", "#5a1d0c")
         GUI:setAnchorPoint(title, 0.5, 0.5)
         for i = 1, #welfare do
             local cfg = welfare[i] or {
             }
             local rowY = 378 - (i - 1) * 30
-            local label = tostring(cfg.label or ("ç¬¬" .. i .. "æ¡£"))
+            local label = tostring(cfg.label or ("µÚ" .. i .. "µµ"))
             local actionType = 0
             create_outline_text(node, "welfare_label_" .. i, 430, rowY, 15, "#fff3cf", string.format("%d. %s", i, label))
             if tonumber(T_data.main_claimed or 0) < 1 then
-                local state = create_outline_text(node, "welfare_status_" .. i, 664, rowY, 15, "#ff7056", "è¯·å…ˆé¢†ä¸»ç¤¼åŒ…")
+                local state = create_outline_text(node, "welfare_status_" .. i, 664, rowY, 15, "#ff7056", "ÇëÏÈÁìÖ÷Àñ°ü")
                 GUI:setAnchorPoint(state, 0.5, 0.5)
             elseif tonumber(T_data.welfare_claimed or 0) >= i then
-                local state = create_outline_text(node, "welfare_status_" .. i, 664, rowY, 15, "#33ff99", "å·²é¢†å–")
+                local state = create_outline_text(node, "welfare_status_" .. i, 664, rowY, 15, "#33ff99", "ÒÑÁìÈ¡")
                 GUI:setAnchorPoint(state, 0.5, 0.5)
             else
                 local expected = (tonumber(T_data.welfare_claimed or 0) or 0) + 1
                 if i ~= expected then
-                    local state = create_outline_text(node, "welfare_status_" .. i, 664, rowY, 15, "#9d9d9d", "æœªåˆ°æœ¬æ¡£")
+                    local state = create_outline_text(node, "welfare_status_" .. i, 664, rowY, 15, "#9d9d9d", "Î´µ½±¾µµ")
                     GUI:setAnchorPoint(state, 0.5, 0.5)
                 elseif (tonumber(T_data.welfare_select or 0) or 0) ~= i or (tonumber(T_data.welfare_start or 0) or 0) <= 0 then
-                    local state = create_outline_text(node, "welfare_status_" .. i, 664, rowY, 15, "#ffe07a", "ç‚¹å‡»é€‰æ‹©")
+                    local state = create_outline_text(node, "welfare_status_" .. i, 664, rowY, 15, "#ffe07a", "µã»÷Ñ¡Ôñ")
                     GUI:setAnchorPoint(state, 0.5, 0.5)
                     actionType = 2
                 else
                     local left = get_left_seconds(payload, T_data, i)
                     if left > 0 then
-                        local prefix = create_outline_text(node, "welfare_prefix_" .. i, 624, rowY, 15, "#8fd3ff", "å€’è®¡æ—¶")
+                        local prefix = create_outline_text(node, "welfare_prefix_" .. i, 624, rowY, 15, "#8fd3ff", "µ¹¼ÆÊ±")
                         GUI:setAnchorPoint(prefix, 0.5, 0.5)
                         local state = create_outline_text(node, "welfare_status_" .. i, 704, rowY, 15, "#8fd3ff", _feijian_format_left_seconds(left))
                         GUI:setAnchorPoint(state, 0.5, 0.5)
@@ -5734,7 +5734,7 @@ npc[501] = function(p2, p3, Data)
                             end
                         end)
                     else
-                        local state = create_outline_text(node, "welfare_status_" .. i, 664, rowY, 15, "#33ff99", "å¯é¢†å–")
+                        local state = create_outline_text(node, "welfare_status_" .. i, 664, rowY, 15, "#33ff99", "¿ÉÁìÈ¡")
                         GUI:setAnchorPoint(state, 0.5, 0.5)
                         actionType = 3
                     end
@@ -5742,7 +5742,7 @@ npc[501] = function(p2, p3, Data)
             end
             local rowBtn = GUI:Button_Create(node, "welfare_btn_" .. i, 812, rowY - 12, "res/public/bg_bti_07.png")
             GUI:setContentSize(rowBtn, 92, 24)
-            GUI:Button_setTitleText(rowBtn, actionType == 3 and "é¢†å–" or (actionType == 2 and "é€‰æ‹©" or "æŸ¥çœ‹"))
+            GUI:Button_setTitleText(rowBtn, actionType == 3 and "ÁìÈ¡" or (actionType == 2 and "Ñ¡Ôñ" or "²é¿´"))
             GUI:Button_setTitleColor(rowBtn, "#ffffff")
             GUI:Button_setTitleFontSize(rowBtn, 14)
             GUI:Button_titleEnableOutline(rowBtn, "#000000", 1)
@@ -5752,7 +5752,7 @@ npc[501] = function(p2, p3, Data)
                 elseif actionType == 3 then
                     SL:SendLuaNetMsg(101, 501, 3, i, "")
                 else
-                    SL:ShowSystemTips("<font color='#FFCC66'>å½“å‰æ¡£ä½æš‚ä¸å¯æ“ä½œ</font>")
+                    SL:ShowSystemTips("<font color='#FFCC66'>µ±Ç°µµÎ»Ôİ²»¿É²Ù×÷</font>")
                 end
             end)
         end
@@ -5775,7 +5775,7 @@ npc[501] = function(p2, p3, Data)
         } or SL:JsonDecode(Data, false)
         rebuildShortcutButtons("")
         local firstChargeWin = ensureWindow("firstCharge", 501, {
-            titleText = "é¦–å……ç¤¼åŒ…",
+            titleText = "Ê×³äÀñ°ü",
             background = {
                 skin = "res/custom/top/shochong/bg1.png",
             },
@@ -5840,7 +5840,7 @@ npc[502] = function(p2, p3, Data)
         end
         if cfg.ch then
             list[#list + 1] = {
-                cfg.ch .. "[ç§°å·]",
+                cfg.ch .. "[³ÆºÅ]",
                 1,
             }
         end
@@ -5858,9 +5858,9 @@ npc[502] = function(p2, p3, Data)
                 }
             end
         end
-        if tonumber(cfg.token_count or 0) and tonumber(cfg.token_count or 0) > 0 and not (type(cfg.show) == "table" and #cfg.show > 0 and tostring((cfg.show[1] or {})[1] or "") == (((teshudata["npc_101"] or {}).token_name) or "é¹¤å˜´é”„")) then
+        if tonumber(cfg.token_count or 0) and tonumber(cfg.token_count or 0) > 0 and not (type(cfg.show) == "table" and #cfg.show > 0 and tostring((cfg.show[1] or {})[1] or "") == (((teshudata["npc_101"] or {}).token_name) or "º××ì³ú")) then
             local tokenName = ((teshudata["npc_101"] or {
-            }).token_name) or "é¹¤å˜´é”„"
+            }).token_name) or "º××ì³ú"
             list[#list + 1] = {
                 tokenName,
                 tonumber(cfg.token_count or 0),
@@ -5876,11 +5876,11 @@ npc[502] = function(p2, p3, Data)
         local guideAmount = tonumber(npc._onlineRechargeGuideAmount or 0) or 0
         local guideButton = nil
         local Input = GUI:TextInput_Create(node, "Input", 180.0 + 324, 50.0 + 363, 50.0, 20.0, 13)
-        GUI:TextInput_setPlaceHolder(Input, "æœ€å°‘10")
+        GUI:TextInput_setPlaceHolder(Input, "×îÉÙ10")
         GUI:setTouchEnabled(Input, true)
-        local num = GUI:Text_Create(node, "num", 180.0 + 324 + 30, 80.0 + 363, 20, "#FFFFFF", SL:GetThousandSepString(SL:GetMetaValue("TMONEY", "ç´¯è®¡å……å€¼")))
+        local num = GUI:Text_Create(node, "num", 180.0 + 324 + 30, 80.0 + 363, 20, "#FFFFFF", SL:GetThousandSepString(SL:GetMetaValue("TMONEY", "ÀÛ¼Æ³äÖµ")))
         GUI:setAnchorPoint(num, 0.5, 0.5)
-        num = GUI:TextAtlas_Create(npc.bg, "num1", 690, 30, SL:GetThousandSepString(SL:GetMetaValue("TMONEY", "çœŸå……ç§¯åˆ†")), "res/custom/public/text1.png", 14, 30, ".")
+        num = GUI:TextAtlas_Create(npc.bg, "num1", 690, 30, SL:GetThousandSepString(SL:GetMetaValue("TMONEY", "Õæ³ä»ı·Ö")), "res/custom/public/text1.png", 14, 30, ".")
         GUI:setAnchorPoint(num, 0, 0.5)
         local cz_an = GUI:Button_Create(node, "cz_an", 300 + 274, 38 + 350, "res/custom/chongzhi/btn.png")
         GUI:addOnClickEvent(cz_an, function()
@@ -5945,7 +5945,7 @@ npc[502] = function(p2, p3, Data)
                         dir = 1,
                         guideWidget = guideButton,
                         guideParent = dbLayout,
-                        guideDesc = "ç‚¹å‡»10å…ƒæ¡£ä½è·å–ç­‘åŸºä¸¹",
+                        guideDesc = "µã»÷10ÔªµµÎ»»ñÈ¡Öş»ùµ¤",
                         isForce = false,
                         hideMask = false,
                     })
@@ -5960,7 +5960,7 @@ npc[502] = function(p2, p3, Data)
         npc.data_502 = not Data and {
         } or SL:JsonDecode(Data, false)
         local rechargeWin = ensureWindow("onlineRecharge", 502, {
-            titleText = "åœ¨çº¿å……å€¼",
+            titleText = "ÔÚÏß³äÖµ",
         })
         npc.bg = rechargeWin.bg
         npc.node = rechargeWin.node
@@ -6082,7 +6082,7 @@ npc[504] = function(p2, p3, Data)
         for i = 1, #rewardList do
             local item = rewardList[i]
             local x = startX + (i - 1) * stepX
-            create_reward_box(npc.node, item[1], item[2], x, startY, tostring(item[1] or "") == "çµçŸ³")
+            create_reward_box(npc.node, item[1], item[2], x, startY, tostring(item[1] or "") == "ÁéÊ¯")
         end
         if tonumber(npc.kryb.mztq or 0) == 0 then
             local btn = GUI:Button_Create(npc.node, "buy_btn", 100, 44, "res/custom/top/kryb/btn.png")
@@ -6095,10 +6095,10 @@ npc[504] = function(p2, p3, Data)
     end
 end
 local guaji_ms = {
-    "æŒ‚æœºæ—¶è¢«æ”»å‡» è‡ªåŠ¨éšæœºä¼ é€ï¼ˆ30ç§’å†·å´ï¼‰",
-    "æŒ‚æœºæ—¶æœªå‡»æ€ åˆ‡æ¢åœ°å›¾ï¼ˆ120ç§’è§¦å‘ï¼‰",
-    "æŒ‚æœºæ­»äº¡æˆ–è€…å›åŸå60ç§’éšæœºä¸‹å›¾",
-    "æ¯10åˆ†é’Ÿè‡ªåŠ¨åˆ‡æ¢åœ°å›¾",
+    "¹Ò»úÊ±±»¹¥»÷ ×Ô¶¯Ëæ»ú´«ËÍ£¨30ÃëÀäÈ´£©",
+    "¹Ò»úÊ±Î´»÷É± ÇĞ»»µØÍ¼£¨120Ãë´¥·¢£©",
+    "¹Ò»úËÀÍö»òÕß»Ø³Çºó60ÃëËæ»úÏÂÍ¼",
+    "Ã¿10·ÖÖÓ×Ô¶¯ÇĞ»»µØÍ¼",
 }
 npc._patrolRefs = npc._patrolRefs or {
 }
@@ -6106,25 +6106,25 @@ local patrolRefs = npc._patrolRefs
 npc[505] = function(p2, p3, Data)
     local function buildPatrolUI(data)
         local win = ensureWindow("patrol", 505, {
-            titleText = "è‡ªåŠ¨å·¡èˆª",
+            titleText = "×Ô¶¯Ñ²º½",
         })
         local panel = win.node
         GUI:setPosition(panel, 150, 50)
         local patrolOpen = _shortcut_is_firstcharge_completed()
         npc.ksgj = GUI:Button_Create(panel, "ksgj", 439.0 - 130, 22.0, "res/public/1900000660.png")
-        GUI:Button_setTitleText(npc.ksgj, data.gjkg and "åœæ­¢æŒ‚æœº" or "å¼€å§‹æŒ‚æœº")
+        GUI:Button_setTitleText(npc.ksgj, data.gjkg and "Í£Ö¹¹Ò»ú" or "¿ªÊ¼¹Ò»ú")
         GUI:Button_setTitleColor(npc.ksgj, "#ffffff")
         GUI:Button_setTitleFontSize(npc.ksgj, 14)
         GUI:Button_titleEnableOutline(npc.ksgj, "#000000", 1)
         GUI:addOnClickEvent(npc.ksgj, function()
             if not patrolOpen then
-                SL:ShowSystemTips("<font color='#FF6666'>éœ€è¦å…ˆé¢†å–é¦–å……ç¤¼åŒ…</font>")
+                SL:ShowSystemTips("<font color='#FF6666'>ĞèÒªÏÈÁìÈ¡Ê×³äÀñ°ü</font>")
                 return
             end
             SL:SendLuaNetMsg(101, 505, 4, 0, "")
         end)
-        -- å·¡èˆªç•Œé¢æ ‡é¢˜ä¸æç¤ºç»Ÿä¸€ä½¿ç”¨â€œè‡ªåŠ¨å·¡èˆªâ€æ–‡æ¡ˆï¼Œå’Œå½“å‰é¦–å……è§£é”è§„åˆ™ä¿æŒä¸€è‡´ã€‚
-        local unlockText = patrolOpen and "å·²è§£é”ï¼šé¢†å–é¦–å……ç¤¼åŒ…åæ¿€æ´»è‡ªåŠ¨å·¡èˆª/ä¼ é€3ç§’CD" or "è§£é”æ¡ä»¶ï¼šé¢†å–é¦–å……ç¤¼åŒ…"
+        -- Ñ²º½½çÃæ±êÌâÓëÌáÊ¾Í³Ò»Ê¹ÓÃ¡°×Ô¶¯Ñ²º½¡±ÎÄ°¸£¬ºÍµ±Ç°Ê×³ä½âËø¹æÔò±£³ÖÒ»ÖÂ¡£
+        local unlockText = patrolOpen and "ÒÑ½âËø£ºÁìÈ¡Ê×³äÀñ°üºó¼¤»î×Ô¶¯Ñ²º½/´«ËÍ3ÃëCD" or "½âËøÌõ¼ş£ºÁìÈ¡Ê×³äÀñ°ü"
         local unlockColor = patrolOpen and "#33ff99" or "#ff7056"
         local tip = GUI:Text_Create(panel, "patrol_unlock_tip", 309 - 214, 420, 16, unlockColor, unlockText)
         GUI:Text_enableOutline(tip, "#000000", 1)
@@ -6142,7 +6142,7 @@ npc[505] = function(p2, p3, Data)
             GUI:CheckBox_setSelected(check, data["fgx" .. i])
             GUI:addOnClickEvent(btn, function()
                 if not patrolOpen then
-                    SL:ShowSystemTips("<font color='#FF6666'>éœ€è¦å…ˆé¢†å–é¦–å……ç¤¼åŒ…</font>")
+                    SL:ShowSystemTips("<font color='#FF6666'>ĞèÒªÏÈÁìÈ¡Ê×³äÀñ°ü</font>")
                     return
                 end
                 SL:SendLuaNetMsg(101, 505, 2, i, "")
@@ -6150,13 +6150,13 @@ npc[505] = function(p2, p3, Data)
             GUI:CheckBox_addOnEvent(check, function()
                 if not patrolOpen then
                     GUI:CheckBox_setSelected(check, false)
-                    SL:ShowSystemTips("<font color='#FF6666'>éœ€è¦å…ˆé¢†å–é¦–å……ç¤¼åŒ…</font>")
+                    SL:ShowSystemTips("<font color='#FF6666'>ĞèÒªÏÈÁìÈ¡Ê×³äÀñ°ü</font>")
                     return
                 end
                 SL:SendLuaNetMsg(101, 505, 3, i, "")
             end)
             npc.fu_gx[i] = check
-            npc.dtwb[i] = GUI:Text_Create(check, "dtmz" .. i, 50.0, 15.0, 16, "#ffffff", "å½“å‰è®°å½•åœ°å›¾ï¼š" .. (data["dt" .. i] or "ç‚¹å‡»è®°å½•"))
+            npc.dtwb[i] = GUI:Text_Create(check, "dtmz" .. i, 50.0, 15.0, 16, "#ffffff", "µ±Ç°¼ÇÂ¼µØÍ¼£º" .. (data["dt" .. i] or "µã»÷¼ÇÂ¼"))
         end
         for i, label in ipairs(guaji_ms) do
             local toggle = GUI:CheckBox_Create(panel, "zhu_gx" .. i, 345.0 - 130, 340 - (i - 1) * 80, "res/public/btn_sifud_04.png", "res/public/btn_sifud_05.png")
@@ -6165,7 +6165,7 @@ npc[505] = function(p2, p3, Data)
             GUI:CheckBox_addOnEvent(toggle, function()
                 if not patrolOpen then
                     GUI:CheckBox_setSelected(toggle, false)
-                    SL:ShowSystemTips("<font color='#FF6666'>éœ€è¦å…ˆé¢†å–é¦–å……ç¤¼åŒ…</font>")
+                    SL:ShowSystemTips("<font color='#FF6666'>ĞèÒªÏÈÁìÈ¡Ê×³äÀñ°ü</font>")
                     return
                 end
                 SL:SendLuaNetMsg(101, 505, 5, i == 3 and 4 or i == 4 and 5 or i, "")
@@ -6177,7 +6177,7 @@ npc[505] = function(p2, p3, Data)
         buildPatrolUI(npc.data)
     elseif p2 == 2 then
         if npc.dtwb and npc.dtwb[p3] then
-            GUI:Text_setString(npc.dtwb[p3], "å½“å‰è®°å½•åœ°å›¾ï¼š" .. (Data or ""))
+            GUI:Text_setString(npc.dtwb[p3], "µ±Ç°¼ÇÂ¼µØÍ¼£º" .. (Data or ""))
         end
     elseif p2 == 3 then
         npc.data = SL:JsonDecode(Data, false)
@@ -6187,14 +6187,14 @@ npc[505] = function(p2, p3, Data)
     elseif p2 == 4 then
         npc.data = SL:JsonDecode(Data, false)
         if npc.ksgj then
-            GUI:Button_setTitleText(npc.ksgj, npc.data.gjkg and "åœæ­¢æŒ‚æœº" or "å¼€å§‹æŒ‚æœº")
+            GUI:Button_setTitleText(npc.ksgj, npc.data.gjkg and "Í£Ö¹¹Ò»ú" or "¿ªÊ¼¹Ò»ú")
         end
     end
 end
 npc[506] = function(p2, p3, Data)
     local function renderChosenUI(payload)
         local win = ensureWindow("chosen", 506, {
-            titleText = "å¤©é€‰ä¹‹äºº",
+            titleText = "ÌìÑ¡Ö®ÈË",
         })
         npc.bg = win.bg
         npc.node = win.node
@@ -6203,7 +6203,7 @@ npc[506] = function(p2, p3, Data)
         local Node = GUI:Node_Create(bg, "Node", 0, 0)
         local function updatePage(dq)
             for i = 1, 10 do
-                local name = (payload.A_txzz and payload.A_txzz["md" .. dq] and payload.A_txzz["md" .. dq][i] and payload.A_txzz["md" .. dq][i][1]) or "æœªå¼€å¥–"
+                local name = (payload.A_txzz and payload.A_txzz["md" .. dq] and payload.A_txzz["md" .. dq][i] and payload.A_txzz["md" .. dq][i][1]) or "Î´¿ª½±"
                 local value = (payload.A_txzz and payload.A_txzz["md" .. dq] and payload.A_txzz["md" .. dq][i] and payload.A_txzz["md" .. dq][i][2]) or "0"
                 local nameLabel = GUI:ScrollText_Create(Node, "name" .. dq .. "" .. i, 600 - 474 + ((dq - 1) * 185), 360 - 70 - (i - 1) * 20, 90, 12, "#E317B3", name, 10, nil)
                 GUI:setAnchorPoint(nameLabel, 0.5, 0.5)
@@ -6218,19 +6218,19 @@ npc[506] = function(p2, p3, Data)
         updatePage(4)
         GUI:setPosition(ItemNumByTable_img_new({
             {
-                "å¤©é€‰ä¹‹å­",
+                "ÌìÑ¡Ö®×Ó",
                 1,
             },
             {
-                "å…‰é€Ÿèµ·æ­¥",
+                "¹âËÙÆğ²½",
                 1,
             },
             {
-                "ç­–åˆ’çš„æ‰‹æœº",
+                "²ß»®µÄÊÖ»ú",
                 1,
             },
             {
-                "æŠ€æœ¯çš„ç”µè„‘",
+                "¼¼ÊõµÄµçÄÔ",
                 1,
             },
         }, nil, GUI:Node_Create(Node, "jl_show", 0, 0)), 400 + 111, 110 + 112 + 147)
@@ -6257,7 +6257,7 @@ npc[507] = function(p2, p3, Data)
     end
     local function makeRewardText(items)
         if type(items) ~= "table" or #items <= 0 then
-            return "å¥–åŠ±ä»¥æ´»åŠ¨å®é™…ç»“ç®—ä¸ºå‡†"
+            return "½±ÀøÒÔ»î¶¯Êµ¼Ê½áËãÎª×¼"
         end
         local parts = {
         }
@@ -6273,9 +6273,9 @@ npc[507] = function(p2, p3, Data)
             end
         end
         if #parts <= 0 then
-            return "å¥–åŠ±ä»¥æ´»åŠ¨å®é™…ç»“ç®—ä¸ºå‡†"
+            return "½±ÀøÒÔ»î¶¯Êµ¼Ê½áËãÎª×¼"
         end
-        return table.concat(parts, "ã€")
+        return table.concat(parts, "¡¢")
     end
     local function rewardCount(v)
         if type(v) == "table" then
@@ -6471,10 +6471,10 @@ npc[507] = function(p2, p3, Data)
             end
         end
         local cfg = {
-            title = detailCfg and detailCfg.name or ("æ´»åŠ¨" .. tostring(i)),
-            time = "æ´»åŠ¨æ—¶é—´è¯·å…³æ³¨æ¸¸æˆå†…å…¬å‘Š",
-            desc = "æ´»åŠ¨å¼€å¯åå¯é€šè¿‡å½“å‰å…¥å£å‚ä¸ï¼Œå…·ä½“ç›®æ ‡ã€å¥–åŠ±ä¸ç»“ç®—è§„åˆ™ä»¥æ¸¸æˆå†…å®é™…å¼€å¯å†…å®¹ä¸ºå‡†ã€‚",
-            reward = "å¥–åŠ±ä»¥æ´»åŠ¨å®é™…ç»“ç®—ä¸ºå‡†",
+            title = detailCfg and detailCfg.name or ("»î¶¯" .. tostring(i)),
+            time = "»î¶¯Ê±¼äÇë¹Ø×¢ÓÎÏ·ÄÚ¹«¸æ",
+            desc = "»î¶¯¿ªÆôºó¿ÉÍ¨¹ıµ±Ç°Èë¿Ú²ÎÓë£¬¾ßÌåÄ¿±ê¡¢½±ÀøÓë½áËã¹æÔòÒÔÓÎÏ·ÄÚÊµ¼Ê¿ªÆôÄÚÈİÎª×¼¡£",
+            reward = "½±ÀøÒÔ»î¶¯Êµ¼Ê½áËãÎª×¼",
             rewardItems = {
             },
             btnSkin = "res/custom/activity/btn.png",
@@ -6482,13 +6482,13 @@ npc[507] = function(p2, p3, Data)
         if i == 1 then
             local open = tonumber((((npc.data_507 or {}).open_state or {})[1]) or 0) or 0
             local myData = (npc.data_507 and npc.data_507.bwcz) or {}
-            cfg.title = "ä¿å«æ‘åº„"
-            cfg.time = string.format("æ¯æ—¥%02d:%02då¼€å¯ï¼ŒæŒç»­%såˆ†é’Ÿ", tonumber(bwcz.start_hour or 18) or 18, tonumber(bwcz.start_minute_clock or 0) or 0, tostring(bwcz.duration_min or 30))
+            cfg.title = "±£ÎÀ´å×¯"
+            cfg.time = string.format("Ã¿ÈÕ%02d:%02d¿ªÆô£¬³ÖĞø%s·ÖÖÓ", tonumber(bwcz.start_hour or 18) or 18, tonumber(bwcz.start_minute_clock or 0) or 0, tostring(bwcz.duration_min or 30))
             if open == 1 then
-                cfg.time = cfg.time .. "\nå½“å‰æ´»åŠ¨è¿›è¡Œä¸­ï¼Œå¯ç›´æ¥ç‚¹å‡»å‚ä¸"
+                cfg.time = cfg.time .. "\nµ±Ç°»î¶¯½øĞĞÖĞ£¬¿ÉÖ±½Óµã»÷²ÎÓë"
             end
-            cfg.desc = string.format("è¿›å…¥ã€%sã€‘åï¼Œæ€ªç‰©ä¼šæŒ‰æ³¢æ¬¡è¿›æ”»æ‘åº„ã€‚æ´»åŠ¨æ€ªç‰©åªå—1ç‚¹å›ºå®šä¼¤å®³ï¼Œå¯¹ç©å®¶é€ æˆ0ä¼¤å®³ï¼Œæ ¸å¿ƒæ˜¯æŒç»­æ¸…æ€ªæ‹¿åŠŸå‹‹å¹¶æå‡ç§°å·ã€‚æ´»åŠ¨ç»“æŸåä¼šæŒ‰å‡»æ€ã€åŠŸå‹‹å’Œç§°å·ç»“ç®—å¥–åŠ±ã€‚", tostring(bwcz.display_map or bwcz.map or "æ‘åº„"))
-            cfg.reward = "å‡»æ€å¥–åŠ±ï¼šé‡‘å¸18Wã€é‡‘å¸88Wã€å…ƒå®5Wï¼›å‰ä¸‰åè¾¾åˆ°é•‡å¢ƒæ­¦ä¾¯å¯å¾—50å…ƒçœŸå®å……å€¼"
+            cfg.desc = string.format("½øÈë¡¾%s¡¿ºó£¬¹ÖÎï»á°´²¨´Î½ø¹¥´å×¯¡£»î¶¯¹ÖÎïÖ»ÊÜ1µã¹Ì¶¨ÉËº¦£¬¶ÔÍæ¼ÒÔì³É0ÉËº¦£¬ºËĞÄÊÇ³ÖĞøÇå¹ÖÄÃ¹¦Ñ«²¢ÌáÉı³ÆºÅ¡£»î¶¯½áÊøºó»á°´»÷É±¡¢¹¦Ñ«ºÍ³ÆºÅ½áËã½±Àø¡£", tostring(bwcz.display_map or bwcz.map or "´å×¯"))
+            cfg.reward = "»÷É±½±Àø£º½ğ±Ò18W¡¢½ğ±Ò88W¡¢Ôª±¦5W£»Ç°ÈıÃû´ïµ½Õò¾³Îäºî¿ÉµÃ50ÔªÕæÊµ³äÖµ"
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 local killReward = bwcz.kill_reward or {}
                 appendRewardList(out, seen, killReward.small)
@@ -6497,10 +6497,10 @@ npc[507] = function(p2, p3, Data)
                 appendRankRewards(out, seen, bwcz.rank_rewards)
             end)
         elseif i == 2 then
-            cfg.title = "å…¨æ°‘å¤ºçŸ¿"
-            cfg.time = string.format("æ¯æ—¥%02d:%02då¼€å¯ï¼ŒæŒç»­%såˆ†é’Ÿ", tonumber(qmdk.start_hour or 19) or 19, tonumber(qmdk.start_minute_clock or 0) or 0, tostring(qmdk.duration_min or 20))
-            cfg.desc = string.format("è¿›å…¥ã€%sã€‘åï¼Œåœç•™åœ¨çŸ¿åŒºå†…å³å¯æŒç»­å¾—åˆ†ï¼Œæ¯%sç§’è·å¾—%sç‚¹ç§¯åˆ†ã€‚è¿™ä¸ªæ´»åŠ¨çš„é‡ç‚¹æ˜¯æŠ¢çŸ¿åŒºã€å®ˆçŸ¿åŒºï¼Œå¹¶é˜»æ­¢å…¶ä»–ç©å®¶é•¿æ—¶é—´å ç‚¹ï¼Œç»“æŸåæŒ‰ä¸ªäººç§¯åˆ†æ’è¡Œå‘å¥–ã€‚", tostring(qmdk.map or "å…¨æ°‘å¤ºçŸ¿"), tostring(qmdk.score_tick_sec or 10), tostring(qmdk.score_per_tick or 1))
-            cfg.reward = "å‚ä¸å¥–åŠ±ï¼š" .. makeRewardText(qmdk.join_reward)
+            cfg.title = "È«Ãñ¶á¿ó"
+            cfg.time = string.format("Ã¿ÈÕ%02d:%02d¿ªÆô£¬³ÖĞø%s·ÖÖÓ", tonumber(qmdk.start_hour or 19) or 19, tonumber(qmdk.start_minute_clock or 0) or 0, tostring(qmdk.duration_min or 20))
+            cfg.desc = string.format("½øÈë¡¾%s¡¿ºó£¬Í£ÁôÔÚ¿óÇøÄÚ¼´¿É³ÖĞøµÃ·Ö£¬Ã¿%sÃë»ñµÃ%sµã»ı·Ö¡£Õâ¸ö»î¶¯µÄÖØµãÊÇÇÀ¿óÇø¡¢ÊØ¿óÇø£¬²¢×èÖ¹ÆäËûÍæ¼Ò³¤Ê±¼äÕ¼µã£¬½áÊøºó°´¸öÈË»ı·ÖÅÅĞĞ·¢½±¡£", tostring(qmdk.map or "È«Ãñ¶á¿ó"), tostring(qmdk.score_tick_sec or 10), tostring(qmdk.score_per_tick or 1))
+            cfg.reward = "²ÎÓë½±Àø£º" .. makeRewardText(qmdk.join_reward)
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 appendRewardList(out, seen, qmdk.join_reward)
                 appendRankRewards(out, seen, qmdk.rank_rewards)
@@ -6509,50 +6509,50 @@ npc[507] = function(p2, p3, Data)
             local open = tonumber(qmdtState.open or 0) or 0
             local currentIdx = tonumber(qmdtState.current_idx or 0) or 0
             local remain = tonumber(qmdtState.limit_sec or 0) or 0
-            cfg.title = "å…¨æ°‘ç­”é¢˜"
-            cfg.time = string.format("å¼€æœç¬¬%såˆ†é’Ÿå¼€å¯ï¼ŒæŒç»­%såˆ†é’Ÿï¼›å…±%sé¢˜ï¼Œæ¯é¢˜%sç§’", tostring(qmdt.start_minute or 33), tostring(qmdt.duration_min or 5), tostring(qmdt.question_count or 5), tostring(qmdt.per_question_sec or 60))
-            cfg.desc = "æ´»åŠ¨å¼€å¯åé€šè¿‡å½“å‰å…¥å£å‚ä¸ç­”é¢˜ï¼Œç³»ç»Ÿä¼šæŒ‰é¡ºåºæ”¾å‡ºé¢˜ç›®ã€‚æ¯é¢˜éƒ½æœ‰æ—¶é—´é™åˆ¶ï¼Œç­”å¯¹å³å¯è·å¾—ç§¯åˆ†ï¼Œç­”é”™åˆ™ä¼šå½±å“æœ€ç»ˆæ’åã€‚æ´»åŠ¨ç»“æŸåæŒ‰æ€»ç§¯åˆ†æ’è¡Œå‘æ”¾å¥–åŠ±ã€‚"
-            cfg.reward = "å‚ä¸å¥–åŠ±ï¼š" .. makeRewardText(qmdt.join_reward)
+            cfg.title = "È«Ãñ´ğÌâ"
+            cfg.time = string.format("¿ª·şµÚ%s·ÖÖÓ¿ªÆô£¬³ÖĞø%s·ÖÖÓ£»¹²%sÌâ£¬Ã¿Ìâ%sÃë", tostring(qmdt.start_minute or 33), tostring(qmdt.duration_min or 5), tostring(qmdt.question_count or 5), tostring(qmdt.per_question_sec or 60))
+            cfg.desc = "»î¶¯¿ªÆôºóÍ¨¹ıµ±Ç°Èë¿Ú²ÎÓë´ğÌâ£¬ÏµÍ³»á°´Ë³Ğò·Å³öÌâÄ¿¡£Ã¿Ìâ¶¼ÓĞÊ±¼äÏŞÖÆ£¬´ğ¶Ô¼´¿É»ñµÃ»ı·Ö£¬´ğ´íÔò»áÓ°Ïì×îÖÕÅÅÃû¡£»î¶¯½áÊøºó°´×Ü»ı·ÖÅÅĞĞ·¢·Å½±Àø¡£"
+            cfg.reward = "²ÎÓë½±Àø£º" .. makeRewardText(qmdt.join_reward)
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 appendRewardList(out, seen, qmdt.join_reward)
                 appendRankRewards(out, seen, qmdt.rank_rewards)
             end)
         elseif i == 4 then
-            cfg.title = "å‹‡å¤ºé•–è½¦"
-            cfg.time = "å½“å‰æš‚æœªå¼€æ”¾ï¼Œå¼€æ”¾åå¯é€šè¿‡æœ¬é¡µç›´æ¥å‚ä¸"
-            cfg.desc = "æ´»åŠ¨å¼€å¯åå¯å›´ç»•é•–è½¦è¿›è¡ŒæŠ¤é€æˆ–äº‰å¤ºã€‚æŠ¤é€æ–¹è¦ä¿è¯é•–è½¦å®‰å…¨åˆ°è¾¾ç»ˆç‚¹ï¼Œäº‰å¤ºæ–¹åˆ™å¯ä»¥ä¸­é€”æ‹¦æˆªå…¶ä»–ç©å®¶çš„é•–è½¦ã€‚æœ€ç»ˆæ”¶ç›Šä¼šæŒ‰æŠ¤é€å®Œæˆåº¦å’Œæ´»åŠ¨è¡¨ç°ç»“ç®—ã€‚"
-            cfg.reward = "å¼€æ”¾åå…¬å¸ƒæ´»åŠ¨å¥–åŠ±"
+            cfg.title = "ÓÂ¶áïÚ³µ"
+            cfg.time = "µ±Ç°ÔİÎ´¿ª·Å£¬¿ª·Åºó¿ÉÍ¨¹ı±¾Ò³Ö±½Ó²ÎÓë"
+            cfg.desc = "»î¶¯¿ªÆôºó¿ÉÎ§ÈÆïÚ³µ½øĞĞ»¤ËÍ»òÕù¶á¡£»¤ËÍ·½Òª±£Ö¤ïÚ³µ°²È«µ½´ïÖÕµã£¬Õù¶á·½Ôò¿ÉÒÔÖĞÍ¾À¹½ØÆäËûÍæ¼ÒµÄïÚ³µ¡£×îÖÕÊÕÒæ»á°´»¤ËÍÍê³É¶ÈºÍ»î¶¯±íÏÖ½áËã¡£"
+            cfg.reward = "¿ª·Åºó¹«²¼»î¶¯½±Àø"
         elseif i == 5 then
-            cfg.title = "åœŸåŸè·‘é…·"
-            cfg.time = "æ´»åŠ¨å…¥å£ç›´è¾¾åœŸåŸåœ°å›¾ï¼Œå…·ä½“å¼€å¯æ—¶æ®µä»¥æ¸¸æˆå…¬å‘Šä¸ºå‡†"
-            cfg.desc = "æ´»åŠ¨å¼€å¯åè¿›å…¥åœŸåŸè·‘é…·åœ°å›¾ï¼Œæ²¿æŒ‡å®šè·¯çº¿å‰è¿›å¹¶å°½å¿«åˆ°è¾¾ç›®æ ‡ä½ç½®ã€‚è¿™ä¸ªç©æ³•æ›´çœ‹èµ°ä½ã€ååº”å’Œè·¯çº¿ç†Ÿæ‚‰åº¦ï¼Œä¸æ˜¯å•çº¯æ‰“æ€ªï¼Œå®Œæˆè¶Šå¿«æ”¶ç›Šé€šå¸¸è¶Šé«˜ã€‚"
-            cfg.reward = "å¥–åŠ±ä¸°åš"
+            cfg.title = "ÍÁ³ÇÅÜ¿á"
+            cfg.time = "»î¶¯Èë¿ÚÖ±´ïÍÁ³ÇµØÍ¼£¬¾ßÌå¿ªÆôÊ±¶ÎÒÔÓÎÏ·¹«¸æÎª×¼"
+            cfg.desc = "»î¶¯¿ªÆôºó½øÈëÍÁ³ÇÅÜ¿áµØÍ¼£¬ÑØÖ¸¶¨Â·ÏßÇ°½ø²¢¾¡¿ìµ½´ïÄ¿±êÎ»ÖÃ¡£Õâ¸öÍæ·¨¸ü¿´×ßÎ»¡¢·´Ó¦ºÍÂ·ÏßÊìÏ¤¶È£¬²»ÊÇµ¥´¿´ò¹Ö£¬Íê³ÉÔ½¿ìÊÕÒæÍ¨³£Ô½¸ß¡£"
+            cfg.reward = "½±Àø·áºñ"
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 appendNamedRewards(out, seen, {
-                    "10Wç»éªŒå·",
-                    "20Wç»éªŒå·",
-                    "50Wç»éªŒå·",
-                    "å…ƒå®[5000]",
-                    "å…ƒå®[10000]",
-                    "1å…ƒçœŸå®å……å€¼",
-                    "å†¥æµ·åœ£åˆƒ",
-                    "å†¥æµ·åœ£æ­¦ç”²",
-                    "è‹æœˆåœ£ç‹‚æ–©",
-                    "è‹æœˆåœ£é­‚ç”²",
-                    "é¾™é­‚åŠå ",
-                    "ç‹æƒåœ£æˆ’",
+                    "10W¾­Ñé¾í",
+                    "20W¾­Ñé¾í",
+                    "50W¾­Ñé¾í",
+                    "Ôª±¦[5000]",
+                    "Ôª±¦[10000]",
+                    "1ÔªÕæÊµ³äÖµ",
+                    "Ú¤º£Ê¥ÈĞ",
+                    "Ú¤º£Ê¥Îä¼×",
+                    "²ÔÔÂÊ¥¿ñÕ¶",
+                    "²ÔÔÂÊ¥»ê¼×",
+                    "Áú»êµõ×¹",
+                    "ÍõÈ¨Ê¥½ä",
                 })
             end)
         elseif i == 6 then
             local open = tonumber((((npc.data_507 or {}).open_state or {})[6]) or 0) or 0
             local myData = (npc.data_507 and npc.data_507.mskh) or {}
-            cfg.title = "ç¾é£Ÿç‹‚æ¬¢"
-            cfg.time = string.format("æ¯æ—¥%02d:%02då¼€å¯ï¼ŒæŒç»­%såˆ†é’Ÿ", tonumber(mskh.start_hour or 16) or 16, tonumber(mskh.start_minute_clock or 0) or 0, tostring(mskh.duration_min or 30))
+            cfg.title = "ÃÀÊ³¿ñ»¶"
+            cfg.time = string.format("Ã¿ÈÕ%02d:%02d¿ªÆô£¬³ÖĞø%s·ÖÖÓ", tonumber(mskh.start_hour or 16) or 16, tonumber(mskh.start_minute_clock or 0) or 0, tostring(mskh.duration_min or 30))
             if open == 1 then
-                cfg.time = cfg.time .. "\nå½“å‰æ´»åŠ¨è¿›è¡Œä¸­ï¼Œå¯ç›´æ¥ç‚¹å‡»å‚ä¸"
+                cfg.time = cfg.time .. "\nµ±Ç°»î¶¯½øĞĞÖĞ£¬¿ÉÖ±½Óµã»÷²ÎÓë"
             end
-            cfg.desc = string.format("è¿›å…¥ã€%sã€‘åä¼šæŒç»­åˆ·æ–°é¸¡ã€ç¾Šã€é¹¿ä¸‰ç§åŠ¨ç‰©ï¼Œå‡»æ€åç›´æ¥æ‰è½å¯¹åº”è‚‰ç±»ã€‚è‚‰ç±»å¯ä»¥å…‘æ¢ç¾é£Ÿç§¯åˆ†å’Œæ´»åŠ¨å¥–åŠ±ï¼Œä»·å€¼è¶Šé«˜çš„è‚‰è¶Šå€¼å¾—ä¼˜å…ˆæŠ¢ã€‚æ´»åŠ¨é‡Œå°½é‡å¤šæ‰“ã€å¤šæ¡ã€å¤šæ¢å³å¯ã€‚", tostring(mskh.map or "å¤©æåœ°å®"))
-            cfg.reward = "é¸¡è‚‰=1ç§¯åˆ†ï¼Œç¾Šè‚‰=5ç§¯åˆ†ï¼Œé¹¿è‚‰=10ç§¯åˆ†ï¼›å¯åœ¨å± å¤«å¤„å…‘æ¢ç¾é£Ÿå®¶ã€æ—¶å…‰ä¹‹æ–ã€æ—¶å…‰é‰´å®šçŸ³"
+            cfg.desc = string.format("½øÈë¡¾%s¡¿ºó»á³ÖĞøË¢ĞÂ¼¦¡¢Ñò¡¢Â¹ÈıÖÖ¶¯Îï£¬»÷É±ºóÖ±½ÓµôÂä¶ÔÓ¦ÈâÀà¡£ÈâÀà¿ÉÒÔ¶Ò»»ÃÀÊ³»ı·ÖºÍ»î¶¯½±Àø£¬¼ÛÖµÔ½¸ßµÄÈâÔ½ÖµµÃÓÅÏÈÇÀ¡£»î¶¯Àï¾¡Á¿¶à´ò¡¢¶à¼ñ¡¢¶à»»¼´¿É¡£", tostring(mskh.map or "Ìì²ÄµØ±¦"))
+            cfg.reward = "¼¦Èâ=1»ı·Ö£¬ÑòÈâ=5»ı·Ö£¬Â¹Èâ=10»ı·Ö£»¿ÉÔÚÍÀ·ò´¦¶Ò»»ÃÀÊ³¼Ò¡¢Ê±¹âÖ®ÕÈ¡¢Ê±¹â¼ø¶¨Ê¯"
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 local shop = mskh.shop or {}
                 for _, one in ipairs(shop) do
@@ -6560,18 +6560,18 @@ npc[507] = function(p2, p3, Data)
                         if one.reward.kind == "item" then
                             appendRewardList(out, seen, one.reward.give)
                         elseif one.reward.kind == "title" then
-                            appendRewardItem(out, seen, tostring(one.reward.name or "") .. "[ç§°å·]", 1)
+                            appendRewardItem(out, seen, tostring(one.reward.name or "") .. "[³ÆºÅ]", 1)
                         end
                     end
                 end
             end)
         elseif i == 7 then
-            cfg.title = "å¤©é€‰ä¹‹äºº"
+            cfg.title = "ÌìÑ¡Ö®ÈË"
             cfg.time = table.concat(txzr.notice or {
-                "30åˆ†é’Ÿä¸€è½®ï¼Œå…±å››è½®å¼€å¯",
-            }, "ï¼›")
-            cfg.desc = "æ´»åŠ¨ä¼šæŒ‰è½®æ¬¡è¿›è¡Œ roll ç‚¹æ’åï¼Œæ¯è½®å‚ä¸ç©å®¶éƒ½ä¼šç‹¬ç«‹æ¯”æ‹¼ç‚¹æ•°ã€‚ç‚¹æ•°è¶Šé«˜ï¼Œæ’åè¶Šé å‰ï¼Œæ’åç¬¬ä¸€çš„ç©å®¶å¯ä»¥æ‹¿åˆ°é¢å¤–å¥–åŠ±ã€‚è¿™ä¸ªæ´»åŠ¨ä¸»è¦çœ‹è½®æ¬¡å‚ä¸å’Œè¿æ°”ç»“æœã€‚"
-            cfg.reward = "æŸ¥çœ‹å…·ä½“é¡µé¢å¯ä»¥é¢„è§ˆå¥–åŠ±"
+                "30·ÖÖÓÒ»ÂÖ£¬¹²ËÄÂÖ¿ªÆô",
+            }, "£»")
+            cfg.desc = "»î¶¯»á°´ÂÖ´Î½øĞĞ roll µãÅÅÃû£¬Ã¿ÂÖ²ÎÓëÍæ¼Ò¶¼»á¶ÀÁ¢±ÈÆ´µãÊı¡£µãÊıÔ½¸ß£¬ÅÅÃûÔ½¿¿Ç°£¬ÅÅÃûµÚÒ»µÄÍæ¼Ò¿ÉÒÔÄÃµ½¶îÍâ½±Àø¡£Õâ¸ö»î¶¯Ö÷Òª¿´ÂÖ´Î²ÎÓëºÍÔËÆø½á¹û¡£"
+            cfg.reward = "²é¿´¾ßÌåÒ³Ãæ¿ÉÒÔÔ¤ÀÀ½±Àø"
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 for rewardIdx = 1, 10 do
                     appendRewardItem(out, seen, txzr[rewardIdx], 1)
@@ -6583,71 +6583,71 @@ npc[507] = function(p2, p3, Data)
                 end
             end)
         elseif i == 8 then
-            cfg.title = "æ­£é‚ªå¤§æˆ˜"
+            cfg.title = "ÕıĞ°´óÕ½"
             local open = tonumber((((npc.data_507 or {}).open_state or {})[8]) or 0) or 0
-            cfg.time = "æ¯æ—¥22:00å¼€å¯ï¼ŒæŒç»­10åˆ†é’Ÿ"
+            cfg.time = "Ã¿ÈÕ22:00¿ªÆô£¬³ÖĞø10·ÖÖÓ"
             if open == 1 then
-                cfg.time = cfg.time .. "\nå½“å‰æ´»åŠ¨è¿›è¡Œä¸­ï¼Œå¯ç›´æ¥ç‚¹å‡»å‚ä¸"
+                cfg.time = cfg.time .. "\nµ±Ç°»î¶¯½øĞĞÖĞ£¬¿ÉÖ±½Óµã»÷²ÎÓë"
             end
-            cfg.desc = "è¿›å…¥æ´»åŠ¨åœ°å›¾åä¼šè‡ªåŠ¨åˆ†ä¸ºæ­£æ–¹å’Œé‚ªæ–¹ï¼Œå¹¶åˆ‡æ¢ä¸ºé˜µè¥æ”»å‡»æ¨¡å¼ã€‚åœ°å›¾å†…æ¯éš”ä¸€æ®µæ—¶é—´éƒ½ä¼šè·å¾—ä¸ªäººç§¯åˆ†å’Œé˜µè¥ç§¯åˆ†ï¼Œå‡»æ€æ•Œå¯¹ç©å®¶è¿˜èƒ½æ‹¿åˆ°æ›´å¤šåˆ†æ•°ï¼Œæœ€åæŒ‰ä¸ªäººæ’è¡Œå’Œé˜µè¥èƒœè´Ÿä¸€èµ·ç»“ç®—ã€‚"
-            cfg.reward = "ä¸ªäººå‰ä¸‰ï¼šè·¨æœç§¯åˆ†30/20/15ï¼›èƒœåˆ©æ–¹ï¼šè·¨æœç§¯åˆ†50ï¼›å¤±è´¥æ–¹ï¼šè·¨æœç§¯åˆ†20"
+            cfg.desc = "½øÈë»î¶¯µØÍ¼ºó»á×Ô¶¯·ÖÎªÕı·½ºÍĞ°·½£¬²¢ÇĞ»»ÎªÕóÓª¹¥»÷Ä£Ê½¡£µØÍ¼ÄÚÃ¿¸ôÒ»¶ÎÊ±¼ä¶¼»á»ñµÃ¸öÈË»ı·ÖºÍÕóÓª»ı·Ö£¬»÷É±µĞ¶ÔÍæ¼Ò»¹ÄÜÄÃµ½¸ü¶à·ÖÊı£¬×îºó°´¸öÈËÅÅĞĞºÍÕóÓªÊ¤¸ºÒ»Æğ½áËã¡£"
+            cfg.reward = "¸öÈËÇ°Èı£º¿ç·ş»ı·Ö30/20/15£»Ê¤Àû·½£º¿ç·ş»ı·Ö50£»Ê§°Ü·½£º¿ç·ş»ı·Ö20"
             cfg.rewardItems = buildRewardItems(function(out, seen)
-                appendRewardItem(out, seen, "è·¨æœç§¯åˆ†", 30)
+                appendRewardItem(out, seen, "¿ç·ş»ı·Ö", 30)
             end)
         elseif i == 9 then
-            cfg.title = "æ­¦æ—ç›Ÿä¸»"
-            cfg.time = "å¼€æœç¬¬25åˆ†é’Ÿå¼€å¯ï¼ŒæŒç»­5åˆ†é’Ÿ"
-            cfg.desc = "æ´»åŠ¨å¼€å¯åå¯ç›´æ¥è¿›å…¥ã€æ¯”æ­¦å¤§ä¼šã€‘åœ°å›¾ï¼Œåœºå†…ä¸ºè‡ªç”±æ··æˆ˜æ¨¡å¼ã€‚ä½ éœ€è¦åœ¨é™å®šæ—¶é—´å†…å°½é‡å‡»è´¥æ›´å¤šå¯¹æ‰‹ï¼ŒåŒæ—¶ä¿è¯è‡ªå·±èƒ½æ´»åˆ°æœ€åï¼Œæœ€ç»ˆèƒœè€…å¯äº‰å¤ºã€æ­¦æ—ç›Ÿä¸»ã€‘å¤´è¡”å’Œå¯¹åº”ç»“ç®—å¥–åŠ±ã€‚"
-            cfg.reward = "èƒœè€…å¯è·å¾—ç›Ÿä¸»è£èª‰ä¸æ´»åŠ¨ç»“ç®—å¥–åŠ±"
+            cfg.title = "ÎäÁÖÃËÖ÷"
+            cfg.time = "¿ª·şµÚ25·ÖÖÓ¿ªÆô£¬³ÖĞø5·ÖÖÓ"
+            cfg.desc = "»î¶¯¿ªÆôºó¿ÉÖ±½Ó½øÈë¡¾±ÈÎä´ó»á¡¿µØÍ¼£¬³¡ÄÚÎª×ÔÓÉ»ìÕ½Ä£Ê½¡£ÄãĞèÒªÔÚÏŞ¶¨Ê±¼äÄÚ¾¡Á¿»÷°Ü¸ü¶à¶ÔÊÖ£¬Í¬Ê±±£Ö¤×Ô¼ºÄÜ»îµ½×îºó£¬×îÖÕÊ¤Õß¿ÉÕù¶á¡¾ÎäÁÖÃËÖ÷¡¿Í·ÏÎºÍ¶ÔÓ¦½áËã½±Àø¡£"
+            cfg.reward = "Ê¤Õß¿É»ñµÃÃËÖ÷ÈÙÓşÓë»î¶¯½áËã½±Àø"
             cfg.rewardItems = buildRewardItems(function(out, seen)
-                appendRewardItem(out, seen, "ç»‘å®šå…ƒå®", 380000)
-                appendRewardItem(out, seen, "1å…ƒçœŸå®å……å€¼", 38)
-                appendRewardItem(out, seen, "æ­¦æ—ç›Ÿä¸»[ç§°å·]", 1)
+                appendRewardItem(out, seen, "°ó¶¨Ôª±¦", 380000)
+                appendRewardItem(out, seen, "1ÔªÕæÊµ³äÖµ", 38)
+                appendRewardItem(out, seen, "ÎäÁÖÃËÖ÷[³ÆºÅ]", 1)
             end)
         elseif i == 10 then
             local open = tonumber((((npc.data_507 or {}).open_state or {})[10]) or 0) or 0
-            cfg.title = "æ­¦é“å¤§ä¼š"
-            cfg.time = "æ¯å‘¨ä¸€è‡³å‘¨äº”20:00-22:00å¼€å¯ï¼›å‘¨æ—¥24:00ç»“ç®—æ’è¡Œ"
+            cfg.title = "ÎäµÀ´ó»á"
+            cfg.time = "Ã¿ÖÜÒ»ÖÁÖÜÎå20:00-22:00¿ªÆô£»ÖÜÈÕ24:00½áËãÅÅĞĞ"
             if open == 1 then
-                cfg.time = cfg.time .. "\nå½“å‰æ´»åŠ¨è¿›è¡Œä¸­ï¼Œå¯è¿›å…¥è·¨æœæŠ¥ååŒ¹é…"
+                cfg.time = cfg.time .. "\nµ±Ç°»î¶¯½øĞĞÖĞ£¬¿É½øÈë¿ç·ş±¨ÃûÆ¥Åä"
             end
-            cfg.desc = "æ­¦é“å¤§ä¼šæ˜¯è·¨æœ 1V1 åŒ¹é…ç©æ³•ã€‚æ´»åŠ¨å¼€å¯åå¯é€šè¿‡å½“å‰å…¥å£æŠ¥åï¼Œç³»ç»Ÿä¼šåŒ¹é…å¯¹æ‰‹è¿›è¡Œå•æŒ‘ã€‚å•å±€èƒœåˆ©å¯è·å¾—10ç‚¹æ’ä½åˆ†å’Œ10ç‚¹è·¨æœç§¯åˆ†ï¼Œå¤±è´¥ä¹Ÿæœ‰åŸºç¡€ç§¯åˆ†ï¼Œå‘¨ç»“ç®—æ—¶ä¼šæŒ‰ç´¯è®¡æ’ä½åˆ†è¿›è¡Œæ’è¡Œå‘å¥–ã€‚"
-            cfg.reward = "å‘¨æ’è¡Œå¥–åŠ±ï¼šç¬¬1å100è·¨æœç§¯åˆ†ï¼Œç¬¬2å80ï¼Œç¬¬3å70ï¼Œç¬¬4å60ï¼Œç¬¬5å50ï¼Œç¬¬6å40ï¼Œç¬¬7å30ï¼Œç¬¬8å25ï¼Œç¬¬9å20ï¼Œç¬¬10å15ï¼Œ10åå10"
+            cfg.desc = "ÎäµÀ´ó»áÊÇ¿ç·ş 1V1 Æ¥ÅäÍæ·¨¡£»î¶¯¿ªÆôºó¿ÉÍ¨¹ıµ±Ç°Èë¿Ú±¨Ãû£¬ÏµÍ³»áÆ¥Åä¶ÔÊÖ½øĞĞµ¥Ìô¡£µ¥¾ÖÊ¤Àû¿É»ñµÃ10µãÅÅÎ»·ÖºÍ10µã¿ç·ş»ı·Ö£¬Ê§°ÜÒ²ÓĞ»ù´¡»ı·Ö£¬ÖÜ½áËãÊ±»á°´ÀÛ¼ÆÅÅÎ»·Ö½øĞĞÅÅĞĞ·¢½±¡£"
+            cfg.reward = "ÖÜÅÅĞĞ½±Àø£ºµÚ1Ãû100¿ç·ş»ı·Ö£¬µÚ2Ãû80£¬µÚ3Ãû70£¬µÚ4Ãû60£¬µÚ5Ãû50£¬µÚ6Ãû40£¬µÚ7Ãû30£¬µÚ8Ãû25£¬µÚ9Ãû20£¬µÚ10Ãû15£¬10Ãûºó10"
             cfg.rewardItems = buildRewardItems(function(out, seen)
-                appendRewardItem(out, seen, "è·¨æœç§¯åˆ†", 100)
+                appendRewardItem(out, seen, "¿ç·ş»ı·Ö", 100)
             end)
         elseif i == 11 then
-            cfg.title = "æ²™å·´å…‹"
-            cfg.time = "è¯·é€šè¿‡æ²™å·´å…‹ä¸“å±å…¥å£å‚ä¸æ”»åŸ"
-            cfg.desc = "æ²™å·´å…‹æ˜¯å¤§å‹è¡Œä¼šæ”»åŸç©æ³•ï¼Œéœ€è¦é€šè¿‡ä¸“å±å…¥å£è¿›å…¥æˆ˜åœºã€‚å‚æˆ˜è¡Œä¼šä¼šå›´ç»•çš‡å®«å’Œæ ¸å¿ƒæ®ç‚¹å±•å¼€æ”»é˜²ï¼Œè¿›æ”»æ–¹è¦æŠ¢å½’å±ï¼Œé˜²å®ˆæ–¹è¦å®ˆå…³é”®ç‚¹ï¼Œæ´»åŠ¨ç»“æŸåæŒ‰çš‡å®«å½’å±åˆ¤å®šåŸä¸»å’Œè¡Œä¼šå¥–åŠ±ã€‚"
-            cfg.reward = "è¡Œä¼šå¥–åŠ±"
+            cfg.title = "É³°Í¿Ë"
+            cfg.time = "ÇëÍ¨¹ıÉ³°Í¿Ë×¨ÊôÈë¿Ú²ÎÓë¹¥³Ç"
+            cfg.desc = "É³°Í¿ËÊÇ´óĞÍĞĞ»á¹¥³ÇÍæ·¨£¬ĞèÒªÍ¨¹ı×¨ÊôÈë¿Ú½øÈëÕ½³¡¡£²ÎÕ½ĞĞ»á»áÎ§ÈÆ»Ê¹¬ºÍºËĞÄ¾İµãÕ¹¿ª¹¥·À£¬½ø¹¥·½ÒªÇÀ¹éÊô£¬·ÀÊØ·½ÒªÊØ¹Ø¼üµã£¬»î¶¯½áÊøºó°´»Ê¹¬¹éÊôÅĞ¶¨³ÇÖ÷ºÍĞĞ»á½±Àø¡£"
+            cfg.reward = "ĞĞ»á½±Àø"
             cfg.rewardItems = buildRewardItems(function(out, seen)
-                local rewardItemName = tostring(sbk.money or "ç»‘å®šçµç¬¦")
+                local rewardItemName = tostring(sbk.money or "°ó¶¨Áé·û")
                 rewardItemName = string.gsub(rewardItemName, "#.*$", "")
                 local winReward = tonumber(sbk.kf_winReward or sbk.winReward or 10000) or 10000
                 local loserReward = tonumber(sbk.kf_loserReward or sbk.loserReward or 3000) or 3000
                 appendRewardItem(out, seen, rewardItemName, math.max(winReward, loserReward))
-                appendRewardItem(out, seen, "æ²™å·´å…‹åŸä¸»[ç§°å·]", 1)
-                appendRewardItem(out, seen, "æ²™å·´å…‹[ç§°å·]", 1)
+                appendRewardItem(out, seen, "É³°Í¿Ë³ÇÖ÷[³ÆºÅ]", 1)
+                appendRewardItem(out, seen, "É³°Í¿Ë[³ÆºÅ]", 1)
             end)
         elseif i == 12 then
-            cfg.title = "è®¨ä¼BOSS"
-            cfg.time = "å½“å‰æš‚æœªå¼€æ”¾ï¼Œå¼€æ”¾åå¯é€šè¿‡æœ¬é¡µç›´æ¥å‚ä¸"
-            cfg.desc = "æ´»åŠ¨å¼€å¯åä¼šæŠ•æ”¾ç‰¹æ®Šé¦–é¢†ï¼Œç©å®¶éœ€è¦åœ¨é™å®šæ—¶é—´å†…é›†ç«è¾“å‡ºã€‚é¦–é¢†è¡€é‡è¾ƒé«˜ï¼Œé€šå¸¸éœ€è¦å¤šäººå‚ä¸ï¼Œæ—¢è¦äº‰å¤ºä¼¤å®³è´¡çŒ®ï¼Œä¹Ÿè¦æ³¨æ„æœ€ç»ˆæ‰è½å½’å±ï¼Œæœ€åæŒ‰å‚ä¸æƒ…å†µå’Œæ´»åŠ¨è§„åˆ™ç»“ç®—å¥–åŠ±ã€‚"
-            cfg.reward = "å¼€æ”¾åå…¬å¸ƒæ´»åŠ¨å¥–åŠ±"
+            cfg.title = "ÌÖ·¥BOSS"
+            cfg.time = "µ±Ç°ÔİÎ´¿ª·Å£¬¿ª·Åºó¿ÉÍ¨¹ı±¾Ò³Ö±½Ó²ÎÓë"
+            cfg.desc = "»î¶¯¿ªÆôºó»áÍ¶·ÅÌØÊâÊ×Áì£¬Íæ¼ÒĞèÒªÔÚÏŞ¶¨Ê±¼äÄÚ¼¯»ğÊä³ö¡£Ê×ÁìÑªÁ¿½Ï¸ß£¬Í¨³£ĞèÒª¶àÈË²ÎÓë£¬¼ÈÒªÕù¶áÉËº¦¹±Ï×£¬Ò²Òª×¢Òâ×îÖÕµôÂä¹éÊô£¬×îºó°´²ÎÓëÇé¿öºÍ»î¶¯¹æÔò½áËã½±Àø¡£"
+            cfg.reward = "¿ª·Åºó¹«²¼»î¶¯½±Àø"
         elseif i == 13 then
-            cfg.title = "éšæœºå¤ºå®"
-            cfg.time = string.format("å¼€æœç¬¬15åˆ†é’Ÿå¼€å¯ï¼Œåœ¨ã€%sã€‘åœ°å›¾æŒç»­%sç§’æŠ•æ”¾å®ç‰©", tostring(sjdb.map or "å¤©é™è´¢å®"), tostring(sjdb.keep_sec or 300))
-            cfg.desc = string.format("æ´»åŠ¨å¼€å¯åä¼šåœ¨ã€%sã€‘åœ°å›¾æŒç»­æŠ•æ”¾å®ç‰©ï¼Œå®ç‰©æŒ‰å¤–åœˆã€ä¸­åœˆã€å†…åœˆä¸‰å±‚åŒºåŸŸåˆ·æ–°ã€‚è¶Šé è¿‘ä¸­å¿ƒå¥–åŠ±è¶Šé«˜ï¼Œä½†ç«äº‰ä¹Ÿè¶Šæ¿€çƒˆï¼Œé€‚åˆæ ¹æ®è‡ªèº«å®åŠ›é€‰æ‹©ä½ç½®æŠ¢æ”¶ç›Šã€‚", tostring(sjdb.map or "å¤©é™è´¢å®"))
-            cfg.reward = "éšæœºå¤ºå®"
+            cfg.title = "Ëæ»ú¶á±¦"
+            cfg.time = string.format("¿ª·şµÚ15·ÖÖÓ¿ªÆô£¬ÔÚ¡¾%s¡¿µØÍ¼³ÖĞø%sÃëÍ¶·Å±¦Îï", tostring(sjdb.map or "Ìì½µ²Æ±¦"), tostring(sjdb.keep_sec or 300))
+            cfg.desc = string.format("»î¶¯¿ªÆôºó»áÔÚ¡¾%s¡¿µØÍ¼³ÖĞøÍ¶·Å±¦Îï£¬±¦Îï°´ÍâÈ¦¡¢ÖĞÈ¦¡¢ÄÚÈ¦Èı²ãÇøÓòË¢ĞÂ¡£Ô½¿¿½üÖĞĞÄ½±ÀøÔ½¸ß£¬µ«¾ºÕùÒ²Ô½¼¤ÁÒ£¬ÊÊºÏ¸ù¾İ×ÔÉíÊµÁ¦Ñ¡ÔñÎ»ÖÃÇÀÊÕÒæ¡£", tostring(sjdb.map or "Ìì½µ²Æ±¦"))
+            cfg.reward = "Ëæ»ú¶á±¦"
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 appendSjdbRewards(out, seen, sjdb.circles)
             end)
         elseif i == 14 then
-            cfg.title = "é»‘æš—ç¦åœ°"
-            cfg.time = string.format("æ¯æ—¥%02d:%02då¼€å¯ï¼ŒæŒç»­%såˆ†é’Ÿ", tonumber(hdjd.start_hour or 19) or 19, tonumber(hdjd.start_minute_clock or 30) or 30, tostring(hdjd.duration_min or 20))
-            cfg.desc = string.format("è¿›å…¥ã€%sã€‘åï¼Œå…¨å›¾ä¼šéšæœºåˆ·æ–°ã€%sã€‘ã€‚æ‰¾åˆ°ååŸåœ°é‡‡é›†%sç§’å³å¯ç›´æ¥è·å¾—å¥–åŠ±ï¼Œæ´»åŠ¨æœŸé—´è§†é‡ä¼šè¢«å¤§å¹…å‹ä½ï¼Œå®ç®±ä¹Ÿä¼šæŒç»­è¡¥åˆ·ï¼Œæ‰€ä»¥é‡ç‚¹æ˜¯æ‰¾ç®±æ•ˆç‡ã€è·¯çº¿åˆ¤æ–­å’Œé‡‡é›†æ—¶æœºã€‚", tostring(hdjd.map or "é»‘æš—ç¦åœ°"), tostring(hdjd.chest_mob or "é»‘æš—å®ç®±"), tostring(hdjd.collect_sec or 3))
-            cfg.reward = "é‡‘å¸*38Wã€å…ƒå®*2000-8000ã€1å…ƒçœŸå®å……å€¼*1ã€äº”è¡ŒçŸ³/æ€ä¼ç¥çŸ³[å°]/åƒå¹´ç„é“éšæœºå…¶ä¸€"
+            cfg.title = "ºÚ°µ½ûµØ"
+            cfg.time = string.format("Ã¿ÈÕ%02d:%02d¿ªÆô£¬³ÖĞø%s·ÖÖÓ", tonumber(hdjd.start_hour or 19) or 19, tonumber(hdjd.start_minute_clock or 30) or 30, tostring(hdjd.duration_min or 20))
+            cfg.desc = string.format("½øÈë¡¾%s¡¿ºó£¬È«Í¼»áËæ»úË¢ĞÂ¡¾%s¡¿¡£ÕÒµ½ºóÔ­µØ²É¼¯%sÃë¼´¿ÉÖ±½Ó»ñµÃ½±Àø£¬»î¶¯ÆÚ¼äÊÓÒ°»á±»´ó·ùÑ¹µÍ£¬±¦ÏäÒ²»á³ÖĞø²¹Ë¢£¬ËùÒÔÖØµãÊÇÕÒÏäĞ§ÂÊ¡¢Â·ÏßÅĞ¶ÏºÍ²É¼¯Ê±»ú¡£", tostring(hdjd.map or "ºÚ°µ½ûµØ"), tostring(hdjd.chest_mob or "ºÚ°µ±¦Ïä"), tostring(hdjd.collect_sec or 3))
+            cfg.reward = "½ğ±Ò*38W¡¢Ôª±¦*2000-8000¡¢1ÔªÕæÊµ³äÖµ*1¡¢ÎåĞĞÊ¯/É±·¥ÉñÊ¯[Ğ¡]/Ç§ÄêĞşÌúËæ»úÆäÒ»"
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 appendHdjdRewards(out, seen, hdjd.rewards)
             end)
@@ -6719,7 +6719,7 @@ npc[507] = function(p2, p3, Data)
         npc.data_507 = not Data and {
         } or SL:JsonDecode(Data, false)
         local win = ensureWindow("activity", 507, {
-            titleText = "æ¸¸æˆæ´»åŠ¨",
+            titleText = "ÓÎÏ·»î¶¯",
         })
         npc.bg = win.bg
         npc.node = win.node
@@ -6839,19 +6839,19 @@ npc[511] = function(p2, p3, Data)
     local state_info = {
         [1] = {
             color = "#FF0000",
-            text = "å¯é¢†å–",
+            text = "¿ÉÁìÈ¡",
         },
         [0] = {
             color = "#FFFF00",
-            text = "æœªè¾¾æˆ",
+            text = "Î´´ï³É",
         },
         [2] = {
             color = "#00FF00",
-            text = "å·²é¢†å–",
+            text = "ÒÑÁìÈ¡",
         },
         [3] = {
             color = "#FF0000",
-            text = "éœ€ç‰¹æƒ",
+            text = "ĞèÌØÈ¨",
         },
     }
     local fldt_section_key_map = {
@@ -7064,19 +7064,19 @@ npc[511] = function(p2, p3, Data)
                 NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, claimButton, card, 511, 1, {
                     dir = 5,
                     taskMap = {[511] = 10,},
-                    desc = "ç‚¹å‡»é¢†å–ä¸ƒæ—¥ç™»å½•å¥–åŠ±",
+                    desc = "µã»÷ÁìÈ¡ÆßÈÕµÇÂ¼½±Àø",
                     isForce = false
                 })
             else
                 local tipText
                 if not canShow or todayIdx > totalDays then
-                    tipText = "ä¸ƒæ—¥ç™»å½•å¥–åŠ±å·²å…¨éƒ¨é¢†å–"
+                    tipText = "ÆßÈÕµÇÂ¼½±ÀøÒÑÈ«²¿ÁìÈ¡"
                 elseif loginDays < todayIdx then
-                    tipText = string.format("ä»Šæ—¥å¥–åŠ±å·²ç»é¢†å–å®Œæ¯•ï¼Œè¾¾åˆ°ç¬¬%då¤©å¯ç»§ç»­é¢†å–", todayIdx)
+                    tipText = string.format("½ñÈÕ½±ÀøÒÑ¾­ÁìÈ¡Íê±Ï£¬´ïµ½µÚ%dÌì¿É¼ÌĞøÁìÈ¡", todayIdx)
                 elseif onlineMinutes < fldt_online_limit then
-                    tipText = string.format("ä»Šæ—¥åœ¨çº¿æ»¡%dåˆ†é’Ÿåå¯é¢†å–å¥–åŠ±", fldt_online_limit)
+                    tipText = string.format("½ñÈÕÔÚÏßÂú%d·ÖÖÓºó¿ÉÁìÈ¡½±Àø", fldt_online_limit)
                 else
-                    tipText = "ä»Šæ—¥æš‚æ— å¯é¢†å–å¥–åŠ±"
+                    tipText = "½ñÈÕÔİÎŞ¿ÉÁìÈ¡½±Àø"
                 end
                 GUI:Text_Create(Label_node, "seven_state_tip", 200, 63, 18, "#FFA043", tipText)
             end
@@ -7085,31 +7085,31 @@ npc[511] = function(p2, p3, Data)
             local tqrbq = fldt_get_state()
             local claimed = tonumber(tqrbq["zxjl"]) or 0
             local onlineMinutes = tonumber(npc.fldt_data and npc.fldt_data.J_zxsj) or 0
-            GUI:Text_Create(Label_node, "online_desc", 260, 50 + 400, 18, "#FFD56F", string.format("å½“å‰åœ¨çº¿ï¼š%dåˆ†é’Ÿ", onlineMinutes))
+            GUI:Text_Create(Label_node, "online_desc", 260, 50 + 400, 18, "#FFD56F", string.format("µ±Ç°ÔÚÏß£º%d·ÖÖÓ", onlineMinutes))
             local onlineRewards = fldt_data_cfg["zxjl"] or {
             }
             for v, k in ipairs(onlineRewards) do
                 local l = GUI:Image_Create(Label_list, "img_bj_l_" .. v, 0, 0, 'res/custom/fulitating/list_fgx_' .. (v % 2 == 1 and 1 or 2) .. '.png')
                 local canClaimNow = (v == (claimed + 1)) and (onlineMinutes >= (tonumber(k.time) or 0))
-                GUI:Text_Create(l, "wz", 30, 20, 20, "#FFEE8A", string.format("åœ¨çº¿æ»¡%dåˆ†é’Ÿ", k.time))
+                GUI:Text_Create(l, "wz", 30, 20, 20, "#FFEE8A", string.format("ÔÚÏßÂú%d·ÖÖÓ", k.time))
                 local give = ItemNumByTable_img(k.jl, nil, GUI:Node_Create(l, "give", 0, 0))
                 GUI:setPosition(give, 260, 5)
-                local stateDesc = "æœªè§£é”"
-                local btnText = "å¾…è§£é”"
+                local stateDesc = "Î´½âËø"
+                local btnText = "´ı½âËø"
                 local stateColor = "#FFFF66"
                 local enable = false
                 if v <= claimed then
-                    stateDesc = "å·²é¢†å–"
-                    btnText = "å·²é¢†å–"
+                    stateDesc = "ÒÑÁìÈ¡"
+                    btnText = "ÒÑÁìÈ¡"
                     stateColor = "#00FF7F"
                 elseif v == claimed then
                     if onlineMinutes >= (k.time or 0) then
-                        stateDesc = "å¯é¢†å–"
-                        btnText = "é¢†å–"
+                        stateDesc = "¿ÉÁìÈ¡"
+                        btnText = "ÁìÈ¡"
                         stateColor = "#00FF7F"
                         enable = true
                     else
-                        stateDesc = string.format("%d/%dåˆ†é’Ÿ", onlineMinutes, k.time or 0)
+                        stateDesc = string.format("%d/%d·ÖÖÓ", onlineMinutes, k.time or 0)
                         btnText = stateDesc
                     end
                 else
@@ -7135,31 +7135,31 @@ npc[511] = function(p2, p3, Data)
             local tqrbq = fldt_get_state()
             local claimed = tonumber(tqrbq["sgjl"]) or 0
             local killCount = tonumber(npc.fldt_data and npc.fldt_data.U_sgsl) or 0
-            GUI:Text_Create(Label_node, "online_desc", 260, 50 + 400, 18, "#FFD56F", string.format("ä»Šæ—¥å·²å‡»æ€ï¼š%dåª", killCount))
+            GUI:Text_Create(Label_node, "online_desc", 260, 50 + 400, 18, "#FFD56F", string.format("½ñÈÕÒÑ»÷É±£º%dÖ»", killCount))
             local killRewards = fldt_data_cfg["sgjl"] or {
             }
             for v, k in ipairs(killRewards) do
                 local l = GUI:Image_Create(Label_list, "img_bj_l_" .. v, 0, 0, 'res/custom/fulitating/list_fgx_' .. (v % 2 == 1 and 1 or 2) .. '.png')
                 local canClaimNow = (v == (claimed + 1)) and (killCount >= (tonumber(k.num) or 0))
-                GUI:Text_Create(l, "wz", 30, 20, 20, "#FFEE8A", string.format("å‡»æ€%dåªæ€ªç‰©", k.num))
+                GUI:Text_Create(l, "wz", 30, 20, 20, "#FFEE8A", string.format("»÷É±%dÖ»¹ÖÎï", k.num))
                 local give = ItemNumByTable_img(k.jl, nil, GUI:Node_Create(l, "give", 0, 0))
                 GUI:setPosition(give, 260, 5)
-                local stateDesc = "æœªè§£é”"
-                local btnText = "å¾…è§£é”"
+                local stateDesc = "Î´½âËø"
+                local btnText = "´ı½âËø"
                 local stateColor = "#FFFF66"
                 local enable = false
                 if v <= claimed then
-                    stateDesc = "å·²é¢†å–"
-                    btnText = "å·²é¢†å–"
+                    stateDesc = "ÒÑÁìÈ¡"
+                    btnText = "ÒÑÁìÈ¡"
                     stateColor = "#00FF7F"
                 elseif v == claimed then
                     if killCount >= (k.num or 0) then
-                        stateDesc = "å¯é¢†å–"
-                        btnText = "é¢†å–"
+                        stateDesc = "¿ÉÁìÈ¡"
+                        btnText = "ÁìÈ¡"
                         stateColor = "#00FF7F"
                         enable = true
                     else
-                        stateDesc = string.format("%d/%dåª", killCount, k.num or 0)
+                        stateDesc = string.format("%d/%dÖ»", killCount, k.num or 0)
                         btnText = stateDesc
                     end
                 else
@@ -7222,18 +7222,18 @@ npc[511] = function(p2, p3, Data)
             end
             local Button_all = GUI:Button_Create(Label_node, "grss_all", 500, 0, "res/public/1900000660.png")
             GUI:setAnchorPoint(Button_all, 0.5, 0)
-            GUI:Button_setTitleText(Button_all, "ä¸€é”®é¢†å–")
+            GUI:Button_setTitleText(Button_all, "Ò»¼üÁìÈ¡")
             GUI:Button_setTitleFontSize(Button_all, 14)
             GUI:addOnClickEvent(Button_all, function()
                 SL:SendLuaNetMsg(101, 511, 1, 4, '{"isall":1}')
             end)
             local Button = GUI:Button_Create(Label_node, "next", 350, 0, "res/public/1900000660.png")
             GUI:setAnchorPoint(Button, 0.5, 0)
-            GUI:Button_setTitleText(Button, "ä¸‹ä¸€é¡µ")
+            GUI:Button_setTitleText(Button, "ÏÂÒ»Ò³")
             GUI:Button_setTitleFontSize(Button, 14)
             GUI:addOnClickEvent(Button, function()
                 if npc.sign == math.ceil(#grss / 10) then
-                    SL:ShowSystemTips("å·²ç»æ˜¯æœ€åä¸€é¡µäº†ï¼ï¼ï¼")
+                    SL:ShowSystemTips("ÒÑ¾­ÊÇ×îºóÒ»Ò³ÁË£¡£¡£¡")
                     return
                 end
                 npc.sign = npc.sign + 1
@@ -7241,17 +7241,17 @@ npc[511] = function(p2, p3, Data)
             end)
             Button = GUI:Button_Create(Label_node, "shangyiy", 100, 0, "res/public/1900000660.png")
             GUI:setAnchorPoint(Button, 0.5, 0)
-            GUI:Button_setTitleText(Button, "ä¸Šä¸€é¡µ")
+            GUI:Button_setTitleText(Button, "ÉÏÒ»Ò³")
             GUI:Button_setTitleFontSize(Button, 14)
             GUI:addOnClickEvent(Button, function()
                 if npc.sign == 1 then
-                    SL:ShowSystemTips("å·²ç»æ˜¯ç¬¬ä¸€é¡µäº†ï¼ï¼ï¼")
+                    SL:ShowSystemTips("ÒÑ¾­ÊÇµÚÒ»Ò³ÁË£¡£¡£¡")
                     return
                 end
                 npc.sign = npc.sign - 1
                 GUI_createLabel(npc.Label, npc.titles_sign)
             end)
-            GUI:setAnchorPoint(GUI:Text_Create(Label_node, "state", 225, 20, 18, "#ffffff", string.format("ç¬¬%dé¡µ/å…±%dé¡µ", npc.sign, math.ceil(#grss / 10))), 0.5, 0.5)
+            GUI:setAnchorPoint(GUI:Text_Create(Label_node, "state", 225, 20, 18, "#ffffff", string.format("µÚ%dÒ³/¹²%dÒ³", npc.sign, math.ceil(#grss / 10))), 0.5, 0.5)
         elseif idx == 5 then
             local Label_list = GUI:ListView_Create(Label_node, "Label_list", 0, 55, 600, 280, 1)
             local grsb = {
@@ -7295,18 +7295,18 @@ npc[511] = function(p2, p3, Data)
             end
             local Button_all = GUI:Button_Create(Label_node, "grsb_all", 500, 0, "res/public/1900000660.png")
             GUI:setAnchorPoint(Button_all, 0.5, 0)
-            GUI:Button_setTitleText(Button_all, "ä¸€é”®é¢†å–")
+            GUI:Button_setTitleText(Button_all, "Ò»¼üÁìÈ¡")
             GUI:Button_setTitleFontSize(Button_all, 14)
             GUI:addOnClickEvent(Button_all, function()
                 SL:SendLuaNetMsg(101, 511, 1, 5, '{"isall":1}')
             end)
             local Button = GUI:Button_Create(Label_node, "next", 350, 0, "res/public/1900000660.png")
             GUI:setAnchorPoint(Button, 0.5, 0)
-            GUI:Button_setTitleText(Button, "ä¸‹ä¸€é¡µ")
+            GUI:Button_setTitleText(Button, "ÏÂÒ»Ò³")
             GUI:Button_setTitleFontSize(Button, 14)
             GUI:addOnClickEvent(Button, function()
                 if npc.sign == totalPage then
-                    SL:ShowSystemTips("å·²ç»æ˜¯æœ€åä¸€é¡µäº†ï¼ï¼ï¼")
+                    SL:ShowSystemTips("ÒÑ¾­ÊÇ×îºóÒ»Ò³ÁË£¡£¡£¡")
                     return
                 end
                 npc.sign = npc.sign + 1
@@ -7314,17 +7314,17 @@ npc[511] = function(p2, p3, Data)
             end)
             Button = GUI:Button_Create(Label_node, "shangyiy", 100, 0, "res/public/1900000660.png")
             GUI:setAnchorPoint(Button, 0.5, 0)
-            GUI:Button_setTitleText(Button, "ä¸Šä¸€é¡µ")
+            GUI:Button_setTitleText(Button, "ÉÏÒ»Ò³")
             GUI:Button_setTitleFontSize(Button, 14)
             GUI:addOnClickEvent(Button, function()
                 if npc.sign == 1 then
-                    SL:ShowSystemTips("å·²ç»æ˜¯ç¬¬ä¸€é¡µäº†ï¼ï¼ï¼")
+                    SL:ShowSystemTips("ÒÑ¾­ÊÇµÚÒ»Ò³ÁË£¡£¡£¡")
                     return
                 end
                 npc.sign = npc.sign - 1
                 GUI_createLabel(npc.Label, npc.titles_sign)
             end)
-            GUI:setAnchorPoint(GUI:Text_Create(Label_node, "state", 225, 20, 18, "#ffffff", string.format("ç¬¬%dé¡µ/å…±%dé¡µ", npc.sign, totalPage)), 0.5, 0.5)
+            GUI:setAnchorPoint(GUI:Text_Create(Label_node, "state", 225, 20, 18, "#ffffff", string.format("µÚ%dÒ³/¹²%dÒ³", npc.sign, totalPage)), 0.5, 0.5)
         elseif idx == 6 then
             local Label_list = GUI:ListView_Create(Label_node, "Label_list", 0, 55, 600, 280, 1)
             local qqsb = fldt_build_state_rows("qqsb", npc.ts_data)
@@ -7344,7 +7344,7 @@ npc[511] = function(p2, p3, Data)
                     outlineColor = SL:ConvertColorFromHexString("#100808"),
                 })
                 local ownerName = fldt_get_qqsb_owner_name(v.idx)
-                local ownerDisplayName = ownerName ~= "" and ownerName or "â€»è™šä½ä»¥å¾…â€»"
+                local ownerDisplayName = ownerName ~= "" and ownerName or "¡ùĞéÎ»ÒÔ´ı¡ù"
                 local ownerColor = ownerName ~= "" and "#00FF00" or "#FFFFFF"
                 GUI:Text_Create(l, "owner_" .. i, 300, 8, 18, ownerColor, ownerDisplayName)
                 if v.state == 1 or v.state == 3 then
@@ -7357,7 +7357,7 @@ npc[511] = function(p2, p3, Data)
             end
             local Button_all = GUI:Button_Create(Label_node, "qqsb_all", 500, 0, "res/public/1900000660.png")
             GUI:setAnchorPoint(Button_all, 0.5, 0)
-            GUI:Button_setTitleText(Button_all, "ä¸€é”®é¢†å–")
+            GUI:Button_setTitleText(Button_all, "Ò»¼üÁìÈ¡")
             GUI:Button_setTitleFontSize(Button_all, 14)
             local qqsbCanClaim = fldt_has_claimable_by_state_key("qqsb", npc.ts_data)
             GUI:setTouchEnabled(Button_all, qqsbCanClaim)
@@ -7369,11 +7369,11 @@ npc[511] = function(p2, p3, Data)
             end
             local Button = GUI:Button_Create(Label_node, "next", 350, 0, "res/public/1900000660.png")
             GUI:setAnchorPoint(Button, 0.5, 0)
-            GUI:Button_setTitleText(Button, "ä¸‹ä¸€é¡µ")
+            GUI:Button_setTitleText(Button, "ÏÂÒ»Ò³")
             GUI:Button_setTitleFontSize(Button, 14)
             GUI:addOnClickEvent(Button, function()
                 if npc.sign == totalPage then
-                    SL:ShowSystemTips("å·²ç»æ˜¯æœ€åä¸€é¡µäº†ï¼ï¼ï¼")
+                    SL:ShowSystemTips("ÒÑ¾­ÊÇ×îºóÒ»Ò³ÁË£¡£¡£¡")
                     return
                 end
                 npc.sign = npc.sign + 1
@@ -7381,17 +7381,17 @@ npc[511] = function(p2, p3, Data)
             end)
             Button = GUI:Button_Create(Label_node, "shangyiy", 100, 0, "res/public/1900000660.png")
             GUI:setAnchorPoint(Button, 0.5, 0)
-            GUI:Button_setTitleText(Button, "ä¸Šä¸€é¡µ")
+            GUI:Button_setTitleText(Button, "ÉÏÒ»Ò³")
             GUI:Button_setTitleFontSize(Button, 14)
             GUI:addOnClickEvent(Button, function()
                 if npc.sign == 1 then
-                    SL:ShowSystemTips("å·²ç»æ˜¯ç¬¬ä¸€é¡µäº†ï¼ï¼ï¼")
+                    SL:ShowSystemTips("ÒÑ¾­ÊÇµÚÒ»Ò³ÁË£¡£¡£¡")
                     return
                 end
                 npc.sign = npc.sign - 1
                 GUI_createLabel(npc.Label, npc.titles_sign)
             end)
-            GUI:setAnchorPoint(GUI:Text_Create(Label_node, "state", 225, 20, 18, "#ffffff", string.format("ç¬¬%dé¡µ/å…±%dé¡µ", npc.sign, totalPage)), 0.5, 0.5)
+            GUI:setAnchorPoint(GUI:Text_Create(Label_node, "state", 225, 20, 18, "#ffffff", string.format("µÚ%dÒ³/¹²%dÒ³", npc.sign, totalPage)), 0.5, 0.5)
         end
     end
     local function UI_updata(node)
@@ -7401,12 +7401,12 @@ npc[511] = function(p2, p3, Data)
         GUI:ListView_setItemsMargin(npc.cbl_list, 10)
         npc.Label = GUI:Node_Create(node, "Label", 170, 15)
         local titles = {
-            "ä¸ƒæ—¥ç™»å½•",
-            "åœ¨çº¿å¥–åŠ±",
-            "æ€æ€ªå¥–åŠ±",
-            "æ€ªç‰©é¦–æ€",
-            "ä¸ªäººé¦–çˆ†",
-            "å…¨åŒºé¦–çˆ†",
+            "ÆßÈÕµÇÂ¼",
+            "ÔÚÏß½±Àø",
+            "É±¹Ö½±Àø",
+            "¹ÖÎïÊ×É±",
+            "¸öÈËÊ×±¬",
+            "È«ÇøÊ×±¬",
         }
         npc.titles_sign = 1
         for i = 1, #titles do
@@ -7436,7 +7436,7 @@ npc[511] = function(p2, p3, Data)
         npc.fldt_state_cache = {
         }
         local welfareWindow = ensureWindow("welfare", 511, {
-            titleText = "ç¦åˆ©å¤§å…",
+            titleText = "¸£Àû´óÌü",
         })
         npc.bg = welfareWindow.bg
         npc.node = welfareWindow.node
@@ -7476,45 +7476,45 @@ npc[512] = function(p2, p3, Data)
     local strategyPages = {
         {
             key = "intro",
-            main = "æœ¬æœç®€ä»‹",
+            main = "±¾·ş¼ò½é",
             subs = {
-                {name = "æ¸¸æˆç®€ä»‹", img = "res/custom/strategy/æœ¬æœç®€ä»‹-æ¸¸æˆç®€ä»‹/æœ¬æœç®€ä»‹-æ¸¸æˆç®€ä»‹.png"},
-                {name = "ç­‰çº§ç›¸å…³", img = "res/custom/strategy/æœ¬æœç®€ä»‹-ç­‰çº§ç›¸å…³.png"},
+                {name = "ÓÎÏ·¼ò½é", img = "res/custom/strategy/±¾·ş¼ò½é-ÓÎÏ·¼ò½é/±¾·ş¼ò½é-ÓÎÏ·¼ò½é.png"},
+                {name = "µÈ¼¶Ïà¹Ø", img = "res/custom/strategy/±¾·ş¼ò½é-µÈ¼¶Ïà¹Ø.png"},
             },
         },
         {
             key = "start",
-            main = "èµ·å·æŠ—ç±³",
+            main = "ÆğºÅ¿¹Ã×",
             subs = {
-                {name = "ç™½å«–ç©å®¶", img = "res/custom/strategy/èµ·å·æŠ—ç±³-ç™½å«–ç©å®¶.png"},
-                {name = "å°èµ„ç©å®¶", img = "res/custom/strategy/èµ·å·æŠ—ç±³-å°èµ„ç©å®¶-.png"},
-                {name = "åœŸè±ªç©å®¶", img = "res/custom/strategy/èµ·å·æŠ—ç±³-åœŸè±ªç©å®¶--.png"},
+                {name = "°×æÎÍæ¼Ò", img = "res/custom/strategy/ÆğºÅ¿¹Ã×-°×æÎÍæ¼Ò.png"},
+                {name = "Ğ¡×ÊÍæ¼Ò", img = "res/custom/strategy/ÆğºÅ¿¹Ã×-Ğ¡×ÊÍæ¼Ò-.png"},
+                {name = "ÍÁºÀÍæ¼Ò", img = "res/custom/strategy/ÆğºÅ¿¹Ã×-ÍÁºÀÍæ¼Ò--.png"},
             },
         },
         {
             key = "equip",
-            main = "è£…å¤‡é¢„è§ˆ",
+            main = "×°±¸Ô¤ÀÀ",
             subs = {
-                {name = "è£…å¤‡åˆ†ç±»", img = "res/custom/strategy/è£…å¤‡é¢„è§ˆ-è£…å¤‡åˆ†ç±»-.png"},
-                {name = "é¡¶çº§è£…å¤‡", img = "res/custom/strategy/é¡¶çº§è£…å¤‡èƒŒæ™¯.png"},
-                {name = "è¿½æ¢¦ç¥å™¨", img = "res/custom/strategy/è¿½æ¢¦ç¥å™¨èƒŒæ™¯.png"},
-                {name = "å…¨æœå­¤å“", img = "res/custom/strategy/å…¨æœå­¤å“èƒŒæ™¯.png"},
+                {name = "×°±¸·ÖÀà", img = "res/custom/strategy/×°±¸Ô¤ÀÀ-×°±¸·ÖÀà-.png"},
+                {name = "¶¥¼¶×°±¸", img = "res/custom/strategy/¶¥¼¶×°±¸±³¾°.png"},
+                {name = "×·ÃÎÉñÆ÷", img = "res/custom/strategy/×·ÃÎÉñÆ÷±³¾°.png"},
+                {name = "È«·ş¹ÂÆ·", img = "res/custom/strategy/È«·ş¹ÂÆ·±³¾°.png"},
             },
         },
         {
             key = "play",
-            main = "ç©æ³•æ”»ç•¥",
+            main = "Íæ·¨¹¥ÂÔ",
             subs = {
-                {name = "ç©æ³•æ”»ç•¥", img = "res/custom/strategy/ç©æ³•æ”»ç•¥/ç©æ³•æ”»ç•¥.png"},
-                -- {name = "çµæ ¹éƒ¨åˆ†", img = "res/custom/strategy/ç©æ³•æ”»ç•¥/çµæ ¹éƒ¨åˆ†.png", w = 1392, h = 162},
+                {name = "Íæ·¨¹¥ÂÔ", img = "res/custom/strategy/Íæ·¨¹¥ÂÔ/Íæ·¨¹¥ÂÔ.png"},
+                -- {name = "Áé¸ù²¿·Ö", img = "res/custom/strategy/Íæ·¨¹¥ÂÔ/Áé¸ù²¿·Ö.png", w = 1392, h = 162},
             },
         },
         {
             key = "map",
-            main = "åœ°å›¾èµ°æ³•",
+            main = "µØÍ¼×ß·¨",
             map = true,
             subs = {
-                {name = "åœ°å›¾èµ°æ³•", img = "res/custom/strategy/åœ°å›¾èµ°æ³•/åœ°å›¾èµ°æ³•.png", w = 1944, h = 1286},
+                {name = "µØÍ¼×ß·¨", img = "res/custom/strategy/µØÍ¼×ß·¨/µØÍ¼×ß·¨.png", w = 1944, h = 1286},
             },
         },
     }
@@ -7529,7 +7529,7 @@ npc[512] = function(p2, p3, Data)
         return SL and SL.IsFileExist and SL:IsFileExist(path)
     end
     local function getSideButtonSkin(name, selected, fallback)
-        local path = "res/custom/strategy/å·¦ä¾§æŒ‰é’®/" .. (selected and "äº®" or "æš—") .. "/" .. name .. ".png"
+        local path = "res/custom/strategy/×ó²à°´Å¥/" .. (selected and "ÁÁ" or "°µ") .. "/" .. name .. ".png"
         if strategyFileExists(path) then
             return path
         end
@@ -7543,7 +7543,7 @@ npc[512] = function(p2, p3, Data)
     end
     local function createSideButton(parent, id, name, selected, fallback, onClick)
         local btn = GUI:Button_Create(parent, id, 0, 0, getSideButtonSkin(name, selected, fallback))
-        if not strategyFileExists("res/custom/strategy/å·¦ä¾§æŒ‰é’®/æš—/" .. name .. ".png") then
+        if not strategyFileExists("res/custom/strategy/×ó²à°´Å¥/°µ/" .. name .. ".png") then
             local txt = GUI:Text_Create(btn, "txt", 85, 21, 20, selected and "#fff3c0" or "#79808b", name)
             GUI:setAnchorPoint(txt, 0.5, 0.5)
             GUI:Text_enableOutline(txt, "#100808", 2)
@@ -7579,7 +7579,7 @@ npc[512] = function(p2, p3, Data)
     end
     local function renderMapPage(Label_node, page)
         local viewW, viewH = 584, 444
-        GUI:Image_Create(Label_node, "map_bg", 0, 0, "res/custom/strategy/åœ°å›¾èµ°æ³•/åœ°å›¾èµ°æ³•èƒŒæ™¯.png")
+        GUI:Image_Create(Label_node, "map_bg", 0, 0, "res/custom/strategy/µØÍ¼×ß·¨/µØÍ¼×ß·¨±³¾°.png")
         local mapInfo = getSub(page, (npc.strategy_sub_sign and npc.strategy_sub_sign[page.key]) or 1)
         npc.strategy_map_scale = npc.strategy_map_scale or 0.32
         local function refreshMap(scroll)
@@ -7600,7 +7600,7 @@ npc[512] = function(p2, p3, Data)
             npc.strategy_map_scale = math.max(0.25, (npc.strategy_map_scale or 0.32) - 0.08)
             refreshMap(scroll)
         end)
-        createScaleButton(tools, "zoom_reset", 40, -400, "å¤ä½", function()
+        createScaleButton(tools, "zoom_reset", 40, -400, "¸´Î»", function()
             npc.strategy_map_scale = 0.32
             refreshMap(scroll)
         end)
@@ -7636,12 +7636,12 @@ npc[512] = function(p2, p3, Data)
             end)
             GUI:Image_Create(npc.cbl_list, "fgx" .. i, 0, 0, "res/custom/strategy/list/fgx.png")
             if selectedMain then
-                -- GUI:Image_Create(cbl_item, "selected", -1, -2, "res/custom/strategy/å·¦ä¾§æŒ‰é’®/é€‰ä¸­æ¡†.png")
+                -- GUI:Image_Create(cbl_item, "selected", -1, -2, "res/custom/strategy/×ó²à°´Å¥/Ñ¡ÖĞ¿ò.png")
             end
             if selectedMain and #(page.subs or {}) > 1 then
                 for subIdx, sub in ipairs(page.subs) do
                     local selectedSub = (npc.strategy_sub_sign[page.key] or 1) == subIdx
-                    local subBtn = createSideButton(npc.cbl_list, "sub_" .. i .. "_" .. subIdx, sub.name, selectedSub, "res/custom/strategy/å·¦ä¾§æŒ‰é’®/" .. (selectedSub and "äº®" or "æš—") .. "/æ¸¸æˆç®€ä»‹.png", function()
+                    local subBtn = createSideButton(npc.cbl_list, "sub_" .. i .. "_" .. subIdx, sub.name, selectedSub, "res/custom/strategy/×ó²à°´Å¥/" .. (selectedSub and "ÁÁ" or "°µ") .. "/ÓÎÏ·¼ò½é.png", function()
                         npc.strategy_sub_sign[page.key] = subIdx
                         UI_updata(node)
                         GUI_createLabel(npc.Label, i)
@@ -7656,7 +7656,7 @@ npc[512] = function(p2, p3, Data)
         npc.data_512 = not Data and {
         } or SL:JsonDecode(Data, false)
         local strategyWindow = ensureWindow("strategy", 512, {
-            titleText = "æ¸¸æˆæ”»ç•¥",
+            titleText = "ÓÎÏ·¹¥ÂÔ",
         })
         npc.bg = strategyWindow.bg
         npc.node = strategyWindow.node
@@ -7743,7 +7743,7 @@ npc[514] = function(p2, p3, Data)
             100 + 91,
         },
     }
-    -- ä¸–ç•Œåœ°å›¾å¤§é™†æŒ‰é’®ï¼šæŒ‰å®¢æˆ·ç«¯å½“å‰å¤§é™†è§£é”çŠ¶æ€åˆ‡æ¢äº®/ç°ä¸¤å¥—è´´å›¾ã€‚
+    -- ÊÀ½çµØÍ¼´óÂ½°´Å¥£º°´¿Í»§¶Ëµ±Ç°´óÂ½½âËø×´Ì¬ÇĞ»»ÁÁ/»ÒÁ½Ì×ÌùÍ¼¡£
     local function isWorldMapContinentUnlocked(idx)
         local continent = tonumber(idx or 0) or 0
         if continent <= 1 then
@@ -7774,7 +7774,7 @@ npc[514] = function(p2, p3, Data)
             local btn = GUI:Button_Create(bg, 'btn' .. i, pos[i][1], pos[i][2], 'res/custom/sjdt/dl/' .. skinState .. '/' .. i .. '.png')
             GUI:addOnClickEvent(btn, function()
                 if not isUnlocked then
-                    SL:ShowSystemTips("<font color='#FF0000'>è¿˜æœªè¾¾åˆ°è¿›å…¥æ¡ä»¶ï¼Œä¸èƒ½ä¼ é€</font>")
+                    SL:ShowSystemTips("<font color='#FF0000'>»¹Î´´ïµ½½øÈëÌõ¼ş£¬²»ÄÜ´«ËÍ</font>")
                     return
                 end
                 if i == 3 then
@@ -7795,7 +7795,7 @@ npc[514] = function(p2, p3, Data)
     end
     if p2 == 0 then
         local win = ensureWindow("worldMap", 514, {
-            titleText = "ä¸–ç•Œåœ°å›¾",
+            titleText = "ÊÀ½çµØÍ¼",
         })
         npc._worldMapWin = win
         renderWorldMap(win.node)
@@ -7886,7 +7886,7 @@ npc[516] = function(p2, p3, Data)
         }).ch or "")
         if titleName ~= "" then
             ret[#ret + 1] = {
-                titleName .. "[ç§°å·]",
+                titleName .. "[³ÆºÅ]",
                 1,
             }
         end
@@ -7894,7 +7894,7 @@ npc[516] = function(p2, p3, Data)
             extraTitle = tostring(extraTitle or "")
             if extraTitle ~= "" then
                 ret[#ret + 1] = {
-                    extraTitle .. "[ç§°å·]",
+                    extraTitle .. "[³ÆºÅ]",
                     1,
                 }
             end
@@ -7917,30 +7917,30 @@ npc[516] = function(p2, p3, Data)
         local charge23 = tonumber(curData.money23 or 0) or 0
         if needCz502 > 0 then
             if needCz502Idx > 0 then
-                return string.format("éœ€è¦ï¼šé¢†å–ç¬¬%sæ¡£åœ¨çº¿å……å€¼ç¤¼åŒ…", tostring(needCz502Idx)), mfzz_is_cz502_claimed(needCz502), true
+                return string.format("ĞèÒª£ºÁìÈ¡µÚ%sµµÔÚÏß³äÖµÀñ°ü", tostring(needCz502Idx)), mfzz_is_cz502_claimed(needCz502), true
             end
-            return string.format("éœ€è¦ï¼šé¢†å–%sæ¡£åœ¨çº¿å……å€¼ç¤¼åŒ…", tostring(needCz502)), mfzz_is_cz502_claimed(needCz502), true
+            return string.format("ĞèÒª£ºÁìÈ¡%sµµÔÚÏß³äÖµÀñ°ü", tostring(needCz502)), mfzz_is_cz502_claimed(needCz502), true
         end
         if needPay21 > 0 then
             local ok = mfzz_has_pay21(needPay21)
             if ok then
-                return string.format("å·²è´­ä¹°", tostring(needPay21)), true, false
+                return string.format("ÒÑ¹ºÂò", tostring(needPay21)), true, false
             end
-            return string.format("%så…ƒç¤¼åŒ…", tostring(autoPay > 0 and autoPay or needPay21)), false, false
+            return string.format("%sÔªÀñ°ü", tostring(autoPay > 0 and autoPay or needPay21)), false, false
         end
         if autoPay > 0 and needMoney23 <= 0 and needRealCharge <= 0 and needCharge <= 0 then
-            return string.format("%så…ƒç¤¼åŒ…", tostring(autoPay)), false, false
+            return string.format("%sÔªÀñ°ü", tostring(autoPay)), false, false
         end
         if needMoney23 > 0 then
-            return string.format("å……å€¼%så…ƒ", tostring(needMoney23)), charge23 >= needMoney23, false
+            return string.format("³äÖµ%sÔª", tostring(needMoney23)), charge23 >= needMoney23, false
         end
         if needRealCharge > 0 then
-            return string.format("çœŸå®å……å€¼%så…ƒ", tostring(needRealCharge)), realCharge >= needRealCharge, false
+            return string.format("ÕæÊµ³äÖµ%sÔª", tostring(needRealCharge)), realCharge >= needRealCharge, false
         end
         if needCharge > 0 then
-            return string.format("å……å€¼%så…ƒ", tostring(needCharge)), totalCharge >= needCharge, false
+            return string.format("³äÖµ%sÔª", tostring(needCharge)), totalCharge >= needCharge, false
         end
-        return "å…è´¹é¢†å–", true, false
+        return "Ãâ·ÑÁìÈ¡", true, false
     end
     local function mfzz_can_claim(idx, cfg)
         if not cfg or mfzz_is_claimed(idx) then
@@ -7961,7 +7961,7 @@ npc[516] = function(p2, p3, Data)
             taskMap = {
                 [516] = 4,
             },
-            desc = "ç‚¹å‡»é¢†å–",
+            desc = "µã»÷ÁìÈ¡",
             isForce = true,
             hideMask = false,
             keyPrefix = "mainline_free_sponsor",
@@ -7972,8 +7972,8 @@ npc[516] = function(p2, p3, Data)
         _add_reward_item_effect(slot, "reward_eff", 20, 21, 0.85, REWARD_ITEM_EFFECT_14193)
         GUI:setAnchorPoint(slot, 0.5, 0.5)
         local itemIndex = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", itemName)) or 0
-        if itemIndex <= 0 and not string.find(tostring(itemName), "%[ç§°å·%]") then
-            itemIndex = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", tostring(itemName) .. "[ç§°å·]")) or 0
+        if itemIndex <= 0 and not string.find(tostring(itemName), "%[³ÆºÅ%]") then
+            itemIndex = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", tostring(itemName) .. "[³ÆºÅ]")) or 0
         end
         local itemLayer = _get_reward_item_layer(slot) or slot
         if itemIndex > 0 then
@@ -8089,7 +8089,7 @@ npc[516] = function(p2, p3, Data)
         npc.data_516.T_data = npc.data_516.T_data or {
         }
         local win = ensureWindow("freeSponsor", 516, {
-            titleText = "è‡³å°ŠèµåŠ©",
+            titleText = "ÖÁ×ğÔŞÖú",
         })
         npc.node_516 = win.node
         UI_updata(npc.node_516)
@@ -8109,7 +8109,7 @@ npc[516] = function(p2, p3, Data)
         end
     end
 end
--- é¡¶éƒ¨æŒ‰é’®èšå®ç›†å…¥å£ï¼šç‹¬ç«‹åŠŸèƒ½ç•Œé¢ï¼ŒNPC 106 åªä¿ç•™ä¸»çº¿ä¿®å¤ä»»åŠ¡ç•Œé¢ã€‚
+-- ¶¥²¿°´Å¥¾Û±¦ÅèÈë¿Ú£º¶ÀÁ¢¹¦ÄÜ½çÃæ£¬NPC 106 Ö»±£ÁôÖ÷ÏßĞŞ¸´ÈÎÎñ½çÃæ¡£
 npc[517] = function(p2, p3, Data)
     npc._anniu_517_mod = npc._anniu_517_mod or package.loaded["GUILayout/npc/anniu_517"] or SL:Require("GUILayout/npc/anniu_517.lua", true)
     local mod = npc._anniu_517_mod
@@ -8119,55 +8119,55 @@ npc[517] = function(p2, p3, Data)
 end
 local xlxl = {
     {
-        "é‡‘å¸",
-        "å…ƒå®",
-        "ç»‘å®šé‡‘å¸",
-        "ç»‘å®šå…ƒå®",
-        "çµçŸ³",
-        "ç»‘å®šçµçŸ³",
-        "ç´¯è®¡å……å€¼",
-        "ç¤¼åŒ…ç§¯åˆ†",
-        "ä¸€åˆå……å€¼",
-        "äºŒåˆå……å€¼",
-        "ä¸‰åˆåå……å€¼",
+        "½ğ±Ò",
+        "Ôª±¦",
+        "°ó¶¨½ğ±Ò",
+        "°ó¶¨Ôª±¦",
+        "ÁéÊ¯",
+        "°ó¶¨ÁéÊ¯",
+        "ÀÛ¼Æ³äÖµ",
+        "Àñ°ü»ı·Ö",
+        "Ò»ºÏ³äÖµ",
+        "¶şºÏ³äÖµ",
+        "ÈıºÏºó³äÖµ",
     },
     {
-        "å……å€¼10",
-        "å……å€¼30",
-        "å……å€¼68",
-        "å……å€¼128",
-        "å……å€¼198",
-        "å……å€¼328",
-        "å……å€¼648",
-        "å……å€¼998",
+        "³äÖµ10",
+        "³äÖµ30",
+        "³äÖµ68",
+        "³äÖµ128",
+        "³äÖµ198",
+        "³äÖµ328",
+        "³äÖµ648",
+        "³äÖµ998",
     },
     {
         {
-            "ä¸ªäººå˜é‡",
+            "¸öÈË±äÁ¿",
             105,
             178,
         },
         {
-            "ä¸ªäººæ ‡è¯†",
+            "¸öÈË±êÊ¶",
             225,
             178,
         },
         {
-            "ä¸ªäººBuff",
+            "¸öÈËBuff",
             105,
             144,
         },
         {
-            "å…¨å±€å˜é‡",
+            "È«¾Ö±äÁ¿",
             225,
             144,
         },
     },
     {
-        "è¶…çº§ç‰¹æƒ",
-        "å‰ä¸‰å¤©é¦–å……",
-        "ä¸‰å¤©åé¦–å……",
-        "18ç¤¼åŒ…",
+        "³¬¼¶ÌØÈ¨",
+        "Ç°ÈıÌìÊ×³ä",
+        "ÈıÌìºóÊ×³ä",
+        "18Àñ°ü",
     },
 }
 npc[998] = function(p2, p3, Data)
@@ -8190,10 +8190,10 @@ npc[998] = function(p2, p3, Data)
     end)
     local ImageView = GUI:Image_Create(npc.bg, "ImageView", 118.0, 495.0, "res/wy/public/input.png")
     local mingzi_sr = GUI:TextInput_Create(ImageView, "mingzi_sr", 0.0, 0.0, 155.0, 30.0, 16)
-    GUI:TextInput_setPlaceHolder(mingzi_sr, "ç©å®¶åå­—")
+    GUI:TextInput_setPlaceHolder(mingzi_sr, "Íæ¼ÒÃû×Ö")
     GUI:setTouchEnabled(mingzi_sr, true)
     local an_mz = GUI:Button_Create(npc.bg, "an_mz", 293.0, 493.0, "res/public/1900000660.png")
-    GUI:Button_setTitleText(an_mz, "æ˜¯å¦åœ¨çº¿")
+    GUI:Button_setTitleText(an_mz, "ÊÇ·ñÔÚÏß")
     GUI:Button_setTitleColor(an_mz, "#28ef01")
     GUI:Button_setTitleFontSize(an_mz, 14)
     GUI:Button_titleEnableOutline(an_mz, "#000000", 1)
@@ -8201,19 +8201,19 @@ npc[998] = function(p2, p3, Data)
     }, {
         {
             493,
-            "è¸¢ä¸‹çº¿",
+            "ÌßÏÂÏß",
         },
         {
             440,
-            "åŠ å…¥åˆ—è¡¨",
+            "¼ÓÈëÁĞ±í",
         },
         {
             383,
-            "å»é™¤åˆ—è¡¨",
+            "È¥³ıÁĞ±í",
         },
         {
             323,
-            "æ˜¾ç¤ºåˆ—è¡¨",
+            "ÏÔÊ¾ÁĞ±í",
         },
     }
     for i, v in ipairs(han_zb) do
@@ -8224,7 +8224,7 @@ npc[998] = function(p2, p3, Data)
         GUI:Button_titleEnableOutline(an_txx[i], "#000000", 1)
     end
     local an_huobi = GUI:Image_Create(npc.bg, "an_huobi", 120.0, 445.0, "res/wy/public/input.png")
-    local Text_huobi = GUI:Text_Create(an_huobi, "Text_huobi", 71.0, 14.0, 16, "#ffffff", [[è´§å¸ç§ç±»]])
+    local Text_huobi = GUI:Text_Create(an_huobi, "Text_huobi", 71.0, 14.0, 16, "#ffffff", [[»õ±ÒÖÖÀà]])
     GUI:setAnchorPoint(Text_huobi, 0.5, 0.5)
     GUI:Text_enableOutline(Text_huobi, "#000000", 1)
     GUI:setTouchEnabled(an_huobi, true)
@@ -8239,28 +8239,28 @@ npc[998] = function(p2, p3, Data)
     end)
     local ImageView_1 = GUI:Image_Create(npc.bg, "ImageView_1", 118.0, 355.0, "res/wy/public/input.png")
     local huobi_sr = GUI:TextInput_Create(ImageView_1, "huobi_sr", 0.0, 0.0, 155.0, 30.0, 16)
-    GUI:TextInput_setPlaceHolder(huobi_sr, "ä¿®æ”¹æ•°å€¼")
+    GUI:TextInput_setPlaceHolder(huobi_sr, "ĞŞ¸ÄÊıÖµ")
     GUI:setTouchEnabled(huobi_sr, true)
     local an_huobicha = GUI:Button_Create(npc.bg, "an_huobicha", 293.0, 440.0, "res/public/1900000660.png")
-    GUI:Button_setTitleText(an_huobicha, "è´§å¸æŸ¥è¯¢")
+    GUI:Button_setTitleText(an_huobicha, "»õ±Ò²éÑ¯")
     GUI:Button_setTitleColor(an_huobicha, "#28ef01")
     GUI:Button_setTitleFontSize(an_huobicha, 14)
     GUI:Button_titleEnableOutline(an_huobicha, "#000000", 1)
     GUI:setTouchEnabled(an_huobicha, true)
     local an_huobigai = GUI:Button_Create(npc.bg, "an_huobigai", 293.0, 383.0, "res/public/1900000660.png")
-    GUI:Button_setTitleText(an_huobigai, "è´§å¸ä¿®æ”¹")
+    GUI:Button_setTitleText(an_huobigai, "»õ±ÒĞŞ¸Ä")
     GUI:Button_setTitleColor(an_huobigai, "#28ef01")
     GUI:Button_setTitleFontSize(an_huobigai, 14)
     GUI:Button_titleEnableOutline(an_huobigai, "#000000", 1)
     GUI:setTouchEnabled(an_huobigai, true)
     local an_hbzj = GUI:Button_Create(npc.bg, "an_hbzj", 293.0, 323.0, "res/public/1900000660.png")
-    GUI:Button_setTitleText(an_hbzj, "è´§å¸å¢åŠ ")
+    GUI:Button_setTitleText(an_hbzj, "»õ±ÒÔö¼Ó")
     GUI:Button_setTitleColor(an_hbzj, "#28ef01")
     GUI:Button_setTitleFontSize(an_hbzj, 14)
     GUI:Button_titleEnableOutline(an_hbzj, "#000000", 1)
     GUI:setTouchEnabled(an_hbzj, true)
     local an_libao = GUI:Image_Create(npc.bg, "an_libao", 550.0, 495.0, "res/wy/public/input.png")
-    local Text_libao = GUI:Text_Create(an_libao, "Text_libao", 75.0, 15.0, 16, "#ffffff", [[ç¤¼åŒ…ç§ç±»]])
+    local Text_libao = GUI:Text_Create(an_libao, "Text_libao", 75.0, 15.0, 16, "#ffffff", [[Àñ°üÖÖÀà]])
     GUI:setAnchorPoint(Text_libao, 0.5, 0.5)
     GUI:Text_enableOutline(Text_libao, "#000000", 1)
     GUI:setTouchEnabled(an_libao, true)
@@ -8274,7 +8274,7 @@ npc[998] = function(p2, p3, Data)
         end)
     end)
     local an_lb = GUI:Button_Create(npc.bg, "an_lb", 724.0, 491.0, "res/public/1900000660.png")
-    GUI:Button_setTitleText(an_lb, "å¢åŠ ç¤¼åŒ…")
+    GUI:Button_setTitleText(an_lb, "Ôö¼ÓÀñ°ü")
     GUI:Button_setTitleColor(an_lb, "#00ffff")
     GUI:Button_setTitleFontSize(an_lb, 14)
     GUI:Button_titleEnableOutline(an_lb, "#000000", 1)
@@ -8285,7 +8285,7 @@ npc[998] = function(p2, p3, Data)
     local function requirePlayerName()
         local name = GUI:TextInput_getString(mingzi_sr)
         if name == "" then
-            showErrorTip("è¯·æ­£ç¡®è¾“å…¥ç©å®¶åå­—")
+            showErrorTip("ÇëÕıÈ·ÊäÈëÍæ¼ÒÃû×Ö")
             return nil
         end
         return name
@@ -8301,7 +8301,7 @@ npc[998] = function(p2, p3, Data)
     local function requireNumber(inputWidget, tip)
         local value = tonumber(GUI:TextInput_getString(inputWidget))
         if not value then
-            showErrorTip(tip or "è¯·è¾“å…¥æ•°å­—")
+            showErrorTip(tip or "ÇëÊäÈëÊı×Ö")
             return nil
         end
         return value
@@ -8319,17 +8319,17 @@ npc[998] = function(p2, p3, Data)
         if not name then
             return
         end
-        local currencyName = requireSelection(Text_huobi, "è´§å¸ç§ç±»", "è¯·æ­£ç¡®é€‰æ‹©è´§å¸åå­—")
+        local currencyName = requireSelection(Text_huobi, "»õ±ÒÖÖÀà", "ÇëÕıÈ·Ñ¡Ôñ»õ±ÒÃû×Ö")
         if not currencyName then
             return
         end
-        local amount = requireNumber(huobi_sr, "è¯·è¾“å…¥æ•°é‡")
+        local amount = requireNumber(huobi_sr, "ÇëÊäÈëÊıÁ¿")
         if not amount then
             return
         end
         local currencyId = findIndexByLabel(xlxl[1], currencyName)
         if not currencyId then
-            showErrorTip("æœªçŸ¥è´§å¸ç±»å‹ï¼Œè¯·é‡æ–°é€‰æ‹©")
+            showErrorTip("Î´Öª»õ±ÒÀàĞÍ£¬ÇëÖØĞÂÑ¡Ôñ")
             return
         end
         SL:SendLuaNetMsg(101, 998, 1, opCode, string.format('{"mz":"%s","hb":%d,"sl":%d}', name, currencyId, amount))
@@ -8339,7 +8339,7 @@ npc[998] = function(p2, p3, Data)
         if not name then
             return
         end
-        local giftName = requireSelection(Text_libao, "ç¤¼åŒ…ç§ç±»", "è¯·æ­£ç¡®é€‰æ‹©ç¤¼åŒ…ç§ç±»")
+        local giftName = requireSelection(Text_libao, "Àñ°üÖÖÀà", "ÇëÕıÈ·Ñ¡ÔñÀñ°üÖÖÀà")
         if not giftName then
             return
         end
@@ -8347,7 +8347,7 @@ npc[998] = function(p2, p3, Data)
         SL:release_print(giftId)
         SL:release_print(giftName)
         if not giftId then
-            showErrorTip("æœªçŸ¥ç¤¼åŒ…ç±»å‹ï¼Œè¯·é‡æ–°é€‰æ‹©")
+            showErrorTip("Î´ÖªÀñ°üÀàĞÍ£¬ÇëÖØĞÂÑ¡Ôñ")
             return
         end
         SL:SendLuaNetMsg(101, 998, 1, 4, string.format('{"mz":"%s","hb":%d}', name, giftId))
@@ -8376,13 +8376,13 @@ npc[998] = function(p2, p3, Data)
         if not name then
             return
         end
-        local currencyName = requireSelection(Text_huobi, "è´§å¸ç§ç±»", "è¯·æ­£ç¡®é€‰æ‹©è´§å¸åå­—")
+        local currencyName = requireSelection(Text_huobi, "»õ±ÒÖÖÀà", "ÇëÕıÈ·Ñ¡Ôñ»õ±ÒÃû×Ö")
         if not currencyName then
             return
         end
         local currencyId = findIndexByLabel(xlxl[1], currencyName)
         if not currencyId then
-            showErrorTip("æœªçŸ¥è´§å¸ç±»å‹ï¼Œè¯·é‡æ–°é€‰æ‹©")
+            showErrorTip("Î´Öª»õ±ÒÀàĞÍ£¬ÇëÖØĞÂÑ¡Ôñ")
             return
         end
         SL:SendLuaNetMsg(101, 998, 1, 1, string.format('{"mz":"%s","hb":%d}', name, currencyId))
@@ -8397,7 +8397,7 @@ npc[998] = function(p2, p3, Data)
         handleGiftAdd()
     end)
     local an_libao_ts = GUI:Image_Create(npc.bg, "an_libao_ts", 550.0, 455.0, "res/wy/public/input.png")
-    local Text_libao_ts = GUI:Text_Create(an_libao_ts, "Text_libao_ts", 75.0, 15.0, 16, "#ffffff", [[ç¤¼åŒ…ç§ç±»]])
+    local Text_libao_ts = GUI:Text_Create(an_libao_ts, "Text_libao_ts", 75.0, 15.0, 16, "#ffffff", [[Àñ°üÖÖÀà]])
     GUI:setAnchorPoint(Text_libao_ts, 0.5, 0.5)
     GUI:Text_enableOutline(Text_libao_ts, "#000000", 1)
     GUI:setTouchEnabled(an_libao_ts, true)
@@ -8411,20 +8411,20 @@ npc[998] = function(p2, p3, Data)
         end)
     end)
     local huobi_sr_je = GUI:TextInput_Create(npc.bg, "huobi_sr_je", 550.0, 411.0, 115, 30.0, 16)
-    GUI:TextInput_setPlaceHolder(huobi_sr_je, "é‡‘é¢")
+    GUI:TextInput_setPlaceHolder(huobi_sr_je, "½ğ¶î")
     GUI:setTouchEnabled(huobi_sr_je, true)
     local an_lb_ts_je = GUI:Button_Create(npc.bg, "an_lb_ts_je", 724.0, 411.0, "res/public/1900000660.png")
-    GUI:Button_setTitleText(an_lb_ts_je, "é‡‘é¢å……å€¼")
+    GUI:Button_setTitleText(an_lb_ts_je, "½ğ¶î³äÖµ")
     GUI:addOnClickEvent(an_lb_ts_je, function()
         local mz = GUI:TextInput_getString(mingzi_sr)
         if mz == "" then
-            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>è¯·æ­£ç¡®è¾“å…¥ç©å®¶åå­—</font></outline>")
+            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>ÇëÕıÈ·ÊäÈëÍæ¼ÒÃû×Ö</font></outline>")
         else
             SL:SendLuaNetMsg(101, 998, 5, 0, '{"mz":"' .. mz .. '","hb":' .. GUI:TextInput_getString(huobi_sr_je) .. '}')
         end
     end)
     local an_lb_ts = GUI:Button_Create(npc.bg, "an_lb_ts", 724.0, 451.0, "res/public/1900000660.png")
-    GUI:Button_setTitleText(an_lb_ts, "å¢åŠ ç¤¼åŒ…(ç‰¹æ®Š)")
+    GUI:Button_setTitleText(an_lb_ts, "Ôö¼ÓÀñ°ü(ÌØÊâ)")
     GUI:Button_setTitleColor(an_lb_ts, "#00ffff")
     GUI:Button_setTitleFontSize(an_lb_ts, 14)
     GUI:Button_titleEnableOutline(an_lb_ts, "#000000", 1)
@@ -8432,11 +8432,11 @@ npc[998] = function(p2, p3, Data)
     GUI:addOnClickEvent(an_lb_ts, function()
         local mz = GUI:TextInput_getString(mingzi_sr)
         if mz == "" then
-            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>è¯·æ­£ç¡®è¾“å…¥ç©å®¶åå­—</font></outline>")
+            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>ÇëÕıÈ·ÊäÈëÍæ¼ÒÃû×Ö</font></outline>")
         else
             local hb = GUI:Text_getString(Text_libao_ts)
-            if hb == "ç¤¼åŒ…ç§ç±»" or hb == "" then
-                SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>è¯·æ­£ç¡®é€‰æ‹©ç¤¼åŒ…ç§ç±»</font></outline>")
+            if hb == "Àñ°üÖÖÀà" or hb == "" then
+                SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>ÇëÕıÈ·Ñ¡ÔñÀñ°üÖÖÀà</font></outline>")
             else
                 local id = 0
                 for k, v in pairs(xlxl[4]) do
@@ -8450,29 +8450,29 @@ npc[998] = function(p2, p3, Data)
     end)
     local ImageView_2_1 = GUI:Image_Create(npc.bg, "ImageView_2_1", 91.0, 261.0, "res/wy/public/input.png")
     local wpmz_sr = GUI:TextInput_Create(ImageView_2_1, "wpmz_sr", 0.0, 0.0, 155.0, 30.0, 16)
-    GUI:TextInput_setPlaceHolder(wpmz_sr, "ç‰©å“åç§°")
+    GUI:TextInput_setPlaceHolder(wpmz_sr, "ÎïÆ·Ãû³Æ")
     local ImageView_2_1_1 = GUI:Image_Create(npc.bg, "ImageView_2_1_1", 258.0, 261.0, "res/wy/public/input.png")
     GUI:setContentSize(ImageView_2_1_1, 50, 31)
     local wpsl_sr = GUI:TextInput_Create(ImageView_2_1_1, "wpsl_sr", 0.0, 0.0, 50.0, 30.0, 16)
-    GUI:TextInput_setPlaceHolder(wpsl_sr, "æ•°é‡")
+    GUI:TextInput_setPlaceHolder(wpsl_sr, "ÊıÁ¿")
     local CheckBox_wp = GUI:CheckBox_Create(ImageView_2_1_1, "CheckBox_wp", 76.0, 4.0, "res/public/1900000550.png", "res/public/1900000551.png")
     GUI:CheckBox_setSelected(CheckBox_wp, false)
     GUI:setTouchEnabled(CheckBox_wp, true)
-    local Text = GUI:Text_Create(CheckBox_wp, "Text", 33.0, 3.0, 16, "#ffffff", [[å‹¾é€‰åç»‘å®š]])
+    local Text = GUI:Text_Create(CheckBox_wp, "Text", 33.0, 3.0, 16, "#ffffff", [[¹´Ñ¡ºó°ó¶¨]])
     GUI:Text_enableOutline(Text, "#000000", 1)
     local an_wpk = GUI:Button_Create(npc.bg, "an_wpk", 95.0, 210.0, "res/public/1900000660.png")
-    GUI:Button_setTitleText(an_wpk, "å¢åŠ ")
+    GUI:Button_setTitleText(an_wpk, "Ôö¼Ó")
     GUI:Button_setTitleColor(an_wpk, "#00ffff")
     GUI:Button_setTitleFontSize(an_wpk, 14)
     GUI:Button_titleEnableOutline(an_wpk, "#000000", 1)
     GUI:addOnClickEvent(an_wpk, function()
         local mz, wp, sl = GUI:TextInput_getString(mingzi_sr), GUI:Text_getString(wpmz_sr), tonumber(GUI:Text_getString(wpsl_sr))
         if mz == "" then
-            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>è¯·æ­£ç¡®è¾“å…¥ç©å®¶åå­—</font></outline>")
+            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>ÇëÕıÈ·ÊäÈëÍæ¼ÒÃû×Ö</font></outline>")
         elseif wp == "" then
-            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>è¯·æ­£ç¡®è¾“å…¥ç‰©å“åå­—</font></outline>")
+            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>ÇëÕıÈ·ÊäÈëÎïÆ·Ãû×Ö</font></outline>")
         elseif not sl then
-            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>è¯·æ­£ç¡®è¾“å…¥æ•°é‡</font></outline>")
+            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>ÇëÕıÈ·ÊäÈëÊıÁ¿</font></outline>")
         else
             local zt = 0
             if GUI:CheckBox_isSelected(CheckBox_wp) then
@@ -8484,63 +8484,63 @@ npc[998] = function(p2, p3, Data)
         end
     end)
     local an_wpj = GUI:Button_Create(npc.bg, "an_wpj", 232.0, 210.0, "res/public/1900000660.png")
-    GUI:Button_setTitleText(an_wpj, "æ‰£é™¤")
+    GUI:Button_setTitleText(an_wpj, "¿Û³ı")
     GUI:Button_setTitleColor(an_wpj, "#00ffff")
     GUI:Button_setTitleFontSize(an_wpj, 14)
     GUI:Button_titleEnableOutline(an_wpj, "#000000", 1)
     GUI:addOnClickEvent(an_wpj, function()
         local mz, wp, sl = GUI:TextInput_getString(mingzi_sr), GUI:Text_getString(wpmz_sr), tonumber(GUI:Text_getString(wpsl_sr))
         if mz == "" then
-            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>è¯·æ­£ç¡®è¾“å…¥ç©å®¶åå­—</font></outline>")
+            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>ÇëÕıÈ·ÊäÈëÍæ¼ÒÃû×Ö</font></outline>")
         elseif wp == "" then
-            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>è¯·æ­£ç¡®è¾“å…¥ç‰©å“åå­—</font></outline>")
+            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>ÇëÕıÈ·ÊäÈëÎïÆ·Ãû×Ö</font></outline>")
         elseif not sl then
-            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>è¯·æ­£ç¡®è¾“å…¥æ•°é‡</font></outline>")
+            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>ÇëÕıÈ·ÊäÈëÊıÁ¿</font></outline>")
         else
             SL:SendLuaNetMsg(101, 998, 2, 2, '{"mz":"' .. mz .. '","wp":"' .. wp .. '","sl":' .. sl .. '}')
         end
     end)
     local an_wpj = GUI:Button_Create(npc.bg, "an_wpfs", 369.0, 210.0, "res/public/1900000660.png")
-    GUI:Button_setTitleText(an_wpj, "å‘å°„")
+    GUI:Button_setTitleText(an_wpj, "·¢Éä")
     GUI:Button_setTitleColor(an_wpj, "#00ffff")
     GUI:Button_setTitleFontSize(an_wpj, 14)
     GUI:Button_titleEnableOutline(an_wpj, "#000000", 1)
     GUI:addOnClickEvent(an_wpj, function()
         local mz, wp, sl = GUI:TextInput_getString(mingzi_sr), GUI:Text_getString(wpmz_sr), tonumber(GUI:Text_getString(wpsl_sr))
         if mz == "" then
-            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>è¯·æ­£ç¡®è¾“å…¥ç©å®¶åå­—</font></outline>")
+            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>ÇëÕıÈ·ÊäÈëÍæ¼ÒÃû×Ö</font></outline>")
         elseif wp == "" then
-            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>è¯·æ­£ç¡®è¾“å…¥ç‰©å“åå­—</font></outline>")
+            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>ÇëÕıÈ·ÊäÈëÎïÆ·Ãû×Ö</font></outline>")
         elseif not sl then
-            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>è¯·æ­£ç¡®è¾“å…¥æ•°é‡</font></outline>")
+            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>ÇëÕıÈ·ÊäÈëÊıÁ¿</font></outline>")
         else
             SL:SendLuaNetMsg(101, 998, 2, 3, '{"mz":"' .. mz .. '","wp":"' .. wp .. '","sl":' .. sl .. '}')
         end
     end)
     local an_ch = GUI:Button_Create(npc.bg, "an_chfs", 500.0, 210.0, "res/public/1900000660.png")
-    GUI:Button_setTitleText(an_ch, "å‘é€æˆ–è€…æ”¶å›ç§°å·")
+    GUI:Button_setTitleText(an_ch, "·¢ËÍ»òÕßÊÕ»Ø³ÆºÅ")
     GUI:Button_setTitleColor(an_ch, "#00ffff")
     GUI:Button_setTitleFontSize(an_ch, 14)
     GUI:Button_titleEnableOutline(an_ch, "#000000", 1)
     GUI:addOnClickEvent(an_ch, function()
         local mz, wp, sl = GUI:TextInput_getString(mingzi_sr), GUI:Text_getString(wpmz_sr), tonumber(GUI:Text_getString(wpsl_sr))
         if mz == "" then
-            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>è¯·æ­£ç¡®è¾“å…¥ç©å®¶åå­—</font></outline>")
+            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>ÇëÕıÈ·ÊäÈëÍæ¼ÒÃû×Ö</font></outline>")
         elseif wp == "" then
-            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>è¯·æ­£ç¡®è¾“å…¥ç§°å·åå­—</font></outline>")
+            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>ÇëÕıÈ·ÊäÈë³ÆºÅÃû×Ö</font></outline>")
         else
             SL:SendLuaNetMsg(101, 998, 2, 4, '{"mz":"' .. mz .. '","ch":"' .. wp .. '"}')
         end
     end)
     local an_sbk = GUI:Button_Create(npc.bg, "an_sbk", 630.0, 210.0, "res/public/1900000660.png")
-    GUI:Button_setTitleText(an_sbk, "è®¾ç½®æ²™å·´å…‹å½’å±,åå­—å¤„å¡«å…¥è¡Œä¼šå")
+    GUI:Button_setTitleText(an_sbk, "ÉèÖÃÉ³°Í¿Ë¹éÊô,Ãû×Ö´¦ÌîÈëĞĞ»áÃû")
     GUI:Button_setTitleColor(an_sbk, "#00ffff")
     GUI:Button_setTitleFontSize(an_sbk, 14)
     GUI:Button_titleEnableOutline(an_sbk, "#000000", 1)
     GUI:addOnClickEvent(an_sbk, function()
         local mz, wp, sl = GUI:TextInput_getString(mingzi_sr), GUI:Text_getString(wpmz_sr), tonumber(GUI:Text_getString(wpsl_sr))
         if mz == "" then
-            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>è¯·æ­£ç¡®è¾“å…¥è¡Œä¼šå</font></outline>")
+            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>ÇëÕıÈ·ÊäÈëĞĞ»áÃû</font></outline>")
         else
             SL:SendLuaNetMsg(101, 998, 2, 5, '{"mz":"' .. mz .. '","wp":"' .. wp .. '"}')
         end
@@ -8564,13 +8564,13 @@ npc[998] = function(p2, p3, Data)
     local blmz = GUI:Image_Create(npc.bg, "blmz", 99.0, 98.0, "res/wy/public/input.png")
     GUI:setContentSize(blmz, 100, 31)
     local bianliang_sr = GUI:TextInput_Create(blmz, "bianliang_sr", 0.0, 0.0, 100.0, 30.0, 16)
-    GUI:TextInput_setPlaceHolder(bianliang_sr, "å˜é‡å")
+    GUI:TextInput_setPlaceHolder(bianliang_sr, "±äÁ¿Ãû")
     local bl_xg = GUI:Image_Create(npc.bg, "bl_xg", 236.0, 98.0, "res/wy/public/input.png")
     GUI:setContentSize(bl_xg, 100, 31)
     local bianliang_xg = GUI:TextInput_Create(bl_xg, "bianliang_xg", 0.0, 0.0, 100.0, 30.0, 16)
-    GUI:TextInput_setPlaceHolder(bianliang_xg, "ä¿®æ”¹å€¼")
+    GUI:TextInput_setPlaceHolder(bianliang_xg, "ĞŞ¸ÄÖµ")
     local an_blc = GUI:Button_Create(npc.bg, "an_blc", 95.0, 44.0, "res/public/1900000660.png")
-    GUI:Button_setTitleText(an_blc, "æŸ¥è¯¢")
+    GUI:Button_setTitleText(an_blc, "²éÑ¯")
     GUI:Button_setTitleColor(an_blc, "#00ffff")
     GUI:Button_setTitleFontSize(an_blc, 14)
     GUI:Button_titleEnableOutline(an_blc, "#000000", 1)
@@ -8583,15 +8583,15 @@ npc[998] = function(p2, p3, Data)
             end
         end
         if mz == "" and lx ~= 4 then
-            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>è¯·æ­£ç¡®è¾“å…¥ç©å®¶åå­—</font></outline>")
+            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>ÇëÕıÈ·ÊäÈëÍæ¼ÒÃû×Ö</font></outline>")
         elseif bl == "" then
-            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>è¯·æ­£ç¡®è¾“å…¥å˜é‡åå­—</font></outline>")
+            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>ÇëÕıÈ·ÊäÈë±äÁ¿Ãû×Ö</font></outline>")
         else
             SL:SendLuaNetMsg(101, 998, 3, 1, '{"mz":"' .. mz .. '","bl":"' .. bl .. '","lx":' .. lx .. '}')
         end
     end)
     local an_blg = GUI:Button_Create(npc.bg, "an_blg", 232.0, 44.0, "res/public/1900000660.png")
-    GUI:Button_setTitleText(an_blg, "ä¿®æ”¹")
+    GUI:Button_setTitleText(an_blg, "ĞŞ¸Ä")
     GUI:Button_setTitleColor(an_blg, "#00ffff")
     GUI:Button_setTitleFontSize(an_blg, 14)
     GUI:Button_titleEnableOutline(an_blg, "#000000", 1)
@@ -8604,11 +8604,11 @@ npc[998] = function(p2, p3, Data)
             end
         end
         if mz == "" and lx ~= 4 then
-            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>è¯·æ­£ç¡®è¾“å…¥ç©å®¶åå­—</font></outline>")
+            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>ÇëÕıÈ·ÊäÈëÍæ¼ÒÃû×Ö</font></outline>")
         elseif bl == "" then
-            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>è¯·æ­£ç¡®è¾“å…¥å˜é‡åå­—</font></outline>")
+            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>ÇëÕıÈ·ÊäÈë±äÁ¿Ãû×Ö</font></outline>")
         elseif zhi == "" then
-            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>è¯·æ­£ç¡®è¾“å…¥ä¿®æ”¹å€¼</font></outline>")
+            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>ÇëÕıÈ·ÊäÈëĞŞ¸ÄÖµ</font></outline>")
         else
             SL:SendLuaNetMsg(101, 998, 3, 2, '{"mz":"' .. mz .. '","bl":"' .. bl .. '","lx":' .. lx .. ',"zhi":' .. zhi .. '}')
         end
