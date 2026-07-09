@@ -1,4 +1,4 @@
-local npc = {}
+﻿local npc = {}
 
 npc._config = teshudata["npc_85"] or {}
 
@@ -15,6 +15,14 @@ local DETAIL_WINDOW_OPTS = {
     closeButton = {x = 560 - 50, y = 594 - 70, skin = "res/wy/public/close_red_big.png"},
 }
 
+local STAGE_WINDOW_OPTS = {
+    windowName = "npc_85_stage_upgrade",
+    overlay = {skin = "res/custom/treasureBasin/x.png"},
+    background = {skin = "res/custom/treasureBasin/xjm_bg.png", eff = false},
+    closeButton = {x = 555, y = 338, skin = "res/wy/public/close_red_big.png"},
+    zOrder = 200,
+}
+
 local FONT_MAIN = "fonts/font4.ttf"
 local FONT_TITLE = "fonts/502.ttf"
 
@@ -24,6 +32,7 @@ local COST_LABEL = "res/custom/six_city/星象圣图/所需消耗：.png"
 local SELECT_SKIN = "res/custom/six_city/星象圣图/选中框.png"
 local ITEM_BOX_SKIN = "res/custom/six_city/星象圣图/装备框-.png"
 local DETAIL_ITEM_BOX_SKIN = "res/custom/six_city/星象圣图/次级页面/装备框-.png"
+local STAGE_ITEM_BOX_SKIN = "res/custom/six_city/星象圣图/装备框-.png"
 
 local MAIN_NODE_POS = {
     {x = 169, y = 265},
@@ -44,6 +53,7 @@ local DETAIL_COST_POS = {
 
 local renderMain
 local renderDetail
+local renderStageUpgrade
 
 local function toNumber(value, defaultValue)
     local num = tonumber(value)
@@ -82,24 +92,40 @@ local function closeDetailWindow()
     end
 end
 
-local function ensureWindow(npcid)
+local function closeStageWindow()
+    if npc.stageWindow then
+        UIHelper.closeWindow(npc.stageWindow)
+        npc.stageWindow = nil
+        npc.stageBg = nil
+        npc.stageNode = nil
+    end
+end
+
+local function ensureWindow(id)
     local opts = {}
     for k, v in pairs(WINDOW_OPTS) do
         opts[k] = v
     end
-    opts.titleText = UIHelper.formatNpcTitle(npcid, npc._config)
+    opts.titleText = UIHelper.formatNpcTitle(id, npc._config)
     opts.subTitle = npc._config and npc._config.name
-    npc._window = UIHelper.ensureWindow(npc._window, npcid, opts)
+    npc._window = UIHelper.ensureWindow(npc._window, id, opts)
     npc.bg = npc._window.bg
     npc.node = npc._window.node
     return npc.node
 end
 
-local function ensureDetailWindow(npcid)
-    npc.detailWindow = UIHelper.ensureWindow(npc.detailWindow, npcid, DETAIL_WINDOW_OPTS)
+local function ensureDetailWindow(id)
+    npc.detailWindow = UIHelper.ensureWindow(npc.detailWindow, id, DETAIL_WINDOW_OPTS)
     npc.detailBg = npc.detailWindow and npc.detailWindow.bg or nil
     npc.detailNode = npc.detailWindow and npc.detailWindow.node or nil
     return npc.detailNode
+end
+
+local function ensureStageWindow(id)
+    npc.stageWindow = UIHelper.ensureWindow(npc.stageWindow, id, STAGE_WINDOW_OPTS)
+    npc.stageBg = npc.stageWindow and npc.stageWindow.bg or nil
+    npc.stageNode = npc.stageWindow and npc.stageWindow.node or nil
+    return npc.stageNode
 end
 
 local function getStageCfg(stageIdx)
@@ -287,7 +313,7 @@ local function getNodeIconSkin(stageIdx, nodeIdx)
     local stageCfg = getStageCfg(stageIdx)
     local nodeCfg = (stageCfg.nodes or {})[nodeIdx] or {}
     local stageName = tostring(stageCfg.name or "初星")
-    local nodeName = tostring(nodeCfg.name or ("星宿" .. tostring(nodeIdx)))
+    local nodeName = tostring(nodeCfg.name or ("初星" .. tostring(nodeIdx)))
     return string.format("res/custom/six_city/星象圣图/%sicon/星宿%d·%s.png", stageName, nodeIdx, nodeName)
 end
 
@@ -310,6 +336,53 @@ local function renderEntryCostBoxes(parent, entryList, positions, boxSkin)
             createText(box, "entry_need_" .. idx, 30, -2, 12, "#FFFFFF", "/" .. tostring(needNum), FONT_MAIN, 0, 0)
         end
     end
+end
+
+local function sliceList(list, startIdx, endIdx)
+    local result = {}
+    for idx = startIdx, endIdx do
+        if list[idx] then
+            result[#result + 1] = list[idx]
+        end
+    end
+    return result
+end
+
+local function getCostRowWidth(count)
+    if count <= 0 then
+        return 0
+    end
+    return count * 58 + (count - 1) * 20
+end
+
+local function renderCheckItemCostGrid(parent, entryList, centerX, baseY)
+    local count = #(entryList or {})
+    if count <= 0 then
+        return nil
+    end
+
+    local rows = {}
+    if count <= 3 then
+        rows[1] = entryList
+    elseif count == 4 then
+        rows[1] = sliceList(entryList, 1, 2)
+        rows[2] = sliceList(entryList, 3, 4)
+    else
+        rows[1] = sliceList(entryList, 1, 3)
+        rows[2] = sliceList(entryList, 4, count)
+    end
+
+    local wrap = GUI:Node_Create(parent, "cost_wrap", 0, 0)
+    for rowIdx, rowList in ipairs(rows) do
+        local rowParent = GUI:Node_Create(wrap, "cost_row_" .. rowIdx, 0, 0)
+        local rowNode = checkItemNumByTable_img_kuang(rowList, nil, rowParent)
+        if rowNode then
+            local rowWidth = getCostRowWidth(#rowList)
+            local posY = baseY - (rowIdx - 1) * 72
+            GUI:setPosition(rowParent, centerX - rowWidth / 2, posY)
+        end
+    end
+    return wrap
 end
 
 local function buildNodeStateText(stageIdx, nodeIdx)
@@ -376,6 +449,100 @@ renderDetail = function(npcid, stageIdx, nodeIdx)
     -- end
 end
 
+renderStageUpgrade = function(npcid, stageIdx)
+    local node = ensureStageWindow(npcid)
+    if not node then
+        return
+    end
+    GUI:removeAllChildren(node)
+
+    local stageCfg = getStageCfg(stageIdx)
+    local unlocked = isStageUnlocked(stageIdx)
+    local full = isStageFull(stageIdx)
+    local nextNodeIdx = getNextNodeIdx(stageIdx)
+    local nodeCount = getNodeCount(stageIdx)
+    local selectedNodeIdx = getSelectedNodeIdx(stageIdx)
+    local selectedNodeCfg = ((stageCfg.nodes or {})[selectedNodeIdx] or {})
+    local unlockCost = normalizeEntryList(stageCfg.unlock_cost or {})
+    local nodeCost = normalizeEntryList(selectedNodeCfg.cost or {})
+    local costList = unlocked and nodeCost or unlockCost
+    local stateText = full and "当前阶段已全部点亮" or (unlocked and string.format("当前进度：%d/%d", math.max(0, nextNodeIdx - 1), nodeCount) or "当前阶段尚未解锁")
+    local actionText = full and "已完成" or (unlocked and "点亮星宿" or "解锁圣图")
+
+    local bg_img = GUI:Image_Create(node, "bg_img", 15, 15, "res/custom/six_city/星象圣图/2.png")
+    GUI:setContentSize(bg_img, 570, 350)
+
+
+
+    -- createText(node, "title", 80, 338, 30, "#FFE8A8", "升级预览", FONT_TITLE, 0.5, 0.5)
+    
+
+    local descBg = GUI:Image_Create(node, "desc_bg", 276, 272 + 40, "res/wy/public/tycccc.png")
+    GUI:setAnchorPoint(descBg, 0.5, 0.5)
+    GUI:setContentSize(descBg, 486, 84)
+    GUI:setIgnoreContentAdaptWithSize(descBg, false)
+
+    local leftBg = GUI:Image_Create(node, "left_panel_bg", 160 - 40, 132, "res/wy/public/tycccc.png")
+    GUI:setAnchorPoint(leftBg, 0.5, 0.5)
+    GUI:setContentSize(leftBg, 192, 172)
+    GUI:setIgnoreContentAdaptWithSize(leftBg, false)
+
+    -- local rightTopBg = GUI:Image_Create(node, "right_top_bg", 418, 166, "res/wy/public/tycccc.png")
+    -- GUI:setAnchorPoint(rightTopBg, 0.5, 0.5)
+    -- GUI:setContentSize(rightTopBg, 252, 132)
+    -- GUI:setIgnoreContentAdaptWithSize(rightTopBg, false)
+
+    -- local rightBottomBg = GUI:Image_Create(node, "right_bottom_bg", 418, 54, "res/wy/public/tycccc.png")
+    -- GUI:setAnchorPoint(rightBottomBg, 0.5, 0.5)
+    -- GUI:setContentSize(rightBottomBg, 252, 104)
+    -- GUI:setIgnoreContentAdaptWithSize(rightBottomBg, false)
+
+    local stageIcon = GUI:Image_Create(node, "stage_badge", 160 - 40, 132, getStageBadgeSkin(stageIdx))
+    GUI:setAnchorPoint(stageIcon, 0.5, 0.5)
+    -- createText(node, "stage_big_name", 160, 164, 42, "#FF6C58", tostring(stageCfg.name or "初星"), FONT_TITLE, 0.5, 0.5)
+    -- createText(node, "stage_name", 160, 88, 30, "#FFD66A", tostring(stageCfg.name or "初星"), FONT_TITLE, 0.5, 0.5)
+    -- createText(node, "stage_progress", 160, 28, 18, full and "#9DFF7C" or "#9FE2FF", stateText, FONT_MAIN, 0.5, 0.5)
+
+    local previewHtml
+    if full then
+        previewHtml = "<font color='#9DFF7C' size='18'>当前阶段已全部点亮</font><br></br><font color='#F6D08A' size='17'>当前大星图奖励已全部生效</font>"
+    elseif unlocked then
+        previewHtml = string.format(
+            "<font color='#FFE7A0' size='18'>当前阶段：%s</font><br></br><font color='#F5E6C6' size='18'>下一星宿：%s</font><br></br><font color='#F6D08A' size='17'>按顺序点亮全部星宿后可完成本阶段</font>",
+            tostring(stageCfg.name or "星图"),
+            tostring(selectedNodeCfg.name or ("星宿" .. tostring(selectedNodeIdx)))
+        )
+    else
+        previewHtml = string.format(
+            "<font color='#FFE7A0' size='18'>解锁后开启：%s</font><br></br><font color='#F5E6C6' size='18'>按顺序点亮全部星宿后可完成本阶段</font><br></br><font color='#F6D08A' size='17'>当前阶段奖励将在解锁后生效</font>",
+            tostring(stageCfg.name or "星图")
+        )
+    end
+    createRichBlock(node, "stage_preview", 32 + 171, 228 - 35 + 40, 486, 78, previewHtml)
+
+    local costTitle = GUI:Image_Create(node, "cost_title", 418 - 95 - 70, 200 - 80 + 40, COST_LABEL)
+    GUI:setAnchorPoint(costTitle, 0.5, 0.5)
+    renderCheckItemCostGrid(node, costList, 300 + 81, 118 + 84)
+
+    local btn = GUI:Button_Create(node, "stage_action_btn", 418 - 120, 25, BTN_LIGHT)
+    GUI:addOnClickEvent(btn, function()
+        if full then
+            SL:ShowSystemTips("当前阶段已完成")
+            return
+        end
+        if not unlocked then
+            SL:SendLuaNetMsg(100, npcid, 1, 0, SL:JsonEncode({stage = stageIdx}, false))
+            return
+        end
+        SL:SendLuaNetMsg(100, npcid, 2, 0, SL:JsonEncode({stage = stageIdx, node = selectedNodeIdx}, false))
+    end)
+    -- createText(node, "stage_action_text", 418, -24, 18, "#FFE7A8", actionText, FONT_MAIN, 0.5, 0.5)
+
+    if hasEnoughEntryCost(costList) and not full then
+        UIHelper.redpoint_create(btn, {x = 174, y = 62})
+    end
+end
+
 local function renderNodeButtons(node, npcid, stageIdx)
     local selectedNodeIdx = getSelectedNodeIdx(stageIdx)
     local nextNodeIdx = getNextNodeIdx(stageIdx)
@@ -400,29 +567,13 @@ local function renderNodeButtons(node, npcid, stageIdx)
     end
 end
 
-local function renderStageInfo(node, stageIdx)
-    local stageName = tostring((getStageCfg(stageIdx) or {}).name or "初星")
-    local stageBadge = GUI:Image_Create(node, "stage_badge", 449, 266, getStageBadgeSkin(stageIdx))
-    GUI:setAnchorPoint(stageBadge, 0.5, 0.5)
-    createText(node, "stage_name", 451, 92, 28, "#D9B45C", stageName, FONT_TITLE, 0.5, 0.5)
-    createText(node, "stage_progress", 451, 58, 16, "#F5E6C6", string.format("已点亮 %d/%d", getNextNodeIdx(stageIdx) - (isStageFull(stageIdx) and 0 or 1), getNodeCount(stageIdx)), FONT_MAIN, 0.5, 0.5)
-end
 
 local function renderRightAction(node, npcid, stageIdx)
     local selectedNodeIdx = getSelectedNodeIdx(stageIdx)
     local btn = GUI:Button_Create(node, "main_action_btn", 600, 54, BTN_UNLOCK)
     GUI:addOnClickEvent(btn, function()
-        local unlocked = isStageUnlocked(stageIdx)
-        local full = isStageFull(stageIdx)
-        if not unlocked then
-            SL:SendLuaNetMsg(100, npcid, 1, 0, SL:JsonEncode({stage = stageIdx}, false))
-            return
-        end
-        if full then
-            SL:ShowSystemTips("当前阶段已完成")
-            return
-        end
-        renderDetail(npcid, stageIdx, selectedNodeIdx)
+        closeDetailWindow()
+        renderStageUpgrade(npcid, stageIdx)
     end)
 
     if not isStageUnlocked(stageIdx) then
@@ -455,7 +606,9 @@ function npc.main(npcid, p2, p3, msgData)
         if npc.detailWindow and npc.selectedStageIdx and npc.selectedNodeIdx then
             renderDetail(npcid, npc.selectedStageIdx, npc.selectedNodeIdx)
         end
+        closeStageWindow()
     end
 end
 
 return npc
+

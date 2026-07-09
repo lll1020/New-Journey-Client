@@ -314,7 +314,7 @@ function tip_node(node, tip)
     if SL:GetMetaValue("WINPLAYMODE") then
         GUI:addMouseMoveEvent(node, {onEnterFunc = function()
             local pos = GUI:getWorldPosition(node)
-            SL:OpenCommonDescTipsPop({str = tip, worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 0})
+            SL:OpenCommonDescTipsPop({str = tip, worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 1})
         end, onLeaveFunc = function()
             SL:CloseCommonDescTipsPop()
         end})
@@ -322,7 +322,7 @@ function tip_node(node, tip)
         GUI:setTouchEnabled(node, true)
         GUI:addOnTouchEvent(node, function(self)
             local pos = GUI:getWorldPosition(node)
-            SL:OpenCommonDescTipsPop({str = tip, worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 0})
+            SL:OpenCommonDescTipsPop({str = tip, worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 1})
         end)
     end
 end

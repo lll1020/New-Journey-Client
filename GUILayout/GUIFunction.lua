@@ -1556,7 +1556,8 @@ end
 -- chat parse
 -- 解析普通类型的聊天数据
 function GUIFunction:ChatParseNormal(msg)
-    msg = string.gsub(msg or "", "\n", " ")
+    msg = string.gsub(msg or "", "\r\n", "\n")
+    msg = string.gsub(msg, "\r", "\n")
     local emojiConfig = SL:GetMetaValue("CHAT_EMOJI")
 
     local color         = nil   -- 字体颜色  0-255
@@ -1568,7 +1569,25 @@ function GUIFunction:ChatParseNormal(msg)
 
     local chatParseT = {}
     while string.len(msg) > 0 do
+        local newlinePos = string.find(msg, "\n", 1, true)
         local fStar,fEnd = string.find(msg, "#")
+        if newlinePos and (not fStar or newlinePos < fStar) then
+            local prefixText = string.sub(msg, 1, newlinePos - 1)
+            if prefixText ~= "" then
+                table.insert(chatParseT, {
+                    text        = prefixText,
+                    color       = color,
+                    opacity     = opacity,
+                    fontPath    = fontPath,
+                    fontSize    = fontSize,
+                    outColor    = outColor,
+                    outlineSize = outlineSize
+                })
+            end
+            table.insert(chatParseT, {newLine = true})
+            msg = string.sub(msg, newlinePos + 1)
+            goto continue
+        end
         if not fStar and not fEnd then
             table.insert(chatParseT, {
                 text        = msg,
@@ -1628,6 +1647,7 @@ function GUIFunction:ChatParseNormal(msg)
                 outlineSize = outlineSize
             })
         end
+        ::continue::
     end
     
     return chatParseT
