@@ -3224,11 +3224,32 @@ function ItemTips.CreateEquipPanel(data, itemData, isWear, panelInsertIndex)
     end
 
     if itemData.Weight > 0 and cogin.texiaodaxiao[itemData.Weight] then
-        local wai = GUI:getContentSize(ListBg)
-        local waik = GUI:Frames_Create(ListBg, "tetete",-cogin.texiaodaxiao[itemData.Weight][2],-cogin.texiaodaxiao[itemData.Weight][5], "res/wy/tips/tx"..itemData.Weight.."_", ".png", 1, cogin.texiaodaxiao[itemData.Weight][1],{count=cogin.texiaodaxiao[itemData.Weight][1],speed=150,loop=-1})
-        local nei = GUI:getContentSize(waik)
-        GUI:setContentSize(waik, wai.width + cogin.texiaodaxiao[itemData.Weight][2] + cogin.texiaodaxiao[itemData.Weight][4] , wai.height + cogin.texiaodaxiao[itemData.Weight][3] + cogin.texiaodaxiao[itemData.Weight][5])
-        GUI:setOpacity(waik, cogin.texiaodaxiao[itemData.Weight][8])
+        local cfg = cogin.texiaodaxiao[itemData.Weight]
+        local frameCount = cfg[1] or 1
+        local left = cfg[2] or 0
+        local top = cfg[3] or 0
+        local right = cfg[4] or 0
+        local bottom = cfg[5] or 0
+        local opacity = cfg[8] or 255
+
+        local bgSize = GUI:getContentSize(ListBg)
+        local targetWidth = math.max(1, bgSize.width + left + right)
+        local targetHeight = math.max(1, bgSize.height + top + bottom)
+
+        local waik = GUI:Frames_Create(
+            ListBg,
+            "tetete",
+            -left,
+            -bottom,
+            "res/wy/tips/tx" .. itemData.Weight .. "_",
+            ".png",
+            1,
+            frameCount,
+            {count = frameCount, speed = 150, loop = -1}
+        )
+        GUI:setAnchorPoint(waik, 0, 0)
+        GUI:setContentSize(waik, targetWidth, targetHeight)
+        GUI:setOpacity(waik, opacity)
     end
 
     --
