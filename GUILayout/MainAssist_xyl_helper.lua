@@ -8,6 +8,7 @@ local XYL_DYNAMIC_REFRESH_DELAY = 0.2
 local XYL_CURRENT_TASK_WIDGET_VISIBLE = false
 local GRAY_WORLD_PANEL_POS = {x = 40, y = 0}
 local GRAY_WORLD_BG_PATH = "res/wy/eff/npc_but_bj_1.png"
+local GRAY_WORLD_BG_PATH_1 = "res/wy/public/45.png"
 local GRAY_WORLD_PANEL_SIZE = {width = 200, height = 190}
 local GRAY_WORLD_LINE_SCALE = 0.41
 local GRAY_WORLD_LINES = {
@@ -50,7 +51,7 @@ local GRAY_WORLD_SINGLE_FLOW_FONT_SIZE = 13
 local GRAY_WORLD_FINAL_BTN_POS = {x = 100, y = 95}
 local GRAY_WORLD_FINAL_BTN_TEXT = ""
 local XYL_FINAL_ENTRY_RWID = 36
-local XYL_FINAL_ENTRY_BTN_TEXT = "    降妖录\n进入伏妖录"
+local XYL_FINAL_ENTRY_BTN_TEXT = "更多剧情"
 local GRAY_WORLD_LINE_MAP_ALIASES = {
     ["虚妄山脉"] = 4,
     ["山脉入口"] = 4,
@@ -2040,7 +2041,7 @@ function MainAssistXylHelper.bind(MainAssist)
         GUI:setLocalZOrder(panel, 1002)
         GUI:setTouchEnabled(panel, true)
 
-        local bg = GUI:Image_Create(panel, "bg", 0, 0, GRAY_WORLD_BG_PATH)
+        local bg = GUI:Image_Create(panel, "bg", 0, 0, GRAY_WORLD_BG_PATH_1)
         if bg then
             GUI:setAnchorPoint(bg, 0, 0)
             local bgSize = GUI:getContentSize(bg)
@@ -2050,19 +2051,25 @@ function MainAssistXylHelper.bind(MainAssist)
             end
         end
 
-        local btn = NPC_UI_HELPER.createPrimaryButton(panel, "xyl_final_entry_btn", GRAY_WORLD_FINAL_BTN_POS.x, GRAY_WORLD_FINAL_BTN_POS.y, "", function()
+        local tipText = GUI:Text_Create(panel, "tip_text", GRAY_WORLD_FINAL_BTN_POS.x + 5, GRAY_WORLD_FINAL_BTN_POS.y + 20, 21, "#ffffff", "品牌游戏 值得信赖\n\n丰富剧情 精彩纷呈\n\n更多精彩 敬请期待")
+        GUI:setAnchorPoint(tipText, 0.5, 0.5)
+        GUI:Text_setFontName(tipText, "fonts/502.ttf")
+        GUI:Text_enableOutline(tipText, "#000000", 2)
+        -- GUI:Text_enableUnderline(tipText)
+
+        local btn = NPC_UI_HELPER.createPrimaryButton(panel, "xyl_final_entry_btn", GRAY_WORLD_FINAL_BTN_POS.x + 10, GRAY_WORLD_FINAL_BTN_POS.y - 70, "", function()
             SL:SendLuaNetMsg(101, 11, 0, 0, "")
         end, {
-            skin = "res/custom/all_story_mission/5/689/list/l/4.png",
+            skin = "res/wy/public/an15.png",
             fontSize = 14,
             color = "#F4E7B5",
         })
         GUI:setAnchorPoint(btn, 0.5, 0.5)
 
-        local tipText = GUI:Text_Create(btn, "entry_text", 162 / 2, 164 / 2, 20, "#FFD45A", XYL_FINAL_ENTRY_BTN_TEXT)
-        GUI:setAnchorPoint(tipText, 0.5, 0.5)
-        GUI:Text_setFontName(tipText, "fonts/502.ttf")
-        GUI:Text_enableOutline(tipText, "#000000", 2)
+        local entry_text = GUI:Text_Create(btn, "entry_text", 92/2, 30/2, 20, "#FFD45A", XYL_FINAL_ENTRY_BTN_TEXT)
+        GUI:setAnchorPoint(entry_text, 0.5, 0.5)
+        GUI:Text_setFontName(entry_text, "fonts/502.ttf")
+        GUI:Text_enableOutline(entry_text, "#000000", 2)
 
         MainAssist._xylFinalEntryWidget = {
             panel = panel,
