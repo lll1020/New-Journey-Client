@@ -1,4 +1,4 @@
-local npc = {}
+﻿local npc = {}
 
 local UIHelper = NPC_UI_HELPER
 local FONT_MAIN = "fonts/font4.ttf"
@@ -29,6 +29,13 @@ local CERT_BG = {
     [2] = RES .. "神道自证/鬼神道进阶.png",
 }
 local CERT_BTN = RES .. "神道自证/开始自证.png"
+local PATH_TIP_ICON = RES .. "选择路径/问号.png"
+local UPGRADE_TIP_ICON = RES .. "神道进阶/问号.png"
+local PATH_EQUIP_TITLE = RES .. "选择路径/示意图1.png"
+local UPGRADE_PAGE_ON = RES .. "神道自证/按钮/亮/神道进阶.png"
+local UPGRADE_PAGE_OFF = RES .. "神道自证/按钮/暗/神道进阶.png"
+local CERT_PAGE_ON = RES .. "神道进阶/按钮/亮/神道自证.png"
+local CERT_PAGE_OFF = RES .. "神道进阶/按钮/暗/神道自证.png"
 
 npc._config = teshudata["npc_77"] or {}
 npc._view = "home"
@@ -36,7 +43,9 @@ npc._god = 1
 
 local function toNumber(value, defaultValue)
     local num = tonumber(value)
-    if num == nil then return defaultValue or 0 end
+    if num == nil then
+        return defaultValue or 0
+    end
     return num
 end
 
@@ -124,6 +133,26 @@ local function button(parent, name, x, y, skin, cb)
     return btn
 end
 
+local function bindDescTip(target, tipText)
+    if SL:GetMetaValue("WINPLAYMODE") then
+        GUI:addMouseMoveEvent(target, {
+            onEnterFunc = function()
+                local pos = GUI:getWorldPosition(target)
+                SL:OpenCommonDescTipsPop({str = tipText, worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 1})
+            end,
+            onLeaveFunc = function()
+                SL:CloseCommonDescTipsPop()
+            end,
+        })
+    else
+        GUI:setTouchEnabled(target, true)
+        GUI:addOnTouchEvent(target, function()
+            local pos = GUI:getWorldPosition(target)
+            SL:OpenCommonDescTipsPop({str = tipText, worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 1})
+        end)
+    end
+end
+
 local function getPathBtnSkin(god, path, state)
     local skinName = PATH_BTN[god] and PATH_BTN[god][path]
     if not skinName then
@@ -170,7 +199,7 @@ local function renderTop(node)
 end
 
 local function renderBack(node, npcid)
-    button(node, "back_btn", 63 + 17, 400 + 16, BACK, function()
+    button(node, "back_btn", 80, 416, BACK, function()
         npc._view = "home"
         npc._god = 1
         npc.render(npcid)
@@ -179,23 +208,12 @@ end
 
 local function renderHome(node, npcid)
     GUI:Image_Create(node, "home_bg", 0, 0, HOME_BG)
-    -- text(node, "main_title", 410, 422, 30, "#FFE7A0", "登神之路", FONT_TITLE)
-    -- text(node, "tip1", 410, 395, 18, "#FF655A", "神道共有九阶，到达九阶即可进行神道自证！", FONT_MAIN)
-    -- text(node, "tip2", 410, 372, 17, "#F7D9A0", "先选路线，再累积神力升阶，最后完成自证并解锁专属成长。", FONT_MAIN)
-
     local coords = {
         [1] = {x = 245, y = 148},
         [2] = {x = 575, y = 148},
     }
     for god = 1, 2 do
-        local cfg = godCfg(god)
         local x, y = coords[god].x, coords[god].y
-        -- text(node, "god_name_" .. god, x, y + 112, 25, god == 1 and "#FFD66B" or "#D7A8FF", tostring(cfg.name or ""), FONT_TITLE)
-        -- text(node, "path_" .. god, x, y + 80, 18, "#F5E6C6", pathStateText(god), FONT_MAIN)
-        -- text(node, "rank_" .. god, x, y + 50, 18, "#8DFF72", string.format("阶级：%d/%d", rank(god), toNumber(npc._config.max_rank, 9)), FONT_MAIN)
-        -- text(node, "power_" .. god, x, y + 20, 18, "#8DFF72", string.format("%s：%d/%d", tostring(cfg.power_name or "神力值"), power(god), toNumber(npc._config.power_max, 1000)), FONT_MAIN)
-        -- text(node, "cert_" .. god, x, y - 10, 17, cert(god) and "#6CFF7B" or "#FFB26B", cert(god) and ("自证：已完成") or ("自证：" .. tostring(cfg.certify_title or "")), FONT_MAIN)
-        -- text(node, "entry_" .. god, x, y - 40, 16, "#E9D2A2", selectedPath(god) > 0 and "点击下方进入神道进阶" or "点击下方进入路线选择", FONT_MAIN)
         button(node, "detail_" .. god, x, y - 76, god == 1 and HOME_BTN_YELLOW or HOME_BTN_RED, function()
             npc._view = selectedPath(god) > 0 and "upgrade" or "path"
             npc._god = god
@@ -216,6 +234,7 @@ local function renderPath(node, npcid, god)
     local cfg = godCfg(god)
     local equipCfg = (npc._config.npc_78 and npc._config.npc_78.equip) or ((teshudata["npc_78"] or {}).equip) or {}
     npc._path_preview = npc._path_preview or {}
+
     local function showStaticItem(parent, name, x, y, itemName)
         local frame = GUI:Image_Create(parent, name, x, y, "res/wy/public/70_70_k.png")
         local itemIndex = toNumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", itemName), 0)
@@ -225,6 +244,7 @@ local function renderPath(node, npcid, god)
         end
         return frame
     end
+
     local function getPathEquip(path)
         local list = {}
         for _, equip in ipairs(equipCfg) do
@@ -234,40 +254,23 @@ local function renderPath(node, npcid, god)
         end
         return list
     end
+
     local function renderPathContent(path)
         npc._path_preview[god] = path
         GUI:removeChildByName(node, "path_content_layer")
         local content = GUI:Node_Create(node, "path_content_layer", 0, 0)
         local pcfg = pathCfg(god, path)
         local pathTipText
-        local attrDesc
         if god == 1 then
-            attrDesc = path == 1 and "神道进阶后会获得生命成长" or "神道进阶后会获得攻击成长"
             pathTipText = path == 1
-                and "<font color='#F6D48A' size='18'>止戈路线说明</font><br></br><font color='#FFB347' size='16'>1.</font><font color='#F8F1DE' size='16'> 选择后不可更改</font><br></br><font color='#FFB347' size='16'>2.</font><font color='#F8F1DE' size='16'> 通过击杀玩家获得</font><font color='#7CFF7A' size='16'>神力值·兵</font><br></br><font color='#FFB347' size='16'>3.</font><font color='#F8F1DE' size='16'> 每次成长增加</font><font color='#9FE2FF' size='16'>固定生命</font><br></br><font color='#FFB347' size='16'>4.</font><font color='#F8F1DE' size='16'> 升阶只提高后续成长，不回溯旧属性</font><br></br><font color='#FFB347' size='16'>5.</font><font color='#F8F1DE' size='16'> 九阶后可进行神道自证</font>"
-                or "<font color='#F6D48A' size='18'>杀伐路线说明</font><br></br><font color='#FFB347' size='16'>1.</font><font color='#F8F1DE' size='16'> 选择后不可更改</font><br></br><font color='#FFB347' size='16'>2.</font><font color='#F8F1DE' size='16'> 通过击杀玩家获得</font><font color='#7CFF7A' size='16'>神力值·兵</font><br></br><font color='#FFB347' size='16'>3.</font><font color='#F8F1DE' size='16'> 每次成长增加</font><font color='#FF8A5B' size='16'>固定攻击</font><br></br><font color='#FFB347' size='16'>4.</font><font color='#F8F1DE' size='16'> 升阶只提高后续成长，不回溯旧属性</font><br></br><font color='#FFB347' size='16'>5.</font><font color='#F8F1DE' size='16'> 九阶后可进行神道自证</font>"
+                and "<font color='#F6D48A' size='18'>止戈路线说明</font><br></br><font color='#FFB347' size='16'>1.</font><font color='#F8F1DE' size='16'> 选择后不可更改</font><br></br><font color='#FFB347' size='16'>2.</font><font color='#F8F1DE' size='16'> 通过击杀玩家获得</font><font color='#7CFF7A' size='16'>神力值·兵</font><br></br><font color='#FFB347' size='16'>3.</font><font color='#F8F1DE' size='16'> 每次成长增加</font><font color='#9FE2FF' size='16'>固定生命</font><br></br><font color='#FFB347' size='16'>4.</font><font color='#F8F1DE' size='16'> 升阶后历史击杀会按当前阶级回溯重算</font><br></br><font color='#FFB347' size='16'>5.</font><font color='#F8F1DE' size='16'> 九阶后可进行神道自证</font>"
+                or "<font color='#F6D48A' size='18'>杀伐路线说明</font><br></br><font color='#FFB347' size='16'>1.</font><font color='#F8F1DE' size='16'> 选择后不可更改</font><br></br><font color='#FFB347' size='16'>2.</font><font color='#F8F1DE' size='16'> 通过击杀玩家获得</font><font color='#7CFF7A' size='16'>神力值·兵</font><br></br><font color='#FFB347' size='16'>3.</font><font color='#F8F1DE' size='16'> 每次成长增加</font><font color='#FF8A5B' size='16'>固定攻击</font><br></br><font color='#FFB347' size='16'>4.</font><font color='#F8F1DE' size='16'> 升阶后历史击杀会按当前阶级回溯重算</font><br></br><font color='#FFB347' size='16'>5.</font><font color='#F8F1DE' size='16'> 九阶后可进行神道自证</font>"
         else
-            attrDesc = path == 1 and "神道进阶后会获得生命成长" or "神道进阶后会获得攻击成长"
             pathTipText = path == 1
-                and "<font color='#F6D48A' size='18'>无常路线说明</font><br></br><font color='#FFB347' size='16'>1.</font><font color='#F8F1DE' size='16'> 选择后不可更改</font><br></br><font color='#FFB347' size='16'>2.</font><font color='#F8F1DE' size='16'> 通过击杀六大陆怪物获得</font><font color='#7CFF7A' size='16'>神力值·鬼</font><br></br><font color='#FFB347' size='16'>3.</font><font color='#F8F1DE' size='16'> 每次成长增加</font><font color='#9FE2FF' size='16'>固定生命</font><br></br><font color='#FFB347' size='16'>4.</font><font color='#F8F1DE' size='16'> 升阶只提高后续成长，不回溯旧属性</font><br></br><font color='#FFB347' size='16'>5.</font><font color='#F8F1DE' size='16'> 九阶后可进行神道自证</font>"
-                or "<font color='#F6D48A' size='18'>阎罗路线说明</font><br></br><font color='#FFB347' size='16'>1.</font><font color='#F8F1DE' size='16'> 选择后不可更改</font><br></br><font color='#FFB347' size='16'>2.</font><font color='#F8F1DE' size='16'> 通过击杀六大陆怪物获得</font><font color='#7CFF7A' size='16'>神力值·鬼</font><br></br><font color='#FFB347' size='16'>3.</font><font color='#F8F1DE' size='16'> 每次成长增加</font><font color='#FF8A5B' size='16'>固定攻击</font><br></br><font color='#FFB347' size='16'>4.</font><font color='#F8F1DE' size='16'> 升阶只提高后续成长，不回溯旧属性</font><br></br><font color='#FFB347' size='16'>5.</font><font color='#F8F1DE' size='16'> 九阶后可进行神道自证</font>"
+                and "<font color='#F6D48A' size='18'>无常路线说明</font><br></br><font color='#FFB347' size='16'>1.</font><font color='#F8F1DE' size='16'> 选择后不可更改</font><br></br><font color='#FFB347' size='16'>2.</font><font color='#F8F1DE' size='16'> 通过击杀六大陆怪物获得</font><font color='#7CFF7A' size='16'>神力值·鬼</font><br></br><font color='#FFB347' size='16'>3.</font><font color='#F8F1DE' size='16'> 每次成长增加</font><font color='#9FE2FF' size='16'>固定生命</font><br></br><font color='#FFB347' size='16'>4.</font><font color='#F8F1DE' size='16'> 升阶后历史击杀会按当前阶级回溯重算</font><br></br><font color='#FFB347' size='16'>5.</font><font color='#F8F1DE' size='16'> 九阶后可进行神道自证</font>"
+                or "<font color='#F6D48A' size='18'>阎罗路线说明</font><br></br><font color='#FFB347' size='16'>1.</font><font color='#F8F1DE' size='16'> 选择后不可更改</font><br></br><font color='#FFB347' size='16'>2.</font><font color='#F8F1DE' size='16'> 通过击杀六大陆怪物获得</font><font color='#7CFF7A' size='16'>神力值·鬼</font><br></br><font color='#FFB347' size='16'>3.</font><font color='#F8F1DE' size='16'> 每次成长增加</font><font color='#FF8A5B' size='16'>固定攻击</font><br></br><font color='#FFB347' size='16'>4.</font><font color='#F8F1DE' size='16'> 升阶后历史击杀会按当前阶级回溯重算</font><br></br><font color='#FFB347' size='16'>5.</font><font color='#F8F1DE' size='16'> 九阶后可进行神道自证</font>"
         end
-        local function bindDescTip(target, tipText)
-            if SL:GetMetaValue("WINPLAYMODE") then
-                GUI:addMouseMoveEvent(target, {onEnterFunc = function()
-                    local pos = GUI:getWorldPosition(target)
-                    SL:OpenCommonDescTipsPop({str = tipText, worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 1})
-                end, onLeaveFunc = function()
-                    SL:CloseCommonDescTipsPop()
-                end})
-            else
-                GUI:setTouchEnabled(target, true)
-                GUI:addOnTouchEvent(target, function()
-                    local pos = GUI:getWorldPosition(target)
-                    SL:OpenCommonDescTipsPop({str = tipText, worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 1})
-                end)
-            end
-        end
+
         local positions = {[1] = {485, 342}, [2] = {690, 342}}
         for idx = 1, 2 do
             local skin = getPathBtnSkin(god, idx, idx == path and "亮" or "暗")
@@ -277,16 +280,8 @@ local function renderPath(node, npcid, god)
                 end)
             end
         end
-        -- rich(content, "path_attr_desc", 430, 240,
-        --     string.format(
-        --         "<font color='#FF533D' size='20'>路径特性：</font><font color='#F5E6C6' size='18'>%s</font><br></br>" ..
-        --         "<font color='#FF533D' size='20'>进阶途径：</font><font color='#F5E6C6' size='18'>%s</font>",
-        --         attrDesc,
-        --         god == 1 and "通过击杀玩家获得神力值" or "通过击杀怪物获得神力值"
-        --     ),
-        --     360, 18
-        -- )
-        GUI:Image_Create(content, "equip_title", 575, 152, RES .. "选择路径/该路径专属装备.png")
+
+        GUI:Image_Create(content, "equip_title", 575, 152, PATH_EQUIP_TITLE)
         local equips = getPathEquip(path)
         local iconX = 485
         for i, equip in ipairs(equips) do
@@ -294,9 +289,11 @@ local function renderPath(node, npcid, god)
             showStaticItem(content, "equip_" .. i, x, 78, tostring(equip.name or ""))
             text(content, "equip_name_" .. i, x + 35, 56, 16, "#F5E6C6", tostring(equip.name or ""), FONT_MAIN, 0.5, 0.5)
         end
-        local pathTip = GUI:Image_Create(content, "path_rule_tip", 730, 92, RES .. "神道进阶/问号.png")
+
+        local pathTip = GUI:Image_Create(content, "path_rule_tip", 730, 92, PATH_TIP_ICON)
         bindDescTip(pathTip, pathTipText)
-        button(content, "path_choose_btn", 656 - 390, 24 + 50, PATH_CONFIRM, function()
+
+        button(content, "path_choose_btn", 266, 74, PATH_CONFIRM, function()
             SL:OpenCommonTipsPop({
                 str = "确认选择【" .. tostring(cfg.name or "") .. "·" .. tostring(pcfg.name or "") .. "】吗？选择后不可切换。",
                 btnType = 2,
@@ -312,9 +309,7 @@ local function renderPath(node, npcid, god)
             })
         end)
     end
-    -- text(node, "title", 410, 418, 28, "#FFE7A0", tostring(cfg.name or "") .. "·选择路径", FONT_TITLE)
-    -- text(node, "desc1", 410, 392, 17, "#FFFFFF", "每个神道只能选择一条路径，选择后不可重复切换。", FONT_MAIN)
-    -- text(node, "desc2", 650, 392, 17, "#FF3D32", "一旦选择，不可反悔！", FONT_TITLE)
+
     local selectedPreviewPath = toNumber(npc._path_preview[god], 1)
     if selectedPreviewPath ~= 1 and selectedPreviewPath ~= 2 then
         selectedPreviewPath = 1
@@ -331,21 +326,20 @@ local function renderUpgrade(node, npcid, god)
     end
     GUI:Image_Create(node, "upgrade_bg", 0, 0, UPGRADE_BG[god])
     renderBack(node, npcid)
+
     local cfg = godCfg(god)
     local pcfg = pathCfg(god, p)
     local nextRank = rank(god) + 1
     local maxRank = toNumber(npc._config.max_rank, 9)
-    local needPower = toNumber((npc._config.rank_need or {})[nextRank], 0)
     local baseAttr = (pcfg.attr or {})[1] or {}
     local baseValue = toNumber(baseAttr[2], 0)
     local attrName = tostring(baseAttr[3] or "属性")
-    local currentGain = baseValue * rank(god)
-    local nextGain = nextRank <= maxRank and (baseValue * nextRank) or currentGain
+    local nextGain = nextRank <= maxRank and (baseValue * nextRank) or (baseValue * rank(god))
     local costYb = nextRank * toNumber(npc._config.upgrade_cost_base_yb, 500000)
     local costFire = nextRank * toNumber(npc._config.upgrade_cost_fire, 10)
     local costTable = {{"元宝", costYb}, {"业火结晶", costFire}}
     local labelX = 398
-    local valueX = 474
+    local valueX = 504
     local sectionY = {
         need = 286,
         power = 232,
@@ -353,97 +347,52 @@ local function renderUpgrade(node, npcid, god)
         cost = 122,
     }
     local powerTipText = god == 1
-        and "<font color='#FFE7A0' size='18'>神力值获取</font><br></br><font color='#F5E6C6' size='16'>选择兵神道路线后生效</font><br></br><font color='#8DFF72' size='16'>击杀玩家：神力值·兵 +20</font><br></br><font color='#FFB85C' size='16'>升阶只提高后续成长，不回溯旧属性</font>"
-        or "<font color='#FFE7A0' size='18'>神力值获取</font><br></br><font color='#F5E6C6' size='16'>选择鬼神道路线后生效</font><br></br><font color='#8DFF72' size='16'>击杀六大陆怪物：神力值·鬼 +1</font><br></br><font color='#FFB85C' size='16'>升阶只提高后续成长，不回溯旧属性</font>"
-    local function bindDescTip(target, tipText)
-        if SL:GetMetaValue("WINPLAYMODE") then
-            GUI:addMouseMoveEvent(target, {onEnterFunc = function()
-                local pos = GUI:getWorldPosition(target)
-                SL:OpenCommonDescTipsPop({str = tipText, worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 1})
-            end, onLeaveFunc = function()
-                SL:CloseCommonDescTipsPop()
-            end})
-        else
-            GUI:setTouchEnabled(target, true)
-            GUI:addOnTouchEvent(target, function()
-                local pos = GUI:getWorldPosition(target)
-                SL:OpenCommonDescTipsPop({str = tipText, worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 1})
-            end)
-        end
-    end
-    -- text(node, "title", 410, 418, 28, "#FFE7A0", tostring(cfg.name or "") .. "·神道进阶", FONT_TITLE)
-    -- text(node, "path", 410, 390, 18, "#F5E6C6", "当前路线：" .. tostring(pathCfg(god, p).name or ""), FONT_MAIN)
-    -- text(node, "rank", 410, 346, 24, "#8DFF72", string.format("当前阶级：%d/%d", rank(god), maxRank), FONT_TITLE)
-    -- text(node, "power", 410, 312, 20, "#8DFF72", string.format("%s：%d/%d", tostring(cfg.power_name or "神力值"), power(god), toNumber(npc._config.power_max, 1000)), FONT_MAIN)
+        and "<font color='#FFE7A0' size='18'>神力值获取</font><br></br><font color='#F5E6C6' size='16'>选择兵神道路线后生效</font><br></br><font color='#8DFF72' size='16'>击杀玩家：神力值·兵 +20</font><br></br><font color='#FFB85C' size='16'>升阶后历史击杀会按当前阶级回溯重算</font>"
+        or "<font color='#FFE7A0' size='18'>神力值获取</font><br></br><font color='#F5E6C6' size='16'>选择鬼神道路线后生效</font><br></br><font color='#8DFF72' size='16'>击杀六大陆怪物：神力值·鬼 +1</font><br></br><font color='#FFB85C' size='16'>升阶后历史击杀会按当前阶级回溯重算</font>"
+
     if nextRank <= maxRank then
-        -- text(node, "upgrade_need_label", labelX, sectionY.need, 18, "#FFE7A0", "进阶条件：", FONT_MAIN, 0, 0.5)
-        rich(node, "upgrade_need_text", valueX + 30, sectionY.need - 7,
-            string.format(
-                "<font color='#F5E6C6' size='18'>当前阶段%d阶</font><br></br>",
-                -- "<font color='#F5E6C6' size='18'>当前路线：%s·%s</font>",
-                -- nextRank - 1, needPower, tostring(cfg.name or ""), tostring(pcfg.name or "")
-                nextRank - 1
-            ),
+        rich(node, "upgrade_need_text", valueX, sectionY.need - 7,
+            string.format("<font color='#F5E6C6' size='18'>当前阶段%d阶</font><br></br>", nextRank - 1),
             255, 18
         )
-        -- text(node, "upgrade_power_label", labelX, sectionY.power, 18, "#FFE7A0", "神力值：", FONT_MAIN, 0, 0.5)
-        rich(node, "upgrade_power_text", valueX + 30, sectionY.power + 10 - 5,
-            string.format(
-                "<font color='#8DFF72' size='18'>%s：%d/%d</font>",
-                tostring(cfg.power_name or "神力值"), power(god), toNumber(npc._config.power_max, 1000)
-            ),
+        rich(node, "upgrade_power_text", valueX, sectionY.power + 5,
+            string.format("<font color='#8DFF72' size='18'>%s：%d/%d</font>", tostring(cfg.power_name or "神力值"), power(god), toNumber(npc._config.power_max, 1000)),
             255, 18
         )
-        local powerTip = GUI:Image_Create(node, "upgrade_power_tip", 730, sectionY.power - 3 - 140, RES .. "神道进阶/问号.png")
+        local powerTip = GUI:Image_Create(node, "upgrade_power_tip", 730, sectionY.power - 143, UPGRADE_TIP_ICON)
         bindDescTip(powerTip, powerTipText)
-        -- text(node, "upgrade_gain_label", labelX, sectionY.gain, 18, "#FFE7A0", "进阶获得：", FONT_MAIN, 0, 0.5)
-        rich(node, "upgrade_gain_text", valueX + 30, sectionY.gain + 10 + 3,
-            string.format(
-                -- "<font color='#FFE7A0' size='18'>当前每次：%s+%d</font><br></br>" ..
-                "<font color='#FFB85C' size='18'>每次：%s+%d</font>",
-                attrName, nextGain
-            ),
+        rich(node, "upgrade_gain_text", valueX, sectionY.gain + 13,
+            string.format("<font color='#FFB85C' size='18'>每次%s+%d</font>", attrName, nextGain),
             255, 18
         )
-        -- text(node, "upgrade_cost_label", labelX, sectionY.cost, 18, "#FFE7A0", "所需消耗：", FONT_MAIN, 0, 0.5)
         local costNode = GUI:Node_Create(node, "upgrade_cost_items", 0, 0)
         checkItemNumByTable_img_kuang(costTable, nil, costNode)
-        GUI:setPosition(costNode, 558 - 66, 72 + 30)
+        GUI:setPosition(costNode, 492, 102)
     else
-        -- text(node, "upgrade_need_label", labelX, sectionY.need, 18, "#FFE7A0", "进阶条件：", FONT_MAIN, 0, 0.5)
-        rich(node, "upgrade_need_text", valueX + 30, sectionY.need - 7,
+        rich(node, "upgrade_need_text", valueX, sectionY.need - 7,
             "<font color='#FFD86B' size='18'>已满九阶，可前往神道自证。</font>",
             255, 18
         )
-        -- text(node, "upgrade_power_label", labelX, sectionY.power, 18, "#FFE7A0", "神力值：", FONT_MAIN, 0, 0.5)
-        rich(node, "upgrade_power_text", valueX + 30, sectionY.power + 10 - 5,
-            string.format(
-                "<font color='#8DFF72' size='18'>%s：%d/%d</font>",
-                tostring(cfg.power_name or "神力值"), power(god), toNumber(npc._config.power_max, 1000)
-            ),
+        rich(node, "upgrade_power_text", valueX, sectionY.power + 5,
+            string.format("<font color='#8DFF72' size='18'>%s：%d/%d</font>", tostring(cfg.power_name or "神力值"), power(god), toNumber(npc._config.power_max, 1000)),
             255, 18
         )
-        local powerTip = GUI:Image_Create(node, "upgrade_power_tip", 730, sectionY.power - 3 - 140, RES .. "神道进阶/问号.png")
+        local powerTip = GUI:Image_Create(node, "upgrade_power_tip", 730, sectionY.power - 143, UPGRADE_TIP_ICON)
         bindDescTip(powerTip, powerTipText)
-        -- text(node, "upgrade_gain_label", labelX, sectionY.gain, 18, "#FFE7A0", "进阶获得：", FONT_MAIN, 0, 0.5)
-        rich(node, "upgrade_gain_text", valueX + 30, sectionY.gain + 10 + 3,
-            string.format(
-                -- "<font color='#FFE7A0' size='18'>当前每次：%s+%d</font><br></br>" ..
-                "<font color='#FFE7A0' size='18'>当前已达最高阶</font>",
-                attrName, currentGain
-            ),
+        rich(node, "upgrade_gain_text", valueX, sectionY.gain + 13,
+            "<font color='#FFE7A0' size='18'>当前已达最高阶</font>",
             255, 18
         )
     end
-    -- rich(node, "attr", 228, 234, "<font color='#C9B390' size='18'>路线效果：</font><font color='#F5E6C6' size='18'>" .. tostring(pathCfg(god, p).desc or "") .. "</font>", 370, 18)
-    button(node, "upgrade_btn",  410 + 200, 102 - 45, UPGRADE_BTN, function()
+
+    button(node, "upgrade_btn", 610, 57, UPGRADE_BTN, function()
         send(npcid, 2, god, {god = god})
     end)
-    button(node, "cert_page", 158 + 293 + 200, 378 - 45, RES .. "神道进阶/按钮/暗/神道自证.png", function()
+    button(node, "cert_page", 651, 333, CERT_PAGE_ON, function()
         npc._view = "cert"
         npc.render(npcid)
     end)
-    button(node, "upgrade_page", 158 + 293, 378 - 45, RES .. "神道自证/按钮/亮/神道进阶.png", function()
+    button(node, "upgrade_page", 451, 333, UPGRADE_PAGE_OFF, function()
         npc._view = "upgrade"
         npc.render(npcid)
     end)
@@ -458,20 +407,15 @@ local function renderCert(node, npcid, god)
     end
     GUI:Image_Create(node, "cert_bg", 0, 0, CERT_BG[god])
     renderBack(node, npcid)
-    local cfg = godCfg(god)
-    -- text(node, "title", 410, 418, 28, "#FFE7A0", tostring(cfg.name or "") .. "·神道自证", FONT_TITLE)
-    -- text(node, "rank", 410, 354, 22, "#8DFF72", string.format("当前阶级：%d/%d", rank(god), toNumber(npc._config.max_rank, 9)), FONT_TITLE)
-    -- text(node, "power", 410, 322, 20, "#8DFF72", string.format("%s：%d/%d", tostring(cfg.power_name or "神力值"), power(god), toNumber(npc._config.power_max, 1000)), FONT_MAIN)
-    -- rich(node, "cost", 244, 288, string.format("<font color='#C9B390' size='18'>自证消耗：</font><font color='#F5E6C6' size='18'>%d%s + 元宝%d</font><br></br><font color='#C9B390' size='18'>自证奖励：</font><font color='#FFE7A0' size='18'>称号：%s</font><br></br><font color='#8DFF72' size='18'>%s</font>", toNumber(npc._config.certify_cost_power, 1000), tostring(cfg.power_name or "神力值"), toNumber(npc._config.certify_cost_yb, 4500000), tostring(cfg.certify_title or ""), tostring(cfg.certify_desc or "")), 350, 18)
-    -- text(node, "state", 410, 194, 20, cert(god) and "#6CFF7B" or "#FFB26B", cert(god) and "已完成自证，可进入专属地图" or "达到九阶后即可开始自证", FONT_MAIN)
-    button(node, "cert_btn", 410 + 200, 102 - 45, CERT_BTN, function()
+
+    button(node, "cert_btn", 610, 57, CERT_BTN, function()
         send(npcid, 3, god, {god = god})
     end)
-    button(node, "upgrade_page", 158 + 293, 378 - 45, RES .. "神道自证/按钮/暗/神道进阶.png", function()
+    button(node, "upgrade_page", 451, 333, UPGRADE_PAGE_ON, function()
         npc._view = "upgrade"
         npc.render(npcid)
     end)
-    button(node, "cert_page", 158 + 293 + 200, 378 - 45, RES .. "神道进阶/按钮/亮/神道自证.png", function()
+    button(node, "cert_page", 651, 333, CERT_PAGE_OFF, function()
         npc._view = "cert"
         npc.render(npcid)
     end)
@@ -479,7 +423,9 @@ end
 
 function npc.render(npcid)
     local node = npc.node
-    if not node then return end
+    if not node then
+        return
+    end
     GUI:removeAllChildren(node)
     renderTop(node)
     if npc._view == "path" then
@@ -507,3 +453,4 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
+

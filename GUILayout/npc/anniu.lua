@@ -4091,6 +4091,24 @@ npc[23] = function(p2, p3, Data)
         GUI:Text_enableOutline(textObj, outlineColor or "#081800", 1)
         GUI:setAnchorPoint(textObj, 0.5, 0.5)
     end
+    local function bindPressFeedback(target, onClick)
+        if not target then
+            return
+        end
+        GUI:setTouchEnabled(target, true)
+        GUI:addOnTouchEvent(target, function(sender, touchType)
+            if touchType == SLDefine.TouchEventType.began then
+                GUI:setScale(sender, 0.96)
+            elseif touchType == SLDefine.TouchEventType.ended then
+                GUI:setScale(sender, 1)
+                if onClick then
+                    onClick()
+                end
+            elseif touchType == SLDefine.TouchEventType.canceled then
+                GUI:setScale(sender, 1)
+            end
+        end)
+    end
     local eff = {
         11501,
         11506,
@@ -4105,8 +4123,7 @@ npc[23] = function(p2, p3, Data)
         if not state.canActivate then
             local btn = GUI:Image_Create(card, "activate_btn_" .. idx, 78 + 60, 110 - 30 - 8, "res/custom/htgh/btn_activate.png")
             GUI:setAnchorPoint(btn, 0.5, 0.5)
-            GUI:setTouchEnabled(btn, true)
-            GUI:addOnClickEvent(btn, function()
+            bindPressFeedback(btn, function()
                 if not state.canActivate then
                     SL:ShowSystemTips(state.lockedTip or "当前条件未满足")
                     return

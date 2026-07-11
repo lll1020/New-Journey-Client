@@ -1,4 +1,4 @@
-teshudata = {
+﻿teshudata = {
     ["npc_1"] = {
         id = 1,
         name = "灵根鉴定",
@@ -1903,7 +1903,7 @@ teshudata = {
     ["npc_735"] = { id = 735, name = "洛水杜康", shaguai_id = 735, jl = {{"杜康酒",1}}, task_cfg = { chapter = 6, task_type = "craft", map = "洛阳天街", submit = {{"杜康之力",1},{"酒糟",100},{"万籁清泉",50},{"金币",18880000}}, craft_cost = {{"杜康之力",1},{"酒糟",100},{"万籁清泉",50},{"金币",18880000}}, craft_reward = {{"杜康酒",1}}, }, },
     ["npc_736"] = { id = 736, name = "大宋的菜肴", shaguai_id = 736, jl = {{"大宋食盒",1}}, task_cfg = { chapter = 6, task_type = "submit", map = "汴京御街", submit = {{"空的食盒",1},{"美味的大宋菜肴",10}}, }, },
     ["npc_737"] = { id = 737, name = "天青色的秘密", shaguai_id = 737, jl = {{"青釉瓷碗",1}}, task_cfg = { chapter = 6, task_type = "burn", map = "临安古渡", submit = {{"神秘瓷釉",5},{"泥碗素胚",5},{"金币",8880000}}, burn_rewards = {"冰雪瓷碗","朱砂瓷碗","青釉瓷碗"}, actions = {[1]="开始烧制"}, }, },
-    ["npc_738"] = { id = 738, name = "密令护灵旗", shaguai_id = 738, jl = {{"密令护灵旗",1}}, task_cfg = { chapter = 6, task_type = "submit", map = "镇关帅府", submit = {{"镇关灵旗",5},{"大师密令",10},{"金币",18880000}}, }, },
+    ["npc_738"] = { id = 738, name = "密令护灵旗", shaguai_id = 738, jl = {{"密令护灵旗",1}}, task_cfg = { chapter = 6, task_type = "submit", map = "镇关帅府", submit = {{"镇关灵旗",5},{"大帅密令",10},{"金币",18880000}}, }, },
     ["npc_739"] = { id = 739, name = "幽影的分身", shaguai_id = 739, task_cfg = { chapter = 6, task_type = "weakness_dungeon", map = "魔焰祭坛", kill_count = 1, reveal_cost = {{"幽影密函残页",10}}, fb_map = "魔焰祭坛", fb_time = 300, enter_pos = {29,27}, boss = "幽影的分身", boss_pos = {32,36}, actions = {[1]="提交任务",[2]="揭示弱点",[3]="进入副本"}, }, },
     ["npc_740"] = { id = 740, name = "上古寒冰剑", shaguai_id = 740, rwjl = {{"寒冰剑诀",1}}, task_cfg = { chapter = 6, task_type = "weapon_craft", map = "冻魂冰窟", submit = {{"寒冰剑诀",1}}, craft_cost = {{"上古玄冰",55},{"千年陨铁",99},{"元宝",1000000},{"极寒之心",1}}, craft_reward = {{"寒冰剑",1}}, skill_item = "寒冰剑诀", weapon = "寒冰剑", actions = {[1]="提交任务",[2]="立即合成"}, }, },
     ["npc_103"] = {

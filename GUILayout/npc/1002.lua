@@ -36,6 +36,25 @@ local BODY_AURA_EFFECT = {
     11505,
 }
 
+local function bindPressFeedback(target, onClick)
+    if not target then
+        return
+    end
+    GUI:setTouchEnabled(target, true)
+    GUI:addOnTouchEvent(target, function(sender, touchType)
+        if touchType == SLDefine.TouchEventType.began then
+            GUI:setScale(sender, 0.96)
+        elseif touchType == SLDefine.TouchEventType.ended then
+            GUI:setScale(sender, 1)
+            if onClick then
+                onClick()
+            end
+        elseif touchType == SLDefine.TouchEventType.canceled then
+            GUI:setScale(sender, 1)
+        end
+    end)
+end
+
 local function _formatShapeName(name)
     name = tostring(name or "")
     return (string.gsub(name, "^(足迹：)(.+)$", "%1\n%2"):gsub("^(时装：)(.+)$", "%1\n%2"))
@@ -170,8 +189,7 @@ function npc.main(npcid, p2, p3, msgData)
         else
             local lockedBtn = GUI:Image_Create(card, "activate_btn_" .. state.idx, 83, 0, "res/custom/one_city/shape/bz1.png")
             GUI:setAnchorPoint(lockedBtn, 0.5, 0.5)
-            GUI:setTouchEnabled(lockedBtn, true)
-            GUI:addOnClickEvent(lockedBtn, function()
+            bindPressFeedback(lockedBtn, function()
                 if state.canActivate then
                     SL:SendLuaNetMsg(100, npcid, 3, state.idx, "")
                     
