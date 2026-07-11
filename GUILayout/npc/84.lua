@@ -7,6 +7,7 @@ local UIHelper = NPC_UI_HELPER
 local WINDOW_OPTS = {
     background = {skin = "res/custom/six_city/世界符文/世界符文.png", eff = false},
     closeButton = {x = 742, y = 500, skin = "res/wy/public/close_red_big.png"},
+    title = {x = 56, y = 464, skin = "res/custom/six_city/世界符文/标题.png"},
 }
 
 local FONT_MAIN = "fonts/font4.ttf"

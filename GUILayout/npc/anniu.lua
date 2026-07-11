@@ -6568,7 +6568,7 @@ npc[507] = function(p2, p3, Data)
             if open == 1 then
                 cfg.time = cfg.time .. "\n当前活动进行中，可直接点击参与"
             end
-            cfg.desc = string.format("进入【%s】后会持续刷新鸡、羊、鹿三种动物，击杀后直接掉落对应肉类。肉类可以兑换美食积分和活动奖励，价值越高的肉越值得优先抢。活动里尽量多打、多捡、多换即可。", tostring(mskh.map or "天材地宝"))
+            cfg.desc = string.format("进入【%s】后会持续刷新鸡、羊、鹿三种动物，击杀后直接掉落对应肉类。肉类可以兑换美食积分和活动奖励，价值越高的肉越值得优先抢。活动里尽量多打、多捡、多换即可。", tostring(mskh.map or "美食狂欢"))
             cfg.reward = "鸡肉=1积分，羊肉=5积分，鹿肉=10积分；可在屠夫处兑换美食家、时光之杖、时光鉴定石"
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 local shop = mskh.shop or {}

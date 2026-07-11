@@ -16,7 +16,8 @@ local function cfg()
 end
 
 local function activityCfg()
-    return (teshudata and teshudata["anniu_507"] and teshudata["anniu_507"].mskh) or {}
+    local cfg = teshudata and teshudata["anniu_507"] or {}
+    return cfg.meishikuanghuan or cfg.mskh or {}
 end
 
 local function panelData()

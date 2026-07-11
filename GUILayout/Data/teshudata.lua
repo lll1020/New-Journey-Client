@@ -3047,7 +3047,7 @@
             },
         },
         mskh = {
-            map = "天材地宝",
+            map = "美食狂欢",
             start_hour = 16,
             start_minute_clock = 0,
             duration_min = 30,
@@ -3103,6 +3103,7 @@
                 },
             },
         },
+        meishikuanghuan = nil,
     },
     ["anniu_515"] = {
         id = "anniu_515",

@@ -450,12 +450,7 @@ renderDetail = function(npcid, stageIdx, nodeIdx)
 end
 
 renderStageUpgrade = function(npcid, stageIdx)
-    local node = ensureStageWindow(npcid)
-    if not node then
-        return
-    end
-    GUI:removeAllChildren(node)
-
+    local previewHtml
     local stageCfg = getStageCfg(stageIdx)
     local unlocked = isStageUnlocked(stageIdx)
     local full = isStageFull(stageIdx)
@@ -466,6 +461,29 @@ renderStageUpgrade = function(npcid, stageIdx)
     local unlockCost = normalizeEntryList(stageCfg.unlock_cost or {})
     local nodeCost = normalizeEntryList(selectedNodeCfg.cost or {})
     local costList = unlocked and nodeCost or unlockCost
+    if full then
+        previewHtml = "<font color='#9DFF7C' size='18'>当前阶段已全部点亮</font><br></br><font color='#F6D08A' size='17'>当前大星图奖励已全部生效</font>"
+    elseif unlocked then
+        renderDetail(npcid, npc.selectedStageIdx, npc.selectedNodeIdx)
+        -- previewHtml = string.format(
+        --     "<font color='#FFE7A0' size='18'>当前阶段：%s</font><br></br><font color='#F5E6C6' size='18'>下一星宿：%s</font><br></br><font color='#F6D08A' size='17'>按顺序点亮全部星宿后可完成本阶段</font>",
+        --     tostring(stageCfg.name or "星图"),
+        --     tostring(selectedNodeCfg.name or ("星宿" .. tostring(selectedNodeIdx)))
+        -- )
+        return
+    else
+        previewHtml = string.format(
+            "<font color='#FFE7A0' size='18'>解锁后开启：%s</font><br></br><font color='#F5E6C6' size='18'>按顺序点亮全部星宿后可完成本阶段</font><br></br><font color='#F6D08A' size='17'>当前阶段奖励将在解锁后生效</font>",
+            tostring(stageCfg.name or "星图")
+        )
+    end
+    local node = ensureStageWindow(npcid)
+    if not node then
+        return
+    end
+    GUI:removeAllChildren(node)
+
+    
     local stateText = full and "当前阶段已全部点亮" or (unlocked and string.format("当前进度：%d/%d", math.max(0, nextNodeIdx - 1), nodeCount) or "当前阶段尚未解锁")
     local actionText = full and "已完成" or (unlocked and "点亮星宿" or "解锁圣图")
 
@@ -503,21 +521,8 @@ renderStageUpgrade = function(npcid, stageIdx)
     -- createText(node, "stage_name", 160, 88, 30, "#FFD66A", tostring(stageCfg.name or "初星"), FONT_TITLE, 0.5, 0.5)
     -- createText(node, "stage_progress", 160, 28, 18, full and "#9DFF7C" or "#9FE2FF", stateText, FONT_MAIN, 0.5, 0.5)
 
-    local previewHtml
-    if full then
-        previewHtml = "<font color='#9DFF7C' size='18'>当前阶段已全部点亮</font><br></br><font color='#F6D08A' size='17'>当前大星图奖励已全部生效</font>"
-    elseif unlocked then
-        previewHtml = string.format(
-            "<font color='#FFE7A0' size='18'>当前阶段：%s</font><br></br><font color='#F5E6C6' size='18'>下一星宿：%s</font><br></br><font color='#F6D08A' size='17'>按顺序点亮全部星宿后可完成本阶段</font>",
-            tostring(stageCfg.name or "星图"),
-            tostring(selectedNodeCfg.name or ("星宿" .. tostring(selectedNodeIdx)))
-        )
-    else
-        previewHtml = string.format(
-            "<font color='#FFE7A0' size='18'>解锁后开启：%s</font><br></br><font color='#F5E6C6' size='18'>按顺序点亮全部星宿后可完成本阶段</font><br></br><font color='#F6D08A' size='17'>当前阶段奖励将在解锁后生效</font>",
-            tostring(stageCfg.name or "星图")
-        )
-    end
+
+    
     createRichBlock(node, "stage_preview", 32 + 171, 228 - 35 + 40, 486, 78, previewHtml)
 
     local costTitle = GUI:Image_Create(node, "cost_title", 418 - 95 - 70, 200 - 80 + 40, COST_LABEL)
@@ -539,7 +544,7 @@ renderStageUpgrade = function(npcid, stageIdx)
     -- createText(node, "stage_action_text", 418, -24, 18, "#FFE7A8", actionText, FONT_MAIN, 0.5, 0.5)
 
     if hasEnoughEntryCost(costList) and not full then
-        UIHelper.redpoint_create(btn, {x = 174, y = 62})
+        UIHelper.redpoint_create(btn, {x = 250 - 20, y = 62 - 10})
     end
 end
 

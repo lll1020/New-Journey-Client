@@ -31,7 +31,6 @@ local CERT_BG = {
 local CERT_BTN = RES .. "神道自证/开始自证.png"
 local PATH_TIP_ICON = RES .. "选择路径/问号.png"
 local UPGRADE_TIP_ICON = RES .. "神道进阶/问号.png"
-local PATH_EQUIP_TITLE = RES .. "选择路径/示意图1.png"
 local UPGRADE_PAGE_ON = RES .. "神道自证/按钮/亮/神道进阶.png"
 local UPGRADE_PAGE_OFF = RES .. "神道自证/按钮/暗/神道进阶.png"
 local CERT_PAGE_ON = RES .. "神道进阶/按钮/亮/神道自证.png"
@@ -115,7 +114,7 @@ end
 local function text(parent, name, x, y, size, color, value, font, ax, ay)
     local label = GUI:Text_Create(parent, name, x, y, size or 18, color or "#FFFFFF", tostring(value or ""))
     GUI:Text_setFontName(label, font or FONT_MAIN)
-    GUI:Text_enableOutline(label, "#120806", 2)
+    GUI:Text_enableOutline(label, "#120806", 3)
     GUI:setAnchorPoint(label, ax == nil and 0.5 or ax, ay == nil and 0.5 or ay)
     return label
 end
@@ -159,16 +158,7 @@ local function getPathBtnSkin(god, path, state)
         return nil
     end
     local base = RES .. "选择路径/按钮/" .. tostring(state or "亮") .. "/"
-    local full = base .. skinName
-    if state == "暗" and god == 2 and path == 2 then
-        local file = io.open("E:\\新起航\\客户端\\dev\\" .. string.gsub(full, "/", "\\"), "r")
-        if file then
-            file:close()
-            return full
-        end
-        return base .. "阎罗.png"
-    end
-    return full
+    return base .. skinName
 end
 
 local function pathStateText(god)
@@ -261,6 +251,7 @@ local function renderPath(node, npcid, god)
         local content = GUI:Node_Create(node, "path_content_layer", 0, 0)
         local pcfg = pathCfg(god, path)
         local pathTipText
+        local attrDesc = path == 1 and "生命值" or "攻击力"
         if god == 1 then
             pathTipText = path == 1
                 and "<font color='#F6D48A' size='18'>止戈路线说明</font><br></br><font color='#FFB347' size='16'>1.</font><font color='#F8F1DE' size='16'> 选择后不可更改</font><br></br><font color='#FFB347' size='16'>2.</font><font color='#F8F1DE' size='16'> 通过击杀玩家获得</font><font color='#7CFF7A' size='16'>神力值·兵</font><br></br><font color='#FFB347' size='16'>3.</font><font color='#F8F1DE' size='16'> 每次成长增加</font><font color='#9FE2FF' size='16'>固定生命</font><br></br><font color='#FFB347' size='16'>4.</font><font color='#F8F1DE' size='16'> 升阶后历史击杀会按当前阶级回溯重算</font><br></br><font color='#FFB347' size='16'>5.</font><font color='#F8F1DE' size='16'> 九阶后可进行神道自证</font>"
@@ -270,6 +261,8 @@ local function renderPath(node, npcid, god)
                 and "<font color='#F6D48A' size='18'>无常路线说明</font><br></br><font color='#FFB347' size='16'>1.</font><font color='#F8F1DE' size='16'> 选择后不可更改</font><br></br><font color='#FFB347' size='16'>2.</font><font color='#F8F1DE' size='16'> 通过击杀六大陆怪物获得</font><font color='#7CFF7A' size='16'>神力值·鬼</font><br></br><font color='#FFB347' size='16'>3.</font><font color='#F8F1DE' size='16'> 每次成长增加</font><font color='#9FE2FF' size='16'>固定生命</font><br></br><font color='#FFB347' size='16'>4.</font><font color='#F8F1DE' size='16'> 升阶后历史击杀会按当前阶级回溯重算</font><br></br><font color='#FFB347' size='16'>5.</font><font color='#F8F1DE' size='16'> 九阶后可进行神道自证</font>"
                 or "<font color='#F6D48A' size='18'>阎罗路线说明</font><br></br><font color='#FFB347' size='16'>1.</font><font color='#F8F1DE' size='16'> 选择后不可更改</font><br></br><font color='#FFB347' size='16'>2.</font><font color='#F8F1DE' size='16'> 通过击杀六大陆怪物获得</font><font color='#7CFF7A' size='16'>神力值·鬼</font><br></br><font color='#FFB347' size='16'>3.</font><font color='#F8F1DE' size='16'> 每次成长增加</font><font color='#FF8A5B' size='16'>固定攻击</font><br></br><font color='#FFB347' size='16'>4.</font><font color='#F8F1DE' size='16'> 升阶后历史击杀会按当前阶级回溯重算</font><br></br><font color='#FFB347' size='16'>5.</font><font color='#F8F1DE' size='16'> 九阶后可进行神道自证</font>"
         end
+
+        text(content, "path_attr_value", 780 - 80, 248 + 22, 26, "#D63B32", attrDesc, FONT_TITLE, 0, 0.5)
 
         local positions = {[1] = {485, 342}, [2] = {690, 342}}
         for idx = 1, 2 do
@@ -281,7 +274,6 @@ local function renderPath(node, npcid, god)
             end
         end
 
-        GUI:Image_Create(content, "equip_title", 575, 152, PATH_EQUIP_TITLE)
         local equips = getPathEquip(path)
         local iconX = 485
         for i, equip in ipairs(equips) do
@@ -453,4 +445,3 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
-

@@ -12,6 +12,7 @@ npc._config = teshudata["npc_82"] or teshudata["npc_79"] or DEFAULT_CONFIG
 local WINDOW_OPTS = {
     background = {skin = "res/custom/six_city/武器性格/武器性格.png", eff = false},
     closeButton = {x = 742, y = 500, skin = "res/wy/public/close_red_big.png"},
+    title = {x = 56, y = 464, skin = "res/custom/six_city/武器性格/标题.png"},
 }
 
 local BTN_OK = "res/custom/six_city/武器性格/我知道了.png"

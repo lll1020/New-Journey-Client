@@ -19,7 +19,6 @@ local ENTER_BTN_SKIN = "res/custom/six_city/血契之门/进入秘境.png"
 local CHECK_BG_SKIN = "res/custom/six_city/血契之门/对勾底.png"
 local CHECK_OK_SKIN = "res/custom/six_city/血契之门/对勾.png"
 local ITEM_BOX_SKIN = "res/custom/six_city/血契之门/装备框-.png"
-local CONFIRM_BTN_SKIN = "res/wy/public/an15.png"
 local FONT_MAIN = "fonts/font4.ttf"
 local FONT_TITLE = "fonts/502.ttf"
 
@@ -93,58 +92,6 @@ local function createRichText(parent, name, x, y, text, width, size, anchorX, an
     return rich
 end
 
-local function closeContractConfirm()
-    if npc.contractConfirmWindow then
-        UIHelper.closeWindow(npc.contractConfirmWindow)
-        npc.contractConfirmWindow = nil
-        npc.contractConfirmNode = nil
-    end
-end
-
-local function openContractConfirm(npcid)
-    closeContractConfirm()
-    local opts = {
-        windowName = "npc_81_contract_confirm",
-        background = {skin = "res/wy/public/tongyong_0.png", eff = false},
-        closeButton = {x = 390, y = 230, skin = "res/wy/public/close_red_big.png", onClick = closeContractConfirm},
-    }
-    npc.contractConfirmWindow = UIHelper.ensureWindow(npc.contractConfirmWindow, npcid, opts)
-    npc.contractConfirmNode = npc.contractConfirmWindow and npc.contractConfirmWindow.node or nil
-    local node = npc.contractConfirmNode
-    if not node then
-        return
-    end
-    GUI:removeAllChildren(node)
-
-    createText(node, "confirm_title", 210, 214, 26, "#FFE2A5", "签订血色契约", FONT_TITLE, 0.5, 0.5)
-    createRichText(
-        node,
-        "confirm_risk",
-        44,
-        160,
-        "<font color='#FFB85A'>签订前请确认风险：</font><br/>"
-            .. "<font color='#F5E6C6'>1. 秘境内爆率提高，但死亡会掉落一件非系统绑定装备。</font><br/>"
-            .. "<font color='#F5E6C6'>2. 签订后方可进入血契秘境，请谨慎操作。</font>",
-        330,
-        18,
-        0,
-        0
-    )
-
-    local confirmBtn = GUI:Button_Create(node, "confirm_btn", 92, 34, CONFIRM_BTN_SKIN)
-    GUI:setContentSize(confirmBtn, 104, 32)
-    GUI:Button_setTitleText(confirmBtn, "确定签约")
-    GUI:addOnClickEvent(confirmBtn, function()
-        closeContractConfirm()
-        SL:SendLuaNetMsg(100, npcid, 1, 0, "")
-    end)
-
-    local cancelBtn = GUI:Button_Create(node, "cancel_btn", 224, 34, CONFIRM_BTN_SKIN)
-    GUI:setContentSize(cancelBtn, 104, 32)
-    GUI:Button_setTitleText(cancelBtn, "暂不签约")
-    GUI:addOnClickEvent(cancelBtn, closeContractConfirm)
-end
-
 local function renderPreviewItem(parent)
     local cfg = getConfig()
     local previewName = tostring(cfg.preview_item or "")
@@ -203,7 +150,15 @@ local function renderActionArea(node, npcid)
     else
         local signBtn = GUI:Button_Create(node, "sign_btn", ACTION_BTN_POS.x, ACTION_BTN_POS.y, CONTRACT_BTN_SKIN)
         GUI:addOnClickEvent(signBtn, function()
-            openContractConfirm(npcid)
+            SL:OpenCommonTipsPop({
+                str = "签订前请确认风险：\n1. 秘境内爆率提高，但死亡会掉落一件非系统绑定装备。\n2. 签订后方可进入血契秘境，是否继续签约？",
+                btnType = 2,
+                callback = function(atype)
+                    if atype == 1 then
+                        SL:SendLuaNetMsg(100, npcid, 1, 0, "")
+                    end
+                end,
+            })
         end)
     end
 
