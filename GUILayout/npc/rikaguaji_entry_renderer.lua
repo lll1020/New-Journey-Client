@@ -46,24 +46,24 @@ function renderer.main(npcid, link, msg, data)
     local panel = GUI:Image_Create(win, "panel", 0, 0, PANEL_BG)
     GUI:setAnchorPoint(panel, 0.5, 0.5)
     GUI:setTouchEnabled(panel, true)
-    GUI:Image_Create(panel, "title", 0, 210, TITLE_IMG)
+    GUI:Image_Create(panel, "title", 0 + 57, 210 + 246, TITLE_IMG)
 
-    local preview = IMAGE_BY_NAME[decoded.img or ""] and GUI:Image_Create(panel, "preview", 0, 20, IMAGE_BY_NAME[decoded.img]) or nil
-    if preview then
-        GUI:setAnchorPoint(preview, 0.5, 0.5)
-    end
+    -- local preview = IMAGE_BY_NAME[decoded.img or ""] and GUI:Image_Create(panel, "preview", 0, 20, IMAGE_BY_NAME[decoded.img]) or nil
+    -- if preview then
+    --     GUI:setAnchorPoint(preview, 0.5, 0.5)
+    -- end
 
-    text(panel, "name", 0, 105, 28, "#F6D08A", decoded.name or "日卡挂机")
-    text(panel, "cond", 0, 66, 18, "#F5E6C6", "进入条件：" .. tostring(decoded.need_desc or "开通日卡"), 0.5, 0.5, "fonts/font4.ttf")
-    text(panel, "state", 0, 30, 19, decoded.can_enter == 1 and "#7CFF9A" or "#FF7A7A", decoded.can_enter == 1 and "当前可进入" or (decoded.error or "当前不可进入"), 0.5, 0.5, "fonts/font4.ttf")
+    text(panel, "name", 0 + 622, 105 + 244, 28, "#F6D08A", decoded.name or "日卡挂机")
+    -- text(panel, "cond", 0, 66, 18, "#F5E6C6", "进入条件：" .. tostring(decoded.need_desc or "开通日卡"), 0.5, 0.5, "fonts/font4.ttf")
+    -- text(panel, "state", 0, 30, 19, decoded.can_enter == 1 and "#7CFF9A" or "#FF7A7A", decoded.can_enter == 1 and "当前可进入" or (decoded.error or "当前不可进入"), 0.5, 0.5, "fonts/font4.ttf")
 
-    local btn = GUI:Button_Create(panel, "enter_btn", 0, -110, ENTER_BTN)
+    local btn = GUI:Button_Create(panel, "enter_btn", 0 + 613, -110 + 158, ENTER_BTN)
     GUI:setAnchorPoint(btn, 0.5, 0.5)
     GUI:addOnClickEvent(btn, function()
         SL:SendLuaNetMsg(100, npcid, 1, 0, "")
     end)
 
-    local close = GUI:Button_Create(panel, "close", 292, 220, CLOSE_BTN)
+    local close = GUI:Button_Create(panel, "close", 292 + 440, 220 + 238, CLOSE_BTN)
     GUI:addOnClickEvent(close, function()
         GUI:Win_Close(win)
     end)

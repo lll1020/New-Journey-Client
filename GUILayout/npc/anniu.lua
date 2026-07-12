@@ -4121,7 +4121,7 @@ npc[23] = function(p2, p3, Data)
         GUI:setScale(GUI:Effect_Create(card, "effect", 115, 320 - 46, 0, eff[idx], 0, 0, 0, 1), 1)
         GUI:Effect_Create(card, "rw1", 115, 320 - 46, 4, SL:GetMetaValue("EQUIP_DATA", 0) and SL:GetMetaValue("EQUIP_DATA", 0).Shape or 1300, 0, 0, 2, 0.8)
         if not state.canActivate then
-            local btn = GUI:Image_Create(card, "activate_btn_" .. idx, 78 + 60, 110 - 30 - 8, "res/custom/htgh/btn_activate.png")
+            local btn = GUI:Button_Create(card, "activate_btn_" .. idx, 78 + 60, 110 - 30 - 8, "res/custom/htgh/btn_activate.png")
             GUI:setAnchorPoint(btn, 0.5, 0.5)
             bindPressFeedback(btn, function()
                 if not state.canActivate then
