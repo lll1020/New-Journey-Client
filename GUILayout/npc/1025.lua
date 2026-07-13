@@ -16,12 +16,19 @@ local TAB_POS = {
     medal = {x = -355, y = 126},
 }
 
-local LIST_VIEW = {
-    x = 78,
-    y = 34,
-    w = 640,
-    h = 360,
+local BG_POS = {
+    x = 69,
+    y = 18,
 }
+
+local LIST_VIEW = {
+    x = 236,
+    y = 14,
+    w = 436,
+    h = 344,
+}
+local POINT_TIP_SKIN = "res/wy/public/npc_81_tip.png"
+local POINT_GAIN_TIP = "1.武道大会对战结算。\n2.武道大会周排行结算。\n3.跨服沙巴克固定奖励。"
 
 local ROW_H = 74
 
@@ -77,6 +84,14 @@ local function getRewardIcon(entry)
     return entry.icon or entry.icon_path or entry.skin
 end
 
+local function getRewardIndex(entry)
+    local name = getRewardName(entry)
+    if name == "" then
+        return nil
+    end
+    return SL:GetMetaValue("ITEM_INDEX_BY_NAME", name)
+end
+
 local function getRowReward(row)
     local reward = row and row.reward
     if type(reward) == "table" and type(reward[1]) == "table" then
@@ -95,40 +110,57 @@ end
 
 local function createItemPreview(parent, name, x, y, reward)
     local holder = GUI:Node_Create(parent, name, x, y)
-    GUI:Image_Create(holder, "box", 0, 0, ITEM_BOX_SKIN)
-    local icon = getRewardIcon(reward)
-    if icon and icon ~= "" then
-        local iconNode = GUI:Image_Create(holder, "icon", 0, 0, icon)
-        GUI:setAnchorPoint(iconNode, 0.5, 0.5)
+    local box = GUI:Image_Create(holder, "box", 0, 0, ITEM_BOX_SKIN)
+    GUI:setAnchorPoint(box, 0.5, 0.5)
+
+    local itemIndex = getRewardIndex(reward)
+    if itemIndex then
+        local item = GUI:ItemShow_Create(holder, "item", 0, 0, {
+            index = itemIndex,
+            count = getRewardCount(reward),
+            look = true,
+            movable = false,
+            bgVisible = false,
+        })
+        GUI:setAnchorPoint(item, 0.5, 0.5)
     else
-        text(holder, "name", 0, 0, 18, "#F6D08A", getRewardName(reward), 0.5, 0.5, FONT_MAIN)
+        local icon = getRewardIcon(reward)
+        if icon and icon ~= "" then
+            local iconNode = GUI:Image_Create(holder, "icon", 0, 0, icon)
+            GUI:setAnchorPoint(iconNode, 0.5, 0.5)
+        else
+            text(holder, "name", 0, 0, 16, "#F6D08A", getRewardName(reward), 0.5, 0.5, FONT_MAIN)
+        end
     end
     local count = getRewardCount(reward)
-    text(holder, "count", 24, -24, 16, "#FFD66A", "x" .. tostring(count), 1, 0.5, FONT_MAIN)
+    -- text(holder, "count", 23, -23, 16, "#FFD66A", "x" .. tostring(count), 1, 0.5, FONT_MAIN)
     return holder
 end
 
 local function createHeader(parent, tab, pointValue)
-    GUI:Image_Create(parent, "title", 0, 226, TITLE_SKIN)
+    local title = GUI:Image_Create(parent, "title", 366 - 262, 420 + 42, TITLE_SKIN)
+
+    parent = GUI:Node_Create(parent, "parent", 0, 0 - 390)
+    GUI:setAnchorPoint(title, 0.5, 0.5)
     local prefix = tab == 1 and "当前一共获得了：" or "当前拥有："
     local suffix = tab == 1 and "跨服积分" or "跨服勋章"
-    text(parent, "prefix", -42, 223, 18, "#F8E8C7", prefix, 1, 0.5, FONT_TITLE)
-    local bg = GUI:Image_Create(parent, "value_bg", 58, 223, "res/public/1900000668.png")
+    text(parent, "prefix", 350, 420, 18, "#F8E8C7", prefix, 1, 0.5, FONT_TITLE)
+    local bg = GUI:Image_Create(parent, "value_bg", 452, 420, "res/public/1900000668.png")
     GUI:setAnchorPoint(bg, 0.5, 0.5)
     GUI:setOpacity(bg, 120)
-    text(parent, "value", 58, 223, 18, "#FFFFFF", tostring(pointValue), 0.5, 0.5, FONT_MAIN)
-    text(parent, "suffix", 164, 223, 18, "#F8E8C7", suffix, 0, 0.5, FONT_TITLE)
+    text(parent, "value", 452, 420, 18, "#FFFFFF", tostring(pointValue), 0.5, 0.5, FONT_MAIN)
+    text(parent, "suffix", 560, 420, 18, "#F8E8C7", suffix, 0, 0.5, FONT_TITLE)
 end
 
 local function createColumnHeaders(parent, tab)
-    text(parent, "head_item", -120, 178, 20, "#F8E8C7", "道具", 0.5, 0.5, FONT_TITLE)
-    text(parent, "head_cost", 62, 178, 20, "#F8E8C7", tab == 1 and "所需积分" or "所需勋章", 0.5, 0.5, FONT_TITLE)
-    text(parent, "head_btn", 236, 178, 20, "#F8E8C7", tab == 1 and "领取按钮" or "兑换按钮", 0.5, 0.5, FONT_TITLE)
+--     text(parent, "head_item", 274, 380, 20, "#F8E8C7", "道具", 0.5, 0.5, FONT_TITLE)
+--     text(parent, "head_cost", 474, 380, 20, "#F8E8C7", tab == 1 and "所需积分" or "所需勋章", 0.5, 0.5, FONT_TITLE)
+--     text(parent, "head_btn", 644, 380, 20, "#F8E8C7", tab == 1 and "领取按钮" or "兑换按钮", 0.5, 0.5, FONT_TITLE)
 end
 
 local function createListView(parent)
-    local list = GUI:ScrollView_Create(parent, "list", LIST_VIEW.x, LIST_VIEW.y, LIST_VIEW.w, LIST_VIEW.h, 1)
-    GUI:setClippingEnabled(list, true)
+    local list = GUI:ScrollView_Create(parent, "list", LIST_VIEW.x - 10, LIST_VIEW.y + 50, LIST_VIEW.w + 20, LIST_VIEW.h, 1)
+    GUI:ScrollView_setClippingEnabled(list, true)
     return list
 end
 
@@ -145,23 +177,23 @@ local function renderRows(list, npcid, tab, rows)
         GUI:setAnchorPoint(line, 0.5, 0.5)
 
         local reward = getRowReward(row)
-        createItemPreview(rowNode, "item_" .. i, -244, 0, reward)
+        createItemPreview(rowNode, "item_" .. i, -188, 0, reward)
 
         local rewardName = getRewardName(reward)
-        text(rowNode, "reward_name_" .. i, -168, 8, 18, "#F5E6C6", rewardName, 0, 0.5, FONT_MAIN)
-        text(rowNode, "reward_count_" .. i, -168, -16, 16, "#FFD66A", "x" .. tostring(getRewardCount(reward)), 0, 0.5, FONT_MAIN)
+        -- text(rowNode, "reward_name_" .. i, -128, 12, 18, "#F5E6C6", rewardName, 0, 0.5, FONT_MAIN)
+        -- text(rowNode, "reward_count_" .. i, -128, -14, 16, "#FFD66A", "x" .. tostring(getRewardCount(reward)), 0, 0.5, FONT_MAIN)
 
         local costValue = tab == 1 and n(row.need) or n(row.cost)
         local costLabel = tab == 1 and "积分" or "勋章"
-        text(rowNode, "cost_" .. i, 56, 0, 20, "#F8E8C7", tostring(costValue) .. costLabel, 0.5, 0.5, FONT_MAIN)
+        text(rowNode, "cost_" .. i, 96 - 100 - 8, 0, 20, "#F8E8C7", tostring(costValue) .. costLabel, 0.5, 0.5, FONT_MAIN)
 
         if tab == 2 then
             local limitText = n(row.limit) > 0 and ("限购 " .. tostring(n(row.limit))) or "不限购"
-            text(rowNode, "limit_" .. i, 56, -22, 15, "#8DF0B0", limitText, 0.5, 0.5, FONT_MAIN)
+            text(rowNode, "limit_" .. i, 96, -22, 15, "#8DF0B0", limitText, 0.5, 0.5, FONT_MAIN)
         end
 
         local btnSkin = tab == 1 and (RES .. "积分部分/领取.png") or (RES .. "勋章部分/兑换.png")
-        local btn = GUI:Button_Create(rowNode, "btn_" .. i, 226, 0, btnSkin)
+        local btn = GUI:Button_Create(rowNode, "btn_" .. i, 206 - 48 + 10, 0, btnSkin)
         GUI:setAnchorPoint(btn, 0.5, 0.5)
         GUI:addOnClickEvent(btn, function()
             local action = tab == 1 and 1 or 2
@@ -174,14 +206,20 @@ local function renderPage(panel, npcid)
     local info = npc.data or {}
     local tab = npc.tab or 1
     local bgSkin = tab == 1 and (RES .. "积分部分/积分背景.png") or (RES .. "勋章部分/勋章背景.png")
-    local bg = GUI:Image_Create(panel, "page_bg", 26, -8, bgSkin)
-    GUI:setAnchorPoint(bg, 0.5, 0.5)
+    local bg = GUI:Image_Create(panel, "page_bg", BG_POS.x, BG_POS.y, bgSkin)
+    GUI:setAnchorPoint(bg, 0, 0)
 
-    createHeader(panel, tab, tab == 1 and n(info.point) or n(info.medal))
-    createColumnHeaders(panel, tab)
-    GUI:Image_Create(panel, "scroll_tip", 344, -8, SCROLL_TIP_SKIN)
+    createHeader(bg, tab, tab == 1 and n(info.point) or n(info.medal))
+    createColumnHeaders(bg, tab)
+    local tip = GUI:Image_Create(bg, "scroll_tip", 702 + 20 - 10, 182 + 50, SCROLL_TIP_SKIN)
+    GUI:setAnchorPoint(tip, 0.5, 0.5)
 
-    local list = createListView(panel)
+    local pointTip = GUI:Image_Create(bg, "point_gain_tip", 650 - 600, 34, POINT_TIP_SKIN)
+    GUI:setAnchorPoint(pointTip, 0.5, 0.5)
+    GUI:setTouchEnabled(pointTip, true)
+    tip_node(pointTip, POINT_GAIN_TIP)
+
+    local list = createListView(bg)
     local rows = tab == 1 and (info.point_rewards or {}) or (info.medal_shop or {})
     renderRows(list, npcid, tab, rows)
 end
@@ -226,7 +264,7 @@ function npc.main(npcid, link, msg, payload)
 
     renderPage(panel, npcid)
 
-    local close = GUI:Button_Create(panel, "close", 0, 58, "res/wy/public/close_red_big.png")
+    local close = GUI:Button_Create(panel, "close", 0 + 800, 58 + 443, "res/wy/public/close_red_big.png")
     GUI:setAnchorPoint(close, 0.5, 0.5)
     GUI:addOnClickEvent(close, function()
         GUI:Win_Close(win)
