@@ -134,7 +134,7 @@ local function renderSellPage(node, npcid)
             SL:SendLuaNetMsg(100, npcid, 1, 1, SL:JsonEncode({name = tostring(one.name or ""), count = 1}, false))
         end)
         if toNum(one.count, 0) <= 0 then
-            GUI:setOpacity(btn, 150)
+            -- GUI:setOpacity(btn, 150)
         end
     end
 end
@@ -152,6 +152,9 @@ local function renderShopPage(node, npcid)
         local idx = toNum(one.idx, i)
         local itemName = tostring((give[1] or {})[1] or reward.name or one.name or "")
         local itemNum = toNum((give[1] or {})[2], 1)
+        if itemName == "美食家" then
+            itemName = "美食家[称号]"
+        end
         local itemIndex = toNum(SL:GetMetaValue("ITEM_INDEX_BY_NAME", itemName), 0)
         if itemIndex > 0 then
             GUI:ItemShow_Create(node, "shop_item_" .. i, 504 - 38, y + 14, {index = itemIndex, count = itemNum, look = true, bgVisible = true})
@@ -177,7 +180,7 @@ local function renderShopPage(node, npcid)
             SL:SendLuaNetMsg(100, npcid, 2, idx, SL:JsonEncode({idx = idx}, false))
         end)
         if (limit > 0 and buyNum >= limit) or (point < cost) then
-            GUI:setOpacity(btn, 150)
+            -- GUI:setOpacity(btn, 150)
         end
     end
 end

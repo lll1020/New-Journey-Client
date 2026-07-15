@@ -213,8 +213,8 @@ function npc.main(npcid, p2, p3, msgData)
         local function createPreviewLine(name, y, size, color, text)
             local line = GUI:Text_Create(node, name, previewCenterX, y, size, color, text)
             GUI:setAnchorPoint(line, 0.5, 0.5)
-            GUI:Text_setFontName(line, "fonts/font4.ttf")
-            GUI:Text_enableOutline(line, "#100808", 2)
+            -- GUI:Text_setFontName(line, "fonts/font4.ttf")
+            -- GUI:Text_enableOutline(line, "#100808", 2)
             return line
         end
         if item then

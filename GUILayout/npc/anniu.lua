@@ -1,4 +1,4 @@
-local npc = {
+﻿local npc = {
 }
 local REWARD_ITEM_EFFECT_14193 = 14193
 local REWARD_ITEM_EFFECT_13048 = 13048
@@ -7015,6 +7015,104 @@ npc[511] = function(p2, p3, Data)
             end
         end
     end
+    local function levelrush_to_int(v, d)
+        return tonumber(v or d or 0) or (d or 0)
+    end
+    local function levelrush_reward_cfg(row)
+        local cfgList = ((teshudata or {})["npc_102"] or {}).rewards or {}
+        return cfgList[levelrush_to_int(row and row.idx, 0)] or {}
+    end
+    local function levelrush_merge_row(row)
+        row = row or {}
+        local cfg = levelrush_reward_cfg(row)
+        local limit = levelrush_to_int(row.limit, cfg.limit)
+        local used = levelrush_to_int(row.used)
+        local remaining = row.remaining
+        if remaining == nil then
+            remaining = limit > 0 and math.max(0, limit - used) or -1
+        end
+        return {
+            idx = levelrush_to_int(row.idx),
+            level = levelrush_to_int(row.level, cfg.level),
+            title = tostring(cfg.title or ""),
+            desc = tostring(cfg.desc or ""),
+            items = cfg.items or {},
+            limit = limit,
+            used = used,
+            remaining = remaining,
+            claimed = levelrush_to_int(row.claimed),
+            can_claim = levelrush_to_int(row.can_claim),
+            order_ok = levelrush_to_int(row.order_ok, 1),
+            no_reward = levelrush_to_int(row.no_reward),
+        }
+    end
+    local function levelrush_item_index(name)
+        if not name or name == "" then
+            return 0
+        end
+        return tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", name) or 0) or 0
+    end
+    local function levelrush_title_index(name)
+        if not name or name == "" then
+            return 0
+        end
+        local idx = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", name .. "[称号]") or 0) or 0
+        if idx <= 0 then
+            idx = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", name) or 0) or 0
+        end
+        return idx
+    end
+    local function levelrush_reward_icons(row)
+        row = levelrush_merge_row(row)
+        local list = {}
+        if row.title ~= "" then
+            list[#list + 1] = {idx = levelrush_title_index(row.title), count = 1}
+        end
+        if type(row.items) == "table" then
+            for _, item in ipairs(row.items) do
+                if type(item) == "table" and tostring(item[1] or "") ~= "" then
+                    list[#list + 1] = {
+                        idx = levelrush_item_index(tostring(item[1] or "")),
+                        count = levelrush_to_int(item[2], 1),
+                    }
+                end
+            end
+        end
+        return list
+    end
+    local function levelrush_open_tip(widget, row)
+        row = levelrush_merge_row(row)
+        local limit = levelrush_to_int(row.limit)
+        local used = levelrush_to_int(row.used)
+        local quotaText = limit > 0 and string.format("总名额：%d<br>已发送：%d<br>剩余：%d", limit, used, math.max(0, limit - used)) or "总名额：无限"
+        -- if tostring(row.desc or "") ~= "" then
+        --     quotaText = quotaText .. "<br><font color='#F2D78D'>奖励：" .. tostring(row.desc or "") .. "</font>"
+        -- end
+        local pos = GUI:getWorldPosition(widget)
+        SL:OpenCommonDescTipsPop({
+            str = string.format("<font color='#F4D179' size='20'>%s级 %s</font><br><font color='#DCEBFF' size='18'>%s</font>", tostring(row.level or 0), tostring(row.title or ""), quotaText),
+            worldPos = {x = pos.x, y = pos.y},
+            anchorPoint = {x = 0, y = 0},
+            formatWay = 1
+        })
+    end
+    local function levelrush_render_icons(parent, row, startX, posY)
+        local rewards = levelrush_reward_icons(row)
+        local gap = 55
+        for i, reward in ipairs(rewards) do
+            if levelrush_to_int(reward.idx) > 0 then
+                local frame = GUI:Image_Create(parent, "cj_frame_" .. tostring(row.idx) .. "_" .. i, startX + (i - 1) * gap, posY, "res/custom/xinquchongji/装备框-.png")
+                GUI:setAnchorPoint(frame, 0.5, 0.5)
+                local item = GUI:ItemShow_Create(frame, "item", 25, 25, {index = reward.idx, look = true, bgVisible = false})
+                GUI:setAnchorPoint(item, 0.5, 0.5)
+                if levelrush_to_int(reward.count) > 1 then
+                    local countText = GUI:Text_Create(frame, "count", 47, 9, 15, "#F8E0A0", tostring(reward.count))
+                    GUI:setAnchorPoint(countText, 1, 0.5)
+                    GUI:Text_enableOutline(countText, "#05080C", 2)
+                end
+            end
+        end
+    end
     local function GUI_createLabel(Label_node, idx)
         GUI:removeAllChildren(Label_node)
         GUI:Image_Create(Label_node, "bg", 0, 0, "res/custom/fulitating/bg_" .. idx .. ".png")
@@ -7409,6 +7507,42 @@ npc[511] = function(p2, p3, Data)
                 GUI_createLabel(npc.Label, npc.titles_sign)
             end)
             GUI:setAnchorPoint(GUI:Text_Create(Label_node, "state", 225, 20, 18, "#ffffff", string.format("第%d页/共%d页", npc.sign, totalPage)), 0.5, 0.5)
+        elseif idx == 8 then --冲级奖励
+            local rushData = npc.cj_data or {}
+            local rows = rushData.rows or {}
+            local myLevel = levelrush_to_int(rushData.player_level)
+            -- GUI:Text_Create(Label_node, "cj_my_level", 670, 368, 18, "#EAF6FF", "当前等级：" .. tostring(myLevel))
+            -- GUI:Text_enableOutline(GUI:ui_delegate(Label_node).cj_my_level, "#05080C", 2)
+            for index, row in ipairs(rows) do
+                row = levelrush_merge_row(row)
+                local posY = 311 - (index - 1) * 58
+                
+                GUI:setContentSize(GUI:Image_Create(Label_node, "cj_line_" .. index, 32, posY - 30, "res/custom/xinquchongji/分割线-.png"), 580, 12)
+                local levelText = GUI:Text_Create(Label_node, "cj_level_" .. index, 110 - 18, posY, 21, "#EAF6FF", tostring(row.level or 0) .. "级")
+                GUI:setAnchorPoint(levelText, 0.5, 0.5)
+                GUI:Text_enableOutline(levelText, "#05080C", 2)
+                local quotaText = "无限"
+                if levelrush_to_int(row.limit) > 0 then
+                    quotaText = string.format("%d/%d", math.max(0, levelrush_to_int(row.limit) - levelrush_to_int(row.used)), levelrush_to_int(row.limit))
+                end
+                local quotaNode = GUI:Text_Create(Label_node, "cj_quota_" .. index, 312 - 25, posY, 21, "#DCEBFF", quotaText)
+                GUI:setAnchorPoint(quotaNode, 0.5, 0.5)
+                GUI:Text_enableOutline(quotaNode, "#05080C", 2)
+                GUI:Text_enableUnderline(quotaNode)
+                GUI:setTouchEnabled(quotaNode, true)
+                if SL:GetMetaValue("WINPLAYMODE") then
+                    GUI:addMouseMoveEvent(quotaNode, {onEnterFunc = function()
+                        levelrush_open_tip(quotaNode, row)
+                    end, onLeaveFunc = function()
+                        SL:CloseCommonDescTipsPop()
+                    end})
+                else
+                    GUI:addOnTouchEvent(quotaNode, function()
+                        levelrush_open_tip(quotaNode, row)
+                    end)
+                end
+                levelrush_render_icons(Label_node, row, 460 - 30, posY + 3)
+            end
         end
     end
     local function UI_updata(node)
@@ -7424,22 +7558,27 @@ npc[511] = function(p2, p3, Data)
             "怪物首杀",
             "个人首爆",
             "全区首爆",
+            "积分抽取（废除）",
+            "冲级奖励",
         }
         npc.titles_sign = 1
         for i = 1, #titles do
-            local cbl_item = GUI:Button_Create(npc.cbl_list, "item" .. i, 0, 0, "res/custom/fulitating/list/" .. (npc.titles_sign == i and "l" or "n") .. "/" .. i .. ".png")
-            GUI:Image_Create(npc.cbl_list, "fgx" .. i, 0, 0, "res/custom/fulitating/list/fgx.png")
-            GUI:addOnClickEvent(cbl_item, function()
-                GUI:Button_loadTextureNormal(GUI:ui_delegate(npc.cbl_list)["item" .. npc.titles_sign], "res/custom/fulitating/list/n/" .. npc.titles_sign .. ".png")
-                npc.titles_sign = i
-                if i >= 4 then
-                    SL:SendLuaNetMsg(101, 511, 2, i, "")
-                    npc.sign = 1
-                else
-                    GUI_createLabel(npc.Label, i)
-                end
-                GUI:Button_loadTextureNormal(GUI:ui_delegate(npc.cbl_list)["item" .. npc.titles_sign], "res/custom/fulitating/list/l/" .. npc.titles_sign .. ".png")
-            end)
+            if titles[i] == "积分抽取（废除）" then
+            else
+                local cbl_item = GUI:Button_Create(npc.cbl_list, "item" .. i, 0, 0, "res/custom/fulitating/list/" .. (npc.titles_sign == i and "l" or "n") .. "/" .. i .. ".png")
+                GUI:Image_Create(npc.cbl_list, "fgx" .. i, 0, 0, "res/custom/fulitating/list/fgx.png")
+                GUI:addOnClickEvent(cbl_item, function()
+                    GUI:Button_loadTextureNormal(GUI:ui_delegate(npc.cbl_list)["item" .. npc.titles_sign], "res/custom/fulitating/list/n/" .. npc.titles_sign .. ".png")
+                    npc.titles_sign = i
+                    if i >= 4 then
+                        SL:SendLuaNetMsg(101, 511, 2, i, "")
+                        npc.sign = 1
+                    else
+                        GUI_createLabel(npc.Label, i)
+                    end
+                    GUI:Button_loadTextureNormal(GUI:ui_delegate(npc.cbl_list)["item" .. npc.titles_sign], "res/custom/fulitating/list/l/" .. npc.titles_sign .. ".png")
+                end)
+            end
         end
         GUI:Image_Create(node, "bg_fgx", 0, 0, "res/custom/fulitating/bg_fgx.png")
         fldt_refresh_side_redpoints()
@@ -7471,7 +7610,11 @@ npc[511] = function(p2, p3, Data)
             fldt_refresh_side_redpoints()
         end
     elseif p2 == 2 then
-        npc.ts_data = fldt_decode_json(Data)
+        if p3 == 8 then
+            npc.cj_data = fldt_decode_json(Data)
+        else
+            npc.ts_data = fldt_decode_json(Data)
+        end
         npc.titles_sign = p3
         local stateKey = fldt_section_key_map[p3]
         local flagKey = fldt_section_flag_map[p3]
@@ -7514,7 +7657,6 @@ npc[512] = function(p2, p3, Data)
             subs = {
                 {name = "装备分类", img = "res/custom/strategy/装备预览-装备分类-.png"},
                 {name = "顶级装备", img = "res/custom/strategy/顶级装备背景.png"},
-                {name = "追梦神器", img = "res/custom/strategy/追梦神器背景.png"},
                 {name = "全服孤品", img = "res/custom/strategy/全服孤品背景.png"},
             },
         },
@@ -7594,36 +7736,158 @@ npc[512] = function(p2, p3, Data)
         local img = GUI:Image_Create(scroll, "content", 0, math.max(0, innerH - imgH), sub.img)
         GUI:setAnchorPoint(img, 0, 0)
     end
+    local equipPreviewData = {
+        ["顶级装备"] = {
+            groups = {
+                {title = "世界专属", items = {"龙魂吊坠", "王权圣戒", "烈焰指环", "炽焰护腕", "傲霜孤", "月华流影"}},
+                {title = "二大陆", items = {"黄金靴子", "黄金腰带", "黄金瞬影戒", "黄金银河护手", "黄金冥王链", "黄金幽灵盔"}},
+                {title = "三大陆", items = {"雷霆幻", "龙鳞震岳", "啸风逐电", "天罚雷击", "烈焰焚天", "霜雪之间"}},
+                {title = "四大陆", items = {"雪隐残锋", "惊雷震世", "烬海残光", "苍穹寂灭", "月华流影", "傲霜孤"}},
+                {title = "五大陆", items = {"深渊游行", "龙骨战魂", "★★寒鸦★★", "紫琅", "烬痕", "长夜メ"}},
+                {title = "六大陆", items = {"天下太平", "封刃护生", "破军弑神", "碎星戮仙", "世事无常", "但求无悔"}},
+                {title = "七大陆", items = {"玄武震天尊", "致命节奏", "熱翔", "东皇钟魂", "净世真言", "天恩圣符"}},
+            },
+        },
+        ["全服孤品"] = {
+            items = {"卍乱·阴阳卍", "卍锁·轮回卍", "卍斩·因果卍", "卍破·万法卍", "卍渎·神祁卍"}
+        },
+    }
+    local function createEquipPreviewItem(parent, name, x, y, itemName)
+        local itemIndex = SL:GetMetaValue("ITEM_INDEX_BY_NAME", itemName)
+        if not itemIndex or itemIndex <= 0 then
+            return
+        end
+        local holder = GUI:Layout_Create(parent, name, x, y, 84, 106, false)
+        local slotBg = GUI:Image_Create(holder, "slot_bg", 13, 34, "res/wy/public/58_58_kuang.png")
+        GUI:setScale(slotBg, 1)
+        local item = GUI:ItemShow_Create(holder, "item", 42, 63, {index = itemIndex, look = true, bgVisible = true})
+        GUI:setAnchorPoint(item, 0.5, 0.5)
+        GUI:setScale(item, 1)
+        if GUI.ItemShow_setItemTouchSwallow then
+            GUI:ItemShow_setItemTouchSwallow(item, true)
+        end
+        local text = GUI:Text_Create(holder, "name", 42, 2 + 10, 15, "#F7E7C4", itemName)
+        GUI:setAnchorPoint(text, 0.5, 0)
+        GUI:Text_enableOutline(text, "#1A120B", 2)
+        -- GUI:Text_setTextAreaSize(text, {width = 82, height = 34})
+        GUI:Text_setTextHorizontalAlignment(text, 1)
+    end
+    local function renderEquipPreviewPage(Label_node, page)
+        local viewW, viewH = 584, 444
+        local subIdx = (npc.strategy_sub_sign and npc.strategy_sub_sign[page.key]) or 1
+        local sub = getSub(page, subIdx)
+        local root = GUI:Layout_Create(Label_node, "equip_preview_root", 0, 0, viewW, viewH, false)
+        GUI:Image_Create(root, "equip_preview_bg", 0, 0, sub.img)
+        if sub.name == "装备分类" or sub.name == "追梦神器" then
+            return
+        end
+        local cfg = equipPreviewData[sub.name]
+        if not cfg then
+            return
+        end
+        if cfg.groups then
+            local scroll = GUI:ScrollView_Create(root, "equip_group_scroll", 14, 10, 556, 440, 2)
+            GUI:ScrollView_setBounceEnabled(scroll, true)
+            local groupWidth, groupHeight = 174, 314
+            local gap = 8
+            local innerW = math.max(556, #cfg.groups * (groupWidth + gap) + gap)
+            GUI:ScrollView_setInnerContainerSize(scroll, innerW, 374)
+            local titleColors = {"#FFD77B", "#7BE2FF", "#C792FF", "#7BFFA7", "#FF9E7B", "#FF7BC6", "#B7FF7B"}
+            for i, group in ipairs(cfg.groups) do
+                local gx = gap + (i - 1) * (groupWidth + gap)
+                local panel = GUI:Layout_Create(scroll, "group_panel_" .. i, gx, 0, groupWidth, groupHeight, false)
+                local panelBg = GUI:Image_Create(panel, "panel_bg", 0, 0, "res/wy/public/anniu_999_bj.png")
+                GUI:setContentSize(panelBg, groupWidth, groupHeight + 50 + 40)
+                local titleColor = titleColors[i] or "#FFD77B"
+                local title = GUI:Text_Create(panel, "group_title_" .. i, groupWidth / 2, groupHeight - 24 + 70, 25, titleColor, group.title)
+                GUI:setAnchorPoint(title, 0.5, 0.5)
+                GUI:Text_setFontName(title, "fonts/502.ttf")
+                GUI:Text_enableOutline(title, "#2C1708", 2)
+                local line = GUI:Image_Create(panel, "line_" .. i, 18, groupHeight, "res/custom/strategy/list/fgx.png")
+                GUI:setScaleX(line, 1.08)
+                GUI:setScaleY(line, 1.05)
+                for idx, itemName in ipairs(group.items or {}) do
+                    local itemCol = (idx - 1) % 2
+                    local itemRow = math.floor((idx - 1) / 2)
+                    createEquipPreviewItem(panel, "group_item_" .. i .. "_" .. idx, 5 + itemCol * 82, 160 - itemRow * 88 + 40, itemName)
+                end
+            end
+            return
+        end
+        -- local titleBg = GUI:Image_Create(root, "single_title_bg", 170, 382, "res/custom/strategy/title.png")
+        -- GUI:setScale(titleBg, 0.92)
+        -- local title = GUI:Text_Create(root, "single_title", viewW / 2, 410, 24, "#FFD77B", sub.name)
+        -- GUI:setAnchorPoint(title, 0.5, 0.5)
+        -- GUI:Text_enableOutline(title, "#3A220C", 2)
+        local startX, startY = 78, 238
+        for idx, itemName in ipairs(cfg.items or {}) do
+            local col = (idx - 1) % 3
+            local row = math.floor((idx - 1) / 3)
+            SL:release_print("createEquipPreviewItem", row)
+            createEquipPreviewItem(root, "equip_item_" .. idx, startX + col * 138 + (row == 1 and 67 or 0), startY - row * 126, itemName)
+        end
+    end
     local function renderMapPage(Label_node, page)
         local viewW, viewH = 584, 444
         GUI:Image_Create(Label_node, "map_bg", 0, 0, "res/custom/strategy/地图走法/地图走法背景.png")
         local mapInfo = getSub(page, (npc.strategy_sub_sign and npc.strategy_sub_sign[page.key]) or 1)
-        npc.strategy_map_scale = npc.strategy_map_scale or 0.32
-        local function refreshMap(scroll)
-            GUI:removeAllChildren(scroll)
+        npc.strategy_map_scale = npc.strategy_map_scale or 0.72
+        npc.strategy_map_pos = npc.strategy_map_pos or {}
+        local mapKey = tostring(page.key or "default")
+        local dragLayer = GUI:Layout_Create(Label_node, "map_drag_layer", 0, 0, viewW, viewH, true)
+        local function clampMapPos(posX, posY, imgW, imgH)
+            local minX = math.min(0, viewW - imgW)
+            local minY = math.min(0, viewH - imgH)
+            local maxX = imgW > viewW and 0 or math.floor((viewW - imgW) / 2)
+            local maxY = imgH > viewH and 0 or math.floor((viewH - imgH) / 2)
+            posX = math.max(minX, math.min(maxX, posX or 0))
+            posY = math.max(minY, math.min(maxY, posY or 0))
+            return posX, posY
+        end
+        local function refreshMap()
+            GUI:removeAllChildren(dragLayer)
             local scale = npc.strategy_map_scale or 0.32
             local imgW = math.floor((mapInfo.w or 1944) * scale)
             local imgH = math.floor((mapInfo.h or 1286) * scale)
-            GUI:ScrollView_setInnerContainerSize(scroll, math.max(viewW, imgW), math.max(viewH, imgH))
-            local img = GUI:Image_Create(scroll, "map_img", 0, math.max(0, math.max(viewH, imgH) - imgH), mapInfo.img)
+            local cachePos = npc.strategy_map_pos[mapKey] or {}
+            local posX, posY = clampMapPos(cachePos.x, cachePos.y, imgW, imgH)
+            npc.strategy_map_pos[mapKey] = {x = posX, y = posY}
+            local img = GUI:Image_Create(dragLayer, "map_img", posX, posY, mapInfo.img)
             GUI:setAnchorPoint(img, 0, 0)
             GUI:setScale(img, scale)
+            GUI:setTouchEnabled(dragLayer, true)
+            GUI:addOnTouchEvent(dragLayer, function(sender, eventType)
+                if eventType == SLDefine.TouchEventType.began then
+                    sender._drag_begin_touch = GUI:getTouchBeganPosition(sender)
+                    sender._drag_begin_map = GUI:getPosition(img)
+                elseif eventType == SLDefine.TouchEventType.moved then
+                    local beginTouch = sender._drag_begin_touch
+                    local beginMap = sender._drag_begin_map
+                    local moveTouch = GUI:getTouchMovePosition(sender)
+                    if beginTouch and beginMap and moveTouch then
+                        local nextX = (beginMap.x or 0) + (moveTouch.x - beginTouch.x)
+                        local nextY = (beginMap.y or 0) + (moveTouch.y - beginTouch.y)
+                        nextX, nextY = clampMapPos(nextX, nextY, imgW, imgH)
+                        GUI:setPosition(img, nextX, nextY)
+                        npc.strategy_map_pos[mapKey] = {x = nextX, y = nextY}
+                    end
+                end
+            end)
         end
-        local scroll = GUI:ScrollView_Create(Label_node, "MapScrollView", 0, 0, viewW, viewH, 2)
-        GUI:ScrollView_setBounceEnabled(scroll, true)
-        refreshMap(scroll)
+        refreshMap()
         local tools = GUI:Layout_Create(Label_node, "map_tools", 370, 405, 200, 36, false)
         createScaleButton(tools, "zoom_out", -50, -400, "-", function()
-            npc.strategy_map_scale = math.max(0.25, (npc.strategy_map_scale or 0.32) - 0.08)
-            refreshMap(scroll)
+            npc.strategy_map_scale = math.max(0.25, (npc.strategy_map_scale or 0.72) - 0.08)
+            refreshMap()
         end)
         createScaleButton(tools, "zoom_reset", 40, -400, "复位", function()
-            npc.strategy_map_scale = 0.32
-            refreshMap(scroll)
+            npc.strategy_map_scale = 0.72
+            npc.strategy_map_pos[mapKey] = nil
+            refreshMap()
         end)
         createScaleButton(tools, "zoom_in", 130, -400, "+", function()
-            npc.strategy_map_scale = math.min(1.2, (npc.strategy_map_scale or 0.32) + 0.08)
-            refreshMap(scroll)
+            npc.strategy_map_scale = math.min(1.2, (npc.strategy_map_scale or 0.72) + 0.08)
+            refreshMap()
         end)
     end
     local function GUI_createLabel(Label_node, idx)
@@ -7631,6 +7895,8 @@ npc[512] = function(p2, p3, Data)
         local page = getPage(idx)
         if page.map then
             renderMapPage(Label_node, page)
+        elseif page.key == "equip" then
+            renderEquipPreviewPage(Label_node, page)
         else
             renderNormalPage(Label_node, page)
         end

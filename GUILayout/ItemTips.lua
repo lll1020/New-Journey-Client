@@ -3245,7 +3245,7 @@ function ItemTips.CreateEquipPanel(data, itemData, isWear, panelInsertIndex)
             ".png",
             1,
             frameCount,
-            {count = frameCount, speed = 150, loop = -1}
+            {count = frameCount, speed = 75, loop = -1}
         )
         GUI:setAnchorPoint(waik, 0, 0)
         GUI:setContentSize(waik, targetWidth, targetHeight)

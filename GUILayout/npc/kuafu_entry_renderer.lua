@@ -31,6 +31,15 @@ local IMAGE_BY_NPC = {
     [1017] = RES .. "跨服秘境.png",
 }
 
+local ITEM_BY_NPC = {
+    [1013] = {{"浅吟唱",1},{"烟醉雨",1},{"洛情弃",1},{"仙人跪",1},},
+    [1014] = {{"尘缘劫火",1},{"渡世莲华",1},{"鸿蒙初判",1},{"混沌道胎",1},},
+    [1015] = {{"玄元道印",1},{"诸神黄昏",1},{"青冥道果",1},{"噬仙印",1},},
+    [1016] = {{"起源·无尽幻境",1},{"厄运代言人",1},{"龙之力·不灭光剑!",1},{"黄昏落幕ぁ",1},},
+    [1017] = {{"火舞手镯",1},{"熔岩手镯",1},{"烈风之履",1},{"火龙束带",1},},
+}
+
+
 local function text(parent, name, x, y, size, color, value, ax, ay, font)
     local node = GUI:Text_Create(parent, name, x, y, size, color, tostring(value or ""))
     GUI:setAnchorPoint(node, ax or 0.5, ay or 0.5)
@@ -76,9 +85,13 @@ function renderer.main(npcid, link, msg, data)
     GUI:setAnchorPoint(panel, 0.5, 0.5)
     GUI:setTouchEnabled(panel, true)
 
+    ItemNumByTable_img_new(ITEM_BY_NPC[npcid] or {}, 1, GUI:Node_Create(panel, "item_holder", 130, 185))
+
     -- text(bgAnim, "name", NAME_X + 300, NAME_Y + 120, 24, "#F6D08A", "地图掉落", 0.5, 0.5)
     text(bgAnim, "open_day", INFO_CENTER_X + 300, OPEN_DAY_Y + 128, 18, "#EAF6FF", "开启天数：" .. tostring(decoded.open_day or 0), 0.5, 0.5)
     text(bgAnim, "cond", INFO_CENTER_X + 300, COND_Y + 132, 18, "#F5E6C6", decoded.condition_desc or "", 0.5, 0.5, "fonts/font4.ttf")
+
+    text(bgAnim, "shuaguaishij", INFO_CENTER_X + 300, COND_Y + 132 + 111, 18, "#F5E6C6", "每天03、09、12、15、18、24", 0.5, 0.5, "fonts/font4.ttf")
 
     -- local stateText = decoded.can_enter == 1 and "当前可进入" or "当前不可进入"
     -- local stateColor = decoded.can_enter == 1 and "#7CFF9A" or "#FF7A7A"

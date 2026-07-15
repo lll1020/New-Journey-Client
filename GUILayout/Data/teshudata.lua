@@ -3074,15 +3074,15 @@
                 ["羊肉"] = {point = 5},
                 ["鹿肉"] = {point = 10},
             },
-            title_name = "酒仙",
+            title_name = "美食家",
             title_buff_desc = "打怪爆率+10%，生命偷取+10%，每次攻击动物伤害+1",
             shop = {
                 {
                     idx = 1,
-                    name = "酒仙",
+                    name = "美食家",
                     cost = 100,
                     limit = 1,
-                    reward = {kind = "title", name = "酒仙"},
+                    reward = {kind = "title", name = "美食家"},
                     desc = "打怪爆率+10%，生命偷取+10%，每次攻击动物伤害+1",
                 },
                 {
