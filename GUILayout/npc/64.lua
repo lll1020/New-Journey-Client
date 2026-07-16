@@ -487,10 +487,11 @@ function npc.main(npcid, p2, p3, msgData)
         local progressBg = GUI:Image_Create(node, "hatch_progress_bg", 225 - 40, 154, "res/wy/public/new_kuang.png")
         GUI:setAnchorPoint(progressBg, 0.5, 0.5)
         GUI:setContentSize(progressBg, 252, 16)
-        local progressText = _outline_text(node, "hatch_progress_text", 225 - 40, 180, 19, "#FFE49A", isHatching and ("灵契凝息  " .. _format_seconds(remain)) or (canDeploy and "灵契已成，可出战" or status), {outline = "#1B0A00", outlineSize = 2})
+
+        local progressText = _outline_text(node, "hatch_progress_text", 225 - 40, 180 - 30, 19, "#FFE49A", isHatching and ("灵契凝息  " .. _format_seconds(remain)) or (canDeploy and "灵契已成，可出战" or status), {outline = "#1B0A00", outlineSize = 2})
         GUI:setAnchorPoint(progressText, 0.5, 0.5)
         local total = _hatch_total_seconds(hatch, remain)
-        local progressFill = GUI:Layout_Create(node, "hatch_progress_fill", 101 - 40, 146, isHatching and 1 or 244, 16, false)
+        local progressFill = GUI:Layout_Create(node, "hatch_progress_fill", 101 - 40, 146 - 30, isHatching and 1 or 244, 16, false)
         GUI:Layout_setBackGroundColorType(progressFill, 1)
         GUI:Layout_setBackGroundColor(progressFill, canDeploy and "#62D878" or "#F0C15A")
         GUI:Layout_setBackGroundColorOpacity(progressFill, 205)
@@ -513,8 +514,8 @@ function npc.main(npcid, p2, p3, msgData)
             {"定位：" .. mark .. "，出战后提供对应战斗特性。", "#F7E8C5"},
             {"属性：生命、防御、攻击会随成长逐步提升。", "#B9F6C5"},
             {"亲密：提升亲密度可提高灵兽成长和协同强度。", "#FFB85A"},
-            {"星级：淬炼星级越高，灵兽基础属性越强。", "#F7E8C5"},
-            {"协同：后续可与灵根/圣物形成专属被动效果。", "#FF5A3D"},
+            {"星级：灵兽星级越高，灵兽基础属性越强。", "#F7E8C5"},
+            {"协同：后续可与灵根/遗物形成专属被动效果。", "#FF5A3D"},
         }
         for i, line in ipairs(lines) do
             _contract_line(node, "info_line_" .. i, 366 - 45, 366 - i * 25, "· " .. line[1], line[2], 16)
@@ -546,16 +547,19 @@ function npc.main(npcid, p2, p3, msgData)
         local quickHatchTail = _outline_text(node, "quick_hatch_tip_tail", 625, 148, 23, "#FFF3CF", "即可点化灵胎，无需等待！", {font = "fonts/502.ttf", outline = "#170A02", outlineSize = 2})
         GUI:setAnchorPoint(quickHatchTail, 0, 0.5)
 
-        local backBtn = _contract_button(node, "back_btn", 225, 86, opts.fromList and "返回灵契" or "收起契卷", "#7BFFB0", function()
-            if npc.baby_preview_window then
-                NPC_UI_HELPER.closeWindow(npc.baby_preview_window)
-                npc.baby_preview_window = nil
-            end
-            if opts.fromList then
-                open_contract_window(true)
-            end
-        end)
+        if opts.fromList then
+            local backBtn = _contract_button(node, "back_btn", 225, 86 - 30, opts.fromList and "返回灵契" or "收起契卷", "#7BFFB0", function()
+                if npc.baby_preview_window then
+                    NPC_UI_HELPER.closeWindow(npc.baby_preview_window)
+                    npc.baby_preview_window = nil
+                end
+                if opts.fromList then
+                    open_contract_window(true)
+                end
+            end)
 
+
+        end
         local hatchNowBtn = _contract_button(node, "quick_hatch_btn", 625, 86, "立即点化", "#FF4D3A", function()
             SL:SendLuaNetMsg(100, npcid, 7, 0, SL:JsonEncode({idx = idx}, false))
         end)
@@ -571,6 +575,12 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:setTouchEnabled(claimBtn, canClaim)
             GUI:Button_setBright(claimBtn, canClaim)
         end
+        if not canClaim then
+            GUI:setVisible(claimBtn, true)
+        end
+
+        
+
         if canDeploy then
             GUI:addOnClickEvent(claimBtn, function()
                 if npc.ls_data and npc.ls_data.T_data then

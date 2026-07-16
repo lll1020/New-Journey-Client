@@ -178,9 +178,9 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:setPosition(jl, reward_pos[1], reward_pos[2])
         end
 
-        local t = GUI:Text_Create(node, "tip", 470, 200, 20, "#808080", "预览任务")
+        local t = GUI:Text_Create(node, "tip", 470, 200, 20, "#6FD3FF", "预览任务")
         GUI:Text_setFontName(t, "fonts/500.ttf")
-        GUI:Text_enableOutline(t, "#00FFFF", 2)
+        GUI:Text_enableOutline(t, "#C92A2A", 2)
 
         createActionButtons(node, state)
     end

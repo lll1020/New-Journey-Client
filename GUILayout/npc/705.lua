@@ -117,7 +117,7 @@ local function renderAcceptStage(node, state)
         
         local progressText = string.format("当前进度：BOSS %d/%d  小怪 %d/%d",
             progress.boss, needBoss, progress.small, needSmall)
-        local rich = GUI:RichText_Create(node, "progress", 0, -130, progressText, 360, 20, "#F4D179", 0, nil, nil, {outlineSize = 1, outlineColor = "#000000"})
+        local rich = GUI:RichText_Create(node, "progress", 0, -130, progressText, 360, 20, "#6FD3FF", 0, nil, nil, {outlineSize = 1, outlineColor = "#C92A2A"})
         GUI:setAnchorPoint(rich, 0.5, 0.5)
         if isStageOneDone() and step < 1 then
             local btn = GUI:Button_Create(node, "btn_submit_step1", 0, -250, "res/custom/public/btn_tijiao.png")

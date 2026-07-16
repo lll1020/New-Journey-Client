@@ -200,12 +200,12 @@ function npc.main(npcid, p2, p3, msgData)
         for i = 1, 3 do
             local cur = tonumber(npc.data.sg_data[key .. "_" .. stage_key[i]] or 0) or 0
             local need = tonumber(stage_need[i] or 0) or 0
-            local t = GUI:Text_Create(node, "stage_" .. tostring(i), 470, baseY - (i - 1) * 24, 18, "#808080", string.format("阶段%d %d/%d", i, cur, need))
+            local t = GUI:Text_Create(node, "stage_" .. tostring(i), 470, baseY - (i - 1) * 24, 18, "#6FD3FF", string.format("阶段%d %d/%d", i, cur, need))
             GUI:Text_setFontName(t, "fonts/500.ttf")
-            GUI:Text_enableOutline(t, "#00FFFF", 2)
+            GUI:Text_enableOutline(t, "#C92A2A", 2)
         end
         if max_num > 1 then
-            local t2 = GUI:Text_Create(node, "step", 470, 138, 18, "#808080", string.format("进度 %d/%d", progress, max_num))
+            local t2 = GUI:Text_Create(node, "step", 470, 138, 18, "#6FD3FF", string.format("进度 %d/%d", progress, max_num))
             GUI:Text_setFontName(t2, "fonts/500.ttf")
             GUI:Text_enableOutline(t2, "#00FFFF", 2)
         end

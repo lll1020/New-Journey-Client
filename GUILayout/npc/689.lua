@@ -216,12 +216,12 @@ function npc.main(npcid, p2, p3, msgData)
                 next_step = max_num
             end
             local need_total = kill_need * next_step
-            local t = GUI:Text_Create(node, "progress", 100, 50, 20, "#808080", string.format("击杀 %d/%d", kill_cur, need_total))
+            local t = GUI:Text_Create(node, "progress", 100, 50, 20, "#6FD3FF", string.format("击杀 %d/%d", kill_cur, need_total))
             GUI:Text_setFontName(t, "fonts/500.ttf")
-            GUI:Text_enableOutline(t, "#00FFFF", 2)
+            GUI:Text_enableOutline(t, "#C92A2A", 2)
         end
         if max_num > 1 then
-            -- local t2 = GUI:Text_Create(node, "step", 470, 176, 18, "#808080", string.format("解锁 %d/%d", progress, max_num))
+            -- local t2 = GUI:Text_Create(node, "step", 470, 176, 18, "#6FD3FF", string.format("解锁 %d/%d", progress, max_num))
             -- GUI:Text_setFontName(t2, "fonts/500.ttf")
             -- GUI:Text_enableOutline(t2, "#00FFFF", 2)
         end

@@ -186,10 +186,10 @@ function npc.main(npcid, p2, p3, msgData)
             need = total
         end
         if per > 0 then
-            local t = GUI:Text_Create(node, "progress", 470 + 170, 200 + 60, 20, "#808080", string.format("击杀 %d/%d", kill_cur, need))
+            local t = GUI:Text_Create(node, "progress", 470 + 170, 200 + 60, 20, "#6FD3FF", string.format("击杀 %d/%d", kill_cur, need))
             GUI:Text_setFontName(t, "fonts/500.ttf")
-            GUI:Text_enableOutline(t, "#00FFFF", 2)
-            local t2 = GUI:Text_Create(node, "step", 470 + 170, 176 + 60, 18, "#808080", string.format("步数 %d/%d", progress, max_num))
+            GUI:Text_enableOutline(t, "#C92A2A", 2)
+            local t2 = GUI:Text_Create(node, "step", 470 + 170, 176 + 60, 18, "#6FD3FF", string.format("步数 %d/%d", progress, max_num))
             GUI:Text_setFontName(t2, "fonts/500.ttf")
             GUI:Text_enableOutline(t2, "#00FFFF", 2)
         end

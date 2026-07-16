@@ -35,6 +35,9 @@ function npc.main(npcid, p2, p3, msgData)
 
         GUI:removeAllChildren(node)
         npc.data.T_dljq[key] = (npc.data.T_dljq and npc.data.T_dljq[key]) and npc.data.T_dljq[key] or 0
+        local text = GUI:Text_Create(node, "text", 507 + 25 - 363 + 273 + 12, 202 + 10 - 90 + 20, 30, "#00FFFF", "当前人物等级 + 1" )
+        GUI:Text_setFontName(text, "fonts/502.ttf")
+
 
         if npc.data.T_dljq[key] == 1 or npc.data.T_dljq[key] == 0 then
             

@@ -76,9 +76,9 @@ function npc.main(npcid, p2, p3, msgData)
         local kill_cur = tonumber(npc.data.sg_data[key] or 0) or 0
         local kill_need = tonumber(task_cfg.kill_count or 0) or 0
         if kill_need > 0 and state > 0 then
-            local t = GUI:Text_Create(node, "progress", 620, 250, 23, "#F4D179", string.format("当前击杀进度 %d/%d", kill_cur, kill_need))
+            local t = GUI:Text_Create(node, "progress", 620, 250, 23, "#6FD3FF", string.format("当前击杀进度 %d/%d", kill_cur, kill_need))
             GUI:Text_setFontName(t, "fonts/502.ttf")
-            GUI:Text_enableOutline(t, "#FFFFFF", 2)
+            GUI:Text_enableOutline(t, "#C92A2A", 2)
         end
 
         if type(npc._config and npc._config.cost) == "table" and #(npc._config.cost) > 0 then

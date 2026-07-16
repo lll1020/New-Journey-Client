@@ -191,9 +191,9 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:setPosition(cost, cost_pos[1], cost_pos[2])
         end
         if max_num > 1 then
-            local t = GUI:Text_Create(node, "progress", 470, 200, 20, "#808080", string.format("进度 %d/%d", progress, max_num))
+            local t = GUI:Text_Create(node, "progress", 470, 200, 20, "#6FD3FF", string.format("进度 %d/%d", progress, max_num))
             GUI:Text_setFontName(t, "fonts/500.ttf")
-            GUI:Text_enableOutline(t, "#00FFFF", 2)
+            GUI:Text_enableOutline(t, "#C92A2A", 2)
         end
 
         createActionButtons(node, state)
