@@ -352,7 +352,7 @@ local function openBasinLevelPopup()
     local curCfg = levelCfg(lv)
     local nextCfg = levelCfg(nextLv)
     local maxed = lv >= 5
-    local charge = n(d.charge)
+    local charge = math.max(n(d.charge), n(d.real_charge), n(d.money23))
     local needCharge = n(nextCfg.charge)
     local lackCharge = math.max(0, needCharge - charge)
 
@@ -399,7 +399,7 @@ local function openBasinLevelPopup()
                 SL:ShowSystemTips("真实充值不足，还差 " .. fmt(lackCharge))
                 return
             end
-            closeBasinLevelPopup()
+            npc._pendingLevelUpgradeFrom = lv
             SL:SendLuaNetMsg(101, 517, 9, 0, "")
         end, 1.3)
     end
@@ -866,6 +866,7 @@ end
 function npc.main(npcid, p2, p3, msgData)
     local forceFullRefresh = false
     local hasWindow = isValidNode(npc.node)
+    local oldLevel = n((npc.data or {}).level, 1)
     if tonumber(p2 or 0) >= 4 and tonumber(p2 or 0) <= 7 then
         forceFullRefresh = tab ~= 3
         tab = 3
@@ -875,6 +876,14 @@ function npc.main(npcid, p2, p3, msgData)
         rawset(_G, "__TREASURE_BASIN_517_DATA__", npc.data)
     else
         npc.data = npc.data or {}
+    end
+    if tonumber(p2 or 0) == 9 then
+        local newLevel = n((npc.data or {}).level, 1)
+        local pendingFrom = n(npc._pendingLevelUpgradeFrom, oldLevel)
+        if newLevel > pendingFrom then
+            closeBasinLevelPopup()
+        end
+        npc._pendingLevelUpgradeFrom = nil
     end
     npc.render(npcid, hasWindow and not forceFullRefresh)
 end

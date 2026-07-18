@@ -1,4 +1,4 @@
-﻿-- 异闻录：剧情完成判定辅助
+-- 异闻录：剧情完成判定辅助
 local _xyl_name_map
 local function _xyl_norm_name(name)
     if not name then
@@ -597,42 +597,21 @@ local function _xyl_get_completed_chapter_reward_jqd(taskData, l, zj)
     end
     return total
 end
-local _XYL_EXTRA_JQD_CHAPTERS = {
-    ["苍云秘闻"] = true,
-    ["若水秘闻"] = true,
-    ["灵兽奥秘"] = true,
-    ["灵虚秘闻"] = true,
-}
-local function _xyl_is_extra_jqd_chapter(cfg)
-    if type(cfg) ~= "table" then
-        return false
-    end
-    return _XYL_EXTRA_JQD_CHAPTERS[tostring(cfg.name or "")] == true
-end
-local function _xyl_get_extra_completed_jqd_before(taskData, l, zj)
+local function _xyl_should_ignore_ruoshui_jqd(l, zj)
     l = tonumber(l) or 0
     zj = tonumber(zj) or 0
-    local total = 0
-    for lIdx, lCfg in ipairs(taskData or {}) do
-        if type(lCfg) == "table" then
-            for zjIdx, cfg in ipairs(lCfg) do
-                if lIdx < l or (lIdx == l and zjIdx < zj) then
-                    if _xyl_is_extra_jqd_chapter(cfg) then
-                        total = total + _xyl_get_completed_chapter_reward_jqd(taskData, lIdx, zjIdx)
-                    end
-                end
-            end
-        end
-    end
-    return total
+    return l > 3 or (l == 3 and zj >= 2)
 end
 local function _xyl_adjust_unlock_jqd(taskData, l, zj, curJqd)
     local nowJqd = tonumber(curJqd) or 0
-    local extraJqd = _xyl_get_extra_completed_jqd_before(taskData, l, zj)
-    if extraJqd <= 0 then
+    if not _xyl_should_ignore_ruoshui_jqd(l, zj) then
         return nowJqd
     end
-    nowJqd = nowJqd - extraJqd
+    local ruoshuiJqd = _xyl_get_completed_chapter_reward_jqd(taskData, 3, 1)
+    if ruoshuiJqd <= 0 then
+        return nowJqd
+    end
+    nowJqd = nowJqd - ruoshuiJqd
     if nowJqd < 0 then
         nowJqd = 0
     end
@@ -2638,5 +2617,4 @@ npc_xyl.build_task_desc = function(task)
     return _xyl_build_task_desc(task)
 end
 return npc_xyl
-
 

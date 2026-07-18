@@ -1,4 +1,4 @@
-local npc = {}
+﻿local npc = {}
 
 npc._config = teshudata["npc_672"]
 
@@ -39,7 +39,7 @@ function npc.main(npcid, p2, p3, msgData)
         local desc = GUI:Text_Create(node, "desc",300 + 358 - 175,220 - 68 + 137, 20, "#FF0000", npc._config.details[npc.idx].wz)
         GUI:Text_setFontName(desc, "fonts/500.ttf")
         GUI:Text_enableOutline(desc, "#150800", 1)
-        if npc.data.T_dljq[key.."_"..npc.idx] and npc.data.T_dljq[key.."_"..npc.idx] == 1 then
+        if npc.data.T_dljq[key.."_"..npc.idx] and npc.data.T_dljq[key.."_"..npc.idx] >= 2 then
             -- GUI:Image_Create(node, "Button", btn_pos[1], btn_pos[2], "res/wy/public/7_1.png")
         else
             local Button= GUI:Button_Create(node, "Button", btn_pos[1], btn_pos[2], "res/custom/all_story_mission/4/672_btn.png")
@@ -85,7 +85,7 @@ function npc.main(npcid, p2, p3, msgData)
                 GUI:setAnchorPoint(GUI:Image_Create(Btn, "kuang", 129/2, 122/2, "res/custom/all_story_mission/4/672_1/kuang.png"), 0.5, 0.5)
                 xjm_UI_updata(npc.xjm)
             end)
-            if npc.data.T_dljq[key.."_"..i] and npc.data.T_dljq[key.."_"..i] == 1 then
+            if npc.data.T_dljq[key.."_"..i] and npc.data.T_dljq[key.."_"..i] >= 2 then
                 GUI:setAnchorPoint(GUI:Image_Create(Btn, "wc", 129/2, 122/2, "res/custom/all_story_mission/4/672_1/wc.png"), 0.5, 0.5)
             end
         end
@@ -101,7 +101,7 @@ function npc.main(npcid, p2, p3, msgData)
         elseif npc.data.T_dljq[key] == 1 then
             local count = 0
             for i=1,6 do
-                if npc.data.T_dljq[key.."_"..i] and npc.data.T_dljq[key.."_"..i] == 1 then
+                if npc.data.T_dljq[key.."_"..i] and npc.data.T_dljq[key.."_"..i] >= 2 then
                     count = count + 1
                 end
             end
@@ -112,7 +112,7 @@ function npc.main(npcid, p2, p3, msgData)
                     SL:SendLuaNetMsg(100, npcid, 3, 0, "")
                 end)
             end
-        elseif npc.data.T_dljq[key] == npc._config.max_num then
+        elseif npc.data.T_dljq[key] == 2 then
             GUI:Image_Create(node, "Button", btn_pos[1], btn_pos[2], "res/wy/public/7_1.png")
         end
     end
@@ -127,9 +127,10 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data.T_dljq[key] = p3
         UI_updata(npc.node)
     elseif p2 == 2 then
-        npc.data.T_dljq[key.."_"..p3] = 1
+        npc.data.T_dljq[key.."_"..p3] = 2
         UI_updata(npc.node)
     end
 end
 
 return npc
+

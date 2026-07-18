@@ -3167,9 +3167,6 @@ npc[11] = function(p2, p3, Data)
     if p2 == 0 then
         npc.data = Data and SL:JsonDecode(Data, false) or {
         }
-        if type(npc.data) == "table" and type(npc.data.ywl) == "table" and next(npc.data.ywl) ~= nil then
-            rawset(_G, "XYL_YWL_CACHE", npc.data.ywl)
-        end
         if _ywl_should_hide_storylog(npc.data) then
             _ywl_close_storylog()
             return
@@ -3191,8 +3188,8 @@ npc[11] = function(p2, p3, Data)
         local function ywlHasAllLinggen()
             local data = Player and Player.JsonToTbl and Player:getServerVar("T41") and Player:JsonToTbl(Player:getServerVar("T41")) or {}
             local levels = type(data) == "table" and type(data.level) == "table" and data.level or {}
-            for idx = 1, 5 do
-                if (tonumber(levels[tostring(idx)] or levels[idx]) or 0) < 1 then
+            for idx = 1, 10 do
+                if (tonumber(levels[tostring(idx)] or levels[idx]) or 0) <= 0 then
                     return false
                 end
             end
@@ -3212,18 +3209,6 @@ npc[11] = function(p2, p3, Data)
             end
             return SL:GetMetaValue("TITLE_DATA_BY_ID", itemIdx) ~= nil
         end
-        local _YWL_EXTRA_PROGRESS_CHAPTERS = {
-            ["苍云秘闻"] = true,
-            ["若水秘闻"] = true,
-            ["灵兽奥秘"] = true,
-            ["灵虚秘闻"] = true,
-        }
-        local function ywlShouldSkipProgressChapter(chapter)
-            if type(chapter) ~= "table" then
-                return false
-            end
-            return _YWL_EXTRA_PROGRESS_CHAPTERS[tostring(chapter.name or "")] == true
-        end
         local function ywlGetStoryProgress(continent)
             local chapters = npc.xyl and npc.xyl[continent] or nil
             local ywl = npc.data and npc.data.ywl or {}
@@ -3233,18 +3218,20 @@ npc[11] = function(p2, p3, Data)
                 return 0, 0
             end
             for chapterIdx, chapter in ipairs(chapters) do
-                local skipTotal = ywlShouldSkipProgressChapter(chapter)
                 local tasks = type(chapter) == "table" and chapter.jq or nil
                 if type(tasks) == "table" then
                     local chapterKey = "jl_" .. continent .. "_" .. chapterIdx
                     local chapterReceived = tonumber(ywl[chapterKey] or 0) == 1
                     for taskIdx, task in ipairs(tasks) do
                         local point = _ywl_get_task_story_point(task)
-                        if not skipTotal then
-                            total = total + point
-                        end
+                        total = total + point
                         local taskReceived = tonumber(ywl[chapterKey .. "_" .. taskIdx] or 0) == 1
-                        if point > 0 and (chapterReceived or taskReceived) then
+                        local taskDone = false
+                        if type(task) == "table" and type(task.khdjy) == "function" then
+                            local ok, done = pcall(task.khdjy, task)
+                            taskDone = ok and done == true
+                        end
+                        if point > 0 and (chapterReceived or taskReceived or taskDone) then
                             done = done + point
                         end
                     end
@@ -3858,7 +3845,6 @@ npc[11] = function(p2, p3, Data)
             npc.data.ywl = npc.data.ywl or {
             }
             npc.data.ywl["jl_" .. data.i .. "_" .. data.j] = 1
-            rawset(_G, "XYL_YWL_CACHE", npc.data.ywl)
             local nextL, nextZj = _ywl_find_next_chapter(data.i, data.j)
             if nextL and nextZj then
                 npc.l, npc.zj = nextL, nextZj
@@ -3874,15 +3860,11 @@ npc[11] = function(p2, p3, Data)
             npc.data.ywl = npc.data.ywl or {
             }
             npc.data.ywl["jl_" .. data.i .. "_" .. data.j .. "_" .. data.z] = 1
-            rawset(_G, "XYL_YWL_CACHE", npc.data.ywl)
             npc.l = tonumber(data.i) or npc.l
             npc.zj = tonumber(data.j) or npc.zj
         end
     elseif p2 == 3 then
         npc.data = SL:JsonDecode(Data, false)
-        if type(npc.data) == "table" and type(npc.data.ywl) == "table" and next(npc.data.ywl) ~= nil then
-            rawset(_G, "XYL_YWL_CACHE", npc.data.ywl)
-        end
         npc[11](0, 0, Data)
     elseif p2 == 9 then
         local currentTask = SL:JsonDecode(Data, false) or {
@@ -8165,18 +8147,6 @@ npc[514] = function(p2, p3, Data)
         end
         return total
     end
-    local _WORLD_MAP_EXTRA_PROGRESS_CHAPTERS = {
-        ["苍云秘闻"] = true,
-        ["若水秘闻"] = true,
-        ["灵兽奥秘"] = true,
-        ["灵虚秘闻"] = true,
-    }
-    local function worldMapShouldSkipProgressChapter(chapter)
-        if type(chapter) ~= "table" then
-            return false
-        end
-        return _WORLD_MAP_EXTRA_PROGRESS_CHAPTERS[tostring(chapter.name or "")] == true
-    end
     local function worldMapGetStoryProgress(continent)
         local xylCfg = nil
         local ok, cfg = pcall(function()
@@ -8186,19 +8156,14 @@ npc[514] = function(p2, p3, Data)
             xylCfg = cfg
         end
         local chapters = type(xylCfg) == "table" and xylCfg[continent] or nil
+        local raw = Player and Player.getServerVar and Player:getServerVar("T26") or ""
         local ywl = {}
-        local cached = rawget(_G, "XYL_YWL_CACHE")
-        if type(cached) == "table" and next(cached) ~= nil then
-            ywl = cached
-        else
-            local raw = Player and Player.getServerVar and Player:getServerVar("T26") or ""
-            if raw ~= "" and Player and Player.JsonToTbl then
-                local okJson, data = pcall(function()
-                    return Player:JsonToTbl(raw)
-                end)
-                if okJson and type(data) == "table" then
-                    ywl = data
-                end
+        if raw ~= "" and Player and Player.JsonToTbl then
+            local okJson, data = pcall(function()
+                return Player:JsonToTbl(raw)
+            end)
+            if okJson and type(data) == "table" then
+                ywl = data
             end
         end
         local done = 0
@@ -8207,18 +8172,20 @@ npc[514] = function(p2, p3, Data)
             return 0, 0
         end
         for chapterIdx, chapter in ipairs(chapters) do
-            local skipTotal = worldMapShouldSkipProgressChapter(chapter)
             local tasks = type(chapter) == "table" and chapter.jq or nil
             if type(tasks) == "table" then
                 local chapterKey = "jl_" .. continent .. "_" .. chapterIdx
                 local chapterReceived = tonumber(ywl[chapterKey] or 0) == 1
                 for taskIdx, task in ipairs(tasks) do
                     local point = worldMapGetTaskStoryPoint(task)
-                    if not skipTotal then
-                        total = total + point
-                    end
+                    total = total + point
                     local taskReceived = tonumber(ywl[chapterKey .. "_" .. taskIdx] or 0) == 1
-                    if point > 0 and (chapterReceived or taskReceived) then
+                    local taskDone = false
+                    if type(task) == "table" and type(task.khdjy) == "function" then
+                        local okDone, doneRet = pcall(task.khdjy, task)
+                        taskDone = okDone and doneRet == true
+                    end
+                    if point > 0 and (chapterReceived or taskReceived or taskDone) then
                         done = done + point
                     end
                 end
@@ -8245,8 +8212,8 @@ npc[514] = function(p2, p3, Data)
             end
         end
         local levels = type(data.level) == "table" and data.level or {}
-        for idx = 1, 5 do
-            if (tonumber(levels[tostring(idx)] or levels[idx]) or 0) < 1 then
+        for idx = 1, 10 do
+            if (tonumber(levels[tostring(idx)] or levels[idx]) or 0) <= 0 then
                 return false
             end
         end
@@ -9194,4 +9161,3 @@ npc[9999] = function(p2, p3, msgData)
     end
 end
 return npc
-

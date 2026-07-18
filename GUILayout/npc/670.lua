@@ -1,4 +1,4 @@
-local npc = {}
+﻿local npc = {}
 
 npc._config = teshudata["npc_670"]
 
@@ -34,6 +34,14 @@ function npc.main(npcid, p2, p3, msgData)
         end
 
         GUI:removeAllChildren(node)
+
+        -- local ch_kuang = GUI:Image_Create(node, "ch_kuang", 170 + 276, 105, "res/private/new_setting/bg_jiaosekuang.png")
+        -- GUI:setAnchorPoint(ch_kuang,0.5,0.5)
+        -- UiTools.showItemData(ch_kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.ch.."[称号]")))
+
+        local ch_kuang = GUI:Image_Create(node, "kuang", 170 + 276 - 24, 105, "res/wy/public/58-60.png")
+        UiTools.showItemData_Index(ch_kuang, SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.ch.."[称号]"))
+
 
         if npc._config.cost then
             local cost = ItemNumByTable_img_new(npc._config.cost, nil,GUI:Node_Create(node, "cost", 0, 0))

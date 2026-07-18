@@ -1,4 +1,4 @@
-math.randomseed(tostring(os.time()):reverse():sub(1,6))--随机数种子
+﻿math.randomseed(tostring(os.time()):reverse():sub(1,6))--随机数种子
 
 cogin = {}
 cogin.w = SL:GetMetaValue("SCREEN_WIDTH")
@@ -413,6 +413,18 @@ local function _dl_get_story_point(task)
     return total
 end
 
+local function _dl_is_story_task_done(task)
+    if type(task) ~= "table" then
+        return false
+    end
+    local checker = task.khdjy
+    if type(checker) ~= "function" then
+        return false
+    end
+    local ok, done = pcall(checker, task)
+    return ok and done == true
+end
+
 local function _dl_has_story_progress(continent, needPercent)
     local cfg = _dl_get_xyl_cfg()
     local chapters = type(cfg) == "table" and cfg[continent] or nil
@@ -430,13 +442,15 @@ local function _dl_has_story_progress(continent, needPercent)
             for task_idx, task in ipairs(tasks) do
                 local point = _dl_get_story_point(task)
                 total = total + point
-                if point > 0 and (chapter_received or _dl_to_num(ywl[chapter_key .. "_" .. task_idx], 0) == 1) then
+                local task_received = _dl_to_num(ywl[chapter_key .. "_" .. task_idx], 0) == 1
+                local task_done = _dl_is_story_task_done(task)
+                if point > 0 and (chapter_received or task_received or task_done) then
                     received = received + point
                 end
             end
         end
     end
-    if total <= 0 then
+    if total < 1 then
         return false
     end
     return received * 100 >= total * (_dl_to_num(needPercent, 100))
@@ -490,18 +504,18 @@ local function _dl_has_title(titleName)
         return false
     end
     local idx = _dl_to_num(SL:GetMetaValue("ITEM_INDEX_BY_NAME", titleName), 0)
-    if idx <= 0 then
+    if idx < 1 then
         return false
     end
     return SL:GetMetaValue("TITLE_DATA_BY_ID", idx) ~= nil
 end
 
--- 大陆门槛：五大陆要求 10 种灵根均已激活。
+-- 大陆门槛：五大陆要求 5 个基础灵根均达到Lv.1。
 local function _dl_has_all_linggen()
     local data = _dl_get_json("T41")
     local levels = type(data.level) == "table" and data.level or {}
-    for i = 1, 10 do
-        if _dl_to_num(levels[tostring(i)] or levels[i], 0) <= 0 then
+    for i = 1, 5 do
+        if _dl_to_num(levels[tostring(i)] or levels[i], 0) < 1 then
             return false
         end
     end
@@ -563,7 +577,7 @@ local function _dl_check(dl)
         if _dl_has_story_progress(4, 95) and zslv >= 40 and _dl_has_all_linggen() then
             return true
         end
-        return false, "需四大陆剧情完成度达到95%、完成四大陆转生且激活全部灵根后才可进入五大陆"
+        return false, "需四大陆剧情完成度达到95%、完成四大陆转生且全部基础灵根达到Lv.1后才可进入五大陆"
     elseif dl == 6 then
         if _dl_has_story_progress(5, 95) and zslv >= 50 and _dl_has_all_destiny() then
             return true
@@ -681,3 +695,5 @@ end)
 
 
 GUI:addKeyboardEvent({"KEY_CTRL","KEY_5"}, pressedCB)
+
+

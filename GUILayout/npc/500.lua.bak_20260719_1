@@ -1,4 +1,4 @@
-﻿local npc = {}
+local npc = {}
 npc._config = teshudata["sjdt"]
 local function _to_num(v, defaultValue)
     local n = tonumber(v)
@@ -34,36 +34,16 @@ local function _escape_rich_text(text)
 end
 
 local function _get_json_var(varName)
-    if varName == "T26" then
-        local cached = rawget(_G, "XYL_YWL_CACHE")
-        if type(cached) == "table" and next(cached) ~= nil then
-            SL:release_print("[npc500][T26] source=XYL_YWL_CACHE", SL:JsonEncode(cached, false))
-            return cached
-        end
-        if type(npc.data) == "table" and type(npc.data.ywl) == "table" and next(npc.data.ywl) ~= nil then
-            SL:release_print("[npc500][T26] source=npc.data.ywl", SL:JsonEncode(npc.data.ywl, false))
-            return npc.data.ywl
-        end
-    end
     if not Player or not Player.getServerVar or not Player.JsonToTbl then
-        if varName == "T26" then
-            SL:release_print("[npc500][T26] source=none player/json unavailable")
-        end
         return {}
     end
     local raw = Player:getServerVar(varName)
     if not raw or raw == "" then
-        if varName == "T26" then
-            SL:release_print("[npc500][T26] source=Player:getServerVar empty")
-        end
         return {}
     end
     local ok, data = pcall(function()
         return Player:JsonToTbl(raw)
     end)
-    if varName == "T26" then
-        SL:release_print("[npc500][T26] source=Player:getServerVar decoded", "ok=" .. tostring(ok), raw)
-    end
     return ok and type(data) == "table" and data or {}
 end
 
@@ -110,55 +90,31 @@ local function _is_story_task_done(task)
     return ok and done == true
 end
 
-local _EXTRA_PROGRESS_CHAPTERS = {
-    ["苍云秘闻"] = true,
-    ["若水秘闻"] = true,
-    ["灵兽奥秘"] = true,
-    ["灵虚秘闻"] = true,
-}
-local function _should_skip_progress_chapter(chapter)
-    if type(chapter) ~= "table" then
-        return false
-    end
-    return _EXTRA_PROGRESS_CHAPTERS[tostring(chapter.name or "")] == true
-end
 local function _get_story_progress(continent)
     local cfg = _get_story_cfg()
     local chapters = type(cfg) == "table" and cfg[continent] or nil
     if type(chapters) ~= "table" then
-        SL:release_print("[npc500][progress] no chapters", "continent=" .. tostring(continent))
         return 0, 0
     end
     local ywl = _get_json_var("T26")
     local done = 0
     local total = 0
     for chapterIdx, chapter in ipairs(chapters) do
-        local skipTotal = _should_skip_progress_chapter(chapter)
         local tasks = type(chapter) == "table" and chapter.jq or nil
         if type(tasks) == "table" then
             local chapterKey = "jl_" .. continent .. "_" .. chapterIdx
             local chapterReceived = _to_num(ywl[chapterKey], 0) == 1
             for taskIdx, task in ipairs(tasks) do
                 local point = _get_story_point(task)
-                if not skipTotal then
-                    total = total + point
-                end
+                total = total + point
                 local taskReceived = _to_num(ywl[chapterKey .. "_" .. taskIdx], 0) == 1
-                if point > 0 and (chapterReceived or taskReceived) then
+                local taskDone = _is_story_task_done(task)
+                if point > 0 and (chapterReceived or taskReceived or taskDone) then
                     done = done + point
                 end
             end
-            SL:release_print(
-                "[npc500][progress][chapter]",
-                "continent=" .. tostring(continent),
-                "chapterKey=" .. tostring(chapterKey),
-                "chapterReceived=" .. tostring(chapterReceived),
-                "done=" .. tostring(done),
-                "total=" .. tostring(total)
-            )
         end
     end
-    SL:release_print("[npc500][progress][final]", "continent=" .. tostring(continent), "done=" .. tostring(done), "total=" .. tostring(total))
     return done, total
 end
 
@@ -167,7 +123,7 @@ local function _get_rebirth_level()
     if Player and Player.getServerVar then
         relevel = _to_num(Player:getServerVar("U43"), 0)
     end
-    if relevel < 1 then
+    if relevel <= 0 then
         relevel = _to_num(SL:GetMetaValue("RELEVEL"), 0)
     end
     return relevel
@@ -180,8 +136,8 @@ end
 local function _has_all_linggen()
     local data = _get_json_var("T41")
     local levels = type(data.level) == "table" and data.level or {}
-    for i = 1, 5 do
-        if _to_num(levels[tostring(i)] or levels[i], 0) < 1 then
+    for i = 1, 10 do
+        if _to_num(levels[tostring(i)] or levels[i], 0) <= 0 then
             return false
         end
     end
@@ -201,7 +157,7 @@ local function _has_title(titleName)
         return false
     end
     local itemIdx = _to_num(SL:GetMetaValue("ITEM_INDEX_BY_NAME", titleName), 0)
-    if itemIdx < 1 then
+    if itemIdx <= 0 then
         return false
     end
     return SL:GetMetaValue("TITLE_DATA_BY_ID", itemIdx) ~= nil
@@ -215,14 +171,14 @@ end
 local function _get_story_target(total, percent)
     total = _to_num(total, 0)
     percent = _to_num(percent, 100)
-    if total < 1 then
+    if total <= 0 then
         return 0
     end
     return math.ceil(total * percent / 100)
 end
 
 local function _join_condition_segments(segments)
-    if type(segments) ~= "table" or #segments < 1 then
+    if type(segments) ~= "table" or #segments <= 0 then
         return "<font color='#F5E6C6'>请按主线推进</font>"
     end
     local out = {}
@@ -265,7 +221,7 @@ local function _build_enter_condition_data(dl)
         local segments = {
             {text = string.format("四大陆剧情完成度%d/%d", done, target), ok = target > 0 and done >= target},
             {text = "四大陆转生", ok = _get_rebirth_level() >= 40},
-            {text = "全部基础灵根Lv.1", ok = _has_all_linggen()},
+            {text = "激活全部灵根", ok = _has_all_linggen()},
         }
         return {
             richText = _join_condition_segments(segments),
@@ -420,11 +376,3 @@ function npc.main(npcid, p2, p3, msgData)
     end
 end
 return npc
-
-
-
-
-
-
-
-

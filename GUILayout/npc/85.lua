@@ -385,6 +385,32 @@ local function renderCheckItemCostGrid(parent, entryList, centerX, baseY)
     return wrap
 end
 
+local function renderDetailCostBoxes(parent, entryList, centerX, posY, boxSkin)
+    local list = normalizeEntryList(entryList or {})
+    local count = #list
+    if count <= 0 then
+        return
+    end
+    local gap = 88
+    local startX = centerX - ((count - 1) * gap) / 2
+    for idx, entry in ipairs(list) do
+        local displayName = resolveEntryName(entry)
+        local needNum = entryNeedNum(entry)
+        local ownNum = getOwnedCountByEntry(entry)
+        local itemIndex = toNumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", displayName), 0)
+        local box = GUI:Image_Create(parent, "detail_entry_box_" .. idx, startX + (idx - 1) * gap, posY + 30, boxSkin or DETAIL_ITEM_BOX_SKIN)
+        GUI:setAnchorPoint(box, 0.5, 0.5)
+        if itemIndex > 0 then
+            local item = GUI:ItemShow_Create(box, "detail_entry_item_" .. idx, 29, 30, {index = itemIndex, look = true, movable = false, bgVisible = false})
+            GUI:setAnchorPoint(item, 0.5, 0.5)
+        else
+            createText(box, "detail_entry_name_" .. idx, 29, 18, 12, "#F5E6C6", displayName, FONT_MAIN, 0.5, 0.5)
+        end
+        createText(box, "detail_entry_own_" .. idx, 28, -2, 12, ownNum >= needNum and "#6CFF7B" or "#FF5A5A", tostring(ownNum), FONT_MAIN, 1, 0)
+        createText(box, "detail_entry_need_" .. idx, 30, -2, 12, "#FFFFFF", "/" .. tostring(needNum), FONT_MAIN, 0, 0)
+    end
+end
+
 local function buildNodeStateText(stageIdx, nodeIdx)
     local unlocked = isStageUnlocked(stageIdx)
     local lit = isNodeLit(stageIdx, nodeIdx)
@@ -422,7 +448,7 @@ renderDetail = function(npcid, stageIdx, nodeIdx)
 
     -- local costTitle = GUI:Image_Create(node, "cost_title", 258, 254, COST_LABEL)
     -- GUI:setAnchorPoint(costTitle, 0.5, 0.5)
-    renderEntryCostBoxes(node, nodeCfg.cost or {}, DETAIL_COST_POS, DETAIL_ITEM_BOX_SKIN)
+    renderDetailCostBoxes(node, nodeCfg.cost or {}, 310 + 48, 210 + 61, DETAIL_ITEM_BOX_SKIN)
 
     -- local stateText, stateColor = buildNodeStateText(stageIdx, nodeIdx)
     -- createText(node, "state_text", 310, 92, 18, stateColor, stateText, FONT_MAIN, 0.5, 0.5)
@@ -557,6 +583,7 @@ local function renderNodeButtons(node, npcid, stageIdx)
             GUI:Image_Create(node, "node_select_" .. nodeIdx, pos.x - 20, pos.y - 26, SELECT_SKIN)
         end
         local iconBtn = GUI:Button_Create(node, "node_btn_" .. nodeIdx, pos.x, pos.y, getNodeIconSkin(stageIdx, nodeIdx))
+        GUI:Button_setGrey(iconBtn, not isNodeLit(stageIdx, nodeIdx))
         GUI:addOnClickEvent(iconBtn, function()
             npc.selectedStageIdx = stageIdx
             npc.selectedNodeIdx = nodeIdx
@@ -608,7 +635,9 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data = SL:JsonDecode(msgData, false) or {}
         ensureWindow(npcid)
         renderMain(npc.node, npcid)
-        if npc.detailWindow and npc.selectedStageIdx and npc.selectedNodeIdx then
+        if p2 == 2 then
+            closeDetailWindow()
+        elseif npc.detailWindow and npc.selectedStageIdx and npc.selectedNodeIdx then
             renderDetail(npcid, npc.selectedStageIdx, npc.selectedNodeIdx)
         end
         closeStageWindow()

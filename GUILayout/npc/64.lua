@@ -484,7 +484,7 @@ function npc.main(npcid, p2, p3, msgData)
         local name = _outline_text(node, "pet_name", 225 - 40, 205, 21, "#FFE49A", babyName, {font = "fonts/502.ttf", outline = "#2A1200", outlineSize = 2})
         GUI:setAnchorPoint(name, 0.5, 0.5)
 
-        local progressBg = GUI:Image_Create(node, "hatch_progress_bg", 225 - 40, 154, "res/wy/public/new_kuang.png")
+        local progressBg = GUI:Image_Create(node, "hatch_progress_bg", 225 - 40, 154 - 30, "res/wy/public/new_kuang.png")
         GUI:setAnchorPoint(progressBg, 0.5, 0.5)
         GUI:setContentSize(progressBg, 252, 16)
 
@@ -563,21 +563,25 @@ function npc.main(npcid, p2, p3, msgData)
         local hatchNowBtn = _contract_button(node, "quick_hatch_btn", 625, 86, "立即点化", "#FF4D3A", function()
             SL:SendLuaNetMsg(100, npcid, 7, 0, SL:JsonEncode({idx = idx}, false))
         end)
+        if status == "未孵化" then
+        else
+            local claimBtn = GUI:Button_Create(node, "claim_btn", 790, 86, "res/custom/four_city/lingshou/xjm/an7.png")
+            GUI:setAnchorPoint(claimBtn, 0.5, 0.5)
+            GUI:Button_setTitleText(claimBtn, canDeploy and "召唤出战" or (canClaim and "缔契领取" or status))
+            GUI:Button_setTitleFontName(claimBtn, "fonts/502.ttf")
+            GUI:Button_setTitleFontSize(claimBtn, 22)
+            GUI:Button_setTitleColor(claimBtn, canDeploy and "#7BFFB0" or "#FFE49A")
+            GUI:Button_titleEnableOutline(claimBtn, "#160b05", 3)
+            if not canDeploy then
+                GUI:setTouchEnabled(claimBtn, canClaim)
+                GUI:Button_setBright(claimBtn, canClaim)
+            end
+            if not canClaim then
+                GUI:setVisible(claimBtn, true)
+            end
+        end
 
-        local claimBtn = GUI:Button_Create(node, "claim_btn", 790, 86, "res/custom/four_city/lingshou/xjm/an7.png")
-        GUI:setAnchorPoint(claimBtn, 0.5, 0.5)
-        GUI:Button_setTitleText(claimBtn, canDeploy and "召唤出战" or (canClaim and "缔契领取" or status))
-        GUI:Button_setTitleFontName(claimBtn, "fonts/502.ttf")
-        GUI:Button_setTitleFontSize(claimBtn, 22)
-        GUI:Button_setTitleColor(claimBtn, canDeploy and "#7BFFB0" or "#FFE49A")
-        GUI:Button_titleEnableOutline(claimBtn, "#160b05", 3)
-        if not canDeploy then
-            GUI:setTouchEnabled(claimBtn, canClaim)
-            GUI:Button_setBright(claimBtn, canClaim)
-        end
-        if not canClaim then
-            GUI:setVisible(claimBtn, true)
-        end
+        
 
         
 
