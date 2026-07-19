@@ -1,4 +1,4 @@
-local npc = {}
+﻿local npc = {}
 
 npc._config = teshudata["npc_633"]
 
@@ -48,7 +48,7 @@ function npc.main(npcid, p2, p3, msgData)
         local showFirstOpenTake = NPC_UI_HELPER.shouldShowFirstOpenTakeButton(key, npc._config.cost, npc.data.T_dljq[key.."_num"])
 
         local desc = GUI:Text_Create(node, "desc",500,150, 25, "#808080", "当前剩余挖宝次数："..npc._config.max_num - npc.data.T_dljq[key.."_num"])
-        GUI:Text_setFontName(desc, "fonts/500.ttf")
+        GUI:Text_setFontName(desc, "fonts/502.ttf")
         GUI:Text_enableOutline(desc, "#00FFFF", 2)
 
 
@@ -82,3 +82,4 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
+

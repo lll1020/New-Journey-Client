@@ -406,12 +406,10 @@ local function _xyl_has_lingshou_star(star)
     if count <= 0 then
         return false
     end
-    local data = _xyl_get_json("T50") or {}
+    local data = _xyl_get_json("T50")
     local ls_sp = data.ls_sp or {}
-    star = tonumber(star) or 0
     for i = 1, count do
-        local curStar = tonumber(ls_sp[tostring(i)] or 0) or 0
-        if curStar < star then
+        if (ls_sp[tostring(i)] or 0) < star then
             return false
         end
     end
@@ -521,9 +519,9 @@ local function _xyl_check_task(name)
         ["聚宝盆任务"] = _xyl_has_treasure_basin_fixed,
         ["激活全部圣遗物"] = _xyl_has_all_syw,
         ["激活全部天命装备"] = _xyl_has_all_tianming,
-        ["灵兽全一星"] = function() return _xyl_has_lingshou_star(1) end,
-        ["灵兽全二星"] = function() return _xyl_has_lingshou_star(2) end,
-        ["灵兽全三星"] = function() return _xyl_has_lingshou_star(3) end,
+        ["灵兽全一星"] = function() return _xyl_has_lingshou_star(2) end,
+        ["灵兽全二星"] = function() return _xyl_has_lingshou_star(3) end,
+        ["灵兽全三星"] = function() return _xyl_has_lingshou_star(4) end,
         ["唐代古玩"] = _xyl_has_tang_antique,
         ["红色仙法"] = _xyl_has_red_xianfa,
         ["生肖守护"] = _xyl_has_shengxiao_guard,
@@ -1469,7 +1467,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "不周山", 675, 75, 77 },
-                    desc = "将逐日弓穿戴到背包神器槽位后，不断消耗箭矢为同一把弓追加神秘词条。\n<font color='#F4D179'>目标：</font>同一把神器槽逐日弓累计拥有9条词条\n当前箭矢：%s",
+                    desc = "备好逐日弓后不断收集箭矢，逐次完成射日，直到多余的太阳全部被射落。\n<font color='#F4D179'>目标：</font>持有逐日弓，并反复消耗箭矢完成九次射日\n当前箭矢：%s",
                 },
                 {
                     "共公怒触不周山",
@@ -1631,7 +1629,7 @@ local npc_xyl = {
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
                     need_receive = false,
-                    yd = { 1, "四大陆主城", 64, 38, 27 },
+                    yd = { 0 },
                     desc = "为全部灵兽激活圣遗物。\n<font color='#F4D179'>目标：</font>激活全部圣遗物\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
@@ -1641,7 +1639,7 @@ local npc_xyl = {
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
                     need_receive = false,
-                    yd = { 1, "五大陆主城", 75, 95, 22 },
+                    yd = { 0 },
                     desc = "集齐并激活全部天命装备。\n<font color='#F4D179'>目标：</font>激活全部天命装备\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
@@ -1651,7 +1649,7 @@ local npc_xyl = {
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
                     need_receive = false,
-                    yd = { 1, "五大陆主城", 36, 71, 28 },
+                    yd = { 0 },
                     desc = "完成转生·五，跨入更高境界。\n<font color='#F4D179'>目标：</font>完成转生·五\n<font color='#F4D179'>进度：</font>%s",
                 },
             },
@@ -1746,7 +1744,7 @@ local npc_xyl = {
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
                     need_receive = false,
-                    yd = { 1, "五大陆主城", 690, 81, 37 },
+                    yd = { 1, "五大陆主城", 690, 24, 13 },
                     desc = "直面时空守护者，守护时空秩序。\n<font color='#F4D179'>目标：</font>时空守护者\n<font color='#F4D179'>进度：</font>%s",
                 },
             },
@@ -1808,7 +1806,7 @@ local npc_xyl = {
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
                     need_receive = false,
-                    yd = { 1, "五大陆主城", 692, 89, 37 },
+                    yd = { 1, "五大陆主城", 692, 32, 13 },
                     desc = "破解生命边界之谜。\n<font color='#F4D179'>目标：</font>生命边界之谜\n<font color='#F4D179'>进度：</font>%s",
                 },
             },
@@ -2012,7 +2010,7 @@ local npc_xyl = {
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
                     need_receive = false,
-                    yd = { 1, "五大陆主城", 691, 85, 37 },
+                    yd = { 1, "五大陆主城", 691, 28, 13 },
                     desc = "完成重启世界，开启新篇。\n<font color='#F4D179'>目标：</font>重启世界\n<font color='#F4D179'>进度：</font>%s",
                 },
             },
@@ -2640,17 +2638,5 @@ npc_xyl.build_task_desc = function(task)
     return _xyl_build_task_desc(task)
 end
 return npc_xyl
-
-
-
-
-
-
-
-
-
-
-
-
 
 

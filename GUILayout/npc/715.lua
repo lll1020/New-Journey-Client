@@ -1,4 +1,4 @@
-local npc = {}
+﻿local npc = {}
 
 npc._config = teshudata["npc_715"]
 
@@ -8,8 +8,8 @@ local WINDOW_OPTS = {
 }
 local key = "npc_715"
 local btn_pos = {620, 80}
-local reward_pos = {180 + 240, 80 + 100}
-local cost_pos = {620 - 30, 80 + 100}
+local reward_pos = {395, 180}
+local cost_pos = {510, 176}
 local MAIN_BTN_SKIN = "res/custom/all_story_mission/5/715/1.png"
 local MAIN_BTN_SKIN_TAKE = nil
 local MAIN_BTN_SKIN_DOING = nil
@@ -84,6 +84,9 @@ function npc.main(npcid, p2, p3, msgData)
         npc.node = npc._window.node
         return npc.node
     end
+
+    
+
     -- 操作按钮渲染：主按钮按任务状态切换，副按钮按动作号映射。
     local function createActionButtons(node, state)
         local function resolveMainSkin()
@@ -98,6 +101,11 @@ function npc.main(npcid, p2, p3, msgData)
             end
             return MAIN_BTN_SKIN
         end
+        
+        
+        
+        GUI:setScale(GUI:Effect_Create(npc.node, "model2", 100 + 128 + 10, 100 + 60, 0,20301, 0, 0, 2, 0.8),0.2)
+        GUI:Effect_Create(npc.node, "model1——1", 100 + 128, 100 + 60, 2,27, 0, 0, 2, 0.8)
 
         local function createExtraButton(nodeName, x, y, ew)
             local skin = EXTRA_BTN_SKIN[ew] or "res/public/1900000660.png"
@@ -192,7 +200,7 @@ function npc.main(npcid, p2, p3, msgData)
         end
         if max_num > 1 then
             local t = GUI:Text_Create(node, "progress", 470, 200, 20, "#6FD3FF", string.format("进度 %d/%d", progress, max_num))
-            GUI:Text_setFontName(t, "fonts/500.ttf")
+            GUI:Text_setFontName(t, "fonts/502.ttf")
             GUI:Text_enableOutline(t, "#C92A2A", 2)
         end
 
@@ -226,3 +234,4 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
+

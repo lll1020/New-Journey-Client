@@ -1,4 +1,4 @@
-local npc = {}
+﻿local npc = {}
 
 npc._config = teshudata["npc_693"]
 
@@ -179,7 +179,7 @@ function npc.main(npcid, p2, p3, msgData)
         end
 
         local t = GUI:Text_Create(node, "tip", 470, 200, 20, "#6FD3FF", "预览任务")
-        GUI:Text_setFontName(t, "fonts/500.ttf")
+        GUI:Text_setFontName(t, "fonts/502.ttf")
         GUI:Text_enableOutline(t, "#C92A2A", 2)
 
         createActionButtons(node, state)

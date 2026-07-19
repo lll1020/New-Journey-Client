@@ -1,4 +1,4 @@
-local npc = {}
+﻿local npc = {}
 
 npc._config = teshudata["npc_648"]
 
@@ -38,7 +38,7 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data.jq_data[key] = (npc.data.jq_data and npc.data.jq_data[key]) and npc.data.jq_data[key] or 0
 
         local desc = GUI:Text_Create(node, "desc1",160 + 158,118, 20, "#808080", npc._config.attr_wz)
-        GUI:Text_setFontName(desc, "fonts/500.ttf")
+        GUI:Text_setFontName(desc, "fonts/502.ttf")
         GUI:Text_enableOutline(desc, "#FFFF00", 2)
 
         
@@ -80,3 +80,4 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
+

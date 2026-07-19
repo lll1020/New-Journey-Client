@@ -1,4 +1,4 @@
-local npc = {}
+﻿local npc = {}
 
 npc._config = teshudata["npc_681"]
 
@@ -47,7 +47,7 @@ function npc.main(npcid, p2, p3, msgData)
         end
 
         local desc = GUI:Text_Create(node, "number",487,130 + 65, 20, "#808080", (npc.data.T_dljq[key] or 0).."%")
-        GUI:Text_setFontName(desc, "fonts/500.ttf")
+        GUI:Text_setFontName(desc, "fonts/502.ttf")
         GUI:Text_enableOutline(desc, "#00FFFF", 2)
 
         if npc.data.T_dljq[key] < npc._config.max_num then
@@ -76,3 +76,4 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
+

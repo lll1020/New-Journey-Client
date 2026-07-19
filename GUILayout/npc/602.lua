@@ -1,4 +1,4 @@
-local npc = {}
+﻿local npc = {}
 
 npc._config = teshudata["npc_602"]
 
@@ -47,7 +47,7 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:Text_setFontName(GUI:Text_Create(Label_node, "time",430,299 - 53, 25, "#B2F022", config.time.."秒")
         , "fonts/501.ttf")
         GUI:Text_setFontName(GUI:Text_Create(Label_node, "nandu",430,299 - 53 - 53, 30, "#B2F022", config.nandu)
-        , "fonts/500.ttf")
+        , "fonts/502.ttf")
         GUI:Text_Create(Label_node, "yq",150,95 + 38, 20, "#F03022", config.yq)
         GUI:Text_Create(Label_node, "jl",150,95, 20, "#BEFF26", config.jl)
 

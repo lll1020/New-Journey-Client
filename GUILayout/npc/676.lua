@@ -1,4 +1,4 @@
-local npc = {}
+﻿local npc = {}
 
 npc._config = teshudata["npc_676"]
 
@@ -39,11 +39,11 @@ function npc.main(npcid, p2, p3, msgData)
 
 
         local desc = GUI:Text_Create(node, "desc",180 + 195,130 + 32, 25, "#808080", (npc.data.sg_data[key] or 0))
-        GUI:Text_setFontName(desc, "fonts/500.ttf")
+        GUI:Text_setFontName(desc, "fonts/502.ttf")
         GUI:Text_enableOutline(desc, "#00FFFF", 2)
 
         desc = GUI:Text_Create(node, "number",180 + 195 + 82,130 + 32 + 78, 30, "#808080", 5 - (npc.data.T_dljq[key.."_cnt"] or 0))
-        GUI:Text_setFontName(desc, "fonts/500.ttf")
+        GUI:Text_setFontName(desc, "fonts/502.ttf")
         GUI:Text_enableOutline(desc, "#00FFFF", 2)
 
         local jl_c = ItemNumByTable_img_new(npc._config.jl_c, nil,GUI:Node_Create(node, "jl_c", 0, 0))
@@ -82,3 +82,4 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
+

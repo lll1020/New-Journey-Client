@@ -16,7 +16,22 @@ local MAIN_BTN_SKIN_DOING = nil
 local EXTRA_BTN_SKIN = {}
 local ACTIONS = {1}
 local ACTION_LABEL = { [1] = "前进" }
-
+local RUNNER_SKIN = "res/custom/all_story_mission/5/rw.png"
+local GRID_POS = {
+    [0] = {x = 119 + 30, y = 208 + 150},
+    [1] = {x = 172 + 30, y = 149 + 150},
+    [2] = {x = 266 + 30, y = 203 + 150},
+    [3] = {x = 220 + 30, y = 257 + 150},
+    [4] = {x = 300, y = 309 + 150},
+    [5] = {x = 390, y = 286 + 150},
+    [6] = {x = 462 - 10, y = 255 + 150},
+    [7] = {x = 462 - 10, y = 185 + 150},
+    [8] = {x = 390 - 20, y = 149 + 150},
+    [9] = {x = 563 - 50, y = 149 + 150},
+    [10] = {x = 635 - 40, y = 185 + 150},
+    [11] = {x = 637 - 40, y = 252 + 150},
+    [12] = {x = 560 - 40, y = 294 + 150},
+}
 -- 合并任务奖励与称号奖励，确保称号在奖励区可见。
 local function buildRewardWithTitle(cfg)
     local reward_cfg = nil
@@ -83,6 +98,67 @@ function npc.main(npcid, p2, p3, msgData)
         npc.bg = npc._window.bg
         npc.node = npc._window.node
         return npc.node
+    end
+    local function ensureLayers(node)
+        if not node then
+            return
+        end
+        npc.rewardLayer = npc.rewardLayer or GUI:Node_Create(node, "reward_layer", 0, 0)
+        npc.infoLayer = npc.infoLayer or GUI:Node_Create(node, "info_layer", 0, 0)
+        npc.runnerLayer = npc.runnerLayer or GUI:Node_Create(node, "runner_layer", 0, 0)
+        npc.buttonLayer = npc.buttonLayer or GUI:Node_Create(node, "button_layer", 0, 0)
+    end
+    local function renderRewardLayer()
+        if not npc.rewardLayer then
+            return
+        end
+        GUI:removeAllChildren(npc.rewardLayer)
+        local reward_cfg = buildRewardWithTitle(npc._config)
+        if reward_cfg and #reward_cfg > 0 then
+            local jl = ItemNumByTable_img_new(reward_cfg, nil, GUI:Node_Create(npc.rewardLayer, "jl", 0, 0))
+            GUI:setPosition(jl, reward_pos[1], reward_pos[2])
+        end
+    end
+    local function setRunnerPosition(grid_idx, animate_from_idx)
+        if not npc.runnerLayer then
+            return
+        end
+        local runner_pos = GRID_POS[grid_idx]
+        if not runner_pos then
+            return
+        end
+        if not npc.runner then
+            GUI:removeAllChildren(npc.runnerLayer)
+            npc.runner = GUI:Image_Create(npc.runnerLayer, "runner", runner_pos.x, runner_pos.y, RUNNER_SKIN)
+            GUI:setAnchorPoint(npc.runner, 0.5, 0.5)
+            return
+        end
+        if animate_from_idx ~= nil and animate_from_idx ~= grid_idx and GRID_POS[animate_from_idx] then
+            local from_pos = GRID_POS[animate_from_idx]
+            GUI:setPosition(npc.runner, from_pos.x, from_pos.y)
+            GUI:runAction(npc.runner, GUI:ActionMoveTo(0.2, runner_pos.x, runner_pos.y))
+            return
+        end
+        GUI:setPosition(npc.runner, runner_pos.x, runner_pos.y)
+    end
+    local function renderInfoLayer(progress, max_num, kill_cur, per)
+        if not npc.infoLayer then
+            return
+        end
+        GUI:removeAllChildren(npc.infoLayer)
+        local need = per * (progress + 1)
+        local total = per * max_num
+        if need > total then
+            need = total
+        end
+        if per > 0 then
+            local t = GUI:Text_Create(npc.infoLayer, "progress", 470 + 170, 200 + 60, 20, "#081800", string.format("当前击杀： %d", kill_cur, need))
+            GUI:Text_setFontName(t, "fonts/502.ttf")
+            GUI:Text_enableOutline(t, "#FFFFFF", 2)
+            local t2 = GUI:Text_Create(npc.infoLayer, "step", 470 + 170, 176 + 60, 18, "#081800", string.format("步数： %d/%d", progress, max_num))
+            GUI:Text_setFontName(t2, "fonts/502.ttf")
+            GUI:Text_enableOutline(t2, "#FFFFFF", 2)
+        end
     end
     -- 操作按钮渲染：主按钮按任务状态切换，副按钮按动作号映射。
     local function createActionButtons(node, state)
@@ -154,12 +230,10 @@ function npc.main(npcid, p2, p3, msgData)
             createExtraButton("btn_action_5", extraStartX + extraStep * 3, extraY, ew5)
         end
     end
-    local function UI_updata(node)
+    local function UI_updata(node, animate_from_idx)
         if not node then
             return
         end
-
-        GUI:removeAllChildren(node)
 
         npc.data = npc.data or {}
         npc.data.T_dljq = npc.data.T_dljq or {}
@@ -172,29 +246,21 @@ function npc.main(npcid, p2, p3, msgData)
         local max_num = tonumber(task_cfg.max_submit_times or task_cfg.max_reward_round or task_cfg.grid_goal or npc._config.max_num or 1) or 1
         local state = tonumber(npc.data.T_dljq[key] or 0) or 0
         local progress = tonumber(npc.data.T_dljq["npc696_pos"] or 0) or 0
-        local reward_cfg = buildRewardWithTitle(npc._config)
-        if reward_cfg and #reward_cfg > 0 then
-            local jl = ItemNumByTable_img_new(reward_cfg, nil, GUI:Node_Create(node, "jl", 0, 0))
-            GUI:setPosition(jl, reward_pos[1], reward_pos[2])
+        local grid_idx = progress
+        if grid_idx < 0 then
+            grid_idx = 0
+        elseif grid_idx > max_num then
+            grid_idx = max_num
         end
 
         local kill_cur = tonumber(npc.data.sg_data[key] or 0) or 0
         local per = tonumber(task_cfg.kill_per_step or 0) or 0
-        local need = per * (progress + 1)
-        local total = per * max_num
-        if need > total then
-            need = total
-        end
-        if per > 0 then
-            local t = GUI:Text_Create(node, "progress", 470 + 170, 200 + 60, 20, "#6FD3FF", string.format("击杀 %d/%d", kill_cur, need))
-            GUI:Text_setFontName(t, "fonts/500.ttf")
-            GUI:Text_enableOutline(t, "#C92A2A", 2)
-            local t2 = GUI:Text_Create(node, "step", 470 + 170, 176 + 60, 18, "#6FD3FF", string.format("步数 %d/%d", progress, max_num))
-            GUI:Text_setFontName(t2, "fonts/500.ttf")
-            GUI:Text_enableOutline(t2, "#00FFFF", 2)
-        end
 
-        createActionButtons(node, state)
+        renderInfoLayer(progress, max_num, kill_cur, per)
+        setRunnerPosition(grid_idx, animate_from_idx)
+        GUI:removeAllChildren(npc.buttonLayer)
+        createActionButtons(npc.buttonLayer, state)
+        npc._grid_idx = grid_idx
     end
 
     if p2 == 0 then
@@ -203,23 +269,38 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data.T_dljq = npc.data.T_dljq or {}
         npc.data.sg_data = npc.data.sg_data or {}
         ensureWindow(npcid)
+        GUI:removeAllChildren(npc.node)
+        npc.rewardLayer = nil
+        npc.infoLayer = nil
+        npc.runnerLayer = nil
+        npc.buttonLayer = nil
+        npc.runner = nil
+        ensureLayers(npc.node)
+        renderRewardLayer()
         UI_updata(npc.node)
     elseif p2 == 1 then
         npc._config = teshudata[key]
+        local old_grid_idx = npc._grid_idx
+        local patchData = SL:JsonDecode(msgData, false) or {}
         npc.data = npc.data or {}
-        npc.data.T_dljq = npc.data.T_dljq or {}
-        npc.data.sg_data = npc.data.sg_data or {}
-        npc.data.T_dljq[key .. "_a"] = tonumber(p3 or 0) or 0
+        npc.data.T_dljq = patchData.T_dljq or npc.data.T_dljq or {}
+        npc.data.sg_data = patchData.sg_data or npc.data.sg_data or {}
+        if tonumber(p3 or 0) then
+            npc.data.T_dljq["npc696_pos"] = tonumber(p3 or 0) or 0
+        end
 
         local task_cfg = npc._config and npc._config.task_cfg or {}
         local max_num = tonumber(task_cfg.max_submit_times or task_cfg.max_reward_round or task_cfg.grid_goal or npc._config.max_num or 1) or 1
-        if npc.data.T_dljq[key .. "_a"] >= max_num then
+        local moves = tonumber(npc.data.T_dljq["npc696_move"] or npc.data.T_dljq[key .. "_a"] or 0) or 0
+        npc.data.T_dljq[key .. "_a"] = moves
+        if moves >= max_num then
             npc.data.T_dljq[key] = 2
         elseif (tonumber(npc.data.T_dljq[key] or 0) or 0) < 1 then
             npc.data.T_dljq[key] = 1
         end
 
-        UI_updata(npc.node)
+        ensureLayers(npc.node)
+        UI_updata(npc.node, old_grid_idx)
     end
 end
 

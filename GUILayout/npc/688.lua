@@ -1,4 +1,4 @@
-local npc = {}
+﻿local npc = {}
 
 npc._config = teshudata["npc_688"]
 
@@ -214,12 +214,12 @@ function npc.main(npcid, p2, p3, msgData)
             end
             local need_total = kill_need * next_step
             local t = GUI:Text_Create(node, "progress", 500, 40, 20, "#6FD3FF", string.format("击杀 %d/%d(可累计)", kill_cur, need_total))
-            GUI:Text_setFontName(t, "fonts/500.ttf")
+            GUI:Text_setFontName(t, "fonts/502.ttf")
             GUI:Text_enableOutline(t, "#C92A2A", 2)
         end
         if max_num > 1 then
             -- local t2 = GUI:Text_Create(node, "step", 470, 176, 18, "#6FD3FF", string.format("解锁 %d/%d", progress, max_num))
-            -- GUI:Text_setFontName(t2, "fonts/500.ttf")
+            -- GUI:Text_setFontName(t2, "fonts/502.ttf")
             -- GUI:Text_enableOutline(t2, "#00FFFF", 2)
         end
 
@@ -235,21 +235,27 @@ function npc.main(npcid, p2, p3, msgData)
         UI_updata(npc.node)
     elseif p2 == 1 then
         npc._config = teshudata[key]
-        npc.data = npc.data or {}
-        npc.data.T_dljq = npc.data.T_dljq or {}
-        npc.data.sg_data = npc.data.sg_data or {}
-        npc.data.T_dljq[key .. "_a"] = tonumber(p3 or 0) or 0
+        if type(msgData) == "string" and msgData ~= "" then
+            npc.data = SL:JsonDecode(msgData, false) or {}
+            npc.data.T_dljq = npc.data.T_dljq or {}
+            npc.data.sg_data = npc.data.sg_data or {}
+        else
+            npc.data = npc.data or {}
+            npc.data.T_dljq = npc.data.T_dljq or {}
+            npc.data.sg_data = npc.data.sg_data or {}
+            npc.data.T_dljq[key .. "_a"] = tonumber(p3 or 0) or 0
 
-        local task_cfg = npc._config and npc._config.task_cfg or {}
-        local unlock_count = (type(task_cfg.unlock_maps) == "table" and #task_cfg.unlock_maps) or 0
-        local max_num = tonumber(task_cfg.max_submit_times or task_cfg.max_reward_round or npc._config.max_num or unlock_count or 1) or 1
-        if unlock_count > 0 then
-            max_num = unlock_count
-        end
-        if npc.data.T_dljq[key .. "_a"] >= max_num then
-            npc.data.T_dljq[key] = 2
-        elseif (tonumber(npc.data.T_dljq[key] or 0) or 0) < 1 then
-            npc.data.T_dljq[key] = 1
+            local task_cfg = npc._config and npc._config.task_cfg or {}
+            local unlock_count = (type(task_cfg.unlock_maps) == "table" and #task_cfg.unlock_maps) or 0
+            local max_num = tonumber(task_cfg.max_submit_times or task_cfg.max_reward_round or npc._config.max_num or unlock_count or 1) or 1
+            if unlock_count > 0 then
+                max_num = unlock_count
+            end
+            if npc.data.T_dljq[key .. "_a"] >= max_num then
+                npc.data.T_dljq[key] = 2
+            elseif (tonumber(npc.data.T_dljq[key] or 0) or 0) < 1 then
+                npc.data.T_dljq[key] = 1
+            end
         end
 
         UI_updata(npc.node)
@@ -257,3 +263,4 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
+

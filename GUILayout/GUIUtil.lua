@@ -308,6 +308,51 @@ function checkItemNumByTable_img_kuang(t, multiple,parent)
     return Node
 end
 
+function checkItemNumByTable_img_kuang_compact(t, multiple, parent, item_step)
+    local Node = GUI:Node_Create(parent, "Node_cl_compact", 0, 0)
+    if type(t) ~= "table" or #t <= 0 then
+        return Node
+    end
+    local step = tonumber(item_step or 72) or 72
+    local itemW = 58
+    local totalW = (#t - 1) * step + itemW
+    local startX = -totalW / 2
+
+    for i, item in ipairs(t) do
+        local idx, num = SL:GetMetaValue("ITEM_INDEX_BY_NAME", item[1]), item[2]
+        if multiple then
+            num = num * multiple
+        end
+        if idx then
+            local kuang = GUI:Image_Create(Node, "item_kuang_compact_" .. idx .. "_" .. i, startX + (i - 1) * step, 0, "res/wy/public/58-60.png")
+            GUI:setLocalZOrder(kuang, 1)
+            local itemLayer = GUI:Node_Create(kuang, "item_layer", 0, 0)
+            GUI:setLocalZOrder(itemLayer, 20)
+            local itemShow = GUI:ItemShow_Create(itemLayer, "item" .. i, 58 / 2, 60 / 2, {index = idx, look = true})
+            GUI:setAnchorPoint(itemShow, 0.5, 0.5)
+            GUI:setLocalZOrder(itemShow, 20)
+
+            local currentText
+            if bind_money[item[1]] then
+                currentText = GUI:Text_Create(itemLayer, "sl" .. i, 40, 0, 14,
+                    (SL:GetMetaValue("ITEM_COUNT", bind_money[item[1]][1]) + SL:GetMetaValue("ITEM_COUNT", bind_money[item[1]][2])) >= num and "#4AE74A" or "#FB0000",
+                    SL:GetSimpleNumber((SL:GetMetaValue("ITEM_COUNT", bind_money[item[1]][1]) + SL:GetMetaValue("ITEM_COUNT", bind_money[item[1]][2])), 0))
+            else
+                currentText = GUI:Text_Create(itemLayer, "sl" .. i, 40, 0, 14,
+                    SL:GetMetaValue("ITEM_COUNT", idx) >= num and "#4AE74A" or "#FB0000",
+                    SL:GetSimpleNumber(SL:GetMetaValue("ITEM_COUNT", idx), 2))
+            end
+            GUI:setAnchorPoint(currentText, 1, 0)
+            GUI:setLocalZOrder(currentText, 30)
+
+            local needText = GUI:Text_Create(itemLayer, "xysl" .. i, 40, 0, 14, "#FFFFFF", "/" .. SL:GetSimpleNumber(num, 2))
+            GUI:setAnchorPoint(needText, 0, 0)
+            GUI:setLocalZOrder(needText, 30)
+        end
+    end
+    return Node
+end
+
 
 -- tip通用
 function tip_node(node, tip)

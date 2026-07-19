@@ -1,4 +1,4 @@
-local npc = {}
+﻿local npc = {}
 
 npc._config = teshudata["npc_649"]
 
@@ -46,12 +46,12 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data.T_dljq[ok_key] = (npc.data.T_dljq and npc.data.T_dljq[ok_key]) and npc.data.T_dljq[ok_key] or 0
 
         local desc = GUI:Text_Create(node, "desc1",160 + 158 + 34,211, 20, "#808080", npc.data.T_dljq[try_key])
-        GUI:Text_setFontName(desc, "fonts/500.ttf")
+        GUI:Text_setFontName(desc, "fonts/502.ttf")
         GUI:Text_enableOutline(desc, "#FFFF00", 2)
 
 
         desc = GUI:Text_Create(node, "desc2",160 + 158 + 34,185, 20, "#808080", npc.data.T_dljq[ok_key])
-        GUI:Text_setFontName(desc, "fonts/500.ttf")
+        GUI:Text_setFontName(desc, "fonts/502.ttf")
         GUI:Text_enableOutline(desc, "#FFFF00", 2)
 
         if npc.data.T_dljq[key] == 1 or npc.data.T_dljq[key] == 0 then
@@ -84,3 +84,4 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
+

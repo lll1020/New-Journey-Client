@@ -95,7 +95,7 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:setAnchorPoint(confirm, 0.5, 0)
         local confirmText = GUI:Text_Create(confirm, "confirm_text", 116, 52, 25, "#FFFBF0", "确定")
         GUI:setAnchorPoint(confirmText, 0.5, 0.5)
-        GUI:Text_setFontName(confirmText, "fonts/500.ttf")
+        GUI:Text_setFontName(confirmText, "fonts/502.ttf")
         GUI:Text_enableOutline(confirmText, "#CA352C", 2)
         GUI:addOnClickEvent(confirm, function()
             local msg = getAnswerValue()
@@ -133,7 +133,7 @@ function npc.main(npcid, p2, p3, msgData)
                 local Button = GUI:Button_Create(node, "Button", btn_pos[1], btn_pos[2], "res/wy/public/an_tongyong.png")
                 local Button_wz = GUI:Text_Create(Button, "desc", 116, 52, 25, "#FFFBF0", "回答问题")
                 GUI:setAnchorPoint(Button_wz, 0.5, 0.5)
-                GUI:Text_setFontName(Button_wz, "fonts/500.ttf")
+                GUI:Text_setFontName(Button_wz, "fonts/502.ttf")
                 GUI:Text_enableOutline(Button_wz, "#CA352C", 2)
 
                 GUI:setAnchorPoint(Button, 0.5, 0.5)
@@ -160,5 +160,6 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
+
 
 

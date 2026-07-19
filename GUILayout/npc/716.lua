@@ -1,4 +1,4 @@
-local npc = {}
+﻿local npc = {}
 
 npc._config = teshudata["npc_716"]
 
@@ -8,14 +8,15 @@ local WINDOW_OPTS = {
 }
 local key = "npc_716"
 local btn_pos = {620, 80}
-local reward_pos = {180 + 240, 80 + 90}
-local cost_pos = {620 - 80, 80 + 90}
+local reward_pos = {388, 168}
+local cost_pos = {495, 166}
 local MAIN_BTN_SKIN = "res/custom/all_story_mission/5/716/1.png"
 local MAIN_BTN_SKIN_TAKE = "res/custom/all_story_mission/5/716/1.png"
 local MAIN_BTN_SKIN_DOING = "res/custom/all_story_mission/5/716/2.png"
 local EXTRA_BTN_SKIN = {}
 local ACTIONS = {1}
 local ACTION_LABEL = { [1] = "进入"}
+
 -- 合并任务奖励与称号奖励，确保称号在奖励区可见。
 local function buildRewardWithTitle(cfg)
     local reward_cfg = nil
@@ -186,12 +187,12 @@ function npc.main(npcid, p2, p3, msgData)
             cost_cfg = npc._config.cost
         end
         if cost_cfg then
-            local cost = checkItemNumByTable_img_kuang(cost_cfg, nil, GUI:Node_Create(node, "cost", 0, 0))
-            GUI:setPosition(cost, cost_pos[1], cost_pos[2])
+            local cost = checkItemNumByTable_img_kuang_compact(cost_cfg, nil, GUI:Node_Create(node, "cost", 0, 0), 68)
+            GUI:setPosition(cost, cost_pos[1] + 183, cost_pos[2])
         end
         if max_num > 1 then
             local t = GUI:Text_Create(node, "progress", 470, 200, 20, "#6FD3FF", string.format("进度 %d/%d", progress, max_num))
-            GUI:Text_setFontName(t, "fonts/500.ttf")
+            GUI:Text_setFontName(t, "fonts/502.ttf")
             GUI:Text_enableOutline(t, "#C92A2A", 2)
         end
 
@@ -225,3 +226,4 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
+

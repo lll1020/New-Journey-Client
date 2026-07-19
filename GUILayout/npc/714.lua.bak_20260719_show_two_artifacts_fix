@@ -1,21 +1,31 @@
 ﻿local npc = {}
 
-npc._config = teshudata["npc_702"]
+npc._config = teshudata["npc_714"]
 
 local WINDOW_OPTS = {
-    background = {skin = "res/custom/all_story_mission/5/702_bg.png"},
+    background = {skin = "res/custom/all_story_mission/5/714_bg.png"},
     closeButton = {x = 747, y = 380},
 }
-local key = "npc_702"
+local key = "npc_714"
 local btn_pos = {620, 80}
-local reward_pos = {360 + 50, 120}
-local cost_pos = {500, 268}
-local MAIN_BTN_SKIN = "res/custom/all_story_mission/5/702_btn.png"
-local MAIN_BTN_SKIN_TAKE = "res/custom/all_story_mission/5/702/1.png"
-local MAIN_BTN_SKIN_DOING = "res/custom/all_story_mission/5/702/2.png"
-local EXTRA_BTN_SKIN = {}
-local ACTIONS = {1}
-local ACTION_LABEL = { [1] = "进入"}
+local reward_pos = {180 + 240, 80 + 100}
+local cost_pos = {620 - 30, 80 + 100}
+
+-- 阶段按钮配置（直接在这里改路径/文案）
+-- 阶段1：未接取（state=0）
+local MAIN_BTN_SKIN = "res/custom/all_story_mission/5/714_btn.png"
+local MAIN_BTN_SKIN_TAKE = "res/custom/all_story_mission/2/btn_take.png"
+-- 阶段2：可提交/领取（state=1）
+local MAIN_BTN_SKIN_DOING = "res/custom/all_story_mission/2/btn_give.png"
+-- 阶段3：任务完成后升级（state>=2，点击 ew=2）
+local UPGRADE_BTN_SKIN = "res/custom/all_story_mission/5/714/1.png"
+local EXTRA_BTN_SKIN = { [2] = UPGRADE_BTN_SKIN }
+-- 阶段文案（仅当按钮皮肤为通用按钮时显示文本）
+local BTN_TEXT_TAKE = "接取"
+local BTN_TEXT_DOING = "领取"
+local BTN_TEXT_UPGRADE = "升级"
+local ACTIONS = {1, 2}
+local ACTION_LABEL = { [1] = "提交", [2] = BTN_TEXT_UPGRADE }
 
 -- 合并任务奖励与称号奖励，确保称号在奖励区可见。
 local function buildRewardWithTitle(cfg)
@@ -84,7 +94,7 @@ function npc.main(npcid, p2, p3, msgData)
         npc.node = npc._window.node
         return npc.node
     end
-    -- 操作按钮渲染：主按钮按任务状态切换，副按钮按动作号映射。
+    -- 三阶段按钮：先接取任务 -> 完成后领取 -> 再显示升级。
     local function createActionButtons(node, state)
         local function resolveMainSkin()
             if state <= 0 and MAIN_BTN_SKIN_TAKE then
@@ -99,12 +109,18 @@ function npc.main(npcid, p2, p3, msgData)
             return MAIN_BTN_SKIN
         end
 
-        local function createExtraButton(nodeName, x, y, ew)
-            local skin = EXTRA_BTN_SKIN[ew] or "res/public/1900000660.png"
-            local btn = GUI:Button_Create(node, nodeName, x, y, skin)
+        local function createButton(nodeName, x, y, ew, skin, fallbackText)
+            local btnSkin = skin or EXTRA_BTN_SKIN[ew] or "res/public/1900000660.png"
+            if type(btnSkin) ~= "string" or btnSkin == "" then
+                btnSkin = "res/public/1900000660.png"
+            end
+            if type(fallbackText) ~= "string" then
+                fallbackText = ACTION_LABEL[ew] or ("操作" .. tostring(ew))
+            end
+            local btn = GUI:Button_Create(node, nodeName, x, y, btnSkin)
             GUI:setAnchorPoint(btn, 0.5, 0.5)
-            if skin == "res/public/1900000660.png" then
-                GUI:Button_setTitleText(btn, ACTION_LABEL[ew] or ("操作" .. tostring(ew)))
+            if btnSkin == "res/public/1900000660.png" then
+                GUI:Button_setTitleText(btn, fallbackText)
                 GUI:Button_setTitleFontSize(btn, 16)
             end
             GUI:addOnClickEvent(btn, function()
@@ -112,47 +128,14 @@ function npc.main(npcid, p2, p3, msgData)
             end)
         end
 
-        local ew1 = ACTIONS[1]
-        if ew1 then
-            if state >= 2 then
-                GUI:Image_Create(node, "done", btn_pos[1], btn_pos[2], "res/wy/public/7_1.png")
-            else
-                local skin = resolveMainSkin()
-                local b1 = GUI:Button_Create(node, "btn_action_1", btn_pos[1], btn_pos[2], skin)
-                GUI:setAnchorPoint(b1, 0.5, 0.5)
-                if skin == "res/public/1900000660.png" then
-                    GUI:Button_setTitleText(b1, ACTION_LABEL[ew1] or ("操作" .. tostring(ew1)))
-                    GUI:Button_setTitleFontSize(b1, 16)
-                end
-                GUI:addOnClickEvent(b1, function()
-                    SL:SendLuaNetMsg(100, npcid, ew1, 0, "")
-                end)
-            end
+        -- 任务完成后，主按钮位切换为升级（ew=2）。
+        if state >= 2 then
+            createButton("btn_upgrade", btn_pos[1], btn_pos[2], 2, EXTRA_BTN_SKIN[2], BTN_TEXT_UPGRADE)
+            return
         end
 
-        local extraStartX = 260
-        local extraY = 40
-        local extraStep = 120
-
-        local ew2 = ACTIONS[2]
-        if ew2 then
-            createExtraButton("btn_action_2", extraStartX, extraY, ew2)
-        end
-
-        local ew3 = ACTIONS[3]
-        if ew3 then
-            createExtraButton("btn_action_3", extraStartX + extraStep, extraY, ew3)
-        end
-
-        local ew4 = ACTIONS[4]
-        if ew4 then
-            createExtraButton("btn_action_4", extraStartX + extraStep * 2, extraY, ew4)
-        end
-
-        local ew5 = ACTIONS[5]
-        if ew5 then
-            createExtraButton("btn_action_5", extraStartX + extraStep * 3, extraY, ew5)
-        end
+        local fallbackText = (state <= 0) and BTN_TEXT_TAKE or BTN_TEXT_DOING
+        createButton("btn_action_1", btn_pos[1], btn_pos[2], 1, resolveMainSkin(), fallbackText)
     end
     local function UI_updata(node)
         if not node then
@@ -174,10 +157,10 @@ function npc.main(npcid, p2, p3, msgData)
         local progress = tonumber(npc.data.T_dljq[key .. "_a"] or 0) or 0
         local reward_cfg = buildRewardWithTitle(npc._config)
         if reward_cfg and #reward_cfg > 0 then
-            local jl = ItemNumByTable_img_new(reward_cfg, nil, GUI:Node_Create(node, "jl", 0, 0))
+            local showRewards = {{"屠龙刀",1}, {"真·屠龙刀",1}}
+            local jl = ItemNumByTable_img_new(showRewards, nil, GUI:Node_Create(node, "jl", 0, 0))
             GUI:setPosition(jl, reward_pos[1], reward_pos[2])
         end
-
         local cost_cfg = nil
         if type(task_cfg.submit) == "table" and #task_cfg.submit > 0 then
             cost_cfg = task_cfg.submit
@@ -190,10 +173,17 @@ function npc.main(npcid, p2, p3, msgData)
             local cost = checkItemNumByTable_img_kuang(cost_cfg, nil, GUI:Node_Create(node, "cost", 0, 0))
             GUI:setPosition(cost, cost_pos[1], cost_pos[2])
         end
-        if max_num > 1 then
-            local t = GUI:Text_Create(node, "progress", 470, 200, 20, "#6FD3FF", string.format("进度 %d/%d", progress, max_num))
-            GUI:Text_setFontName(t, "fonts/502.ttf")
+        local kill_cur = tonumber(npc.data.sg_data[key] or 0) or 0
+        local kill_need = tonumber(task_cfg.kill_count or 0) or 0
+        if kill_need > 0 then
+            local t = GUI:Text_Create(node, "progress", 470 + 160, 280, 20, "#6FD3FF", string.format("击杀 %d/%d", kill_cur, kill_need))
+            GUI:Text_setFontName(t, "fonts/500.ttf")
             GUI:Text_enableOutline(t, "#C92A2A", 2)
+        end
+        if max_num > 1 then
+            local t2 = GUI:Text_Create(node, "step", 470, 176, 18, "#6FD3FF", string.format("进度 %d/%d", progress, max_num))
+            GUI:Text_setFontName(t2, "fonts/500.ttf")
+            GUI:Text_enableOutline(t2, "#00FFFF", 2)
         end
 
         createActionButtons(node, state)

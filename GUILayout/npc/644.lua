@@ -1,4 +1,4 @@
-local npc = {}
+﻿local npc = {}
 
 npc._config = teshudata["npc_644"]
 
@@ -36,7 +36,7 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:removeAllChildren(node)
         npc.data.jq_data[key] = (npc.data.jq_data and npc.data.jq_data[key]) and npc.data.jq_data[key] or 0
         local desc = GUI:Text_Create(node, "desc",360 + 154,120 + 47, 20, "#808080", npc._config.attr_wz)
-        GUI:Text_setFontName(desc, "fonts/500.ttf")
+        GUI:Text_setFontName(desc, "fonts/502.ttf")
         GUI:Text_enableOutline(desc, "#FFFF00", 2)
 
         if npc._config.cost then
@@ -76,3 +76,4 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
+

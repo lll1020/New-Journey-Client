@@ -1,4 +1,4 @@
-local npc = {}
+﻿local npc = {}
 
 npc._config = teshudata["npc_717"]
 
@@ -191,7 +191,7 @@ function npc.main(npcid, p2, p3, msgData)
         end
         if max_num > 1 then
             local t = GUI:Text_Create(node, "progress", 470, 200, 20, "#6FD3FF", string.format("进度 %d/%d", progress, max_num))
-            GUI:Text_setFontName(t, "fonts/500.ttf")
+            GUI:Text_setFontName(t, "fonts/502.ttf")
             GUI:Text_enableOutline(t, "#C92A2A", 2)
         end
 

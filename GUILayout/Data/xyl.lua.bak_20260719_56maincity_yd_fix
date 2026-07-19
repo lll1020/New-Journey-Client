@@ -1746,7 +1746,7 @@ local npc_xyl = {
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
                     need_receive = false,
-                    yd = { 1, "五大陆主城", 690, 81, 37 },
+                    yd = { 1, "五大陆主城", 690, 24, 13 },
                     desc = "直面时空守护者，守护时空秩序。\n<font color='#F4D179'>目标：</font>时空守护者\n<font color='#F4D179'>进度：</font>%s",
                 },
             },
@@ -1808,7 +1808,7 @@ local npc_xyl = {
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
                     need_receive = false,
-                    yd = { 1, "五大陆主城", 692, 89, 37 },
+                    yd = { 1, "五大陆主城", 692, 32, 13 },
                     desc = "破解生命边界之谜。\n<font color='#F4D179'>目标：</font>生命边界之谜\n<font color='#F4D179'>进度：</font>%s",
                 },
             },
@@ -2012,7 +2012,7 @@ local npc_xyl = {
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
                     need_receive = false,
-                    yd = { 1, "五大陆主城", 691, 85, 37 },
+                    yd = { 1, "五大陆主城", 691, 28, 13 },
                     desc = "完成重启世界，开启新篇。\n<font color='#F4D179'>目标：</font>重启世界\n<font color='#F4D179'>进度：</font>%s",
                 },
             },
@@ -2640,7 +2640,6 @@ npc_xyl.build_task_desc = function(task)
     return _xyl_build_task_desc(task)
 end
 return npc_xyl
-
 
 
 

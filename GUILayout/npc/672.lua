@@ -37,7 +37,7 @@ function npc.main(npcid, p2, p3, msgData)
         -- local xjm = ItemNumByTable_img_new({{"修罗道令牌", xjm_count}}, nil,GUI:Node_Create(node, "xjm", 0, 0))
         -- GUI:setPosition(xjm, 178, 135)
         local desc = GUI:Text_Create(node, "desc",300 + 358 - 175,220 - 68 + 137, 20, "#FF0000", npc._config.details[npc.idx].wz)
-        GUI:Text_setFontName(desc, "fonts/500.ttf")
+        GUI:Text_setFontName(desc, "fonts/502.ttf")
         GUI:Text_enableOutline(desc, "#150800", 1)
         if npc.data.T_dljq[key.."_"..npc.idx] and npc.data.T_dljq[key.."_"..npc.idx] >= 2 then
             -- GUI:Image_Create(node, "Button", btn_pos[1], btn_pos[2], "res/wy/public/7_1.png")
@@ -133,4 +133,5 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
+
 

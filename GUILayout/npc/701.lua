@@ -1,4 +1,4 @@
-local npc = {}
+﻿local npc = {}
 
 npc._config = teshudata["npc_701"]
 
@@ -193,13 +193,13 @@ function npc.main(npcid, p2, p3, msgData)
         local kill_cur = tonumber(npc.data.sg_data[key] or 0) or 0
         local kill_need = tonumber(task_cfg.kill_count or 0) or 0
         if kill_need > 0 then
-            local t = GUI:Text_Create(node, "progress", 470 - 100, 200, 20, "#6FD3FF", string.format("击杀 %d/%d", kill_cur, kill_need))
-            GUI:Text_setFontName(t, "fonts/500.ttf")
+            local t = GUI:Text_Create(node, "progress", 470 - 100, 200, 25, "#000000", string.format("击杀 %d/%d", kill_cur, kill_need))
+            GUI:Text_setFontName(t, "fonts/502.ttf")
             GUI:Text_enableOutline(t, "#C92A2A", 2)
         end
         if max_num > 1 then
-            local t2 = GUI:Text_Create(node, "step", 470, 176, 18, "#6FD3FF", string.format("进度 %d/%d", progress, max_num))
-            GUI:Text_setFontName(t2, "fonts/500.ttf")
+            local t2 = GUI:Text_Create(node, "step", 470, 176, 25, "#6FD3FF", string.format("进度 %d/%d", progress, max_num))
+            GUI:Text_setFontName(t2, "fonts/502.ttf")
             GUI:Text_enableOutline(t2, "#00FFFF", 2)
         end
 

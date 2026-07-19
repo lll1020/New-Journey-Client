@@ -1,4 +1,4 @@
-local npc = {}
+﻿local npc = {}
 
 npc._config = teshudata["npc_640"]
 
@@ -64,7 +64,7 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:setContentSize(GUI:Image_Create(grid, "ch_kuang", 0, 0, "res/wy/public/guang.png"), cell * size, cell * size)
 
         local desc = GUI:Text_Create(grid, "desc",320 + 230,200, 25, "#808080", "我方为黑子")
-            GUI:Text_setFontName(desc, "fonts/500.ttf")
+            GUI:Text_setFontName(desc, "fonts/502.ttf")
         GUI:Text_enableOutline(desc, "#00FFFF", 2)
         
         for y = 1, size do
@@ -91,7 +91,7 @@ function npc.main(npcid, p2, p3, msgData)
             -- local stone = GUI:Text_Create(grid, "stone_"..s.x.."_"..s.y, px, py, 22, color, mark)
             local stone = GUI:Image_Create(grid, "stone_"..s.x.."_"..s.y, px, py, "res/custom/all_story_mission/3/"..mark..".png")
             GUI:setAnchorPoint(stone, 0.5, 0.5)
-            -- GUI:Text_setFontName(stone, "fonts/500.ttf")
+            -- GUI:Text_setFontName(stone, "fonts/502.ttf")
             -- GUI:Text_enableOutline(stone, "#000000", 1)
         end
     end
@@ -120,7 +120,7 @@ function npc.main(npcid, p2, p3, msgData)
             if tip then
                 local tip_label = GUI:Text_Create(node, "tip", 420, 420, 18, "#FFD27F", tip)
                 GUI:setAnchorPoint(tip_label, 0.5, 0.5)
-                GUI:Text_setFontName(tip_label, "fonts/500.ttf")
+                GUI:Text_setFontName(tip_label, "fonts/502.ttf")
                 GUI:Text_enableOutline(tip_label, "#000000", 1)
             end
         end
@@ -135,7 +135,7 @@ function npc.main(npcid, p2, p3, msgData)
         else
 
             local desc = GUI:Text_Create(node, "desc",50, 140, 25, "#808080", "老王认可了你的实力 现在不用给医药费了")
-            GUI:Text_setFontName(desc, "fonts/500.ttf")
+            GUI:Text_setFontName(desc, "fonts/502.ttf")
             GUI:Text_enableOutline(desc, "#00FFFF", 2)
 
             
@@ -165,3 +165,4 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
+

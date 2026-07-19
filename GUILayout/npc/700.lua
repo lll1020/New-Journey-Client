@@ -1,4 +1,4 @@
-local npc = {}
+﻿local npc = {}
 
 npc._config = teshudata["npc_700"]
 
@@ -201,12 +201,12 @@ function npc.main(npcid, p2, p3, msgData)
             local cur = tonumber(npc.data.sg_data[key .. "_" .. stage_key[i]] or 0) or 0
             local need = tonumber(stage_need[i] or 0) or 0
             local t = GUI:Text_Create(node, "stage_" .. tostring(i), 470, baseY - (i - 1) * 24, 18, "#6FD3FF", string.format("阶段%d %d/%d", i, cur, need))
-            GUI:Text_setFontName(t, "fonts/500.ttf")
+            GUI:Text_setFontName(t, "fonts/502.ttf")
             GUI:Text_enableOutline(t, "#C92A2A", 2)
         end
         if max_num > 1 then
             local t2 = GUI:Text_Create(node, "step", 470, 138, 18, "#6FD3FF", string.format("进度 %d/%d", progress, max_num))
-            GUI:Text_setFontName(t2, "fonts/500.ttf")
+            GUI:Text_setFontName(t2, "fonts/502.ttf")
             GUI:Text_enableOutline(t2, "#00FFFF", 2)
         end
 
@@ -247,3 +247,4 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
+

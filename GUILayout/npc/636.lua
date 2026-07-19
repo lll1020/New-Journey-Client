@@ -1,4 +1,4 @@
-local npc = {}
+﻿local npc = {}
 
 npc._config = teshudata["npc_636"]
 
@@ -46,7 +46,7 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data.T_dljq[key] = (npc.data.T_dljq and npc.data.T_dljq[key]) and npc.data.T_dljq[key] or 0
         local showFirstOpenTake = NPC_UI_HELPER.shouldShowFirstOpenTakeButton(key, npc._config.cost, npc.data.T_dljq[key])
         local desc = GUI:Text_Create(node, "desc",495,120 + 133 + 68, 30, "#00FB00", npc._config.max_num - npc.data.T_dljq[key])
-        GUI:Text_setFontName(desc, "fonts/500.ttf")
+        GUI:Text_setFontName(desc, "fonts/502.ttf")
         -- GUI:Text_enableOutline(desc, "#F03022", 2)
         ItemNumByTable_img_new({{"路飞的帽子",1},{"索隆的刀",1},{"乌索普的弹弓",1}}, nil,GUI:Node_Create(node, "show", 200, 120))
 
@@ -85,3 +85,4 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
+

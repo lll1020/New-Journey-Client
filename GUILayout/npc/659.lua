@@ -1,4 +1,4 @@
-local npc = {}
+﻿local npc = {}
 
 npc._config = teshudata["npc_659"]
 
@@ -47,7 +47,7 @@ function npc.main(npcid, p2, p3, msgData)
 
         if npc.data.T_dljq[key] == 1 or npc.data.T_dljq[key] == 0 then
             local desc = GUI:Text_Create(node, "desc",500,180, 20, "#808080", "当前胜利次数："..(npc.data.T_dljq[win_count] or 0))
-            GUI:Text_setFontName(desc, "fonts/500.ttf")
+            GUI:Text_setFontName(desc, "fonts/502.ttf")
             GUI:Text_enableOutline(desc, "#00FFFF", 2)
             
             for i = 1, 3 do
@@ -77,3 +77,4 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
+

@@ -1,4 +1,4 @@
-local npc = {}
+﻿local npc = {}
 
 npc._config = teshudata["npc_714"]
 
@@ -128,9 +128,8 @@ function npc.main(npcid, p2, p3, msgData)
             end)
         end
 
-        -- 任务完成后，主按钮位切换为升级（ew=2）。
+        -- 任务完成后不再显示按钮，只保留完成标记。
         if state >= 2 then
-            createButton("btn_upgrade", btn_pos[1], btn_pos[2], 2, EXTRA_BTN_SKIN[2], BTN_TEXT_UPGRADE)
             return
         end
 
@@ -155,12 +154,9 @@ function npc.main(npcid, p2, p3, msgData)
         local max_num = tonumber(task_cfg.max_submit_times or task_cfg.max_reward_round or npc._config.max_num or 1) or 1
         local state = tonumber(npc.data.T_dljq[key] or 0) or 0
         local progress = tonumber(npc.data.T_dljq[key .. "_a"] or 0) or 0
-        local reward_cfg = buildRewardWithTitle(npc._config)
-        if reward_cfg and #reward_cfg > 0 then
-            local jl = ItemNumByTable_img_new({{"屠龙刀",1}}, nil, GUI:Node_Create(node, "jl", 0, 0))
-            GUI:setPosition(jl, reward_pos[1], reward_pos[2])
-        end
-
+        local showRewards = {{"屠龙刀",1}, {"真·屠龙刀",1}}
+        local jl = ItemNumByTable_img_new(showRewards, nil, GUI:Node_Create(node, "jl", 0, 0))
+        GUI:setPosition(jl, reward_pos[1], reward_pos[2])
         local cost_cfg = nil
         if type(task_cfg.submit) == "table" and #task_cfg.submit > 0 then
             cost_cfg = task_cfg.submit
@@ -177,13 +173,18 @@ function npc.main(npcid, p2, p3, msgData)
         local kill_need = tonumber(task_cfg.kill_count or 0) or 0
         if kill_need > 0 then
             local t = GUI:Text_Create(node, "progress", 470 + 160, 280, 20, "#6FD3FF", string.format("击杀 %d/%d", kill_cur, kill_need))
-            GUI:Text_setFontName(t, "fonts/500.ttf")
+            GUI:Text_setFontName(t, "fonts/502.ttf")
             GUI:Text_enableOutline(t, "#C92A2A", 2)
         end
         if max_num > 1 then
             local t2 = GUI:Text_Create(node, "step", 470, 176, 18, "#6FD3FF", string.format("进度 %d/%d", progress, max_num))
-            GUI:Text_setFontName(t2, "fonts/500.ttf")
+            GUI:Text_setFontName(t2, "fonts/502.ttf")
             GUI:Text_enableOutline(t2, "#00FFFF", 2)
+        end
+
+        if state >= 2 then
+            local done = GUI:Image_Create(node, "done_badge", btn_pos[1], btn_pos[2], "res/wy/public/7_1.png")
+            GUI:setAnchorPoint(done, 0.5, 0.5)
         end
 
         createActionButtons(node, state)
@@ -216,3 +217,4 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
+
