@@ -1,4 +1,4 @@
-﻿local npc = {
+local npc = {
 }
 local REWARD_ITEM_EFFECT_14193 = 14193
 local REWARD_ITEM_EFFECT_13048 = 13048
@@ -3167,6 +3167,9 @@ npc[11] = function(p2, p3, Data)
     if p2 == 0 then
         npc.data = Data and SL:JsonDecode(Data, false) or {
         }
+        if type(npc.data) == "table" and npc.data.dl_all_unlock ~= nil and cogin and cogin.sjtb then
+            cogin.sjtb.dl_all_unlock = tonumber(npc.data.dl_all_unlock) or 0
+        end
         if type(npc.data) == "table" and type(npc.data.ywl) == "table" and next(npc.data.ywl) ~= nil then
             rawset(_G, "XYL_YWL_CACHE", npc.data.ywl)
         end
@@ -3606,7 +3609,9 @@ npc[11] = function(p2, p3, Data)
                     local imgSkinIndex = (((tonumber(npc.l) or 0) + (tonumber(npc.zj) or 0) + idx - 3) % 3) + 1
                     local imgSkin = string.format('res/custom/ywl/kuang%d.png', imgSkinIndex)
                     local img = GUI:Image_Create(card, "img", 214 / 2, 410 / 2 - 20, imgSkin)
-                    GUI:Image_Create(img, "rwjd", 25, 350, rwjdSkin)
+                    if rwjdSkin ~= "res/wy/public/rwjd_2.png" then
+                        GUI:Image_Create(img, "rwjd", 25, 350, rwjdSkin)
+                    end
                     GUI:setAnchorPoint(img, 0.5, 0.5)
                     local function ensure_cover()
                         if slotUi.cover then
@@ -8334,6 +8339,10 @@ npc[514] = function(p2, p3, Data)
                         NPC_UI_HELPER.guochang_3()
                         return
                     end
+                end
+                if i == 7 then
+                    SL:ShowSystemTips("<font color='#FF0000'>暂未开放</font>")
+                    return
                 end
                 SL:SendLuaNetMsg(100, 500 + i, 1, 0, "")
             end)

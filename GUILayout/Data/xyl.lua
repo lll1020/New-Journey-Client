@@ -1,4 +1,4 @@
-﻿-- 异闻录：剧情完成判定辅助
+-- 异闻录：剧情完成判定辅助
 local _xyl_name_map
 local function _xyl_norm_name(name)
     if not name then
@@ -475,9 +475,41 @@ local function _xyl_has_all_tianming()
     return true
 end
 -- 备注：剧情点验证入口（优先特殊逻辑，其次剧情完成）
+local function _xyl_has_shendao_cert(god)
+    local data = _xyl_get_json("T72")
+    local gods = type(data.gods) == "table" and data.gods or {}
+    local info = gods[tostring(tonumber(god) or 0)] or gods[tonumber(god) or 0] or {}
+    return (tonumber(info.cert) or 0) >= 1
+end
+
+local function _xyl_has_world_runes(need)
+    local data = _xyl_get_json("T65")
+    local runes = type(data.runes) == "table" and data.runes or {}
+    local count = 0
+    for i = 1, 7 do
+        if (tonumber(runes[tostring(i)] or runes[i]) or 0) >= 1 then
+            count = count + 1
+        end
+    end
+    return count >= (tonumber(need) or 7)
+end
+
+local function _xyl_has_star_stage(stage)
+    local data = _xyl_get_json("T64")
+    local stages = type(data.stage) == "table" and data.stage or {}
+    local info = stages[tostring(tonumber(stage) or 0)] or stages[tonumber(stage) or 0] or {}
+    return (tonumber(info.full) or 0) >= 1
+end
+
 local function _xyl_check_task(name)
     local key = _xyl_norm_name(name)
     local special = {
+        ["完成兵神道自证"] = function() return _xyl_has_shendao_cert(1) end,
+        ["完成鬼神道自证"] = function() return _xyl_has_shendao_cert(2) end,
+        ["获得全部世界符文"] = function() return _xyl_has_world_runes(7) end,
+        ["星象圣图达到耀星"] = function() return _xyl_has_star_stage(6) end,
+        ["星象圣图达到圣星"] = function() return _xyl_has_star_stage(7) end,
+        ["星象圣图达到帝星"] = function() return _xyl_has_star_stage(8) end,
         ["天书强化"] = _xyl_has_tianshu_level,
         ["初识仙法"] = _xyl_has_any_xianfa,
         ["天书仙法"] = _xyl_has_any_xianfa,
@@ -507,6 +539,8 @@ local function _xyl_check_task(name)
         ["转生·四"] = function() return _xyl_has_rebirth(40) end,
         ["转生·五"] = function() return _xyl_has_rebirth(50) end,
         ["完成转生·五"] = function() return _xyl_has_rebirth(50) end,
+        ["转生·六"] = function() return _xyl_has_rebirth(60) end,
+        ["完成转生·六"] = function() return _xyl_has_rebirth(60) end,
         ["拥有传说神石"] = _xyl_has_legendary_stone,
         ["传说·斗笠"] = _xyl_has_legendary_hat,
         ["神·酒葫芦"] = _xyl_has_god_gourd,
@@ -675,9 +709,17 @@ local function _xyl_check_chapter_pre(taskData, pre)
     end
     return false
 end
+local function _xyl_is_admin_continent_unlocked(continent)
+    local adminUnlock = cogin and cogin.sjtb and tonumber(cogin.sjtb.dl_all_unlock or 0) or 0
+    continent = tonumber(continent) or 0
+    return adminUnlock == 1 or (continent > 0 and adminUnlock >= continent)
+end
 local function _xyl_get_chapter_lock_info(taskData, l, zj, curJqd)
     local cfg = _xyl_get_chapter_cfg(taskData, l, zj)
     if not cfg then
+        return { locked = false, tip = "", ext_tips = {}, cur_jqd = tonumber(curJqd) or 0, need_jqd = 0, lack_jqd = false }
+    end
+    if _xyl_is_admin_continent_unlocked(l) then
         return { locked = false, tip = "", ext_tips = {}, cur_jqd = tonumber(curJqd) or 0, need_jqd = 0, lack_jqd = false }
     end
     local ignoreJqd = (tonumber(l) or 0) >= 3
@@ -2023,8 +2065,14 @@ local npc_xyl = {
     },
     {
         {
-            jq = {
-            {"恶魔契约", tk = "npc_728", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "血契之地二层", 728, 66, 27}, desc = "以血换契，每十名玩家可得一次抽奖。\n<font color='#F4D179'>目标：</font>累计击杀玩家并抽满十次\n<font color='#F4D179'>进度：</font>%s"},
+        jq = {
+            {"完成兵神道自证", tk = "完成兵神道自证", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "六大陆主城", 77, 77, 113}, desc = "完成兵神道自证。\n<font color='#F4D179'>目标：</font>兵神道完成九阶自证\n<font color='#F4D179'>进度：</font>%s"},
+            {"完成鬼神道自证", tk = "完成鬼神道自证", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "六大陆主城", 77, 77, 113}, desc = "完成鬼神道自证。\n<font color='#F4D179'>目标：</font>鬼神道完成九阶自证\n<font color='#F4D179'>进度：</font>%s"},
+            {"获得全部世界符文", tk = "获得全部世界符文", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "六大陆主城", 84, 95, 129}, desc = "集齐七大世界符文。\n<font color='#F4D179'>目标：</font>激活全部世界符文\n<font color='#F4D179'>进度：</font>%s"},
+            {"星象圣图达到耀星", tk = "星象圣图达到耀星", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "六大陆主城", 85, 89, 113}, desc = "推进星象圣图至耀星。\n<font color='#F4D179'>目标：</font>完成耀星阶段全部点亮\n<font color='#F4D179'>进度：</font>%s"},
+            {"星象圣图达到圣星", tk = "星象圣图达到圣星", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "六大陆主城", 85, 89, 113}, desc = "推进星象圣图至圣星。\n<font color='#F4D179'>目标：</font>完成圣星阶段全部点亮\n<font color='#F4D179'>进度：</font>%s"},
+            {"星象圣图达到帝星", tk = "星象圣图达到帝星", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "六大陆主城", 85, 89, 113}, desc = "推进星象圣图至帝星。\n<font color='#F4D179'>目标：</font>完成帝星阶段全部点亮\n<font color='#F4D179'>进度：</font>%s"},
+            {"完成转生·六", tk = "完成转生·六", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "六大陆主城", 36, 83, 121}, desc = "完成转生·六，跨入更高境界。\n<font color='#F4D179'>目标：</font>完成转生·六\n<font color='#F4D179'>进度：</font>%s"},
         },
         name = "灵虚秘闻",
         jqd = 61,
@@ -2033,25 +2081,16 @@ local npc_xyl = {
     {
         jq = {
             {"天机道长", tk = "npc_721", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "六大陆主城", 721, 25, 149}, desc = "星图已见三光，前往冰川雪域寻回帝星遗失的线索。\n<font color='#F4D179'>目标：</font>星象达三星并领取星儿的玉佩碎片\n<font color='#F4D179'>进度：</font>%s"},
-            {"星儿", tk = "npc_722", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "六大陆主城", 722, 108, 44}, desc = "玉佩重铸，六大陆可爆玉佩碎片。\n<font color='#F4D179'>目标：</font>收集66个星儿的玉佩碎片与100万元宝\n<font color='#F4D179'>进度：</font>%s"},
-            {"凌雪", tk = "npc_723", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "冰川雪域", 723, 58, 50}, desc = "冰川下的寒意并未散去。\n<font color='#F4D179'>目标：</font>提交星力冰晶压制诅咒，解锁星陨冰窟\n<font color='#F4D179'>进度：</font>%s"},
-            {"守城士兵甲", tk = "npc_724", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "边关烽城", 724, 152, 155}, desc = "边关告急，先守住城，再去见赤焰。\n<font color='#F4D179'>目标：</font>完成守城任务\n<font color='#F4D179'>进度：</font>%s"},
-            {"赤焰", tk = "npc_725", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "边关烽城", 725, 39, 91}, desc = "护送赤焰，途中有刺客潜伏。\n<font color='#F4D179'>目标：</font>护送并击杀刺客，获取密信\n<font color='#F4D179'>进度：</font>%s"},
-            {"幽影", tk = "npc_726", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "森罗魔域", 726, 108, 91}, desc = "幽影盗走帝星本源，森罗魔气尚未平息。\n<font color='#F4D179'>目标：</font>击杀888只怪并提交森罗魔气\n<font color='#F4D179'>进度：</font>%s"},
+            {"星儿", tk = "npc_722", side_task = 1, prev_task = "npc_721", prev_need = 1, prev_name = "天机道长", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "六大陆主城", 722, 108, 44}, desc = "玉佩重铸，六大陆可爆玉佩碎片。\n<font color='#F4D179'>目标：</font>收集66个星儿的玉佩碎片与100万元宝\n<font color='#F4D179'>进度：</font>%s"},
+            {"凌雪", tk = "npc_723", prev_task = "npc_721", prev_need = 1, prev_name = "天机道长", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "冰川雪域", 723, 58, 50}, desc = "冰川下的寒意并未散去。\n<font color='#F4D179'>目标：</font>提交星力冰晶压制诅咒，解锁星陨冰窟\n<font color='#F4D179'>进度：</font>%s"},
+            {"守城士兵甲", tk = "npc_724", prev_task = "npc_723", prev_name = "凌雪", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "边关烽城", 724, 152, 155}, desc = "边关告急，先守住城，再去见赤焰。\n<font color='#F4D179'>目标：</font>完成守城任务\n<font color='#F4D179'>进度：</font>%s"},
+            {"赤焰", tk = "npc_725", prev_task = "npc_724", prev_name = "守城士兵甲", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "边关烽城", 725, 39, 91}, desc = "护送赤焰，途中有刺客潜伏。\n<font color='#F4D179'>目标：</font>护送并击杀刺客，获取密信\n<font color='#F4D179'>进度：</font>%s"},
+            {"幽影", tk = "npc_726", prev_task = "npc_725", prev_name = "赤焰", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "森罗魔域", 726, 108, 91}, desc = "幽影盗走帝星本源，森罗魔气尚未平息。\n<font color='#F4D179'>目标：</font>击杀888只怪并提交森罗魔气\n<font color='#F4D179'>进度：</font>%s"},
+            {"幽影的分身", tk = "npc_739", prev_task = "npc_726", prev_need = 1, prev_name = "幽影", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "魔焰祭坛", 739, 138, 30}, desc = "先揭弱点，再入副本。\n<font color='#F4D179'>目标：</font>提交残页后进入副本击杀分身\n<font color='#F4D179'>进度：</font>%s"},
+            {"天玑道长", tk = "npc_727", prev_task = "npc_739", prev_name = "幽影的分身", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "六大陆主城", 727, 17, 74}, desc = "帝星本源归位，解除星象圣图封印。\n<font color='#F4D179'>目标：</font>完成星图之谜最终任务\n<font color='#F4D179'>进度：</font>%s"},
         },
         name = "星图之谜",
         jqd = 66,
-        jl = {{"等级卷轴", 10}, {"1元真实充值", 15}},
-    },
-    {
-        jq = {
-            {"雪域特使", tk = "npc_729", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "冰川雪域", 729, 47, 48}, desc = "击穿雪域封锁，打开下一张地图。\n<font color='#F4D179'>目标：</font>击杀200只怪并缴纳元宝\n<font color='#F4D179'>进度：</font>%s"},
-            {"魔域特使", tk = "npc_730", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "森罗魔域", 730, 137, 44}, desc = "击穿魔域封锁，打开下一张地图。\n<font color='#F4D179'>目标：</font>击杀200只怪并缴纳元宝\n<font color='#F4D179'>进度：</font>%s"},
-            {"边关特使", tk = "npc_731", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "边关烽城", 731, 269, 70}, desc = "击穿边关封锁，打开下一张地图。\n<font color='#F4D179'>目标：</font>击杀200只怪并缴纳元宝\n<font color='#F4D179'>进度：</font>%s"},
-            {"古城特使", tk = "npc_732", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "盛世古城", 732, 26, 50}, desc = "击穿古城封锁，打开下一张地图。\n<font color='#F4D179'>目标：</font>击杀200只怪并缴纳元宝\n<font color='#F4D179'>进度：</font>%s"},
-        },
-        name = "特使之令",
-        jqd = 71,
         jl = {{"等级卷轴", 10}, {"1元真实充值", 15}},
     },
     {
@@ -2063,16 +2102,27 @@ local npc_xyl = {
             {"天青色的秘密", tk = "npc_737", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "临安古渡", 737, 44, 73}, desc = "窑火三开，青釉方成。\n<font color='#F4D179'>目标：</font>完成烧制，直至出青釉瓷碗\n<font color='#F4D179'>进度：</font>%s"},
         },
         name = "盛世重游",
+        jqd = 71,
+        jl = {{"等级卷轴", 10}, {"1元真实充值", 15}},
+    },
+    {
+        jq = {
+            {"雪域特使", tk = "npc_729", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "冰川雪域", 729, 47, 48}, desc = "击穿雪域封锁，打开下一张地图。\n<font color='#F4D179'>目标：</font>击杀200只怪并缴纳元宝\n<font color='#F4D179'>进度：</font>%s"},
+            {"魔域特使", tk = "npc_730", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "森罗魔域", 730, 137, 44}, desc = "击穿魔域封锁，打开下一张地图。\n<font color='#F4D179'>目标：</font>击杀200只怪并缴纳元宝\n<font color='#F4D179'>进度：</font>%s"},
+            {"边关特使", tk = "npc_731", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "边关烽城", 731, 269, 70}, desc = "击穿边关封锁，打开下一张地图。\n<font color='#F4D179'>目标：</font>击杀200只怪并缴纳元宝\n<font color='#F4D179'>进度：</font>%s"},
+            {"古城特使", tk = "npc_732", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "盛世古城", 732, 26, 50}, desc = "击穿古城封锁，打开下一张地图。\n<font color='#F4D179'>目标：</font>击杀200只怪并缴纳元宝\n<font color='#F4D179'>进度：</font>%s"},
+        },
+        name = "特使之令",
         jqd = 76,
         jl = {{"等级卷轴", 10}, {"1元真实充值", 15}},
     },
     {
         jq = {
-            {"镇关帅府", tk = "npc_738", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "镇关帅府", 738, 17, 21}, desc = "护灵旗碎，密令方出。\n<font color='#F4D179'>目标：</font>收集材料合成密令护灵旗\n<font color='#F4D179'>进度：</font>%s"},
-            {"魔焰祭坛", tk = "npc_739", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "魔焰祭坛", 739, 138, 30}, desc = "先揭弱点，再入副本。\n<font color='#F4D179'>目标：</font>提交残页后进入副本击杀分身\n<font color='#F4D179'>进度：</font>%s"},
-            {"冻魂冰窟", tk = "npc_740", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "冻魂冰窟", 740, 162, 108}, desc = "寒冰剑成，剑诀方可出世。\n<font color='#F4D179'>目标：</font>收集材料合成寒冰剑\n<font color='#F4D179'>进度：</font>%s"},
+            {"恶魔契约", tk = "npc_728", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "血契之地二层", 728, 66, 27}, desc = "以血换契，每十名玩家可得一次抽奖。\n<font color='#F4D179'>目标：</font>累计击杀玩家并抽满十次\n<font color='#F4D179'>进度：</font>%s"},
+            {"密令护灵旗", tk = "npc_738", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "镇关帅府", 738, 17, 21}, desc = "护灵旗碎，密令方出。\n<font color='#F4D179'>目标：</font>收集材料合成密令护灵旗\n<font color='#F4D179'>进度：</font>%s"},
+            {"上古寒冰剑", tk = "npc_740", id = 999, jl = {{"剧情点", 1}}, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "冻魂冰窟", 740, 162, 108}, desc = "寒冰剑成，剑诀方可出世。\n<font color='#F4D179'>目标：</font>收集材料合成寒冰剑\n<font color='#F4D179'>进度：</font>%s"},
         },
-        name = "密令护灵",
+        name = "灵虚游历",
         jqd = 81,
         jl = {{"等级卷轴", 10}, {"1元真实充值", 15}},
     },

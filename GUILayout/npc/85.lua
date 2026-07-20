@@ -1,4 +1,4 @@
-﻿local npc = {}
+local npc = {}
 
 npc._config = teshudata["npc_85"] or {}
 
@@ -33,6 +33,9 @@ local SELECT_SKIN = "res/custom/six_city/星象圣图/选中框.png"
 local ITEM_BOX_SKIN = "res/custom/six_city/星象圣图/装备框-.png"
 local DETAIL_ITEM_BOX_SKIN = "res/custom/six_city/星象圣图/次级页面/装备框-.png"
 local STAGE_ITEM_BOX_SKIN = "res/custom/six_city/星象圣图/装备框-.png"
+local FULL_REWARD_TITLE_SKIN = "res/custom/six_city/星象圣图/点亮全部星宿获得.png"
+local FULL_REWARD_BOX_SKIN = "res/wy/public/58_58_kuang.png"
+local FULL_REWARD_PANEL_POS = {x = 705 - 70, y = 257 - 50, width = 205, height = 198}
 
 local MAIN_NODE_POS = {
     {x = 169, y = 265},
@@ -40,6 +43,29 @@ local MAIN_NODE_POS = {
     {x = 528, y = 265},
     {x = 476, y = 118 - 38},
     {x = 255, y = 137},
+}
+
+local CURRENT_STAGE_BADGE_POS = {x = 448, y = 266}
+
+local CURRENT_STAGE_REWARD_TEXTS = {
+    [1] = "中阶星辰*5",
+    [2] = "万年仙酒*1",
+    [3] = "六大陆专属装备随机宝箱*1",
+    [4] = "六大陆专属装备随机宝箱*1",
+    [5] = "六大陆专属装备随机宝箱*2",
+    [6] = "本服唯一足迹：星辰\n全属性+1%",
+    [7] = "专属时装：星陨坠\n全属性+3%",
+    [8] = "星空主宰[称号]\n全属性+20%",
+}
+local CURRENT_STAGE_SKILL_TIPS = {
+    [1] = "星尘护体（受到攻击时，有10%概率减免5%伤害，持续3秒）",
+    [2] = "星尘护体 效果强化（减免伤害比例提升至8%），\n解锁新技能“星芒一闪”（单次攻击附加1w点额外星力伤害，冷却20秒）",
+    [3] = "“星芒一闪”伤害提升至2w点，\n解锁“星力续航”被动（战斗中每秒恢复5000点生命值）",
+    [4] = "“星力续航”效果强化（每秒恢复1w点生命值），“星芒一闪”伤害提升至4W点，\n解锁“星盾反弹”技能（受到攻击时，有3%概率反弹10%伤害给攻击者）",
+    [5] = "“星尘护体”减免伤害比例提升至15%，“星盾反弹”反弹比例提升至15%，\n解锁“星力爆发”主动技能（3秒内攻击速度提升30%，冷却45秒）",
+    [6] = "“星力爆发”持续时间延长至5秒，\n解锁“星象领域”团队技能（释放后形成4*4领域，领域内队友全属性+10%，持续10秒，冷却90秒，不可叠加）",
+    [7] = "“星象领域”持续时间延长至15秒，领域内队友额外获得“伤害减免5%”效果，\n“星尘护体”触发概率提升至30%",
+    [8] = "解锁终极技能“帝星降世”（短暂化身星象形态，全属性+30%，所有已解锁星象技能效果翻倍，持续15秒，冷却120秒）",
 }
 
 local DETAIL_COST_POS = {
@@ -574,6 +600,96 @@ renderStageUpgrade = function(npcid, stageIdx)
     end
 end
 
+local function resolveRewardDisplay(reward)
+    if type(reward) ~= "table" then
+        return nil
+    end
+    if tostring(reward.type or "") == "title" then
+        local name = tostring(reward.name or "")
+        local itemIndex = toNumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", name .. "[称号]"), 0)
+        if itemIndex <= 0 then
+            itemIndex = toNumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", name), 0)
+        end
+        return {name = name, num = 1, itemIndex = itemIndex, desc = name ~= "" and (name .. "[称号]") or "称号奖励"}
+    end
+    local give = reward.give or {}
+    local entry = give[1]
+    if type(entry) ~= "table" then
+        return nil
+    end
+    local name = resolveEntryName(entry)
+    local num = entryNeedNum(entry)
+    local itemIndex = toNumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", name), 0)
+    return {name = name, num = num > 0 and num or 1, itemIndex = itemIndex, desc = name}
+end
+
+local function renderCurrentStageReward(parent, stageIdx)
+    local stageCfg = getStageCfg(stageIdx)
+    local info = resolveRewardDisplay(stageCfg.reward or {})
+    if not info then
+        return
+    end
+
+    local pos = FULL_REWARD_PANEL_POS
+    local panel = GUI:Layout_Create(parent, "full_stage_reward_panel", pos.x, pos.y, pos.width, pos.height, false)
+    GUI:Image_Create(panel, "full_stage_reward_title", 0, 0, FULL_REWARD_TITLE_SKIN)
+
+    local box = GUI:Image_Create(panel, "full_stage_reward_box", 94, 166, FULL_REWARD_BOX_SKIN)
+    GUI:setAnchorPoint(box, 0.5, 0.5)
+    if info.itemIndex and info.itemIndex > 0 then
+        local item = GUI:ItemShow_Create(box, "full_stage_reward_item", 29, 29, {
+            index = info.itemIndex,
+            count = info.num,
+            look = true,
+            movable = false,
+            bgVisible = false,
+        })
+        GUI:setAnchorPoint(item, 0.5, 0.5)
+    else
+        createText(box, "full_stage_reward_empty", 29, 29, 18, "#FFD66A", "奖", FONT_TITLE, 0.5, 0.5)
+    end
+end
+
+local function buildCurrentStageSkillTip(stageIdx)
+    local stageCfg = getStageCfg(stageIdx)
+    local stageName = tostring(stageCfg.name or "星图")
+    local skillTip = CURRENT_STAGE_SKILL_TIPS[stageIdx] or "暂无技能配置"
+    return string.format("%s全点亮获得技能\n%s", stageName, skillTip)
+end
+
+local function bindWorldTip(widget, tips)
+    if not widget or not tips or tips == "" then
+        return
+    end
+    GUI:setTouchEnabled(widget, true)
+    if cogin and cogin.isWin32 then
+        GUI:addMouseMoveEvent(widget, {
+            onEnterFunc = function()
+                local pos = SL:GetMetaValue("MOUSE_MOVE_POS")
+                GUI:ShowWorldTips(tips, pos, GUI:p(0, 0))
+            end,
+            onLeaveFunc = function()
+                GUI:HideWorldTips()
+            end
+        })
+    else
+        GUI:addOnClickEvent(widget, function(sender)
+            local pos = sender and sender.getTouchEndPosition and sender:getTouchEndPosition() or GUI:getWorldPosition(widget)
+            GUI:ShowWorldTips(tips, pos, GUI:p(0, 0))
+        end)
+    end
+end
+
+local function renderCurrentStageBadge(parent, stageIdx)
+    local skin = getStageBadgeSkin(stageIdx)
+    if not skin or skin == "" then
+        return
+    end
+    local pos = CURRENT_STAGE_BADGE_POS
+    local badge = GUI:Image_Create(parent, "current_stage_badge", pos.x, pos.y, skin)
+    GUI:setAnchorPoint(badge, 0.5, 0.5)
+    bindWorldTip(badge, buildCurrentStageSkillTip(stageIdx))
+end
 local function renderNodeButtons(node, npcid, stageIdx)
     local selectedNodeIdx = getSelectedNodeIdx(stageIdx)
     local nextNodeIdx = getNextNodeIdx(stageIdx)
@@ -602,7 +718,7 @@ end
 
 local function renderRightAction(node, npcid, stageIdx)
     local selectedNodeIdx = getSelectedNodeIdx(stageIdx)
-    local btn = GUI:Button_Create(node, "main_action_btn", 600, 54, BTN_UNLOCK)
+    local btn = GUI:Button_Create(node, "main_action_btn", 600, 20, BTN_UNLOCK)
     GUI:addOnClickEvent(btn, function()
         closeDetailWindow()
         renderStageUpgrade(npcid, stageIdx)
@@ -626,6 +742,8 @@ renderMain = function(node, npcid)
     npc.selectedStageIdx = stageIdx
     getSelectedNodeIdx(stageIdx)
     -- renderStageInfo(node, stageIdx)
+    renderCurrentStageBadge(node, stageIdx)
+    renderCurrentStageReward(node, stageIdx)
     renderNodeButtons(node, npcid, stageIdx)
     renderRightAction(node, npcid, stageIdx)
 end

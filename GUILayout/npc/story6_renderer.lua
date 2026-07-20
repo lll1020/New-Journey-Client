@@ -1,4 +1,4 @@
-local Renderer = {}
+﻿local Renderer = {}
 
 local BASE = "res/custom/all_story_mission/6/"
 local DEFAULT_BUTTON = "res/public/1900000660.png"
@@ -134,63 +134,6 @@ local function _default_button_pos(index, total)
     end
     return {x = 220 + (index - 1) * 170, y = 84, w = 170, h = 62}
 end
-
-local SPECS = {
-    [721] = {folder = "天机道长", reward = {x = 182, y = 82, scale = 0.85}, buttons = {[1] = {x = 540, y = 150, w = 270, h = 62, text = "我该怎么做？", forceText = true}}},
-    [722] = {folder = "星儿的玉佩", reward = {x = 180, y = 84}, cost = {x = 286, y = 205}, buttons = {[1] = {x = 290, y = 82}, [2] = {x = 505, y = 82, skin = "合成玉佩.png"}}},
-    [723] = {folder = "凌雪", reward = {x = 178, y = 88}, cost = {x = 260, y = 202}, buttons = {[1] = {x = 502, y = 82}}},
-    [724] = {folder = "守城士兵甲", reward = {x = 182, y = 88}, buttons = {[1] = {x = 502, y = 82}}},
-    [725] = {folder = "赤焰", reward = {x = 178, y = 88}, cost = {x = 260, y = 202}, buttons = {[1] = {x = 502, y = 82}}},
-    [726] = {folder = "幽影", reward = {x = 178, y = 88}, cost = {x = 260, y = 202}, buttons = {[1] = {x = 502, y = 82}}},
-    [728] = {
-        folder = "恶魔契约",
-        itemGroups = {{name = "draw_pool", source = "draw_pool", kind = "reward", x = 190, y = 154, scale = 0.82}},
-        buttons = {[1] = {x = 410, y = 250, w = 220, h = 60, text = "奖励预览", forceText = true}, [2] = {x = 410, y = 82, skin = "开始抽奖.png"}},
-        progress = "lottery",
-    },
-    [729] = {folder = "雪域特使", cost = {x = 286, y = 196}, buttons = {[1] = {x = 502, y = 82, skin = "立即激活.png"}}},
-    [730] = {folder = "魔域特使", cost = {x = 286, y = 196}, buttons = {[1] = {x = 502, y = 82, skin = "立即激活.png"}}},
-    [731] = {folder = "边关特使", cost = {x = 286, y = 196}, buttons = {[1] = {x = 502, y = 82, skin = "立即激活.png"}}},
-    [732] = {folder = "古城特使", cost = {x = 286, y = 196}, buttons = {[1] = {x = 502, y = 82, skin = "立即激活.png"}}},
-    [733] = {
-        folder = "盛世重游",
-        close = {x = 750, y = 414},
-        images = {
-            {name = "city_changan", skin = "长安.png", x = 148, y = 235},
-            {name = "city_luoyang", skin = "洛阳.png", x = 314, y = 235},
-            {name = "city_bianjing", skin = "汴京.png", x = 480, y = 235},
-            {name = "city_linan", skin = "临安.png", x = 646, y = 235},
-            {name = "submit_1", skin = "提交.png", x = 148, y = 126},
-            {name = "submit_2", skin = "提交.png", x = 314, y = 126},
-            {name = "submit_3", skin = "提交.png", x = 480, y = 126},
-            {name = "submit_4", skin = "提交.png", x = 646, y = 126},
-        },
-        itemGroups = {{name = "reward", source = "jl", kind = "reward", x = 286, y = 48, scale = 0.82}},
-        buttons = {[1] = {x = 600, y = 48, w = 250, h = 70, text = "领取奖励", forceText = true}},
-    },
-    [734] = {folder = "万国之首", reward = {x = 178, y = 88}, cost = {x = 260, y = 202}, buttons = {[1] = {x = 502, y = 82}}},
-    [735] = {folder = "洛水杜康", reward = {x = 178, y = 88}, cost = {x = 250, y = 202}, buttons = {[1] = {x = 285, y = 82}, [2] = {x = 505, y = 82}}},
-    [736] = {folder = "大宋的菜肴", reward = {x = 178, y = 88}, cost = {x = 260, y = 202}, buttons = {[1] = {x = 502, y = 82}}},
-    [737] = {folder = "天青色的秘密", rewardSource = "burn_rewards", reward = {x = 178, y = 88}, cost = {x = 260, y = 202}, buttons = {[1] = {x = 502, y = 82, skin = "开始烧制.png", visible = true}}},
-    [738] = {folder = "密令护灵旗", reward = {x = 178, y = 88}, cost = {x = 260, y = 202}, buttons = {[1] = {x = 502, y = 82}}},
-    [739] = {
-        folder = "幽影的分身",
-        itemGroups = {
-            {name = "cost", source = "reveal_cost", kind = "cost", x = 275, y = 226, scale = 0.86},
-            {name = "reward", source = "reward", kind = "reward", x = 178, y = 86, scale = 0.86},
-        },
-        buttons = {[1] = {x = 245, y = 236, w = 140, h = 56}, [2] = {x = 425, y = 82, skin = "揭示弱点.png"}, [3] = {x = 650, y = 82, skin = "进入副本.png"}},
-    },
-    [740] = {
-        folder = "上古寒冰剑",
-        itemGroups = {
-            {name = "weapon", source = "craft_reward", kind = "reward", x = 590, y = 268, scale = 0.88},
-            {name = "material", source = "craft_cost", kind = "cost", x = 480, y = 198, scale = 0.82},
-            {name = "title", source = "rwjl", kind = "reward", x = 665, y = 136, scale = 0.78},
-        },
-        buttons = {[1] = {x = 688, y = 136, w = 86, h = 56}, [2] = {x = 410, y = 82, skin = "立即合成.png"}},
-    },
-}
 
 local function _resolve_bg(spec)
     local main = _asset(spec.folder, (spec.folder or "") .. ".png")
@@ -335,10 +278,10 @@ local function _render_buttons(node, npcid, key, data, cfg, spec, useDemo)
     end
 end
 
-function Renderer.create(npcid)
+function Renderer.create(npcid, spec)
     local id = _toint(npcid)
     local key = "npc_" .. tostring(id)
-    local spec = SPECS[id] or {folder = tostring(id)}
+    spec = spec or {folder = tostring(id)}
     local npc = {_config = teshudata[key]}
 
     local function cfg()

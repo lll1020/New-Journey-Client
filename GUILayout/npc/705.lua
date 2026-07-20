@@ -1,4 +1,4 @@
-local npc = {
+﻿local npc = {
     choice = 0,
 }
 
@@ -13,6 +13,7 @@ local BG_ACCEPT = "res/custom/all_story_mission/5/705/story_bg_1.png"
 local BG_CHOICE = "res/custom/all_story_mission/5/705/story_bg_2.png"
 local BTN_ACCEPT = "res/custom/all_story_mission/5/705/btn_accept_task.png"
 local BTN_SUBMIT = "res/custom/public/btn_tijiao.png"
+local BTN_SUBMIT_FALLBACK = "res/public/1900000660.png"
 local QUESTION_SKIN = "res/custom/all_story_mission/5/705/icon_question.png"
 
 local LEFT_REWARD_POS = {
@@ -117,7 +118,7 @@ local function renderAcceptStage(node, state)
         
         local progressText = string.format("当前进度：BOSS %d/%d  小怪 %d/%d",
             progress.boss, needBoss, progress.small, needSmall)
-        local rich = GUI:RichText_Create(node, "progress", 0, -130, progressText, 360, 20, "#6FD3FF", 0, nil, nil, {outlineSize = 1, outlineColor = "#C92A2A"})
+        local rich = GUI:RichText_Create(node, "progress", 60, -130, progressText, 360, 20, "#6FD3FF", 0, nil, nil, {outlineSize = 1, outlineColor = "#C92A2A"})
         GUI:setAnchorPoint(rich, 0.5, 0.5)
         if isStageOneDone() and step < 1 then
             local btn = GUI:Button_Create(node, "btn_submit_step1", 0, -250, "res/custom/public/btn_tijiao.png")
@@ -129,10 +130,10 @@ local function renderAcceptStage(node, state)
             -- GUI:Text_setFontName(tip, "fonts/font4.ttf")
             -- GUI:Text_enableOutline(tip, "#000000", 1)
         else
-            local tip = GUI:Text_Create(node, "doing_tip", 0, -200, 22, isStageOneDone() and "#4AE74A" or "#F4D179", isStageOneDone() and "委托已提交，继续下方流程" or "委托进行中")
-            GUI:setAnchorPoint(tip, 0.5, 0.5)
-            GUI:Text_setFontName(tip, "fonts/502.ttf")
-            GUI:Text_enableOutline(tip, "#000000", 1)
+            -- local tip = GUI:Text_Create(node, "doing_tip", 0, -200, 22, isStageOneDone() and "#4AE74A" or "#F4D179", isStageOneDone() and "委托已提交，继续下方流程" or "委托进行中")
+            -- GUI:setAnchorPoint(tip, 0.5, 0.5)
+            -- GUI:Text_setFontName(tip, "fonts/502.ttf")
+            -- GUI:Text_enableOutline(tip, "#000000", 1)
         end
     end
 end
@@ -141,10 +142,13 @@ local function renderChoiceButton(node, name, x, y, choice, done)
     if done then
         local doneNode = GUI:Image_Create(node, "done_" .. choice, x, y, "res/wy/public/7_1.png")
         GUI:setAnchorPoint(doneNode, 0.5, 0.5)
+        GUI:setLocalZOrder(doneNode, 20)
         return
     end
-    local btn = GUI:Button_Create(node, "btn_choice_" .. choice, x, y, BTN_SUBMIT)
+    local skin = (SL and SL.IsFileExist and SL:IsFileExist(BTN_SUBMIT)) and BTN_SUBMIT or BTN_SUBMIT_FALLBACK
+    local btn = GUI:Button_Create(node, "btn_choice_" .. choice, x + 35, y - 90, skin)
     GUI:setAnchorPoint(btn, 0.5, 0.5)
+    GUI:setLocalZOrder(btn, 20)
     GUI:addOnClickEvent(btn, function()
         npc.choice = choice
         SL:SendLuaNetMsg(100, npc.npcid, 1, choice, "")
@@ -159,21 +163,24 @@ local function renderChoiceStage(node, state)
     local leftCost = npc._config and npc._config.task_cfg and npc._config.task_cfg.submit_a or nil
     if leftCost then
         local nodeA = checkItemNumByTable_img_kuang(leftCost, nil, GUI:Node_Create(node, "cost_a", 0, 0))
-        GUI:setPosition(nodeA, 200 - 357, 120 - 290)
+        GUI:setPosition(nodeA, 500 - 357, 120 - 290)
     end
 
     local rightCost = npc._config and npc._config.task_cfg and npc._config.task_cfg.submit_b or nil
     if rightCost then
         local nodeB = checkItemNumByTable_img_kuang(rightCost, nil, GUI:Node_Create(node, "cost_b", 0, 0))
-        GUI:setPosition(nodeB, 500 - 357, 120 - 290)
+        GUI:setPosition(nodeB, 200 - 357, 120 - 290)
     end
     local choice = getChoice()
-    if getStep() >= 1 then
-        renderChoiceButton(node, "left", -145, -220, 2, state >= 2 and choice == 2)
-        renderChoiceButton(node, "right", 155, -220, 1, state >= 2 and choice == 1)
-    end
     if state >= 2 then
-        GUI:Image_Create(node, "done", 400 - 434, 36 - 305, "res/wy/public/7_1.png")
+        if choice == 1 then
+            renderChoiceButton(node, "right", 155, -118, 1, true)
+        elseif choice == 2 then
+            renderChoiceButton(node, "left", -145, -118, 2, true)
+        end
+    else
+        renderChoiceButton(node, "left", -145, -118, 2, false)
+        renderChoiceButton(node, "right", 155, -118, 1, false)
     end
 
     -- local tip = GUI:Image_Create(node, "question", 676, 166, QUESTION_SKIN)
@@ -196,7 +203,7 @@ local function render(node)
     GUI:removeAllChildren(node)
 
     local state = getStoryState()
-    if state >= 1  then
+    if state >= 2 or getStep() >= 1 then
         renderChoiceStage(node, state)
         return
     end
