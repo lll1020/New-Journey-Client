@@ -42,8 +42,7 @@ end
 local function isContinentUnlocked(continent)
     local c = tonumber(continent or 0) or 0
     if c <= 1 then return true end
-    local adminUnlock = cogin and cogin.sjtb and tonumber(cogin.sjtb.dl_all_unlock or 0) or 0
-    if adminUnlock == 1 or adminUnlock >= c then
+    if cogin and cogin.sjtb and tonumber(cogin.sjtb.dl_all_unlock or 0) >= 1 then
         return true
     end
     if type(dl_sz) == "function" then

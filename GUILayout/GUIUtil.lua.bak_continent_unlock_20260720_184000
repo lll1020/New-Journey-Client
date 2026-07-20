@@ -579,16 +579,14 @@ local function _dl_has_all_destiny()
     return _dl_to_num(state.all, 0) >= need
 end
 
-local function _dl_is_admin_unlocked(dl)
-    local syncValue = cogin and cogin.sjtb and _dl_to_num(cogin.sjtb.dl_all_unlock, 0) or 0
-    if syncValue == 1 or syncValue >= dl then
+local function _dl_is_all_unlocked()
+    if cogin and cogin.sjtb and _dl_to_num(cogin.sjtb.dl_all_unlock, 0) >= 1 then
         return true
     end
     if _dl_get_zslv() >= 70 and _dl_get_level() >= 150 then
         return true
     end
-    local serverValue = _dl_to_num(Player:getServerVar("U_全大陆解锁"), 0)
-    return serverValue == 1 or serverValue >= dl
+    return _dl_to_num(Player:getServerVar("U_全大陆解锁"), 0) >= 1
 end
 
 local function _dl_check(dl)
@@ -596,7 +594,7 @@ local function _dl_check(dl)
     if dl == 1 then
         return true
     end
-    if _dl_is_admin_unlocked(dl) then
+    if _dl_is_all_unlocked() then
         return true
     end
 
