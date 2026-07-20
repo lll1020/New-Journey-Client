@@ -12,7 +12,7 @@ local WINDOW_OPTS = {
 local BG_ACCEPT = "res/custom/all_story_mission/5/705/story_bg_1.png"
 local BG_CHOICE = "res/custom/all_story_mission/5/705/story_bg_2.png"
 local BTN_ACCEPT = "res/custom/all_story_mission/5/705/btn_accept_task.png"
-local BTN_MAKE = "res/custom/all_story_mission/5/705/btn_make_flower_cake.png"
+local BTN_SUBMIT = "res/custom/public/btn_tijiao.png"
 local QUESTION_SKIN = "res/custom/all_story_mission/5/705/icon_question.png"
 
 local LEFT_REWARD_POS = {
@@ -143,7 +143,8 @@ local function renderChoiceButton(node, name, x, y, choice, done)
         GUI:setAnchorPoint(doneNode, 0.5, 0.5)
         return
     end
-    local btn = GUI:Button_Create(node, "btn_choice_" .. choice, x, y, BTN_MAKE)
+    local btn = GUI:Button_Create(node, "btn_choice_" .. choice, x, y, BTN_SUBMIT)
+    GUI:setAnchorPoint(btn, 0.5, 0.5)
     GUI:addOnClickEvent(btn, function()
         npc.choice = choice
         SL:SendLuaNetMsg(100, npc.npcid, 1, choice, "")
@@ -167,9 +168,9 @@ local function renderChoiceStage(node, state)
         GUI:setPosition(nodeB, 500 - 357, 120 - 290)
     end
     local choice = getChoice()
-    if isStageOneDone() and getStep() >= 1 then
-        renderChoiceButton(node, "left", 235  - 450, 36 - 280, 2, state >= 2 and choice == 2)
-        renderChoiceButton(node, "right", 538  - 450, 36 - 280, 1, state >= 2 and choice == 1)
+    if getStep() >= 1 then
+        renderChoiceButton(node, "left", -145, -220, 2, state >= 2 and choice == 2)
+        renderChoiceButton(node, "right", 155, -220, 1, state >= 2 and choice == 1)
     end
     if state >= 2 then
         GUI:Image_Create(node, "done", 400 - 434, 36 - 305, "res/wy/public/7_1.png")

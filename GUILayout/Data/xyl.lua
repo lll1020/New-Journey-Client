@@ -1787,7 +1787,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = false,
                     yd = { 1, "赤焰焚殿", 700, 28, 104 },
-                    desc = "赤焰试炼，淬火成锋。\n<font color='#F4D179'>目标：</font>赤焰试炼\n<font color='#F4D179'>进度：</font>%s",
+                    desc = "赤焰试炼，淬火成锋。\n<font color='#F4D179'>目标：</font>当前地图击杀300只怪物\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
                     "葬天试炼",

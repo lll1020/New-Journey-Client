@@ -14,8 +14,8 @@ local MAIN_BTN_SKIN = "res/public/1900000660.png"
 local MAIN_BTN_SKIN_TAKE = nil
 local MAIN_BTN_SKIN_DOING = nil
 local EXTRA_BTN_SKIN = {}
-local ACTIONS = {1, 2, 3, 4}
-local ACTION_LABEL = { [1] = "提交", [2] = "一层", [3] = "二层", [4] = "三层" }
+local ACTIONS = {1}
+local ACTION_LABEL = { [1] = "提交" }
 
 -- 合并任务奖励与称号奖励，确保称号在奖励区可见。
 local function buildRewardWithTitle(cfg)
@@ -166,49 +166,20 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data.sg_data = npc.data.sg_data or {}
 
         npc.data.T_dljq[key] = (npc.data.T_dljq and npc.data.T_dljq[key]) and npc.data.T_dljq[key] or 0
-        npc.data.T_dljq[key .. "_a"] = (npc.data.T_dljq and npc.data.T_dljq[key .. "_a"]) and npc.data.T_dljq[key .. "_a"] or 0
 
         local task_cfg = npc._config and npc._config.task_cfg or {}
-        local stage_cfg = task_cfg.trial_stages
-        local stage_num = (type(stage_cfg) == "table" and #stage_cfg) or 0
-        local max_num = tonumber(task_cfg.max_submit_times or task_cfg.max_reward_round or npc._config.max_num or stage_num or 1) or 1
-        if stage_num > 0 then
-            max_num = stage_num
-        elseif max_num < 3 then
-            max_num = 3
-        end
         local state = tonumber(npc.data.T_dljq[key] or 0) or 0
-        local progress = tonumber(npc.data.T_dljq[key .. "_a"] or 0) or 0
         local reward_cfg = buildRewardWithTitle(npc._config)
         if reward_cfg and #reward_cfg > 0 then
             local jl = ItemNumByTable_img_new(reward_cfg, nil, GUI:Node_Create(node, "jl", 0, 0))
             GUI:setPosition(jl, reward_pos[1], reward_pos[2])
         end
 
-        local stage_need = {}
-        if type(stage_cfg) == "table" and #stage_cfg > 0 then
-            for i = 1, #stage_cfg do
-                stage_need[i] = tonumber(stage_cfg[i] and stage_cfg[i].need or 0) or 0
-            end
-        end
-        if #stage_need < 3 then
-            stage_need = {200, 50, 5}
-        end
-
-        local stage_key = {"a", "b", "c"}
-        local baseY = 214
-        for i = 1, 3 do
-            local cur = tonumber(npc.data.sg_data[key .. "_" .. stage_key[i]] or 0) or 0
-            local need = tonumber(stage_need[i] or 0) or 0
-            local t = GUI:Text_Create(node, "stage_" .. tostring(i), 470, baseY - (i - 1) * 24, 18, "#6FD3FF", string.format("阶段%d %d/%d", i, cur, need))
-            GUI:Text_setFontName(t, "fonts/502.ttf")
-            GUI:Text_enableOutline(t, "#C92A2A", 2)
-        end
-        if max_num > 1 then
-            local t2 = GUI:Text_Create(node, "step", 470, 138, 18, "#6FD3FF", string.format("进度 %d/%d", progress, max_num))
-            GUI:Text_setFontName(t2, "fonts/502.ttf")
-            GUI:Text_enableOutline(t2, "#00FFFF", 2)
-        end
+        local kill_cur = tonumber(npc.data.sg_data[key] or 0) or 0
+        local kill_need = tonumber(npc._config.num or task_cfg.kill_count or 300) or 300
+        local progress = GUI:Text_Create(node, "kill_progress", 470, 190, 20, "#6FD3FF", string.format("击杀 %d/%d", kill_cur, kill_need))
+        GUI:Text_setFontName(progress, "fonts/502.ttf")
+        GUI:Text_enableOutline(progress, "#C92A2A", 2)
 
         createActionButtons(node, state)
     end
@@ -225,18 +196,7 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data = npc.data or {}
         npc.data.T_dljq = npc.data.T_dljq or {}
         npc.data.sg_data = npc.data.sg_data or {}
-        npc.data.T_dljq[key .. "_a"] = tonumber(p3 or 0) or 0
-
-        local task_cfg = npc._config and npc._config.task_cfg or {}
-        local stage_cfg = task_cfg.trial_stages
-        local stage_num = (type(stage_cfg) == "table" and #stage_cfg) or 0
-        local max_num = tonumber(task_cfg.max_submit_times or task_cfg.max_reward_round or npc._config.max_num or stage_num or 1) or 1
-        if stage_num > 0 then
-            max_num = stage_num
-        elseif max_num < 3 then
-            max_num = 3
-        end
-        if npc.data.T_dljq[key .. "_a"] >= max_num then
+        if (tonumber(p3 or 0) or 0) >= 2 then
             npc.data.T_dljq[key] = 2
         elseif (tonumber(npc.data.T_dljq[key] or 0) or 0) < 1 then
             npc.data.T_dljq[key] = 1

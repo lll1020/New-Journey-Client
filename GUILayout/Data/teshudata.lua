@@ -1866,7 +1866,7 @@
     ["npc_697"] = { id = 697, name = "神庙秘宝", task_cfg = { chapter = 5, task_type = "preview_board", }, },
     ["npc_698"] = { id = 698, name = "祭祀河神", ch = "祭祀河神", task_cfg = { chapter = 5, task_type = "submit", map = "诡冥墨河", submit = { {"灵源河虾",10}, {"鸡蛋",5}, {"河神香烛",3}, }, }, },
     ["npc_699"] = { id = 699, name = "墨河秘宝", task_cfg = { chapter = 5, task_type = "preview_board", }, },
-    ["npc_700"] = { id = 700, name = "赤焰试炼", shaguai_id = 700, ch = "赤焰天使", task_cfg = { chapter = 5, task_type = "trial_chain", map = "赤焰焚殿", trial_stages = { {name = "一层试炼", map = "赤焰焚殿", mob_type = 0, need = 200, tp = {"赤焰焚殿",31,123}}, {name = "二层试炼", map = "赤焰焚殿二层", mob_type = 1, need = 50, tp = {"赤焰焚殿二层",24,21}}, {name = "三层试炼", map = "赤焰焚殿三层", mob_type = 2, need = 5, tp = {"赤焰焚殿三层",242,255}}, }, }, },
+    ["npc_700"] = { id = 700, name = "赤焰试炼", shaguai_id = 700, ch = "赤焰天使", num = 300, task_cfg = { chapter = 5, task_type = "kill_count", map = "赤焰焚殿", kill_count = 300, }, },
     ["npc_701"] = { id = 701, name = "葬天试炼", shaguai_id = 701, ch = "葬众生", task_cfg = { chapter = 5, task_type = "trial_chain", map = "葬天旧土", kill_count = 300, submit = {{"葬亡晶石",10}}, }, },
     ["npc_702"] = { id = 702, name = "倩女幽魂", ch = {"镇杀幽魂","小倩的感谢"}, task_cfg = { chapter = 5, task_type = "dungeon_submit", map = "兰若寺", fb_map = "mwsl", fb_time = 300, submit = {{"镇魂符",10}}, main_boss = "树妖姥姥", hidden_boss = "黑山老妖", enter_pos = {29,27}, main_pos = {32,36}, hide_pos = {35,36}, }, },
     ["npc_703"] = { id = 703, name = "画中仙境", ch = "画中仙境", task_cfg = { chapter = 5, task_type = "story", map = "画壁", submit = { {"诡异碎片一",1}, {"诡异碎片二",1}, {"诡异碎片三",1}, }, }, },

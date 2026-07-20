@@ -3261,6 +3261,10 @@ npc[11] = function(p2, p3, Data)
         end
         local function isYwlContinentUnlocked(continent)
             continent = tonumber(continent) or 0
+            local adminUnlock = cogin and cogin.sjtb and tonumber(cogin.sjtb.dl_all_unlock or 0) or 0
+            if adminUnlock == 1 or adminUnlock >= continent then
+                return true
+            end
             if continent <= 3 then
                 return type(dl_sz) ~= "function" or dl_sz(continent) == true
             elseif continent == 4 then
@@ -4009,7 +4013,7 @@ npc[12] = function(p2, p3, Data)
             npc.hdan = GUI:Layout_Create(npc.RightTop, "hdan", -367, -300, 320, 116, false)
             GUI:Image_Create(npc.hdan, "shortcut_img", 0, 0, "res/custom/activity/" .. activityIdx .. ".png")
             addActivityShortcutControls(npc.hdan, activityIdx)
-            npc.djs = GUI:Text_Create(npc.hdan, "djs", 9999, 9999, 16, "#F7F7DE", activitySeconds)
+            npc.djs = GUI:Text_Create(npc.hdan, "djs", 9999, 9999, 16, "#F7F7DE", "")
             GUI:setAnchorPoint(npc.djs, 0.5, 0.5)
             GUI:setVisible(npc.djs, true)
             GUI:Text_COUNTDOWN(npc.djs, activitySeconds, function()
@@ -4021,7 +4025,7 @@ npc[12] = function(p2, p3, Data)
             npc.hdan = GUI:Layout_Create(npc.RightTop, "hdan", -390 - 125 + 226 - 55 - 160, -240 - 61 - 31 + 50, 320, 116, false)
             GUI:Image_Create(npc.hdan, "shortcut_img", 0, 0, "res/custom/activity/" .. activityIdx .. ".png")
             addActivityShortcutControls(npc.hdan, activityIdx)
-            npc.djs = GUI:Text_Create(npc.hdan, "djs", 9999, 9999, 16, "#F7F7DE", activitySeconds)
+            npc.djs = GUI:Text_Create(npc.hdan, "djs", 9999, 9999, 16, "#F7F7DE", "")
             GUI:setAnchorPoint(npc.djs, 0.5, 0.5)
             GUI:setVisible(npc.djs, true)
             GUI:Text_COUNTDOWN(npc.djs, activitySeconds, function()
@@ -8281,7 +8285,8 @@ npc[514] = function(p2, p3, Data)
         if continent <= 1 then
             return true
         end
-        if cogin and cogin.sjtb and tonumber(cogin.sjtb.dl_all_unlock or 0) >= 1 then
+        local adminUnlock = cogin and cogin.sjtb and tonumber(cogin.sjtb.dl_all_unlock or 0) or 0
+        if adminUnlock == 1 or adminUnlock >= continent then
             return true
         end
         if (tonumber(SL:GetMetaValue("RELEVEL") or 0) or 0) >= 70 and (tonumber(SL:GetMetaValue("LEVEL") or 0) or 0) >= 150 then
