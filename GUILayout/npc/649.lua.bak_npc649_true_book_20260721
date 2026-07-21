@@ -1,4 +1,4 @@
-local npc = {}
+﻿local npc = {}
 
 npc._config = teshudata["npc_649"]
 
@@ -39,13 +39,6 @@ function npc.main(npcid, p2, p3, msgData)
 
         local jl = ItemNumByTable_img_new(npc._config.jl, nil,GUI:Node_Create(node, "jl", 0, 0))
         GUI:setPosition(jl, 190 - 10, 90)
-
-        local tip1 = GUI:Text_Create(node, "trueBookTip1", 310, 122, 18, "#FFD27A", "每本收费：1w元宝")
-        GUI:Text_setFontName(tip1, "fonts/502.ttf")
-        GUI:Text_enableOutline(tip1, "#5A2500", 1)
-        local tip2 = GUI:Text_Create(node, "trueBookTip2", 310, 96, 18, "#7CFF9B", "真经奖励：修为+1000  打怪切割+999")
-        GUI:Text_setFontName(tip2, "fonts/502.ttf")
-        GUI:Text_enableOutline(tip2, "#123F1D", 1)
         
 
         npc.data.T_dljq[key] = (npc.data.T_dljq and npc.data.T_dljq[key]) and npc.data.T_dljq[key] or 0
@@ -82,10 +75,10 @@ function npc.main(npcid, p2, p3, msgData)
         ensureWindow(npcid)
         UI_updata(npc.node)
     elseif p2 == 1 then
-        local data = SL:JsonDecode(msgData,false) or {}
+        local data = SL:JsonDecode(msgData,false)
         npc.data.T_dljq[key] = p3
-        npc.data.T_dljq[try_key] = data.try_key or npc.data.T_dljq[try_key] or 0
-        npc.data.T_dljq[ok_key] = data.ok_key or npc.data.T_dljq[ok_key] or 0
+        npc.data.T_dljq[try_key] = data.try_key
+        npc.data.T_dljq[ok_key] = data.ok_key
         UI_updata(npc.node)
     end
 end

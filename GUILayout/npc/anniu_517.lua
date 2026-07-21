@@ -310,7 +310,7 @@ end
 local function titleReward(parent, key, titleName, x, y, active, mode)
     local itemName = tostring(titleName or "") .. "[称号]"
     local idx = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", itemName) or 0) or 0
-    local box = GUI:Image_Create(parent, "title_reward_box_" .. tostring(key), x, y, "res/custom/ditu/58_58_kuang.png")
+    local box = GUI:Image_Create(parent, "title_reward_box_" .. tostring(key), x + 300, y, "res/custom/ditu/58_58_kuang.png")
     GUI:setAnchorPoint(box, 0.5, 0.5)
     if idx > 0 then
         local item = GUI:ItemShow_Create(box, "item", 29, 29, {
@@ -322,11 +322,11 @@ local function titleReward(parent, key, titleName, x, y, active, mode)
         text(box, "fallback_title", 29, 31, 13, "#FFD66A", tostring(titleName or "称号"), 0.5, 0.5)
     end
     if mode == "bottom" then
-        text(parent, "title_reward_name_" .. tostring(key), x + 40, y + 14, 24, active and "#9DFF7C" or "#FFD66A", tostring(titleName or "称号"), 0, 0.5)
-        text(parent, "title_reward_state_" .. tostring(key), x + 40, y - 14, 24, active and "#9DFF7C" or "#FFB85A", active and "称号已获得" or "激活三件禁器后获得", 0, 0.5)
+        -- text(parent, "title_reward_name_" .. tostring(key), x + 40, y + 14, 24, active and "#9DFF7C" or "#FFD66A", tostring(titleName or "称号"), 0, 0.5)
+        text(parent, "title_reward_state_" .. tostring(key), x + 40, y, 24, active and "#9DFF7C" or "#FFB85A", active and "称号已获得" or "激活三件禁器后获得：", 0, 0.5)
     else
-        text(parent, "title_reward_name_" .. tostring(key), x + 40, y + 14, 24, active and "#9DFF7C" or "#FFD66A", tostring(titleName or "称号"), 0, 0.5)
-        text(parent, "title_reward_state_" .. tostring(key), x + 40, y - 14, 24, active and "#9DFF7C" or "#FFB85A", active and "称号已获得" or "激活三件禁器后获得", 0, 0.5)
+        -- text(parent, "title_reward_name_" .. tostring(key), x + 40, y + 14, 24, active and "#9DFF7C" or "#FFD66A", tostring(titleName or "称号"), 0, 0.5)
+        text(parent, "title_reward_state_" .. tostring(key), x + 40, y, 24, active and "#9DFF7C" or "#FFB85A", active and "称号已获得" or "激活三件禁器后获得：", 0, 0.5)
     end
     return box
 end

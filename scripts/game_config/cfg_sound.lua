@@ -2964,5 +2964,11 @@ local config = {
 		file="mp3/psy.mp3",
 		explain="破山印",
 	},
+	[11173] = { 
+		id=11173,
+		file="mp3/Zhucheng.mp3",
+		explain="主城音乐",
+	}
+
 }
 return config

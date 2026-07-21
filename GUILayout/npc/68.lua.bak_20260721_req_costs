@@ -88,7 +88,7 @@ function npc.main(npcid, p2, p3, msgData)
     local function createText(parent, name, x, y, size, color, text, anchorX, anchorY)
         local label = GUI:Text_Create(parent, name, x, y, size, color, text)
         GUI:setAnchorPoint(label, anchorX or 0, anchorY or 0.5)
-        GUI:Text_setFontName(label, "fonts/502.ttf")
+        GUI:Text_setFontName(label, "fonts/500.ttf")
         GUI:Text_enableOutline(label, "#000000", 2)
         return label
     end
@@ -119,14 +119,14 @@ function npc.main(npcid, p2, p3, msgData)
         createText(labelNode, "state_value", 490, 300, 22, stateCfg.color, stateCfg.text, 0, 0.5)
         createText(labelNode, "time_title", 382, 260, 20, "#EDE4C6", "试炼时限：", 0, 0.5)
         createText(labelNode, "time_value", 490, 260, 20, "#B2F022", tostring(config.time or 300) .. "秒", 0, 0.5)
-        createRich(labelNode, "content_rich", 382 - 32 + 30, 230 + 15, 250, 16,
+        createRich(labelNode, "content_rich", 382 - 32, 230 + 15, 250, 16,
             "1. 进入专属试炼副本，\n     限时击败守护兽\n"
-            .. "2. 通关后返回此处，\n     即可激活对应灵根\n")
+            .. "2. 通关后返回此处，\n     即可激活对应灵根\n"
+            .. "3. 每种灵根试炼仅需完成一次")
 
-        createText(labelNode, "enter_req", 175, 118 + 23 - 5, 25, "#F03022", tostring(config.yq or "无"), 0, 0.5)
-        createText(labelNode, "reward_text", 175, 80 + 22 - 5, 25, "#BEFF26", tostring(config.jl or "激活对应灵根"), 0, 0.5)
+        createText(labelNode, "enter_req", 175, 118 + 23, 25, "#F03022", tostring(config.yq or "无"), 0, 0.5)
+        createText(labelNode, "reward_text", 175, 80 + 22, 25, "#BEFF26", tostring(config.jl or "激活对应灵根"), 0, 0.5)
 
-        -- createText(labelNode, "need_item_title", 600 - 60, 94, 18, "#FFD36A", "建议拥有", 0.5, 0.5)
         local needItemBg = GUI:Image_Create(labelNode, "need_item_bg", 600 - 60, 36, "res/wy/public/58-60.png")
         GUI:setAnchorPoint(needItemBg, 0.5, 0.5)
 
@@ -135,13 +135,6 @@ function npc.main(npcid, p2, p3, msgData)
             UiTools.showItemData(needItemBg, needItemData)
         else
             createText(labelNode, "need_item_none", 600 - 60, 36, 20, "#F6E7C2", "无", 0.5, 0.5)
-        end
-
-        local trialCost = npc._config.cost or {}
-        if type(trialCost) == "table" and #trialCost > 0 then
-            createText(labelNode, "trial_cost_title", 382, 124, 20, "#F6E7C2", "挑战消耗：", 0, 0.5)
-            local costNode = checkItemNumByTable_img_kuang(trialCost, nil, GUI:Node_Create(labelNode, "trial_cost", 0, 0))
-            GUI:setPosition(costNode, 480 - 30, 88)
         end
 
         if state == 3 then

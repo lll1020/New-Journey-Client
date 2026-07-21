@@ -42,9 +42,8 @@ function npc.main(npcid, p2, p3, msgData)
         UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.syw_ch.."[称号]")))
 
         -- 
-        local sywCost = {{npc._config.config.ls[npc.titles_sign].syw, 1}, {"元宝", 1880000}, {"辉耀水晶", 88}}
-        local cost = checkItemNumByTable_img_kuang_compact(sywCost, nil, Label_node, 62)
-        GUI:setPosition(cost, 430 + 160, 110)
+        local cost = checkItemNumByTable_img_kuang({{npc._config.config.ls[npc.titles_sign].syw,1}}, nil,Label_node)
+        GUI:setPosition(cost, 470, 110)
         npc.data.T_data.syw = npc.data.T_data.syw or {}
 
         if npc.data.T_data.syw[""..idx] and npc.data.T_data.syw[""..idx] == 1 then
