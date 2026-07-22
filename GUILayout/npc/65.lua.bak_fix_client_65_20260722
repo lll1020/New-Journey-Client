@@ -59,53 +59,53 @@ local LIST_POS = {
 
 local CLUE_POOL = {
     color = {
-        {eras = {5, 6}, text = "è‰²æ³½æµ®æ–°ï¼Œæ— æ²‰ç¨³æ„Ÿã€‚"},
-        {eras = {3, 4, 5}, text = "è‰²æ³½æ²‰ç¨³ï¼Œç•¥æœ‰å°˜æ„ã€‚"},
-        {eras = {1, 2, 3}, text = "æ—§è‰²å†…æ•›ï¼Œè•´æ°”æ·±åšã€‚"},
-        {eras = {1, 2}, text = "å¤æ„è‹æ¶¦ï¼Œå²æœˆå‡åã€‚"},
+        {eras = {5, 6}, text = "É«Ôó¸¡ĞÂ£¬ÎŞ³ÁÎÈ¸Ğ¡£"},
+        {eras = {3, 4, 5}, text = "É«Ôó³ÁÎÈ£¬ÂÔÓĞ³¾Òâ¡£"},
+        {eras = {1, 2, 3}, text = "¾ÉÉ«ÄÚÁ²£¬ÔÌÆøÉîºñ¡£"},
+        {eras = {1, 2}, text = "¹ÅÒâ²ÔÈó£¬ËêÔÂÄı»ª¡£"},
     },
     pattern = {
-        {eras = {5, 6}, text = "åˆ¶ä½œæ·³å·§ï¼Œé£æ ¼è¿‘ä¸–ã€‚"},
-        {eras = {4, 5}, text = "ç« æ³•ç«¯æ•´ï¼Œé£å°šä¸­æ­£ã€‚"},
-        {eras = {3}, text = "çº¿æ¡æœ¨æ‹™ï¼Œæ°”éŸµè±ªæ”¾ã€‚"},
-        {eras = {1, 2}, text = "æ ¼è°ƒæ¸…é›…ï¼Œé£éª¨å³¥åµ˜ã€‚"},
-        {eras = {1}, text = "è§„åˆ¶é›„æµ‘ï¼Œå¤æ„ç›ç„¶ã€‚"},
+        {eras = {5, 6}, text = "ÖÆ×÷´¾ÇÉ£¬·ç¸ñ½üÊÀ¡£"},
+        {eras = {4, 5}, text = "ÕÂ·¨¶ËÕû£¬·çÉĞÖĞÕı¡£"},
+        {eras = {3}, text = "ÏßÌõÄ¾×¾£¬ÆøÔÏºÀ·Å¡£"},
+        {eras = {1, 2}, text = "¸ñµ÷ÇåÑÅ£¬·ç¹Çá¿áÉ¡£"},
+        {eras = {1}, text = "¹æÖÆĞÛ»ë£¬¹ÅÒâ°»È»¡£"},
     },
     trace = {
-        {eras = {5, 6}, text = "ç£¨æŸè½»å¾®ï¼Œç—•è¿¹å°šæµ…ã€‚"},
-        {eras = {4, 5}, text = "ç£¨ç—•è‡ªç„¶ï¼Œä½¿ç”¨å¯è§ã€‚"},
-        {eras = {2, 3}, text = "åŒ…æµ†æµ¸é€ï¼Œæ–‘é©³å¤æ‹™ã€‚"},
-        {eras = {1, 2}, text = "æ²§æ¡‘å…¥éª¨ï¼Œç—•è¿¹æ·±é‡ã€‚"},
+        {eras = {5, 6}, text = "Ä¥ËğÇáÎ¢£¬ºÛ¼£ÉĞÇ³¡£"},
+        {eras = {4, 5}, text = "Ä¥ºÛ×ÔÈ»£¬Ê¹ÓÃ¿É¼û¡£"},
+        {eras = {2, 3}, text = "°ü½¬½şÍ¸£¬°ß²µ¹Å×¾¡£"},
+        {eras = {1, 2}, text = "²×É£Èë¹Ç£¬ºÛ¼£ÉîÖØ¡£"},
     },
 }
 
 local RULE_TIP_TEXTS = {
     stage1 = table.concat({
-        "<  å¤ç©é‰´å®šè§„åˆ™  /FCOLOR=250>\\",
-        "<çœŸä¼ªæ¦‚ç‡ï¼š/FCOLOR=251><çœŸå“90%/FCOLOR=254><  èµå“10%/FCOLOR=249>\\",
-        -- "<å¹´ä»£æƒé‡ï¼š/FCOLOR=251><å”1/FCOLOR=250>< å®‹49/FCOLOR=254>< å…ƒ100/FCOLOR=253>< æ˜200/FCOLOR=242>< æ¸…300/FCOLOR=243>< è¿‘ä»£350/FCOLOR=249>\\",
-        -- "<æç¤ºï¼šæœ¬é¡µåªå±•ç¤ºåˆæ¬¡é‰´å®šéœ€è¦çš„ä¿¡æ¯ã€‚/FCOLOR=255>"
+        "<  ¹ÅÍæ¼ø¶¨¹æÔò  /FCOLOR=250>\\",
+        "<ÕæÎ±¸ÅÂÊ£º/FCOLOR=251><ÕæÆ·90%/FCOLOR=254><  ØÍÆ·10%/FCOLOR=249>\\",
+        "<Äê´úÈ¨ÖØ£º/FCOLOR=251><ÌÆ1/FCOLOR=250>< ËÎ49/FCOLOR=254>< Ôª100/FCOLOR=253>< Ã÷200/FCOLOR=242>< Çå300/FCOLOR=243>< ½ü´ú350/FCOLOR=249>\\",
+        "<ÌáÊ¾£º±¾Ò³Ö»Õ¹Ê¾³õ´Î¼ø¶¨ĞèÒªµÄĞÅÏ¢¡£/FCOLOR=255>"
     }, ""),
     conservative = table.concat({
-        "<  ä¿å®ˆé‰´å®šè¯´æ˜  /FCOLOR=250>\\",
-        "<æ•ˆæœï¼š/FCOLOR=251><ç›´æ¥æ”¶ä¸‹å½“å‰å¹´ä»£å¤ç©/FCOLOR=254>\\",
-        "<ç‰¹ç‚¹ï¼š/FCOLOR=251><ç¨³å®šã€ä¸å†å‡é™å¹´ä»£ã€‚/FCOLOR=255>\\",
-        -- "<æç¤ºï¼šè¿™é‡Œåªæ˜¾ç¤ºä¿å®ˆé‰´å®šç›¸å…³ä¿¡æ¯ã€‚/FCOLOR=243>"
+        "<  ±£ÊØ¼ø¶¨ËµÃ÷  /FCOLOR=250>\\",
+        "<Ğ§¹û£º/FCOLOR=251><Ö±½ÓÊÕÏÂµ±Ç°Äê´ú¹ÅÍæ/FCOLOR=254>\\",
+        "<ÌØµã£º/FCOLOR=251><ÎÈ¶¨¡¢²»ÔÙÉı½µÄê´ú¡£/FCOLOR=255>\\",
+        "<ÌáÊ¾£ºÕâÀïÖ»ÏÔÊ¾±£ÊØ¼ø¶¨Ïà¹ØĞÅÏ¢¡£/FCOLOR=243>"
     }, ""),
     segment = table.concat({
-        "<  æ–­ä»£é‰´å®šè¯´æ˜  /FCOLOR=250>\\",
-        "<æˆåŠŸï¼š/FCOLOR=251><å¹´ä»£ +1çº§/FCOLOR=254>\\",
-        "<å¤±è´¥ï¼š/FCOLOR=251><å¹´ä»£ -1çº§/FCOLOR=249>\\",
-        -- "<è¾¹ç•Œä¿æŠ¤ï¼š/FCOLOR=251><åˆ°å”ä»£æˆ–è¿‘ä»£æ—¶åªåœä½ï¼Œä¸ä¼šè¶Šç•Œã€‚/FCOLOR=253>\\",
-        -- "<æ¦‚ç‡ï¼šå®‹5% å…ƒ10% æ˜20% æ¸…40% è¿‘ä»£80%/FCOLOR=243>"
+        "<  ¶Ï´ú¼ø¶¨ËµÃ÷  /FCOLOR=250>\\",
+        "<³É¹¦£º/FCOLOR=251><Äê´ú +1¼¶/FCOLOR=254>\\",
+        "<Ê§°Ü£º/FCOLOR=251><Äê´ú -1¼¶/FCOLOR=249>\\",
+        "<±ß½ç±£»¤£º/FCOLOR=251><µ½ÌÆ´ú»ò½ü´úÊ±Ö»Í£×¡£¬²»»áÔ½½ç¡£/FCOLOR=253>\\",
+        "<¸ÅÂÊ£ºËÎ5% Ôª10% Ã÷20% Çå40% ½ü´ú80%/FCOLOR=243>"
     }, ""),
     final = table.concat({
-        "<  ç»ˆæé‰´å®šè¯´æ˜  /FCOLOR=250>\\",
-        -- "<å¼€å¯ï¼š/FCOLOR=251><æ–­ä»£æˆåŠŸåæ‰å¯ä½¿ç”¨ã€‚/FCOLOR=255>\\",
-        "<æˆåŠŸï¼š/FCOLOR=251><å¹´ä»£ +1çº§/FCOLOR=254>\\",
-        "<å¤±è´¥ï¼š/FCOLOR=251><å¹´ä»£ -1çº§/FCOLOR=249>\\",
-        -- "<è¾¹ç•Œä¿æŠ¤ï¼š/FCOLOR=251><åˆ°å”ä»£æˆ–è¿‘ä»£æ—¶åªåœä½ï¼Œä¸ä¼šè¶Šç•Œã€‚/FCOLOR=253>\\",
-        -- "<æ¦‚ç‡ï¼šå®‹5% å…ƒ10% æ˜30% æ¸…50%/FCOLOR=243>"
+        "<  ÖÕ¼«¼ø¶¨ËµÃ÷  /FCOLOR=250>\\",
+        "<¿ªÆô£º/FCOLOR=251><¶Ï´ú³É¹¦ºó²Å¿ÉÊ¹ÓÃ¡£/FCOLOR=255>\\",
+        "<³É¹¦£º/FCOLOR=251><Äê´ú +1¼¶/FCOLOR=254>\\",
+        "<Ê§°Ü£º/FCOLOR=251><Äê´ú -1¼¶/FCOLOR=249>\\",
+        "<±ß½ç±£»¤£º/FCOLOR=251><µ½ÌÆ´ú»ò½ü´úÊ±Ö»Í£×¡£¬²»»áÔ½½ç¡£/FCOLOR=253>\\",
+        "<¸ÅÂÊ£ºËÎ5% Ôª10% Ã÷30% Çå50%/FCOLOR=243>"
     }, ""),
 }
 
@@ -180,7 +180,7 @@ local function getAntiqueItemName(idx, era)
     if not cfg or not cfg.name then
         return ""
     end
-    return string.format("ã€%sã€‘%s", getEraName(era), tostring(cfg.name))
+    return string.format("¡¾%s¡¿%s", getEraName(era), tostring(cfg.name))
 end
 
 local function getUnknownItemName(idx)
@@ -192,7 +192,7 @@ local function getUnknownItemName(idx)
     if unidName and unidName ~= "" then
         return unidName
     end
-    return string.format("ã€æœªé‰´å®šã€‘%s", tostring(cfg.name))
+    return string.format("¡¾Î´¼ø¶¨¡¿%s", tostring(cfg.name))
 end
 
 local function getBagItemCountByName(name)
@@ -241,13 +241,13 @@ local function getBaseAttrPreview()
     local cfg = getCfg()
     local base = cfg.base_attr or {}
     return {
-        {1, toNumber(base.hp, 2000), "ç”Ÿå‘½å€¼"},
-        {2, toNumber(base.mp, 2000), "é­”æ³•å€¼"},
-        {3, toNumber(base.atk_max, 100), "äººç‰©æ”»å‡»"},
+        {1, toNumber(base.hp, 2000), "ÉúÃüÖµ"},
+        {2, toNumber(base.mp, 2000), "Ä§·¨Öµ"},
+        {3, toNumber(base.atk_max, 100), "ÈËÎï¹¥»÷"},
         {4, toNumber(base.atk_max, 100)},
-        {9, toNumber(base.def_min, 20), "äººç‰©é˜²å¾¡"},
+        {9, toNumber(base.def_min, 20), "ÈËÎï·ÀÓù"},
         {10, toNumber(base.def_max, 20)},
-        {244, toNumber(base.cut, 10000), "æ‰“æ€ªåˆ‡å‰²"},
+        {244, toNumber(base.cut, 10000), "´ò¹ÖÇĞ¸î"},
     }
 end
 
@@ -264,22 +264,14 @@ local function buildPreviewRichText(idx)
     local adaptStr = Player:showAttrMergedRange(getAdaptAttrPreview(idx))
     local lines = {}
     if baseStr and baseStr ~= "" then
-        table.insert(lines, "<font color='#F4D179'>è‡ªèº«åŸºç¡€å±æ€§</font>")
+        table.insert(lines, "<font color='#F4D179'>×ÔÉí»ù´¡ÊôĞÔ</font>")
         table.insert(lines, baseStr)
     end
     if adaptStr and adaptStr ~= "" then
-        table.insert(lines, "<font color='#4CFFE8'>é€‚é…å±æ€§</font>")
+        table.insert(lines, "<font color='#4CFFE8'>ÊÊÅäÊôĞÔ</font>")
         table.insert(lines, adaptStr)
     end
     return table.concat(lines, "\n")
-end
-
-local function buildStageCost(phase)
-    local cfg = getCfg()
-    if phase == "identify" then
-        return getIdentifyCost(npc.selectedIdx)
-    end
-    return cfg.cost and cfg.cost[phase] or {}
 end
 
 local function openRuleTip(widget, tipText)
@@ -330,7 +322,7 @@ local function pickClueText(pool, era, seed)
         end
     end
     if #matches <= 0 then
-        return "çœ‹ä¸å‡ºå¤ªå¤šé—¨é“ï¼Œä¸€çœ¼éš¾å°½..."
+        return "¿´²»³öÌ«¶àÃÅµÀ£¬Ò»ÑÛÄÑ¾¡..."
     end
     local idx = (toNumber(seed, 0) % #matches) + 1
     return matches[idx]
@@ -339,9 +331,9 @@ end
 local function buildClueList(era, isFake, idx, stage)
     if isFake then
         return {
-            "å½“å‰çŠ¶æ€ï¼šæœªé‰´å®š",
-            "å™¨å½¢ç‰¹å¾ï¼šæœªé‰´å®š",
-            "åŒ…æµ†ç—•è¿¹ï¼šæœªé‰´å®š",
+            "µ±Ç°×´Ì¬£ºÎ´¼ø¶¨",
+            "Æ÷ĞÎÌØÕ÷£ºÎ´¼ø¶¨",
+            "°ü½¬ºÛ¼££ºÎ´¼ø¶¨",
         }
     end
     local seed = toNumber(idx, 0) * 10 + toNumber(stage, 0)
@@ -419,10 +411,6 @@ local function openStageConfirm(node, phase, cost, onConfirm, itemName)
     local tip = GUI:Image_Create(panel, "rule_tip", STAGE3_TIP_POS.x, STAGE3_TIP_POS.y, QUESTION_SKIN)
     bindRuleTip(tip, RULE_TIP_TEXTS[phase] or RULE_TIP_TEXTS.segment)
 
-    if cost and #cost > 0 then
-        renderCostList(panel, 358 - 60, 100, cost)
-    end
-
     local confirmSkin = phase == "conservative" and BTN_CONSERVATIVE or (phase == "segment" and BTN_SEGMENT or BTN_FINAL)
     local confirmBtn = GUI:Button_Create(panel, "confirm_btn", 181, phase == "conservative" and 21 or (phase == "segment" and 31 or 31), confirmSkin)
     GUI:addOnClickEvent(confirmBtn, function()
@@ -452,10 +440,10 @@ local function renderStageOneDetail(parent)
 
     createItemIcon(parent, "selected_preview", 105, 392, getUnidItemName(npc.selectedIdx), 1.0)
 
-    -- local selectedTitle = GUI:Text_Create(parent, "selected_title", 56, 480, 22, "#E9E2D0", "å½“å‰å·²é€‰")
+    -- local selectedTitle = GUI:Text_Create(parent, "selected_title", 56, 480, 22, "#E9E2D0", "µ±Ç°ÒÑÑ¡")
     -- setTextStyle(selectedTitle, "fonts/font4.ttf", "#000000", 2)
 
-    -- local costTitle = GUI:Text_Create(parent, "cost_title", 46, 295, 22, "#E9E2D0", "æ‰€éœ€æ¶ˆè€—")
+    -- local costTitle = GUI:Text_Create(parent, "cost_title", 46, 295, 22, "#E9E2D0", "ËùĞèÏûºÄ")
     -- setTextStyle(costTitle, "fonts/font4.ttf", "#000000", 2)
 
     renderCostList(parent, 0, 145 + 65, buildStageCost("identify"))
@@ -504,7 +492,7 @@ local function renderStageOne(node)
     --     "top_desc",
     --     84,
     --     560,
-    --     "<font color='#FFFFFF'>å¤ç©å¹´ä»£åˆ†ä¸ºï¼š</font><font color='#FF5A36'>å”</font><font color='#F1D94C'>å®‹</font><font color='#B94CFF'>å…ƒ</font><font color='#FF4D8C'>æ˜</font><font color='#4CFFE8'>æ¸…</font><font color='#C8C8C8'>è¿‘ä»£</font><br><font color='#FFFFFF'>å¹´ä»½è¶Šå¤è€çš„å¤ç©ï¼Œè¶Šå¼ºå¤§ï¼è¶Šç¨€æœ‰ï¼</font>",
+    --     "<font color='#FFFFFF'>¹ÅÍæÄê´ú·ÖÎª£º</font><font color='#FF5A36'>ÌÆ</font><font color='#F1D94C'>ËÎ</font><font color='#B94CFF'>Ôª</font><font color='#FF4D8C'>Ã÷</font><font color='#4CFFE8'>Çå</font><font color='#C8C8C8'>½ü´ú</font><br><font color='#FFFFFF'>Äê·İÔ½¹ÅÀÏµÄ¹ÅÍæ£¬Ô½Ç¿´ó£¡Ô½Ï¡ÓĞ£¡</font>",
     --     560,
     --     18,
     --     "#FFFFFF",
@@ -552,7 +540,7 @@ local function renderStageOne(node)
 
             local count = getBagItemCountByName(getUnidItemName(i))
             local own = GUI:Text_Create(cell, "own_" .. i, 115, 24, 25, "#FFFFFF", tostring(count))
-            -- local own = GUI:Text_Create(cell, "own_" .. i, 78, 16, 18, "#FFFFFF", "é‘³å±½å¯˜é·ãƒ¦æ¹é”›? .. tostring(count))
+            -- local own = GUI:Text_Create(cell, "own_" .. i, 78, 16, 18, "#FFFFFF", "èƒŒåŒ…æ‹¥æœ‰ï¼? .. tostring(count))
             GUI:setAnchorPoint(own, 0, 0.5)
             setTextStyle(own, "fonts/font4.ttf", "#000000", 1)
         end
@@ -601,7 +589,7 @@ local function confirmProtectAndSend(phase, ew, stateIdx, tipText)
         return
     end
     SL:OpenCommonTipsPop({
-        str = tipText or string.format("æ£€æµ‹åˆ°èƒŒåŒ…ä¸­æœ‰%sï¼Œæ˜¯å¦åœ¨å¤±è´¥æ—¶è‡ªåŠ¨ä½¿ç”¨ï¼Ÿ", tostring(protectName)),
+        str = tipText or string.format("¼ì²âµ½±³°üÖĞÓĞ%s£¬ÊÇ·ñÔÚÊ§°ÜÊ±×Ô¶¯Ê¹ÓÃ£¿", tostring(protectName)),
         btnType = 2,
         callback = function(atype)
             if atype == 1 then
@@ -629,7 +617,7 @@ local function renderStageTwo(node)
     local itemName = getUnknownItemName(state.idx)
     createItemIcon(node, "stage2_item", 385, 285 - 32, itemName, 1.0)
 
-    -- local title = GUI:Text_Create(node, "info_title", 542, 404, 18, "#2A1D14", "éˆîˆå£Œç€¹æ°¬å½œéœâ•€ä¿Šé­?)
+    -- local title = GUI:Text_Create(node, "info_title", 542, 404, 18, "#2A1D14", "æœªé‰´å®šå¤ç©ä¿¡æ?)
     -- GUI:setAnchorPoint(title, 0.5, 0.5)
     -- setTextStyle(title, "fonts/font4.ttf", "#E5D4B7", 1)
 
@@ -657,7 +645,7 @@ local function renderStageTwo(node)
                     sendStageAction(3, state.idx, false)
                     return
                 end
-                confirmProtectAndSend("segment", 3, state.idx, "æ˜¯å¦åœ¨æ–­ä»£å¤±è´¥æ—¶è‡ªåŠ¨ä½¿ç”¨æ–­ä»£æŠ¤ç¬¦ï¼Ÿ")
+                confirmProtectAndSend("segment", 3, state.idx, "ÊÇ·ñÔÚ¶Ï´úÊ§°ÜÊ±×Ô¶¯Ê¹ÓÃ¶Ï´ú»¤·û£¿")
             end, getUnknownItemName(state.idx))
         end)
     else
@@ -676,7 +664,7 @@ local function renderStageTwo(node)
                         sendStageAction(4, state.idx, false)
                         return
                     end
-                confirmProtectAndSend("final", 4, state.idx, "æ˜¯å¦åœ¨ç»ˆé‰´å¤±è´¥æ—¶è‡ªåŠ¨ä½¿ç”¨ç»ˆé‰´æŠ¤ç¬¦ï¼Ÿ")
+                confirmProtectAndSend("final", 4, state.idx, "ÊÇ·ñÔÚÖÕ¼øÊ§°ÜÊ±×Ô¶¯Ê¹ÓÃÖÕ¼ø»¤·û£¿")
                 end, getUnknownItemName(state.idx))
             end)
         else

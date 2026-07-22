@@ -59,55 +59,35 @@ local LIST_POS = {
 
 local CLUE_POOL = {
     color = {
-        {eras = {5, 6}, text = "色泽浮新，无沉稳感。"},
-        {eras = {3, 4, 5}, text = "色泽沉稳，略有尘意。"},
+        {eras = {5, 6}, text = "色泽浮新，无沉淀感。"},
+        {eras = {3, 4, 5}, text = "色泽沉稳，略有尘韵。"},
         {eras = {1, 2, 3}, text = "旧色内敛，蕴气深厚。"},
         {eras = {1, 2}, text = "古意苍润，岁月凝华。"},
     },
     pattern = {
-        {eras = {5, 6}, text = "制作淳巧，风格近世。"},
+        {eras = {5, 6}, text = "制式俗巧，风格近世。"},
         {eras = {4, 5}, text = "章法端整，风尚中正。"},
-        {eras = {3}, text = "线条木拙，气韵豪放。"},
-        {eras = {1, 2}, text = "格调清雅，风骨峥嵘。"},
-        {eras = {1}, text = "规制雄浑，古意盎然。"},
+        {eras = {3}, text = "线条朴拙，气韵豪放。"},
+        {eras = {1, 2}, text = "格调清雅，风骨飘逸。"},
+        {eras = {1}, text = "规制雄浑，古意凛然。"},
     },
     trace = {
         {eras = {5, 6}, text = "磨损轻微，痕迹尚浅。"},
         {eras = {4, 5}, text = "磨痕自然，使用可见。"},
-        {eras = {2, 3}, text = "包浆浸透，斑驳古拙。"},
+        {eras = {2, 3}, text = "包浆沁透，斑驳古拙。"},
         {eras = {1, 2}, text = "沧桑入骨，痕迹深重。"},
     },
 }
 
-local RULE_TIP_TEXTS = {
-    stage1 = table.concat({
-        "<  古玩鉴定规则  /FCOLOR=250>\\",
-        "<真伪概率：/FCOLOR=251><真品90%/FCOLOR=254><  赝品10%/FCOLOR=249>\\",
-        -- "<年代权重：/FCOLOR=251><唐1/FCOLOR=250>< 宋49/FCOLOR=254>< 元100/FCOLOR=253>< 明200/FCOLOR=242>< 清300/FCOLOR=243>< 近代350/FCOLOR=249>\\",
-        -- "<提示：本页只展示初次鉴定需要的信息。/FCOLOR=255>"
-    }, ""),
-    conservative = table.concat({
-        "<  保守鉴定说明  /FCOLOR=250>\\",
-        "<效果：/FCOLOR=251><直接收下当前年代古玩/FCOLOR=254>\\",
-        "<特点：/FCOLOR=251><稳定、不再升降年代。/FCOLOR=255>\\",
-        -- "<提示：这里只显示保守鉴定相关信息。/FCOLOR=243>"
-    }, ""),
-    segment = table.concat({
-        "<  断代鉴定说明  /FCOLOR=250>\\",
-        "<成功：/FCOLOR=251><年代 +1级/FCOLOR=254>\\",
-        "<失败：/FCOLOR=251><年代 -1级/FCOLOR=249>\\",
-        -- "<边界保护：/FCOLOR=251><到唐代或近代时只停住，不会越界。/FCOLOR=253>\\",
-        -- "<概率：宋5% 元10% 明20% 清40% 近代80%/FCOLOR=243>"
-    }, ""),
-    final = table.concat({
-        "<  终极鉴定说明  /FCOLOR=250>\\",
-        -- "<开启：/FCOLOR=251><断代成功后才可使用。/FCOLOR=255>\\",
-        "<成功：/FCOLOR=251><年代 +1级/FCOLOR=254>\\",
-        "<失败：/FCOLOR=251><年代 -1级/FCOLOR=249>\\",
-        -- "<边界保护：/FCOLOR=251><到唐代或近代时只停住，不会越界。/FCOLOR=253>\\",
-        -- "<概率：宋5% 元10% 明30% 清50%/FCOLOR=243>"
-    }, ""),
-}
+local RULE_TIP_TEXT = table.concat({
+    "<古玩鉴定规则/FCOLOR=243>\\",
+    "<1. 先鉴定真伪：90%真品，10%赝品。/FCOLOR=249>\\",
+    "<2. 真品年代权重：唐1 宋6 元16 明26 清31 近20。/FCOLOR=249>\\",
+    "<3. 保守鉴定直接收下当前年代古玩。/FCOLOR=249>\\",
+    "<4. 断代鉴定成功则年代提升1级，失败则下降1级。/FCOLOR=249>\\",
+    "<5. 终极鉴定仅在首次升级成功后可用。/FCOLOR=249>\\",
+    "<6. 赝品属性为近代古玩的10%。/FCOLOR=249>"
+}, "")
 
 local function toNumber(value, defaultValue)
     local num = tonumber(value)
@@ -268,10 +248,10 @@ local function buildPreviewRichText(idx)
         table.insert(lines, baseStr)
     end
     if adaptStr and adaptStr ~= "" then
-        table.insert(lines, "<font color='#4CFFE8'>适配属性</font>")
+        table.insert(lines, "<font color='#F4D179'>自适应属性</font>")
         table.insert(lines, adaptStr)
     end
-    return table.concat(lines, "\n")
+    return table.concat(lines, "<br>")
 end
 
 local function buildStageCost(phase)
@@ -282,24 +262,24 @@ local function buildStageCost(phase)
     return cfg.cost and cfg.cost[phase] or {}
 end
 
-local function openRuleTip(widget, tipText)
+local function openRuleTip(widget)
     if not widget then
         return
     end
     local pos = GUI:getWorldPosition(widget)
     SL:OpenCommonDescTipsPop({
-        str = tipText or RULE_TIP_TEXTS.stage1,
+        str = RULE_TIP_TEXT,
         worldPos = {x = pos.x, y = pos.y},
         anchorPoint = {x = 0, y = 0},
         formatWay = 0
     })
 end
 
-local function bindRuleTip(widget, tipText)
+local function bindRuleTip(widget)
     if SL:GetMetaValue("WINPLAYMODE") then
         GUI:addMouseMoveEvent(widget, {
             onEnterFunc = function()
-                openRuleTip(widget, tipText)
+                openRuleTip(widget)
             end,
             onLeaveFunc = function()
                 SL:CloseCommonDescTipsPop()
@@ -308,7 +288,7 @@ local function bindRuleTip(widget, tipText)
     else
         GUI:setTouchEnabled(widget, true)
         GUI:addOnTouchEvent(widget, function()
-            openRuleTip(widget, tipText)
+            openRuleTip(widget)
         end)
     end
 end
@@ -330,7 +310,7 @@ local function pickClueText(pool, era, seed)
         end
     end
     if #matches <= 0 then
-        return "看不出太多门道，一眼难尽..."
+        return "懂得都懂，一言难尽..."
     end
     local idx = (toNumber(seed, 0) % #matches) + 1
     return matches[idx]
@@ -416,12 +396,8 @@ local function openStageConfirm(node, phase, cost, onConfirm, itemName)
     if itemName and itemName ~= "" then
         createItemIcon(panel, "confirm_item", 65 + 18, 129 + 18, itemName, 1.0)
     end
-    local tip = GUI:Image_Create(panel, "rule_tip", STAGE3_TIP_POS.x, STAGE3_TIP_POS.y, QUESTION_SKIN)
-    bindRuleTip(tip, RULE_TIP_TEXTS[phase] or RULE_TIP_TEXTS.segment)
 
-    if cost and #cost > 0 then
-        renderCostList(panel, 358 - 60, 100, cost)
-    end
+    renderCostList(panel, 358 - 60, 100, cost or {})
 
     local confirmSkin = phase == "conservative" and BTN_CONSERVATIVE or (phase == "segment" and BTN_SEGMENT or BTN_FINAL)
     local confirmBtn = GUI:Button_Create(panel, "confirm_btn", 181, phase == "conservative" and 21 or (phase == "segment" and 31 or 31), confirmSkin)
@@ -437,6 +413,8 @@ local function openStageConfirm(node, phase, cost, onConfirm, itemName)
         closeStageConfirm(node)
     end)
 
+    local tip = GUI:Image_Create(panel, "rule_tip", STAGE3_TIP_POS.x, STAGE3_TIP_POS.y, QUESTION_SKIN)
+    bindRuleTip(tip)
 end
 
 local function renderStageOneDetail(parent)
@@ -504,7 +482,7 @@ local function renderStageOne(node)
     --     "top_desc",
     --     84,
     --     560,
-    --     "<font color='#FFFFFF'>古玩年代分为：</font><font color='#FF5A36'>唐</font><font color='#F1D94C'>宋</font><font color='#B94CFF'>元</font><font color='#FF4D8C'>明</font><font color='#4CFFE8'>清</font><font color='#C8C8C8'>近代</font><br><font color='#FFFFFF'>年份越古老的古玩，越强大！越稀有！</font>",
+    --     "<font color='#FFFFFF'>古玩年代分为：</font><font color='#FF5A36'>唐</font>、<font color='#F1D94C'>宋</font>、<font color='#B94CFF'>元</font>、<font color='#FF4D8C'>明</font>、<font color='#4CFFE8'>清</font>、<font color='#C8C8C8'>近代</font><br><font color='#FFFFFF'>年份越古老的古玩，</font><font color='#FF3E3E'>越强大！越稀有！</font>",
     --     560,
     --     18,
     --     "#FFFFFF",
@@ -552,7 +530,7 @@ local function renderStageOne(node)
 
             local count = getBagItemCountByName(getUnidItemName(i))
             local own = GUI:Text_Create(cell, "own_" .. i, 115, 24, 25, "#FFFFFF", tostring(count))
-            -- local own = GUI:Text_Create(cell, "own_" .. i, 78, 16, 18, "#FFFFFF", "鑳屽寘鎷ユ湁锛? .. tostring(count))
+            -- local own = GUI:Text_Create(cell, "own_" .. i, 78, 16, 18, "#FFFFFF", "背包拥有：" .. tostring(count))
             GUI:setAnchorPoint(own, 0, 0.5)
             setTextStyle(own, "fonts/font4.ttf", "#000000", 1)
         end
@@ -567,7 +545,7 @@ local function renderStageOne(node)
     end)
 
     local tip = GUI:Image_Create(node, "rule_tip", 340, 76, QUESTION_SKIN)
-    bindRuleTip(tip, RULE_TIP_TEXTS.stage1)
+    bindRuleTip(tip)
 end
 
 local function getStage2Banner()
@@ -581,17 +559,11 @@ local function getStage2Banner()
     return STAGE2_TRUE
 end
 
-local function sendStageAction(ew, stateIdx, useProtect, extra)
-    local payload = {
+local function sendStageAction(ew, stateIdx, useProtect)
+    SL:SendLuaNetMsg(100, npc.npcid, ew, 0, SL:JsonEncode({
         idx = stateIdx,
         use_protect = useProtect and 1 or 0
-    }
-    if type(extra) == "table" then
-        for k, v in pairs(extra) do
-            payload[k] = v
-        end
-    end
-    SL:SendLuaNetMsg(100, npc.npcid, ew, 0, SL:JsonEncode(payload, false))
+    }, false))
 end
 
 local function confirmProtectAndSend(phase, ew, stateIdx, tipText)
@@ -629,7 +601,7 @@ local function renderStageTwo(node)
     local itemName = getUnknownItemName(state.idx)
     createItemIcon(node, "stage2_item", 385, 285 - 32, itemName, 1.0)
 
-    -- local title = GUI:Text_Create(node, "info_title", 542, 404, 18, "#2A1D14", "鏈壌瀹氬彜鐜╀俊鎭?)
+    -- local title = GUI:Text_Create(node, "info_title", 542, 404, 18, "#2A1D14", "未鉴定古玩信息")
     -- GUI:setAnchorPoint(title, 0.5, 0.5)
     -- setTextStyle(title, "fonts/font4.ttf", "#E5D4B7", 1)
 
@@ -665,7 +637,7 @@ local function renderStageTwo(node)
 
         local btnCollect = GUI:Button_Create(node, "btn_collect", 420, 135, BTN_COLLECT)
         GUI:addOnClickEvent(btnCollect, function()
-            sendStageAction(5, state.idx, false, {preview = 1})
+            sendStageAction(5, state.idx, false)
         end)
 
         if tonumber(state.can_final) == 1 then
@@ -676,7 +648,7 @@ local function renderStageTwo(node)
                         sendStageAction(4, state.idx, false)
                         return
                     end
-                confirmProtectAndSend("final", 4, state.idx, "是否在终鉴失败时自动使用终鉴护符？")
+                    confirmProtectAndSend("final", 4, state.idx, "是否在终极鉴定失败时自动使用终鉴护符？")
                 end, getUnknownItemName(state.idx))
             end)
         else
@@ -693,13 +665,6 @@ local function renderResult(node, overlay)
     if not resp then
         return
     end
-    local function claimResult()
-        if npc.claiming then
-            return
-        end
-        npc.claiming = true
-        sendStageAction(6, tonumber(resp.idx or npc.selectedIdx), false, {claim = 1})
-    end
 
     if not overlay then
         GUI:Image_Create(node, "root_bg", 0, 0, ROOT_BG)
@@ -713,19 +678,14 @@ local function renderResult(node, overlay)
     GUI:setAnchorPoint(eraImg, 0.5, 0.5)
 
     local itemName = tostring(resp.item or "")
-        if itemName ~= "" then
-            local resultItem = createItemIcon(node, "result_item", 490, 250, itemName, 1.0)
-            if resp.collect == 1 then
-                GUI:setTouchEnabled(resultItem, true)
-                GUI:addOnClickEvent(resultItem, function()
-                    claimResult()
-                end)
-                local claimArea = GUI:Layout_Create(node, "result_item_claim_area", 450, 210, 80, 80, false)
-                GUI:setTouchEnabled(claimArea, true)
-                GUI:addOnClickEvent(claimArea, function()
-                    claimResult()
-                end)
-            end
+    if itemName ~= "" then
+        local resultItem = createItemIcon(node, "result_item", 490, 250, itemName, 1.0)
+        if resp.collect == 1 then
+            GUI:setTouchEnabled(resultItem, true)
+            GUI:addOnClickEvent(resultItem, function()
+                sendStageAction(5, tonumber(resp.idx or npc.selectedIdx), false)
+            end)
+        end
         -- local itemText = GUI:Text_Create(node, "result_name", 500, 188, 18, "#F7F0E1", itemName)
         -- GUI:setAnchorPoint(itemText, 0.5, 0.5)
         -- setTextStyle(itemText, "fonts/font4.ttf", "#000000", 2)
@@ -733,7 +693,15 @@ local function renderResult(node, overlay)
 
     local resultBtn = GUI:Button_Create(node, "result_btn", 200 + 180, 160, RESULT_COLLECT)
     GUI:addOnClickEvent(resultBtn, function()
-        claimResult()
+        npc.response = nil
+        if npc.node then
+            GUI:removeAllChildren(npc.node)
+            if getActiveState() then
+                renderStageTwo(npc.node)
+            else
+                renderStageOne(npc.node)
+            end
+        end
     end)
 end
 
@@ -742,6 +710,12 @@ render = function(node)
         return
     end
     GUI:removeAllChildren(node)
+
+    if npc.response and npc.response.result == "final" then
+        renderStageTwo(node)
+        renderResult(node, true)
+        return
+    end
 
     if npc.response and (npc.response.result == "fake" or npc.response.result == "conservative" or npc.response.result == "final" or npc.response.result == "collect" or npc.response.result == "collect_preview") then
         renderResult(node)
@@ -795,18 +769,7 @@ function npc.main(npcid, p2, p3, msgData)
             collect_pending = tonumber(data.collect) or 1,
         }
         npc.response = data
-    elseif data.result == "collect_preview" then
-        npc.state = {
-            active = 1,
-            idx = tonumber(data.idx) or npc.selectedIdx,
-            era = tonumber(data.era) or 6,
-            stage = tonumber(data.stage) or 2,
-            can_final = tonumber(data.can_final) or 0,
-            collect_pending = tonumber(data.collect) or 1,
-        }
-        npc.response = data
-    elseif data.result == "collect" then
-        npc.claiming = false
+    elseif data.result == "collect" or data.result == "collect_preview" then
         npc.state = nil
         npc.response = nil
         if not npc.node then
