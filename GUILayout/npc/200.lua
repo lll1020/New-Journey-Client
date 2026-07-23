@@ -36,14 +36,14 @@ local RAW_MAP_CONFIG = {
     [226] = {"敦煌遗梦",100,100,nil,nil,5, mob_name = "≮文明余晖·敦煌尊≯", mob_shape = 16121, min_map = "010336"},
     [227] = {"世界禁墟",100,100,nil,nil,5, mob_name = "≮文明终点·禁墟尊≯", mob_shape = 16170, min_map = "027156"},
 
-    [228] = {"登神之路",0,0,nil,nil,6, mob_name = "神庭执法者・圣光守卫", mob_shape = 16170, min_map = "10244", other_name = "登神之路"},
-    [230] = {"冰川雪域",0,0,nil,nil,6, mob_name = "雪域冰王・寒魄", mob_shape = 16170, min_map = "10244", other_name = "冰川雪域"},
-    [229] = {"血契之地",0,0,nil,nil,6, mob_name = "血契领主・血屠", mob_shape = 16170, min_map = "10244", other_name = "血契之地"},
-    [231] = {"森罗魔域",0,0,nil,nil,6, mob_name = "森罗魔主・灭世", mob_shape = 16170, min_map = "10244", other_name = "森罗魔域"},
-    [232] = {"边关烽城",0,0,nil,nil,6, mob_name = "镇关大将军・烈锋", mob_shape = 16170, min_map = "10244", other_name = "边关烽城"},
-    [233] = {"盛世古城",0,0,nil,nil,6, mob_name = "古城守护神・天佑 [神圣]", mob_shape = 16170, min_map = "10244", other_name = "盛世古城"},
-    [234] = {"兵道古藏",0,0,nil,nil,6, mob_name = "神道兵魂", mob_shape = 16170, min_map = "10244", other_name = "兵道古藏"},
-    [235] = {"鬼道古藏",0,0,nil,nil,6, mob_name = "鬼道残魂", mob_shape = 16170, min_map = "10244", other_name = "鬼道古藏"},
+    [228] = {"登神之路",0,0,nil,nil,6, mob_name = "神庭执法者・圣光守卫", mob_shape = 16170, min_map = "027176", other_name = "登神之路"},
+    [230] = {"冰川雪域",0,0,nil,nil,6, mob_name = "雪域冰王・寒魄", mob_shape = 16172, min_map = "028171", other_name = "冰川雪域"},
+    [229] = {"血契之地",0,0,nil,nil,6, mob_name = "血契领主・血屠", mob_shape = 16171, min_map = "027402", other_name = "血契之地"},
+    [231] = {"森罗魔域",0,0,nil,nil,6, mob_name = "森罗魔主・灭世", mob_shape = 16173, min_map = "028768", other_name = "森罗魔域"},
+    [232] = {"边关烽城",0,0,nil,nil,6, mob_name = "镇关大将军・烈锋", mob_shape = 16174, min_map = "028574", other_name = "边关烽城"},
+    [233] = {"盛世古城",0,0,nil,nil,6, mob_name = "古城守护神・天佑 [神圣]", mob_shape = 16175, min_map = "027248", other_name = "盛世古城"},
+    [234] = {"兵道古藏",0,0,nil,nil,6, mob_name = "神道兵魂", mob_shape = 16176, min_map = "027188", other_name = "兵道古藏"},
+    [235] = {"鬼道古藏",0,0,nil,nil,6, mob_name = "鬼道残魂", mob_shape = 16177, min_map = "027184", other_name = "鬼道古藏"},
 
     --特殊地图npc
     [300] = {"山脉入口", 92, 50,nil,nil,3, mob_name = "★南境荒王★", mob_shape = 12057, min_map = "027343"},
@@ -381,12 +381,15 @@ function npc.main(npcid, p2, p3, msgData)
         local baseX = -320 - 73
         local topY = 200
         local monsterY = topY - 90
+        renderMonsterModel(node, cfg, baseX - 40 + 90, monsterY + 20 - 332)
+
         createLabel(node, "monster_name", baseX + 4, monsterY - 33, 20, "#ff6666", string.format("%s", cfg.mobName or "未知"))
 
 
-        renderMonsterModel(node, cfg, baseX - 40 + 90, monsterY + 20 - 332)
         renderDropList(node, baseX + 120 + 355, monsterY - 140 - 117, getDropItems(cfg.mobName, npc.data))
         renderMiniMap(node, cfg, baseX - 40 + 245, monsterY - 100)
+
+
 
         
         local actionY = -260
