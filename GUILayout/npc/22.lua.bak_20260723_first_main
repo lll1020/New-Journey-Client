@@ -1981,10 +1981,6 @@ local function _lg_render_main_overview(node, npcid, selectedIdx, mainIdx)
             return
         end
         local targetIdx = (mainIdx == displayIdx) and 0 or displayIdx
-        if (tonumber(mainIdx or 0) or 0) <= 0 and targetIdx > 0 then
-            SL:SendLuaNetMsg(100, npcid, 2, targetIdx, "")
-            return
-        end
         local actionText = targetIdx == 0 and "卸下本命灵根" or "更换本命灵根"
         SL:OpenCommonTipsPop({
             str = actionText .. "需要消耗【卸灵咒】x1，确认继续吗？",

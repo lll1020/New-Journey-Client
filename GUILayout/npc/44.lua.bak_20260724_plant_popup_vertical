@@ -59,17 +59,6 @@ local colors = {
     muted = '#9fb0c0',
 }
 
-local function getFairyBgByLevel(level)
-    local lv = tonumber(level or 1) or 1
-    if lv <= 1 then
-        return 'res/custom/three_city/xianfu/bg.png'
-    elseif lv == 2 then
-        return 'res/custom/three_city/xianfu/bg_1.png'
-    elseif lv == 3 then
-        return 'res/custom/three_city/xianfu/bg_2.png'
-    end
-    return 'res/custom/three_city/xianfu/bg_3.png'
-end
 local buildUnlockedPlantList
 local buildLevelSummary
 local ensureState
@@ -99,32 +88,13 @@ end
 -- 复用种植灵草选择弹窗。
 -- options.gridId: 当前选中的目标地块编号；弹窗内可选单块播种或一键种植。
 local function openPlantSelectPopup(node, snapshot, npcid, options)
-    if not npcid then
+    local unlockedPlantList = buildUnlockedPlantList(snapshot)
+    if #unlockedPlantList <= 0 or not npcid then
         return
     end
-
     local state = ensureState()
     local targetGridId = tonumber((options or {}).gridId) or tonumber(state.selectedPlot) or 1
-    local plantCfg = (snapshot and snapshot.cfg and snapshot.cfg.plant) or {}
-    local player = (snapshot and snapshot.player) or {}
-    local playerLevel = tonumber(player.level or 1) or 1
     local canPlantAll = hasEmptyUnlockedPlot(snapshot)
-    local plantList = {}
-
-    for id, cfg in pairs(plantCfg) do
-        plantList[#plantList + 1] = {id = id, cfg = cfg}
-    end
-    table.sort(plantList, function(a, b)
-        local aid = tonumber((a.cfg or {}).id or a.id) or 0
-        local bid = tonumber((b.cfg or {}).id or b.id) or 0
-        if aid == bid then
-            return tostring((a.cfg or {}).name or a.id or '') < tostring((b.cfg or {}).name or b.id or '')
-        end
-        return aid < bid
-    end)
-    if #plantList <= 0 then
-        return
-    end
 
     closePlantSelectPopup()
     local popup = GUI:Node_Create(npc.bg or node, 'plant_select_popup', 0, 0)
@@ -139,143 +109,91 @@ local function openPlantSelectPopup(node, snapshot, npcid, options)
 
     local box = GUI:Image_Create(popup, 'box', 410, 270, 'res/wy/public/500-300.png')
     GUI:setAnchorPoint(box, 0.5, 0.5)
-    GUI:setContentSize(box, 500, 280)
+    GUI:setContentSize(box, 560, 300)
     GUI:setTouchEnabled(box, true)
-
-    local title = GUI:Text_Create(box, 'title', 250, 252, 23, colors.primary, '选择种植灵草')
+    local title = GUI:Text_Create(box, 'title', 280, 270, 22, colors.primary, '选择种植灵草')
     GUI:setAnchorPoint(title, 0.5, 0.5)
     GUI:Text_enableOutline(title, '#1d0f09', 1)
-    GUI:Text_setFontName(title, 'fonts/502.ttf')
-
-    local subTitle = GUI:Text_Create(box, 'sub_title', 250, 228, 17, '#d8c8a8', '左右滑动选择灵草')
+    local subTitle = GUI:Text_Create(box, 'sub_title', 280, 242, 16, '#d8c8a8', '左侧查看灵草，右侧查看成熟与产出，支持单块种植或一键播满')
     GUI:setAnchorPoint(subTitle, 0.5, 0.5)
     GUI:Text_enableOutline(subTitle, '#1d0f09', 1)
-    GUI:Text_setFontName(subTitle, 'fonts/502.ttf')
 
-    local trackBg = GUI:Image_Create(box, 'track_bg', 250, 117, 'res/public/bg_npc_desc_tip.png')
-    GUI:setAnchorPoint(trackBg, 0.5, 0.5)
-    GUI:setContentSize(trackBg, 474, 210)
-
-    local leftHint = GUI:Text_Create(box, 'left_hint', 16, 117, 21, '#c9b899', '<')
-    GUI:setAnchorPoint(leftHint, 0.5, 0.5)
-    GUI:Text_enableOutline(leftHint, '#1d0f09', 1)
-    GUI:Text_setFontName(leftHint, 'fonts/502.ttf')
-
-    local rightHint = GUI:Text_Create(box, 'right_hint', 484, 117, 21, '#c9b899', '>')
-    GUI:setAnchorPoint(rightHint, 0.5, 0.5)
-    GUI:Text_enableOutline(rightHint, '#1d0f09', 1)
-    GUI:Text_setFontName(rightHint, 'fonts/502.ttf')
-
-    local cardW = 166 + 30
-    local cardH = 210
-    local gap = 12
-    local scrollW = 446
-    local scrollH = 210
-    local innerW = math.max(scrollW, #plantList * (cardW + gap) + gap)
-    local scroll = GUI:ScrollView_Create(box, 'plant_list_scroll', 27, 12, scrollW, scrollH, 2)
-    GUI:ScrollView_setDirection(scroll, 2)
-    GUI:ScrollView_setBounceEnabled(scroll, true)
-    GUI:ScrollView_setInnerContainerSize(scroll, innerW, scrollH)
-    local listLayout = GUI:Layout_Create(scroll, 'plant_list_layout', 0, 0, innerW, scrollH)
-
-    for idx, entry in ipairs(plantList) do
+    for idx, entry in ipairs(unlockedPlantList) do
         local seedCfg = entry.cfg or {}
-        local needLevel = tonumber(seedCfg.need_level or 1) or 1
-        local unlocked = playerLevel >= needLevel
+        local rewardList = {}
+        for _, reward in ipairs(seedCfg.product or {}) do
+            local give = reward.give or {}
+            local rewardName = tostring((give[1] or {})[1] or "")
+            local itemCount = tonumber((give[1] or {})[2] or 0) or 0
+            local rate = tonumber(reward.rate or 0) or 0
+            if rewardName ~= "" and itemCount > 0 and rate > 0 then
+                rewardList[#rewardList + 1] = {
+                    name = rewardName,
+                    count = itemCount,
+                    rate = rate,
+                }
+            end
+        end
         local itemName = tostring(seedCfg.name or entry.id)
         local itemIndex = SL:GetMetaValue("ITEM_INDEX_BY_NAME", itemName)
-        local cardX = gap + (idx - 1) * (cardW + gap)
-        local card = GUI:Layout_Create(listLayout, 'plant_card_' .. tostring(entry.id), cardX, 0, cardW, cardH, false)
-        local cardBg = GUI:Image_Create(card, 'plant_card_bg_' .. tostring(entry.id), 0, 0, "res/wy/public/anniu_999_bj.png")
-        GUI:setContentSize(cardBg, cardW, cardH)
-
-        local nameText = GUI:Text_Create(card, 'plant_name_' .. tostring(entry.id), cardW / 2, 184, 22, '#00FFFF', itemName)
-        GUI:setAnchorPoint(nameText, 0.5, 0.5)
-        GUI:Text_enableOutline(nameText, '#000000', 1)
-        GUI:Text_setFontName(nameText, 'fonts/502.ttf')
-
-        local statusColor = unlocked and '#2f6d35' or '#a92a23'
-        local statusText = GUI:Text_Create(card, 'plant_status_' .. tostring(entry.id), cardW / 2, 164, 20, statusColor, unlocked and '可种植' or '未解锁')
-        GUI:setAnchorPoint(statusText, 0.5, 0.5)
-        GUI:Text_enableOutline(statusText, '#000000', 1)
-        GUI:Text_setFontName(statusText, 'fonts/502.ttf')
-
-        local plant_name_give = GUI:Text_Create(card, 'plant_name_give_' .. tostring(entry.id), 50, 184 - 70 - 20, 22, '#00FFFF', "产出：")
-        GUI:setAnchorPoint(plant_name_give, 0.5, 0.5)
-        GUI:Text_enableOutline(plant_name_give, '#000000', 1)
-        GUI:Text_setFontName(plant_name_give, 'fonts/502.ttf')
+        local lineY = 178 - (idx - 1) * 66
+        local row = GUI:Layout_Create(box, 'seed_row_' .. tostring(entry.id), 24, lineY - 28, 510, 58, false)
+        local rowBg = GUI:Image_Create(row, 'seed_row_bg_' .. tostring(entry.id), 255, 29, 'res/public/bg_npc_desc_tip.png')
+        GUI:setAnchorPoint(rowBg, 0.5, 0.5)
+        GUI:setContentSize(rowBg, 510, 58)
 
         if itemIndex and tonumber(itemIndex) and tonumber(itemIndex) > 0 then
-            local itemShow = GUI:ItemShow_Create(card, 'plant_item_' .. tostring(entry.id), cardW / 2, 122 + 16, {
+            GUI:ItemShow_Create(row, 'seed_item_' .. tostring(entry.id), 34, 29, {
                 index = itemIndex,
                 count = 1,
                 look = true,
                 bgVisible = true
             })
-            GUI:setAnchorPoint(itemShow, 0.5, 0.5)
         end
 
-        local rewardList = {}
-        for _, reward in ipairs(seedCfg.product or {}) do
-            local give = reward.give or {}
-            local rewardName = tostring((give[1] or {})[1] or '')
-            local itemCount = tonumber((give[1] or {})[2] or 0) or 0
-            local rate = tonumber(reward.rate or 0) or 0
-            if rewardName ~= '' and itemCount > 0 and rate > 0 then
-                rewardList[#rewardList + 1] = {name = rewardName}
-            end
-        end
+        local nameText = GUI:Text_Create(row, 'seed_name_' .. tostring(entry.id), 72, 39, 20, '#fff0c6', itemName)
+        GUI:setAnchorPoint(nameText, 0, 0.5)
+        GUI:Text_enableOutline(nameText, '#1d0f09', 1)
+        local matureText = GUI:Text_Create(row, 'seed_mature_' .. tostring(entry.id), 72, 16, 16, '#8af5ff', string.format('成熟：%s 分钟', tostring(math.floor((tonumber(seedCfg.matureTime or 0) or 0) / 60))))
+        GUI:setAnchorPoint(matureText, 0, 0.5)
+        GUI:Text_enableOutline(matureText, '#1d0f09', 1)
         for rewardIdx = 1, math.min(#rewardList, 2) do
             local rewardInfo = rewardList[rewardIdx]
             local rewardIndex = SL:GetMetaValue("ITEM_INDEX_BY_NAME", rewardInfo.name)
-            local rewardX = (rewardIdx == 1 and (cardW / 2 - 30) or (cardW / 2 + 30)) + 40 - 15
+            local rewardX = 212 + (rewardIdx - 1) * 66
             if rewardIndex and tonumber(rewardIndex) and tonumber(rewardIndex) > 0 then
-                local rewardShow = GUI:ItemShow_Create(card, 'plant_reward_item_' .. tostring(entry.id) .. '_' .. rewardIdx, rewardX, 74 + 16, {
+                GUI:ItemShow_Create(row, 'seed_reward_item_' .. tostring(entry.id) .. '_' .. rewardIdx, rewardX, 30, {
                     index = rewardIndex,
+                    count = rewardInfo.count,
                     look = true,
                     bgVisible = true
                 })
-                GUI:setAnchorPoint(rewardShow, 0.5, 0.5)
             end
+            local rewardRate = GUI:Text_Create(row, 'seed_reward_rate_' .. tostring(entry.id) .. '_' .. rewardIdx, rewardX, 8, 13, '#f4ead4', string.format('%s%%', formatNumber(rewardInfo.rate)))
+            GUI:setAnchorPoint(rewardRate, 0.5, 0.5)
+            GUI:Text_enableOutline(rewardRate, '#1d0f09', 1)
         end
 
-        local matureMinutes = math.floor((tonumber(seedCfg.matureTime or 0) or 0) / 60)
-        local matureText = GUI:Text_Create(card, 'plant_mature_' .. tostring(entry.id), cardW / 2, 42 + 16, 15, '#FFFF00', string.format('%s分钟成熟', tostring(matureMinutes)))
-        GUI:setAnchorPoint(matureText, 0.5, 0.5)
-        GUI:Text_enableOutline(matureText, '#000000', 1)
+        local chooseBtn = NPC_UI_HELPER.createPrimaryButton(row, 'choose_seed_' .. tostring(entry.id), 420, 39 + 20, '种植', function()
+            closePlantSelectPopup()
+            queuePlotAdvance("plant", targetGridId)
+            sendAction(npcid, "plant", {gridId = targetGridId, seedId = entry.id})
+        end, {w = 84, skin = "res/wy/public/kb_btn.png"})
+        GUI:setAnchorPoint(chooseBtn, 0.5, 0.5)
+        GUI:Button_setTitleFontName(chooseBtn, "fonts/502.ttf")
 
-        -- local btnBg = GUI:Image_Create(card, 'plant_btn_bg_' .. tostring(entry.id), cardW / 2, 19 + 16, 'res/wy/public/new_kuang.png')
-        -- GUI:setAnchorPoint(btnBg, 0.5, 0.5)
-        -- GUI:setContentSize(btnBg, 152, 32)
-
-        if unlocked then
-            local chooseBtn = NPC_UI_HELPER.createPrimaryButton(card, 'choose_seed_' .. tostring(entry.id), cardW / 2 - 45, 25, '种植', function()
-                closePlantSelectPopup()
-                queuePlotAdvance("plant", targetGridId)
-                sendAction(npcid, "plant", {gridId = targetGridId, seedId = entry.id})
-            end, {w = 58, skin = "res/wy/public/kb_btn.png",fontSize = 22})
-            GUI:setAnchorPoint(chooseBtn, 0.5, 0.5)
-            GUI:Button_setTitleFontName(chooseBtn, "fonts/502.ttf")
-
-            local plantAllBtn = NPC_UI_HELPER.createPrimaryButton(card, 'choose_seed_all_' .. tostring(entry.id), cardW / 2 + 45, 25, '种满', function()
-                closePlantSelectPopup()
-                sendAction(npcid, "plantAll", {seedId = entry.id})
-            end, {w = 58, skin = "res/wy/public/kb_btn.png",fontSize = 22})
-            GUI:setAnchorPoint(plantAllBtn, 0.5, 0.5)
-            GUI:Button_setTitleFontName(plantAllBtn, "fonts/502.ttf")
-            if not canPlantAll then
-                GUI:Button_setBright(plantAllBtn, false)
-                GUI:setTouchEnabled(plantAllBtn, false)
-            end
-        else
-            -- local lockedTip = GUI:Text_Create(btnBg, 'plant_lock_tip_' .. tostring(entry.id), 76, 16, 16, '#a92a23', '未解锁')
-            -- GUI:setAnchorPoint(lockedTip, 0.5, 0.5)
-            -- GUI:Text_enableOutline(lockedTip, '#f8f0df', 1)
-            -- GUI:Text_setFontName(lockedTip, 'fonts/502.ttf')
+        local plantAllBtn = NPC_UI_HELPER.createPrimaryButton(row, 'choose_seed_all_' .. tostring(entry.id), 420, 17, '一键种植', function()
+            closePlantSelectPopup()
+            sendAction(npcid, "plantAll", {seedId = entry.id})
+        end, {w = 104, skin = "res/wy/public/kb_btn.png"})
+        GUI:setAnchorPoint(plantAllBtn, 0.5, 0.5)
+        GUI:Button_setTitleFontName(plantAllBtn, "fonts/502.ttf")
+        if not canPlantAll then
+            GUI:Button_setBright(plantAllBtn, false)
         end
     end
 
-    local closeBtn = GUI:Button_Create(box, 'close_popup', 470, 252, 'res/wy/public/close_red_big.png')
+    local closeBtn = GUI:Button_Create(box, 'close_popup', 524, 270, 'res/wy/public/close_red_big.png')
     GUI:setTouchEnabled(closeBtn, true)
     GUI:addOnClickEvent(closeBtn, function()
         closePlantSelectPopup()
@@ -896,7 +814,7 @@ local function ensureWindow(npcid)
         parent = GUI:Win_Create("npc_44", cogin.w / 2, cogin.h / 2, 0, 0, false, false, true, true, true, 0, 1)
     end
 
-    local bjt = GUI:Image_Create(parent, 'bjt', 0, 0, getFairyBgByLevel((snapshot and snapshot.player and snapshot.player.level) or 1))
+    local bjt = GUI:Image_Create(parent, 'bjt', 0, 0, "res/custom/three_city/xianfu/bg.png")
     GUI:setAnchorPoint(bjt, 0.5, 0.5)
     GUI:setContentSize(bjt, cogin.w, cogin.h)
     GUI:setTouchEnabled(bjt, true)
@@ -2250,6 +2168,18 @@ local function drawDollMachine(node, snapshot, npcid)
     local costText = formatCost(doll.current_cost or cfg.normal_draw_cost or {})
     local fixedRewardText = formatCost(cfg.every_draw_reward or {})
     local pityNeed = doll.pity_need or cfg.pity_need or 35
+    local rightInfo = {
+        {key = 'doll_money', y = 75, color = "#f7f7de", text = string.format("当前仙府币：%s", formatNumber(SL:GetMetaValue("TMONEY", "仙府币") or 0))},
+        {key = 'doll_cost', y = 42, color = "#ffffff", text = "本次消耗：" .. costText},
+        {key = 'doll_reward_fix', y = 12, color = "#c0f7a2", text = "固定奖励：" .. fixedRewardText},
+        {key = 'doll_draw_total', y = -18, color = "#ffe9c2", text = string.format("累计抓取：%s", formatNumber(doll.draw_total or 0))},
+        {key = 'doll_newbie', y = -48, color = "#8af5ff", text = string.format("新手优惠剩余：%s", formatNumber(doll.newbie_left or 0))},
+        {key = 'doll_pity', y = -78, color = "#ffcd7f", text = string.format("红款保底：%s/%s", formatNumber(doll.pity_progress or 0), formatNumber(pityNeed))},
+        {key = 'doll_hidden', y = -108, color = "#ff8686", text = string.format("隐藏款已出：%s", formatNumber(doll.hidden_count or 0))},
+    }
+    for _, row in ipairs(rightInfo) do
+        GUI:Text_Create(root, row.key, 165, row.y, 18, row.color, row.text, nil, nil, {outlineSize = 2, outlineColor = SL:ConvertColorFromHexString("#100808")})
+    end
 
     local resultCfg = nil
     local lastResultId = ((state.lastDollResult or {}).resultId) or doll.last_result
@@ -2293,6 +2223,24 @@ local function drawDollCabinet(node, snapshot, npcid)
     local bg = GUI:Image_Create(root, 'cabinet_bg', -370, -215, "res/custom/three_city/xianfu/仙府部分/收藏柜/收藏柜背景.png")
     GUI:setAnchorPoint(bg, 0, 0)
 
+    local attrBg = GUI:Image_Create(root, 'cabinet_attr_bg', 175, 112, "res/custom/three_city/xianfu/仙府部分/收藏柜/右上角属性底.png")
+    GUI:setAnchorPoint(attrBg, 0, 0)
+    GUI:setScaleX(attrBg, 8.4)
+
+    GUI:Text_Create(root, 'cabinet_title_text', 205, 142, 20, "#ffe9c2", "收藏属性总览", nil, nil, {outlineSize = 2, outlineColor = SL:ConvertColorFromHexString("#100808")})
+
+    local summary = doll.summary or {}
+    if #summary <= 0 then
+        GUI:Text_Create(root, 'cabinet_summary_empty', 205, 110, 18, "#ffffff", "暂无娃娃属性", nil, nil, {outlineSize = 2, outlineColor = SL:ConvertColorFromHexString("#100808")})
+    else
+        for idx, entry in ipairs(summary) do
+            if idx > 6 then
+                break
+            end
+            local text = string.format("%s +%s", entry.name or "", formatAttrValue(entry.value, entry.percent))
+            GUI:Text_Create(root, 'cabinet_summary_' .. idx, 205, 112 - (idx - 1) * 28, 18, "#ffffff", text, nil, nil, {outlineSize = 2, outlineColor = SL:ConvertColorFromHexString("#100808")})
+        end
+    end
 
     local scroll = GUI:ScrollView_Create(root, "cabinet_scroll", -332, -176, 690, 432, 1)
     GUI:ScrollView_setBounceEnabled(scroll, true)
@@ -2684,31 +2632,14 @@ local function drawPet(node, snapshot, npcid)
     -- GUI:setAnchorPoint(nextTitle, 0.5, 0.5)
     -- GUI:Text_enableOutline(nextTitle, '#4d2d24', 1)
 
-    local function collectPlantUnlockNames(level, onlyNew)
-        local names = {}
-        for _, plantEntry in ipairs(buildPlantList((cfg or {}).plant or {})) do
-            local plant = plantEntry.cfg or {}
-            local needLevel = tonumber(plant.need_level or 1) or 1
-            local matched = onlyNew and (needLevel == level) or ((not onlyNew) and needLevel <= level)
-            if matched and tostring(plant.name or '') ~= '' then
-                names[#names + 1] = tostring(plant.name)
-            end
-        end
-        return names
-    end
-
-    local currentUnlockNames = collectPlantUnlockNames(currentLevel, true)
     local currentText = string.format('仙府等级：%s级\n神石槽位：%s',
         formatNumber(currentLevel),
         -- formatNumber(tonumber(player.plot_unlock or 0) or 0),
         formatNumber(tonumber(player.open_slots or 0) or 0)
     )
-    if #currentUnlockNames > 0 then
-        currentText = currentText .. '\n解锁仙草：' .. table.concat(currentUnlockNames, '、')
-    end
     NPC_UI_HELPER.createRichText(bg, 'current_privilege', 406, 296, currentText, {
         width = 270,
-        height = 140,
+        height = 110,
         anchor = {x = 0, y = 1},
         color = '#00FF00',
     })
@@ -2720,14 +2651,10 @@ local function drawPet(node, snapshot, npcid)
             -- formatNumber(tonumber(nextCfg.plot_unlock or 0) or 0),
             formatNumber(tonumber(nextCfg.open_slots or 0) or 0)
         )
-        local nextUnlockNames = collectPlantUnlockNames(nextLevel, true)
-        if #nextUnlockNames > 0 then
-            nextText = nextText .. '\n解锁仙草：' .. table.concat(nextUnlockNames, '、')
-        end
     end
     NPC_UI_HELPER.createRichText(bg, 'next_privilege', 406, 154, nextText, {
         width = 270,
-        height = 140,
+        height = 110,
         anchor = {x = 0, y = 1},
         color = '#00FFFF',
     })

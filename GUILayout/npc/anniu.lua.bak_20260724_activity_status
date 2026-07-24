@@ -1,4 +1,4 @@
-local npc = {
+﻿local npc = {
 }
 local REWARD_ITEM_EFFECT_14193 = 14193
 local REWARD_ITEM_EFFECT_13048 = 13048
@@ -4601,23 +4601,16 @@ npc[30] = function(p2, p3, Data)
         return total
     end
 
-    local function get_doll_attr_label(entryCfg, count)
+    local function get_doll_attr_label(entryCfg)
         local attrDesc = tostring((entryCfg or {}).attr_desc or '')
         if attrDesc == '' then
             return '属性加成'
         end
-        local ownedCount = math.max(1, tonumber(count) or 1)
-        if ownedCount <= 1 then
-            return attrDesc
-        end
-        return string.gsub(attrDesc, '%+([%d%.]+)(%%?)', function(value, suffix)
-            local num = tonumber(value) or 0
-            local total = num * ownedCount
-            if total == math.floor(total) then
-                total = math.floor(total)
-            end
-            return '+' .. tostring(total) .. tostring(suffix or '')
-        end)
+        local label = attrDesc
+        label = string.gsub(label, '%s*/%s*.*$', '')
+        label = string.gsub(label, '%+.*$', '')
+        label = string.gsub(label, '%s+$', '')
+        return label ~= '' and label or attrDesc
     end
 
     local function build_doll_preview_batch_cost(doll, cfg, count)
@@ -5196,8 +5189,40 @@ npc[30] = function(p2, p3, Data)
     local function render_doll_cabinet_panel(parent)
         local payload = npc.woodcut_doll.payload or {}
         local doll = payload.doll or {}
+        local qualityCount = doll.quality_count or {}
+        local order = get_doll_cfg().cabinet_order or {}
         local ownedList = build_doll_owned_list(doll)
         GUI:Image_Create(parent, 'cabinet_room_bg', 0 - 40, 0, 'res/custom/three_city/xianfu/仙府部分/收藏柜/收藏柜背景.png')
+        local attrBg = GUI:Image_Create(parent, 'cabinet_attr_bg', 503 - 40, 280 - 50, 'res/custom/three_city/xianfu/仙府部分/收藏柜/右上角属性底.png')
+        GUI:setAnchorPoint(attrBg, 0, 0)
+        GUI:setScaleX(attrBg, 8.6)
+        GUI:setScaleY(attrBg, 1.55)
+        local totalOwned = 0
+        for _, count in pairs(doll.owned or {}) do
+            totalOwned = totalOwned + (tonumber(count) or 0)
+        end
+        local titleText = GUI:Text_Create(parent, 'cabinet_title_text', 534, 470 - 50, 20, '#ffe9c2', '已解锁娃娃')
+        GUI:Text_enableOutline(titleText, '#100808', 2)
+        local infoRows = {
+            string.format('已解锁：%s/%s', format_doll_number(#ownedList), format_doll_number(#order)),
+            string.format('收藏总数：%s', format_doll_number(totalOwned)),
+            string.format('普通：%s', format_doll_number(qualityCount.normal or 0)),
+            string.format('红款：%s', format_doll_number(qualityCount.red or 0)),
+            string.format('隐藏：%s', format_doll_number(qualityCount.hidden or 0)),
+        }
+        for idx, text in ipairs(infoRows) do
+            local label = GUI:Text_Create(parent, 'cabinet_info_' .. idx, 534, 438 - (idx - 1) * 28 - 50, 18, '#ffffff', text)
+            GUI:Text_enableOutline(label, '#100808', 2)
+        end
+        local summary = doll.summary or {}
+        for idx, entry in ipairs(summary) do
+            if idx > 5 then
+                break
+            end
+            local text = string.format('%s +%s', entry.name or '', format_doll_attr_value(entry.value, entry.percent))
+            local label = GUI:Text_Create(parent, 'cabinet_summary_' .. idx, 534, 298 - (idx - 1) * 24 - 50, 17, '#ffe8c5', text)
+            GUI:Text_enableOutline(label, '#100808', 2)
+        end
         local viewX = 66
         local viewY = 66 - 50
         local viewW = 644
@@ -5205,8 +5230,8 @@ npc[30] = function(p2, p3, Data)
         local scroll = GUI:ScrollView_Create(parent, 'cabinet_scroll', viewX, viewY, viewW, viewH, 1)
         GUI:ScrollView_setBounceEnabled(scroll, true)
         GUI:setTouchEnabled(scroll, true)
-        local cols = 4
-        local cellW = 139
+        local cols = 3
+        local cellW = 128
         local cellH = 214
         local rows = math.max(1, math.ceil(math.max(#ownedList, 1) / cols))
         local innerH = math.max(viewH, rows * cellH + 10)
@@ -5231,7 +5256,7 @@ npc[30] = function(p2, p3, Data)
                 if asset then
                     GUI:Image_Create(slot, 'cabinet_owned_img_' .. idx, 0, 0, asset)
                 end
-                local attrLabel = GUI:Text_Create(slot, 'cabinet_attr_label_' .. idx, 67, 164 - 155, 14, '#ffe084', get_doll_attr_label(entry.cfg or {}, entry.count))
+                local attrLabel = GUI:Text_Create(slot, 'cabinet_attr_label_' .. idx, 67, 164 - 155, 14, '#ffe084', get_doll_attr_label(entry.cfg or {}))
                 GUI:setAnchorPoint(attrLabel, 0.5, 0)
                 GUI:Text_enableOutline(attrLabel, '#100808', 2)
                 local dollName = tostring((entry.cfg or {}).name or '')
@@ -5794,7 +5819,7 @@ npc[501] = function(p2, p3, Data)
         local mainBtn = GUI:Button_Create(node, "main_btn", 550, 80, btnSkin)
         GUI:setAnchorPoint(mainBtn, 0.5, 0.5)
         if tonumber(T_data.ok or 0) == 1 and tonumber(T_data.main_claimed or 0) < 1 then
-            GUI:Button_loadTextureNormal(mainBtn, "res/wy/public/npc_19_tip_jl.png")
+            GUI:Button_loadTextures(mainBtn, "res/wy/public/npc_19_tip_jl.png")
             -- GUI:Button_setTitleText(mainBtn, "领取奖励")
             -- GUI:Button_setTitleColor(mainBtn, "#FFF6D8")
             -- GUI:Button_setTitleFontSize(mainBtn, 20)
@@ -6685,13 +6710,6 @@ npc[507] = function(p2, p3, Data)
         elseif i == 7 then
             cfg.title = "天选之人"
             cfg.time = tostring((txzr.notice and txzr.notice[1]) or "30分钟一轮，共四轮")
-            local txzrState = (npc.data_507 or {}).txzr or {}
-            local txzrMinute = tonumber(txzrState.minute or 0) or 0
-            local txzrRound = tonumber(txzrState.round or 0) or 0
-            local txzrOpen = tonumber(txzrState.open or 0) or 0
-            if txzrOpen == 1 or (txzrRound < 4 and txzrMinute > 0 and txzrMinute < 30) then
-                cfg.time = cfg.time .. "\n当前活动进行中，可直接点击参与"
-            end
             cfg.desc = "活动按轮次进行幸运比拼，参与玩家随机点数排名，每轮点数最高者获得奖励。"
             cfg.reward = "查看具体页面可以预览奖励"
             cfg.rewardItems = buildRewardItems(function(out, seen)
@@ -6779,22 +6797,8 @@ npc[507] = function(p2, p3, Data)
     local ACTIVITY_STATUS_OPEN = 1
     local ACTIVITY_STATUS_WAIT = 2
     local ACTIVITY_STATUS_END = 3
-    local function getTxzrRuntimeState()
-        local txzrState = (npc.data_507 or {}).txzr or {}
-        local minute = tonumber(txzrState.minute or 0) or 0
-        local round = tonumber(txzrState.round or 0) or 0
-        local open = tonumber(txzrState.open or 0) or 0
-        return minute, round, open
-    end
     local function activityIsOpen(i)
-        i = tonumber(i) or 0
-        if i == 7 then
-            local minute, round, open = getTxzrRuntimeState()
-            if open == 1 or (round < 4 and minute > 0 and minute < 30) then
-                return true
-            end
-        end
-        return tonumber((((npc.data_507 or {}).open_state or {})[i]) or 0) == 1
+        return tonumber((((npc.data_507 or {}).open_state or {})[tonumber(i) or 0]) or 0) == 1
     end
     local function getServerMinute()
         local nowMinute = tonumber((npc.data_507 or {}).now_minute)
@@ -6810,25 +6814,19 @@ npc[507] = function(p2, p3, Data)
         end
         local startAt = (tonumber(startHour) or 0) * 60 + (tonumber(startMinute) or 0)
         local finishAt = startAt + math.max(1, tonumber(durationMin) or 1)
-        if nowMinute < startAt then
-            return ACTIVITY_STATUS_WAIT
-        end
         if nowMinute >= finishAt then
             return ACTIVITY_STATUS_END
         end
-        return ACTIVITY_STATUS_OPEN
+        return ACTIVITY_STATUS_WAIT
     end
     local function statusByOpenMinute(startMinute, durationMin)
         local kqfz = tonumber((npc.data_507 or {}).kqfz or 0) or 0
         local startAt = tonumber(startMinute) or 0
         local finishAt = startAt + math.max(1, tonumber(durationMin) or 1)
-        if kqfz < startAt then
-            return ACTIVITY_STATUS_WAIT
-        end
         if kqfz >= finishAt then
             return ACTIVITY_STATUS_END
         end
-        return ACTIVITY_STATUS_OPEN
+        return ACTIVITY_STATUS_WAIT
     end
     local function getActivityStatus(i)
         i = tonumber(i) or 0

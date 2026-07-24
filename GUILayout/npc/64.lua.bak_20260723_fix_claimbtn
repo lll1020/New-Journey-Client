@@ -563,10 +563,9 @@ function npc.main(npcid, p2, p3, msgData)
         local hatchNowBtn = _contract_button(node, "quick_hatch_btn", 625, 86, "立即点化", "#FF4D3A", function()
             SL:SendLuaNetMsg(100, npcid, 7, 0, SL:JsonEncode({idx = idx}, false))
         end)
-        local claimBtn
         if status == "未孵化" then
         else
-            claimBtn = GUI:Button_Create(node, "claim_btn", 790, 86, "res/custom/four_city/lingshou/xjm/an7.png")
+            local claimBtn = GUI:Button_Create(node, "claim_btn", 790, 86, "res/custom/four_city/lingshou/xjm/an7.png")
             GUI:setAnchorPoint(claimBtn, 0.5, 0.5)
             GUI:Button_setTitleText(claimBtn, canDeploy and "召唤出战" or (canClaim and "缔契领取" or status))
             GUI:Button_setTitleFontName(claimBtn, "fonts/502.ttf")
@@ -586,14 +585,14 @@ function npc.main(npcid, p2, p3, msgData)
 
         
 
-        if claimBtn and canDeploy then
+        if canDeploy then
             GUI:addOnClickEvent(claimBtn, function()
                 if npc.ls_data and npc.ls_data.T_data then
                     npc.ls_data.T_data.dqzh = idx
                 end
                 SL:SendLuaNetMsg(100, npcid, 2, 0, SL:JsonEncode({idx = idx}, false))
             end)
-        elseif claimBtn and canClaim then
+        elseif canClaim then
             _redpoint_if(claimBtn, true, {x = 176, y = 37})
             GUI:addOnClickEvent(claimBtn, function()
                 SL:OpenCommonTipsPop({
@@ -834,5 +833,3 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
-
-

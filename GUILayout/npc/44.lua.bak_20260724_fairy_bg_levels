@@ -59,17 +59,6 @@ local colors = {
     muted = '#9fb0c0',
 }
 
-local function getFairyBgByLevel(level)
-    local lv = tonumber(level or 1) or 1
-    if lv <= 1 then
-        return 'res/custom/three_city/xianfu/bg.png'
-    elseif lv == 2 then
-        return 'res/custom/three_city/xianfu/bg_1.png'
-    elseif lv == 3 then
-        return 'res/custom/three_city/xianfu/bg_2.png'
-    end
-    return 'res/custom/three_city/xianfu/bg_3.png'
-end
 local buildUnlockedPlantList
 local buildLevelSummary
 local ensureState
@@ -896,7 +885,7 @@ local function ensureWindow(npcid)
         parent = GUI:Win_Create("npc_44", cogin.w / 2, cogin.h / 2, 0, 0, false, false, true, true, true, 0, 1)
     end
 
-    local bjt = GUI:Image_Create(parent, 'bjt', 0, 0, getFairyBgByLevel((snapshot and snapshot.player and snapshot.player.level) or 1))
+    local bjt = GUI:Image_Create(parent, 'bjt', 0, 0, "res/custom/three_city/xianfu/bg.png")
     GUI:setAnchorPoint(bjt, 0.5, 0.5)
     GUI:setContentSize(bjt, cogin.w, cogin.h)
     GUI:setTouchEnabled(bjt, true)
@@ -2250,6 +2239,18 @@ local function drawDollMachine(node, snapshot, npcid)
     local costText = formatCost(doll.current_cost or cfg.normal_draw_cost or {})
     local fixedRewardText = formatCost(cfg.every_draw_reward or {})
     local pityNeed = doll.pity_need or cfg.pity_need or 35
+    local rightInfo = {
+        {key = 'doll_money', y = 75, color = "#f7f7de", text = string.format("当前仙府币：%s", formatNumber(SL:GetMetaValue("TMONEY", "仙府币") or 0))},
+        {key = 'doll_cost', y = 42, color = "#ffffff", text = "本次消耗：" .. costText},
+        {key = 'doll_reward_fix', y = 12, color = "#c0f7a2", text = "固定奖励：" .. fixedRewardText},
+        {key = 'doll_draw_total', y = -18, color = "#ffe9c2", text = string.format("累计抓取：%s", formatNumber(doll.draw_total or 0))},
+        {key = 'doll_newbie', y = -48, color = "#8af5ff", text = string.format("新手优惠剩余：%s", formatNumber(doll.newbie_left or 0))},
+        {key = 'doll_pity', y = -78, color = "#ffcd7f", text = string.format("红款保底：%s/%s", formatNumber(doll.pity_progress or 0), formatNumber(pityNeed))},
+        {key = 'doll_hidden', y = -108, color = "#ff8686", text = string.format("隐藏款已出：%s", formatNumber(doll.hidden_count or 0))},
+    }
+    for _, row in ipairs(rightInfo) do
+        GUI:Text_Create(root, row.key, 165, row.y, 18, row.color, row.text, nil, nil, {outlineSize = 2, outlineColor = SL:ConvertColorFromHexString("#100808")})
+    end
 
     local resultCfg = nil
     local lastResultId = ((state.lastDollResult or {}).resultId) or doll.last_result
@@ -2293,6 +2294,24 @@ local function drawDollCabinet(node, snapshot, npcid)
     local bg = GUI:Image_Create(root, 'cabinet_bg', -370, -215, "res/custom/three_city/xianfu/仙府部分/收藏柜/收藏柜背景.png")
     GUI:setAnchorPoint(bg, 0, 0)
 
+    local attrBg = GUI:Image_Create(root, 'cabinet_attr_bg', 175, 112, "res/custom/three_city/xianfu/仙府部分/收藏柜/右上角属性底.png")
+    GUI:setAnchorPoint(attrBg, 0, 0)
+    GUI:setScaleX(attrBg, 8.4)
+
+    GUI:Text_Create(root, 'cabinet_title_text', 205, 142, 20, "#ffe9c2", "收藏属性总览", nil, nil, {outlineSize = 2, outlineColor = SL:ConvertColorFromHexString("#100808")})
+
+    local summary = doll.summary or {}
+    if #summary <= 0 then
+        GUI:Text_Create(root, 'cabinet_summary_empty', 205, 110, 18, "#ffffff", "暂无娃娃属性", nil, nil, {outlineSize = 2, outlineColor = SL:ConvertColorFromHexString("#100808")})
+    else
+        for idx, entry in ipairs(summary) do
+            if idx > 6 then
+                break
+            end
+            local text = string.format("%s +%s", entry.name or "", formatAttrValue(entry.value, entry.percent))
+            GUI:Text_Create(root, 'cabinet_summary_' .. idx, 205, 112 - (idx - 1) * 28, 18, "#ffffff", text, nil, nil, {outlineSize = 2, outlineColor = SL:ConvertColorFromHexString("#100808")})
+        end
+    end
 
     local scroll = GUI:ScrollView_Create(root, "cabinet_scroll", -332, -176, 690, 432, 1)
     GUI:ScrollView_setBounceEnabled(scroll, true)
@@ -2689,7 +2708,7 @@ local function drawPet(node, snapshot, npcid)
         for _, plantEntry in ipairs(buildPlantList((cfg or {}).plant or {})) do
             local plant = plantEntry.cfg or {}
             local needLevel = tonumber(plant.need_level or 1) or 1
-            local matched = onlyNew and (needLevel == level) or ((not onlyNew) and needLevel <= level)
+            local matched = onlyNew and needLevel == level or needLevel <= level
             if matched and tostring(plant.name or '') ~= '' then
                 names[#names + 1] = tostring(plant.name)
             end
@@ -2697,14 +2716,14 @@ local function drawPet(node, snapshot, npcid)
         return names
     end
 
-    local currentUnlockNames = collectPlantUnlockNames(currentLevel, true)
+    local currentUnlockNames = collectPlantUnlockNames(currentLevel, false)
     local currentText = string.format('仙府等级：%s级\n神石槽位：%s',
         formatNumber(currentLevel),
         -- formatNumber(tonumber(player.plot_unlock or 0) or 0),
         formatNumber(tonumber(player.open_slots or 0) or 0)
     )
     if #currentUnlockNames > 0 then
-        currentText = currentText .. '\n解锁仙草：' .. table.concat(currentUnlockNames, '、')
+        currentText = currentText .. '\n已解锁仙草：' .. table.concat(currentUnlockNames, '、')
     end
     NPC_UI_HELPER.createRichText(bg, 'current_privilege', 406, 296, currentText, {
         width = 270,
