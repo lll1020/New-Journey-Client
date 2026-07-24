@@ -1,4 +1,4 @@
-﻿local npc = {}
+local npc = {}
 npc._config = teshudata["npc_22"]
 
 local MAIN_WINDOW_OPTS = {
@@ -639,43 +639,30 @@ local function _lg_format_skill_desc(defaultName, cfg, values)
     return _lg_color_skill_desc("【" .. skillName .. "】" .. tostring(cfg and cfg.template or ""))
 end
 
-local function _lg_build_unactivated_skill_preview(rawText, fallbackName)
-    local text = tostring(rawText or "")
-    local skillName = tostring(fallbackName or "技能")
-    if text == "" or text == "暂无" then
-        return _lg_color_skill_desc("【" .. skillName .. "】效果预览暂未配置。") .. "<br><font color='#9FE2FF'>灵根达到Lv.1后激活。</font>"
-    end
-    text = text:gsub("；Lv1.*$", "")
-    text = text:gsub("。Lv1.*$", "。")
-    text = text:gsub("，Lv1.*$", "")
-    text = text:gsub("Lv1.*$", "")
-    text = text:gsub("%s+$", "")
-    return _lg_color_skill_desc(text) .. "<br><font color='#9FE2FF'>灵根达到Lv.1后激活。</font>"
-end
-
 local function _lg_build_active_skill_desc(idx, previewNext, levelOverride)
     local rootCfg = _lg_root_cfg(idx) or {}
     local level = math.max(0, math.min(10, tonumber(levelOverride or _lg_level_value(idx) or 0) or 0))
     local text = tostring(rootCfg.active or "")
     local cfg = ACTIVE_SKILL_TEXT_CONFIG[tonumber(idx or 0) or 0]
     if cfg then
-        if level <= 0 and not previewNext then
-            local rawText = text ~= "" and text or ("【" .. tostring(cfg.name or "主动技能") .. "】" .. tostring(cfg.template or ""))
-            return _lg_build_unactivated_skill_preview(rawText, cfg.name or "主动技能")
-        end
         local values = {}
         for _, valueCfg in ipairs(cfg.values or {}) do
             values[#values + 1] = _lg_format_skill_value(valueCfg, level, previewNext and not _lg_is_max_level(idx))
         end
-        return _lg_format_skill_desc("主动技能", cfg, values)
+        local desc = _lg_format_skill_desc("主动技能", cfg, values)
+        if level <= 0 and not previewNext then
+            desc = desc .. "<br><font color='#9FE2FF'>灵根达到Lv.1后激活。</font>"
+        end
+        return desc
     end
     if text == "" or text == "暂无" then
         return "暂无"
     end
+    local desc = _lg_color_skill_desc(text)
     if level <= 0 and not previewNext then
-        return _lg_build_unactivated_skill_preview(text, "主动技能")
+        desc = desc .. "<br><font color='#9FE2FF'>灵根达到Lv.1后激活。</font>"
     end
-    return _lg_color_skill_desc(text)
+    return desc
 end
 local function _lg_build_passive_skill_desc(idx, previewNext, levelOverride)
     local rootCfg = _lg_root_cfg(idx) or {}
@@ -683,23 +670,24 @@ local function _lg_build_passive_skill_desc(idx, previewNext, levelOverride)
     local text = tostring(rootCfg.passive or "")
     local cfg = PASSIVE_SKILL_TEXT_CONFIG[tonumber(idx or 0) or 0]
     if cfg then
-        if level <= 0 and not previewNext then
-            local rawText = text ~= "" and text or ("【" .. tostring(cfg.name or "被动技能") .. "】" .. tostring(cfg.template or ""))
-            return _lg_build_unactivated_skill_preview(rawText, cfg.name or "被动技能")
-        end
         local values = {}
         for _, valueCfg in ipairs(cfg.values or {}) do
             values[#values + 1] = _lg_format_skill_value(valueCfg, level, previewNext and not _lg_is_max_level(idx))
         end
-        return _lg_format_skill_desc("被动技能", cfg, values)
+        local desc = _lg_format_skill_desc("被动技能", cfg, values)
+        if level <= 0 and not previewNext then
+            desc = desc .. "<br><font color='#9FE2FF'>灵根达到Lv.1后激活。</font>"
+        end
+        return desc
     end
     if text == "" or text == "暂无" then
         return "暂无"
     end
+    local desc = _lg_color_skill_desc(text)
     if level <= 0 and not previewNext then
-        return _lg_build_unactivated_skill_preview(text, "被动技能")
+        desc = desc .. "<br><font color='#9FE2FF'>灵根达到Lv.1后激活。</font>"
     end
-    return _lg_color_skill_desc(text)
+    return desc
 end
 -- 将灵根效果文案中的“5000*灵根倍率+2000”一类公式直接结算为实际数值。
 local function _lg_strip_html(text)
@@ -1403,7 +1391,6 @@ local function _lg_build_attr_detail_html(idx)
     lines[#lines + 1] = _lg_tip_skill_block("被动技能", _lg_build_passive_skill_desc(idx, false), "#B9F6C5")
     lines[#lines + 1] = _lg_tip_skill_block("主动技能", _lg_build_active_skill_desc(idx, false), "#F2E7C8")
     lines[#lines + 1] = _lg_tip_skill_block("灵兽协同", cfg.synergy or "暂无", "#B9F6C5")
-    lines[#lines + 1] = _lg_tip_skill_block("天书协调", "【" .. tostring(cfg.echo_name or "未配置") .. "】" .. tostring(cfg.echo_desc or ""), "#A7D58D")
     return table.concat(lines, "\n")
 end
 
@@ -2262,7 +2249,6 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
-
 
 
 

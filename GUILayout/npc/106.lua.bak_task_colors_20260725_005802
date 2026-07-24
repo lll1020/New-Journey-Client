@@ -1,4 +1,4 @@
-﻿local npc = {}
+local npc = {}
 
 local RES = "res/custom/treasureBasin/"
 local WINDOW_OPTS = {
@@ -83,13 +83,13 @@ end
 local function text(parent, name, x, y, size, color, value, ax, ay, font)
     local t = GUI:Text_Create(parent, name, x, y, size, color, tostring(value or ""))
     GUI:setAnchorPoint(t, ax or 0.5, ay or 0.5)
-    GUI:Text_enableOutline(t, "#000000", 3)
+    GUI:Text_enableOutline(t, "#120805", 2)
     fontText(t, font or "fonts/502.ttf")
     return t
 end
 
 local function rich(parent, name, x, y, html, width, size, align)
-    local r = GUI:RichText_Create(parent, name, x, y, tostring(html or ""), width or 260, size or 16, "#F6E8C8", align or 1, nil, nil, {outlineSize = 1, outlineColor = "#000000"})
+    local r = GUI:RichText_Create(parent, name, x, y, tostring(html or ""), width or 260, size or 16, "#F6E8C8", align or 1, nil, nil, {outlineSize = 1, outlineColor = "#120805"})
     return r
 end
 
@@ -489,30 +489,32 @@ local function renderTaskWindow(npcid)
     local have = n(d.fragment_have)
     local artifactName = tostring(d.artifact_item_name or "聚宝盆")
     if n(d.activated) < 1 then
-
-        -- text(node, "task_desc", 0, 115, 22, "#FFFFFF", "主线目标：收集" .. fmt(need) .. "个" .. fragmentName .. "，完成聚宝盆修复。", 0.5, 0.5)
+        local descBg = GUI:Image_Create(node, "task_desc_bg", 0, 108, "res/wy/public/new_kuang.png")
+        GUI:setAnchorPoint(descBg, 0.5, 0.5)
+        GUI:setContentSize(descBg, 720, 24)
+        GUI:setLocalZOrder(descBg, -1)
+        text(node, "task_desc", 0, 115, 22, "#F6E8C8", "主线目标：收集" .. fmt(need) .. "个" .. fragmentName .. "，完成聚宝盆修复。", 0.5, 0.5)
 
         image(node, "task_need_title", -458, 30, RES .. "任务要求.png", 0, 0.5)
-        image(node, "task_reward_title", -458, -46 - 30, RES .. "任务奖励.png", 0, 0.5)
+        local needBg = GUI:Image_Create(node, "task_need_bg", -92, 10, "res/wy/public/new_kuang.png")
+        GUI:setAnchorPoint(needBg, 0.5, 0.5)
+        GUI:setContentSize(needBg, 410, 34)
+        GUI:setLocalZOrder(needBg, -1)
+        text(node, "task_need_desc", -92, 17, 22, have >= need and "#9DFF7C" or "#F6E8C8", "当前已收集 " .. fmt(have) .. "/" .. fmt(need) .. "，凑齐后即可修复聚宝盆。", 0.5, 0.5)
 
+        image(node, "task_reward_title", -458, -46, RES .. "任务奖励.png", 0, 0.5)
+        checkItemNumByTable_img_kuang({{fragmentName, need}}, nil, GUI:Node_Create(node, "task_cost_show", -342, -104))
 
-        text(node, "task_need_desc", -92 - 70 - 133, 17 - 40, 26, have >= need and "#66CCFF" or "#FF5A5A", "当前已收集 " .. fmt(have) .. "/" .. fmt(need) , 0.5, 0.5)
+        local rewardBg = GUI:Image_Create(node, "task_reward_bg", -78, -94, "res/wy/public/new_kuang.png")
+        GUI:setAnchorPoint(rewardBg, 0.5, 0.5)
+        GUI:setContentSize(rewardBg, 320, 50)
+        GUI:setLocalZOrder(rewardBg, -1)
+        text(node, "task_reward_desc_1", -78, -80, 22, "#F6E8C8", "修复完成后获得" .. artifactName .. "背包神器", 0.5, 0.5)
+        text(node, "task_reward_desc_2", -78, -102, 22, "#F6E8C8", "穿戴后开始累计聚能收益。", 0.5, 0.5)
+        ItemNumByTable_img_new({{artifactName, 1}}, nil, GUI:Node_Create(node, "task_reward_show", 334, -94))
 
-        checkItemNumByTable_img_kuang({{fragmentName, need}}, nil, GUI:Node_Create(node, "task_cost_show", -342 + 134, -104 + 51))
-
-
-        text(node, "task_reward_desc_1", -78 - 157, -80 - 30, 22, "#FFFFFF", "修复完成后获得【" .. artifactName .. "】", 0.5, 0.5)
-        text(node, "task_reward_desc_2", -78 - 157, -102 - 30, 22, "#66CCFF", "穿戴后开始累计聚能收益。", 0.5, 0.5)
-        ItemNumByTable_img_new({{artifactName, 1}}, nil, GUI:Node_Create(node, "task_reward_show", 334 + 134 - 853, -94 + 41 - 146))
-
-
-        local taskTip1 = text(node, "task_tip_1", -118, -194 - 50, 22, "#66CCFF", "碎片获取较慢，点击此处可以购买礼包！！！！", 0.5, 0.5)
-        GUI:Text_enableUnderline(taskTip1)
-        GUI:setTouchEnabled(taskTip1, true)
-        GUI:addOnClickEvent(taskTip1, function()
-            SL:SendLuaNetMsg(101, 501, 0, 0, "")
-        end)
-        -- text(node, "task_tip_2", -118, -218, 22, "#FFFFFF", "材料集齐后点击右下方按钮修复即可。", 0.5, 0.5)
+        text(node, "task_tip_1", -118, -194, 22, "#E9D7B2", "碎片获取较慢，优先跟随主线推进；", 0.5, 0.5)
+        text(node, "task_tip_2", -118, -218, 22, "#E9D7B2", "材料集齐后点击右下方按钮修复即可。", 0.5, 0.5)
 
         local claimBtn = GUI:Frames_Create(node, "task_claim_btn", 246, -172, "res/custom/treasureBasin/btn1_eff/eff_", ".png", 1, 75, {speed = 75, count = 75, loop = -1})
         GUI:setAnchorPoint(claimBtn, 0.5, 0.5)
@@ -528,29 +530,38 @@ local function renderTaskWindow(npcid)
             dir = 7,
             desc = "点击修复聚宝盆",
         })
-        -- NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, claimBtn, node, npcid, "treasure_basin_rebuild", {
-        --     taskMap = {[npcid] = 23},
-        --     keyPrefix = "mainline_treasure_basin",
-        --     dir = 7,
-        --     desc = "点击修复聚宝盆",
-        -- })
+        NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, claimBtn, node, npcid, "treasure_basin_rebuild", {
+            taskMap = {[npcid] = 23},
+            keyPrefix = "mainline_treasure_basin",
+            dir = 7,
+            desc = "点击修复聚宝盆",
+        })
         if canRebuildTask() then
             NPC_UI_HELPER.redpoint_create_eff(claimBtn, {x = 200, y = 155})
         end
         return
     end
 
-    image(node, "task_reward_title", -458, -46 - 30, RES .. "任务奖励.png", 0, 0.5)
+    local doneBg = GUI:Image_Create(node, "task_done_bg", 0, 108, "res/wy/public/new_kuang.png")
+    GUI:setAnchorPoint(doneBg, 0.5, 0.5)
+    GUI:setContentSize(doneBg, 720, 24)
+    GUI:setLocalZOrder(doneBg, -1)
+    text(node, "task_done_desc", 0, 115, 22, "#9DFF7C", "主线任务已完成，聚宝盆已经修复。", 0.5, 0.5)
 
-    ItemNumByTable_img_new({{artifactName, 1}}, nil, GUI:Node_Create(node, "task_reward_show_done", 334 + 134 - 853, -94 + 41 - 146))
+    image(node, "task_reward_title_done", -458, -28, RES .. "任务奖励.png", 0, 0.5)
+    local rewardBg = GUI:Image_Create(node, "task_reward_bg_done", -78, -84, "res/wy/public/new_kuang.png")
+    GUI:setAnchorPoint(rewardBg, 0.5, 0.5)
+    GUI:setContentSize(rewardBg, 320, 50)
+    GUI:setLocalZOrder(rewardBg, -1)
+    ItemNumByTable_img_new({{artifactName, 1}}, nil, GUI:Node_Create(node, "task_reward_show_done", 334, -84))
 
-    local equipColor = n(d.equipped) >= 1 and "#66CCFF" or "#FFFFFF"
+    local equipColor = n(d.equipped) >= 1 and "#9DFF7C" or "#FFD27A"
     if n(d.equipped) >= 1 then
-        text(node, "task_equip_1", -78 - 157, -80 - 30, 22, equipColor, "聚宝盆已穿戴，", 0.5, 0.5)
-        text(node, "task_equip_2", -78 - 157, -102 - 30, 22, equipColor, "当前聚能收益正在生效。", 0.5, 0.5)
+        text(node, "task_equip_1", -78, -74, 22, equipColor, "聚宝盆已穿戴，", 0.5, 0.5)
+        text(node, "task_equip_2", -78, -96, 22, equipColor, "当前聚能收益正在生效。", 0.5, 0.5)
     else
-        text(node, "task_equip_1", -78 - 157, -80 - 30, 22, equipColor, "聚宝盆已修复，", 0.5, 0.5)
-        text(node, "task_equip_2", -78 - 157, -102 - 30, 22, equipColor, "请穿戴到背包神器位后开始生效。", 0.5, 0.5)
+        text(node, "task_equip_1", -78, -74, 22, equipColor, "聚宝盆已修复，", 0.5, 0.5)
+        text(node, "task_equip_2", -78, -96, 22, equipColor, "请穿戴到背包神器位后开始生效。", 0.5, 0.5)
     end
 end
 function npc.render(npcid)
@@ -572,7 +583,7 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data = SL:JsonDecode(msgData, false) or npc.data or {}
     else
         npc.data = npc.data or {}
-    end 
+    end
     renderTaskWindow(npcid)
     if p2 ~= 0 and n((npc.data or {}).activated) >= 1
         and NPC_UI_HELPER.isCurrentXylTask({"修复聚宝盆", "聚宝盆", "聚宝盆任务"}) then
@@ -581,6 +592,3 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
-
-
-

@@ -1,4 +1,4 @@
-﻿local npc = {}
+local npc = {}
 
 local RES = "res/custom/treasureBasin/"
 local WINDOW_OPTS = {
@@ -505,14 +505,12 @@ local function renderTaskWindow(npcid)
         text(node, "task_reward_desc_2", -78 - 157, -102 - 30, 22, "#66CCFF", "穿戴后开始累计聚能收益。", 0.5, 0.5)
         ItemNumByTable_img_new({{artifactName, 1}}, nil, GUI:Node_Create(node, "task_reward_show", 334 + 134 - 853, -94 + 41 - 146))
 
-
-        local taskTip1 = text(node, "task_tip_1", -118, -194 - 50, 22, "#66CCFF", "碎片获取较慢，点击此处可以购买礼包！！！！", 0.5, 0.5)
+        local taskTip1 = text(node, "task_tip_1", -118, -194, 22, "#66CCFF", "碎片获取较慢，优先跟随主线推进；", 0.5, 0.5)
         GUI:Text_enableUnderline(taskTip1)
         GUI:setTouchEnabled(taskTip1, true)
         GUI:addOnClickEvent(taskTip1, function()
-            SL:SendLuaNetMsg(101, 501, 0, 0, "")
+            SL:SendLuaNetMsg(100, 501, 0, 0, "")
         end)
-        -- text(node, "task_tip_2", -118, -218, 22, "#FFFFFF", "材料集齐后点击右下方按钮修复即可。", 0.5, 0.5)
 
         local claimBtn = GUI:Frames_Create(node, "task_claim_btn", 246, -172, "res/custom/treasureBasin/btn1_eff/eff_", ".png", 1, 75, {speed = 75, count = 75, loop = -1})
         GUI:setAnchorPoint(claimBtn, 0.5, 0.5)
@@ -528,12 +526,12 @@ local function renderTaskWindow(npcid)
             dir = 7,
             desc = "点击修复聚宝盆",
         })
-        -- NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, claimBtn, node, npcid, "treasure_basin_rebuild", {
-        --     taskMap = {[npcid] = 23},
-        --     keyPrefix = "mainline_treasure_basin",
-        --     dir = 7,
-        --     desc = "点击修复聚宝盆",
-        -- })
+        NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, claimBtn, node, npcid, "treasure_basin_rebuild", {
+            taskMap = {[npcid] = 23},
+            keyPrefix = "mainline_treasure_basin",
+            dir = 7,
+            desc = "点击修复聚宝盆",
+        })
         if canRebuildTask() then
             NPC_UI_HELPER.redpoint_create_eff(claimBtn, {x = 200, y = 155})
         end
@@ -572,7 +570,7 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data = SL:JsonDecode(msgData, false) or npc.data or {}
     else
         npc.data = npc.data or {}
-    end 
+    end
     renderTaskWindow(npcid)
     if p2 ~= 0 and n((npc.data or {}).activated) >= 1
         and NPC_UI_HELPER.isCurrentXylTask({"修复聚宝盆", "聚宝盆", "聚宝盆任务"}) then
@@ -581,6 +579,3 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
-
-
-

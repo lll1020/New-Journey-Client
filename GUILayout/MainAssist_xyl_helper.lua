@@ -1,4 +1,4 @@
-local MainAssistXylHelper = {}
+﻿local MainAssistXylHelper = {}
 
 -- 备注：伏妖录当前任务变更事件名。
 MainAssistXylHelper.EVENT_CURRENT_TASK_CHANGE = "伏妖录当前任务变更"
@@ -2137,6 +2137,18 @@ function MainAssistXylHelper.bind(MainAssist)
                     GUI:setContentSize(MainAssist.ListView_mission, 200, 145)
                     GUI:setPosition(MainAssist.ListView_mission, 101, 114)
                 end
+                if _get_current_mainline_rwid() == 23 then
+                    local quickClaimText = GUI:Text_Create(rewardNode, "quick_claim_text", 142 - 40, 42 - 15, 20, "#66CCFF", "礼包\n购买")
+                    GUI:setAnchorPoint(quickClaimText, 0, 0.5)
+                    GUI:Text_setFontName(quickClaimText, "fonts/502.ttf")
+                    GUI:Text_enableOutline(quickClaimText, "#000000", 2)
+                    GUI:Text_enableUnderline(quickClaimText)
+                    GUI:setLocalZOrder(quickClaimText, 1002)
+                    GUI:setTouchEnabled(quickClaimText, true)
+                    GUI:addOnClickEvent(quickClaimText, function()
+                        SL:SendLuaNetMsg(101, 501, 0, 0, "")
+                    end)
+                end
                 return
             end
             if MainAssist._xylCurrentWidget and MainAssist._xylCurrentWidget.panel then
@@ -2306,3 +2318,4 @@ function MainAssistXylHelper.bind(MainAssist)
 end
 
 return MainAssistXylHelper
+
