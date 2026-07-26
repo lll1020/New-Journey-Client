@@ -6,626 +6,626 @@
       <key>monster_16326_0_1_0_0000.png</key>
       <dict>
         <key>frame</key>
-        <string>{{0,424},{209,151}}</string>
+        <string>{{0,0},{85,61}}</string>
         <key>offset</key>
-        <string>{-80,87}</string>
+        <string>{-20,36}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
-        <string>{{0,0},{209,151}}</string>
+        <string>{{0,0},{85,61}}</string>
         <key>sourceSize</key>
-        <string>{209,151}</string>
+        <string>{85,61}</string>
       </dict>
       <key>monster_16326_0_1_0_0001.png</key>
       <dict>
         <key>frame</key>
-        <string>{{0,635},{209,157}}</string>
+        <string>{{0,87},{85,64}}</string>
         <key>offset</key>
-        <string>{-80,95}</string>
+        <string>{-20,39}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
-        <string>{{0,0},{209,157}}</string>
+        <string>{{0,0},{85,64}}</string>
         <key>sourceSize</key>
-        <string>{209,157}</string>
+        <string>{85,64}</string>
       </dict>
       <key>monster_16326_0_1_0_0002.png</key>
       <dict>
         <key>frame</key>
-        <string>{{153,424},{209,162}}</string>
+        <string>{{63,0},{85,65}}</string>
         <key>offset</key>
-        <string>{-80,102}</string>
+        <string>{-20,41}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
-        <string>{{0,0},{209,162}}</string>
+        <string>{{0,0},{85,65}}</string>
         <key>sourceSize</key>
-        <string>{209,162}</string>
+        <string>{85,65}</string>
       </dict>
       <key>monster_16326_0_1_0_0003.png</key>
       <dict>
         <key>frame</key>
-        <string>{{0,0},{210,160}}</string>
+        <string>{{0,174},{85,64}}</string>
         <key>offset</key>
-        <string>{-81,101}</string>
+        <string>{-20,41}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
-        <string>{{0,0},{210,160}}</string>
+        <string>{{0,0},{85,64}}</string>
         <key>sourceSize</key>
-        <string>{210,160}</string>
+        <string>{85,64}</string>
       </dict>
       <key>monster_16326_0_1_0_0004.png</key>
       <dict>
         <key>frame</key>
-        <string>{{155,212},{209,155}}</string>
+        <string>{{0,261},{85,63}}</string>
         <key>offset</key>
-        <string>{-80,96}</string>
+        <string>{-20,39}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
-        <string>{{0,0},{209,155}}</string>
+        <string>{{0,0},{85,63}}</string>
         <key>sourceSize</key>
-        <string>{209,155}</string>
+        <string>{85,63}</string>
       </dict>
       <key>monster_16326_0_1_0_0005.png</key>
       <dict>
         <key>frame</key>
-        <string>{{0,212},{210,153}}</string>
+        <string>{{0,348},{85,61}}</string>
         <key>offset</key>
-        <string>{-81,91}</string>
+        <string>{-20,37}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
-        <string>{{0,0},{210,153}}</string>
+        <string>{{0,0},{85,61}}</string>
         <key>sourceSize</key>
-        <string>{210,153}</string>
+        <string>{85,61}</string>
       </dict>
       <key>monster_16326_0_1_1_0000.png</key>
       <dict>
         <key>frame</key>
-        <string>{{1523,359},{170,170}}</string>
+        <string>{{510,285},{68,69}}</string>
         <key>offset</key>
-        <string>{-77,82}</string>
+        <string>{-18,34}</string>
         <key>rotated</key>
-        <true />
+        <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{170,170}}</string>
+        <string>{{0,0},{68,69}}</string>
         <key>sourceSize</key>
-        <string>{170,170}</string>
+        <string>{68,69}</string>
       </dict>
       <key>monster_16326_0_1_1_0001.png</key>
       <dict>
         <key>frame</key>
-        <string>{{1280,566},{170,177}}</string>
+        <string>{{445,433},{69,71}}</string>
         <key>offset</key>
-        <string>{-76,89}</string>
+        <string>{-18,36}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{170,177}}</string>
+        <string>{{0,0},{69,71}}</string>
         <key>sourceSize</key>
-        <string>{170,177}</string>
+        <string>{69,71}</string>
       </dict>
       <key>monster_16326_0_1_1_0002.png</key>
       <dict>
         <key>frame</key>
-        <string>{{1179,382},{170,182}}</string>
+        <string>{{305,403},{68,74}}</string>
         <key>offset</key>
-        <string>{-75,94}</string>
+        <string>{-17,39}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{170,182}}</string>
+        <string>{{0,0},{68,74}}</string>
         <key>sourceSize</key>
-        <string>{170,182}</string>
+        <string>{68,74}</string>
       </dict>
       <key>monster_16326_0_1_1_0003.png</key>
       <dict>
         <key>frame</key>
-        <string>{{1337,0},{169,180}}</string>
+        <string>{{439,285},{69,72}}</string>
         <key>offset</key>
-        <string>{-73,93}</string>
+        <string>{-17,38}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{169,180}}</string>
+        <string>{{0,0},{69,72}}</string>
         <key>sourceSize</key>
-        <string>{169,180}</string>
+        <string>{69,72}</string>
       </dict>
       <key>monster_16326_0_1_1_0004.png</key>
       <dict>
         <key>frame</key>
-        <string>{{1401,182},{169,175}}</string>
+        <string>{{509,359},{68,71}}</string>
         <key>offset</key>
-        <string>{-72,89}</string>
+        <string>{-16,37}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{169,175}}</string>
+        <string>{{0,0},{68,71}}</string>
         <key>sourceSize</key>
-        <string>{169,175}</string>
+        <string>{68,71}</string>
       </dict>
       <key>monster_16326_0_1_1_0005.png</key>
       <dict>
         <key>frame</key>
-        <string>{{1363,745},{170,172}}</string>
+        <string>{{516,432},{69,70}}</string>
         <key>offset</key>
-        <string>{-74,85}</string>
+        <string>{-17,35}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{170,172}}</string>
+        <string>{{0,0},{69,70}}</string>
         <key>sourceSize</key>
-        <string>{170,172}</string>
+        <string>{69,70}</string>
       </dict>
       <key>monster_16326_0_1_2_0000.png</key>
       <dict>
         <key>frame</key>
-        <string>{{870,808},{146,190}}</string>
+        <string>{{211,0},{59,77}}</string>
         <key>offset</key>
-        <string>{-59,100}</string>
+        <string>{-11,41}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{146,190}}</string>
+        <string>{{0,0},{59,77}}</string>
         <key>sourceSize</key>
-        <string>{146,190}</string>
+        <string>{59,77}</string>
       </dict>
       <key>monster_16326_0_1_2_0001.png</key>
       <dict>
         <key>frame</key>
-        <string>{{159,846},{144,194}}</string>
+        <string>{{225,435},{58,78}}</string>
         <key>offset</key>
-        <string>{-55,104}</string>
+        <string>{-9,42}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
-        <string>{{0,0},{144,194}}</string>
+        <string>{{0,0},{58,78}}</string>
         <key>sourceSize</key>
-        <string>{144,194}</string>
+        <string>{58,78}</string>
       </dict>
       <key>monster_16326_0_1_2_0002.png</key>
       <dict>
         <key>frame</key>
-        <string>{{557,0},{141,196}}</string>
+        <string>{{146,87},{57,79}}</string>
         <key>offset</key>
-        <string>{-51,106}</string>
+        <string>{-8,43}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{141,196}}</string>
+        <string>{{0,0},{57,79}}</string>
         <key>sourceSize</key>
-        <string>{141,196}</string>
+        <string>{57,79}</string>
       </dict>
       <key>monster_16326_0_1_2_0003.png</key>
       <dict>
         <key>frame</key>
-        <string>{{354,633},{141,194}}</string>
+        <string>{{0,435},{57,78}}</string>
         <key>offset</key>
-        <string>{-49,104}</string>
+        <string>{-7,42}</string>
         <key>rotated</key>
-        <false />
+        <true />
         <key>sourceColorRect</key>
-        <string>{{0,0},{141,194}}</string>
+        <string>{{0,0},{57,78}}</string>
         <key>sourceSize</key>
-        <string>{141,194}</string>
+        <string>{57,78}</string>
       </dict>
       <key>monster_16326_0_1_2_0004.png</key>
       <dict>
         <key>frame</key>
-        <string>{{551,829},{144,192}}</string>
+        <string>{{147,248},{58,77}}</string>
         <key>offset</key>
-        <string>{-50,102}</string>
+        <string>{-7,41}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{144,192}}</string>
+        <string>{{0,0},{58,77}}</string>
         <key>sourceSize</key>
-        <string>{144,192}</string>
+        <string>{58,77}</string>
       </dict>
       <key>monster_16326_0_1_2_0005.png</key>
       <dict>
         <key>frame</key>
-        <string>{{640,616},{145,191}}</string>
+        <string>{{207,248},{59,77}}</string>
         <key>offset</key>
-        <string>{-54,101}</string>
+        <string>{-9,41}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{145,191}}</string>
+        <string>{{0,0},{59,77}}</string>
         <key>sourceSize</key>
-        <string>{145,191}</string>
+        <string>{59,77}</string>
       </dict>
       <key>monster_16326_0_1_3_0000.png</key>
       <dict>
         <key>frame</key>
-        <string>{{934,582},{171,189}}</string>
+        <string>{{343,0},{69,76}}</string>
         <key>offset</key>
-        <string>{-79,133}</string>
+        <string>{-19,54}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{171,189}}</string>
+        <string>{{0,0},{69,76}}</string>
         <key>sourceSize</key>
-        <string>{171,189}</string>
+        <string>{69,76}</string>
       </dict>
       <key>monster_16326_0_1_3_0001.png</key>
       <dict>
         <key>frame</key>
-        <string>{{660,422},{171,191}}</string>
+        <string>{{207,167},{70,77}}</string>
         <key>offset</key>
-        <string>{-78,134}</string>
+        <string>{-19,55}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{171,191}}</string>
+        <string>{{0,0},{70,77}}</string>
         <key>sourceSize</key>
-        <string>{171,191}</string>
+        <string>{70,77}</string>
       </dict>
       <key>monster_16326_0_1_3_0002.png</key>
       <dict>
         <key>frame</key>
-        <string>{{709,198},{171,190}}</string>
+        <string>{{264,79},{69,77}}</string>
         <key>offset</key>
-        <string>{-77,133}</string>
+        <string>{-18,54}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{171,190}}</string>
+        <string>{{0,0},{69,77}}</string>
         <key>sourceSize</key>
-        <string>{171,190}</string>
+        <string>{69,77}</string>
       </dict>
       <key>monster_16326_0_1_3_0003.png</key>
       <dict>
         <key>frame</key>
-        <string>{{1055,192},{172,188}}</string>
+        <string>{{414,0},{70,76}}</string>
         <key>offset</key>
-        <string>{-76,130}</string>
+        <string>{-18,53}</string>
         <key>rotated</key>
-        <false />
+        <true />
         <key>sourceColorRect</key>
-        <string>{{0,0},{172,188}}</string>
+        <string>{{0,0},{70,76}}</string>
         <key>sourceSize</key>
-        <string>{172,188}</string>
+        <string>{70,76}</string>
       </dict>
       <key>monster_16326_0_1_3_0004.png</key>
       <dict>
         <key>frame</key>
-        <string>{{1164,0},{171,188}}</string>
+        <string>{{414,72},{69,76}}</string>
         <key>offset</key>
-        <string>{-74,130}</string>
+        <string>{-17,53}</string>
         <key>rotated</key>
-        <false />
+        <true />
         <key>sourceColorRect</key>
-        <string>{{0,0},{171,188}}</string>
+        <string>{{0,0},{69,76}}</string>
         <key>sourceSize</key>
-        <string>{171,188}</string>
+        <string>{69,76}</string>
       </dict>
       <key>monster_16326_0_1_3_0005.png</key>
       <dict>
         <key>frame</key>
-        <string>{{843,0},{171,190}}</string>
+        <string>{{297,325},{69,76}}</string>
         <key>offset</key>
-        <string>{-76,132}</string>
+        <string>{-18,53}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{171,190}}</string>
+        <string>{{0,0},{69,76}}</string>
         <key>sourceSize</key>
-        <string>{171,190}</string>
+        <string>{69,76}</string>
       </dict>
       <key>monster_16326_0_1_4_0000.png</key>
       <dict>
         <key>frame</key>
-        <string>{{162,0},{209,196}}</string>
+        <string>{{63,348},{85,79}}</string>
         <key>offset</key>
-        <string>{-79,140}</string>
+        <string>{-19,57}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
-        <string>{{0,0},{209,196}}</string>
+        <string>{{0,0},{85,79}}</string>
         <key>sourceSize</key>
-        <string>{209,196}</string>
+        <string>{85,79}</string>
       </dict>
       <key>monster_16326_0_1_4_0001.png</key>
       <dict>
         <key>frame</key>
-        <string>{{312,211},{209,197}}</string>
+        <string>{{65,261},{85,80}}</string>
         <key>offset</key>
-        <string>{-79,140}</string>
+        <string>{-19,57}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
-        <string>{{0,0},{209,197}}</string>
+        <string>{{0,0},{85,80}}</string>
         <key>sourceSize</key>
-        <string>{209,197}</string>
+        <string>{85,80}</string>
       </dict>
       <key>monster_16326_0_1_4_0002.png</key>
       <dict>
         <key>frame</key>
-        <string>{{360,0},{209,195}}</string>
+        <string>{{144,348},{85,79}}</string>
         <key>offset</key>
-        <string>{-79,137}</string>
+        <string>{-19,56}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
-        <string>{{0,0},{209,195}}</string>
+        <string>{{0,0},{85,79}}</string>
         <key>sourceSize</key>
-        <string>{209,195}</string>
+        <string>{85,79}</string>
       </dict>
       <key>monster_16326_0_1_4_0003.png</key>
       <dict>
         <key>frame</key>
-        <string>{{159,635},{209,193}}</string>
+        <string>{{66,87},{85,78}}</string>
         <key>offset</key>
-        <string>{-79,134}</string>
+        <string>{-19,55}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
-        <string>{{0,0},{209,193}}</string>
+        <string>{{0,0},{85,78}}</string>
         <key>sourceSize</key>
-        <string>{209,193}</string>
+        <string>{85,78}</string>
       </dict>
       <key>monster_16326_0_1_4_0004.png</key>
       <dict>
         <key>frame</key>
-        <string>{{317,422},{209,195}}</string>
+        <string>{{130,0},{85,79}}</string>
         <key>offset</key>
-        <string>{-79,135}</string>
+        <string>{-19,55}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
-        <string>{{0,0},{209,195}}</string>
+        <string>{{0,0},{85,79}}</string>
         <key>sourceSize</key>
-        <string>{209,195}</string>
+        <string>{85,79}</string>
       </dict>
       <key>monster_16326_0_1_4_0005.png</key>
       <dict>
         <key>frame</key>
-        <string>{{511,211},{209,196}}</string>
+        <string>{{66,174},{85,79}}</string>
         <key>offset</key>
-        <string>{-79,138}</string>
+        <string>{-19,56}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
-        <string>{{0,0},{209,196}}</string>
+        <string>{{0,0},{85,79}}</string>
         <key>sourceSize</key>
-        <string>{209,196}</string>
+        <string>{85,79}</string>
       </dict>
       <key>monster_16326_0_1_5_0000.png</key>
       <dict>
         <key>frame</key>
-        <string>{{1006,384},{171,189}}</string>
+        <string>{{329,237},{69,76}}</string>
         <key>offset</key>
-        <string>{-34,135}</string>
+        <string>{-1,55}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{171,189}}</string>
+        <string>{{0,0},{69,76}}</string>
         <key>sourceSize</key>
-        <string>{171,189}</string>
+        <string>{69,76}</string>
       </dict>
       <key>monster_16326_0_1_5_0001.png</key>
       <dict>
         <key>frame</key>
-        <string>{{697,809},{171,191}}</string>
+        <string>{{272,0},{69,77}}</string>
         <key>offset</key>
-        <string>{-35,136}</string>
+        <string>{-1,55}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{171,191}}</string>
+        <string>{{0,0},{69,77}}</string>
         <key>sourceSize</key>
-        <string>{171,191}</string>
+        <string>{69,77}</string>
       </dict>
       <key>monster_16326_0_1_5_0002.png</key>
       <dict>
         <key>frame</key>
-        <string>{{833,390},{171,190}}</string>
+        <string>{{225,327},{70,77}}</string>
         <key>offset</key>
-        <string>{-36,135}</string>
+        <string>{-2,55}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{171,190}}</string>
+        <string>{{0,0},{70,77}}</string>
         <key>sourceSize</key>
-        <string>{171,190}</string>
+        <string>{70,77}</string>
       </dict>
       <key>monster_16326_0_1_5_0003.png</key>
       <dict>
         <key>frame</key>
-        <string>{{1018,773},{172,188}}</string>
+        <string>{{339,158},{69,76}}</string>
         <key>offset</key>
-        <string>{-38,132}</string>
+        <string>{-2,54}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{172,188}}</string>
+        <string>{{0,0},{69,76}}</string>
         <key>sourceSize</key>
-        <string>{172,188}</string>
+        <string>{69,76}</string>
       </dict>
       <key>monster_16326_0_1_5_0004.png</key>
       <dict>
         <key>frame</key>
-        <string>{{1107,575},{171,188}}</string>
+        <string>{{410,143},{69,76}}</string>
         <key>offset</key>
-        <string>{-39,132}</string>
+        <string>{-3,54}</string>
         <key>rotated</key>
-        <false />
+        <true />
         <key>sourceColorRect</key>
-        <string>{{0,0},{171,188}}</string>
+        <string>{{0,0},{69,76}}</string>
         <key>sourceSize</key>
-        <string>{171,188}</string>
+        <string>{69,76}</string>
       </dict>
       <key>monster_16326_0_1_5_0005.png</key>
       <dict>
         <key>frame</key>
-        <string>{{882,192},{171,190}}</string>
+        <string>{{410,214},{69,76}}</string>
         <key>offset</key>
-        <string>{-37,134}</string>
+        <string>{-2,54}</string>
         <key>rotated</key>
-        <false />
+        <true />
         <key>sourceColorRect</key>
-        <string>{{0,0},{171,190}}</string>
+        <string>{{0,0},{69,76}}</string>
         <key>sourceSize</key>
-        <string>{171,190}</string>
+        <string>{69,76}</string>
       </dict>
       <key>monster_16326_0_1_6_0000.png</key>
       <dict>
         <key>frame</key>
-        <string>{{1016,0},{146,190}}</string>
+        <string>{{268,246},{59,77}}</string>
         <key>offset</key>
-        <string>{-33,112}</string>
+        <string>{0,46}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{146,190}}</string>
+        <string>{{0,0},{59,77}}</string>
         <key>sourceSize</key>
-        <string>{146,190}</string>
+        <string>{59,77}</string>
       </dict>
       <key>monster_16326_0_1_6_0001.png</key>
       <dict>
         <key>frame</key>
-        <string>{{355,829},{144,194}}</string>
+        <string>{{147,168},{58,78}}</string>
         <key>offset</key>
-        <string>{-35,116}</string>
+        <string>{-1,47}</string>
         <key>rotated</key>
-        <true />
+        <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{144,194}}</string>
+        <string>{{0,0},{58,78}}</string>
         <key>sourceSize</key>
-        <string>{144,194}</string>
+        <string>{58,78}</string>
       </dict>
       <key>monster_16326_0_1_6_0002.png</key>
       <dict>
         <key>frame</key>
-        <string>{{700,0},{141,196}}</string>
+        <string>{{144,435},{57,79}}</string>
         <key>offset</key>
-        <string>{-36,118}</string>
+        <string>{-2,48}</string>
         <key>rotated</key>
-        <false />
+        <true />
         <key>sourceColorRect</key>
-        <string>{{0,0},{141,196}}</string>
+        <string>{{0,0},{57,79}}</string>
         <key>sourceSize</key>
-        <string>{141,196}</string>
+        <string>{57,79}</string>
       </dict>
       <key>monster_16326_0_1_6_0003.png</key>
       <dict>
         <key>frame</key>
-        <string>{{497,633},{141,194}}</string>
+        <string>{{205,87},{57,78}}</string>
         <key>offset</key>
-        <string>{-38,116}</string>
+        <string>{-3,47}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{141,194}}</string>
+        <string>{{0,0},{57,78}}</string>
         <key>sourceSize</key>
-        <string>{141,194}</string>
+        <string>{57,78}</string>
       </dict>
       <key>monster_16326_0_1_6_0004.png</key>
       <dict>
         <key>frame</key>
-        <string>{{514,422},{144,192}}</string>
+        <string>{{279,158},{58,77}}</string>
         <key>offset</key>
-        <string>{-40,114}</string>
+        <string>{-3,46}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{144,192}}</string>
+        <string>{{0,0},{58,77}}</string>
         <key>sourceSize</key>
-        <string>{144,192}</string>
+        <string>{58,77}</string>
       </dict>
       <key>monster_16326_0_1_6_0005.png</key>
       <dict>
         <key>frame</key>
-        <string>{{787,615},{145,191}}</string>
+        <string>{{335,79},{59,77}}</string>
         <key>offset</key>
-        <string>{-37,113}</string>
+        <string>{-2,46}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{145,191}}</string>
+        <string>{{0,0},{59,77}}</string>
         <key>sourceSize</key>
-        <string>{145,191}</string>
+        <string>{59,77}</string>
       </dict>
       <key>monster_16326_0_1_7_0000.png</key>
       <dict>
         <key>frame</key>
-        <string>{{1572,177},{170,170}}</string>
+        <string>{{579,356},{68,69}}</string>
         <key>offset</key>
-        <string>{-47,82}</string>
+        <string>{-6,34}</string>
         <key>rotated</key>
-        <true />
+        <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{170,170}}</string>
+        <string>{{0,0},{68,69}}</string>
         <key>sourceSize</key>
-        <string>{170,170}</string>
+        <string>{68,69}</string>
       </dict>
       <key>monster_16326_0_1_7_0001.png</key>
       <dict>
         <key>frame</key>
-        <string>{{1351,374},{170,177}}</string>
+        <string>{{439,359},{68,72}}</string>
         <key>offset</key>
-        <string>{-48,89}</string>
+        <string>{-6,37}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{170,177}}</string>
+        <string>{{0,0},{68,72}}</string>
         <key>sourceSize</key>
-        <string>{170,177}</string>
+        <string>{68,72}</string>
       </dict>
       <key>monster_16326_0_1_7_0002.png</key>
       <dict>
         <key>frame</key>
-        <string>{{1229,190},{170,182}}</string>
+        <string>{{368,315},{69,74}}</string>
         <key>offset</key>
-        <string>{-49,94}</string>
+        <string>{-7,39}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{170,182}}</string>
+        <string>{{0,0},{69,74}}</string>
         <key>sourceSize</key>
-        <string>{170,182}</string>
+        <string>{69,74}</string>
       </dict>
       <key>monster_16326_0_1_7_0003.png</key>
       <dict>
         <key>frame</key>
-        <string>{{1192,765},{169,180}}</string>
+        <string>{{375,433},{68,72}}</string>
         <key>offset</key>
-        <string>{-50,93}</string>
+        <string>{-7,38}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{169,180}}</string>
+        <string>{{0,0},{68,72}}</string>
         <key>sourceSize</key>
-        <string>{169,180}</string>
+        <string>{68,72}</string>
       </dict>
       <key>monster_16326_0_1_7_0004.png</key>
       <dict>
         <key>frame</key>
-        <string>{{1508,0},{169,175}}</string>
+        <string>{{488,143},{69,70}}</string>
         <key>offset</key>
-        <string>{-51,89}</string>
+        <string>{-8,36}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{169,175}}</string>
+        <string>{{0,0},{69,70}}</string>
         <key>sourceSize</key>
-        <string>{169,175}</string>
+        <string>{69,70}</string>
       </dict>
       <key>monster_16326_0_1_7_0005.png</key>
       <dict>
         <key>frame</key>
-        <string>{{1452,553},{170,172}}</string>
+        <string>{{488,215},{68,70}}</string>
         <key>offset</key>
-        <string>{-50,85}</string>
+        <string>{-7,35}</string>
         <key>rotated</key>
-        <false />
+        <true />
         <key>sourceColorRect</key>
-        <string>{{0,0},{170,172}}</string>
+        <string>{{0,0},{68,70}}</string>
         <key>sourceSize</key>
-        <string>{170,172}</string>
+        <string>{68,70}</string>
       </dict>
     </dict>
     <key>metadata</key>
@@ -635,7 +635,7 @@
       <key>realTextureFileName</key>
       <string>monster_16326_0_1.png</string>
       <key>size</key>
-      <string>{2048,1024}</string>
+      <string>{1024,512}</string>
       <key>textureFileName</key>
       <string>monster_16326_0_1.png</string>
     </dict>
