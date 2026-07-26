@@ -114,6 +114,14 @@ function MainProperty.InitQuickUseShow()
                     SL:SendLuaNetMsg(101, 505, 1, 0, "")
                 end)
             end
+            if i == 4 then
+                local dlcs = GUI:Button_Create(layout, "dlcs", 5 - 4, 3 - 4 - 1, "res/wy/icon/dlcs.png")
+                GUI:setLocalZOrder(dlcs, 99)
+                GUI:addOnClickEvent(dlcs, function()
+                    SL:SendLuaNetMsg(101, 514, 0, 0, "")
+                end)
+            end
+            
         end
     end
     -- 设置快捷框个数 (最大：6)

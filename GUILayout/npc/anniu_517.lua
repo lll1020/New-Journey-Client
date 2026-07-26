@@ -353,7 +353,7 @@ local function openBasinLevelPopup()
     local curCfg = levelCfg(lv)
     local nextCfg = levelCfg(nextLv)
     local maxed = lv >= 5
-    local charge = math.max(n(d.charge), n(d.real_charge), n(d.money23))
+    local charge = math.max(n(d.charge), n(d.real_charge))
     local needCharge = n(nextCfg.charge)
     local lackCharge = math.max(0, needCharge - charge)
 

@@ -1,4 +1,4 @@
-﻿local npc = {}
+local npc = {}
 
 npc._config = teshudata["npc_64"]
 local UIHelper = NPC_UI_HELPER
@@ -459,15 +459,15 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:removeAllChildren(node)
         GUI:setLocalZOrder(GUI:Frames_Create(bg, "contract_bg_eff", 0, 0, "res/custom/four_city/lingshou/bg_1_1/eff_", ".png", 1, 30, {speed = 100, count = 30, loop = -1}), 1)
 
-        _contract_text_mask(node, "title_text_mask", 596, 486, 635, 108, 165)
+        -- _contract_text_mask(node, "title_text_mask", 596, 486, 635, 108, 165)
         -- _contract_text_mask(node, "info_text_mask", 648, 311, 552, 214, 155)
 
         _contract_title(node, "contract_title", 499, 520, 40, "灵兽契约")
-        local subTitle = _outline_text(node, "contract_subtitle", 488, 482, 22, "#FFF3CF", "缔灵契，启仙兽；孵化完成后，可召唤", {font = "fonts/502.ttf", outline = "#170A02", outlineSize = 2})
+        local subTitle = _outline_text(node, "contract_subtitle", 488 - 40, 482, 22, "#FFF3CF", "孵化完成后，可召唤", {font = "fonts/502.ttf", outline = "#170A02", outlineSize = 2})
         GUI:setAnchorPoint(subTitle, 0.5, 0.5)
-        local red = _outline_text(node, "contract_subtitle_red", 720, 482, 22, "#FF4C38", "灵兽外显", {font = "fonts/502.ttf", outline = "#2A0000", outlineSize = 2})
+        local red = _outline_text(node, "contract_subtitle_red", 720 - 40 - 80, 482, 22, "#FF4C38", "灵兽外显", {font = "fonts/502.ttf", outline = "#2A0000", outlineSize = 2})
         GUI:setAnchorPoint(red, 0.5, 0.5)
-        local subTail = _outline_text(node, "contract_subtitle_tail", 804, 482, 22, "#FFF3CF", "并肩征战", {font = "fonts/502.ttf", outline = "#170A02", outlineSize = 2})
+        local subTail = _outline_text(node, "contract_subtitle_tail", 804 - 40 - 75, 482, 22, "#FFF3CF", "并肩征战", {font = "fonts/502.ttf", outline = "#170A02", outlineSize = 2})
         GUI:setAnchorPoint(subTail, 0.5, 0.5)
 
         local eff = GUI:Frames_Create(node, "egg_eff", 225 - 40, 320, "res/custom/four_city/lingshou/xjm/eff/" .. idx .. "/eff_", ".png", 1, 30, {
@@ -504,21 +504,19 @@ function npc.main(npcid, p2, p3, msgData)
         local infoPanel = GUI:Image_Create(node, "info_panel", 500, 294, "res/wy/public/anniu_999_bj.png")
         GUI:setAnchorPoint(infoPanel, 0.5, 0.5)
         GUI:setContentSize(infoPanel, 390, 230)
-        _contract_title(node, "info_title", 500, 380, 25, "灵兽特性")
-        local style = LINGSHOU_BABY_STYLE[idx] or {}
-        local title = tostring(style.title or "灵兽本源")
-        local mark = tostring(style.mark or "协同作战")
-        local desc = tostring(style.desc or "成长出战，并肩征战")
-        local lines = {
-            {"本源：" .. title .. "，" .. desc .. "。", style.color or "#FFD66A"},
-            {"定位：" .. mark .. "，出战后提供对应战斗特性。", "#F7E8C5"},
-            {"属性：生命、防御、攻击会随成长逐步提升。", "#B9F6C5"},
-            {"亲密：提升亲密度可提高灵兽成长和协同强度。", "#FFB85A"},
-            {"星级：灵兽星级越高，灵兽基础属性越强。", "#F7E8C5"},
-            {"协同：后续可与灵根/遗物形成专属被动效果。", "#FF5A3D"},
+        local infoTitle = _outline_text(node, "info_title", 500, 380, 25, "#2C2723", "灵兽玩法前瞻", {font = "fonts/502.ttf", outline = "#F6E4A8", outlineSize = 1})
+        GUI:setAnchorPoint(infoTitle, 0.5, 0.5)
+        local infoLines = {
+            " · 灵兽可<font color='#E24A3B'>升级星级</font>，星级越高，灵兽越强！",
+            " · 灵兽可佩戴专属<font color='#E24A3B'>神兽遗物</font>，后续大陆可掉！",
+            " · 灵兽可与本命灵激活<font color='#E24A3B'>专属协同被动</font>！",
+            " · 每只灵兽都有<font color='#E24A3B'>主动技能和被动技能</font>！",
+            " · 要想灵兽成长变强，请提高你们的<font color='#E24A3B'>好感度</font>！",
+            " · 详细玩法前瞻往<font color='#E24A3B'>四大陆</font>后自行查看！",
         }
-        for i, line in ipairs(lines) do
-            _contract_line(node, "info_line_" .. i, 366 - 45, 366 - i * 25, "· " .. line[1], line[2], 16)
+        for i, line in ipairs(infoLines) do
+            local rich = GUI:RichText_Create(node, "info_line_" .. i, 366 - 45, 366 - i * 25, line, 340, 16, "#00FFFF", 2, nil, nil, {outlineSize = 1, outlineColor = SL:ConvertColorFromHexString("#FFF4D8")})
+            GUI:setAnchorPoint(rich, 0, 0.5)
         end
         local playBox = GUI:Image_Create(node, "preview_box", 790 + 71, 294, "res/wy/public/tycccc.png")
         GUI:setAnchorPoint(playBox, 0.5, 0.5)

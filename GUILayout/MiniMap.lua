@@ -456,7 +456,7 @@ function MiniMap.UpdateMonsters()
             GUI:setIgnoreContentAdaptWithSize(nameBG, false)
             GUI:setAnchorPoint(nameBG, 0.5, 0.5)
 
-            local textName = GUI:Text_Create(node, "textName", 0, 20, 14, "#ffffff", "")
+            local textName = GUI:Text_Create(node, "textName", 0, 20, 12, "#ffffff", "")
             local monsterColor = v.color or "#ffffff"
             if v.color and tonumber(v.color) then
                 monsterColor = SL:GetHexColorByStyleId(tonumber(v.color))
@@ -565,7 +565,7 @@ function MiniMap.InitPortals()
             GUI:setAnchorPoint(nameBG, 0.5, 0.5)
 
             -- name
-            local textName = GUI:Text_Create(node, "textName", 0, 12, 14, "#ffffff", v.sShowName or "")
+            local textName = GUI:Text_Create(node, "textName", 0, 12, 12, "#ffffff", v.sShowName or "")
             local portalColor = v.nColor or "#ffffff"
             if v.nColor and tonumber(v.nColor) then
                 portalColor = SL:GetHexColorByStyleId(tonumber(v.nColor)) 

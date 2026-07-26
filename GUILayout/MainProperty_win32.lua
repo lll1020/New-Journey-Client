@@ -147,6 +147,22 @@ function MainProperty.InitQuickUseShow()
                     SL:SendLuaNetMsg(101, 505, 1, 0, "")
                 end)
             end
+            if i == 4 then
+                local dlcs = GUI:Button_Create(layout, "dlcs", -10, -10 - 2, "res/wy/icon/dlcs.png")
+                -- GUI:setAnchorPoint(jls,0.5,0.5)
+                GUI:addOnClickEvent(dlcs, function()
+                    SL:SendLuaNetMsg(101, 514, 0, 0, "")
+                end)
+                GUI:addKeyboardEvent("KEY_6", function()
+                    Npclib["anniu"][13](0)
+                end)
+                GUI:addKeyboardEvent("KEY_5", function()
+                    SL:SendLuaNetMsg(101, 505, 1, 0, "")
+                end)
+                GUI:addKeyboardEvent("KEY_4", function()
+                    SL:SendLuaNetMsg(101, 514, 0, 0, "")
+                end)
+            end
         end
     end
     -- 设置快捷框个数 (最大：6)

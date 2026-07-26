@@ -60,7 +60,6 @@ function ui.init(parent)
 
 	-- Create panel_title
 	local panel_title = GUI:Layout_Create(panel_main, "panel_title", 2.00, 360.00, 400.00, 24.00, false)
-	-- GUI:Layout_setBackGroundImage(panel_title, "res/private/mail/1900020064.png")
 	GUI:Layout_setBackGroundImageScale9Slice(panel_title, 0, 35, 11, 123)
 	GUI:setChineseName(panel_title, "邮件主题组合")
 	GUI:setTouchEnabled(panel_title, false)
@@ -84,7 +83,6 @@ function ui.init(parent)
 
 	-- Create panel_sender
 	local panel_sender = GUI:Layout_Create(panel_main, "panel_sender", 2.00, 338.00, 400.00, 24.00, false)
-	-- GUI:Layout_setBackGroundImage(panel_sender, "res/private/mail/1900020064.png")
 	GUI:Layout_setBackGroundImageScale9Slice(panel_sender, 0, 35, 11, 123)
 	GUI:setChineseName(panel_sender, "邮件发送者组合")
 	GUI:setTouchEnabled(panel_sender, false)
@@ -108,7 +106,6 @@ function ui.init(parent)
 
 	-- Create panel_time
 	local panel_time = GUI:Layout_Create(panel_main, "panel_time", 2.00, 315.00, 400.00, 24.00, false)
-	-- GUI:Layout_setBackGroundImage(panel_time, "res/private/mail/1900020064.png")
 	GUI:Layout_setBackGroundImageScale9Slice(panel_time, 0, 35, 11, 123)
 	GUI:setChineseName(panel_time, "邮件时间组合")
 	GUI:setTouchEnabled(panel_time, false)
@@ -132,7 +129,6 @@ function ui.init(parent)
 
 	-- Create panel_mailContent
 	local panel_mailContent = GUI:Layout_Create(panel_main, "panel_mailContent", 7.00, 125.00, 390.00, 185.00, false)
-	-- GUI:Layout_setBackGroundImage(panel_mailContent, "res/private/mail/1900020064.png")
 	GUI:Layout_setBackGroundImageScale9Slice(panel_mailContent, 0, 35, 0, 35)
 	GUI:setChineseName(panel_mailContent, "邮件_详细内容_文本")
 	GUI:setTouchEnabled(panel_mailContent, false)
@@ -156,7 +152,6 @@ function ui.init(parent)
 
 	-- Create list_items
 	local list_items = GUI:ListView_Create(panel_main, "list_items", 35.00, 50.00, 342.00, 70.00, 2)
-	GUI:ListView_setClippingEnabled(list_items, false)
 	GUI:ListView_setGravity(list_items, 5)
 	GUI:ListView_setItemsMargin(list_items, 20)
 	GUI:setChineseName(list_items, "邮件_附件物品_列表")
@@ -205,6 +200,12 @@ function ui.init(parent)
 	GUI:setTouchEnabled(TouchSize, true)
 	GUI:setTag(TouchSize, 47)
 	GUI:setVisible(TouchSize, false)
+
+	-- Create Text
+	local Text = GUI:Text_Create(parent, "Text", 220.00, 106.00, 18, "#ca352c", [[邮件上限100封，需尽快提取，避免奖励丢失]])
+	GUI:setTouchEnabled(Text, false)
+	GUI:setTag(Text, -1)
+	GUI:Text_enableOutline(Text, "#000000", 1)
 end
 
 return ui

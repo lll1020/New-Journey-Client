@@ -151,7 +151,11 @@ local function getContinentLabel(continent)
 end
 
 local function toRichText(text)
-    return (text or ""):gsub("\n", "<br/>")
+    return ((text or ""):gsub("\\n", "\n")):gsub("\n", "<br/>")
+end
+
+local function getFirstContinentMergeTip()
+    return "合区后，不可进入"
 end
 
 local function resolveItemIndex(entry)
@@ -384,6 +388,12 @@ function npc.main(npcid, p2, p3, msgData)
         renderMonsterModel(node, cfg, baseX - 40 + 90, monsterY + 20 - 332)
 
         createLabel(node, "monster_name", baseX + 4, monsterY - 33, 20, "#ff6666", string.format("%s", cfg.mobName or "未知"))
+        if cfg.continent == 1 then
+            local mergeTip = GUI:Text_Create(node, "merge_tip", baseX + 4 - 40, monsterY + 24 - 100, 23, "#ff0000", getFirstContinentMergeTip())
+            GUI:setAnchorPoint(mergeTip, 0, 1)
+            GUI:Text_setFontName(mergeTip, "fonts/502.ttf")
+            GUI:Text_enableOutline(mergeTip, "#000000", 1)
+        end
 
 
         renderDropList(node, baseX + 120 + 355, monsterY - 140 - 117, getDropItems(cfg.mobName, npc.data))

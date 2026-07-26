@@ -223,7 +223,7 @@ function npc.main(npcid, p2, p3, msgData)
             if nextItem then
                 createPreviewLine("preview_next_title", previewTopY - 72, 18, "#56D8FF", string.format("升级预览  Lv.%d", equipLevel + 1))
                 createPreviewLine("preview_next_attr", previewTopY - 98, 17, "#F7F7DE", string.format("人物攻击 + %d%%", equipLevel + 1))
-                createPreviewLine("preview_next_desc", previewTopY - 124, 17, "#F7F7DE", other_wz[cfgIdx][equipLevel] or "")
+                createPreviewLine("preview_next_desc", previewTopY - 124 - 30, 17, "#00FFFF", other_wz[cfgIdx][equipLevel] or "")
             else
                 createPreviewLine("preview_max", previewTopY - 72, 18, "#EFAD21", "已达最高等级")
             end
