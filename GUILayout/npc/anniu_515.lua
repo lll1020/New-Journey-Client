@@ -6,7 +6,7 @@ local npc = {
 
 local UI_updata
 local UI_HELPER = SL:Require("GUILayout/npc/ui_helper", true)
-local REWARD_ITEM_EFFECT_ID = 14193
+local REWARD_ITEM_EFFECT_ID = 13054
 
 local function addRewardItemEffect(parent, name, x, y, scale)
     if not parent or tolua.isnull(parent) then
@@ -943,19 +943,17 @@ local function renderMilestoneCard(parent, idx, milestone)
     local card = GUI:Image_Create(parent, "milestone_card_" .. idx, baseX, 210, "res/custom/fairyFate/1/card_bg.png")
     GUI:setAnchorPoint(card, 0, 0)
 
-    local countText = GUI:Text_Create(card, "count", 65, 135 - 70, 16, "#ff3bd7", string.format("%s成就", tostring(milestone.count or 0)))
+    local countText = GUI:Text_Create(card, "count", 65, 135 - 70 - 3, 20, "#00FFFF", string.format("%s成就", tostring(milestone.count or 0)))
     GUI:setAnchorPoint(countText, 0.5, 0.5)
-    GUI:Text_setTextColor(countText, "#ff3bd7")
-    GUI:Text_setFontSize(countText, 16)
-    GUI:Text_setFontName(countText, "fonts/font4.ttf")
+    GUI:Text_setFontName(countText, "fonts/502.ttf")
 
     local preview = getRewardPreview(milestone.reward)
     if preview.index > 0 then
-        addRewardItemEffect(card, "reward_eff", 64, 102, 0.9)
+        addRewardItemEffect(card, "reward_eff", 64, 102, 0.8)
         local item = GUI:ItemShow_Create(card, "item", 64, 102, {index = preview.index, count = preview.count, look = true, bgVisible = false})
         GUI:setAnchorPoint(item, 0.5, 0.5)
     else
-        local rewardText = GUI:Text_Create(card, "reward_text", 62, 85, 15, "#2f3745", preview.label)
+        local rewardText = GUI:Text_Create(card, "reward_text", 62, 85, 15, "#00FFFF", preview.label)
         GUI:setAnchorPoint(rewardText, 0.5, 0.5)
         GUI:Text_setTextAreaSize(rewardText, {width = 96, height = 42})
         GUI:Text_setTextHorizontalAlignment(rewardText, 1)
@@ -966,10 +964,9 @@ local function renderMilestoneCard(parent, idx, milestone)
     local canClaim = (not claimed) and getTotalDoneCount() >= toNumber(milestone.count, 0)
 
     if claimed then
-        local claimedText = GUI:Text_Create(card, "claimed_text", 65, 30, 18, "#4AE74A", "已领取")
+        local claimedText = GUI:Text_Create(card, "claimed_text", 65, 30, 20, "#4AE74A", "已领取")
         GUI:setAnchorPoint(claimedText, 0.5, 0.5)
-        GUI:Text_setFontSize(claimedText, 18)
-        GUI:Text_setFontName(claimedText, "fonts/font4.ttf")
+        GUI:Text_setFontName(claimedText, "fonts/502.ttf")
         return
     end
 

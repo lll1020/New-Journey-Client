@@ -112,7 +112,7 @@ local GRAY_WORLD_MAP_SUFFIXES = {
     "_npc628",
 }
 local GRAY_WORLD_LINE_MAP_CACHE = nil
-local REWARD_ITEM_EFFECT_14193 = 14193
+local REWARD_ITEM_EFFECT_13054 = 13054
 local MAINLINE_CURRENT_TASK_REWARD_CONFIG = {
     [2] = {{"天书残卷一", 1}},
     [5] = {{"天书残卷二", 1}},
@@ -197,7 +197,7 @@ local function _add_reward_item_effect(parent, name, x, y, scale, effectId)
     if not effectParent then
         return nil
     end
-    local effect = GUI:Effect_Create(effectParent, name or "reward_item_eff", x or 0, y or 0, 0, effectId or REWARD_ITEM_EFFECT_14193, 0, 0, 0, 1)
+    local effect = GUI:Effect_Create(effectParent, name or "reward_item_eff", x or 0, y or 0, 0, effectId or REWARD_ITEM_EFFECT_13054, 0, 0, 0, 1)
     GUI:setScale(effect, scale or 1)
     GUI:setLocalZOrder(effect, 5)
     _raise_reward_item_icon(effectParent)
@@ -2130,7 +2130,7 @@ function MainAssistXylHelper.bind(MainAssist)
                 end)
                 if okReward and rewardNode then
                     GUI:setPosition(rewardNode, 0, 0)
-                    _add_reward_effect_for_table(rewardNode, "mainline_reward_eff", 29, 30, 1, REWARD_ITEM_EFFECT_14193)
+                    _add_reward_effect_for_table(rewardNode, "mainline_reward_eff", 29, 30, 0.8, REWARD_ITEM_EFFECT_13054)
                     widget.rewardNode = rewardNode
                 end
                 if MainAssist.ListView_mission then
@@ -2218,7 +2218,7 @@ function MainAssistXylHelper.bind(MainAssist)
             end)
             if okReward and rewardNode then
                 GUI:setPosition(rewardNode, 0, 0)
-                _add_reward_effect_for_table(rewardNode, "xyl_current_reward_eff", 29, 30, 0.8, REWARD_ITEM_EFFECT_14193)
+                _add_reward_effect_for_table(rewardNode, "xyl_current_reward_eff", 29, 30, 0.8, REWARD_ITEM_EFFECT_13054)
                 widget.rewardNode = rewardNode
             end
         end

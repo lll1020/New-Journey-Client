@@ -1,4 +1,4 @@
-﻿local npc = {}
+local npc = {}
 npc._config = teshudata["sjdt"]
 local function _to_num(v, defaultValue)
     local n = tonumber(v)
@@ -37,24 +37,20 @@ local function _get_json_var(varName)
     if varName == "T26" then
         local cached = rawget(_G, "XYL_YWL_CACHE")
         if type(cached) == "table" and next(cached) ~= nil then
-            SL:release_print("[npc500][T26] source=XYL_YWL_CACHE", SL:JsonEncode(cached, false))
             return cached
         end
         if type(npc.data) == "table" and type(npc.data.ywl) == "table" and next(npc.data.ywl) ~= nil then
-            SL:release_print("[npc500][T26] source=npc.data.ywl", SL:JsonEncode(npc.data.ywl, false))
             return npc.data.ywl
         end
     end
     if not Player or not Player.getServerVar or not Player.JsonToTbl then
         if varName == "T26" then
-            SL:release_print("[npc500][T26] source=none player/json unavailable")
         end
         return {}
     end
     local raw = Player:getServerVar(varName)
     if not raw or raw == "" then
         if varName == "T26" then
-            SL:release_print("[npc500][T26] source=Player:getServerVar empty")
         end
         return {}
     end
@@ -62,7 +58,6 @@ local function _get_json_var(varName)
         return Player:JsonToTbl(raw)
     end)
     if varName == "T26" then
-        SL:release_print("[npc500][T26] source=Player:getServerVar decoded", "ok=" .. tostring(ok), raw)
     end
     return ok and type(data) == "table" and data or {}
 end
@@ -126,7 +121,6 @@ local function _get_story_progress(continent)
     local cfg = _get_story_cfg()
     local chapters = type(cfg) == "table" and cfg[continent] or nil
     if type(chapters) ~= "table" then
-        SL:release_print("[npc500][progress] no chapters", "continent=" .. tostring(continent))
         return 0, 0
     end
     local ywl = _get_json_var("T26")
@@ -148,17 +142,8 @@ local function _get_story_progress(continent)
                     done = done + point
                 end
             end
-            SL:release_print(
-                "[npc500][progress][chapter]",
-                "continent=" .. tostring(continent),
-                "chapterKey=" .. tostring(chapterKey),
-                "chapterReceived=" .. tostring(chapterReceived),
-                "done=" .. tostring(done),
-                "total=" .. tostring(total)
-            )
         end
     end
-    SL:release_print("[npc500][progress][final]", "continent=" .. tostring(continent), "done=" .. tostring(done), "total=" .. tostring(total))
     return done, total
 end
 

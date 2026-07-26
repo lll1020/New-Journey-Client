@@ -5724,7 +5724,7 @@ npc[501] = function(p2, p3, Data)
     end
     local function create_reward_box(parent, name, count, x, y, giftTag)
         local box = GUI:Image_Create(parent, "box_" .. tostring(x) .. "_" .. tostring(y), x, y, "res/custom/top/shochong/kuang.png")
-        _add_reward_item_effect(box, "reward_eff", 25, 24, 0.9,  (name == "聚宝盆碎片" or name == "时装：小小裁决战士") and 10269 or 14192)
+        _add_reward_item_effect(box, "reward_eff", 25, 24, (name == "聚宝盆碎片" or name == "时装：小小裁决战士") and 0.8 or 0.9,  (name == "聚宝盆碎片" or name == "时装：小小裁决战士") and 13054 or 14192)
         -- _add_reward_item_effect(box, "reward_eff", 25, 24, 0.9, 10267)
         local itemIndex = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", name) or 0) or 0
         local itemLayer = _get_reward_item_layer(box) or box
@@ -5928,7 +5928,11 @@ end
 npc[502] = function(p2, p3, Data)
     local function create_502_item(parent, itemName, itemCount, itemKey)
         local itemNode = GUI:Image_Create(parent, "itme" .. tostring(itemKey or itemName), 0, 0, "dev/res/wy/public/40-42.png")
-        _add_reward_item_effect(itemNode, "reward_eff", 20, 21, 0.6, REWARD_ITEM_EFFECT_13048)
+        
+        if itemKey == 4 then
+            _add_reward_item_effect(itemNode, "reward_eff", 20, 21, 0.6, 13054)
+        end
+        -- _add_reward_item_effect(itemNode, "reward_eff", 20, 21, 0.7, itemKey < 3 and 10266 or 10267)
         local itemIndex = SL:GetMetaValue("ITEM_INDEX_BY_NAME", itemName)
         local itemLayer = _get_reward_item_layer(itemNode) or itemNode
         if tonumber(itemIndex) and tonumber(itemIndex) > 0 then
@@ -5936,6 +5940,7 @@ npc[502] = function(p2, p3, Data)
                 index = itemIndex,
                 look = true,
             })
+            GUI:setScale(itemShow,0.8)
             GUI:setAnchorPoint(itemShow, 0.5, 0.5)
             _raise_reward_item_icon(itemNode)
             
@@ -6137,7 +6142,7 @@ end
 npc[504] = function(p2, p3, Data)
     local function create_reward_box(parent, itemName, itemCount, x, y, giftTag)
         local box = GUI:Image_Create(parent, "reward_box_" .. tostring(x) .. "_" .. tostring(y), x, y, "res/custom/top/shochong/kuang.png")
-        _add_reward_item_effect(box, "reward_eff", 25, 24, 0.9, REWARD_ITEM_EFFECT_14193)
+        _add_reward_item_effect(box, "reward_eff", 25, 24, 0.8, 13054)
         local itemIndex = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", itemName) or 0) or 0
         local itemLayer = _get_reward_item_layer(box) or box
         if itemIndex > 0 then
@@ -6158,7 +6163,8 @@ npc[504] = function(p2, p3, Data)
             _raise_reward_count_text(num)
         end
         if giftTag then
-            GUI:Image_Create(box, "tip_give", 20, 20, "res/wy/public/tip_give.png")
+            
+            GUI:setLocalZOrder(GUI:Image_Create(box, "tip_give", 20, 20, "res/wy/public/tip_give.png"), 99)
         end
     end
     local function set_text_style(label, outline)
