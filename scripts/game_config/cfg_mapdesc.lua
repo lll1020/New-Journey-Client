@@ -3705,5 +3705,15 @@ local config = {
 		bOutLine = 1,
 		sImgPath = "22222.png",
 	},
+	[377] = { 
+		ID = 377,
+		mapid = "三大陆主城",
+		X = 158,
+		Y = 272,
+		sShowName = "灵兽特使",
+		nColor = 253,
+		bOutLine = 1,
+		sImgPath = "22222.png",
+	},
 }
 return config

@@ -863,7 +863,7 @@ local npc_xyl = {
                     desc = "在仙府中制作一次藏宝图，打通寻宝玩法入口。\n<font color='#F4D179'>目标：</font>完成1次藏宝图制作\n<font color='#F4D179'>进度：</font>%s",
                 },
             },
-            name = "仙府功能",
+            name = "壮志凌云",
             jqd = 0,
             pre = {
                 check = function()

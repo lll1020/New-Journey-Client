@@ -1,4 +1,4 @@
--- 异闻录：剧情完成判定辅助
+﻿-- 异闻录：剧情完成判定辅助
 local _xyl_name_map
 local function _xyl_norm_name(name)
     if not name then
@@ -271,6 +271,12 @@ end
 local function _xyl_has_rebirth(level)
     return _xyl_get_num("U43") >= (level or 1)
 end
+
+-- 备注：通天塔累计挑战次数是否达到指定次数
+local function _xyl_has_tongtian_runs(need)
+    local data = _xyl_get_json("T51")
+    return (tonumber(data.total_runs or 0) or 0) >= (tonumber(need or 1) or 1)
+end
 -- 备注：判断斗笠低阶名称（低阶不算完成传说/更高）
 local function _xyl_is_lower_hat_name(name)
     if not name or name == "" then
@@ -541,6 +547,7 @@ local function _xyl_check_task(name)
         ["完成转生·五"] = function() return _xyl_has_rebirth(50) end,
         ["转生·六"] = function() return _xyl_has_rebirth(60) end,
         ["完成转生·六"] = function() return _xyl_has_rebirth(60) end,
+        ["挑战六次通天塔"] = function() return _xyl_has_tongtian_runs(6) end,
         ["拥有传说神石"] = _xyl_has_legendary_stone,
         ["传说·斗笠"] = _xyl_has_legendary_hat,
         ["神·酒葫芦"] = _xyl_has_god_gourd,
@@ -833,6 +840,21 @@ local npc_xyl = {
         {
             jq = {
                 {
+                    "挑战六次通天塔",
+                    id = 999,
+                    jl = { { "剧情点", 1 },{"灵根功能",1} },
+                    fwdjy = nil,
+                    khdjy = _xyl_khdjy,
+                    need_receive = false,
+                    yd = { 1, "三大陆主城", 93, 161, 230 },
+                    desc = function()
+                        local data = _xyl_get_json("T51") or {}
+                        local cur = tonumber(data.total_runs or 0) or 0
+                        local _, _, txt = _xyl_progress_pair_text(cur, 6)
+                        return "累计挑战通天塔六次，证明自身底蕴，完成苍云秘闻的额外试炼。\n<font color='#F4D179'>目标：</font>累计挑战通天塔6次\n<font color='#F4D179'>当前：</font>" .. txt
+                    end,
+                },
+                {
                     "种植仙草",
                     id = 999,
                     jl = { { "剧情点", 1 }, { "藏宝图碎片", 5 } },
@@ -863,7 +885,7 @@ local npc_xyl = {
                     desc = "在仙府中制作一次藏宝图，打通寻宝玩法入口。\n<font color='#F4D179'>目标：</font>完成1次藏宝图制作\n<font color='#F4D179'>进度：</font>%s",
                 },
             },
-            name = "仙府功能",
+            name = "壮志凌云",
             jqd = 0,
             pre = {
                 check = function()

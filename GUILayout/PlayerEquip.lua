@@ -1,4 +1,4 @@
--- 角色面板 装备
+﻿-- 角色面板 装备
 PlayerEquip = {}
 PlayerEquip._ui = nil
 -- 13 斗笠位置比较特殊 属于和头盔位置同部位
@@ -20,6 +20,20 @@ PlayerEquip.fictionalUIPos = {
 }
 local LUA_EVENT_YWL_CURRENT_TASK_CHANGE = "伏妖录当前任务变更"
 local posList = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 14, 16, 1000, 1001}
+local function _can_open_linggen_panel()
+    local data = nil
+    if _dl_get_json then
+        data = _dl_get_json("T51")
+    elseif Player and Player.getServerVar and Player.JsonToTbl then
+        data = Player:JsonToTbl(Player:getServerVar("T51"))
+    end
+    data = type(data) == "table" and data or {}
+    if (tonumber(data.total_runs or 0) or 0) >= 6 then
+        return true
+    end
+    SL:ShowSystemTips("请先完成异闻录任务【挑战六次通天塔】后再开启灵根功能")
+    return false
+end
 local function _refresh_xyl_playerequip_guides()
     local ui = PlayerEquip._ui
     if not ui or not ui.Panel_1 then

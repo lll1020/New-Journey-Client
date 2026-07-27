@@ -2961,7 +2961,7 @@ npc[11] = function(p2, p3, Data)
         if not name or name == "" then
             return false
         end
-        return name == "灰界开篇" or name == "仙府功能"
+        return name == "灰界开篇" or name == "壮志凌云"
     end
     local function _ywl_append_reward_entries(outList, rewardList, seenMap, continent)
         if type(rewardList) ~= "table" then

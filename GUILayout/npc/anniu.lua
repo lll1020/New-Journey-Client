@@ -110,8 +110,8 @@ npc.iconpx = {
         {15, "天天省钱",509,1}, {3, "福利大厅",511,2}, {17, "游戏攻略",512,3},{4, "活动大厅",507,4},{14, "首充礼包",501,5},{21, "马上发财",31,31}
     },
     {
-        -- {19, "在线充值", 502,11}, {5, "交易行",510,12},{2, "解绑特权",504,13},{7, "狂暴之力",513,14},{12, "世界地图",514,15},{10, "免费赞助",516,16},{22, "灵兽契约",64,64},{6, "聚宝盆",517,517},
-        {19, "在线充值", 502,11}, {5, "交易行",510,12},{2, "解绑特权",504,13},{10, "免费赞助",516,16},{22, "灵兽契约",64,64},{6, "聚宝盆",517,517},
+        -- {19, "在线充值", 502,11}, {5, "交易行",510,12},{2, "解绑特权",504,13},{7, "狂暴之力",513,14},{12, "世界地图",514,15},{10, "免费赞助",516,16},{22, "灵兽",64,64},{6, "聚宝盆",517,517},
+        {19, "在线充值", 502,11}, {5, "交易行",510,12},{2, "解绑特权",504,13},{10, "免费赞助",516,16},{22, "灵兽",64,64},{6, "聚宝盆",517,517},
     }
 }
 npc.LeftTop = GUI:Attach_LeftTop()
@@ -488,9 +488,8 @@ local function createShortcutButton(container, cfg, order, prefix, opts)
         keepRedPoint = state and state.any == true
     end
     GUI:addOnClickEvent(button, function()
-        if tonumber(cfg[3]) == 64 then
-            rawset(_G, "NPC64_OPEN_CONTRACT_ONCE", true)
-            SL:SendLuaNetMsg(105, cfg[3], 1064, 0, "")
+        if tonumber(cfg[3]) == 1029 then
+            SL:SendLuaNetMsg(105, cfg[3], 1029, 0, "")
             if not keepRedPoint then
                 GUI:removeAllChildren(button)
             end
@@ -950,10 +949,7 @@ local function _should_show_lingshou_main_entry(data)
         end
         return true
     end
-    if _shortcut_get_mainline_rwid() >= 28 then
-        return true
-    end
-    return _shortcut_has_reached_xyl_task("灵兽孵化")
+    return false
 end
 local function _get_lingshou_hatch_left(data)
     data = data or _get_lingshou_main_data()
@@ -967,7 +963,7 @@ local function _get_lingshou_hatch_left(data)
 end
 local function _open_lingshou_contract_entry()
     rawset(_G, "NPC64_OPEN_CONTRACT_ONCE", true)
-    SL:SendLuaNetMsg(105, 64, 64, 0, "")
+    SL:SendLuaNetMsg(105, 1029, 1029, 0, "")
 end
 npc.refreshLingshouMainEntry = function()
     if not npc.LeftTop or tolua.isnull(npc.LeftTop) then
@@ -2976,7 +2972,7 @@ npc[11] = function(p2, p3, Data)
         if not name or name == "" then
             return false
         end
-        return name == "灰界开篇" or name == "仙府功能"
+        return name == "灰界开篇" or name == "壮志凌云"
     end
     local function _ywl_append_reward_entries(outList, rewardList, seenMap, continent)
         if type(rewardList) ~= "table" then
