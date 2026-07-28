@@ -169,7 +169,7 @@ local function buildDescFromAttrs(name, attrs)
         attrIds[idx] = toNumber(attr.id or attr[2], 0)
     end
     if #attrIds == 2 and attrIds[1] == 66 and attrIds[2] == 204 then
-        return string.format("打怪经验+%d%% 金币回收+%d%%", math.floor((values[1] or 0) / 100), math.floor((values[2] or 0) / 100))
+        return string.format("打怪经验+%d%% \n金币回收+%d%%", math.floor((values[1] or 0) / 100), math.floor((values[2] or 0) / 100))
     end
     if #attrIds == 2 and attrIds[1] == 200 and attrIds[2] == 201 then
         return string.format("攻击速度+%d%%", math.floor((values[1] or 0) / 100))
@@ -177,13 +177,13 @@ local function buildDescFromAttrs(name, attrs)
     if name == "爆率" then
         return string.format("打怪爆率+%d%%", math.floor((values[1] or 0) / 100))
     elseif name == "杀伐" then
-        return string.format("攻击伤害+%d%%", math.floor((values[1] or 0) / 100))
+        return string.format("攻击伤害+%d%%", tonumber(values[1]) or 0)
     elseif name == "历练" then
         return string.format("打怪经验+%d%%", math.floor((values[1] or 0) / 100))
     elseif name == "回收" then
         return string.format("金币回收+%d%%", math.floor((values[1] or 0) / 100))
     elseif name == "夺金" then
-        return string.format("打怪经验+%d%% 金币回收+%d%%", math.floor((values[1] or 0) / 100), math.floor((values[2] or 0) / 100))
+        return string.format("打怪经验+%d%% \n金币回收+%d%%", math.floor((values[1] or 0) / 100), math.floor((values[2] or 0) / 100))
     elseif name == "暴击" then
         return string.format("暴击几率+%d%%", values[1] or 0)
     elseif name == "急速" then

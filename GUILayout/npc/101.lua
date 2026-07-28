@@ -985,21 +985,23 @@ function npc.renderRika(node)
     end
 
     local canClaim, claimed = getDayCardButtonState()
-    local button = GUI:Button_Create(node, "rika_claim", 516, 10, "res/custom/msfc/page2/claim_now.png")
-    GUI:setAnchorPoint(button, 0, 0)
-    GUI:addOnClickEvent(button, function()
-        if claimed then
-            SL:ShowSystemTips("今日奖励已领取")
-            return
-        end
+    if claimed then
+        local statusText = GUI:Text_Create(node, "rika_claimed", 621, 34, 22, "#72FF99", "今日已经激活")
+        GUI:setAnchorPoint(statusText, 0.5, 0.5)
+        setTextStyle(statusText, "#16321a")
+    else
+        local button = GUI:Button_Create(node, "rika_claim", 516, 10, "res/custom/msfc/page2/claim_now.png")
+        GUI:setAnchorPoint(button, 0, 0)
+        GUI:addOnClickEvent(button, function()
+            if canClaim then
+                SL:SendLuaNetMsg(100, 101, 8, 0, "")
+                return
+            end
+            SL:ShowSystemTips(string.format("今日累计充值达到%s元后可领取", tostring(getDayCardNeedCharge())))
+        end)
         if canClaim then
-            SL:SendLuaNetMsg(100, 101, 8, 0, "")
-            return
+            NPC_UI_HELPER.redpoint_create(button)
         end
-        SL:ShowSystemTips(string.format("今日累计充值达到%s元后可领取", tostring(getDayCardNeedCharge())))
-    end)
-    if not claimed and canClaim then
-        NPC_UI_HELPER.redpoint_create(button)
     end
 end
 
