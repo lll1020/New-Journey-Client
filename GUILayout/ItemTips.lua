@@ -1,4 +1,4 @@
-ItemTips = {}
+﻿ItemTips = {}
 
 local screenW = SL:GetMetaValue("SCREEN_WIDTH")
 local screenH = SL:GetMetaValue("SCREEN_HEIGHT")
@@ -342,7 +342,7 @@ local function pushDiffEquipHeader(contentPanel, itemData, richWidth)
                 return "辉耀水晶*" .. tostring(countA)
             end
             if countC == 1 and countA > 0 then
-                return "幻灵石*" .. tostring(countA)
+                return "辉耀水晶*" .. tostring(countA)
             end
             return nil
         end
@@ -3629,3 +3629,4 @@ function ItemTips.AddButton(parent, itemData, btnType)
 
     return button
 end
+

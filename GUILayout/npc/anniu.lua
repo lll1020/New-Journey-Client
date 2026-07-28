@@ -2125,7 +2125,7 @@ npc[2] = function(p2, p3, msgData)
                     return "辉耀水晶*" .. tostring(countA)
                 end
                 if countC == 1 then
-                    return "幻灵石*" .. tostring(countA)
+                    return "辉耀水晶*" .. tostring(countA)
                 end
                 return "不返还"
             end
@@ -9323,4 +9323,5 @@ npc[9999] = function(p2, p3, msgData)
     end
 end
 return npc
+
 
