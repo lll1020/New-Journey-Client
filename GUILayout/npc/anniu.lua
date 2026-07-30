@@ -129,6 +129,10 @@ local zbz = {
 }
 npc.rw = {
 }
+npc.zjkmw_opt = {
+    {-80, 500 - 85},
+    {-80 - 80, 500 - 85 - 80 - 18},
+}
 npc.woodcut_doll = {
     tab = "doll_machine",
     payload = {doll = {}},
@@ -1820,60 +1824,7 @@ npc[1] = function(p2, p3, msgData)
                 GUI:addOnClickEvent(Layout, function()
                     SL:OpenChatExtendUI(2)
                 end)
-                local continent5Unlocked = false
-                if type(dl_unlock_check) == "function" then
-                    local ok = dl_unlock_check(5)
-                    continent5Unlocked = ok == true
-                elseif type(dl_sz) == "function" then
-                    continent5Unlocked = dl_sz(5) == true
-                end
-                if continent5Unlocked then
-                    local zjkmw = GUI:Button_Create(npc.RightBottom, "zjkmw", -80, 500 - 85, "res/custom/five_city/zjkmw/img.png")
-                    GUI:addOnClickEvent(zjkmw, function()
-                        local item = SL:GetMetaValue("EQUIP_DATA", 16)
-                        if item then
-                            local equipLevel = Player:getEquipFieldByIndex(item.Index, 1)
-                            equipLevel = tonumber(equipLevel)
-                            if equipLevel < 13 then
-                                SL:ShowSystemTips("需要先进入满醉意值状态")
-                                return
-                            end
-                        else
-                            SL:ShowSystemTips("需要先进入满醉意值状态")
-                            return
-                        end
-                        if GUI:getChildByName(zjkmw, "img_bj") then
-                            GUI:removeChildByName(zjkmw, "img_bj")
-                            return
-                        end
-                        npc.bg = GUI:Image_Create(zjkmw, "img_bj", 100, 0, "res/custom/five_city/zjkmw/bg.png")
-                        GUI:setTouchEnabled(npc.bg, true)
-                        GUI:setAnchorPoint(npc.bg, 1, 0.5)
-                        GUI:setOpacity(npc.bg, 0)
-                        GUI:runAction(npc.bg, GUI:ActionSpawn(GUI:ActionMoveTo(0.3, 0, 0), GUI:ActionFadeIn(0.3)))
-                        npc.node = GUI:Node_Create(npc.bg, "node", 0, 0)
-                        local buff = SL:GetMetaValue("ACTOR_BUFF_DATA_BY_ID", SL:GetMetaValue("MAIN_ACTOR_ID"), 20103)
-                        local Button = GUI:Button_Create(npc.node, "Button", 0, 10.0, "res/custom/five_city/zjkmw/btn_" .. (buff and 2 or 1) .. ".png")
-                        GUI:addOnClickEvent(Button, function()
-                            SL:SendLuaNetMsg(100, 70, 2, 0, "")
-                        end)
-                        SL:RegisterLUAEvent(LUA_EVENT_MAINBUFFUPDATE, "主玩家buff刷新", function(data)
-                            if data.buffID == 20103 then
-                                local buff = SL:GetMetaValue("ACTOR_BUFF_DATA_BY_ID", SL:GetMetaValue("MAIN_ACTOR_ID"), 20103)
-                                GUI:Button_loadTextures(Button, "res/custom/five_city/zjkmw/btn_" .. (buff and 2 or 1) .. ".png")
-                                if buff then
-                                    GUI:Frames_Create(zjkmw, "eff", 0, 0, "res/custom/five_city/zjkmw/eff/eff_", ".png", 1, 75, {
-                                        speed = 75,
-                                        count = 75,
-                                        loop = 0,
-                                    })
-                                else
-                                    GUI:removeChildByName(zjkmw, "eff")
-                                end
-                            end
-                        end)
-                    end)
-                end
+                
             else
                 npc.sjbeibao = GUI:Button_Create(npc.RightTop, "beibao", -160, -230, "res/private/main/bottom/bag.png")
                 npc.jueshe = GUI:Button_Create(npc.RightTop, "jueshe", -240, -230, "res/private/main/bottom/js.png")
@@ -1885,6 +1836,84 @@ npc[1] = function(p2, p3, msgData)
                 end)
                 guaji[1] = GUI:Button_Create(npc.RightTop, "guaji", -80, -230, "res/wy/icon/base.png")
             end
+
+            local function renderContinent5Button()
+                if GUI:getChildByName(npc.RightBottom, "zjkmw") then
+                    return
+                end
+                local continent5Unlocked = false
+                if type(dl_unlock_check) == "function" then
+                    local ok = dl_unlock_check(5)
+                    continent5Unlocked = ok == true
+                elseif type(dl_sz) == "function" then
+                    local ok = dl_sz(5)
+                    continent5Unlocked = ok == true
+                end
+                if not continent5Unlocked then
+                    local adminUnlock = cogin and cogin.sjtb and tonumber(cogin.sjtb.dl_all_unlock or 0) or 0
+                    local syncContinent = cogin and cogin.sjtb and tonumber(cogin.sjtb.U_dlxz_bc or 0) or 0
+                    if adminUnlock == 1 or adminUnlock >= 5 or syncContinent >= 5 then
+                        continent5Unlocked = true
+                    end
+                end
+                if not continent5Unlocked then
+                    return
+                end
+                local zjkmw = GUI:Button_Create(npc.RightBottom, "zjkmw", cogin.isWin32 and npc.zjkmw_opt[1][1] or npc.zjkmw_opt[2][1], cogin.isWin32 and npc.zjkmw_opt[1][2] or npc.zjkmw_opt[2][2], "res/custom/five_city/zjkmw/img.png")
+                GUI:addOnClickEvent(zjkmw, function()
+                    local item = SL:GetMetaValue("EQUIP_DATA", 16)
+                    if item then
+                        local equipLevel = Player:getEquipFieldByIndex(item.Index, 1)
+                        equipLevel = tonumber(equipLevel)
+                        if equipLevel < 13 then
+                            SL:ShowSystemTips("需要先进入满醉意值状态")
+                            return
+                        end
+                    else
+                        SL:ShowSystemTips("需要先进入满醉意值状态")
+                        return
+                    end
+                    if GUI:getChildByName(zjkmw, "img_bj") then
+                        GUI:removeChildByName(zjkmw, "img_bj")
+                        return
+                    end
+                    npc.bg = GUI:Image_Create(zjkmw, "img_bj", 100, 0, "res/custom/five_city/zjkmw/bg.png")
+                    GUI:setTouchEnabled(npc.bg, true)
+                    GUI:setAnchorPoint(npc.bg, 1, 0.5)
+                    GUI:setOpacity(npc.bg, 0)
+                    GUI:runAction(npc.bg, GUI:ActionSpawn(GUI:ActionMoveTo(0.3, 0, 0), GUI:ActionFadeIn(0.3)))
+                    npc.node = GUI:Node_Create(npc.bg, "node", 0, 0)
+                    local buff = SL:GetMetaValue("ACTOR_BUFF_DATA_BY_ID", SL:GetMetaValue("MAIN_ACTOR_ID"), 20103)
+                    local Button = GUI:Button_Create(npc.node, "Button", 0, 10.0, "res/custom/five_city/zjkmw/btn_" .. (buff and 2 or 1) .. ".png")
+                    GUI:addOnClickEvent(Button, function()
+                        SL:SendLuaNetMsg(100, 70, 2, 0, "")
+                    end)
+                    SL:RegisterLUAEvent(LUA_EVENT_MAINBUFFUPDATE, "主玩家buff刷新", function(data)
+                        if data.buffID == 20103 then
+                            local buff = SL:GetMetaValue("ACTOR_BUFF_DATA_BY_ID", SL:GetMetaValue("MAIN_ACTOR_ID"), 20103)
+                            GUI:Button_loadTextures(Button, "res/custom/five_city/zjkmw/btn_" .. (buff and 2 or 1) .. ".png")
+                            if buff then
+                                GUI:Frames_Create(zjkmw, "eff", 0, 0, "res/custom/five_city/zjkmw/eff/eff_", ".png", 1, 75, {
+                                    speed = 75,
+                                    count = 75,
+                                    loop = 0,
+                                })
+                            else
+                                GUI:removeChildByName(zjkmw, "eff")
+                            end
+                        end
+                    end)
+                end)
+            end
+            if SL and SL.scheduleOnce then
+                SL:scheduleOnce(npc.RightTop, renderContinent5Button, 1)
+            elseif SL and SL.ScheduleOnce then
+                SL:ScheduleOnce(renderContinent5Button, 1)
+            else
+                renderContinent5Button()
+            end
+
+
             GUI:addOnClickEvent(guaji[1], function()
                 if SL:GetMetaValue("BATTLE_IS_AFK") then
                     SL:SetMetaValue("BATTLE_AFK_END")
@@ -9802,6 +9831,7 @@ npc[9999] = function(p2, p3, msgData)
     end
 end
 return npc
+
 
 
 

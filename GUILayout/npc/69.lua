@@ -32,11 +32,11 @@ function npc.main(npcid, p2, p3, msgData)
         
         GUI:Image_Create(Label_node, "wz1", 20, 0, "res/custom/five_city/ssyw/wz1.png")
 
-        GUI:Text_setFontName(GUI:Text_Create(Label_node, "map",500,215, 30, "#B2F022", npc._config.config.syw[idx].map)
-        , "fonts/font4.ttf")
+        GUI:Text_setFontName(GUI:Text_Create(Label_node, "map",500,215 + 1, 25, "#B2F022", npc._config.config.syw[idx].map)
+        , "fonts/502.ttf")
 
-        GUI:Text_setFontName(GUI:Text_Create(Label_node, "boss",500,215 + 42, 30, "#FF0000", npc._config.config.syw[idx].boss)
-        , "fonts/font4.ttf")
+        GUI:Text_setFontName(GUI:Text_Create(Label_node, "boss",500,215 + 42 + 2, 25, "#FF0000", npc._config.config.syw[idx].boss)
+        , "fonts/502.ttf")
 
         local kuang = GUI:Image_Create(Label_node, "kuang2", 213, 10, "res/wy/public/58-60.png")
         UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.syw_ch.."[称号]")))

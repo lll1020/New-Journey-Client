@@ -470,6 +470,40 @@ local function _dl_is_story_task_done(task)
     return ok and done == true
 end
 
+local function _dl_get_story_point_progress(continent)
+    local cfg = _dl_get_xyl_cfg()
+    local chapters = type(cfg) == "table" and cfg[continent] or nil
+    if type(chapters) ~= "table" then
+        return 0, 0
+    end
+    local ywl = _dl_get_json("T26")
+    local total = 0
+    local received = 0
+    for chapter_idx, chapter in ipairs(chapters) do
+        local tasks = type(chapter) == "table" and chapter.jq or nil
+        if type(tasks) == "table" then
+            local chapter_key = "jl_" .. continent .. "_" .. chapter_idx
+            local chapter_received = _dl_to_num(ywl[chapter_key], 0) == 1
+            for task_idx, task in ipairs(tasks) do
+                local point = _dl_get_story_point(task)
+                total = total + point
+                local task_received = _dl_to_num(ywl[chapter_key .. "_" .. task_idx], 0) == 1
+                local task_done = _dl_is_story_task_done(task)
+                if point > 0 and not (type(task) == "table" and _dl_to_num(task.side_task, 0) == 1) and (chapter_received or task_received or task_done) then
+                    received = received + point
+                end
+            end
+        end
+    end
+    return received, total
+end
+
+local function _dl_has_story_point_count(continent, needCount)
+    local received = _dl_get_story_point_progress(continent)
+    local need = _dl_to_num(needCount, 0)
+    return received >= need, received, need
+end
+
 local function _dl_has_story_progress(continent, needPercent)
     local cfg = _dl_get_xyl_cfg()
     local chapters = type(cfg) == "table" and cfg[continent] or nil
@@ -616,25 +650,27 @@ local function _dl_check(dl)
         end
         return false, "需跟随主线引导后才可进入三大陆"
     elseif dl == 4 then
-        if _dl_has_story_progress(3, 85) and zslv >= 30 and level >= 150 then
+        if _dl_has_story_point_count(3, 25) and zslv >= 30 and level >= 150 then
             return true
         end
-        return false, "需三大陆剧情完成度达到85%、完成三大陆转生且人物等级达到150级后才可进入四大陆"
+        return false, "需三大陆剧情点达到25点、完成三大陆转生且人物等级达到150级后才可进入四大陆"
     elseif dl == 5 then
-        if _dl_has_story_progress(4, 95) and zslv >= 40 and _dl_has_all_linggen() then
+        local storyOk, storyDone, storyNeed = _dl_has_story_point_count(4, 69)
+        local linggenOk = _dl_has_all_linggen()
+        if storyOk and zslv >= 40 and linggenOk then
             return true
         end
-        return false, "需四大陆剧情完成度达到95%、完成四大陆转生且全部基础灵根达到Lv.1后才可进入五大陆"
+        return false, "需四大陆剧情点达到69点、完成四大陆转生且全部基础灵根达到Lv.1后才可进入五大陆"
     elseif dl == 6 then
-        if _dl_has_story_progress(5, 95) and zslv >= 50 and _dl_has_all_destiny() then
+        if _dl_has_story_point_count(5, 61) and zslv >= 50 and _dl_has_all_destiny() then
             return true
         end
-        return false, "需五大陆剧情完成度达到95%、完成五大陆转生且完成天道命盘后才可进入六大陆"
+        return false, "需五大陆剧情点达到61点、完成五大陆转生且完成天道命盘后才可进入六大陆"
     elseif dl == 7 then
-        if _dl_has_story_progress(6, 100) and zslv >= 60 and _dl_has_title("世界符文·[真我]") then
+        if _dl_has_story_point_count(6, 81) and zslv >= 60 and _dl_has_title("世界符文·[真我]") then
             return true
         end
-        return false, "需六大陆剧情完成度达到100%、完成六大陆转生且获得世界符文·[真我]后才可进入七大陆"
+        return false, "需六大陆剧情点达到81点、完成六大陆转生且获得世界符文·[真我]后才可进入七大陆"
     elseif dl == 8 then
         if zslv >= 70 then
             return true
@@ -642,7 +678,7 @@ local function _dl_check(dl)
         return false, "需完成七大陆转生后才可进入八大陆"
     end
 
-    return true
+    return false
 end
 function dl_sz(i)
     local ok,opened = _dl_check(i)

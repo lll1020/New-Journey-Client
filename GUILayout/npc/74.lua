@@ -20,9 +20,9 @@ local function getPanelState()
     return T_data["npc_74"]
 end
 local other_wz = {
-    "极品仙法爆率+ 5%",
-    "境界压制 + 10%",
-    "的灵根属性 +5%",
+    "极品仙法爆率 + 5%",
+    "境界等级压制 + 10%",
+    "全部灵根属性 + 5%",
     "灵兽人物属性 + 5%",
 }
 local function isActivated(idx)

@@ -65,15 +65,11 @@ local function renderTab(node, npcId, idx)
     else
         local button = GUI:Button_Create(node, "upgrade", 389, 8, "res/custom/five_city/zbjf/btn.png")
         GUI:setAnchorPoint(button, 0.5, 0)
-        GUI:setTouchEnabled(button, ready)
-        GUI:Button_setBright(button, ready)
-        if ready then
-            GUI:addOnClickEvent(button, function()
-                SL:SendLuaNetMsg(100, npcId, 1, 0, SL:JsonEncode({idx = idx}, false))
-            end)
-        else
-            GUI:Text_setFontName(GUI:Text_Create(node, "tip", 389 - 100, 54 + 30, 20, "#FFFFFF", "需先穿戴指定装备后才能解封"), "fonts/font4.ttf")
-        end
+        -- GUI:setTouchEnabled(button, ready)
+        -- GUI:Button_setBright(button, ready)
+        GUI:addOnClickEvent(button, function()
+            SL:SendLuaNetMsg(100, npcId, 1, 0, SL:JsonEncode({idx = idx}, false))
+        end)
     end
 end
 

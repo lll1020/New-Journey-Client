@@ -106,11 +106,11 @@ function ui.init(parent)
 	GUI:setTag(Layout, -1)
 
 	-- Create ListView
-	local ListView = GUI:ListView_Create(Layout, "ListView", 0.00, 42.00, 210.00, 40.00, 2)
+	local ListView = GUI:ListView_Create(Layout, "ListView", 0.00, 42.00, 165.00, 40.00, 2)
 	GUI:ListView_setBounceEnabled(ListView, true)
 	GUI:ListView_setGravity(ListView, 3)
 	GUI:ListView_setItemsMargin(ListView, 2)
-	GUI:setTouchEnabled(ListView, true)
+	-- GUI:setTouchEnabled(ListView, true)
 	GUI:setTag(ListView, -1)
 end
 

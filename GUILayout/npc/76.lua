@@ -114,18 +114,19 @@ local function renderPanel(node, npcId, idx)
     cost = ItemNumByTable_img_new({{"天命·复活",1},{"天命·麻痹",1},{"天命·神镰",1},{"天命·神斧",1}}, nil,GUI:Node_Create(node, "jl2_show", 0, 0))
     GUI:setPosition(cost, 80, 20)
 
-    if inFb and runIdx == idx then
-        local button = GUI:Button_Create(node, "leave", 468, 10, "res/custom/five_city/tmsl/btn.png")
-        GUI:setAnchorPoint(button, 0.5, 0)
-        GUI:Button_setTitleText(button, "离开试炼")
-        GUI:Button_setTitleFontSize(button, 18)
-        GUI:addOnClickEvent(button, function()
-            SL:SendLuaNetMsg(100, npcId, 2, 0, "")
-        end)
-    elseif isTrialDone(idx) then
+    -- if inFb and runIdx == idx then
+    --     local button = GUI:Button_Create(node, "leave", 468, 10, "res/custom/five_city/tmsl/btn.png")
+    --     GUI:setAnchorPoint(button, 0.5, 0)
+    --     GUI:Button_setTitleText(button, "离开试炼")
+    --     GUI:Button_setTitleFontSize(button, 18)
+    --     GUI:addOnClickEvent(button, function()
+    --         SL:SendLuaNetMsg(100, npcId, 2, 0, "")
+    --     end)
+    -- else
+    if isTrialDone(idx) then
         GUI:Image_Create(node, "done", 468, 10, "res/wy/public/10_2.png")
-    elseif isPreActivated(idx) and not inFb then
-        local button = GUI:Button_Create(node, "enter", 468, 10, "res/custom/five_city/tmsl/btn.png")
+    else
+        local button = GUI:Button_Create(node, "enter", 468, 0, "res/custom/five_city/tmsl/btn.png")
         GUI:setAnchorPoint(button, 0.5, 0)
         -- GUI:Button_setTitleText(button, "进入试炼")
         -- GUI:Button_setTitleFontSize(button, 18)
