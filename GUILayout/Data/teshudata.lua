@@ -1,4 +1,4 @@
-teshudata = {
+﻿teshudata = {
     ["npc_1"] = {
         id = 1,
         name = "灵根鉴定",
@@ -1794,10 +1794,10 @@ teshudata = {
     ["npc_665"]  = {id = 665, name = "灵域使者·三",xz = {659,660,661,662,}},
     ["npc_666"]  = {id = 666, name = "酆都鬼城",map = "酆都鬼城",shaguai_id = 666,num = 100,cost = {{"亡者灵魂",30}},ch = '捉鬼人'},
     ["npc_667"]  = {id = 667, name = "买路钱",cost = {{"鬼界令牌",5},{"金币",3880000}}},
-    ["npc_668"]  = {id = 668, name = "思念之人",cost = {{"彼岸花",520},{"金币",1314}},ch = '深情的家伙'},
+    ["npc_668"]  = {id = 668, name = "思念之人",cost = {{"彼岸花",520},{"金币",1314}},ch = '深情的家伙', task_cfg = { prev_task = "npc_667", prev_name = "买路钱" }},
     ["npc_669"]  = {id = 669, name = "忘却前生情",cost = {{"孟婆汤",10}},ch = '新的开始'},
-    ["npc_670"]  = {id = 670, name = "讨伐六天宫",cost = {{"六天宫残魂",10}},ch = '讨伐六天宫'},
-    ["npc_671"]  = {id = 671, name = "地狱使者",jl = {{'地狱使者之剑',1}},
+    ["npc_670"]  = {id = 670, name = "讨伐六天宫",cost = {{"六天宫残魂",10}},ch = '讨伐六天宫', task_cfg = { prev_task = "npc_669", prev_name = "忘却前生情" }},
+    ["npc_671"]  = {id = 671, name = "地狱使者",jl = {{'地狱使者之剑',1}}, task_cfg = { prev_task = "npc_669", prev_name = "忘却前生情" },
         details = {
             {idx = 1,fb_map = "mwsl",mob = "嘲灾",jl = {{"地狱信物（一层）★",1}}},
             {idx = 2,fb_map = "mwsl",mob = "嘲灾",jl = {{"地狱信物（二层）★",1}}},
@@ -1819,7 +1819,7 @@ teshudata = {
             {idx = 18,fb_map = "mwsl",mob = "嘲灾",jl = {{"地狱信物（十八层）★",1}}},
         },
     },
-    ["npc_672"]  = {id = 672, name = "轮回之路",ch = '六道仙人', shaguai_id = 672,
+    ["npc_672"]  = {id = 672, name = "轮回之路",ch = '六道仙人', shaguai_id = 672, task_cfg = { prev_task = "npc_669", prev_name = "忘却前生情" },
         details = {
             {idx = 1,wz = "在当前系列地图累计击杀15只BOSS",a_num = 15,},
             {idx = 2,wz = "提交99个人间道令牌",cost = {{"人间道令牌",99}},},
@@ -3252,6 +3252,9 @@ teshudata = {
     },   
 }
 return teshudata
+
+
+
 
 
 

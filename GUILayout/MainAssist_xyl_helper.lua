@@ -2065,8 +2065,11 @@ function MainAssistXylHelper.bind(MainAssist)
             color = "#F4E7B5",
         })
         GUI:setAnchorPoint(btn, 0.5, 0.5)
+        GUI:setContentSize(btn, 136, 38)
+        
+        GUI:setContentSize(GUI:Image_Create(btn, "btn_bg", 17, 3, "res/wy/public/rw_tb.png"), 20, 30)
 
-        local entry_text = GUI:Text_Create(btn, "entry_text", 92/2, 30/2, 20, "#FFD45A", XYL_FINAL_ENTRY_BTN_TEXT)
+        local entry_text = GUI:Text_Create(btn, "entry_text", 136/2 + 12, 38/2 - 2, 20, "#FFD45A", XYL_FINAL_ENTRY_BTN_TEXT)
         GUI:setAnchorPoint(entry_text, 0.5, 0.5)
         GUI:Text_setFontName(entry_text, "fonts/502.ttf")
         GUI:Text_enableOutline(entry_text, "#000000", 2)

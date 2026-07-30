@@ -30,6 +30,10 @@ local function isContinentUnlocked(continent)
     if adminUnlock == 1 or adminUnlock >= c then
         return true
     end
+    if type(dl_unlock_check) == "function" then
+        local ok = dl_unlock_check(c)
+        return ok == true
+    end
     if type(dl_sz) == "function" then
         return dl_sz(c) == true
     end

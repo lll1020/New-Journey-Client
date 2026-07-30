@@ -1,4 +1,4 @@
-local npc = {}
+﻿local npc = {}
 npc._config = teshudata["anniu_501"] or {}
 local WINDOW_OPTS = {
     background = {skin = "res/custom/xianshifuli/限时福利.png"},
@@ -201,8 +201,8 @@ local function _render_card(node, npcid, payload, T_data, idx, hideCardButton)
         GUI:Text_setString(status,"当前选择")
         GUI:setAnchorPoint(create_outline_text(node, "sysj", 64 + 494 + 20, 147 + 205 + 15, 18, state.statusColor, _format_left_minutes(state.left), "#22140F"), 0.5, 0.5)
     end
-    if not hideCardButton then
-        local btn = GUI:Button_Create(card, "card_btn_" .. idx, 20, 8, CHOOSE_BTN_SKIN)
+    if not hideCardButton and not state.claimedDone then
+        local btn = GUI:Button_Create(card, "card_btn_" .. idx, 16, 8, CHOOSE_BTN_SKIN)
         GUI:Button_setTitleText(btn, "领取")
         GUI:Button_setTitleFontName(btn, "fonts/502.ttf")
         GUI:Button_setTitleFontSize(btn, 22)

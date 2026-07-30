@@ -40,12 +40,14 @@ function npc.main(npcid, p2, p3, msgData)
             if not cfg then
                 return
             end
-            local title = GUI:Text_Create(xjm_node, "reward_title", 598, 78, 22, "#F6D08A", "任务奖励", "fonts/502.ttf")
+            local title = GUI:Text_Create(xjm_node, "reward_title", 598, 78 + 238, 25, "#F6D08A", "任务奖励")
             GUI:setAnchorPoint(title, 0.5, 0.5)
             GUI:Text_enableOutline(title, "#111111", 2)
-            local desc = GUI:Text_Create(xjm_node, "reward_desc", 598, 48, 20, "#9BE7FF", tostring(cfg.attr_desc or ""), "fonts/font4.ttf")
+            GUI:Text_setFontName(title, "fonts/502.ttf")
+            local desc = GUI:Text_Create(xjm_node, "reward_desc", 598, 48 + 238, 25, "#9BE7FF", tostring(cfg.attr_desc or ""))
             GUI:setAnchorPoint(desc, 0.5, 0.5)
             GUI:Text_enableOutline(desc, "#7A1A1A", 2)
+            GUI:Text_setFontName(desc, "fonts/502.ttf")
         end
 
         local function renderActionBtn()

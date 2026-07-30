@@ -648,6 +648,9 @@ function dl_sz(i)
     local ok,opened = _dl_check(i)
     return ok
 end
+function dl_unlock_check(i)
+    return _dl_check(i)
+end
 -- 0:不显示 1显示但是不可提升 2显示且可提升 3已经满级
 function slts_jz(idx, idx_x)
 

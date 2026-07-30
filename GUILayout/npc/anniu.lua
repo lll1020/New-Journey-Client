@@ -1820,7 +1820,14 @@ npc[1] = function(p2, p3, msgData)
                 GUI:addOnClickEvent(Layout, function()
                     SL:OpenChatExtendUI(2)
                 end)
-                if type(dl_sz) == "function" and dl_sz(5) then
+                local continent5Unlocked = false
+                if type(dl_unlock_check) == "function" then
+                    local ok = dl_unlock_check(5)
+                    continent5Unlocked = ok == true
+                elseif type(dl_sz) == "function" then
+                    continent5Unlocked = dl_sz(5) == true
+                end
+                if continent5Unlocked then
                     local zjkmw = GUI:Button_Create(npc.RightBottom, "zjkmw", -80, 500 - 85, "res/custom/five_city/zjkmw/img.png")
                     GUI:addOnClickEvent(zjkmw, function()
                         local item = SL:GetMetaValue("EQUIP_DATA", 16)
@@ -2098,12 +2105,15 @@ npc[2] = function(p2, p3, msgData)
                 if string.find(text, key) then
                     return colorByTier[clampTier(tier)]
                 end
-            end
-            local cailiaoTierMap = {
-                ["常规材料"] = 1,
-                ["主线材料"] = 5,
-                ["海域材料"] = 9,
-                ["西游材料"] = 13,
+            end            local cailiaoTierMap = {
+                ["普通材料"] = 1,
+                ["通用材料"] = 3,
+                ["二大陆剧情材料"] = 4,
+                ["三大陆剧情材料"] = 6,
+                ["四大陆剧情材料"] = 8,
+                ["五大陆剧情材料"] = 10,
+                ["六大陆剧情材料"] = 12,
+                ["特殊功能材料"] = 14,
             }
             for key, tier in pairs(cailiaoTierMap) do
                 if string.find(text, key) then
@@ -2111,6 +2121,42 @@ npc[2] = function(p2, p3, msgData)
                 end
             end
             return "#F5E6B2"
+        end
+        local function formatRecycleGroupDisplayName(categoryKey, groupName)
+            local text = tostring(groupName or "")
+            if categoryKey ~= "zsfj" or text == "" or text == "世界专属" then
+                return text
+            end
+            local continentMap = {
+                ["极光城"] = 2,
+                ["苍云大陆"] = 3,
+                ["若水大陆"] = 4,
+                ["红尘大陆"] = 5,
+                ["灵虚大陆"] = 6,
+                ["万灵界域"] = 7,
+                ["诸天之上"] = 8,
+                ["九大陆主城"] = 9,
+                ["九大路主城"] = 9,
+            }
+            local continent = continentMap[text]
+            if not continent then
+                return text
+            end
+            local continentTextMap = {
+                [2] = "二",
+                [3] = "三",
+                [4] = "四",
+                [5] = "五",
+                [6] = "六",
+                [7] = "七",
+                [8] = "八",
+                [9] = "九",
+            }
+            local continentText = continentTextMap[continent]
+            if not continentText then
+                return text
+            end
+            return string.format("%s大陆|%s", continentText, text)
         end
         local function formatRecycleReward(cfg)
             if type(cfg) ~= "table" then
@@ -2142,6 +2188,202 @@ npc[2] = function(p2, p3, msgData)
         local function isRecycleTitleItem(cfg)
             local itemName = tostring(cfg and cfg[3] or "")
             return string.find(itemName, "^·%-%-%-") ~= nil
+        end
+        local function recycleGroupUnlockState(continent)
+            continent = tonumber(continent or 0) or 0
+            if continent <= 1 then
+                return true
+            end
+            local adminUnlock = cogin and cogin.sjtb and tonumber(cogin.sjtb.dl_all_unlock or 0) or 0
+            if adminUnlock == 1 or adminUnlock >= continent then
+                return true
+            end
+            if continent <= 3 then
+                if type(dl_sz) == "function" then
+                    return dl_sz(continent) == true
+                end
+                return true
+            end
+            local function recycleGetRelevel()
+                local zslv = tonumber(Player and Player.getServerVar and Player:getServerVar("U43") or 0) or 0
+                if zslv <= 0 then
+                    zslv = tonumber(SL:GetMetaValue("RELEVEL") or 0) or 0
+                end
+                return zslv
+            end
+            local function recycleGetLevel()
+                return tonumber(SL:GetMetaValue("LEVEL") or 0) or 0
+            end
+            local function recycleHasAllLinggen()
+                local data = Player and Player.JsonToTbl and Player:getServerVar("T41") and Player:JsonToTbl(Player:getServerVar("T41")) or {}
+                local levels = type(data) == "table" and type(data.level) == "table" and data.level or {}
+                for idx = 1, 5 do
+                    if (tonumber(levels[tostring(idx)] or levels[idx]) or 0) < 1 then
+                        return false
+                    end
+                end
+                return true
+            end
+            local function recycleHasAllDestiny()
+                local data = Player and Player.JsonToTbl and Player:getServerVar("T13") and Player:JsonToTbl(Player:getServerVar("T13")) or {}
+                local state = type(data) == "table" and type(data["npc_74"]) == "table" and data["npc_74"] or {}
+                local cfg74 = type(teshudata) == "table" and teshudata["npc_74"] or {}
+                local need = tonumber(cfg74 and cfg74.all) or 4
+                return (tonumber(state.all) or 0) >= need
+            end
+            local function recycleHasTitle(titleName)
+                local itemIdx = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", titleName) or 0) or 0
+                if itemIdx <= 0 then
+                    return false
+                end
+                return SL:GetMetaValue("TITLE_DATA_BY_ID", itemIdx) ~= nil
+            end
+            local function recycleGetTaskStoryPoint(task)
+                local total = 0
+                local rewards = type(task) == "table" and task.jl or nil
+                if type(rewards) ~= "table" then
+                    return 0
+                end
+                for _, reward in ipairs(rewards) do
+                    if type(reward) == "table" and reward[1] == "剧情点" then
+                        total = total + (tonumber(reward[2]) or 0)
+                    end
+                end
+                return total
+            end
+            local recycleExtraProgressChapters = {
+                ["苍云秘闻"] = true,
+                ["若水秘闻"] = true,
+                ["灵兽奥秘"] = true,
+                ["灵虚秘闻"] = true,
+            }
+            local function recycleShouldSkipProgressChapter(chapter)
+                if type(chapter) ~= "table" then
+                    return false
+                end
+                return recycleExtraProgressChapters[tostring(chapter.name or "")] == true
+            end
+            local function recycleGetStoryProgress(targetContinent)
+                local chapters = npc.xyl and npc.xyl[targetContinent] or nil
+                local ywl = rawget(_G, "XYL_YWL_CACHE") or {}
+                local done = 0
+                local total = 0
+                if type(chapters) ~= "table" or type(ywl) ~= "table" then
+                    return nil, nil
+                end
+                for chapterIdx, chapter in ipairs(chapters) do
+                    local skipTotal = recycleShouldSkipProgressChapter(chapter)
+                    local tasks = type(chapter) == "table" and chapter.jq or nil
+                    if type(tasks) == "table" then
+                        local chapterKey = "jl_" .. targetContinent .. "_" .. chapterIdx
+                        local chapterReceived = tonumber(ywl[chapterKey] or 0) == 1
+                        for taskIdx, task in ipairs(tasks) do
+                            local point = recycleGetTaskStoryPoint(task)
+                            if not skipTotal then
+                                total = total + point
+                            end
+                            local taskReceived = tonumber(ywl[chapterKey .. "_" .. taskIdx] or 0) == 1
+                            if point > 0 and (chapterReceived or taskReceived) then
+                                done = done + point
+                            end
+                        end
+                    end
+                end
+                return done, total
+            end
+            local function recycleStoryTarget(total, percent)
+                total = tonumber(total) or 0
+                if total <= 0 then
+                    return 0
+                end
+                return math.ceil(total * (tonumber(percent) or 100) / 100)
+            end
+            if continent == 4 then
+                local done, total = recycleGetStoryProgress(3)
+                return total and total > 0 and done >= recycleStoryTarget(total, 85) and recycleGetRelevel() >= 30 and recycleGetLevel() >= 150
+            elseif continent == 5 then
+                local done, total = recycleGetStoryProgress(4)
+                return total and total > 0 and done >= recycleStoryTarget(total, 95) and recycleGetRelevel() >= 40 and recycleHasAllLinggen()
+            elseif continent == 6 then
+                local done, total = recycleGetStoryProgress(5)
+                return total and total > 0 and done >= recycleStoryTarget(total, 95) and recycleGetRelevel() >= 50 and recycleHasAllDestiny()
+            elseif continent == 7 then
+                local done, total = recycleGetStoryProgress(6)
+                return total and total > 0 and done >= recycleStoryTarget(total, 100) and recycleGetRelevel() >= 60 and recycleHasTitle("世界符文·[真我]")
+            elseif continent == 8 then
+                return recycleGetRelevel() >= 70
+            end
+            return true
+        end
+        local function recycleGroupVisible(categoryKey, groupName)
+            groupName = tostring(groupName or "")
+            if categoryKey == "zsfj" then
+                local continentMap = {
+                    ["世界专属"] = 1,
+                    ["极光城"] = 2,
+                    ["苍云大陆"] = 3,
+                    ["若水大陆"] = 4,
+                    ["红尘大陆"] = 5,
+                    ["灵虚大陆"] = 6,
+                    ["万灵界域"] = 7,
+                    ["诸天之上"] = 8,
+                    ["九大路主城"] = 9,
+                }
+                local continent = continentMap[groupName]
+                if continent then
+                    return recycleGroupUnlockState(continent)
+                end
+            elseif categoryKey == "clfj" then
+                local continentMap = {
+                    ["二大陆剧情材料"] = 2,
+                    ["三大陆剧情材料"] = 3,
+                    ["四大陆剧情材料"] = 4,
+                    ["五大陆剧情材料"] = 5,
+                    ["六大陆剧情材料"] = 6,
+                }
+                local continent = continentMap[groupName]
+                if continent then
+                    return recycleGroupUnlockState(continent)
+                end
+            end
+            return true
+        end
+        local function filterRecycleCategoryData(categoryKey, data)
+            if type(data) ~= "table" then
+                return data
+            end
+            if categoryKey ~= "zsfj" and categoryKey ~= "clfj" then
+                return data
+            end
+            local filtered = {}
+            for groupIdx, groupData in pairs(data) do
+                if type(groupData) == "table" then
+                    local subgroupMap = {}
+                    local hasVisible = false
+                    for subIdx, subgroupCfg in pairs(groupData) do
+                        if type(subgroupCfg) == "table" and type(subgroupCfg.l) == "table" then
+                            if recycleGroupVisible(categoryKey, subgroupCfg.name) then
+                                subgroupMap[subIdx] = subgroupCfg
+                                hasVisible = true
+                            end
+                        end
+                    end
+                    if hasVisible then
+                        filtered[groupIdx] = subgroupMap
+                    end
+                end
+            end
+            return filtered
+        end
+        local function resolveRecycleGroupToken(defaultGroupIdx, subgroupCfg)
+            if type(subgroupCfg) == "table" and type(subgroupCfg.l) == "table" then
+                for _, itemCfg in pairs(subgroupCfg.l) do
+                    if type(itemCfg) == "table" and type(itemCfg[1]) == "number" then
+                        return itemCfg[1]
+                    end
+                end
+            end
+            return defaultGroupIdx
         end
         local function collect_current_select_keys()
             local keyMap = {
@@ -2220,14 +2462,15 @@ npc[2] = function(p2, p3, msgData)
                         }
                     end
                 end
-                return source
+                return filterRecycleCategoryData(category_key, source)
             end
-            local category_data = normalize_category_data_for_bulk()
+            local category_data = filterRecycleCategoryData(category_key, normalize_category_data_for_bulk())
             for v, group_data in pairs(category_data) do
                 if type(group_data) == "table" then
                     for vv, subgroup_cfg in pairs(group_data) do
                         if type(subgroup_cfg) == "table" and type(subgroup_cfg.l) == "table" then
-                            local group_key = tostring(npc.s) .. "_" .. tostring(v)
+                            local group_token = resolveRecycleGroupToken(v, subgroup_cfg)
+                            local group_key = tostring(npc.s) .. "_" .. tostring(group_token)
                             local subgroup_key = group_key .. "_" .. tostring(vv)
                             add_key(group_key)
                             add_key(subgroup_key)
@@ -2450,20 +2693,255 @@ npc[2] = function(p2, p3, msgData)
                         }
                     end
                 end
-                return source
+                return filterRecycleCategoryData(category_key, source)
             end
-            local category_data = normalize_category_data()
-            local subgroup_count = 0
-            for _, group_data in pairs(category_data) do
+            local category_data = filterRecycleCategoryData(category_key, normalize_category_data())
+            local flat_subgroups = {
+            }
+            for v, group_data in sorted_pairs(category_data) do
                 if type(group_data) == "table" then
-                    for _, subgroup in pairs(group_data) do
-                        if type(subgroup) == "table" and type(subgroup.l) == "table" then
-                            subgroup_count = subgroup_count + 1
+                    for vv, subgroup_cfg in sorted_pairs(group_data) do
+                        if type(subgroup_cfg) == "table" and type(subgroup_cfg.l) == "table" then
+                            local group_token = resolveRecycleGroupToken(v, subgroup_cfg)
+                            local group_key = npc.s .. "_" .. tostring(group_token)
+                            flat_subgroups[#flat_subgroups + 1] = {
+                                group_idx = v,
+                                subgroup_idx = vv,
+                                group_token = group_token,
+                                group_key = group_key,
+                                subgroup_key = group_key .. "_" .. tostring(vv),
+                                cfg = subgroup_cfg,
+                            }
                         end
                     end
                 end
             end
-            subgroup_count = math.max(subgroup_count, 1)
+            if category_key ~= "zzhs" then
+                local visible_width = 414
+                local visible_height = 228
+                local left_width = 202
+                local gap_width = 12
+                local right_width = visible_width - left_width - gap_width
+                local material_wrap = GUI:Layout_Create(jm_node, "material_wrap", 135, 112, visible_width, visible_height, false)
+                local left_bg = material_wrap
+                GUI:setContentSize(left_bg, left_width, visible_height)
+                GUI:setOpacity(left_bg, 185)
+                local right_bg = GUI:Node_Create(material_wrap, "right_bg", left_width + gap_width)
+                GUI:setOpacity(right_bg, 185)
+                local divider = GUI:Layout_Create(material_wrap, "divider", left_width + 4 + 12, 6, 4, visible_height - 12, false)
+                GUI:Layout_setBackGroundColorType(divider, 1)
+                GUI:Layout_setBackGroundColor(divider, "#000000")
+                GUI:Layout_setBackGroundColorOpacity(divider, 220)
+                if #flat_subgroups <= 0 then
+                    local empty_text = GUI:Text_Create(right_bg, "empty_text", right_width / 2, visible_height / 2, 18, "#F3E8CE", "当前暂无可展示的材料")
+                    GUI:setAnchorPoint(empty_text, 0.5, 0.5)
+                    setRecycleText(empty_text, "#F3E8CE", 18, "#110b05")
+                    return
+                end
+                npc.recycle_subgroup_key_by_tab = npc.recycle_subgroup_key_by_tab or {
+                }
+                local selected_subgroup_key = npc.recycle_subgroup_key_by_tab[npc.s]
+                local selected_entry = flat_subgroups[1]
+                for _, subgroup_entry in ipairs(flat_subgroups) do
+                    if subgroup_entry.subgroup_key == selected_subgroup_key then
+                        selected_entry = subgroup_entry
+                        break
+                    end
+                end
+                npc.recycle_subgroup_key_by_tab[npc.s] = selected_entry.subgroup_key
+                local function subgroup_all_selected(subgroup_entry)
+                    if (shuju.xz[subgroup_entry.group_key] and shuju.xz[subgroup_entry.group_key] == 1) or (shuju.xz[subgroup_entry.subgroup_key] and shuju.xz[subgroup_entry.subgroup_key] == 1) then
+                        return true
+                    end
+                    local hasEntry = false
+                    for item_idx, item_cfg in sorted_pairs(subgroup_entry.cfg.l) do
+                        if not isRecycleTitleItem(item_cfg) then
+                            hasEntry = true
+                            if not (shuju.xz[tostring(item_idx)] and shuju.xz[tostring(item_idx)] == 1) then
+                                return false
+                            end
+                        end
+                    end
+                    return hasEntry
+                end
+                local function item_is_selected(subgroup_entry, item_idx)
+                    return (shuju.xz[subgroup_entry.group_key] and shuju.xz[subgroup_entry.group_key] == 1)
+                        or (shuju.xz[subgroup_entry.subgroup_key] and shuju.xz[subgroup_entry.subgroup_key] == 1)
+                        or (shuju.xz[tostring(item_idx)] and shuju.xz[tostring(item_idx)] == 1)
+                end
+                local dual_refresh_lock = false
+                local left_row_widgets = {
+                }
+                local right_item_widgets = {
+                }
+                local function refresh_dual_pane_selection_state()
+                    dual_refresh_lock = true
+                    for _, widget in ipairs(left_row_widgets) do
+                        local is_checked = subgroup_all_selected(widget.subgroup_entry)
+                        local is_selected = widget.subgroup_entry.subgroup_key == selected_entry.subgroup_key
+                        GUI:setOpacity(widget.row, is_selected and 118 or (is_checked and 190 or 128))
+                        GUI:setOpacity(widget.row_checkbox_slot, is_selected and 220 or 165)
+                        GUI:CheckBox_setSelected(widget.row_checkbox, is_checked)
+                        local name_color = is_selected and "#F4FDFF" or (is_checked and "#F0C14B" or getGroupNameColor(widget.group_name))
+                        setRecycleText(widget.row_text, name_color, is_selected and 19 or 18, "#110b05")
+                    end
+                    for _, widget in ipairs(right_item_widgets) do
+                        local item_checked = item_is_selected(selected_entry, widget.item_idx)
+                        GUI:setOpacity(widget.item_row, item_checked and 245 or 165)
+                        GUI:CheckBox_setSelected(widget.item_checkbox, item_checked)
+                        setRecycleText(widget.item_name_text, item_checked and "#FFE58F" or "#F3E8CE", 19, "#110b05")
+                    end
+                    dual_refresh_lock = false
+                end
+                local left_scroll = GUI:ScrollView_Create(left_bg, "left_scroll", 0, 6, left_width - 12 + 30, visible_height - 12, 1)
+                local left_inner_height = math.max(visible_height - 12, #flat_subgroups * 43) + 10
+                GUI:ScrollView_setInnerContainerSize(left_scroll, left_width - 12, left_inner_height)
+                GUI:setTouchEnabled(left_scroll, true)
+                -- GUI:ScrollView_setClippingEnabled(left_scroll, false) 
+                GUI:ScrollView_setBounceEnabled(left_scroll, true)
+                local left_list = GUI:Layout_Create(left_scroll, "left_list", 0, 0, left_width - 12, left_inner_height, false)
+                for idx, subgroup_entry in ipairs(flat_subgroups) do
+                    local row = GUI:Image_Create(left_list, "subgroup_row" .. idx, 0, 0, "res/wy/public/new_kuang.png")
+                    GUI:setContentSize(row, left_width - 12, 44)
+                    local group_name = subgroup_entry.cfg.name or ("分组" .. tostring(idx))
+                    local is_selected = subgroup_entry.subgroup_key == selected_entry.subgroup_key
+                    local is_checked = subgroup_all_selected(subgroup_entry)
+                    GUI:setOpacity(row, is_selected and 118 or (is_checked and 190 or 128))
+                    if is_selected then
+                        local selected_cover = GUI:Image_Create(row, "selected_cover", 0, 3, "res/wy/public/huishou/hsan_kuang.png")
+                        GUI:setContentSize(selected_cover, left_width + 16 + 30, 40)
+                        GUI:setOpacity(selected_cover, 255)
+                    end
+                    local row_checkbox_slot = GUI:Image_Create(row, "checkbox_slot", left_width - 46, 7, "res/wy/public/40-40.png")
+                    GUI:setContentSize(row_checkbox_slot, 30, 30)
+                    GUI:setOpacity(row_checkbox_slot, is_selected and 220 or 165)
+                    local row_checkbox = GUI:CheckBox_Create(row, "CheckBox", left_width - 42 - 5, 7, "res/wy/public/xz0.png", "res/wy/public/xz1.png")
+                    GUI:CheckBox_setSelected(row_checkbox, is_checked)
+                    GUI:CheckBox_addOnEvent(row_checkbox, function(self)
+                        if dual_refresh_lock then
+                            return
+                        end
+                        local selected = GUI:CheckBox_isSelected(self)
+                        syncSelection(subgroup_entry.subgroup_key, selected)
+                        if selected then
+                            clearSelectionIfNeeded(subgroup_entry.group_key)
+                        else
+                            clearSelectionIfNeeded(subgroup_entry.group_key)
+                            clearSelectionIfNeeded(subgroup_entry.subgroup_key)
+                        end
+                        refresh_dual_pane_selection_state()
+                        if refresh_bulk_select_state then
+                            refresh_bulk_select_state()
+                        end
+                    end)
+                    local display_group_name = formatRecycleGroupDisplayName(category_key, group_name)
+                    local name_color = is_selected and "#F4FDFF" or (is_checked and "#F0C14B" or getGroupNameColor(group_name))
+                    local row_text = GUI:Text_Create(row, "name", is_selected and 20 or 14, 22, is_selected and 19 or 18, name_color, display_group_name)
+                    GUI:setAnchorPoint(row_text, 0, 0.5)
+                    setRecycleText(row_text, name_color, is_selected and 19 or 18, "#110b05")
+                    GUI:setTouchEnabled(row, true)
+                    GUI:addOnClickEvent(row, function()
+                        npc.recycle_subgroup_key_by_tab[npc.s] = subgroup_entry.subgroup_key
+                        new_hs_update()
+                    end)
+                    left_row_widgets[#left_row_widgets + 1] = {
+                        row = row,
+                        row_checkbox = row_checkbox,
+                        row_checkbox_slot = row_checkbox_slot,
+                        row_text = row_text,
+                        subgroup_entry = subgroup_entry,
+                        group_name = group_name,
+                    }
+                end
+                GUI:UserUILayout(left_list, {
+                    dir = 3,
+                    addDir = 1,
+                    gap = {
+                        x = 0,
+                        y = 0,
+                    },
+                })
+                local right_scroll = GUI:ScrollView_Create(right_bg, "right_scroll", 6, 6, right_width - 12 + 40, visible_height - 12, 1)
+                local visible_item_count = 0
+                for _, item_cfg in pairs(selected_entry.cfg.l or {
+                }) do
+                    if not isRecycleTitleItem(item_cfg) then
+                        visible_item_count = visible_item_count + 1
+                    end
+                end
+                local item_row_height = 45
+                local right_inner_height = math.max(visible_height - 12, visible_item_count * (item_row_height))
+                GUI:ScrollView_setInnerContainerSize(right_scroll, right_width - 12, right_inner_height)
+                GUI:setTouchEnabled(right_scroll, true)
+                GUI:ScrollView_setBounceEnabled(right_scroll, true)
+                local right_list = GUI:Layout_Create(right_scroll, "right_list", 0, 0, right_width - 12, right_inner_height, false)
+                for item_idx, item_cfg in sorted_pairs(selected_entry.cfg.l) do
+                    if not isRecycleTitleItem(item_cfg) then
+                        local item_checked = item_is_selected(selected_entry, item_idx)
+                        local item_row = GUI:Image_Create(right_list, "item_row" .. tostring(item_idx), 0, 0, "res/wy/public/new_kuang.png")
+                        GUI:setContentSize(item_row, right_width - 16, item_row_height)
+                        GUI:setOpacity(item_row, item_checked and 245 or 165)
+                        local icon_bg = GUI:Image_Create(item_row, "icon_bg", 20, 15, "res/wy/public/40-40.png")
+                        GUI:setContentSize(icon_bg, 20, 20)
+                        GUI:setOpacity(icon_bg, 215)
+                        local item_show = GUI:ItemShow_Create(icon_bg, "item", 10, 10, {
+                            index = item_idx,
+                            look = true,
+                            bgVisible = false,
+                        })
+                        GUI:setScale(item_show, 0.5)
+                        GUI:setAnchorPoint(item_show, 0.5, 0.5)
+                        local item_count = tonumber(SL:GetMetaValue("ITEM_COUNT", item_idx) or 0) or 0
+                        if item_count > 0 then
+                            local count_text = GUI:Text_Create(icon_bg, "count", 12, -12, 16, "#FFF6D6", "x" .. tostring(item_count))
+                            GUI:setAnchorPoint(count_text, 0, 0)
+                            GUI:Text_enableOutline(count_text, "#000000", 2)
+                            GUI:Text_setFontName(count_text, "fonts/502.ttf")
+                        end
+                        local item_name = item_cfg and item_cfg[3] or tostring(item_idx)
+                        local reward_desc = formatRecycleReward(item_cfg)
+                        local item_name_text = GUI:Text_Create(item_row, "item_name", 62, 25, 19, item_checked and "#FFE58F" or "#F3E8CE", item_name)
+                        GUI:setAnchorPoint(item_name_text, 0, 0.5)
+                        setRecycleText(item_name_text, item_checked and "#FFE58F" or "#F3E8CE", 19, "#110b05")
+                        -- local reward_text = GUI:Text_Create(item_row, "reward", 62, 18, 16, item_checked and "#FFF1C2" or "#D8C39A", reward_desc)
+                        -- GUI:setAnchorPoint(reward_text, 0, 0.5)
+                        -- setRecycleText(reward_text, item_checked and "#FFF1C2" or "#D8C39A", 16, "#110b05")
+                        -- local item_checkbox_slot = GUI:Image_Create(item_row, "checkbox_slot", right_width - 68, 14, "res/wy/public/40-40.png")
+                        -- GUI:setContentSize(item_checkbox_slot, 34, 34)
+                        -- GUI:setOpacity(item_checkbox_slot, 165)
+                        local item_checkbox = GUI:CheckBox_Create(item_row, "CheckBox", right_width - 64 + 40, 8, "res/wy/public/xz0.png", "res/wy/public/xz1.png")
+                        GUI:CheckBox_setSelected(item_checkbox, item_checked)
+                        GUI:CheckBox_addOnEvent(item_checkbox, function(self)
+                            if dual_refresh_lock then
+                                return
+                            end
+                            syncSelection(tostring(item_idx), GUI:CheckBox_isSelected(self))
+                            clearSelectionIfNeeded(selected_entry.group_key)
+                            clearSelectionIfNeeded(selected_entry.subgroup_key)
+                            refresh_dual_pane_selection_state()
+                            if refresh_bulk_select_state then
+                                refresh_bulk_select_state()
+                            end
+                        end)
+                        right_item_widgets[#right_item_widgets + 1] = {
+                            item_row = item_row,
+                            item_checkbox = item_checkbox,
+                            item_name_text = item_name_text,
+                            item_idx = item_idx,
+                        }
+                    end
+                end
+                GUI:UserUILayout(right_list, {
+                    dir = 3,
+                    addDir = 1,
+                    gap = {
+                        x = 0,
+                        y = 0,
+                    },
+                })
+                return
+            end
+            local subgroup_count = math.max(#flat_subgroups, 1)
             local visible_width = 414
             local visible_height = 228
             local list_height = math.max(visible_height, 58 * math.ceil(subgroup_count / 2))
@@ -2584,8 +3062,9 @@ npc[2] = function(p2, p3, msgData)
                                 end
                             end)
                             local group_name = subgroup_cfg.name or ("分组" .. tostring(vv))
+                            local display_group_name = formatRecycleGroupDisplayName(category_key, group_name)
                             local color = getGroupNameColor(group_name)
-                            local s_s_wz = GUI:Text_Create(s_s_btn, "wz", 84, 26, 18, color, group_name)
+                            local s_s_wz = GUI:Text_Create(s_s_btn, "wz", 84, 26, 18, color, display_group_name)
                             GUI:setAnchorPoint(s_s_wz, 0.5, 0.5)
                             setRecycleText(s_s_wz, color, 18, "#110b05")
                             GUI:setTouchEnabled(s_s_btn, true)
@@ -9323,5 +9802,7 @@ npc[9999] = function(p2, p3, msgData)
     end
 end
 return npc
+
+
 
 
