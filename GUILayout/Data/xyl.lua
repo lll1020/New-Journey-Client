@@ -643,7 +643,7 @@ end
 local _XYL_EXTRA_JQD_CHAPTERS = {
     ["苍云秘闻"] = true,
     ["若水秘闻"] = true,
-    ["灵兽奥秘"] = true,
+    ["红尘秘闻"] = true,
     ["灵虚秘闻"] = true,
 }
 local function _xyl_is_extra_jqd_chapter(cfg)

@@ -497,7 +497,6 @@ local function _dl_get_story_point_progress(continent)
     end
     return received, total
 end
-
 local function _dl_has_story_point_count(continent, needCount)
     local received = _dl_get_story_point_progress(continent)
     local need = _dl_to_num(needCount, 0)
@@ -655,17 +654,17 @@ local function _dl_check(dl)
         end
         return false, "需三大陆剧情点达到25点、完成三大陆转生且人物等级达到150级后才可进入四大陆"
     elseif dl == 5 then
-        local storyOk, storyDone, storyNeed = _dl_has_story_point_count(4, 69)
+        local storyOk, storyDone, storyNeed = _dl_has_story_point_count(4, 57)
         local linggenOk = _dl_has_all_linggen()
         if storyOk and zslv >= 40 and linggenOk then
             return true
         end
-        return false, "需四大陆剧情点达到69点、完成四大陆转生且全部基础灵根达到Lv.1后才可进入五大陆"
+        return false, "需四大陆剧情点达到57点、完成四大陆转生且全部基础灵根达到Lv.1后才可进入五大陆"
     elseif dl == 6 then
-        if _dl_has_story_point_count(5, 61) and zslv >= 50 and _dl_has_all_destiny() then
+        if _dl_has_story_point_count(5, 50) and zslv >= 50 and _dl_has_all_destiny() then
             return true
         end
-        return false, "需五大陆剧情点达到61点、完成五大陆转生且完成天道命盘后才可进入六大陆"
+        return false, "需五大陆剧情点达到50点、完成五大陆转生且完成天道命盘后才可进入六大陆"
     elseif dl == 7 then
         if _dl_has_story_point_count(6, 81) and zslv >= 60 and _dl_has_title("世界符文·[真我]") then
             return true

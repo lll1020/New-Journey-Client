@@ -108,7 +108,7 @@ end
 local _EXTRA_PROGRESS_CHAPTERS = {
     ["苍云秘闻"] = true,
     ["若水秘闻"] = true,
-    ["灵兽奥秘"] = true,
+    ["红尘秘闻"] = true,
     ["灵虚秘闻"] = true,
 }
 local function _should_skip_progress_chapter(chapter)
@@ -246,7 +246,7 @@ local function _build_enter_condition_data(dl)
         }
     elseif dl == 5 then
         local done, total = _get_story_progress(4)
-        local target = _get_story_target(total, 95)
+        local target = 57
         local segments = {
             {text = string.format("四大陆剧情完成度%d/%d", done, target), ok = target > 0 and done >= target},
             {text = "四大陆转生", ok = _get_rebirth_level() >= 40},
@@ -258,7 +258,7 @@ local function _build_enter_condition_data(dl)
         }
     elseif dl == 6 then
         local done, total = _get_story_progress(5)
-        local target = _get_story_target(total, 95)
+        local target = 50
         local segments = {
             {text = string.format("五大陆剧情完成度%d/%d", done, target), ok = target > 0 and done >= target},
             {text = "五大陆转生", ok = _get_rebirth_level() >= 50},

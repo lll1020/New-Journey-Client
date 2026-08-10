@@ -2281,10 +2281,10 @@ npc[2] = function(p2, p3, msgData)
                 return total
             end
             local recycleExtraProgressChapters = {
-                ["苍云秘闻"] = true,
-                ["若水秘闻"] = true,
-                ["灵兽奥秘"] = true,
-                ["灵虚秘闻"] = true,
+                -- ["苍云秘闻"] = true,
+                -- ["若水秘闻"] = true,
+                -- ["红尘秘闻"] = true,
+                -- ["灵虚秘闻"] = true,
             }
             local function recycleShouldSkipProgressChapter(chapter)
                 if type(chapter) ~= "table" then
@@ -2329,16 +2329,16 @@ npc[2] = function(p2, p3, msgData)
             end
             if continent == 4 then
                 local done, total = recycleGetStoryProgress(3)
-                return total and total > 0 and done >= recycleStoryTarget(total, 85) and recycleGetRelevel() >= 30 and recycleGetLevel() >= 150
+                return total and total > 0 and done >= 25 and recycleGetRelevel() >= 30 and recycleGetLevel() >= 150
             elseif continent == 5 then
                 local done, total = recycleGetStoryProgress(4)
-                return total and total > 0 and done >= recycleStoryTarget(total, 95) and recycleGetRelevel() >= 40 and recycleHasAllLinggen()
+                return total and total > 0 and done >= 57 and recycleGetRelevel() >= 40 and recycleHasAllLinggen()
             elseif continent == 6 then
                 local done, total = recycleGetStoryProgress(5)
-                return total and total > 0 and done >= recycleStoryTarget(total, 95) and recycleGetRelevel() >= 50 and recycleHasAllDestiny()
+                return total and total > 0 and done >= 50 and recycleGetRelevel() >= 50 and recycleHasAllDestiny()
             elseif continent == 7 then
                 local done, total = recycleGetStoryProgress(6)
-                return total and total > 0 and done >= recycleStoryTarget(total, 100) and recycleGetRelevel() >= 60 and recycleHasTitle("世界符文·[真我]")
+                return total and total > 0 and done >= 81 and recycleGetRelevel() >= 60 and recycleHasTitle("世界符文·[真我]")
             elseif continent == 8 then
                 return recycleGetRelevel() >= 70
             end
@@ -3646,6 +3646,8 @@ npc[11] = function(p2, p3, Data)
                 local chapterDone = tonumber(ywlData["jl_" .. l .. "_" .. j] or 0) == 1
                 for idx, task in ipairs(tasks) do
                     local storyPoint = _ywl_get_task_story_point(task)
+                    -- SL:release_print("XYL_YWL_CACHE_name"..task[1]..storyPoint)
+
                     total = total + storyPoint
                     local taskDoneByReward = tonumber(ywlData["jl_" .. l .. "_" .. j .. "_" .. idx] or 0) == 1
                     if chapterDone or taskDoneByReward then
@@ -3735,10 +3737,10 @@ npc[11] = function(p2, p3, Data)
             return SL:GetMetaValue("TITLE_DATA_BY_ID", itemIdx) ~= nil
         end
         local _YWL_EXTRA_PROGRESS_CHAPTERS = {
-            ["苍云秘闻"] = true,
-            ["若水秘闻"] = true,
-            ["灵兽奥秘"] = true,
-            ["灵虚秘闻"] = true,
+            -- ["苍云秘闻"] = true,
+            -- ["若水秘闻"] = true,
+            -- ["红尘秘闻"] = true,
+            -- ["灵虚秘闻"] = true,
         }
         local function ywlShouldSkipProgressChapter(chapter)
             if type(chapter) ~= "table" then
@@ -3791,16 +3793,16 @@ npc[11] = function(p2, p3, Data)
                 return type(dl_sz) ~= "function" or dl_sz(continent) == true
             elseif continent == 4 then
                 local done, total = ywlGetStoryProgress(3)
-                return done >= ywlStoryTarget(total, 85) and ywlGetRelevel() >= 30 and ywlGetLevel() >= 150
+                return done >= 25 and ywlGetRelevel() >= 30 and ywlGetLevel() >= 150
             elseif continent == 5 then
                 local done, total = ywlGetStoryProgress(4)
-                return done >= ywlStoryTarget(total, 95) and ywlGetRelevel() >= 40 and ywlHasAllLinggen()
+                return done >= 57 and ywlGetRelevel() >= 40 and ywlHasAllLinggen()
             elseif continent == 6 then
                 local done, total = ywlGetStoryProgress(5)
-                return done >= ywlStoryTarget(total, 95) and ywlGetRelevel() >= 50 and ywlHasAllDestiny()
+                return done >= 50 and ywlGetRelevel() >= 50 and ywlHasAllDestiny()
             elseif continent == 7 then
                 local done, total = ywlGetStoryProgress(6)
-                return done >= ywlStoryTarget(total, 100) and ywlGetRelevel() >= 60 and ywlHasTitle("世界符文·[真我]")
+                return done >= 81 and ywlGetRelevel() >= 60 and ywlHasTitle("世界符文·[真我]")
             elseif continent == 8 then
                 return ywlGetRelevel() >= 70
             end
@@ -8798,10 +8800,10 @@ npc[514] = function(p2, p3, Data)
         return total
     end
     local _WORLD_MAP_EXTRA_PROGRESS_CHAPTERS = {
-        ["苍云秘闻"] = true,
-        ["若水秘闻"] = true,
-        ["灵兽奥秘"] = true,
-        ["灵虚秘闻"] = true,
+        -- ["苍云秘闻"] = true,
+        -- ["若水秘闻"] = true,
+        -- ["红尘秘闻"] = true,
+        -- ["灵虚秘闻"] = true,
     }
     local function worldMapShouldSkipProgressChapter(chapter)
         if type(chapter) ~= "table" then
@@ -8922,16 +8924,16 @@ npc[514] = function(p2, p3, Data)
         end
         if continent == 4 then
             local done, total = worldMapGetStoryProgress(3)
-            return done >= worldMapStoryTarget(total, 85) and worldMapGetRelevel() >= 30 and worldMapGetLevel() >= 150
+            return done >= 25 and worldMapGetRelevel() >= 30 and worldMapGetLevel() >= 150
         elseif continent == 5 then
             local done, total = worldMapGetStoryProgress(4)
-            return done >= worldMapStoryTarget(total, 95) and worldMapGetRelevel() >= 40 and worldMapHasAllLinggen()
+            return done >= 57 and worldMapGetRelevel() >= 40 and worldMapHasAllLinggen()
         elseif continent == 6 then
             local done, total = worldMapGetStoryProgress(5)
-            return done >= worldMapStoryTarget(total, 95) and worldMapGetRelevel() >= 50 and worldMapHasAllDestiny()
+            return done >= 50 and worldMapGetRelevel() >= 50 and worldMapHasAllDestiny()
         elseif continent == 7 then
             local done, total = worldMapGetStoryProgress(6)
-            return done >= worldMapStoryTarget(total, 100) and worldMapGetRelevel() >= 60 and worldMapHasTitle("世界符文·[真我]")
+            return done >= 81 and worldMapGetRelevel() >= 60 and worldMapHasTitle("世界符文·[真我]")
         elseif continent == 8 then
             return worldMapGetRelevel() >= 70
         end
