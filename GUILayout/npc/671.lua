@@ -41,8 +41,8 @@ function npc.main(npcid, p2, p3, msgData)
 
         npc.data.T_dljq[key] = (npc.data.T_dljq and npc.data.T_dljq[key]) and npc.data.T_dljq[key] or 0
         npc.data.T_dljq["npc_671_token"] = (npc.data.T_dljq and npc.data.T_dljq["npc_671_token"]) and npc.data.T_dljq["npc_671_token"] or 0
-        npc.data.T_dljq["npc_671_lv"] = ((npc.data.T_dljq and npc.data.T_dljq["npc_671_lv"]) and npc.data.T_dljq["npc_671_lv"] or 0) + 1
-        npc.data.T_dljq["npc_671_cur"] = (npc.data.T_dljq and npc.data.T_dljq["npc_671_cur"]) and npc.data.T_dljq["npc_671_cur"] or 0
+        npc.data.T_dljq["npc_671_lv"] = math.min(npc.data.T_dljq["npc_671_token"] or 0, 18) + 1
+        npc.data.T_dljq["npc_671_cur"] = 0
 
         local list = GUI:ListView_Create(node, "list", 120, 80, 600, 300 + 86, 1)
         GUI:ListView_setBounceEnabled(list, true)
@@ -78,6 +78,10 @@ function npc.main(npcid, p2, p3, msgData)
                 GUI:addOnClickEvent(Button, function()
                     SL:SendLuaNetMsg(100, npcid, 1, 0, "")
                 end)
+                GUI:Button_setTitleText(Button, "前往地图")
+                GUI:Button_setTitleFontSize(Button, 16)
+                GUI:Button_setTitleColor(Button, "#F4E7B5")
+                GUI:Button_titleEnableOutline(Button, "#000000", 2)
             end
             
             
@@ -103,4 +107,3 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
-

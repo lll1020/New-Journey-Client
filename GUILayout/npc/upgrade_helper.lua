@@ -792,17 +792,100 @@ SL:release_print("startEquipChangeRefresh")
 end
 -- 兼容旧调用名
 function UpgradeHelper.treasureBasinRedState(data)
-    data = type(data) == "table" and data or rawget(_G, "__TREASURE_BASIN_517_DATA__") or {}
-    local energy = tonumber(data.energy_sec or 0) or 0
-    local reward = type(data.energy_reward) == "table" and data.energy_reward or {}
-    local hasEnergy = energy >= 60 or (tonumber(reward.gold or 0) or 0) > 0 or (tonumber(reward.iron or 0) or 0) > 0 or (tonumber(reward.hat or 0) or 0) > 0
-    local refine = type(data.refine) == "table" and data.refine or {}
-    local refineDone = tonumber(refine.active or 0) >= 1 and tonumber(refine.done or 0) >= 1
-    return {
-        energy = hasEnergy,
-        refine = refineDone,
-        any = hasEnergy or refineDone,
+    if type(data) ~= "table" or next(data) == nil then
+        local cached = rawget(_G, "__TREASURE_BASIN_517_DATA__")
+        data = type(cached) == "table" and cached or _upgrade_get_server_json("T44")
+    end
+    data = type(data) == "table" and data or {}
+    local stored = type(data.T_data) == "table" and data.T_data or data
+    local active = _upgrade_to_num(data.activated, _upgrade_to_num(stored.activated, _upgrade_to_num(stored.rebuilt, 0))) >= 1
+    local result = {
+        energy = false,
+        refine = false,
+        refine_start = false,
+        refine_claim = false,
+        level = false,
+        forbidden = false,
+        forbidden_unlock = {},
+        forbidden_upgrade = {},
+        forbidden_skill = false,
+        any = false,
     }
+    if not active then
+        return result
+    end
+
+    local energy = _upgrade_to_num(data.energy_sec, _upgrade_to_num(stored.energy_sec, 0))
+    local reward = type(data.energy_reward) == "table" and data.energy_reward or {}
+    result.energy = energy >= 60
+        or _upgrade_to_num(reward.gold, 0) > 0
+        or _upgrade_to_num(reward.iron, 0) > 0
+        or _upgrade_to_num(reward.hat, 0) > 0
+
+    local refine = type(data.refine) == "table" and data.refine or (type(stored.refine) == "table" and stored.refine or {})
+    local refineActive = _upgrade_to_num(refine.active, 0) >= 1 or tostring(refine.stone or "") ~= ""
+    result.refine_claim = refineActive and (
+        _upgrade_to_num(refine.done, 0) >= 1
+        or (_upgrade_to_num(refine.end_at, 0) > 0 and _upgrade_to_num(refine.end_at, 0) <= os.time())
+    )
+    if not refineActive then
+        local basinCfg = teshudata and teshudata["npc_106"] or {}
+        for _, stone in ipairs(basinCfg.stones or {}) do
+            local continent = _upgrade_to_num(stone.continent, 0)
+            if (continent <= 0 or _is_continent_open(continent)) and _upgrade_get_item_count_by_name(stone.name) > 0 then
+                result.refine_start = true
+                break
+            end
+        end
+    end
+    result.refine = result.refine_claim or result.refine_start
+
+    local basinCfg = teshudata and teshudata["npc_106"] or {}
+    local level = math.max(1, _upgrade_to_num(data.level, _upgrade_to_num(stored.level, 1)))
+    local nextLevelCfg = (basinCfg.levels or {})[level + 1]
+    local realCharge = math.max(
+        _upgrade_to_num(data.charge, 0),
+        _upgrade_to_num(data.real_charge, 0),
+        _upgrade_to_num(SL:GetMetaValue("REAL_RECHARGE"), 0)
+    )
+    if nextLevelCfg and realCharge >= _upgrade_to_num(nextLevelCfg.charge, 0) then
+        result.level = true
+    end
+
+    local rawForbidden = type(stored.forbidden) == "table" and stored.forbidden or {}
+    local forbiddenList = type(data.forbidden) == "table" and data.forbidden or {}
+    local rawList = type(rawForbidden.list) == "table" and rawForbidden.list or {}
+    local point = _upgrade_to_num(data.forbidden_point, _upgrade_to_num(rawForbidden.point, 0))
+    local money = _upgrade_to_num(SL:GetMetaValue("MONEY", 4), 0)
+    local crystal = _upgrade_get_item_count_by_name("禁元神晶")
+    local selectedId = _upgrade_to_num(rawForbidden.show, 0)
+    for id, _ in ipairs(basinCfg.forbidden or {}) do
+        local node = forbiddenList[id] or forbiddenList[tostring(id)] or rawList[id] or rawList[tostring(id)] or {}
+        local lv = _upgrade_to_num(node.lv, 0)
+        if _upgrade_to_num(node.show, 0) >= 1 then
+            selectedId = id
+        end
+        if lv <= 0 then
+            if point >= 8888 then
+                result.forbidden_unlock[id] = true
+            end
+        elseif lv < 5 then
+            local cost = (basinCfg.forbidden_cost or {})[lv + 1] or {}
+            if level >= _upgrade_to_num(cost.need_level, 0)
+                and money >= _upgrade_to_num(cost.yuanbao, 0)
+                and crystal >= _upgrade_to_num(cost.crystal, 0) then
+                result.forbidden_upgrade[id] = true
+            end
+        end
+    end
+    if selectedId > 0 then
+        local node = forbiddenList[selectedId] or forbiddenList[tostring(selectedId)] or rawList[selectedId] or rawList[tostring(selectedId)] or {}
+        local skillLeft = _upgrade_to_num(data.forbidden_skill_cd_left, math.max(0, _upgrade_to_num(rawForbidden.skill_cd_at, 0) - os.time()))
+        result.forbidden_skill = _upgrade_to_num(node.lv, 0) >= 5 and skillLeft <= 0
+    end
+    result.forbidden = result.forbidden_skill or next(result.forbidden_unlock) ~= nil or next(result.forbidden_upgrade) ~= nil
+    result.any = result.energy or result.refine or result.level or result.forbidden
+    return result
 end
 UpgradeHelper.registerUpgradeButtons = UpgradeHelper.registerOpenNpcButtons
 return UpgradeHelper

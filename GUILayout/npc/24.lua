@@ -19,6 +19,9 @@ local XIANFA_ATLAS_QUALITY_NAME = {
     [5] = "极品",
 }
 local XIANFA_SKIP_ANIM_KEY = "tianshu_xianfa_skip_anim"
+local function _ts_is_look_player()
+    return npc.isLookPlayer == true
+end
 local function _get_xianfa_skip_anim_default()
     return tostring(SL:GetLocalString(XIANFA_SKIP_ANIM_KEY) or "") == "1"
 end
@@ -72,6 +75,26 @@ local function _ywl_vertical_text(text)
                     return table.concat(out, "\n")
                 end
 function npc.main(npcid, p2, p3, msgData)
+    local function _ts_normalize_payload(data)
+        data = type(data) == "table" and data or {}
+        if type(data.T_data) ~= "table" then
+            local raw = {}
+            for k, v in pairs(data) do
+                if k ~= "lookPlayer" and k ~= "xianfa_all_unlock" then
+                    raw[k] = v
+                end
+            end
+            data = {
+                T_data = raw,
+                lookPlayer = data.lookPlayer,
+                xianfa_all_unlock = data.xianfa_all_unlock,
+            }
+        end
+        data.T_data = type(data.T_data) == "table" and data.T_data or {}
+        data.T_data.caowei = type(data.T_data.caowei) == "table" and data.T_data.caowei or {}
+        data.T_data.wangshi = type(data.T_data.wangshi) == "table" and data.T_data.wangshi or {}
+        return data
+    end
     local function _get_item_count(itemName)
         local itemIndex = SL:GetMetaValue("ITEM_INDEX_BY_NAME", itemName)
         if not itemIndex or itemIndex <= 0 then
@@ -80,6 +103,9 @@ function npc.main(npcid, p2, p3, msgData)
         return tonumber(SL:GetMetaValue("ITEM_COUNT", itemIndex) or 0) or 0
     end
     local function _send_normal_xianfa_refresh(slot)
+        if _ts_is_look_player() then
+            return
+        end
         SL:SendLuaNetMsg(100, npcid, 2, 0, SL:JsonEncode({caowei = slot}))
     end
     -- 没有普通仙法卷轴时，先确认是否改为消耗100灵石刷新。
@@ -142,6 +168,9 @@ function npc.main(npcid, p2, p3, msgData)
         end)
     end
     local function _try_refresh_xianfa(slot)
+        if _ts_is_look_player() then
+            return
+        end
         local function _refresh_without_best_token()
             if _get_item_count("仙法卷轴") > 0 then
                 _send_normal_xianfa_refresh(slot)
@@ -396,6 +425,7 @@ function npc.main(npcid, p2, p3, msgData)
         local titles = {"qh", "xf", "ws"}
         GUI:removeAllChildren(node)
         function GUI_createLabel(Label_node,idx) --主界面渲染
+            npc.data = _ts_normalize_payload(npc.data)
             GUI:removeAllChildren(Label_node)
             local tt = GUI:Image_Create(Label_node, "tt", 60, 30, "res/custom/tianshu/title/title_"..idx..".png")
             local xjm = GUI:Image_Create(Label_node, "xjm", 0, 0, "res/custom/tianshu/"..titles[idx].."/xjm.png")
@@ -449,7 +479,7 @@ function npc.main(npcid, p2, p3, msgData)
                     GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 1,gap = {x=40, y=10}})
                     GUI:setAnchorPoint(dbLayout, 0, 1)
                     npc.data.T_data.level = npc.data.T_data.level or 0
-                    if npc.data.T_data.level < npc._config.details[1].max_level then
+                    if npc.data.T_data.level < npc._config.details[1].max_level and not _ts_is_look_player() then
                         local Button= GUI:Button_Create(Label_node, "Button", 660, 100.00, "res/custom/tianshu/qh/btn.png")
                         GUI:addOnClickEvent(Button, function()
                             SL:SendLuaNetMsg(100, npcid, 1, 0, "")
@@ -468,7 +498,7 @@ function npc.main(npcid, p2, p3, msgData)
                                 desc = "点击强化天书",
                             })
                         end
-                    else
+                    elseif not _ts_is_look_player() then
                         GUI:Image_Create(Label_node, "Button", 660, 100.00, "res/wy/public/15.png")
                     end
                 end
@@ -625,73 +655,71 @@ function npc.main(npcid, p2, p3, msgData)
                         GUI:setAnchorPoint(lockText, 0.5, 0.5)
                         GUI:Text_enableOutline(lockText, "#000000", 1)
                     end
-                    local guang = GUI:Image_Create(npc.xf_node, "cost_once_value_img", 50 + 549 + 150 - 8, 150, "res/wy/public/guang.png")
-                    GUI:setContentSize(guang, 180, 30)
-                    GUI:setContentSize(GUI:Image_Create(guang, "img1", 0, 0, "res/wy/public/input.png"), 180, 30)
-                    GUI:setContentSize(GUI:Image_Create(guang, "img2", 0, 0, "res/wy/public/jdtk_1.png"), 100, 30)
-                    GUI:Text_Create(guang, "text", 5, 5, 18, "#FFFFFF", "刷新消耗：")
-                    GUI:setScale(GUI:ItemShow_Create(guang, "icon",105, 5, {index = SL:GetMetaValue("ITEM_INDEX_BY_NAME","仙法卷轴")}), 0.6)
-                    local currentTokenCount = SL:GetMetaValue("ITEM_COUNT", SL:GetMetaValue("ITEM_INDEX_BY_NAME","仙法卷轴"))
-                    local drawOnceCost = 1
-                    local currentTokenColor = currentTokenCount >= drawOnceCost and "#45ff93" or "#ff6666"
-                    GUI:RichText_Create(guang, "num", 130, 5, string.format("<font color='%s'>%s</font><font color='#FFFFFF'>/%s</font>", currentTokenColor, tostring(currentTokenCount), tostring(drawOnceCost)), 150, 16, "#FFFFFF", 0, nil, nil)
-                    -- 第一次抽取默认不跳过；首次动画展示完成后默认勾选跳过动画。
-                    if npc._xf_skip_anim == nil then
-                        npc._xf_skip_anim = _get_xianfa_skip_anim_default()
-                    end
-                    local skipLabel = GUI:Text_Create(npc.xf_node, "skip_label", 50 + 549 + 20 - 8, 52 + 18 + 50 + 33, 18, "#FFFFFF", "跳过动画")
-                    GUI:Text_enableOutline(skipLabel, "#000000", 1)
-                    local skipCheck = GUI:CheckBox_Create(npc.xf_node, "skip_anim", 50 + 549 + 140 - 40 - 8, 53 + 18 + 52 + 33, "res/wy/public/xz_1.png", "res/wy/public/xz_0.png")
-                    GUI:CheckBox_setSelected(skipCheck, npc._xf_skip_anim)
-                    GUI:CheckBox_addOnEvent(skipCheck, function(sender)
-                        npc._xf_skip_anim = GUI:CheckBox_isSelected(sender)
-                        _set_xianfa_skip_anim_default(npc._xf_skip_anim)
-                    end)
-                    local Button = GUI:Button_Create(npc.xf_node, "Button", 50 + 549 + 76 + 80 + 5,80, "res/custom/tianshu/xf/btn_up.png")
-                    local slot_unlocked = is_slot_unlocked(slot, slot_data)
-                    if not slot_unlocked then
-                        GUI:setOpacity(Button, 120)
-                        GUI:setTouchEnabled(Button, false)
-                    end
                     local atlasBtn = GUI:Button_Create(npc.xf_node, "Button_chat_1", 50 + 549,80, "res/custom/tianshu/xf/btn_tj.png")
                     GUI:addOnClickEvent(atlasBtn, function()
                         _open_xianfa_atlas()
                     end)
-                    -- if checkItemNum({{"极品仙法卷轴",1}}) then
-                    --     NPC_UI_HELPER.redpoint_create(Button)
-                    -- end
-                    local function do_refresh()
-                        _try_refresh_xianfa(slot)
-                    end
-                    GUI:addOnClickEvent(Button, function()
+                    if not _ts_is_look_player() then
+                        local guang = GUI:Image_Create(npc.xf_node, "cost_once_value_img", 50 + 549 + 150 - 8, 150, "res/wy/public/guang.png")
+                        GUI:setContentSize(guang, 180, 30)
+                        GUI:setContentSize(GUI:Image_Create(guang, "img1", 0, 0, "res/wy/public/input.png"), 180, 30)
+                        GUI:setContentSize(GUI:Image_Create(guang, "img2", 0, 0, "res/wy/public/jdtk_1.png"), 100, 30)
+                        GUI:Text_Create(guang, "text", 5, 5, 18, "#FFFFFF", "刷新消耗：")
+                        GUI:setScale(GUI:ItemShow_Create(guang, "icon",105, 5, {index = SL:GetMetaValue("ITEM_INDEX_BY_NAME","仙法卷轴")}), 0.6)
+                        local currentTokenCount = SL:GetMetaValue("ITEM_COUNT", SL:GetMetaValue("ITEM_INDEX_BY_NAME","仙法卷轴"))
+                        local drawOnceCost = 1
+                        local currentTokenColor = currentTokenCount >= drawOnceCost and "#45ff93" or "#ff6666"
+                        GUI:RichText_Create(guang, "num", 130, 5, string.format("<font color='%s'>%s</font><font color='#FFFFFF'>/%s</font>", currentTokenColor, tostring(currentTokenCount), tostring(drawOnceCost)), 150, 16, "#FFFFFF", 0, nil, nil)
+                        if npc._xf_skip_anim == nil then
+                            npc._xf_skip_anim = _get_xianfa_skip_anim_default()
+                        end
+                        local skipLabel = GUI:Text_Create(npc.xf_node, "skip_label", 50 + 549 + 20 - 8, 52 + 18 + 50 + 33, 18, "#FFFFFF", "跳过动画")
+                        GUI:Text_enableOutline(skipLabel, "#000000", 1)
+                        local skipCheck = GUI:CheckBox_Create(npc.xf_node, "skip_anim", 50 + 549 + 140 - 40 - 8, 53 + 18 + 52 + 33, "res/wy/public/xz_1.png", "res/wy/public/xz_0.png")
+                        GUI:CheckBox_setSelected(skipCheck, npc._xf_skip_anim)
+                        GUI:CheckBox_addOnEvent(skipCheck, function(sender)
+                            npc._xf_skip_anim = GUI:CheckBox_isSelected(sender)
+                            _set_xianfa_skip_anim_default(npc._xf_skip_anim)
+                        end)
+                        local Button = GUI:Button_Create(npc.xf_node, "Button", 50 + 549 + 76 + 80 + 5,80, "res/custom/tianshu/xf/btn_up.png")
+                        local slot_unlocked = is_slot_unlocked(slot, slot_data)
                         if not slot_unlocked then
-                            return
+                            GUI:setOpacity(Button, 120)
+                            GUI:setTouchEnabled(Button, false)
                         end
-                        local cur_quality = slot_data and slot_data[1] or 0
-                        if cur_quality >= 4 then
-                            SL:OpenCommonTipsPop({str="当前已是仙品仙法，是否继续刷新？",btnType=2,callback=function(atype,param)
-                                if atype == 1 then
-                                    do_refresh()
-                                end
-                            end})
-                        else
-                            do_refresh()
+                        local function do_refresh()
+                            _try_refresh_xianfa(slot)
                         end
-                    end)
-                    NPC_UI_HELPER.tryStartXylGuide(npc, Button, npc.xf_node, "tianshu_xianfa_" .. tostring(slot), {
-                        idx = 1,
-                        once = true,
-                        taskNames = {"初识仙法", "天书仙法", "进行天书仙法抽取"},
-                        dir = 5,
-                        desc = "点击刷新仙法",
-                    })
-                    NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, Button, npc.xf_node, npcid, "tianshu_xianfa_" .. tostring(slot), {
-                        taskMap = {[npcid] = 18},
-                        keyPrefix = "mainline_tianshu_xianfa",
-                        dir = 5,
-                        desc = "点击刷新仙法",
-                        idx = 1,
-                    })
+                        GUI:addOnClickEvent(Button, function()
+                            if not slot_unlocked then
+                                return
+                            end
+                            local cur_quality = slot_data and slot_data[1] or 0
+                            if cur_quality >= 4 then
+                                SL:OpenCommonTipsPop({str="当前已是仙品仙法，是否继续刷新？",btnType=2,callback=function(atype,param)
+                                    if atype == 1 then
+                                        do_refresh()
+                                    end
+                                end})
+                            else
+                                do_refresh()
+                            end
+                        end)
+                        NPC_UI_HELPER.tryStartXylGuide(npc, Button, npc.xf_node, "tianshu_xianfa_" .. tostring(slot), {
+                            idx = 1,
+                            once = true,
+                            taskNames = {"初识仙法", "天书仙法", "进行天书仙法抽取"},
+                            dir = 5,
+                            desc = "点击刷新仙法",
+                        })
+                        NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, Button, npc.xf_node, npcid, "tianshu_xianfa_" .. tostring(slot), {
+                            taskMap = {[npcid] = 18},
+                            keyPrefix = "mainline_tianshu_xianfa",
+                            dir = 5,
+                            desc = "点击刷新仙法",
+                            idx = 1,
+                        })
+                    end
                 end
                 for i = 1, 10 do
                     local kuang = GUI:Image_Create(dbLayout, "kuang"..i, 0, 0, "res/custom/tianshu/xf/k_0.png")
@@ -777,48 +805,58 @@ function npc.main(npcid, p2, p3, msgData)
                 GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 1,gap = {x=40, y=10}})
             end
         end
+        local tabOrder = _ts_is_look_player() and {2, 3} or {1, 2, 3}
         npc.titles_sign = tonumber(npc.titles_sign) or _get_default_tianshu_tab()
+        if _ts_is_look_player() and npc.titles_sign ~= 2 and npc.titles_sign ~= 3 then
+            npc.titles_sign = 2
+        end
         npc.Label = GUI:Node_Create(node, "Label", 0, 0)
-        for i = 1, #titles do
-            local cbl_item = GUI:Frames_Create(node, "item" .. i, 100+(i-1)*170, -20, "res/custom/tianshu/"..titles[i].."/btn_", ".png", 1, 15,
+        for displayIndex, tabId in ipairs(tabOrder) do
+            local cbl_item = GUI:Frames_Create(node, "item" .. tabId, 100+(displayIndex-1)*170, -20, "res/custom/tianshu/"..titles[tabId].."/btn_", ".png", 1, 15,
             { speed = 100, count = 15, loop = -1})
             GUI:setTouchEnabled(cbl_item, true)
-            if npc.titles_sign == i then
+            if npc.titles_sign == tabId then
                 local kuang = GUI:Image_Create(cbl_item, "kuang", 140/2, 140/2, "res/wy/public/003.png")
                 GUI:setContentSize(kuang, 150, 140)
                 GUI:setAnchorPoint(kuang, 0.5, 0.5)
             end
-            -- GUI:Button_setTitleText(cbl_item, titles[i])
+            -- GUI:Button_setTitleText(cbl_item, titles[tabId])
             -- GUI:Button_setTitleFontSize(cbl_item, 14)
             GUI:addOnClickEvent(cbl_item, function()
-                GUI:removeChildByName(GUI:ui_delegate(node)["item"..npc.titles_sign],"kuang")
-                npc.titles_sign = i
-                local kuang = GUI:Image_Create(GUI:ui_delegate(node)["item"..npc.titles_sign], "kuang", 140/2, 140/2, "res/wy/public/003.png")
+                local lastItem = GUI:ui_delegate(node)["item"..npc.titles_sign]
+                if lastItem then
+                    GUI:removeChildByName(lastItem, "kuang")
+                end
+                npc.titles_sign = tabId
+                local kuang = GUI:Image_Create(GUI:ui_delegate(node)["item"..tabId], "kuang", 140/2, 140/2, "res/wy/public/003.png")
                 GUI:setContentSize(kuang, 150, 140)
                 GUI:setAnchorPoint(kuang, 0.5, 0.5)
-                GUI_createLabel(npc.Label,i)
+                GUI_createLabel(npc.Label,tabId)
             end)
         end
         GUI_createLabel(npc.Label,npc.titles_sign)
     end
     if p2 == 0 then--界面
-        npc.data = SL:JsonDecode(msgData,false)
+        npc.data = _ts_normalize_payload(SL:JsonDecode(msgData,false))
+        npc.isLookPlayer = tonumber(npc.data and npc.data.lookPlayer or 0) == 1 or npc.data.lookPlayer == true
         npc.titles_sign = nil
         npc._xf_skip_lingshi_confirm = false
         npc._xf_skip_anim = _get_xianfa_skip_anim_default()
         ensureWindow(npcid)
         UI_updata(npc.node)
     elseif p2 == 1 then
-        npc.data = SL:JsonDecode(msgData,false)
+        npc.data = _ts_normalize_payload(SL:JsonDecode(msgData,false))
+        npc.isLookPlayer = tonumber(npc.data and npc.data.lookPlayer or 0) == 1 or npc.data.lookPlayer == true
         UI_updata(npc.node)
         local isXianfaMainline = NPC_UI_HELPER.isCurrentXylTask({"初识仙法", "查看仙法", "天书仙法", "进行天书仙法抽取"})
-        if (not isXianfaMainline)
+        if (not _ts_is_look_player()) and (not isXianfaMainline)
             and NPC_UI_HELPER.isCurrentXylTask({"天书强化", "进行天书强化1次"})
             and (tonumber(npc.data and npc.data.T_data and npc.data.T_data.level or 0) or 0) >= 1 then
             NPC_UI_HELPER.closeWindow(npc._window)
         end
     elseif p2 == 2 then
-        npc.data = SL:JsonDecode(msgData,false)
+        npc.data = _ts_normalize_payload(SL:JsonDecode(msgData,false))
+        npc.isLookPlayer = tonumber(npc.data and npc.data.lookPlayer or 0) == 1 or npc.data.lookPlayer == true
         GUI_createLabel(npc.Label,npc.titles_sign)
     elseif p2 == 10 then
         local data = SL:JsonDecode(msgData,false)
@@ -893,14 +931,6 @@ function npc.main(npcid, p2, p3, msgData)
                     GUI:setAnchorPoint(attr_desc, 0, 1)
                     GUI:setOpacity(attr_desc, 0)
                     GUI:Timeline_FadeIn(attr_desc, 1,nil)
-                    local skipLabel = GUI:Text_Create(parent, "skip_label", cogin.w/2 - 60, 80, 20, "#FFFFFF", "跳过动画")
-                    GUI:Text_enableOutline(skipLabel, "#000000", 1)
-                    local skipCheck = GUI:CheckBox_Create(parent, "skip_anim", cogin.w/2 + 75, 80, "res/wy/public/xz_1.png", "res/wy/public/xz_0.png")
-                    GUI:CheckBox_setSelected(skipCheck, npc._xf_skip_anim)
-                    GUI:CheckBox_addOnEvent(skipCheck, function(sender)
-                        npc._xf_skip_anim = GUI:CheckBox_isSelected(sender)
-                        _set_xianfa_skip_anim_default(npc._xf_skip_anim)
-                    end)
                     local knowBtn = GUI:Button_Create(parent, "know_btn", cogin.w/2 - 110, 150, "res/wy/public/kb_btn.png")
                     GUI:setAnchorPoint(knowBtn, 0.5, 0)
                     GUI:Button_setTitleText(knowBtn, "我知道了")
@@ -909,15 +939,25 @@ function npc.main(npcid, p2, p3, msgData)
                     GUI:addOnClickEvent(knowBtn, function()
                         close_popup()
                     end)
-                    local refreshBtn = GUI:Button_Create(parent, "refresh_btn", cogin.w/2 + 110, 150, "res/wy/public/kb_btn.png")
-                    GUI:setAnchorPoint(refreshBtn, 0.5, 0)
-                    GUI:Button_setTitleText(refreshBtn, "再次刷新")
-                    GUI:Button_setTitleFontSize(refreshBtn, 18)
-                    GUI:setLocalZOrder(refreshBtn, 100)
-                    GUI:addOnClickEvent(refreshBtn, function()
-                        close_popup()
-                        do_refresh_current_slot()
-                    end)
+                    if not _ts_is_look_player() then
+                        local skipLabel = GUI:Text_Create(parent, "skip_label", cogin.w/2 - 60, 80, 20, "#FFFFFF", "跳过动画")
+                        GUI:Text_enableOutline(skipLabel, "#000000", 1)
+                        local skipCheck = GUI:CheckBox_Create(parent, "skip_anim", cogin.w/2 + 75, 80, "res/wy/public/xz_1.png", "res/wy/public/xz_0.png")
+                        GUI:CheckBox_setSelected(skipCheck, npc._xf_skip_anim)
+                        GUI:CheckBox_addOnEvent(skipCheck, function(sender)
+                            npc._xf_skip_anim = GUI:CheckBox_isSelected(sender)
+                            _set_xianfa_skip_anim_default(npc._xf_skip_anim)
+                        end)
+                        local refreshBtn = GUI:Button_Create(parent, "refresh_btn", cogin.w/2 + 110, 150, "res/wy/public/kb_btn.png")
+                        GUI:setAnchorPoint(refreshBtn, 0.5, 0)
+                        GUI:Button_setTitleText(refreshBtn, "再次刷新")
+                        GUI:Button_setTitleFontSize(refreshBtn, 18)
+                        GUI:setLocalZOrder(refreshBtn, 100)
+                        GUI:addOnClickEvent(refreshBtn, function()
+                            close_popup()
+                            do_refresh_current_slot()
+                        end)
+                    end
                 end})
         GUI:setContentSize(bg, cogin.w, cogin.h)
         GUI:setAnchorPoint(bg, 0.5, 0.5)

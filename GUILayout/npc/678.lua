@@ -57,6 +57,14 @@ function npc.main(npcid, p2, p3, msgData)
                 local Button = GUI:Button_Create(xjm_node, "Button", btn_pos[1], btn_pos[2], "res/custom/all_story_mission/4/678/btn_1.png")
                 GUI:setAnchorPoint(Button, 0.5, 0.5)
                 GUI:addOnClickEvent(Button, function()
+                    local needBlackWhite = cfg.xz and #cfg.xz > 0
+                    local blackWhiteDone = npc.data.T_dljq["npc_679"] and npc.data.T_dljq["npc_679"] >= 2
+                    if needBlackWhite and not blackWhiteDone then
+                        NPC_UI_HELPER.closeWindow(npc.xjm_window)
+                        NPC_UI_HELPER.closeWindow(npc._window)
+                        npc.xjm_window = nil
+                        npc._window = nil
+                    end
                     SL:SendLuaNetMsg(100, npcid, 2, npc.idx, "")
                 end)
             else
@@ -75,6 +83,7 @@ function npc.main(npcid, p2, p3, msgData)
             end)
         end
 
+        npc._refreshXjm = renderActionBtn
         renderActionBtn()
     end
 
@@ -129,7 +138,7 @@ function npc.main(npcid, p2, p3, msgData)
     elseif p2 == 2 then
         npc.data.T_dljq[key.."_"..p3] = 1
         UI_updata(npc.node)
-        xjm_678()
+        if npc._refreshXjm then npc._refreshXjm() end
     end
 end
 

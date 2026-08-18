@@ -1087,13 +1087,13 @@ local npc_xyl = {
                 },
                 {
                     "高级淬体",
-                    tk = "npc_53",
+                    -- tk = "npc_53",
                     id = 999,
                     jl = { { "剧情点", 2 } },
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
                     need_receive = false,
-                    yd = { 1, "三大陆主城", 53, 161, 230 },
+                    yd = { 1, "三大陆主城", 54, 161, 230 },
                     desc = "完成高级淬体中的五行锻体，正式迈入更高阶体魄强化。\n<font color='#F4D179'>目标：</font>\n完成高级淬体五行锻体\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {
@@ -1565,7 +1565,7 @@ local npc_xyl = {
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
                     need_receive = true,
-                    yd = { 1, "黑白无常", 678, 101, 57 },
+                    yd = { 1, "后土娘娘", 678, 152, 171 },
                     desc = "后土娘娘为多阶段传说试炼，需要依次准备判官笔、击败场景怪物、收集牛头鼻环与马面梳子\n<font color='#F4D179'>目标：</font>按阶段完成后土娘娘全部八步流程\n<font color='#F4D179'>状态：</font>%s",
                 },
                 {
@@ -1576,7 +1576,7 @@ local npc_xyl = {
                     fwdjy = nil,
                     khdjy = _xyl_khdjy,
                     need_receive = false,
-                    yd = { 1, "后土娘娘", 679, 152, 171 },
+                    yd = { 1, "黑白无常", 679, 101, 57 },
                     desc = "收集友情的力量后交给黑白无常，完成这一段关于阴阳往返的传说分支。\n<font color='#F4D179'>目标：</font>\n提交友情的力量×10\n<font color='#F4D179'>进度：</font>%s",
                 },
                 {

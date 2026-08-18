@@ -510,7 +510,7 @@ local function renderTaskWindow(npcid)
         ItemNumByTable_img_new({{artifactName, 1}}, nil, GUI:Node_Create(node, "task_reward_show", 334 + 134 - 853, -94 + 41 - 146))
 
 
-        local taskTip1 = text(node, "task_tip_1", -118, -194 - 50, 22, "#66CCFF", "碎片获取较慢，点击此处可以购买礼包！！！！", 0.5, 0.5)
+        local taskTip1 = text(node, "task_tip_1", -118, -194 - 50, 22, "#66CCFF", "点击此处可包含聚宝盆碎片的礼包[一举多得]！！！！", 0.5, 0.5)
         GUI:Text_enableUnderline(taskTip1)
         GUI:setTouchEnabled(taskTip1, true)
         GUI:addOnClickEvent(taskTip1, function()

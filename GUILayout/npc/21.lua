@@ -5,6 +5,11 @@ local WINDOW_OPTS = {
     title = {x = 56 + 231, y = 464 - 120, skin = "res/custom/jingjie/title.png"},
     closeButton = {x = 700, y = 340, skin = "res/wy/public/close_red_big.png"},
 }
+
+local function _jj_is_look_player()
+    return npc.isLookPlayer == true
+end
+
 function npc.main(npcid, p2, p3, msgData)
     local function format_attr_value(attrIdx, value)
         local num = tonumber(value) or 0
@@ -92,7 +97,7 @@ function npc.main(npcid, p2, p3, msgData)
         end
         GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 1,gap = {x=40, y=0}})
         GUI:setAnchorPoint(dbLayout, 0, 0)
-        if level < npc._config.max_level then
+        if level < npc._config.max_level and not _jj_is_look_player() then
             local wz_1 = GUI:Image_Create(node, "wz_1", 410, 100.00, "res/custom/jingjie/wz_1.png")
             local wz_4 = GUI:Image_Create(node, "wz_4", 410 + 155, 100.00, "res/custom/jingjie/wz_4.png")
             local config = npc._config.details[npc.data.level + 1]
@@ -149,12 +154,12 @@ function npc.main(npcid, p2, p3, msgData)
             if NPC_UI_HELPER.isCurrentXylTask({"筑基", "提升修为至筑基境"}) then
                 NPC_UI_HELPER.closeGuideByDomain("xyl")
             end
-        else
+        elseif not _jj_is_look_player() then
             GUI:Image_Create(node, "Button", 460, 10.00, "res/wy/public/15.png")
             NPC_UI_HELPER.closeGuideByDomain("mainline")
         end
     end
-    if p2 == 2 then
+    if p2 == 2 and not _jj_is_look_player() then
         SL:OpenCommonTipsPop({
             str = "未检测到筑基丹，是否前往在线充值购买？",
             btnType = 2,
@@ -168,12 +173,14 @@ function npc.main(npcid, p2, p3, msgData)
     end
     if p2 == 0 then--界面
         npc.data = SL:JsonDecode(msgData,false)
+        npc.isLookPlayer = tonumber(npc.data and npc.data.lookPlayer or 0) == 1 or npc.data.lookPlayer == true
         ensureWindow(npcid)
         UI_updata(npc.node)
     elseif p2 == 1 then
         npc.data = SL:JsonDecode(msgData,false)
+        npc.isLookPlayer = tonumber(npc.data and npc.data.lookPlayer or 0) == 1 or npc.data.lookPlayer == true
         UI_updata(npc.node)
-        if NPC_UI_HELPER.isCurrentXylTask({"筑基", "提升修为至筑基境"})
+        if (not _jj_is_look_player()) and NPC_UI_HELPER.isCurrentXylTask({"筑基", "提升修为至筑基境"})
             and (tonumber(npc.data and npc.data.level or 0) or 0) >= 10 then
             NPC_UI_HELPER.closeWindow(npc._window)
         end

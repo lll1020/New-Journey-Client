@@ -399,7 +399,7 @@ local function openBasinLevelPopup()
     else
         text(bg, "next_condition_desc", 435 + 32, 130 + 20, 18, lackCharge <= 0 and "#9DFF7C" or "#FF5A3D", string.format("真实充值 %s/%s", fmt(charge), fmt(needCharge)), 0.5, 0.5)
         -- text(bg, "next_condition_lack", 435, 114, 17, lackCharge <= 0 and "#9DFF7C" or "#FFB85A", lackCharge <= 0 and "条件已达成" or ("还差 " .. fmt(lackCharge)), 0.5, 0.5)
-        button(bg, "level_confirm", 300, 22 + 24, "确认升级", function()
+        local confirmBtn = button(bg, "level_confirm", 300, 22 + 24, "确认升级", function()
             if lackCharge > 0 then
                 SL:ShowSystemTips("真实充值不足，还差 " .. fmt(lackCharge))
                 return
@@ -407,6 +407,9 @@ local function openBasinLevelPopup()
             npc._pendingLevelUpgradeFrom = lv
             SL:SendLuaNetMsg(101, 517, 9, 0, "")
         end, 1.3)
+        if lackCharge <= 0 then
+            NPC_UI_HELPER.redpoint_create_eff(confirmBtn, {x = 150, y = 44, autoScale = 0.65})
+        end
     end
 end
 
@@ -538,7 +541,11 @@ local function renderTabs(node, npcid)
         end
         text(node, "tab_mark_" .. i, -420, y, selected and 27 or 20, selected and "#FFF4B0" or "#A96A2E", selected and "◆" or "◇", 0.5, 0.5)
         text(node, "tab_text_" .. i, -337, y + 1, selected and 28 or 22, selected and "#FFF1B8" or "#C98C45", name, 0.5, 0.5)
-        if not selected and ((i == 1 and redState.energy) or (i == 2 and redState.refine)) then
+        if not selected and (
+            (i == 1 and (redState.energy or redState.level))
+            or (i == 2 and redState.refine)
+            or (i == 3 and redState.forbidden)
+        ) then
             NPC_UI_HELPER.redpoint_create_eff(bg, {x = 178, y = 42, autoScale = 0.75})
         end
         local touch = GUI:Layout_Create(node, "tab_touch_" .. i, -455, y - 25, 220, 50, false)
@@ -570,9 +577,13 @@ renderLevelInfo = function(node, npcid)
     text(node, "level_state", 306 + lx, -85, 20, color, state, 0.5, 0.5)
     text(node, "level_speed", 306 + lx, -113, 18, "#9FE2FF", "收益效率  固定", 0.5, 0.5)
     text(node, "level_cap", 306 + lx, -140, 18, "#FFD07A", "存储上限  " .. tostring(lc.cap_text or "无存储"), 0.5, 0.5)
-    button(node, "level_up_btn", 306 + lx, -203, "提升品阶", function()
+    local levelBtn = button(node, "level_up_btn", 306 + lx, -203, "提升品阶", function()
         openBasinLevelPopup()
     end,1.4)
+    local redState = UPGRADE_HELPER and UPGRADE_HELPER.treasureBasinRedState and UPGRADE_HELPER.treasureBasinRedState(d) or {}
+    if redState.level then
+        NPC_UI_HELPER.redpoint_create_eff(levelBtn, {x = 150, y = 48, autoScale = 0.7})
+    end
 end
 
 renderEnergy = function(node, npcid)
@@ -764,9 +775,15 @@ renderRefine = function(node, npcid)
         panel(node, "ref_countdown_bg", 306, -135, 244, 54, "res/wy/public/000.png")
         text(node, "ref_status_label", 252, -124, 18, "#B9F6C5", "炼灵状态", 0.5, 0.5)
         text(node, "ref_status_time", 356, -124, 22, "#9DFF7C", "空闲", 0.5, 0.5)
-        button(node, "start_refine", 266 + 40, -194, "开始炼灵", function()
+        local startBtn = button(node, "start_refine", 266 + 40, -194, "开始炼灵", function()
             SL:SendLuaNetMsg(101, npcid, 2, 0, SL:JsonEncode({stone = cfg.name}))
         end, 1.5)
+        local redState = UPGRADE_HELPER and UPGRADE_HELPER.treasureBasinRedState and UPGRADE_HELPER.treasureBasinRedState(d) or {}
+        local selectedStoneIndex = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", cfg.name) or 0) or 0
+        local selectedStoneCount = selectedStoneIndex > 0 and (tonumber(SL:GetMetaValue("ITEM_COUNT", selectedStoneIndex) or 0) or 0) or 0
+        if redState.refine_start and selectedStoneCount > 0 then
+            NPC_UI_HELPER.redpoint_create_eff(startBtn, {x = 205, y = 40, autoScale = 0.6})
+        end
     end
 end
 
@@ -774,6 +791,7 @@ renderForbidden = function(node, npcid)
     local fx = 95
     panel(node, "forbid_list_panel", -16 + fx, -82, 570, 392, "res/wy/public/tycccc.png")
     local d = data()
+    local redState = UPGRADE_HELPER and UPGRADE_HELPER.treasureBasinRedState and UPGRADE_HELPER.treasureBasinRedState(d) or {}
     local point = n(d.forbidden_point)
     local needPoint = 8888
     local pointPercent = math.max(0, math.min(100, point / needPoint * 100))
@@ -839,21 +857,30 @@ renderForbidden = function(node, npcid)
             SL:OpenItemTips({itemData = itemData, pos = {x = pos.x  + 100, y = pos.y}})
         end)
 
-        smallButton(card, "forbid_select_" .. i, cardW / 2 - 55, 8 + 30, buttonText, function()
+        local actionBtn = smallButton(card, "forbid_select_" .. i, cardW / 2 - 55, 8 + 30, buttonText, function()
         SL:SendLuaNetMsg(101, npcid, buttonAction, i, "")
 
 
 
 
         end, selected and "#FFE7A8" or (active and "#9FE2FF" or "#9DFF7C"))
+        if selected and active and redState.forbidden_skill then
+            NPC_UI_HELPER.redpoint_create_eff(actionBtn, {x = 92, y = 30, autoScale = 0.55})
+        end
         if not active then
-            smallButton(card, "forbid_unlock_" .. i, cardW / 2 + 55, 8 + 30, "激活", function()
+            local unlockBtn = smallButton(card, "forbid_unlock_" .. i, cardW / 2 + 55, 8 + 30, "激活", function()
                 SL:SendLuaNetMsg(101, npcid, 4, i, "")
             end, "#FFD66A")
+            if redState.forbidden_unlock and redState.forbidden_unlock[i] then
+                NPC_UI_HELPER.redpoint_create_eff(unlockBtn, {x = 92, y = 30, autoScale = 0.55})
+            end
         elseif lv < 5 then
-            smallButton(card, "forbid_upgrade_" .. i, cardW / 2 + 55, 8 + 30, "升级", function()
+            local upgradeBtn = smallButton(card, "forbid_upgrade_" .. i, cardW / 2 + 55, 8 + 30, "升级", function()
                 openForbiddenUpgradePopup(npcid, i, lv)
             end, "#FFD66A")
+            if redState.forbidden_upgrade and redState.forbidden_upgrade[i] then
+                NPC_UI_HELPER.redpoint_create_eff(upgradeBtn, {x = 92, y = 30, autoScale = 0.55})
+            end
         end
     end
 end
@@ -872,6 +899,11 @@ function npc.main(npcid, p2, p3, msgData)
     local forceFullRefresh = false
     local hasWindow = isValidNode(npc.node)
     local oldLevel = n((npc.data or {}).level, 1)
+    -- 顶部入口重新打开时，直接整窗重建，避免复用旧界面残留。
+    if tonumber(p2 or 0) == 0 then
+        forceFullRefresh = true
+        tab = 1
+    end
     if tonumber(p2 or 0) >= 4 and tonumber(p2 or 0) <= 7 then
         forceFullRefresh = tab ~= 3
         tab = 3

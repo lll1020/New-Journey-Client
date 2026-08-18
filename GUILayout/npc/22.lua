@@ -220,6 +220,10 @@ local function _lg_is_valid_node(node)
     return node and (not (tolua and tolua.isnull) or not tolua.isnull(node))
 end
 
+local function _lg_is_look_player()
+    return npc.isLookPlayer == true
+end
+
 local function _lg_refresh_open_upgrade_window(npcid)
     if _lg_is_valid_node(npc.xjm_node) and _lg_refresh_upgrade_window then
         _lg_refresh_upgrade_window(npcid, npc.xjm_node)
@@ -1623,7 +1627,9 @@ local function _lg_render_form_card(parent, name, idx, pos, npcid)
     GUI:addOnClickEvent(touch, function()
         npc.current_idx = idx
         _lg_refresh_main_page(npcid, parent)
-        _lg_refresh_open_upgrade_window(npcid)
+        if not _lg_is_look_player() then
+            _lg_refresh_open_upgrade_window(npcid)
+        end
     end)
     return card
 end
@@ -1759,7 +1765,9 @@ local function _lg_select_or_unlock_root(npcid, parent, idx)
     -- 培养界面只负责切换查看，激活统一回到主页按钮处理。
     npc.current_idx = idx
     _lg_refresh_cultivate_window(npcid, parent)
-    _lg_refresh_open_upgrade_window(npcid)
+    if not _lg_is_look_player() then
+        _lg_refresh_open_upgrade_window(npcid)
+    end
 end
 
 -- 渲染培养界面顶部五个基础灵根入口，负责选中框、置灰和等级状态入口。
@@ -1904,27 +1912,29 @@ _lg_refresh_cultivate_window = function(npcid, node)
     _lg_render_cultivate_skills(cultivate_skill_panel, selectedIdx)
 
     local upgradeIdx = _lg_current_upgrade_idx(selectedIdx, mainIdx)
-    local upgradeBtn = _lg_button(node, "cultivate_btn_upgrade", CULTIVATE_BTN_POS.upgrade.x - 80, CULTIVATE_BTN_POS.upgrade.y, "升级灵根", function()
-        npc.current_idx = upgradeIdx
-        local xNode = ensureUpgradeWindow(npcid)
-        if xNode then
-            _lg_refresh_upgrade_window(npcid, xNode)
+    if not _lg_is_look_player() then
+        local upgradeBtn = _lg_button(node, "cultivate_btn_upgrade", CULTIVATE_BTN_POS.upgrade.x - 80, CULTIVATE_BTN_POS.upgrade.y, "升级灵根", function()
+            npc.current_idx = upgradeIdx
+            local xNode = ensureUpgradeWindow(npcid)
+            if xNode then
+                _lg_refresh_upgrade_window(npcid, xNode)
+            end
+        end)
+        _lg_apply_big_button_style(upgradeBtn)
+        if upgradeIdx > 0 and _lg_can_upgrade(upgradeIdx) then
+            NPC_UI_HELPER.redpoint_create(upgradeBtn, {x = 130, y = 33})
         end
-    end)
-    _lg_apply_big_button_style(upgradeBtn)
-    if upgradeIdx > 0 and _lg_can_upgrade(upgradeIdx) then
-        NPC_UI_HELPER.redpoint_create(upgradeBtn, {x = 130, y = 33})
+        local canSwitch, pairIdx = _lg_can_dual_switch(mainIdx)
+        local switchBtn = _lg_button(node, "cultivate_btn_switch", CULTIVATE_BTN_POS.switch.x - 25, CULTIVATE_BTN_POS.switch.y, "切换形态", function()
+            if canSwitch then
+                SL:SendLuaNetMsg(100, npcid, 6, pairIdx, "")
+            else
+                SL:ShowSystemTips("需要同时拥有本命灵根与对应觉醒灵根后才可切换")
+            end
+        end)
+        _lg_apply_big_button_style(switchBtn)
+        GUI:Button_setBright(switchBtn, canSwitch == true)
     end
-    local canSwitch, pairIdx = _lg_can_dual_switch(mainIdx)
-    local switchBtn = _lg_button(node, "cultivate_btn_switch", CULTIVATE_BTN_POS.switch.x - 25, CULTIVATE_BTN_POS.switch.y, "切换形态", function()
-        if canSwitch then
-            SL:SendLuaNetMsg(100, npcid, 6, pairIdx, "")
-        else
-            SL:ShowSystemTips("需要同时拥有本命灵根与对应觉醒灵根后才可切换")
-        end
-    end)
-    _lg_apply_big_button_style(switchBtn)
-    GUI:Button_setBright(switchBtn, canSwitch == true)
     local backBtn = _lg_button(node, "cultivate_btn_back", CULTIVATE_BTN_POS.back.x + 88, CULTIVATE_BTN_POS.back.y, "返回上级", function()
         NPC_UI_HELPER.closeWindow(npc.cultivate_window)
         npc.cultivate_window = nil
@@ -1989,6 +1999,9 @@ local function _lg_render_main_overview(node, npcid, selectedIdx, mainIdx)
     end
     local setText = active and ((mainIdx == displayIdx) and "卸下灵根" or "设为本命") or "未觉醒"
     local setBtn = _lg_button(node, "main_overview_set_btn", skill.x + skill.width / 2 - 30, skill.y - 36, setText, function()
+        if _lg_is_look_player() then
+            return
+        end
         if not active then
             SL:ShowSystemTips("该灵根未觉醒，无法设为本命灵根")
             return
@@ -2013,6 +2026,10 @@ local function _lg_render_main_overview(node, npcid, selectedIdx, mainIdx)
     GUI:Button_setTitleFontSize(setBtn, 24)
     GUI:Button_titleEnableOutline(setBtn, "#110b05", 3)
     GUI:Button_setBright(setBtn, active)
+    if _lg_is_look_player() then
+        GUI:setVisible(setBtn, false)
+        GUI:setTouchEnabled(setBtn, false)
+    end
     -- if active and mainIdx ~= displayIdx then
     --     _lg_try_xyl_guide(setBtn, node, "main_linggen_set", {"本命灵根"}, "选择一个作为本命灵根", {dir = 3, once = false})
     -- end
@@ -2073,6 +2090,9 @@ local function _lg_render_main_overview(node, npcid, selectedIdx, mainIdx)
     end
     local cultivateText = "培养灵根"
     local cultivateBtn = _lg_button(node, "main_open_cultivate", rootCard.x + rootCard.width / 2 - 40, MAIN_OVERVIEW_POS.skillCard.y - 36, cultivateText, function()
+        if _lg_is_look_player() then
+            return
+        end
         if not selectedActive then
             SL:ShowSystemTips("请先完成对应基础灵根试炼觉醒")
             return
@@ -2088,6 +2108,10 @@ local function _lg_render_main_overview(node, npcid, selectedIdx, mainIdx)
     local overviewUpgradeIdx = _lg_current_upgrade_idx(selectedIdx, mainIdx)
     if overviewUpgradeIdx > 0 and _lg_can_upgrade(overviewUpgradeIdx) then
         NPC_UI_HELPER.redpoint_create(cultivateBtn, {x = 130, y = 33})
+    end
+    if _lg_is_look_player() then
+        GUI:setVisible(cultivateBtn, false)
+        GUI:setTouchEnabled(cultivateBtn, false)
     end
 end
 
@@ -2125,7 +2149,9 @@ _lg_refresh_main_page = function(npcid, node)
             if type == SLDefine.TouchEventType.ended then
                 npc.current_idx = idx
                 _lg_refresh_main_page(npcid, node)
-                _lg_refresh_open_upgrade_window(npcid)
+                if not _lg_is_look_player() then
+                    _lg_refresh_open_upgrade_window(npcid)
+                end
             end
         end)
         if rootItem then
@@ -2193,6 +2219,9 @@ _lg_refresh_upgrade_window = function(npcid, xNode)
     local btn = GUI:Button_Create(xNode, "btn_upgrade", UPGRADE_BTN_POS.x, UPGRADE_BTN_POS.y, "res/custom/linggen/new/updata/btn_upgrade.png")
     GUI:setAnchorPoint(btn, 0.5, 0.5)
     GUI:addOnClickEvent(btn, function()
+        if _lg_is_look_player() then
+            return
+        end
         if idx > 0 and not _lg_is_max_level(idx) then
             local levelOk, needLevel, roleLevel = _lg_upgrade_level_ok(idx)
             if not levelOk then
@@ -2209,6 +2238,10 @@ _lg_refresh_upgrade_window = function(npcid, xNode)
     elseif _lg_can_upgrade(idx) then
         NPC_UI_HELPER.redpoint_create(btn, {x = 120, y = 46})
     end
+    if _lg_is_look_player() then
+        GUI:setVisible(btn, false)
+        GUI:setTouchEnabled(btn, false)
+    end
 end
 
 -- 服务端推送入口：
@@ -2216,17 +2249,20 @@ end
 -- p2=1 数据刷新后同步刷新主界面/升级弹窗/培养弹窗；
 -- p2=2 直接打开升级弹窗。
 function npc.main(npcid, p2, p3, msgData)
-    if not _lg_mainline_reached() then
+    local previewData = SL:JsonDecode(msgData, false) or {}
+    local lookPlayer = previewData.lookPlayer == true or tonumber(previewData.lookPlayer or 0) == 1
+    npc.isLookPlayer = lookPlayer == true
+    if not lookPlayer and not _lg_mainline_reached() then
         SL:ShowSystemTips("请先完成对应主线任务")
         return
     end
     if p2 == 0 then
-        npc.data = SL:JsonDecode(msgData, false) or {}
+        npc.data = previewData
         npc.current_idx = _lg_default_selected_idx()
         ensureMainWindow(npcid)
         _lg_refresh_main_page(npcid, npc.node)
     elseif p2 == 1 then
-        npc.data = SL:JsonDecode(msgData, false) or npc.data or {}
+        npc.data = previewData or npc.data or {}
         if tonumber(npc.current_idx or 0) <= 0 then
             npc.current_idx = _lg_default_selected_idx()
         end
@@ -2246,7 +2282,7 @@ function npc.main(npcid, p2, p3, msgData)
         end
         _lg_try_finish_xyl_and_close()
     elseif p2 == 2 then
-        npc.data = SL:JsonDecode(msgData, false) or npc.data or {}
+        npc.data = previewData or npc.data or {}
         if _lg_is_valid_node(npc.node) then
             _lg_refresh_main_page(npcid, npc.node)
         end

@@ -521,6 +521,26 @@ local function createShortcutButton(container, cfg, order, prefix, opts)
     cacheMap["" .. cfg[4]] = button
     return button
 end
+local function refreshTreasureBasinTopRedpoint()
+    local button = npc.db_anniu and npc.db_anniu["517"]
+    if not button then
+        return
+    end
+    local helper = SL:Require("GUILayout/npc/upgrade_helper", true)
+    local state = helper and helper.treasureBasinRedState and helper.treasureBasinRedState() or {}
+    local delegate = GUI:ui_delegate(button)
+    local hasRedpoint = delegate and delegate.redpoint
+    if state.any == true then
+        if not hasRedpoint then
+            NPC_UI_HELPER.redpoint_create_eff(button, {
+                x = 80,
+                y = 60,
+            })
+        end
+    elseif hasRedpoint then
+        GUI:removeChildByName(button, "redpoint")
+    end
+end
 local function _shortcut_has_title(titleName)
     if not titleName or titleName == "" then
         return false
@@ -1608,6 +1628,12 @@ local guideDispatch = {
         if tostring(data.npcdt or "") == "二大陆主城" and type(dl_sz) == "function" and not dl_sz(2) then
             SL:ShowSystemTips("<font color='#FF0000'>需完成主线引导后才可进入二大陆</font>")
             return
+        end
+        -- The server has already moved the player. Close the story log before
+        -- opening the destination NPC so the transfer never leaves two panels stacked.
+        if windowCache and windowCache.storyLog then
+            NPC_UI_HELPER.closeWindow(windowCache.storyLog)
+            windowCache.storyLog = nil
         end
         SL:ScheduleOnce(function()
             triggerNavigate({
@@ -4216,6 +4242,10 @@ npc[11] = function(p2, p3, Data)
                             GUI:setScale(goBtn, 0.8)
                             GUI:setAnchorPoint(goBtn, 0, 0.5)
                             GUI:addOnClickEvent(goBtn, function()
+                                if not enable and tostring(task.tk or "") == "npc_679" and windowCache and windowCache.storyLog then
+                                    NPC_UI_HELPER.closeWindow(windowCache.storyLog)
+                                    windowCache.storyLog = nil
+                                end
                                 SL:SendLuaNetMsg(101, 11, enable and 3 or 1, 0, string.format('{"i":%d,"j":%d,"k":0,"z":%d}', npc.l, npc.zj, idx))
                                 if enable then
                                     GUI:removeFromParent(goBtn)
@@ -9302,6 +9332,7 @@ npc[517] = function(p2, p3, Data)
     if mod and type(mod.main) == "function" then
         mod.main(517, p2, p3, Data)
     end
+    refreshTreasureBasinTopRedpoint()
 end
 local xlxl = {
     {

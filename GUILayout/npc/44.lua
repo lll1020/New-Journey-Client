@@ -2865,21 +2865,23 @@ function npc.render()
     end
     buildTopOverview(npc.node, displaySnapshot, baseSnapshot, npcid)
     drawMenuBar(npc.node)
-    local btn_knashu = GUI:Frames_Create(npc.node, "eff1", -cogin.w / 2, -cogin.h / 2 + 150, "res/custom/three_city/xianfu/kanshu/btn/eff_", ".png", 1, 75, {
-        speed = 75,
-        count = 75,
-        loop = -1
-    })
-    GUI:setAnchorPoint(btn_knashu, 0, 0)
-    GUI:setTouchEnabled(btn_knashu, true)
-    GUI:addOnClickEvent(btn_knashu, function()
-        SL:SendLuaNetMsg(101, 30, 0, 0, '')
-    end)
-    NPC_UI_HELPER.tryStartXylGuide(npc, btn_knashu, npc.node, "woodcut_start", {
-        taskName = "了解砍树",
-        dir = 5,
-        desc = "开启砍树界面",
-    })
+    if not guestMode then
+        local btn_knashu = GUI:Frames_Create(npc.node, "eff1", -cogin.w / 2, -cogin.h / 2 + 150, "res/custom/three_city/xianfu/kanshu/btn/eff_", ".png", 1, 75, {
+            speed = 75,
+            count = 75,
+            loop = -1
+        })
+        GUI:setAnchorPoint(btn_knashu, 0, 0)
+        GUI:setTouchEnabled(btn_knashu, true)
+        GUI:addOnClickEvent(btn_knashu, function()
+            SL:SendLuaNetMsg(101, 30, 0, 0, '')
+        end)
+        NPC_UI_HELPER.tryStartXylGuide(npc, btn_knashu, npc.node, "woodcut_start", {
+            taskName = "了解砍树",
+            dir = 5,
+            desc = "开启砍树界面",
+        })
+    end
     renderSection(state.menuTab or 'farm', displaySnapshot, baseSnapshot, npcid)
 end
 

@@ -1,5 +1,7 @@
 ﻿local npc = {}
 
+local EQUIP_EVENT_KEY = "npc_675_equip_change"
+
 npc._config = teshudata["npc_675"]
 
 local WINDOW_OPTS = {
@@ -26,6 +28,35 @@ local function ensureWindow(npcId)
     npc.bg = npc._window.bg
     npc.node = npc._window.node
     return npc.node
+end
+
+local function unregisterEquipChangeListener()
+    SL:UnRegisterLUAEvent(LUA_EVENT_PLAYER_EQUIP_CHANGE, EQUIP_EVENT_KEY)
+end
+
+local function bindCloseHook()
+    if not npc._window or not npc._window.close or npc._window._npc675CloseHooked then
+        return
+    end
+    local closeWindow = npc._window.close
+    npc._window.close = function(...)
+        npc._isOpen = false
+        unregisterEquipChangeListener()
+        return closeWindow(...)
+    end
+    npc._window._npc675CloseHooked = true
+end
+
+local function registerEquipChangeListener(npcId)
+    npc._npcId = npcId
+    npc._isOpen = true
+    unregisterEquipChangeListener()
+    SL:RegisterLUAEvent(LUA_EVENT_PLAYER_EQUIP_CHANGE, EQUIP_EVENT_KEY, function()
+        if not npc._isOpen or not npc._npcId then
+            return
+        end
+        SL:SendLuaNetMsg(105, npc._npcId, npc._npcId, 0, "")
+    end)
 end
 
 local function updateUI(npcId, node)
@@ -136,6 +167,8 @@ function npc.main(npcId, p2, p3, msgData)
     if p2 == 0 or p2 == 1 then
         npc.data = SL:JsonDecode(msgData, false) or {}
         ensureWindow(npcId)
+        bindCloseHook()
+        registerEquipChangeListener(npcId)
         updateUI(npcId, npc.node)
     end
 end

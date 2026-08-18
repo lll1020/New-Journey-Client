@@ -23,6 +23,41 @@ PlayerEquip_Look.fictionalUIPos = {
 local posList = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 14, 16, 1000, 1001}
 
 
+local function _look_copy_table(src)
+    local dst = {}
+    if type(src) == "table" then
+        for k, v in pairs(src) do
+            dst[k] = v
+        end
+    end
+    return dst
+end
+
+local function _look_open_panel(npcid, panelData)
+    if type(panelData) ~= "table" then
+        panelData = {}
+    end
+    panelData.lookPlayer = 1
+    if Npclib and Npclib[npcid] and type(Npclib[npcid].main) == "function" then
+        Npclib[npcid].main(npcid, 0, 0, SL:JsonEncode(panelData, false))
+    end
+end
+
+local function _look_open_jingjie_panel()
+    local data = _look_copy_table(cogin and cogin.onther_shuju and cogin.onther_shuju.jingjie)
+    _look_open_panel(21, data)
+end
+
+local function _look_open_linggen_panel()
+    local data = _look_copy_table(cogin and cogin.onther_shuju and cogin.onther_shuju.linggen)
+    _look_open_panel(22, {T_data = data})
+end
+
+local function _look_open_tianshu_panel()
+    local data = _look_copy_table(cogin and cogin.onther_shuju and cogin.onther_shuju.tianshu)
+    _look_open_panel(24, data)
+end
+
 function PlayerEquip_Look.main(data)
     PlayerEquip_Look.posSetting = {
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 16, --1000, 1001 如有分离装备 需要添加
@@ -75,6 +110,23 @@ function PlayerEquip_Look.main(data)
     PlayerEquip_Look.RegisterEvent()
     PlayerEquip_Look.InitEquipFramekuang()
     NPC_UI_HELPER.renderLinggenEquipSlot(PlayerEquip_Look, {lookPlayer = true, data = cogin and cogin.onther_shuju and cogin.onther_shuju.linggen})
+    local Button= GUI:Button_Create(PlayerEquip_Look._ui.Panel_1, "Button1", 40, 10.00, "res/private/player_main_layer_ui/btn_1.png")
+    GUI:addOnClickEvent(Button, function()
+        _look_open_tianshu_panel()
+    end)
+
+    Button= GUI:Button_Create(PlayerEquip_Look._ui.Panel_1, "Button2", 110, 10.00, "res/private/player_main_layer_ui/btn_2.png")
+    GUI:addOnClickEvent(Button, function()
+        _look_open_jingjie_panel()
+    end)
+    -- Button= GUI:Button_Create(PlayerEquip_Look._ui.Panel_1, "Button3", 180, 10.00, "res/private/player_main_layer_ui/btn_3.png")
+    -- GUI:addOnClickEvent(Button, function()
+    --     _look_open_linggen_panel()
+    -- end)
+    Button= GUI:Button_Create(PlayerEquip_Look._ui.Panel_1, "Button4", 180, 10.00, "res/private/player_main_layer_ui/btn_4.png")
+    GUI:addOnClickEvent(Button, function()
+        SL:SendLuaNetMsg(100, 44, 1, 0, SL:JsonEncode({action = "visit", param = {targetName = SL:GetMetaValue("LOOK_USER_NAME")}}, false))
+    end)
 end
 
 

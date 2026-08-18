@@ -907,11 +907,111 @@ function UIHelper.guochang_3(skipStateQuery)
     GUI:addMouseOverTips(bjt, "", {x = 0, y = 0}, {x = 0, y = 0})
     local introSeen = UIHelper._threeCityIntroSeen == true
     local function markIntroSeen()
+        if UIHelper._threeCityIntroSeen == true then
+            return
+        end
         UIHelper._threeCityIntroSeen = true
         SL:SendLuaNetMsg(100, 46, 9, 0, "")
     end
+    local introClosed = false
     local function closeIntro(parentNode)
+        if introClosed then
+            return
+        end
+        introClosed = true
         GUI:Win_Close(parentNode)
+    end
+    local function enterThreeCityAfterIntro()
+        SL:SendLuaNetMsg(100, 503, 1, 0, "")
+        SL:ShowSystemTips("<font color='#FF0000'>灾厄还未消退，不能展开三大陆剧情任务</font>")
+    end
+    local function skipIntro()
+        if introClosed then
+            return
+        end
+        markIntroSeen()
+        enterThreeCityAfterIntro()
+        closeIntro(parent)
+    end
+    local skipPanel = nil
+    local skipTouch = nil
+    local skipBar = nil
+    local skipPercentText = nil
+    local skipHoldTimer = nil
+    local skipHolding = false
+    local skipProgress = 0
+    local skipHoldDuration = 4
+    local skipTick = 0.03
+    local skipStep = 100 * skipTick / skipHoldDuration
+    local animStageFinished = false
+    local function updateSkipProgress(value)
+        skipProgress = math.max(0, math.min(100, tonumber(value or 0) or 0))
+        if isValidGuideNode(skipBar) then
+            GUI:LoadingBar_setPercent(skipBar, skipProgress)
+        end
+        if isValidGuideNode(skipPercentText) then
+            GUI:Text_setString(skipPercentText, string.format("%d%%", math.floor(skipProgress)))
+        end
+    end
+    local function stopSkipHold(resetProgress)
+        skipHolding = false
+        if skipHoldTimer then
+            SL:UnSchedule(skipHoldTimer)
+            skipHoldTimer = nil
+        end
+        if resetProgress then
+            updateSkipProgress(0)
+        end
+    end
+    local function setSkipPanelVisible(visible)
+        if isValidGuideNode(skipPanel) then
+            GUI:setVisible(skipPanel, visible == true)
+        end
+        if isValidGuideNode(skipTouch) then
+            GUI:setVisible(skipTouch, visible == true)
+            GUI:setTouchEnabled(skipTouch, visible == true)
+        end
+        if not visible then
+            stopSkipHold(true)
+        end
+    end
+    local function finishThreeCityAnimStage()
+        if introClosed or animStageFinished then
+            return
+        end
+        animStageFinished = true
+        setSkipPanelVisible(false)
+        markIntroSeen()
+        enterThreeCityAfterIntro()
+        local xx_bjt = GUI:Image_Create(parent, "xx_bjt", cogin.w / 2, cogin.h / 2, "res/custom/three_city/zerq/xx_bg1.png")
+        GUI:setAnchorPoint(xx_bjt, 0.5, 0.5)
+        GUI:setContentSize(xx_bjt, cogin.w, cogin.h)
+        GUI:setTouchEnabled(xx_bjt, true)
+        local wz = GUI:Frames_Create(xx_bjt, "wz", cogin.w/2,  cogin.h/2 -300, "res/custom/three_city/zerq/eff/eff_", ".png", 1, 30,
+            { speed = 100, count = 30, loop = -1})
+        GUI:setAnchorPoint(wz, 0.5, 0.5)
+        GUI:addOnClickEvent(xx_bjt, function(widget)
+            closeIntro(parent)
+        end)
+    end
+    local function startSkipHold()
+        if introClosed or skipHolding or animStageFinished then
+            return
+        end
+        stopSkipHold(false)
+        skipHolding = true
+        updateSkipProgress(0)
+        skipHoldTimer = SL:Schedule(function()
+            if introClosed or not skipHolding or animStageFinished then
+                stopSkipHold(false)
+                return
+            end
+            updateSkipProgress(skipProgress + skipStep)
+            if skipProgress >= 100 then
+                stopSkipHold(false)
+                finishThreeCityAnimStage()
+            end
+        end, skipTick)
     end
     if not introSeen then
         local x_bjt = GUI:Image_Create(parent, "x_bjt", cogin.w / 2, cogin.h / 2, "res/custom/three_city/zerq/xx_bg2.png")
@@ -924,23 +1024,17 @@ function UIHelper.guochang_3(skipStateQuery)
         GUI:addOnClickEvent(x_bjt, function(widget)
             local bg = GUI:Frames_Create(x_bjt, "bg", cogin.w/2,  cogin.h/2, "res/wy/eff/3_guochang/eff_", ".jpg", 1, 1092,
                 { speed = 1, count = 1092, loop = 1,callback = function()
-                    markIntroSeen()
-                    SL:SendLuaNetMsg(100, 503, 1, 0, "")
-                    SL:ShowSystemTips("<font color='#FF0000'>灾厄还未消退，不能展开三大陆剧情任务</font>")
-                    local xx_bjt = GUI:Image_Create(parent, "xx_bjt", cogin.w / 2, cogin.h / 2, "res/custom/three_city/zerq/xx_bg1.png")
-                    GUI:setAnchorPoint(xx_bjt, 0.5, 0.5)
-                    GUI:setContentSize(xx_bjt, cogin.w, cogin.h)
-                    GUI:setTouchEnabled(xx_bjt, true)
-                    local wz = GUI:Frames_Create(xx_bjt, "wz", cogin.w/2,  cogin.h/2 -300, "res/custom/three_city/zerq/eff/eff_", ".png", 1, 30,
-                        { speed = 100, count = 30, loop = -1})
-                    GUI:setAnchorPoint(wz, 0.5, 0.5)
-                    GUI:addOnClickEvent(xx_bjt, function(widget)
-                        closeIntro(parent)
-                    end)
+                    if introClosed or animStageFinished then
+                        return
+                    end
+                    finishThreeCityAnimStage()
                 end})
             GUI:setContentSize(bg, cogin.w, cogin.h)
             GUI:setAnchorPoint(bg, 0.5, 0.5)
             GUI:setTouchEnabled(x_bjt, false)
+            animStageFinished = false
+            updateSkipProgress(0)
+            setSkipPanelVisible(true)
         end)
     else
         local x_bjt = GUI:Image_Create(parent, "x_bjt", cogin.w / 2, cogin.h / 2, "res/custom/three_city/zerq/xx_bg3.png")
@@ -948,14 +1042,44 @@ function UIHelper.guochang_3(skipStateQuery)
         GUI:setContentSize(x_bjt, cogin.w, cogin.h)
         GUI:setTouchEnabled(x_bjt, true)
         GUI:addOnClickEvent(x_bjt, function(widget)
-            SL:SendLuaNetMsg(100, 503, 1, 0, "")
-            SL:ShowSystemTips("<font color='#FF0000'>灾厄还未消退，不能展开三大陆剧情任务</font>")
-            GUI:Win_Close(parent)
+            enterThreeCityAfterIntro()
+            closeIntro(parent)
         end)
         local wz = GUI:Frames_Create(x_bjt, "wz", cogin.w/2,  cogin.h/2 -300, "res/custom/three_city/zerq/eff/eff_", ".png", 1, 30,
             { speed = 100, count = 30, loop = -1})
         GUI:setAnchorPoint(wz, 0.5, 0.5)
     end
+    skipPanel = GUI:Image_Create(parent, "three_city_long_skip_panel", cogin.w - 126, 58, "res/wy/public/tycccc.png")
+    GUI:setAnchorPoint(skipPanel, 0.5, 0.5)
+    GUI:setContentSize(skipPanel, 176, 48)
+    GUI:setLocalZOrder(skipPanel, 998)
+    local skipLabel = GUI:Text_Create(skipPanel, "three_city_long_skip_label", 88, 33, 19, "#F5E1B2", "长按此处跳过")
+    GUI:setAnchorPoint(skipLabel, 0.5, 0.5)
+    GUI:Text_enableOutline(skipLabel, "#120805", 2)
+    GUI:Text_setFontName(skipLabel, "fonts/502.ttf")
+    local skipBarBg = GUI:Image_Create(skipPanel, "three_city_long_skip_bar_bg", 88, 14, "res/custom/fairyFate/1/progress_bg.png")
+    GUI:setAnchorPoint(skipBarBg, 0.5, 0.5)
+    GUI:setContentSize(skipBarBg, 146, 10)
+    skipBar = GUI:LoadingBar_Create(skipPanel, "three_city_long_skip_bar", 88, 14, "res/custom/fairyFate/1/progress_fill.png", 0)
+    GUI:setAnchorPoint(skipBar, 0.5, 0.5)
+    GUI:setContentSize(skipBar, 146, 10)
+    GUI:LoadingBar_setPercent(skipBar, 0)
+    skipPercentText = GUI:Text_Create(skipPanel, "three_city_long_skip_percent", 88, 14, 13, "#FFFFFF", "0%")
+    GUI:setAnchorPoint(skipPercentText, 0.5, 0.5)
+    GUI:Text_enableOutline(skipPercentText, "#120805", 1)
+    GUI:Text_setFontName(skipPercentText, "fonts/502.ttf")
+
+    skipTouch = GUI:Layout_Create(parent, "three_city_long_skip_touch", cogin.w - 214, 30, 176, 48, false)
+    GUI:setTouchEnabled(skipTouch, true)
+    GUI:setLocalZOrder(skipTouch, 999)
+    GUI:addOnTouchEvent(skipTouch, function(sender, touchType)
+        if touchType == SLDefine.TouchEventType.began then
+            startSkipHold()
+        elseif touchType == SLDefine.TouchEventType.ended or touchType == SLDefine.TouchEventType.canceled then
+            stopSkipHold(true)
+        end
+    end)
+    setSkipPanelVisible(false)
 end
 _G.NPC_UI_HELPER = UIHelper
 return UIHelper
