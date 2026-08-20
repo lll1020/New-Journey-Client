@@ -5398,6 +5398,7 @@ npc[30] = function(p2, p3, Data)
             local title = GUI:Text_Create(resultLayer, 'doll_draw_title', cogin.w / 2, cogin.h - 92, 28, '#ffe9c2', drawCount >= 10 and '十连抽取结果' or '抓取成功')
             GUI:setAnchorPoint(title, 0.5, 0.5)
             GUI:Text_enableOutline(title, '#100808', 2)
+            GUI:Text_setFontName(title, 'fonts/502.ttf')
             local hint = GUI:Text_Create(resultLayer, 'doll_draw_hint', cogin.w / 2, 88, 18, '#ffffff', '点击关闭返回娃娃机')
             GUI:setAnchorPoint(hint, 0.5, 0.5)
             GUI:Text_enableOutline(hint, '#100808', 2)
@@ -5438,7 +5439,7 @@ npc[30] = function(p2, p3, Data)
             local cols = 5
             local cardW = 96 + 30
             local cardH = 152 + 50
-            local startX = cogin.w / 2 - 232
+            local startX = cogin.w / 2 - 376
             local startY = cogin.h / 2 + 46
             for idx, entry in ipairs(results) do
                 local col = (idx - 1) % cols

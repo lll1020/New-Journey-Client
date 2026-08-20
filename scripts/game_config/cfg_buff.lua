@@ -462,5 +462,10 @@ local config = {
 		dis_action = 95,
 		tips = "定身",
 	},
+	[20131] = { 
+		ID = 20131,
+		name = "灰界buff",
+		tips = "身处灰界时没有拥有[诛邪退散]会被灰界压制额外收到伤害和减少造成伤害",
+	},
 }
 return config

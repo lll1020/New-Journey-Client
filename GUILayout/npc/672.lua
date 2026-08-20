@@ -12,6 +12,65 @@ local key = "npc_672"
 local btn_pos = {600, 80}
 local cost_pos = {507 + 25, 202 + 10}
 
+local function _toint(v)
+    return math.floor(tonumber(v) or 0)
+end
+
+local function _getItemCountByName(itemName)
+    if not itemName or itemName == "" then
+        return 0
+    end
+    local idx = SL:GetMetaValue("ITEM_INDEX_BY_NAME", itemName)
+    if not idx then
+        return 0
+    end
+    return _toint(SL:GetMetaValue("ITEM_COUNT", idx))
+end
+
+local function _buildDetailProgress(detail)
+    if type(detail) ~= "table" then
+        return ""
+    end
+
+    local progressKey = ""
+    local progressName = ""
+    local needNum = 0
+    local curNum = 0
+    local submitLines = {}
+
+    if detail.a_num then
+        progressKey = key .. "_a"
+        progressName = "BOSS击杀"
+        needNum = _toint(detail.a_num)
+        curNum = _toint((npc.data and npc.data.sg_data or {})[progressKey])
+    elseif detail.b_num then
+        progressKey = key .. "_b"
+        progressName = "小怪击杀"
+        needNum = _toint(detail.b_num)
+        curNum = _toint((npc.data and npc.data.sg_data or {})[progressKey])
+    elseif detail.c_num then
+        progressKey = key .. "_c"
+        progressName = "怪物击杀"
+        needNum = _toint(detail.c_num)
+        curNum = _toint((npc.data and npc.data.sg_data or {})[progressKey])
+    elseif type(detail.cost) == "table" and #detail.cost > 0 then
+        for _, cost in ipairs(detail.cost) do
+            if type(cost) == "table" and cost[1] then
+                local need = _toint(cost[2])
+                local cur = _getItemCountByName(cost[1])
+                table.insert(submitLines, string.format("%s %d/%d", tostring(cost[1]), cur, need))
+            end
+        end
+        return table.concat(submitLines, "\n")
+    end
+
+    if needNum > 0 then
+        return string.format("%s %d/%d", progressName, curNum, needNum)
+    end
+
+    return ""
+end
+
 function npc.main(npcid, p2, p3, msgData)
 
 
@@ -36,7 +95,13 @@ function npc.main(npcid, p2, p3, msgData)
         -- local xjm_count = SL:GetItemNumById("修罗道令牌") + (npc.data.T_dljq["xjm_count"] or 0)
         -- local xjm = ItemNumByTable_img_new({{"修罗道令牌", xjm_count}}, nil,GUI:Node_Create(node, "xjm", 0, 0))
         -- GUI:setPosition(xjm, 178, 135)
-        local desc = GUI:Text_Create(node, "desc",300 + 358 - 175,220 - 68 + 137, 20, "#FF0000", npc._config.details[npc.idx].wz)
+        local detail = (npc._config.details and npc._config.details[npc.idx]) or {}
+        local descText = tostring(detail.wz or "")
+        local progressText = _buildDetailProgress(detail)
+        if progressText ~= "" then
+            descText = descText .. "\n" .. progressText
+        end
+        local desc = GUI:Text_Create(node, "desc",300 + 358 - 175,220 - 68 + 137 - 15, 22, "#FF0000", descText)
         GUI:Text_setFontName(desc, "fonts/502.ttf")
         GUI:Text_enableOutline(desc, "#150800", 1)
         if npc.data.T_dljq[key.."_"..npc.idx] and npc.data.T_dljq[key.."_"..npc.idx] >= 2 then

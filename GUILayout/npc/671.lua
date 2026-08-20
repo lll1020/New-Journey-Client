@@ -78,10 +78,10 @@ function npc.main(npcid, p2, p3, msgData)
                 GUI:addOnClickEvent(Button, function()
                     SL:SendLuaNetMsg(100, npcid, 1, 0, "")
                 end)
-                GUI:Button_setTitleText(Button, "前往地图")
-                GUI:Button_setTitleFontSize(Button, 16)
-                GUI:Button_setTitleColor(Button, "#F4E7B5")
-                GUI:Button_titleEnableOutline(Button, "#000000", 2)
+                -- GUI:Button_setTitleText(Button, "前往地图")
+                -- GUI:Button_setTitleFontSize(Button, 16)
+                -- GUI:Button_setTitleColor(Button, "#F4E7B5")
+                -- GUI:Button_titleEnableOutline(Button, "#000000", 2)
             end
             
             

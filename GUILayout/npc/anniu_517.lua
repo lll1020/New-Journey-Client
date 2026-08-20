@@ -304,9 +304,15 @@ local function stoneBagItem(parent, key, itemName, x, y)
         local item = GUI:ItemShow_Create(box, "item", 15, 15, {
             index = idx,
             count = count,
+            disShowCount = true,
             look = true,
         })
         GUI:setAnchorPoint(item, 0.5, 0.5)
+    end
+    if count > 0 then
+        local num = text(box, "count", 28 + 3 + 2, 1 - 3 - 2, 16, "#FFFFFF", fmt(count), 1, 0)
+        GUI:Text_setFontName(num, "fonts/font4.ttf")
+        GUI:Text_enableOutline(num, "#000000", 2)
     end
     return box
 end

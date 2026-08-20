@@ -77,6 +77,8 @@ local sendAction
 local formatNumber
 local queuePlotAdvance
 local describePlot
+local canPlotBeStolen
+local findFirstStealablePlot
 
 local function closePlantSelectPopup()
     if npc.plantSelectPopup then
@@ -441,6 +443,7 @@ local function wrapGuestSnapshot(target)
             key = target.key,
             name = target.name,
             xiangHua = target.xiangHua or 0,
+            likenum = target.likenum or 0,
             herbs = target.herbs or {},
             seeds = target.seeds or {},
             fields = target.fields or {},
@@ -472,6 +475,12 @@ local function enterGuestMode(targetSnapshot)
     state.guestSnapshot = wrapped
     state.menuTab = 'farm'
     state.friendKey = (targetSnapshot and (targetSnapshot.name or targetSnapshot.key)) or state.friendKey
+    local fields = (wrapped.player and wrapped.player.fields) or {}
+    if type(findFirstStealablePlot) == 'function' then
+        state.selectedPlot = findFirstStealablePlot(fields) or 1
+    else
+        state.selectedPlot = 1
+    end
 end
 
 local function exitGuestMode()
@@ -518,6 +527,12 @@ local function updateSnapshot(data, isPartial)
         end
     else
         state.selectedPlot = 1
+    end
+    if isGuestMode() and type(findFirstStealablePlot) == 'function' then
+        local selected = fields[state.selectedPlot]
+        if not canPlotBeStolen(selected) then
+            state.selectedPlot = findFirstStealablePlot(fields) or state.selectedPlot or 1
+        end
     end
 end
 
@@ -597,7 +612,7 @@ local function renderPlotText(parent, plotIndex, plot, cellSize)
             if remain <= 0 then
                 finished = true
                 plot.state = 'mature'
-                GUI:Text_setString(statusText, '可收获')
+                GUI:Text_setString(statusText, isGuestMode() and '可偷取' or '可收获')
                 GUI:Text_setString(timerText, '')
                 local state = ensureState()
                 if (state.menuTab or 'farm') == 'farm' and tonumber(state.selectedPlot or 0) == tonumber(plot.gridId or plotIndex) then
@@ -613,6 +628,9 @@ local function renderPlotText(parent, plotIndex, plot, cellSize)
         return
     end
     local status, tip = describePlot(plot)
+    if (status == nil or status == '') and (tip == nil or tip == '') then
+        return
+    end
     local content = string.format('<font size="16" color="#9fe9ff">%s</font><br/><font size="14" color="#c8ffb4">%s</font>', status, tip)
     NPC_UI_HELPER.createRichText(parent, 'plot_text_' .. plotIndex, 10, 0, content, {width = cellSize - 10, height = 20, anchor = {x = 0.5, y = 0.5}})
 end
@@ -771,15 +789,28 @@ local function getPlantCfg(seedId)
     return cfg[seedId]
 end
 
-local function canPlotBeStolen(plot)
+canPlotBeStolen = function(plot)
     if not plot or plot.state ~= 'mature' then
         return false
+    end
+    -- 拜访快照可能未完整携带 product，是否可偷由服务端最终校验。
+    if isGuestMode() then
+        return true
     end
     if not hasProductReward(plot.product) then
         return false
     end
     local cfg = getPlantCfg(plot.seedId)
     return cfg and cfg.canSteal and true or false
+end
+
+findFirstStealablePlot = function(fields)
+    for idx, plot in ipairs(fields or {}) do
+        if canPlotBeStolen(plot) then
+            return tonumber(plot.gridId) or idx
+        end
+    end
+    return nil
 end
 
 local function getClientItemCount(name)
@@ -824,6 +855,7 @@ end
 describePlot = function(plot)
     plot = plot or {}
     local stateName = plot.state or 'empty'
+    local guestMode = isGuestMode()
     local cfg = getPlantCfg(plot.seedId)
     local name = cfg and cfg.name or (plot.seedId == 'High' and '高阶灵草' or (plot.seedId == 'Mid' and '中阶灵草' or (plot.seedId == 'Low' and '低阶灵草' or '未播种')))
     local now = serverNow()
@@ -832,16 +864,11 @@ describePlot = function(plot)
         -- return string.format('成长中\n%s', formatSeconds(remain)), cfg and cfg.canSteal and '可被偷' or '安全'
         return string.format('成长中\n%s', formatSeconds(remain)), ""
     elseif stateName == 'mature' then
-        local reward = summarizeProduct(plot.product)
-        -- local tips = (cfg and cfg.canSteal) and '未收获可被偷' or '不可被偷'
-        local tips = ""
-        local statusText = '可收获'
-        if reward ~= '' then
-            -- statusText = statusText .. '\n' .. reward
-            statusText = ""
-        end
-        return statusText, tips
+        return guestMode and '可偷取' or '可收获', ""
     elseif stateName == 'empty' then
+        if guestMode then
+            return '', ''
+        end
         return '空地', '可播种'
     elseif stateName == 'locked' then
         local needLevel = getPlotUnlockNeedLevel(plot.gridId)
@@ -1099,50 +1126,57 @@ local function drawMenuBar(node)
     --     end
     -- end
 
-    for idx, k in ipairs(MENU_TABS_LIST[1]) do
+    local leftIndex = 0
+    for _, k in ipairs(MENU_TABS_LIST[1]) do
         local tab = MENU_TABS[k]
-        local x = startX 
         local allowed = permission[tab.id]
-        local btn = NPC_UI_HELPER.createPrimaryButton(node, 'menu_btn_' .. tab.id, cogin.w / 2 + 10, - (idx - 1) * 100 + 150, "", function()
-            local s = ensureState()
-            if not allowed then
-                s.lastMessage = '拜访模式仅开放菜园与社交功能'
-                npc.render()
-                return
+        if not (isGuestMode() and not allowed) then
+            leftIndex = leftIndex + 1
+            local btn = NPC_UI_HELPER.createPrimaryButton(node, 'menu_btn_' .. tab.id, cogin.w / 2 + 10, - (leftIndex - 1) * 100 + 150, "", function()
+                local s = ensureState()
+                if not allowed then
+                    s.lastMessage = '拜访模式仅开放菜园与社交功能'
+                    npc.render()
+                    return
+                end
+                if s.menuTab ~= tab.id then
+                    s.menuTab = tab.id
+                    npc.render()
+                end
+            end,{skin = "res/custom/three_city/xianfu/list/l/"..tab.idx..".png",Disabled_skin = "res/custom/three_city/xianfu/list/n/"..tab.idx..".png"})
+            GUI:setAnchorPoint(btn, 1, 0)
+            if allowed then
+                GUI:Button_setBright(btn, state.menuTab ~= tab.id)
+            else
+                GUI:Button_setBright(btn, false)
             end
-            if s.menuTab ~= tab.id then
-                s.menuTab = tab.id
-                npc.render()
-            end
-        end,{skin = "res/custom/three_city/xianfu/list/l/"..tab.idx..".png",Disabled_skin = "res/custom/three_city/xianfu/list/n/"..tab.idx..".png"})
-        GUI:setAnchorPoint(btn, 1, 0)
-        if allowed then
-            GUI:Button_setBright(btn, state.menuTab ~= tab.id)
-        else
-            GUI:Button_setBright(btn, false)
         end
     end
 
-    for idx, k in ipairs(MENU_TABS_LIST[2]) do
+    local bottomIndex = 0
+    for _, k in ipairs(MENU_TABS_LIST[2]) do
         local tab = MENU_TABS[k]
         local allowed = permission[tab.id]
-        local btn = NPC_UI_HELPER.createPrimaryButton(btn_list_img, 'menux_btn_' .. tab.id, 560 + (idx - 1) * 150, -10, "", function()
-            local s = ensureState()
-            if not allowed then
-                s.lastMessage = '拜访模式仅开放菜园与社交功能'
-                npc.render()
-                return
+        if not (isGuestMode() and not allowed) then
+            bottomIndex = bottomIndex + 1
+            local btn = NPC_UI_HELPER.createPrimaryButton(btn_list_img, 'menux_btn_' .. tab.id, 560 + (bottomIndex - 1) * 150, -10, "", function()
+                local s = ensureState()
+                if not allowed then
+                    s.lastMessage = '拜访模式仅开放菜园与社交功能'
+                    npc.render()
+                    return
+                end
+                if s.menuTab ~= tab.id then
+                    s.menuTab = tab.id
+                    npc.render()
+                end
+            end, {skin = "res/custom/three_city/xianfu/btn/l/" .. tostring(tab.idx) .. ".png", Disabled_skin = "res/custom/three_city/xianfu/btn/n/" .. tostring(tab.idx) .. ".png"})
+            GUI:setAnchorPoint(btn, 0.5, 0)
+            if allowed then
+                GUI:Button_setBright(btn, state.menuTab ~= tab.id)
+            else
+                GUI:Button_setBright(btn, false)
             end
-            if s.menuTab ~= tab.id then
-                s.menuTab = tab.id
-                npc.render()
-            end
-        end, {skin = "res/custom/three_city/xianfu/btn/l/" .. tostring(tab.idx) .. ".png", Disabled_skin = "res/custom/three_city/xianfu/btn/n/" .. tostring(tab.idx) .. ".png"})
-        GUI:setAnchorPoint(btn, 0.5, 0)
-        if allowed then
-            GUI:Button_setBright(btn, state.menuTab ~= tab.id)
-        else
-            GUI:Button_setBright(btn, false)
         end
     end
 end
