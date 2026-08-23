@@ -157,7 +157,7 @@ local function renderMain(node, npcId)
             "res/custom/five_city/tmsl/list/" .. (npc.titles_sign == i and "l" or "n") .. "/" .. i .. ".png")
         GUI:Image_Create(npc.cbl_list, "fgx" .. i, 0, 0, "res/custom/fulitating/list/fgx.png")
         if isTrialDone(i) then
-            GUI:Image_Create(item, "done_" .. i, 110, 32, "res/wy/public/10_2.png")
+            -- GUI:Image_Create(item, "done_" .. i, 110, 32, "res/wy/public/10_2.png")
         end
         GUI:addOnClickEvent(item, function()
             GUI:Button_loadTextureNormal(GUI:ui_delegate(npc.cbl_list)["item" .. npc.titles_sign],
