@@ -2149,7 +2149,7 @@ function MainAssistXylHelper.bind(MainAssist)
                     GUI:setLocalZOrder(quickClaimText, 1002)
                     GUI:setTouchEnabled(quickClaimText, true)
                     GUI:addOnClickEvent(quickClaimText, function()
-                        SL:SendLuaNetMsg(101, 501, 0, 0, "")
+                        SL:SendLuaNetMsg(100, 106, 10, 0, "")
                     end)
                 end
                 return

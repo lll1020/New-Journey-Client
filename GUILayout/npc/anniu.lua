@@ -1888,17 +1888,17 @@ npc[1] = function(p2, p3, msgData)
                 local zjkmw = GUI:Button_Create(npc.RightBottom, "zjkmw", cogin.isWin32 and npc.zjkmw_opt[1][1] or npc.zjkmw_opt[2][1], cogin.isWin32 and npc.zjkmw_opt[1][2] or npc.zjkmw_opt[2][2], "res/custom/five_city/zjkmw/img.png")
                 GUI:addOnClickEvent(zjkmw, function()
                     local item = SL:GetMetaValue("EQUIP_DATA", 16)
-                    if item then
-                        local equipLevel = Player:getEquipFieldByIndex(item.Index, 1)
-                        equipLevel = tonumber(equipLevel)
-                        if equipLevel < 13 then
-                            SL:ShowSystemTips("需要先进入满醉意值状态")
-                            return
-                        end
-                    else
-                        SL:ShowSystemTips("需要先进入满醉意值状态")
-                        return
-                    end
+                    -- if item then
+                    --     local equipLevel = Player:getEquipFieldByIndex(item.Index, 1)
+                    --     equipLevel = tonumber(equipLevel)
+                    --     if equipLevel < 13 then
+                    --         SL:ShowSystemTips("需要先进入满醉意值状态")
+                    --         return
+                    --     end
+                    -- else
+                    --     SL:ShowSystemTips("需要先进入满醉意值状态")
+                    --     return
+                    -- end
                     if GUI:getChildByName(zjkmw, "img_bj") then
                         GUI:removeChildByName(zjkmw, "img_bj")
                         return
@@ -6328,7 +6328,10 @@ npc[501] = function(p2, p3, Data)
             local rewardList = slot.show or {
             }
             for j = 1, math.min(#rewardList, 2) do
-                local pos = itemOffset[j] or {
+                local pos = (#rewardList == 1 and {
+                    0,
+                    215,
+                }) or itemOffset[j] or {
                     0,
                     197,
                 }
@@ -6625,7 +6628,7 @@ npc[502] = function(p2, p3, Data)
                         dir = 1,
                         guideWidget = guideButton,
                         guideParent = dbLayout,
-                        guideDesc = "点击10元档位获取筑基丹",
+                    guideDesc = "点击30元档位获取筑基丹",
                         isForce = false,
                         hideMask = false,
                     })
@@ -9064,6 +9067,17 @@ npc[516] = function(p2, p3, Data)
         end
         return tonumber(cfg.need_cz502 or 0) or 0, 0
     end
+    local function mfzz_has_item(itemName)
+        itemName = tostring(itemName or "")
+        if itemName == "" then
+            return false
+        end
+        local itemIndex = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", itemName) or 0) or 0
+        if itemIndex <= 0 then
+            return false
+        end
+        return (tonumber(SL:GetMetaValue("ITEM_COUNT", itemIndex) or 0) or 0) >= 1
+    end
     local function mfzz_has_pay21(amount)
         local tData = mfzz_get_data().T_data or {
         }
@@ -9128,10 +9142,14 @@ npc[516] = function(p2, p3, Data)
         local needRealCharge = tonumber(cfg.need_real_charge or 0) or 0
         local needCharge = tonumber(cfg.need_charge or cfg.sgsl or 0) or 0
         local autoPay = tonumber(cfg.auto_pay or 0) or 0
+        local needItem = tostring(cfg.need_item or "")
         local curData = mfzz_get_data()
         local totalCharge = tonumber(curData.charge or curData.sgsl or 0) or 0
         local realCharge = tonumber(curData.real_charge or 0) or 0
         local charge23 = tonumber(curData.money23 or 0) or 0
+        if needItem ~= "" then
+            return string.format("%s", needItem), mfzz_has_item(needItem), true
+        end
         if needCz502 > 0 then
             if needCz502Idx > 0 then
                 return string.format("需要：领取第%s档在线充值礼包", tostring(needCz502Idx)), mfzz_is_cz502_claimed(needCz502), true
@@ -9257,15 +9275,15 @@ npc[516] = function(p2, p3, Data)
         local conditionText, conditionOk, needQuestion = mfzz_get_condition_info(cfg)
         local conditionColor = conditionOk and "#57ff8d" or "#ff4636"
         local conditionRich = nil
-        if idx == 2 then
-            conditionRich = GUI:RichText_Create(card, "condition", 95 + 13, 70, string.format("<font color='%s'>%s</font>", conditionColor, conditionText), 150, 16, "#f7f7de", 0, nil, nil, {
+        if idx > 1 then
+            conditionRich = GUI:RichText_Create(card, "condition", 95 + 13 - 50, 70, string.format("<font color='%s'>%s</font>", conditionColor, conditionText), 150, 16, "#f7f7de", 0, nil, nil, {
                 outlineSize = 1,
                 outlineColor = "#000000",
             })
-            GUI:setAnchorPoint(conditionRich, 0.5, 0.5)
+            GUI:setAnchorPoint(conditionRich, 0, 0.5)
         end
         if needQuestion then
-            local question = GUI:Button_Create(card, "question", 140, 58, "res/custom/mfzz/question.png")
+            local question = GUI:Button_Create(card, "question", 140, 58 + 10, "res/custom/mfzz/question.png")
             GUI:setAnchorPoint(question, 0.5, 0.5)
             GUI:addOnClickEvent(question, function()
                 SL:SendLuaNetMsg(101, 502, 0, 0, "")

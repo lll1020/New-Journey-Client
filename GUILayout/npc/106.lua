@@ -514,7 +514,7 @@ local function renderTaskWindow(npcid)
         GUI:Text_enableUnderline(taskTip1)
         GUI:setTouchEnabled(taskTip1, true)
         GUI:addOnClickEvent(taskTip1, function()
-            SL:SendLuaNetMsg(101, 501, 0, 0, "")
+            SL:SendLuaNetMsg(100, npcid, 10, 0, "")
         end)
         -- text(node, "task_tip_2", -118, -218, 22, "#FFFFFF", "材料集齐后点击右下方按钮修复即可。", 0.5, 0.5)
 
