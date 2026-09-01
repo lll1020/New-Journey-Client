@@ -2560,6 +2560,12 @@ npc[2] = function(p2, p3, msgData)
             if config[2] and shuju.xz[prefix .. "_" .. tostring(config[2])] then
                 return true
             end
+            if tostring(config.gl) == "7" then
+                local clientPrefix = "6_7"
+                if shuju.xz[clientPrefix] or (config[2] and shuju.xz[clientPrefix .. "_" .. tostring(config[2])]) then
+                    return true
+                end
+            end
             return false
         end
         function xiaohui_update()
@@ -3220,21 +3226,7 @@ npc[2] = function(p2, p3, msgData)
         npc.yjcz = GUI:Button_Create(ty_node, 'yjcz', 430, 15, 'res/wy/public/hsan_11.png')
         GUI:addOnClickEvent(npc.yjcz, function()
             if npc.s >= 1 and npc.s <= 7 then
-                local item = SL:GetMetaValue("BAG_DATA")
-                local hs = {
-                }
-                local huishou_jc_list = cogin.huishou_jc_list
-                for k, v in pairs(item) do
-                    if huishou_jc_list[v.Index] and (hasGroupSelection(huishou_jc_list[v.Index]) or shuju.xz["" .. v.Index]) then
-                        table.insert(hs, k)
-                    end
-                end
-                if #hs > 0 then
-                    SL:SendLuaNetMsg(101, 2, 5, 1, SL:JsonEncode(hs, false))
-                    SL:ShowSystemTips("<font color='#00ff00'>一键回收执行完成</font>")
-                else
-                    SL:ShowSystemTips("<font color='#ff0000'>未发现可分解物品</font>")
-                end
+                SL:SendLuaNetMsg(101, 2, 5, 1, "")
             end
         end)
         new_hs_update()

@@ -10,6 +10,8 @@ local WINDOW_OPTS = {
     closeButton = {x = 900, y = 390},
 
 }
+local key = "npc_620"
+
 
 function npc.main(npcid, p2, p3, msgData)
 
@@ -28,7 +30,7 @@ function npc.main(npcid, p2, p3, msgData)
         return npc.node
     end
 
-    local function UI_updata(node) --鐣岄潰娓叉煋
+    local function UI_updata(node)
         if not node then
             return
         end
@@ -41,17 +43,25 @@ function npc.main(npcid, p2, p3, msgData)
         local kuang = GUI:Image_Create(node, "kuang2", 750 - 327, 105, "res/wy/public/70_70_k.png")
         UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.give[1][1])))
 
-
-        local Button= GUI:Button_Create(node, "Button", 550, 30.00, "res/custom/three_city/yyqp/btn.png")
-        GUI:addOnClickEvent(Button, function()
-            SL:SendLuaNetMsg(100, npcid, 1, 0, "")
-        end)
+        local state = tonumber(npc.data.T_dljq and npc.data.T_dljq[key] or 0) or 0
+        if state >= 2 then
+            GUI:Image_Create(node, "Button", 550, 30.00, "res/wy/public/7_1.png")
+        else
+            local Button= GUI:Button_Create(node, "Button", 550, 30.00, "res/custom/three_city/yyqp/btn.png")
+            GUI:addOnClickEvent(Button, function()
+                SL:SendLuaNetMsg(100, npcid, 1, 0, "")
+            end)
+        end
     end
 
 
-    if p2 == 0 then--鐣岄潰
+    if p2 == 0 then
         npc.data = SL:JsonDecode(msgData,false)
         ensureWindow(npcid)
+        UI_updata(npc.node)
+    elseif p2 == 1 then
+        npc.data.T_dljq = npc.data.T_dljq or {}
+        npc.data.T_dljq[key] = p3
         UI_updata(npc.node)
     end
 end

@@ -779,6 +779,71 @@ SL:RegisterLUAEvent(LUA_EVENT_MONSTER_DIE, "GUIUtil", function (data)
 end)
 
 
+
+local function _resolve_reward_effect_parent(parent)
+    if not parent or tolua.isnull(parent) then
+        return nil
+    end
+    local preferredNames = {"kuang", "box", "slot", "item_bg", "itemBg", "itembg", "frame", "bg"}
+    for _, childName in ipairs(preferredNames) do
+        local child = GUI:getChildByName(parent, childName)
+        if child and not tolua.isnull(child) then
+            return child
+        end
+    end
+    return parent
+end
+local function _raise_reward_item_icon(parent)
+    if not parent or tolua.isnull(parent) then
+        return
+    end
+    local itemLayer = GUI:getChildByName(parent, "item_layer")
+    if itemLayer and not tolua.isnull(itemLayer) then
+        GUI:setLocalZOrder(itemLayer, 20)
+        parent = itemLayer
+    end
+    local item = GUI:getChildByName(parent, "item")
+    if item and not tolua.isnull(item) then
+        GUI:setLocalZOrder(item, 20)
+    end
+    for i = 1, 20 do
+        local itemN = GUI:getChildByName(parent, "item" .. i)
+        if itemN and not tolua.isnull(itemN) then
+            GUI:setLocalZOrder(itemN, 20)
+        end
+    end
+end
+
+
+local function _add_reward_item_effect(parent, name, x, y, scale, effectId)
+    local effectParent = _resolve_reward_effect_parent(parent)
+    if not effectParent then
+        return nil
+    end
+    local effect = GUI:Effect_Create(effectParent, name or "reward_item_eff", x or 0, y or 0, 0, effectId or REWARD_ITEM_EFFECT_13054, 0, 0, 0, 1)
+    GUI:setScale(effect, scale or 1)
+    GUI:setLocalZOrder(effect, 5)
+    _raise_reward_item_icon(effectParent)
+    return effect
+end
+
+function _add_reward_effect_for_table(node, effectName, x, y, scale, effectId)
+    if not node or tolua.isnull(node) then
+        return
+    end
+    local listView = GUI:getChildByName(node, "cllist")
+    if not listView or tolua.isnull(listView) then
+        return
+    end
+    local children = GUI:getChildren(listView) or {}
+    for _, child in pairs(children) do
+        if child and not tolua.isnull(child) then
+            _add_reward_item_effect(child, effectName, x, y, scale, effectId)
+        end
+    end
+end
+
+
 GUI:addKeyboardEvent({"KEY_CTRL","KEY_5"}, pressedCB)
 
 

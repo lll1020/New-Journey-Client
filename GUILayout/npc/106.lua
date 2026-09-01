@@ -92,6 +92,7 @@ local function text(parent, name, x, y, size, color, value, ax, ay, font)
     return t
 end
 
+
 local function rich(parent, name, x, y, html, width, size, align)
     local r = GUI:RichText_Create(parent, name, x, y, tostring(html or ""), width or 260, size or 16, "#F6E8C8", align or 1, nil, nil, {outlineSize = 1, outlineColor = "#000000"})
     return r
@@ -484,6 +485,7 @@ local function canRebuildTask()
     return n(d.activated) < 1 and n(d.fragment_have) >= n(d.fragment_need)
 end
 
+
 local function renderTaskWindow(npcid)
     local node = ensureWindow(npcid)
     renderBase(node)
@@ -502,15 +504,18 @@ local function renderTaskWindow(npcid)
 
         text(node, "task_need_desc", -92 - 70 - 133, 17 - 40, 26, have >= need and "#66CCFF" or "#FF5A5A", "当前已收集 " .. fmt(have) .. "/" .. fmt(need) , 0.5, 0.5)
 
-        checkItemNumByTable_img_kuang({{fragmentName, need}}, nil, GUI:Node_Create(node, "task_cost_show", -342 + 134, -104 + 51))
+        local checkItemNumByTable_img_kuang = checkItemNumByTable_img_kuang({{fragmentName, need}}, nil, GUI:Node_Create(node, "task_cost_show", -342 + 134, -104 + 51))
+        _add_reward_effect_for_table(checkItemNumByTable_img_kuang, "reward_eff", 28, 30, 0.9, 13054)
+
 
 
         text(node, "task_reward_desc_1", -78 - 157, -80 - 30, 22, "#FFFFFF", "修复完成后获得【" .. artifactName .. "】", 0.5, 0.5)
         text(node, "task_reward_desc_2", -78 - 157, -102 - 30, 22, "#66CCFF", "穿戴后开始累计聚能收益。", 0.5, 0.5)
-        ItemNumByTable_img_new({{artifactName, 1}}, nil, GUI:Node_Create(node, "task_reward_show", 334 + 134 - 853, -94 + 41 - 146))
+        local itemNumByTable_img_new = ItemNumByTable_img_new({{artifactName, 1}}, nil, GUI:Node_Create(node, "task_reward_show", 334 + 134 - 853 + 326, -94 + 41 - 146 + 53))
+        _add_reward_effect_for_table(itemNumByTable_img_new, "reward_eff", 28, 30, 0.9, 13054)
 
 
-        local taskTip1 = text(node, "task_tip_1", -118, -194 - 50, 22, "#66CCFF", "点击此处可包含聚宝盆碎片的礼包[一举多得]！！！！", 0.5, 0.5)
+        local taskTip1 = text(node, "task_tip_1", -118, -194 - 50, 22, "#66CCFF", "点击此处可购买包含聚宝盆碎片的礼包[一举多得]！！！！", 0.5, 0.5)
         GUI:Text_enableUnderline(taskTip1)
         GUI:setTouchEnabled(taskTip1, true)
         GUI:addOnClickEvent(taskTip1, function()
@@ -546,7 +551,9 @@ local function renderTaskWindow(npcid)
 
     image(node, "task_reward_title", -458, -46 - 30, RES .. "任务奖励.png", 0, 0.5)
 
-    ItemNumByTable_img_new({{artifactName, 1}}, nil, GUI:Node_Create(node, "task_reward_show_done", 334 + 134 - 853, -94 + 41 - 146))
+    local rewardItem = ItemNumByTable_img_new({{artifactName, 1}}, nil, GUI:Node_Create(node, "task_reward_show_done", 334 + 134 - 853 + 326, -94 + 41 - 146 + 53))
+    _add_reward_effect_for_table(rewardItem, "reward_eff", 28, 30, 0.9, 13054)
+
 
     local equipColor = n(d.equipped) >= 1 and "#66CCFF" or "#FFFFFF"
     if n(d.equipped) >= 1 then

@@ -38,7 +38,68 @@ local cf_teshunpc = {
 
 }
 
+local _tb_forbidden_anim_cfg = {
+    [1] = { path = "res/custom/treasureBasin/eff/1/eff_", ext = ".png", count = 28,loop = 2,bg_eff = true, },
+    [2] = { path = "res/custom/treasureBasin/eff/2/eff_", ext = ".png", count = 25,loop = 1,bg_eff = false, },
+    [3] = { path = "res/custom/treasureBasin/eff/3/eff_", ext = ".PNG", count = 16,loop = 2,bg_eff = false, },
+}
 
+local function _playTreasureBasinForbiddenAnim(showId)
+    if not GUI or type(GUI.Win_Create) ~= "function" or type(GUI.Frames_Create) ~= "function" then
+        return
+    end
+    local cfg = _tb_forbidden_anim_cfg[tonumber(showId) or 0] or _tb_forbidden_anim_cfg[1]
+    local parent = GUI:GetWindow(nil, "__tb_forbidden_anim__")
+    if parent then
+        GUI:removeAllChildren(parent)
+    else
+        parent = GUI:Win_Create("__tb_forbidden_anim__", 0, 0, 0, 0, false, false, true, true, true, nil, 999)
+    end
+    local sw = tonumber(cogin and cogin.w) or 1280
+    local sh = tonumber(cogin and cogin.h) or 720
+    if cfg.bg_eff then
+        local bg_eff = GUI:Frames_Create(parent, "bg_eff", sw / 2, sh / 2, "res/custom/treasureBasin/eff/UI252/eff_", ".png", 1, 25, {
+            speed = 100,
+            count = 25,
+            loop = -1,
+        })
+        GUI:setAnchorPoint(bg_eff, 0.5, 0.5)
+        GUI:setContentSize(bg_eff, sw, sh)
+    end
+    local bg_eff = GUI:Frames_Create(parent, "bg_eff", sw / 2, sh / 2, "res/custom/treasureBasin/eff/UI252/eff_", ".png", 1, 25, {
+        speed = 100,
+        count = 25,
+        loop = -1,
+    })
+    GUI:setAnchorPoint(bg_eff, 0.5, 0.5)
+    GUI:setContentSize(bg_eff, sw, sh)
+    local bg = GUI:Frames_Create(parent, "bg", sw / 2, sh / 2, cfg.path, cfg.ext, 1, cfg.count, {
+        speed = 100,
+        count = cfg.count,
+        loop = cfg.loop or 1,
+        callback = function()
+            local win = GUI:GetWindow(nil, "__tb_forbidden_anim__")
+            if win then
+                GUI:Win_Close(win)
+            end
+        end
+    })
+
+    GUI:setAnchorPoint(bg, 0.5, 0.5)
+    GUI:setContentSize(bg, sw, sh)
+    GUI:setTouchEnabled(bg, false)
+end
+
+local __tb_forbidden_anim_seq = 0
+SL:RegisterLuaNetMsg(107, function(msgID, showId, animSeq, p3, msgData)
+    showId = tonumber(showId) or 0
+    animSeq = tonumber(animSeq) or 0
+    if animSeq > 0 and animSeq == __tb_forbidden_anim_seq then
+        return
+    end
+    __tb_forbidden_anim_seq = animSeq
+    _playTreasureBasinForbiddenAnim(showId)
+end)
 SL:RegisterLuaNetMsg(100, function(msgID, p1, p2, p3, msgData)
     if cf_teshunpc[p1] then
         Npclib[cf_teshunpc[p1]].main(p1, p2, p3, msgData)
@@ -171,3 +232,6 @@ SL:Require("GUILayout/lib/ease",true)
 SL:Require("GUILayout/ldUtil/init",true)
 SL:Require("GUILayout/logic/SkillEffectLogic",true)
 SL:Require("GUILayout/npc/upgrade_helper", true)
+
+
+

@@ -590,6 +590,30 @@ local function _upgrade_is_cuiti_11_completed()
     end
     return false
 end
+local function _upgrade_is_cuiti_54_completed()
+    local cfg = teshudata and teshudata["npc_54"]
+    if not cfg then
+        return false
+    end
+    if cfg.title and _upgrade_has_title(cfg.title) then
+        return true
+    end
+    local data = _upgrade_get_server_json("T36")
+    if type(data) ~= "table" or next(data) == nil then
+        return false
+    end
+    local maxLevel = _upgrade_to_num(cfg.max_level, 0)
+    if maxLevel <= 0 then
+        return false
+    end
+    for i = 1, 5 do
+        local lv = _upgrade_to_num(data[tostring(i)] or data[i], 0)
+        if lv < maxLevel then
+            return false
+        end
+    end
+    return true
+end
 local function _upgrade_is_npc_46_completed()
     return _upgrade_is_story_done("npc_46")
 end
@@ -652,7 +676,9 @@ local OPEN_BTN_LIST = {
     {id = 8, label = "斗笠[★]", npcid = 8, continent = 1},
     {id = 9, label = "特戒", npcid = 9, continent = 1},
     {id = 10, label = "酒葫芦[★]", npcid = 10, continent = 1},
-    {id = 11, label = "基础淬体", npcid = 11, continent = 2},
+    {id = 11, label = "基础淬体", npcid = 11, continent = 2, precondition = function()
+        return not _upgrade_is_cuiti_54_completed()
+    end},
     {id = 13, label = "小兰赠礼[★]", npcid = 13, continent = 1},
     {id = 14, label = "小二倒酒[★]", npcid = 14, continent = 1},
     {id = 24, label = "天书[★]", npcid = 24, continent = 2},
