@@ -505,12 +505,13 @@ local function renderTaskWindow(npcid)
         text(node, "task_need_desc", -92 - 70 - 133, 17 - 40, 26, have >= need and "#66CCFF" or "#FF5A5A", "当前已收集 " .. fmt(have) .. "/" .. fmt(need) , 0.5, 0.5)
 
         local checkItemNumByTable_img_kuang = checkItemNumByTable_img_kuang({{fragmentName, need}}, nil, GUI:Node_Create(node, "task_cost_show", -342 + 134, -104 + 51))
-        _add_reward_effect_for_table(checkItemNumByTable_img_kuang, "reward_eff", 28, 30, 0.9, 13054)
+        -- _add_reward_effect_for_table(checkItemNumByTable_img_kuang, "reward_eff", 28, 30, 0.9, 13054)
 
 
 
         text(node, "task_reward_desc_1", -78 - 157, -80 - 30, 22, "#FFFFFF", "修复完成后获得【" .. artifactName .. "】", 0.5, 0.5)
         text(node, "task_reward_desc_2", -78 - 157, -102 - 30, 22, "#66CCFF", "穿戴后开始累计聚能收益。", 0.5, 0.5)
+        text(node, "task_reward_desc_3", -78 - 157, -102 - 30 - 30, 22, "#66CCFF", "地图中有特殊怪物产出聚宝盆碎片！！", 0.5, 0.5)
         local itemNumByTable_img_new = ItemNumByTable_img_new({{artifactName, 1}}, nil, GUI:Node_Create(node, "task_reward_show", 334 + 134 - 853 + 326, -94 + 41 - 146 + 53))
         _add_reward_effect_for_table(itemNumByTable_img_new, "reward_eff", 28, 30, 0.9, 13054)
 

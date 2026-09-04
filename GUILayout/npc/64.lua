@@ -68,6 +68,14 @@ local LINGSHOU_BABY_ITEMS = {
     [5] = "玄武幼崽",
 }
 
+local LINGSHOU_BABY_ITEM_INDEX = {
+    [1] = 14224,
+    [2] = 14225,
+    [3] = 14226,
+    [4] = 14227,
+    [5] = 14228,
+}
+
 local LINGSHOU_BABY_STYLE = {
     [1] = {title = "山河镇守", desc = "护主承伤，稳守中宫", mark = "承伤守御", color = "#FFE49A"},
     [2] = {title = "青木回生", desc = "生息绵长，续航护体", mark = "回春续航", color = "#7CFFB2"},
@@ -101,6 +109,76 @@ local function _format_seconds(seconds)
         return string.format("%02d:%02d:%02d", h, m, s)
     end
     return string.format("%02d:%02d", m, s)
+end
+
+local function _get_star_upgrade_need()
+    local need = npc._config and npc._config.star_upgrade_need or nil
+    local to2 = tonumber(need and need[1] or 3) or 3
+    local to3 = tonumber(need and need[2] or 9) or 9
+    if to2 < 1 then to2 = 1 end
+    if to3 < to2 then to3 = to2 end
+    return to2, to3
+end
+
+local function _get_lingshou_star_progress(data, idx)
+    data = data or {}
+    data.ls_star_progress = data.ls_star_progress or {}
+    local key = tostring(idx)
+    local progress = tonumber(data.ls_star_progress[key])
+    if progress == nil then
+        local star = tonumber((data.ls or {})[key] or 0) or 0
+        local to2, to3 = _get_star_upgrade_need()
+        if star >= 3 then
+            progress = to3
+        elseif star >= 2 then
+            progress = to2
+        else
+            progress = 0
+        end
+    end
+    local _, to3 = _get_star_upgrade_need()
+    return math.max(0, math.min(to3, progress))
+end
+
+local function _format_lingshou_star_progress(star, progress)
+    local to2, to3 = _get_star_upgrade_need()
+    if star >= 3 or progress >= to3 then
+        return "已满星"
+    elseif progress < to2 then
+        return "还差" .. (to2 - progress) .. "个升二星"
+    end
+    return "还差" .. (to3 - progress) .. "个升三星"
+end
+
+local function _get_lingshou_display_items(progress, star)
+    local _, to3 = _get_star_upgrade_need()
+    progress = math.max(0, math.min(to3, tonumber(progress) or 0))
+    if progress >= to3 then
+        return {{star = 3, count = 1}}
+    end
+
+    local result = {}
+    if progress <= 0 then
+        star = math.max(0, math.min(3, tonumber(star) or 0))
+        if star > 0 then
+            return {{star = star, count = 1}}
+        end
+        return result
+    end
+
+    local star2 = math.floor(progress / 3)
+    local star1 = progress % 3
+    if star2 > 0 then
+        result[#result + 1] = {star = 2, count = star2}
+    end
+    if star1 > 0 then
+        result[#result + 1] = {star = 1, count = star1}
+    end
+    return result
+end
+
+local function _lingshou_star_name(star)
+    return ({"一星", "二星", "三星"})[tonumber(star) or 1] or "一星"
 end
 
 local function _hatch_total_seconds(hatch, remain)
@@ -305,6 +383,16 @@ function npc.main(npcid, p2, p3, msgData)
         end
     end
     local function xjm_UI_updata() --小界面渲染
+        npc.ls_data = npc.ls_data or {}
+        npc.ls_data.T_data = npc.ls_data.T_data or {}
+        npc.ls_data.T_data.ls = npc.ls_data.T_data.ls or {}
+        npc.ls_data.T_data.syw = npc.ls_data.T_data.syw or {}
+        local currentSign = tonumber(npc.titles_sign)
+        if not currentSign then
+            currentSign = tonumber(npc.ls_data.T_data.dqzh) or 1
+        end
+        npc.titles_sign = math.max(1, math.min(5, currentSign))
+
         npc.xjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
             windowName = "npc_anniu_44_xjm",
             background = {skin = "res/custom/four_city/lingshou/xjm/bg.png"},
@@ -399,6 +487,132 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:setContentSize(mask, w, h)
         GUI:setOpacity(mask, opacity or 185)
         return mask
+    end
+
+    local function _render_lingshou_bag_panel(parent)
+        local panel = GUI:Layout_Create(parent, "lingshou_bag_panel", 54, 92 - 50, 890, 430, false)
+        GUI:setLocalZOrder(panel, 20)
+
+        local panelBg = GUI:Image_Create(panel, "panel_bg", 445, 215, "res/wy/public/anniu_999_bj.png")
+        GUI:setAnchorPoint(panelBg, 0.5, 0.5)
+        GUI:setContentSize(panelBg, 890, 300)
+        GUI:setOpacity(panelBg, 235)
+        GUI:setTouchEnabled(panelBg, true)
+
+        local title = _outline_text(panel, "panel_title", 445, 393 - 55, 26, "#FFE49A", "灵兽星级仓库", {
+            font = "fonts/502.ttf",
+            outline = "#170A02",
+            outlineSize = 2,
+        })
+        GUI:setAnchorPoint(title, 0.5, 0.5)
+
+        local data = npc.ls_data and npc.ls_data.T_data or {}
+        local cardPos = {
+            {x = 30, y = 105},
+            {x = 180 + 10, y = 105},
+            {x = 360 - 5, y = 105},
+            {x = 540 - 15, y = 105},
+            {x = 690, y = 105},
+        }
+        for i = 1, 5 do
+            local card = GUI:Layout_Create(panel, "pet_card_" .. i, cardPos[i].x, cardPos[i].y - 20, 150, 240, false)
+            local cardBg = GUI:Image_Create(card, "card_bg", 85, 120, "res/wy/public/tycccc.png")
+            GUI:setAnchorPoint(cardBg, 0.5, 0.5)
+            GUI:setContentSize(cardBg, 150, 240)
+            GUI:setOpacity(cardBg, 90)
+
+            local itemName = LINGSHOU_BABY_ITEMS[i]
+            local itemIndex = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", itemName) or 0) or 0
+            if itemIndex <= 0 then
+                itemIndex = LINGSHOU_BABY_ITEM_INDEX[i]
+            end
+            local starValue = (data.ls_sp or {})["" .. i]
+            if starValue == nil and (tonumber((data.ls or {})["" .. i] or 0) or 0) > 0 then
+                starValue = 1
+            end
+            local star = tonumber(starValue or 0) or 0
+            local displayItems = _get_lingshou_display_items(_get_lingshou_star_progress(data, i), star)
+            if #displayItems > 0 then
+                local ownedItems = {}
+                for _, display in ipairs(displayItems) do
+                    for _ = 1, math.max(1, tonumber(display.count) or 1) do
+                        ownedItems[#ownedItems + 1] = {star = display.star}
+                    end
+                end
+                local cellX = {28 + 15 + 2, 105 + 15 + 2}
+                local cellY = {157, 77}
+                for itemIndexInGrid, owned in ipairs(ownedItems) do
+                    local gridIndex = itemIndexInGrid - 1
+                    local itemX = cellX[(gridIndex % 2) + 1]
+                    local itemY = cellY[math.floor(gridIndex / 2) + 1]
+                    local itemBox = GUI:Image_Create(card, "item_box_" .. itemIndexInGrid, itemX, itemY, "res/wy/public/58_58_kuang.png")
+                    GUI:setAnchorPoint(itemBox, 0.5, 0.5)
+                    GUI:setContentSize(itemBox, 58, 58)
+                    local itemShow  = GUI:ItemShow_Create(itemBox, "item_" .. itemIndexInGrid, 29, 29, {
+                        index = itemIndex,
+                        count = 1,
+                        look = true,
+                        movable = false,
+                        bgVisible = false,
+                    })
+                    GUI:setAnchorPoint(itemShow, 0.5, 0.5)
+
+                    local starCount = math.max(1, math.min(3, tonumber(owned.star) or 1))
+                    local starBaseX = itemX + 39
+                    local starBaseY = itemY
+                    for s = 1, starCount do
+                        local starIcon = GUI:Image_Create(card, "star_" .. itemIndexInGrid .. "_" .. s,
+                            starBaseX + (s - 1) * 14 - 59, starBaseY - 20, "res/custom/four_city/lingshou/star_l.png")
+                        GUI:setAnchorPoint(starIcon, 0.5, 0.5)
+                        GUI:setScale(starIcon, 0.32)
+                    end
+                end
+            else
+                local emptyText = _outline_text(card, "empty_text", 46, 55, 18, "#A8B0B5", "暂无", {
+                    font = "fonts/502.ttf",
+                    outline = "#170A02",
+                    outlineSize = 2,
+                })
+                GUI:setAnchorPoint(emptyText, 0.5, 0.5)
+            end
+
+            local nameText = _outline_text(card, "name_text", 85, 18, 17, "#F4E7C5", itemName, {
+                font = "fonts/502.ttf",
+                outline = "#170A02",
+                outlineSize = 2,
+            })
+            GUI:setAnchorPoint(nameText, 0.5, 0.5)
+        end
+
+        npc.lingshou_bag_panel = panel
+        return panel
+    end
+
+    local function _show_lingshou_bag_panel()
+        npc.lingshou_bag_visible = true
+        if not npc.node then
+            return
+        end
+        if npc.lingshou_bag_panel and _valid_node(npc.lingshou_bag_panel) then
+            GUI:setVisible(npc.lingshou_bag_panel, true)
+            return
+        end
+        _render_lingshou_bag_panel(npc.node)
+    end
+
+    local function _hide_lingshou_bag_panel()
+        npc.lingshou_bag_visible = false
+        if npc.lingshou_bag_panel and _valid_node(npc.lingshou_bag_panel) then
+            GUI:setVisible(npc.lingshou_bag_panel, false)
+        end
+    end
+
+    local function _toggle_lingshou_bag_panel()
+        if npc.lingshou_bag_visible then
+            _hide_lingshou_bag_panel()
+        else
+            _show_lingshou_bag_panel()
+        end
     end
 
     local function _baby_state(idx, data, now, babyChoice)
@@ -711,6 +925,7 @@ function npc.main(npcid, p2, p3, msgData)
 
         npc.ls_data.T_data.ls = npc.ls_data.T_data.ls or {}
         npc.ls_data.T_data.ls_sp = npc.ls_data.T_data.ls_sp or {}
+        npc.ls_data.T_data.ls_star_progress = npc.ls_data.T_data.ls_star_progress or {}
         npc.ls_data.T_data.syw = npc.ls_data.T_data.syw or {}
 
 
@@ -722,8 +937,16 @@ function npc.main(npcid, p2, p3, msgData)
                 GUI:setAnchorPoint(eff,0.5, 0.5)
             end
             for ii = 1, 3 do
-                GUI:Image_Create(Button, "star"..ii, 90, 80 + (ii-1)*40, "res/custom/four_city/lingshou/star_"..((npc.ls_data.T_data.ls_sp[""..i] or 0)>ii and "l" or "n")..".png")
+                GUI:Image_Create(Button, "star"..ii, 90, 80 + (ii-1)*40, "res/custom/four_city/lingshou/star_"..((npc.ls_data.T_data.ls_sp[""..i] or 0)>=ii and "l" or "n")..".png")
             end
+
+            -- local star = tonumber(npc.ls_data.T_data.ls_sp[""..i] or 0) or 0
+            -- local progress = _get_lingshou_star_progress(npc.ls_data.T_data, i)
+            -- local progressText = _format_lingshou_star_progress(star, progress)
+            -- local progressNode = GUI:Text_Create(Button, "star_progress", 90, 205, 16, star >= 3 and "#7BFFB0" or "#FFE49A", progressText)
+            -- GUI:setAnchorPoint(progressNode, 0.5, 0.5)
+            -- GUI:Text_setFontName(progressNode, "fonts/502.ttf")
+            -- GUI:Text_enableOutline(progressNode, "#170A02", 2)
 
             
 
@@ -746,11 +969,11 @@ function npc.main(npcid, p2, p3, msgData)
 
         local btn_tip = GUI:Button_Create(node, "btn_tip", 998/2 - 250, 80, "res/custom/four_city/lingshou/btn_tip.png")
         local btn_make = GUI:Button_Create(node, "btn_make", 998/2, 80, "res/custom/four_city/lingshou/btn_make.png")
-        local btn_buy = GUI:Button_Create(node, "btn_buy", 998/2 + 250, 80, "res/custom/four_city/lingshou/btn_buy.png")
+        local btn_buy = GUI:Button_Create(node, "btn_buy", 998/2 + 250, 80, "res/custom/public/helpBtn.png")
         GUI:setAnchorPoint(btn_tip,0.5, 0.5)
         GUI:setAnchorPoint(btn_make,0.5, 0.5)
         GUI:setAnchorPoint(btn_buy,0.5, 0.5)
-        GUI:setVisible(btn_buy,false)
+        GUI:setScale(btn_buy, 1.1)
 
 
         GUI:addOnClickEvent(btn_make, function()
@@ -765,6 +988,14 @@ function npc.main(npcid, p2, p3, msgData)
                 closeButton = {x = 330 + 220 + 347 - 295, y = 180 + 180 + 51 - 100, skin = "res/wy/public/close_red_big.png"},
             })
         end)
+
+        GUI:addOnClickEvent(btn_buy, function()
+            _toggle_lingshou_bag_panel()
+        end)
+
+        if npc.lingshou_bag_visible then
+            _render_lingshou_bag_panel(node)
+        end
     end
 
 
@@ -832,5 +1063,3 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
-
-
