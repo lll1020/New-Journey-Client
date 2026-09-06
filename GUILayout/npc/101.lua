@@ -352,8 +352,7 @@ local function getDayCardRewards()
     local rewards = {}
 
     local titleName = getDayCardTitleName()
-    local hasTitle = toNumber(npc.data and npc.data.day_card_has_title, 0) == 1
-    if titleName ~= "" and not hasTitle then
+    if titleName ~= "" then
         table.insert(rewards, {titleName .. "[称号]", 1})
     end
 

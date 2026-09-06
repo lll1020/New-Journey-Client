@@ -233,14 +233,6 @@ local function _lg_refresh_open_upgrade_window(npcid)
     end
 end
 
-local function _lg_mainline_reached()
-    local rwid = tonumber(cogin and cogin.sjtb and (cogin.sjtb.zxrwid or cogin.sjtb.rwid) or 0) or 0
-    if rwid <= 0 and Player and type(Player.getServerVar) == "function" then
-        rwid = tonumber(Player:getServerVar("U11") or 0) or 0
-    end
-    return rwid >= 22
-end
-
 -- 绑定本命灵根拖拽到中间卸下区域的移动事件。
 local function _lg_bind_move_events(npcid)
     if npc._moveEventBound then
@@ -2252,10 +2244,6 @@ function npc.main(npcid, p2, p3, msgData)
     local previewData = SL:JsonDecode(msgData, false) or {}
     local lookPlayer = previewData.lookPlayer == true or tonumber(previewData.lookPlayer or 0) == 1
     npc.isLookPlayer = lookPlayer == true
-    if not lookPlayer and not _lg_mainline_reached() then
-        SL:ShowSystemTips("请先完成对应主线任务")
-        return
-    end
     if p2 == 0 then
         npc.data = previewData
         npc.current_idx = _lg_default_selected_idx()

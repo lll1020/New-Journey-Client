@@ -52,12 +52,6 @@ local function _refresh_xyl_playerequip_guides()
             dir = 5,
             desc = "打开灵根界面",
         })
-        NPC_UI_HELPER.tryStartMainlineUpgradeGuide(PlayerEquip, ui.Button3, ui.Panel_1, 22, "linggen_panel_open", {
-            taskMap = {[22] = 22},
-            keyPrefix = "mainline_linggen_panel",
-            dir = 5,
-            desc = "打开灵根界面",
-        })
     end
     if ui.Button2 then
         NPC_UI_HELPER.tryStartXylGuide(PlayerEquip, ui.Button2, ui.Panel_1, "xiuwu_panel_open", {
@@ -137,7 +131,9 @@ function PlayerEquip.main(data)
     end)
     Button= GUI:Button_Create(PlayerEquip._ui.Panel_1, "Button3", 180, 10.00, "res/private/player_main_layer_ui/btn_3.png")
     GUI:addOnClickEvent(Button, function()
-        SL:SendLuaNetMsg(105, 22, 22, 0, "")
+        if _can_open_linggen_panel() then
+            SL:SendLuaNetMsg(105, 22, 22, 0, "")
+        end
     end)
     Button= GUI:Button_Create(PlayerEquip._ui.Panel_1, "Button4", 250, 10.00, "res/private/player_main_layer_ui/btn_4.png")
     GUI:addOnClickEvent(Button, function()
