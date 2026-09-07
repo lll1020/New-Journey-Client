@@ -338,7 +338,7 @@ local function renderCenter(node, npcid, ui, cfg, data)
                 hideMask = true
             })
         else
-            GUI:Image_Create(node, "done_flag", enterPos.x or 266, enterPos.y or 18, "res/wy/public/7_1.png")
+            GUI:Image_Create(node, "done_flag", (enterPos.x or 266) + 100, enterPos.y or 18, "res/wy/public/7_1.png")
         end
         return
     end

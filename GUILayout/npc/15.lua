@@ -60,10 +60,13 @@ end
         -- UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.give.ch.."[称号]")))
 
 
-        local Button= GUI:Button_Create(node, "Button", 100, -270, "res/custom/one_city/kbzl/btn.png")
-        GUI:addOnClickEvent(Button, function()
-            SL:SendLuaNetMsg(100, npcid, 1, 0, "")
-        end)
+        local opened = npc.data and tonumber(npc.data.opened or 0) == 1
+        if not opened then
+            local Button= GUI:Button_Create(node, "Button", 100, -270, "res/custom/one_city/kbzl/btn.png")
+            GUI:addOnClickEvent(Button, function()
+                SL:SendLuaNetMsg(100, npcid, 1, 0, "")
+            end)
+        end
     end
 
 
@@ -72,8 +75,10 @@ end
         ensureWindow(npcid)
         UI_updata(npc.node)
     elseif p2 == 1 then
-        --npc.data = SL:JsonDecode(msgData,false)
-        --UI_updata(npc.node)
+        npc.data = SL:JsonDecode(msgData,false) or npc.data or {}
+        if npc.node then
+            UI_updata(npc.node)
+        end
     end
 end
 

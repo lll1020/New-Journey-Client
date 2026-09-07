@@ -313,7 +313,7 @@ local function renderCurrentPanel(node, data)
         createRich(node, "current_summary", 135 + 190, 120 + 80, 360, 20, buildChoiceRichText(current, nil, true), "#f7f7de", 0, 0.5)
     end
 end
-local function renderMain(node, npcid, data)
+local function renderMain(node, npcid, data, hideRefresh)
     local refreshTimes = toNumber((data.T_data or {}).refresh_times, 0)
     local needTimes = getMaxRefresh()
     local leftTimes = math.max(needTimes - refreshTimes, 0)
@@ -329,18 +329,20 @@ local function renderMain(node, npcid, data)
     renderTianshuItem(node, "tianshu_item", 246, 210)
     renderCurrentPanel(node, data)
     renderCost(node, data)
-    local refreshBtn = GUI:Button_Create(node, "main_refresh_btn", 500, 20, "res/custom/one_city/104/main_refresh.png")
-    GUI:addOnClickEvent(refreshBtn, function()
-        SL:SendLuaNetMsg(100, npcid, 1, 0, "")
-    end)
-    NPC_UI_HELPER.tryStartXylGuide(npc, refreshBtn, node, "tianshu_refine_once", {
-        taskNames = {"洗炼天书","引导天书使者洗炼一次"},
-        dir = 5,
-        desc = "点击洗炼天书",
-    })
-    -- setButtonState(refreshBtn, canRefresh(data))
-    if canRefresh(data) and checkItemNum(getConfig().cost or {}) then
-        NPC_UI_HELPER.redpoint_create_eff(refreshBtn, {x = 176 + 40, y = 37, autoScale = 0.5})
+    if not hideRefresh then
+        local refreshBtn = GUI:Button_Create(node, "main_refresh_btn", 500, 20, "res/custom/one_city/104/main_refresh.png")
+        GUI:addOnClickEvent(refreshBtn, function()
+            SL:SendLuaNetMsg(100, npcid, 1, 0, "")
+        end)
+        NPC_UI_HELPER.tryStartXylGuide(npc, refreshBtn, node, "tianshu_refine_once", {
+            taskNames = {"洗炼天书","引导天书使者洗炼一次"},
+            dir = 5,
+            desc = "点击洗炼天书",
+        })
+        -- setButtonState(refreshBtn, canRefresh(data))
+        if canRefresh(data) and checkItemNum(getConfig().cost or {}) then
+            NPC_UI_HELPER.redpoint_create_eff(refreshBtn, {x = 176 + 40, y = 37, autoScale = 0.5})
+        end
     end
 end
 local function renderPreviewPanel(node, npcid, data)
@@ -358,12 +360,7 @@ local function renderPreviewPanel(node, npcid, data)
     -- createStrokeText(panel, "preview_tip", 555, 24, 16, "#5a4b3f",
     --     string.format("已刷新 %d/%d 次", toNumber((data.T_data or {}).refresh_times, 0), getMaxRefresh()),
     --     0.5, 0.5, "fonts/500.ttf")
-    -- local refreshBtn = GUI:Button_Create(panel, "preview_refresh_btn", 198 - 121, 8, "res/custom/one_city/104/panel2/refresh.png")
-    -- GUI:addOnClickEvent(refreshBtn, function()
-    --     SL:SendLuaNetMsg(100, npcid, 1, 0, "")
-    -- end)
-    -- setButtonState(refreshBtn, canRefresh(data))
-    local keepBtn = GUI:Button_Create(panel, "preview_keep_btn", 522 - 121, 8, "res/custom/one_city/104/panel2/keep.png")
+    local keepBtn = GUI:Button_Create(panel, "preview_keep_btn", 198 - 121, 8, "res/custom/one_city/104/panel2/keep.png")
     GUI:addOnClickEvent(keepBtn, function()
         SL:SendLuaNetMsg(100, npcid, 2, 1, SL:JsonEncode({idx = 1}))
     end)
@@ -374,6 +371,14 @@ local function renderPreviewPanel(node, npcid, data)
         idx = "replace",
     })
     setButtonState(keepBtn, true)
+
+    local refreshBtn = GUI:Button_Create(panel, "preview_refresh_btn", 522 - 121, 8, "res/custom/one_city/104/panel2/refresh.png")
+    GUI:addOnClickEvent(refreshBtn, function()
+        SL:SendLuaNetMsg(100, npcid, 1, 0, "")
+    end)
+    if canRefresh(data) and checkItemNum(getConfig().cost or {}) then
+        NPC_UI_HELPER.redpoint_create_eff(refreshBtn, {x = 176 + 40, y = 37, autoScale = 0.5})
+    end
 end
 local function UI_updata(node, npcid)
     if not node then
@@ -381,9 +386,10 @@ local function UI_updata(node, npcid)
     end
     GUI:removeAllChildren(node)
     local mainLayer = GUI:Node_Create(node, "main_layer", 0, 0)
-    renderMain(mainLayer, npcid, npc.data)
     local preview = getPreviewChoice(npc.data)
-    if preview.name ~= "" then
+    local hasPreview = preview.name ~= ""
+    renderMain(mainLayer, npcid, npc.data, hasPreview)
+    if hasPreview then
         GUI:setOpacity(mainLayer, 150)
         renderPreviewPanel(node, npcid, npc.data)
     else

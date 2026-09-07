@@ -2,6 +2,25 @@ local npc = {}
 
 npc._config = teshudata["npc_52"]
 
+local function openPrerequisiteGuide(preNpcid)
+    local targetNpcid = tonumber(preNpcid) or 10
+    local tip
+    if targetNpcid == 42 then
+        tip = "当前条件未满足，请先完成【真·酒葫芦】升级，是否立即前往提升？"
+    else
+        tip = "当前条件未满足，请先将酒葫芦提升到【酒葫芦[lv10]】，是否立即前往提升？"
+    end
+    SL:OpenCommonTipsPop({
+        str = tip,
+        btnType = 2,
+        callback = function(atype)
+            if atype == 1 then
+                SL:SendLuaNetMsg(105, targetNpcid, targetNpcid, 0, "")
+            end
+        end,
+    })
+end
+
 
 
 local WINDOW_OPTS = {
@@ -75,6 +94,8 @@ function npc.main(npcid, p2, p3, msgData)
         UI_updata(npc.node)
     elseif p2 == 1 then
         UI_updata(npc.node)
+    elseif p2 == 2 then
+        openPrerequisiteGuide(p3)
     end
 end
 

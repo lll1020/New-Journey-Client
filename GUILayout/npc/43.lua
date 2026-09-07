@@ -2,6 +2,47 @@ local npc = {}
 
 npc._config = teshudata["npc_43"]
 
+-- 江湖称号界面专用属性显示映射，不影响实际属性和其他界面。
+-- 后续只修改右侧文字即可替换界面中的属性名称。
+local TITLE_ATTR_NAME_MAP = {
+    ["生命值"] = "人物生命",
+    ["魔法值"] = "魔法值",
+    ["攻击下限百分比"] = "攻击下限",
+    ["攻击上限百分比"] = "攻击上限",
+    ["道术下限"] = "人物道术",
+    ["道术上限"] = "人物道术",
+    ["魔法下限"] = "人物魔法",
+    ["魔法上限"] = "人物魔法",
+    ["杀怪爆率"] = "杀怪爆率",
+    ["人物攻击"] = "人物攻击",
+    ["人物物攻增加"] = "物攻增加",
+    ["人物体力增加"] = "人物体力",
+    ["人物攻击下限百分比"] = "攻击下限",
+    ["人物攻击上限百分比"] = "攻击上限",
+}
+
+local TITLE_ATTR_NAME_KEYS = {}
+for name in pairs(TITLE_ATTR_NAME_MAP) do
+    table.insert(TITLE_ATTR_NAME_KEYS, name)
+end
+table.sort(TITLE_ATTR_NAME_KEYS, function(a, b)
+    return #a > #b
+end)
+
+local function _get_title_attr_desc(titleName)
+    local itemIndex = SL:GetMetaValue("ITEM_INDEX_BY_NAME", titleName)
+    local itemData = itemIndex and SL:GetMetaValue("ITEM_DATA", itemIndex) or nil
+    local desc = itemData and Player:showEquipAttrMergedRange(itemData) or ""
+    for _, originalName in ipairs(TITLE_ATTR_NAME_KEYS) do
+        local displayName = TITLE_ATTR_NAME_MAP[originalName]
+        if displayName and displayName ~= originalName then
+            desc = string.gsub(desc, originalName, displayName)
+        end
+    end
+
+    return desc
+end
+
 
 
 local WINDOW_OPTS = {
@@ -35,7 +76,7 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:Text_setFontName(GUI:Text_Create(node, "new",210,355, 25, "#FF0000", (npc.data.dj_num > 0 and "["..npc._config.ch[npc.data.dj_num].."]" or "[无称号]"))
         , "fonts/500.ttf")
         if npc.data.dj_num > 0 then
-    GUI:setAnchorPoint(GUI:RichText_Create(node, "new_attr_desc", 80, 330,  Player:showEquipAttrMergedRange(SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.ch[npc.data.dj_num]))), 200, 17, "#f7f7de", 3,nil,nil)
+    GUI:setAnchorPoint(GUI:RichText_Create(node, "new_attr_desc", 80, 330,  _get_title_attr_desc(npc._config.ch[npc.data.dj_num]), 200, 17, "#f7f7de", 3,nil,nil)
             , 0, 1)
         else
             GUI:setAnchorPoint(GUI:RichText_Create(node, "new_attr_desc", 80, 330,  "<font color='#00FF00' size='18' >「墨纸未书，\n             侠名待启」</font>\n\n<font color='#00FFFF' size='16' >这张空白的宣纸，\n正等待你的故事。\n用文书与铜钱\n写下第一笔江湖印记，\n从此你的名字，\n将在这片大陆流传。</font>", 200, 17, "#f7f7de", 3,nil,nil)
@@ -48,7 +89,7 @@ function npc.main(npcid, p2, p3, msgData)
         , "fonts/500.ttf")
 
         if npc.data.dj_num < npc._config.max_level then
-    GUI:setAnchorPoint(GUI:RichText_Create(node, "next_attr_desc", 520, 330,  Player:showEquipAttrMergedRange(SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.ch[npc.data.dj_num + 1]))), 200, 17, "#f7f7de", 3,nil,nil)
+    GUI:setAnchorPoint(GUI:RichText_Create(node, "next_attr_desc", 520, 330,  _get_title_attr_desc(npc._config.ch[npc.data.dj_num + 1]), 200, 17, "#f7f7de", 3,nil,nil)
             , 0, 1)
 
             if npc.data.dj_num <= 0 then

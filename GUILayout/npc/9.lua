@@ -158,7 +158,9 @@ function npc.main(npcid, p2, p3, msgData)
         local equipLevel = getEquipLevel(item)
         local nextConfig = (item and equipLevel < (npc._config.max_level or 0)) and getNextConfig(cfgIdx, equipLevel) or nil
         local nextItem = nextConfig and getItemDataByName(nextConfig.give) or nil
-        local canUpgrade = item and equipLevel < (npc._config.max_level or 0) and nextConfig ~= nil
+        local maxLevel = npc._config.max_level or 0
+        local isMaxLevel = item and equipLevel >= maxLevel
+        local canUpgrade = item and not isMaxLevel and nextConfig ~= nil
         local canPay = canUpgrade and checkItemNum(nextConfig.cost)
         -- GUI:Text_Create(node, "slogan_shadow", 82, 420, 22, "#000000", "左手麻痹 / 右手复活 / 传奇大陆横着走！")
         -- local slogan = GUI:Text_Create(node, "slogan", 80, 422, 22, "#DDEEFF", "左手麻痹 / 右手复活 / 传奇大陆横着走！")
@@ -175,7 +177,8 @@ function npc.main(npcid, p2, p3, msgData)
         -- GUI:Text_setFontName(levelLabel, "fonts/font4.ttf")
         -- GUI:Text_enableOutline(levelLabel, "#000000", 2)
         if item then
-            create_static_item_show(node, "item_current", 248, 128, {
+            local itemY = isMaxLevel and 287 or 128
+            create_static_item_show(node, "item_current", 248, itemY, {
                 itemData = item,
                 look = true,
                 movable = false,
@@ -194,7 +197,7 @@ function npc.main(npcid, p2, p3, msgData)
                 movable = false,
                 bgVisible = false,
             })
-        else
+        elseif not isMaxLevel then
             local tipText = item and "满级" or "预览"
             local nextTip = GUI:Text_Create(node, "next_tip", 248, 287, 18, "#EFAD21", tipText)
             GUI:setAnchorPoint(nextTip, 0.5, 0.5)
@@ -235,22 +238,24 @@ function npc.main(npcid, p2, p3, msgData)
         if uiCfg.tipSkin then
             GUI:Image_Create(node, "tip_img", 430, 36, uiCfg.tipSkin)
         end
-        local upgradeBtn = GUI:Button_Create(node, "upgrade_btn", 250, 40, "res/custom/one_city/9/btn_upgrade.png")
-        GUI:setAnchorPoint(upgradeBtn, 0.5, 0.5)
-        GUI:addOnClickEvent(upgradeBtn, function()
-            if not item then
-                SL:ShowSystemTips("请先穿戴对应特戒")
-                return
+        if not isMaxLevel then
+            local upgradeBtn = GUI:Button_Create(node, "upgrade_btn", 250, 40, "res/custom/one_city/9/btn_upgrade.png")
+            GUI:setAnchorPoint(upgradeBtn, 0.5, 0.5)
+            GUI:addOnClickEvent(upgradeBtn, function()
+                if not item then
+                    SL:ShowSystemTips("请先穿戴对应特戒")
+                    return
+                end
+                if not canUpgrade then
+                    SL:ShowSystemTips("当前特戒已达最高等级")
+                    return
+                end
+                SL:SendLuaNetMsg(100, npcid, 1, cfgIdx, "")
+            end)
+            GUI:Button_setGrey(upgradeBtn, not canUpgrade)
+            if canPay then
+                NPC_UI_HELPER.redpoint_create(upgradeBtn)
             end
-            if not canUpgrade then
-                SL:ShowSystemTips("当前特戒已达最高等级")
-                return
-            end
-            SL:SendLuaNetMsg(100, npcid, 1, cfgIdx, "")
-        end)
-        GUI:Button_setGrey(upgradeBtn, not canUpgrade)
-        if canPay then
-            NPC_UI_HELPER.redpoint_create(upgradeBtn)
         end
     end
     if p2 == 0 then

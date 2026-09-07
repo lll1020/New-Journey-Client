@@ -2,6 +2,19 @@ local npc = {}
 
 npc._config = teshudata["npc_54"]
 
+local function openPrerequisiteGuide(preNpcid)
+    local targetNpcid = tonumber(preNpcid) or 11
+    SL:OpenCommonTipsPop({
+        str = "当前条件未满足，请先完成【基础淬体】，是否立即前往提升？",
+        btnType = 2,
+        callback = function(atype)
+            if atype == 1 then
+                SL:SendLuaNetMsg(105, targetNpcid, targetNpcid, 0, "")
+            end
+        end,
+    })
+end
+
 
 
 local WINDOW_OPTS = {
@@ -79,6 +92,8 @@ function npc.main(npcid, p2, p3, msgData)
     elseif p2 == 1 then
         npc.data = SL:JsonDecode(msgData,false)
         UI_updata(npc.node)
+    elseif p2 == 2 then
+        openPrerequisiteGuide(p3)
     end
 end
 

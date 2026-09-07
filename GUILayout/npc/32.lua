@@ -131,6 +131,8 @@ function npc.main(npcid, p2, p3, msgData)
 
 
         local level = npc.data.level
+        local canUpgradeHere = npc.data.can_upgrade ~= false
+        local requiredContinent = tonumber(npc.data.required_continent) or (math.floor((tonumber(level) or 0) / 10) + 1)
         
 
         -- GUI:setAnchorPoint(
@@ -229,30 +231,38 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:setPosition(cost, 200 + 390, 200  - 172)
 
 
-            local Button= GUI:Button_Create(node, "Button", 750 - 469, 20.00, "res/custom/zhuansheng/btn.png")
-            -- GUI:Button_setTitleText(Button, "转生")
-            -- GUI:Button_setTitleFontSize(Button, 14)
+            if canUpgradeHere then
+                local Button= GUI:Button_Create(node, "Button", 750 - 469, 20.00, "res/custom/zhuansheng/btn.png")
+                -- GUI:Button_setTitleText(Button, "转生")
+                -- GUI:Button_setTitleFontSize(Button, 14)
 
-            GUI:addOnClickEvent(Button, function()
-                SL:SendLuaNetMsg(100, npcid, 1, 0, "")
-            end)
-            if canGuideRebirth then
-                NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, Button, node, npcid, 1, {
-                    taskMap = {[32] = 15, [33] = 34},
-                    keyPrefix = "mainline_rebirth",
+                GUI:addOnClickEvent(Button, function()
+                    SL:SendLuaNetMsg(100, npcid, 1, 0, "")
+                end)
+                if canGuideRebirth then
+                    NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, Button, node, npcid, 1, {
+                        taskMap = {[32] = 15, [33] = 34},
+                        keyPrefix = "mainline_rebirth",
+                        dir = 5,
+                        isForce = false,
+                        hideMask = true,
+                        desc = "点击进行转生",
+                    })
+                else
+                    NPC_UI_HELPER.closeGuideByDomain("mainline")
+                end
+                NPC_UI_HELPER.tryStartXylGuide(npc, Button, node, "rebirth_two", {
+                    taskNames = {"转生·二", "完成转生", "完转生", "完成2大陆转生"},
                     dir = 5,
-                    isForce = false,
-                    hideMask = true,
                     desc = "点击进行转生",
                 })
             else
+                local continentTip = GUI:Text_Create(node, "continent_tip", 750 - 469 + 82 + 22, 20.00 + 25, 22, "#FF6666", string.format("请前往第%d大陆升级", requiredContinent))
+                GUI:setAnchorPoint(continentTip, 0.5, 0.5)
+                GUI:Text_enableOutline(continentTip, "#100808", 2)
                 NPC_UI_HELPER.closeGuideByDomain("mainline")
+                NPC_UI_HELPER.closeGuideByDomain("xyl")
             end
-            NPC_UI_HELPER.tryStartXylGuide(npc, Button, node, "rebirth_two", {
-                taskNames = {"转生·二", "完成转生", "完转生", "完成2大陆转生"},
-                dir = 5,
-                desc = "点击进行转生",
-            })
         else
             GUI:Image_Create(node, "Button", 750 - 469, 20.00, "res/wy/public/15.png")
             NPC_UI_HELPER.closeGuideByDomain("mainline")
@@ -269,6 +279,11 @@ function npc.main(npcid, p2, p3, msgData)
         UI_updata(npc.node)
     elseif p2 == 1 then
         npc.data.level = npc.data.level + 1
+        npc.data.required_continent = math.floor((tonumber(npc.data.level) or 0) / 10) + 1
+        if npc.data.npc_continent then
+            npc.data.can_upgrade = npc.data.npc_continent == npc.data.required_continent
+                and npc.data.level < (tonumber(npc._config.max_level) or 0)
+        end
         UI_updata(npc.node)
         if NPC_UI_HELPER.isCurrentXylTask({"转生·二", "完成转生", "完转生", "完成2大陆转生"})
             and (tonumber(npc.data and npc.data.level or 0) or 0) >= 20 then

@@ -906,7 +906,7 @@ local function renderAttrPanel(parent)
     if #lines == 0 then
         local emptyText = GUI:Text_Create(scroll, "attr_empty", 0, innerHeight - 10, 15, "#8fa0b6", "暂未激活任何成就属性")
         GUI:setAnchorPoint(emptyText, 0, 1)
-        setFairyFateTextStyle(emptyText, "#8fa0b6", 15)
+        setFairyFateTextStyle(emptyText, "#8fa0b6", 20)
         return
     end
 
@@ -914,12 +914,12 @@ local function renderAttrPanel(parent)
         local y = innerHeight - 10 - (idx - 1) * lineHeight
         local labelText = GUI:Text_Create(scroll, "attr_label_" .. idx, 0, y, 15, "#f2dfaa", tostring(info.labelText or ""))
         GUI:setAnchorPoint(labelText, 0, 1)
-        setFairyFateTextStyle(labelText, "#f2dfaa", 15)
+        setFairyFateTextStyle(labelText, "#f2dfaa", 20)
 
         local labelSize = GUI:getContentSize(labelText)
         local valueText = GUI:Text_Create(scroll, "attr_value_" .. idx, (labelSize and labelSize.width or 0) + 2, y, 15, info.color or "#8dffea", tostring(info.valueText or ""))
         GUI:setAnchorPoint(valueText, 0, 1)
-        setFairyFateTextStyle(valueText, info.color or "#8dffea", 15)
+        setFairyFateTextStyle(valueText, info.color or "#8dffea", 20)
     end
 end
 
