@@ -377,7 +377,8 @@ local function getDayCardButtonState()
 end
 
 local function isDayCardUnlocked()
-    return toNumber(npc.data and npc.data.day_card_unlocked, 0) == 1
+    local unlocked = npc.data and npc.data.day_card_unlocked
+    return unlocked == true or toNumber(unlocked, 0) == 1
 end
 
 local function isMilestoneClaimed(idx, isCrown)

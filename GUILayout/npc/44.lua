@@ -59,6 +59,20 @@ local colors = {
     muted = '#9fb0c0',
 }
 
+local XIANFU_LEVEL_TEXT = {
+    [1] = '一',
+    [2] = '二',
+    [3] = '三',
+    [4] = '四',
+    [5] = '五',
+    [6] = '六',
+}
+
+local function formatXianfuLevel(level)
+    local lv = tonumber(level or 1) or 1
+    return XIANFU_LEVEL_TEXT[lv] or tostring(lv)
+end
+
 local function getFairyBgByLevel(level)
     local lv = tonumber(level or 1) or 1
     if lv <= 1 then
@@ -872,7 +886,7 @@ describePlot = function(plot)
         return '空地', '可播种'
     elseif stateName == 'locked' then
         local needLevel = getPlotUnlockNeedLevel(plot.gridId)
-        return string.format('%d级仙府', needLevel), '解锁'
+        return string.format('%s级仙府', formatXianfuLevel(needLevel)), '解锁'
     end
     return stateName, name
 end
@@ -976,7 +990,7 @@ local function buildTopOverview(node, snapshot, baseSnapshot, npcid)
         local levelHeader = GUI:Layout_Create(top_img, "xianfu_level_header", 18, -22 + 57, 320, 40, false)
         GUI:setAnchorPoint(levelHeader, 0, 1)
 
-        local levelText = GUI:Text_Create(levelHeader, "xianfu_level_title", 0, 0, 22, colors.primary, string.format("仙府%d级", tonumber(levelInfo.level or 1) or 1))
+        local levelText = GUI:Text_Create(levelHeader, "xianfu_level_title", 0, 0, 22, colors.primary, string.format("仙府%s级", formatXianfuLevel(levelInfo.level)))
         GUI:setAnchorPoint(levelText, 0, 1)
         GUI:Text_enableOutline(levelText, "#1d0f09", 2)
 
@@ -2733,7 +2747,7 @@ local function drawPet(node, snapshot, npcid)
 
     local currentUnlockNames = collectPlantUnlockNames(currentLevel, true)
     local currentText = string.format('仙府等级：%s级\n神石槽位：%s',
-        formatNumber(currentLevel),
+        formatXianfuLevel(currentLevel),
         -- formatNumber(tonumber(player.plot_unlock or 0) or 0),
         formatNumber(tonumber(player.open_slots or 0) or 0)
     )
@@ -2750,7 +2764,7 @@ local function drawPet(node, snapshot, npcid)
     local nextText = '当前已达最高等级'
     if nextCfg then
         nextText = string.format('升级后达到：%s级\n神石槽位：%s',
-            formatNumber(nextLevel),
+            formatXianfuLevel(nextLevel),
             -- formatNumber(tonumber(nextCfg.plot_unlock or 0) or 0),
             formatNumber(tonumber(nextCfg.open_slots or 0) or 0)
         )
@@ -2832,7 +2846,7 @@ local function drawSystemMessages(node, snapshot)
     local base = {
         string.format('服务器提示：%s', state.lastMessage ~= '' and state.lastMessage or '准备就绪'),
         '所有消耗以配置表 cost 为准，按钮旁提示具体材料/货币名称。',
-        '尚未开启剧情请先完成 NPC55 相关任务。',
+        '您还未开辟仙府，暂不可进入。',
         '点击拜访可查看对方菜园、访客记录和点赞/偷菜入口。',
     }
     local stealDaily = ((snapshot.player or {}).steal or {}).daily or {}

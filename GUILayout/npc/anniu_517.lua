@@ -115,6 +115,15 @@ local function n(v, d)
     return x
 end
 
+local function energyRates(level)
+    local energyCfg = cfg().energy or {}
+    local lv = math.max(1, math.floor(n(level, 1)))
+    local gold = (n(energyCfg.gold_per_sec, 200) + (lv - 1) * n(energyCfg.gold_per_level, 100)) * 3600
+    local iron = (n(energyCfg.iron_per_sec, 0.01) + (lv - 1) * n(energyCfg.iron_per_level, 0.01)) * 3600
+    local hat = (n(energyCfg.hat_per_sec, 0.01) + (lv - 1) * n(energyCfg.hat_per_level, 0.01)) * 3600
+    return gold, iron, hat
+end
+
 local function data()
     return npc.data or {}
 end
@@ -263,10 +272,8 @@ local function titleBar(parent, name, x, y, value, w)
 end
 
 local function tipButton(parent, name, x, y, desc)
-    local tip = GUI:Text_Create(parent, name, x, y, 22, "#7FE9FF", "?")
+    local tip = GUI:Image_Create(parent, name .. "_bg", x, y, "res/wy/public/an_tip.png")
     GUI:setAnchorPoint(tip, 0.5, 0.5)
-    GUI:Text_enableOutline(tip, "#120805", 2)
-    GUI:Text_setFontName(tip, "fonts/502.ttf")
     GUI:setTouchEnabled(tip, true)
     local function openTip()
         local pos = GUI:getWorldPosition(tip)
@@ -647,19 +654,16 @@ renderLevelInfo = function(node, npcid)
     local d = data()
     local lv = n(d.level, 1)
     local lc = levelCfg(lv)
-    local energyCfg = cfg().energy or {}
-    local minuteGold = n(energyCfg.gold_per_sec) * 60
-    local minuteIron = n(energyCfg.iron_per_sec) * 60
-    local minuteHat = n(energyCfg.hat_per_sec) * 60
+    local goldPerHour, ironPerHour, hatPerHour = energyRates(lv)
     local state = n(d.activated) >= 1 and (n(d.equipped) >= 1 and "神器已穿戴" or "已激活未穿戴") or "主线未激活"
     local color = n(d.activated) >= 1 and (n(d.equipped) >= 1 and "#9DFF7C" or "#FFB85A") or "#FF5A3D"
     titleBar(node, "level_title", 306 + lx, 74, tostring(lc.name or "聚宝盆") .. "  Lv." .. tostring(lv), 238)
     panel(node, "level_reward_bg", 306 + lx, 12, 242, 90, "res/wy/public/tycccc.png")
     panel(node, "level_state_bg", 306 + lx, -100, 242, 112, "res/wy/public/tycccc.png")
-    text(node, "level_reward_title", 306 + lx, 47, 21, "#FFE8A8", "品阶收益(每分钟)", 0.5, 0.5)
-    rewardItem(node, "level_gold", "金币", minuteGold, 246 + lx, 5)
-    rewardItem(node, "level_iron", "千年玄铁", minuteIron, 306 + lx, 5)
-    rewardItem(node, "level_hat", "斗笠碎片", minuteHat, 366 + lx, 5)
+    text(node, "level_reward_title", 306 + lx, 47, 21, "#FFE8A8", "品阶收益(每小时)", 0.5, 0.5)
+    rewardItem(node, "level_gold", "金币", goldPerHour, 246 + lx, 5)
+    rewardItem(node, "level_iron", "千年玄铁", ironPerHour, 306 + lx, 5)
+    rewardItem(node, "level_hat", "斗笠碎片", hatPerHour, 366 + lx, 5)
     text(node, "level_need_title", 306 + lx, -58, 21, "#FFE8A8", "当前状态", 0.5, 0.5)
     -- text(node, "level_state", 306 + lx, -85, 20, color, state, 0.5, 0.5)
     local currentLevelCfg = levelCfg(d.level)
@@ -713,7 +717,7 @@ renderEnergy = function(node, npcid)
     rewardItem(node, "energy_gold", "金币", r.gold, -144 + ex, -84)
     rewardItem(node, "energy_iron", "千年玄铁", r.iron, -72 + ex, -84)
     rewardItem(node, "energy_hat", "斗笠碎片", r.hat, 0 + ex, -84)
-    tipButton(node, "energy_rule_tip", 83 + ex, -45, "<font color='#F2E0B6'>在线完整累计，离线收益为在线的</font><font color='#7FE9FF'>50%</font><br/><font color='#F2E0B6'>存储上限跟聚宝盆品阶有关，领取后清空当前存储。</font>")
+    tipButton(node, "energy_rule_tip", 83 + ex, -45 - 10, "<font color='#F2E0B6'>在线完整累计，离线收益为在线的</font><font color='#7FE9FF'>50%</font><br/><font color='#F2E0B6'>存储上限跟聚宝盆品阶有关，领取后清空当前存储。</font>")
     local claimBtn = button(node, "claim_energy", -72 + ex, -164, "领取聚能", function()
         SL:SendLuaNetMsg(101, npcid, 1, 0, "")
     end, 1.5)
@@ -889,7 +893,8 @@ renderForbidden = function(node, npcid)
     GUI:setContentSize(pointBar, 286, 20)
     GUI:LoadingBar_setPercent(pointBar, pointPercent)
     text(node, "point_value", -58 + fx, 49, 17, "#FFFFFF", string.format("%s/%s", fmt(point), fmt(needPoint)), 0.5, 0.5)
-    text(node, "forbid_tip", 194 + fx, 49, 17, "#B9F6C5", "击杀+1  炼化=大陆*10", 0.5, 0.5)
+    tipButton(node, "forbid_point_tip", 194 + fx, 49 + 8,
+        "每击杀一只怪物，聚宝值+1\n炼化[聚宝魔石]：聚宝值+100\n炼化[专属宝石]：聚宝值+（宝石所属大陆*100）")
     titleReward(node, "forbid_all_title", "初识禁器", -16 + fx - 244, -188 - 120, n(d.has_forbidden_title) >= 1, "bottom")
     local list = d.forbidden or {}
     local cardW = 250

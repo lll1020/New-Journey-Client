@@ -707,6 +707,7 @@ local OPEN_BTN_LIST = {
 local MAINLINE_UNLOCK_MAP = {
     [32] = 15,    -- NPC 32（转生）：主线到 15 解锁
     [516] = 4,    -- NPC 516（免费赞助）：主线到 4 解锁
+    [21] = 32,    -- 境界修为：到达提升修为至筑基境任务后解锁
 }
 -- 获取主线进度：优先使用客户端缓存 rwid，不足时兜底读取服务端变量 U_zxrw/U11
 local function _upgrade_get_mainline_rwid()

@@ -2141,7 +2141,7 @@ function MainAssistXylHelper.bind(MainAssist)
                     GUI:setPosition(MainAssist.ListView_mission, 101, 114)
                 end
                 if _get_current_mainline_rwid() == 23 then
-                    local quickClaimText = GUI:Text_Create(rewardNode, "quick_claim_text", 142 - 40, 42 - 15, 20, "#66CCFF", "礼包\n购买")
+                    local quickClaimText = GUI:Text_Create(rewardNode, "quick_claim_text", 142 - 40, 42 - 15, 20, "#00FF00", "快速\n获得")
                     GUI:setAnchorPoint(quickClaimText, 0, 0.5)
                     GUI:Text_setFontName(quickClaimText, "fonts/502.ttf")
                     GUI:Text_enableOutline(quickClaimText, "#000000", 2)

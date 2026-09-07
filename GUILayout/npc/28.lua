@@ -44,7 +44,7 @@ function npc.main(npcid, p2, p3, msgData)
         if SL:GetMetaValue("WINPLAYMODE") then
             GUI:addMouseMoveEvent(tip, {onEnterFunc = function()
                 local pos = GUI:getWorldPosition(tip)
-                SL:OpenCommonDescTipsPop({str = "<全装备位置强化 + 10/FCOLOR=243>\\<            全属性+  10%/FCOLOR=249>\\_________________\\<全装备位置强化 + 20/FCOLOR=243>\\<            全属性+  20%/FCOLOR=249>\\_________________\\<全装备位置强化 + 30/FCOLOR=243>\\<            全属性+  30%/FCOLOR=249>", worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 0})
+                SL:OpenCommonDescTipsPop({str = "<全装备位置强化 + 10/FCOLOR=243>\\<            全属性+  5%/FCOLOR=249>\\_________________\\<全装备位置强化 + 20/FCOLOR=243>\\<            全属性+  10%/FCOLOR=249>\\_________________\\<全装备位置强化 + 30/FCOLOR=243>\\<            全属性+  20%/FCOLOR=249>", worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 0})
             end, onLeaveFunc = function()
                 SL:CloseCommonDescTipsPop()
             end})
@@ -52,7 +52,7 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:setTouchEnabled(tip, true)
             GUI:addOnTouchEvent(tip, function(self)
                 local pos = GUI:getWorldPosition(tip)
-                SL:OpenCommonDescTipsPop({str = "<全装备位置强化 + 10/FCOLOR=243>\\<            全属性+  10%/FCOLOR=249>\\_________________\\<全装备位置强化 + 20/FCOLOR=243>\\<            全属性+  20%/FCOLOR=249>\\_________________\\<全装备位置强化 + 30/FCOLOR=243>\\<            全属性+  30%/FCOLOR=249>", worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 0})
+                SL:OpenCommonDescTipsPop({str = "<全装备位置强化 + 10/FCOLOR=243>\\<            全属性+  5%/FCOLOR=249>\\_________________\\<全装备位置强化 + 20/FCOLOR=243>\\<            全属性+  10%/FCOLOR=249>\\_________________\\<全装备位置强化 + 30/FCOLOR=243>\\<            全属性+  20%/FCOLOR=249>", worldPos = {x = pos.x, y = pos.y}, anchorPoint = {x = 0, y = 0}, formatWay = 0})
             end)
         end
 
@@ -80,9 +80,9 @@ function npc.main(npcid, p2, p3, msgData)
 
         -- GUI:setAnchorPoint(
         --         GUI:RichText_Create(node, "desc", 200 + 544, 430,
-        --                 "<font color='#00FF00' size='20' >全身10级：全属性+10%</font>\n"..
-        --                 "<font color='#00FF00' size='20' >全身20级：全属性+20%</font>\n"..
-        --                 "<font color='#00FF00' size='20' >全身30级：全属性+30%</font>\n"
+        --                 "<font color='#00FF00' size='20' >全身10级：全属性+5%</font>\n"..
+        --                 "<font color='#00FF00' size='20' >全身20级：全属性+10%</font>\n"..
+        --                 "<font color='#00FF00' size='20' >全身30级：全属性+20%</font>\n"
         --         , 500, 20, "#f7f7de", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
         -- , 0, 1)
 

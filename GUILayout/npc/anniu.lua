@@ -965,7 +965,7 @@ end
 local function _shortcut_should_show(cfg)
     local npcid = tonumber(cfg and cfg[3] or 0)
     if npcid == 31 then
-        -- 马上发财：二大陆主线阶段（rwid >= 16）后才显示快捷按钮。
+     -- 马上发财：二大陆主线阶段（rwid >= 16）后才显示快捷按钮。
         return (tonumber(cogin and cogin.sjtb and cogin.sjtb.rwid) or 0) >= 16
     end
     if npcid == 516 then
@@ -4279,7 +4279,7 @@ npc[11] = function(p2, p3, Data)
                         GUI:Text_setFontName(desc, "fonts/502.ttf")
                         GUI:Text_enableOutline(desc, "#000000", 2)
                         local okDesc, descNode = pcall(function()
-                            return GUI:RichText_Create(desc, "desc", 0, -5, "<font face=\'fonts/font4.ttf\'>" .. taskDesc .. "</font>", 160, 15, "#f7f7de", 3, nil, nil)
+                            return GUI:RichText_Create(desc, "desc", 0, -5, "<font>" .. taskDesc .. "</font>", 160, 15, "#f7f7de", 3, nil, nil)
                         end)
                         if okDesc and descNode then
                             GUI:setAnchorPoint(descNode, 0, 1)
@@ -9206,6 +9206,7 @@ npc[516] = function(p2, p3, Data)
             end
         end
         appendReward(cfg and cfg.jl)
+        appendReward(cfg and cfg.show)
         return ret
     end
     local function mfzz_get_condition_info(cfg)
@@ -9248,7 +9249,7 @@ npc[516] = function(p2, p3, Data)
             return string.format("真实充值%s元", tostring(needRealCharge)), realCharge >= needRealCharge, false
         end
         if needCharge > 0 then
-            return string.format("充值%s元", tostring(needCharge)), totalCharge >= needCharge, false
+            return string.format("真实充值%s元", tostring(needCharge)), totalCharge >= needCharge, false
         end
         return "免费领取", true, false
     end
@@ -9271,7 +9272,7 @@ npc[516] = function(p2, p3, Data)
             taskMap = {
                 [516] = 4,
             },
-            desc = "点击领取",
+            desc = "查看了解一次至尊赞助",
             isForce = true,
             hideMask = false,
             keyPrefix = "mainline_free_sponsor",
@@ -9293,7 +9294,10 @@ npc[516] = function(p2, p3, Data)
             })
             GUI:setAnchorPoint(itemShow, 0.5, 0.5)
             _raise_reward_item_icon(slot)
-            
+        else
+            local nameText = GUI:Text_Create(itemLayer, "name", 20, 21, 13, "#FFF3C4", tostring(itemName or ""))
+            GUI:setAnchorPoint(nameText, 0.5, 0.5)
+            GUI:Text_enableOutline(nameText, "#000000", 1)
         end
         if tonumber(itemCount or 0) > 1 then
             local countText = GUI:Text_Create(itemLayer, "count", 20, 3, 13, "#FFFFFF", SL:GetSimpleNumber(itemCount, 0))
@@ -9350,8 +9354,8 @@ npc[516] = function(p2, p3, Data)
         local conditionText, conditionOk, needQuestion = mfzz_get_condition_info(cfg)
         local conditionColor = conditionOk and "#57ff8d" or "#ff4636"
         local conditionRich = nil
-        if idx > 1 then
-            conditionRich = GUI:RichText_Create(card, "condition", 95 + 13 - 50, 70, string.format("<font color='%s'>%s</font>", conditionColor, conditionText), 150, 16, "#f7f7de", 0, nil, nil, {
+        if idx >= 1 then
+            conditionRich = GUI:RichText_Create(card, "condition", 95 + 13 - 50, 70 + (idx == 1 and 3 or 0), string.format("<font color='%s'>%s</font>", conditionColor, conditionText), 150, 16, "#f7f7de", 0, nil, nil, {
                 outlineSize = 1,
                 outlineColor = "#000000",
             })
@@ -9361,7 +9365,7 @@ npc[516] = function(p2, p3, Data)
         if needRealCharge > 0 then
             local curData = mfzz_get_data()
             local realCharge = tonumber(curData.real_charge or 0) or 0
-            local progressText = GUI:Text_Create(node, "real_charge_progress", cardPos.x + 82, cardPos.y + 326 - 353, 18, conditionColor, string.format("当前真实充值%s/%s", tostring(realCharge), tostring(needRealCharge)))
+            local progressText = GUI:Text_Create(node, "real_charge_progress", cardPos.x + 82, cardPos.y + 326 - 353 - 10, 18, conditionColor, string.format("当前真实充值: %s元", tostring(realCharge), tostring(needRealCharge)))
             GUI:setAnchorPoint(progressText, 0.5, 0.5)
             GUI:Text_enableOutline(progressText, "#000000", 1)
         end
@@ -9381,7 +9385,7 @@ npc[516] = function(p2, p3, Data)
             GUI:addOnClickEvent(button, function()
                 SL:SendLuaNetMsg(101, 516, 1, idx, "")
             end)
-            mfzz_try_start_mainline_guide(button, node, idx)
+            mfzz_try_start_mainline_guide(card, node, idx)
             if mfzz_can_claim(idx, cfg) then
                 NPC_UI_HELPER.redpoint_create(button, {
                     x = 148,

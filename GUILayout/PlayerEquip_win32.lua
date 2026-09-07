@@ -31,7 +31,7 @@ local function _can_open_linggen_panel()
     if (tonumber(data.total_runs or 0) or 0) >= 6 then
         return true
     end
-    SL:ShowSystemTips("请先完成异闻录任务【挑战六次通天塔】后再开启灵根功能")
+    SL:ShowSystemTips("请完成通天塔挑战获得灵根功能")
     return false
 end
 local function _refresh_xyl_playerequip_guides()
@@ -127,6 +127,10 @@ function PlayerEquip.main(data)
     local mainline_realm
     Button= GUI:Button_Create(PlayerEquip._ui.Panel_1, "Button2", 110, 10.00, "res/private/player_main_layer_ui/btn_2.png")
     GUI:addOnClickEvent(Button, function()
+        if NPC_UI_HELPER.isMainlineTaskUnlocked and not NPC_UI_HELPER.isMainlineTaskUnlocked(32) then
+            SL:ShowSystemTips("请先完成【提升修为至筑基境】任务")
+            return
+        end
         SL:SendLuaNetMsg(105, 21, 21, 0, "")
     end)
     Button= GUI:Button_Create(PlayerEquip._ui.Panel_1, "Button3", 180, 10.00, "res/private/player_main_layer_ui/btn_3.png")

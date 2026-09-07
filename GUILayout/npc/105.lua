@@ -138,9 +138,9 @@ local function _get_card_state(payload, T_data, idx)
     return state
 end
 local function _open_first_charge_panel()
-    if npc._window and npc._window.parent and not tolua.isnull(npc._window.parent) then
-        GUI:Win_Close(npc._window.parent)
-    end
+    -- if npc._window and npc._window.parent and not tolua.isnull(npc._window.parent) then
+    --     GUI:Win_Close(npc._window.parent)
+    -- end
     SL:SendLuaNetMsg(101, 501, 0, 0, "")
 end
 local function _claim_all(npcid, payload, T_data)
@@ -151,7 +151,15 @@ local function _claim_all(npcid, payload, T_data)
         return
     end
     if tonumber(payload.first_charge_ready or 0) < 1 then
-        _open_first_charge_panel()
+        SL:OpenCommonTipsPop({
+            str = "是否立即前往【首冲福利】拿走所有奖励？",
+            btnType = 2,
+            callback = function(atype)
+                if atype == 1 then
+                    _open_first_charge_panel()
+                end
+            end,
+        })
         return
     end
     for idx = claimed + 1, total do
@@ -188,20 +196,22 @@ local function _render_card(node, npcid, payload, T_data, idx, hideCardButton)
     if state.claimedDone then
         GUI:Image_setGrey(card, true)
     end
-    local title = create_outline_text(card, "reward_label_" .. idx, 60, 52 + 8, 15, "#BD8C31", rewardLabel, "#081800")
+    local title = create_outline_text(card, "reward_label_" .. idx, 60, 52 + 8, 20, "#00FFFF", rewardLabel, "#081800")
     GUI:setAnchorPoint(title, 0.5, 0.5)
     local status = create_outline_text(card, "status_" .. idx, 64, 147, 18, state.statusColor, state.statusText, "#22140F")
     GUI:setAnchorPoint(status, 0.5, 0.5)
-    if state.left > 0 and state.claimedDone ~= true and idx == state.expected then
-        -- GUI:Text_COUNTDOWN(status, state.left, function()
-        --     if npc.node and not tolua.isnull(npc.node) then
-        --         UI_updata(npc.node, npcid)
-        --     end
-        -- end)
-        GUI:Text_setString(status,"当前选择")
-        GUI:setAnchorPoint(create_outline_text(node, "sysj", 64 + 494 + 20, 147 + 205 + 15, 18, state.statusColor, _format_left_minutes(state.left), "#22140F"), 0.5, 0.5)
-    end
-    if not hideCardButton and not state.claimedDone then
+    if state.claimedDone ~= true and idx == state.expected then
+        GUI:Text_setString(status, "当前选择")
+        local countdown = create_outline_text(node, "sysj", 64 + 494 + 20, 147 + 205 + 15, 18, state.statusColor, _format_left_seconds(state.left), "#22140F")
+        GUI:setAnchorPoint(countdown, 0.5, 0.5)
+        if state.left > 0 then
+            GUI:Text_COUNTDOWN(countdown, state.left, function()
+                if npc.node and not tolua.isnull(npc.node) then
+                    UI_updata(npc.node, npcid)
+                end
+            end)
+        end
+    end    if not hideCardButton and not state.claimedDone then
         local btn = GUI:Button_Create(card, "card_btn_" .. idx, 16, 8, CHOOSE_BTN_SKIN)
         GUI:Button_setTitleText(btn, "领取")
         GUI:Button_setTitleFontName(btn, "fonts/502.ttf")
@@ -251,9 +261,6 @@ local function _render_footer(node, npcid, payload, T_data)
     end
     -- local hintText = create_outline_text(node, "footer_hint", 488, 136, 16, hintColor, hint, "#20120D")
     -- GUI:setAnchorPoint(hintText, 0.5, 0.5)
-    if tonumber(payload.first_charge_ready or 0) < 1 then
-        return
-    end
     local claimAllBtn = GUI:Button_Create(node, "claim_all_btn", 347 + 66, 106, CLAIM_ALL_BTN_SKIN)
     if claimed >= total then
         GUI:Button_setGrey(claimAllBtn, true)

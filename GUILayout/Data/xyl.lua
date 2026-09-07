@@ -891,8 +891,8 @@ local npc_xyl = {
                 check = function()
                     return _xyl_check_task("开辟仙府")
                 end,
-                lock_tip = "需先解锁仙府",
-                tip = "请先完成【开辟仙府】后再进入本章节",
+                lock_tip = "您还未开辟仙府，暂不可进入",
+                tip = "您还未开辟仙府，暂不可进入",
             },
             jl = {{ "1元真实充值", 2 }},
         },

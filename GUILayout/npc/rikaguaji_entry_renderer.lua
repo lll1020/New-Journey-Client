@@ -56,6 +56,7 @@ function renderer.main(npcid, link, msg, data)
     text(panel, "name", 0 + 622, 105 + 244, 28, "#F6D08A", decoded.name or "日卡挂机")
     -- text(panel, "cond", 0, 66, 18, "#F5E6C6", "进入条件：" .. tostring(decoded.need_desc or "开通日卡"), 0.5, 0.5, "fonts/font4.ttf")
     -- text(panel, "state", 0, 30, 19, decoded.can_enter == 1 and "#7CFF9A" or "#FF7A7A", decoded.can_enter == 1 and "当前可进入" or (decoded.error or "当前不可进入"), 0.5, 0.5, "fonts/font4.ttf")
+    ItemNumByTable_img_new({{"日卡[称号]",1}},1,GUI:Node_Create(panel, "item", 101 + 366, 80))
 
     local btn = GUI:Button_Create(panel, "enter_btn", 0 + 613, -110 + 158, ENTER_BTN)
     GUI:setAnchorPoint(btn, 0.5, 0.5)

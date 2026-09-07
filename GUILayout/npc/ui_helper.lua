@@ -75,6 +75,10 @@ local function getMainlineRwidValue()
     end
     return rwid
 end
+
+function UIHelper.isMainlineTaskUnlocked(taskId)
+    return getMainlineRwidValue() >= (tonumber(taskId) or 0)
+end
 local function isGrayWorldMapValue(value)
     local text = tostring(value or "")
     if text == "" then
