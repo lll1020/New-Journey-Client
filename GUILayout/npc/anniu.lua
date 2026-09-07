@@ -1,5 +1,76 @@
 ﻿local npc = {
 }
+local function _xian_tu_qi_yuan_has_redpoint(node)
+    if not node or tolua.isnull(node) then
+        return false
+    end
+    local ok, delegate = pcall(function()
+        return GUI:ui_delegate(node)
+    end)
+    return ok and delegate and delegate.redpoint ~= nil
+end
+
+local function _xian_tu_qi_yuan_remove_redpoint(node)
+    if node and not tolua.isnull(node) then
+        pcall(function()
+            GUI:removeChildByName(node, "redpoint")
+        end)
+    end
+end
+
+local function _xian_tu_qi_yuan_menu_button()
+    local parent = GUI:GetWindow(nil, "main_cbl")
+    if not parent then
+        return nil
+    end
+    local cbl = GUI:getChildByName(parent, "bj")
+    if not cbl or tolua.isnull(cbl) then
+        return nil
+    end
+    local ldl = GUI:getChildByName(cbl, "tj")
+    if not ldl or tolua.isnull(ldl) then
+        return nil
+    end
+    return ldl
+end
+
+local function _xian_tu_qi_yuan_refresh_redpoints(show)
+    npc._xian_tu_qi_yuan_redpoint = show == true
+    local targets = {
+        npc.an_cbl,
+        _xian_tu_qi_yuan_menu_button(),
+    }
+    for idx, target in ipairs(targets) do
+        if target and not tolua.isnull(target) then
+            if show == true then
+                if not _xian_tu_qi_yuan_has_redpoint(target) then
+                    if idx == 1 then
+                        NPC_UI_HELPER.redpoint_create_eff(target,{
+                            x = 30,
+                            y = 30,
+                            anchorX = 0,
+                            anchorY = 0,
+                        })
+                    else
+                        NPC_UI_HELPER.redpoint_create_eff(target)
+                    end
+                end
+            else
+                _xian_tu_qi_yuan_remove_redpoint(target)
+            end
+        end
+    end
+    if type(XIAN_TU_QI_YUAN_MAIN_SKILL_REDPOINT_REFRESH) == "function" then
+        XIAN_TU_QI_YUAN_MAIN_SKILL_REDPOINT_REFRESH(show == true)
+    end
+end
+
+XIAN_TU_QI_YUAN_REDPOINT_STATE = function()
+    return npc._xian_tu_qi_yuan_redpoint == true
+end
+
+XIAN_TU_QI_YUAN_REFRESH_REDPOINTS = _xian_tu_qi_yuan_refresh_redpoints
+
 local REWARD_ITEM_EFFECT_14193 = 14193
 local REWARD_ITEM_EFFECT_13048 = 13048
 local function _resolve_reward_effect_parent(parent)
@@ -1833,10 +1904,16 @@ npc[1] = function(p2, p3, msgData)
                     GUI:setAnchorPoint(zz, 0.5, 1)
                     GUI:setAnchorPoint(syt, 0.5, 1)
                     GUI:setAnchorPoint(ldl, 0.5, 1)
+                    if npc._xian_tu_qi_yuan_redpoint == true then
+                        _xian_tu_qi_yuan_refresh_redpoints(true)
+                    end
 
                     GUI:addOnClickEvent(zz, function() SL:SendLuaNetMsg(101, 23, 0, 0, "") end)
                     GUI:addOnClickEvent(syt, function() SL:SendLuaNetMsg(105, 15, 15, 0, "") end)
-                    GUI:addOnClickEvent(ldl, function()  SL:SendLuaNetMsg(101, 515, 0, 0, "") end)
+                    GUI:addOnClickEvent(ldl, function()
+                        _xian_tu_qi_yuan_refresh_redpoints(false)
+                        SL:SendLuaNetMsg(101, 515, 0, 0, "")
+                    end)
 
 
                     GUI:Timeline_EaseSineIn_MoveTo(cbl, {
@@ -2003,6 +2080,11 @@ npc[1] = function(p2, p3, msgData)
             UPGRADE_HELPER.startAutoRefresh(20 * 1)
         end
     elseif p2 == 10 then
+        if tonumber(p3 or 0) == 515 then
+            local show = tostring(msgData or "") ~= "0"
+            _xian_tu_qi_yuan_refresh_redpoints(show)
+            return
+        end
         if tonumber(p3 or 0) == 31 then
             return
         end
@@ -9014,6 +9096,7 @@ npc[514] = function(p2, p3, Data)
     end
 end
 npc[515] = function(p2, p3, Data)
+    _xian_tu_qi_yuan_refresh_redpoints(false)
     return Npclib["anniu_515"].main(515, p2, p3, Data)
 end
 npc[516] = function(p2, p3, Data)
@@ -9273,6 +9356,14 @@ npc[516] = function(p2, p3, Data)
                 outlineColor = "#000000",
             })
             GUI:setAnchorPoint(conditionRich, 0, 0.5)
+        end
+        local needRealCharge = tonumber(cfg and cfg.need_real_charge or 0) or 0
+        if needRealCharge > 0 then
+            local curData = mfzz_get_data()
+            local realCharge = tonumber(curData.real_charge or 0) or 0
+            local progressText = GUI:Text_Create(node, "real_charge_progress", cardPos.x + 82, cardPos.y + 326 - 353, 18, conditionColor, string.format("当前真实充值%s/%s", tostring(realCharge), tostring(needRealCharge)))
+            GUI:setAnchorPoint(progressText, 0.5, 0.5)
+            GUI:Text_enableOutline(progressText, "#000000", 1)
         end
         if needQuestion then
             local question = GUI:Button_Create(card, "question", 140, 58 + 10, "res/custom/mfzz/question.png")

@@ -830,6 +830,10 @@ function npc.renderFucai(node)
     GUI:RichText_Create(node, "jlsz5", 210,200,  "<a href='jump#item_tips#"..SL:GetMetaValue("ITEM_INDEX_BY_NAME", "时装：开挖掘机[展示]").."'>[".."时装：开挖掘机".."]</a>", 500, 14, "#FF0000", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
     GUI:RichText_Create(node, "jlsz6", 400,280,  "<a href='jump#item_tips#"..SL:GetMetaValue("ITEM_INDEX_BY_NAME", "时装：天刀[展示]").."'>[".."时装：天刀".."]</a>", 500, 14, "#FF0000", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
 
+    GUI:RichText_Create(node, "jlx1", 80,260 + 160 - 60,  "<a href='jump#item_tips#"..SL:GetMetaValue("ITEM_INDEX_BY_NAME", "低级材料自选箱").."'>[".."低级材料自选箱".."]</a>", 500, 14, "#00FF00", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+    GUI:RichText_Create(node, "jlx2", 80,260 + 160 - 30,  "<a href='jump#item_tips#"..SL:GetMetaValue("ITEM_INDEX_BY_NAME", "高级材料自选箱").."'>[".."高级材料自选箱".."]</a>", 500, 14, "#E317B3", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+    GUI:RichText_Create(node, "jlx3", 80,260 + 160,  "<a href='jump#item_tips#"..SL:GetMetaValue("ITEM_INDEX_BY_NAME", "特级材料自选箱").."'>[".."特级材料自选箱".."]</a>", 500, 14, "#FF7700", 3,nil,nil,{outlineSize = 2,outlineColor = SL:ConvertColorFromHexString("#100808")})
+
     GUI:setScale(GUI:ItemShow_Create(guang, "icon", 105, 5, {index = SL:GetMetaValue("ITEM_INDEX_BY_NAME","鹤嘴锄")}), 0.6)
     local currentTokenCount = toNumber(npc.data and npc.data.token_count, 0)
     local drawOnceCost = getDrawOnceCost()

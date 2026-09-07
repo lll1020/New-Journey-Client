@@ -70,6 +70,34 @@ function MainSkill.InitButton()
 
     -- 切换
     local Button_change = MainSkill._ui["Button_change"]
+    local function refreshXianTuQiYuanChangeButton(show)
+        if not Button_change or tolua.isnull(Button_change) then
+            return
+        end
+        if show == true then
+            local delegate = GUI:ui_delegate(Button_change)
+            if not (delegate and delegate.redpoint) then
+                NPC_UI_HELPER.redpoint_create_eff(Button_change,{
+                    x = 30,
+                    y = 30,
+                    anchorX = 0,
+                    anchorY = 0,
+                })
+            end
+        else
+            GUI:removeChildByName(Button_change, "redpoint")
+        end
+    end
+    MainSkill._xian_tu_qi_yuan_refresh_change_button = refreshXianTuQiYuanChangeButton
+    XIAN_TU_QI_YUAN_MAIN_SKILL_REDPOINT_REFRESH = function(show)
+        refreshXianTuQiYuanChangeButton(show)
+        if MainSkill._xian_tu_qi_yuan_refresh_menu then
+            MainSkill._xian_tu_qi_yuan_refresh_menu(show)
+        end
+    end
+    if type(XIAN_TU_QI_YUAN_REDPOINT_STATE) == "function" and XIAN_TU_QI_YUAN_REDPOINT_STATE() then
+        XIAN_TU_QI_YUAN_MAIN_SKILL_REDPOINT_REFRESH(true)
+    end
     GUI:addOnClickEvent(Button_change, function()
         SL:PlaySound(50005)
         MainSkill.ChangeShowIndex(3 - MainSkill._showIndex)
@@ -288,9 +316,34 @@ function MainSkill.ChangeShowIndex(i, force)
         GUI:setAnchorPoint(syt, 0.5, 1)
         GUI:setAnchorPoint(ldl, 0.5, 1)
 
+        local function refreshXianTuQiYuanRedpoint(show)
+            if not ldl or tolua.isnull(ldl) then
+                return
+            end
+            if show == true then
+                local delegate = GUI:ui_delegate(ldl)
+                if not (delegate and delegate.redpoint) then
+                    NPC_UI_HELPER.redpoint_create_eff(ldl)
+                end
+            else
+                GUI:removeChildByName(ldl, "redpoint")
+            end
+        end
+        MainSkill._xian_tu_qi_yuan_refresh_menu = refreshXianTuQiYuanRedpoint
+        if type(XIAN_TU_QI_YUAN_REDPOINT_STATE) == "function" and XIAN_TU_QI_YUAN_REDPOINT_STATE() then
+            XIAN_TU_QI_YUAN_MAIN_SKILL_REDPOINT_REFRESH(true)
+        end
+
         GUI:addOnClickEvent(zz, function() SL:SendLuaNetMsg(101, 23, 0, 0, "") end)
         GUI:addOnClickEvent(syt, function() SL:SendLuaNetMsg(105, 15, 15, 0, "") end)
-        GUI:addOnClickEvent(ldl, function()  SL:SendLuaNetMsg(101, 515, 0, 0, "") end)
+        GUI:addOnClickEvent(ldl, function()
+            if type(XIAN_TU_QI_YUAN_REFRESH_REDPOINTS) == "function" then
+                XIAN_TU_QI_YUAN_REFRESH_REDPOINTS(false)
+            else
+                refreshXianTuQiYuanRedpoint(false)
+            end
+            SL:SendLuaNetMsg(101, 515, 0, 0, "")
+        end)
 
 
         GUI:Timeline_EaseSineIn_MoveTo(MainSkill.cbl, {x = cogin.w, y = 0}, 0.5)

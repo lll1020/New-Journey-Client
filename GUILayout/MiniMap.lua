@@ -6,6 +6,7 @@ MiniMap._pointCache = {} -- 寻路点缓存
 MiniMap._released   = false
 MiniMap._Colors     = {[1] = "#00ff00", [2] = "#ff0000"}
 MiniMap.isPc        = SL:GetMetaValue("WINPLAYMODE")
+MiniMap._pointCache1 = {}
 
 function MiniMap.main()
     MiniMap._isOpen = true
@@ -53,6 +54,15 @@ function MiniMap.main()
             SL:ShowSystemTips("<font color='#FF0000'>你没有回城石...</font>")
         end
     end)
+    if MiniMap._ui.zdy_Button3 then 
+        GUI:addOnClickEvent(MiniMap._ui.zdy_Button3, function()
+            if #MiniMap._pointCache1 == 2 then
+                local msg = string.format("move %s %s", MiniMap._pointCache1[1], MiniMap._pointCache1[2])
+                SL:SendGMMsgToChat(msg)
+            end
+        end)
+    end
+    
     MiniMap.RegisterEvent()
     MiniMap.InitMiniMap()
     MiniMap:InitPortals()
@@ -414,6 +424,7 @@ function MiniMap.UpdatDestPoint(minimapX, minimapY, mapX, mapY)
     GUI:setVisible(MiniMap._imgPoint, true)
     GUI:setPosition(MiniMap._imgPoint, minimapX, minimapY + 20)
     GUI:Text_setString(MiniMap._textPoint, string.format("(%s,%s)", mapX, mapY))
+    MiniMap._pointCache1 = {mapX, mapY}
 end
 
 -- 人物坐标动画

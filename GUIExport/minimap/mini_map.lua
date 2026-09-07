@@ -91,6 +91,16 @@ function ui.init(parent, __data__, __update__)
 	GUI:setAnchorPoint(zdy_Button2, 0.00, 0.00)
 	GUI:setTouchEnabled(zdy_Button2, true)
 	GUI:setTag(zdy_Button2, -1)
+	-- Create zdy_Button3
+	local zdy_Button3 = GUI:Button_Create(FrameLayout, "zdy_Button3", 606.00, 125.00, "res/custom/MiniMap_img/btn3.png")
+	GUI:Button_setTitleText(zdy_Button3, [[]])
+	GUI:Button_setTitleColor(zdy_Button3, "#ffffff")
+	GUI:Button_setTitleFontSize(zdy_Button3, 14)
+	GUI:Button_titleEnableOutline(zdy_Button3, "#000000", 1)
+	GUI:setChineseName(zdy_Button3, "自定义按钮3")
+	GUI:setAnchorPoint(zdy_Button3, 0.00, 0.00)
+	GUI:setTouchEnabled(zdy_Button3, true)
+	GUI:setTag(zdy_Button3, -1)
 
 	-- Create Panel_map
 	local Panel_map = GUI:Layout_Create(Panel_1, "Panel_map", 30.00, 34.00, 604, 442, true)

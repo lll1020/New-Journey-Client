@@ -10,7 +10,6 @@ local WINDOW_OPTS = {
 
 local tab = 1
 local selectedStone = 1
-local expandedContinent = nil
 
 local CONTINENT_LABELS = {
     [1] = "通用材料",
@@ -19,6 +18,13 @@ local CONTINENT_LABELS = {
     [4] = "第四大陆",
     [5] = "第五大陆",
     [6] = "第六大陆",
+}
+local REBIRTH_STONE_BY_CONTINENT = {
+    [2] = "二重转生石",
+    [3] = "三重转生石",
+    [4] = "四重转生石",
+    [5] = "五重转生石",
+    [6] = "六重转生石",
 }
 local model = {
     ["焚天禁器·炎狱龙尊"] = 30004,
@@ -33,6 +39,22 @@ end
 local function levelCfg(level)
     local levels = cfg().levels or {}
     return levels[tonumber(level or 1) or 1] or levels[1] or {name = "聚宝盆", speed = 100, cap_text = "无存储"}
+end
+
+local function refineDuration(baseTime, level)
+    if type(baseTime) == "string" then
+        local value = tonumber(string.match(baseTime, "(%d+%.?%d*)")) or 0
+        if string.find(baseTime, "小时") then
+            baseTime = value * 3600
+        elseif string.find(baseTime, "分钟") then
+            baseTime = value * 60
+        else
+            baseTime = value
+        end
+    end
+    local speed = tonumber(levelCfg(level).speed or 100) or 100
+    if speed <= 0 then speed = 100 end
+    return math.max(1, math.ceil((tonumber(baseTime) or 0) * 100 / speed))
 end
 
 local function stonesCfg()
@@ -114,6 +136,21 @@ local function fmt(v)
     if v >= 100000000 then return tostring(math.floor(v / 100000000)) .. "亿" end
     if v >= 10000 then return tostring(math.floor(v / 10000)) .. "万" end
     return tostring(v)
+end
+
+local function fmtRate(v)
+    v = n(v)
+    if math.floor(v) == v then
+        return fmt(v)
+    end
+    return string.format("%.2f", v):gsub("0+$", ""):gsub("%.$", "")
+end
+
+local function fmtStoredTime(sec)
+    sec = math.max(0, math.floor(n(sec)))
+    local h = math.floor(sec / 3600)
+    local m = math.floor((sec % 3600) / 60)
+    return tostring(h) .. "小时" .. tostring(m) .. "分钟"
 end
 
 local function fmtTime(sec)
@@ -286,9 +323,47 @@ local function rewardItem(parent, key, itemName, count, x, y)
     else
         text(box, "fallback_name", 29, 31, 14, "#FFD66A", tostring(itemName or ""), 0.5, 0.5)
     end
-    local num = text(box, "count", 48, 4, 14, "#FFFFFF", fmt(count), 1, 0)
+    local num = text(box, "count", 48, 4, 14, "#FFFFFF", fmtRate(count), 1, 0)
     GUI:Text_enableOutline(num, "#000000", 2)
     return box
+end
+
+local function refinePreviewItem(parent, key, entry, x, y)
+    local box = GUI:Image_Create(parent, "refine_preview_box_" .. tostring(key), x, y, "res/custom/ditu/58_58_kuang.png")
+    GUI:setAnchorPoint(box, 0.5, 0.5)
+    GUI:setContentSize(box, 38, 38)
+    local idx = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", entry.name) or 0) or 0
+    if idx > 0 then
+        local item = GUI:ItemShow_Create(box, "item", 19, 19, {
+            index = idx,
+            disShowCount = true,
+            look = true,
+        })
+        GUI:setAnchorPoint(item, 0.5, 0.5)
+        -- GUI:setScale(item, 0.65)
+    else
+        text(box, "fallback", 19, 20, 19, "#FFD66A", "?", 0.5, 0.5)
+    end
+    -- text(parent, "refine_preview_name_" .. tostring(key), x, y - 26, 12, "#F6D08A", tostring(entry.label or entry.name or ""), 0.5, 0.5)
+    if tostring(entry.rate or "") ~= "" then
+        text(parent, "refine_preview_rate_" .. tostring(key), x, y - 26, 15, "#9DFF7C", tostring(entry.rate), 0.5, 0.5)
+    end
+    return box
+end
+
+local function refinePreviewEntries(stoneCfg)
+    if tostring(stoneCfg.kind or "") == "normal" then
+        return {
+            {name = "灵石", label = "灵石×10", rate = "概率获得"},
+            {name = "金币", label = "金币×50万", rate = "概率获得"},
+            {name = "千年玄铁", label = "千年玄铁×10", rate = "概率获得"},
+        }
+    end
+    local continent = tonumber(stoneCfg.continent or 2) or 2
+    return {
+        {name = "神秘装备", label = "神秘装备"},
+        {name = REBIRTH_STONE_BY_CONTINENT[continent] or "二重转生石", rate = "概率获得"},
+    }
 end
 
 local function stoneBagItem(parent, key, itemName, x, y)
@@ -397,13 +472,16 @@ local function openBasinLevelPopup()
     -- text(bg, "cur_condition_title", 165, 162, 23, "#EFD7A0", "升级条件", 0.5, 0.5)
     -- text(bg, "next_condition_title", 435, 162, 23, "#EFD7A0", "升级条件", 0.5, 0.5)
     text(bg, "cur_condition_desc", 165 - 32, 130 + 20, 18, "#9DFF7C", "当前 Lv." .. tostring(lv), 0.5, 0.5)
+    text(bg, "cur_speed_desc", 165 - 32, 105, 18, "#9FE2FF", "炼灵效率 " .. tostring(curCfg.speed or 100) .. "%", 0.5, 0.5)
     if maxed then
         text(bg, "next_condition_desc", 435 + 32, 130 + 20, 18, "#9DFF7C", "当前已是最高品阶", 0.5, 0.5)
+        text(bg, "next_speed_desc", 435 + 32, 105 + 20, 18, "#9FE2FF", "炼灵效率 " .. tostring(curCfg.speed or 100) .. "%", 0.5, 0.5)
         -- button(bg, "level_confirm", 300, 22 + 24 + 32, "已满级", function()
         --     SL:ShowSystemTips("当前已是最高品阶")
         -- end)
     else
         text(bg, "next_condition_desc", 435 + 32, 130 + 20, 18, lackCharge <= 0 and "#9DFF7C" or "#FF5A3D", string.format("真实充值 %s/%s", fmt(charge), fmt(needCharge)), 0.5, 0.5)
+        text(bg, "next_speed_desc", 435 + 32, 105, 18, "#9FE2FF", "炼灵效率 " .. tostring(nextCfg.speed or 100) .. "%", 0.5, 0.5)
         -- text(bg, "next_condition_lack", 435, 114, 17, lackCharge <= 0 and "#9DFF7C" or "#FFB85A", lackCharge <= 0 and "条件已达成" or ("还差 " .. fmt(lackCharge)), 0.5, 0.5)
         local confirmBtn = button(bg, "level_confirm", 300, 22 + 24, "确认升级", function()
             if lackCharge > 0 then
@@ -414,7 +492,7 @@ local function openBasinLevelPopup()
             SL:SendLuaNetMsg(101, 517, 9, 0, "")
         end, 1.3)
         if lackCharge <= 0 then
-            NPC_UI_HELPER.redpoint_create_eff(confirmBtn, {x = 150, y = 44, autoScale = 0.65})
+            NPC_UI_HELPER.redpoint_create(confirmBtn, {x = 142, y = 30, autoScale = 0.65})
         end
     end
 end
@@ -552,7 +630,7 @@ local function renderTabs(node, npcid)
             or (i == 2 and redState.refine)
             or (i == 3 and redState.forbidden)
         ) then
-            NPC_UI_HELPER.redpoint_create_eff(bg, {x = 178, y = 42, autoScale = 0.75})
+            NPC_UI_HELPER.redpoint_create_eff(bg, {x = 185 - 115, y = 20, autoScale = 0.75})
         end
         local touch = GUI:Layout_Create(node, "tab_touch_" .. i, -455, y - 25, 220, 50, false)
         GUI:setTouchEnabled(touch, true)
@@ -567,28 +645,32 @@ renderLevelInfo = function(node, npcid)
     local lx = 30
     panel(node, "level_info_panel", 306 + lx, -48, 292, 254, "res/wy/public/tycccc.png")
     local d = data()
-    local r = d.energy_reward or {}
     local lv = n(d.level, 1)
     local lc = levelCfg(lv)
+    local energyCfg = cfg().energy or {}
+    local minuteGold = n(energyCfg.gold_per_sec) * 60
+    local minuteIron = n(energyCfg.iron_per_sec) * 60
+    local minuteHat = n(energyCfg.hat_per_sec) * 60
     local state = n(d.activated) >= 1 and (n(d.equipped) >= 1 and "神器已穿戴" or "已激活未穿戴") or "主线未激活"
     local color = n(d.activated) >= 1 and (n(d.equipped) >= 1 and "#9DFF7C" or "#FFB85A") or "#FF5A3D"
     titleBar(node, "level_title", 306 + lx, 74, tostring(lc.name or "聚宝盆") .. "  Lv." .. tostring(lv), 238)
     panel(node, "level_reward_bg", 306 + lx, 12, 242, 90, "res/wy/public/tycccc.png")
     panel(node, "level_state_bg", 306 + lx, -100, 242, 112, "res/wy/public/tycccc.png")
-    text(node, "level_reward_title", 306 + lx, 47, 21, "#FFE8A8", "品阶收益", 0.5, 0.5)
-    rewardItem(node, "level_gold", "金币", r.gold, 246 + lx, 5)
-    rewardItem(node, "level_iron", "千年玄铁", r.iron, 306 + lx, 5)
-    rewardItem(node, "level_hat", "斗笠碎片", r.hat, 366 + lx, 5)
+    text(node, "level_reward_title", 306 + lx, 47, 21, "#FFE8A8", "品阶收益(每分钟)", 0.5, 0.5)
+    rewardItem(node, "level_gold", "金币", minuteGold, 246 + lx, 5)
+    rewardItem(node, "level_iron", "千年玄铁", minuteIron, 306 + lx, 5)
+    rewardItem(node, "level_hat", "斗笠碎片", minuteHat, 366 + lx, 5)
     text(node, "level_need_title", 306 + lx, -58, 21, "#FFE8A8", "当前状态", 0.5, 0.5)
-    text(node, "level_state", 306 + lx, -85, 20, color, state, 0.5, 0.5)
-    text(node, "level_speed", 306 + lx, -113, 18, "#9FE2FF", "收益效率  固定", 0.5, 0.5)
-    text(node, "level_cap", 306 + lx, -140, 18, "#FFD07A", "存储上限  " .. tostring(lc.cap_text or "无存储"), 0.5, 0.5)
+    -- text(node, "level_state", 306 + lx, -85, 20, color, state, 0.5, 0.5)
+    local currentLevelCfg = levelCfg(d.level)
+    text(node, "level_speed", 306 + lx, -113, 20, "#9FE2FF", "炼灵效率  " .. tostring(currentLevelCfg.speed or 100) .. "%", 0.5, 0.5)
+    text(node, "level_cap", 306 + lx, -140, 20, "#FFD07A", "存储上限  " .. tostring(lc.cap_text or "无存储"), 0.5, 0.5)
     local levelBtn = button(node, "level_up_btn", 306 + lx, -203, "提升品阶", function()
         openBasinLevelPopup()
     end,1.4)
     local redState = UPGRADE_HELPER and UPGRADE_HELPER.treasureBasinRedState and UPGRADE_HELPER.treasureBasinRedState(d) or {}
     if redState.level then
-        NPC_UI_HELPER.redpoint_create_eff(levelBtn, {x = 150, y = 48, autoScale = 0.7})
+        NPC_UI_HELPER.redpoint_create(levelBtn, {x = 143, y = 30, autoScale = 0.7})
     end
 end
 
@@ -605,7 +687,7 @@ renderEnergy = function(node, npcid)
     local capText = tostring(levelCfg(d.level).cap_text or "无存储")
     panel(node, "energy_top_bg", -72 + ex, 48, 348, 64, "res/wy/public/tycccc.png")
     text(node, "energy_time_label", -150 + ex, 61, 18, "#D9A85A", "当前存储", 1, 0.5)
-    text(node, "energy_time", -104 + ex, 61, 23, "#9FE2FF", tostring(d.energy_text or "00:00"), 0, 0.5)
+    text(node, "energy_time", -104 + ex, 61, 23, "#9FE2FF", fmtStoredTime(d.energy_sec), 0, 0.5)
     text(node, "energy_cap_label", -150 + ex, 34, 18, "#D9A85A", "存储上限", 1, 0.5)
     text(node, "energy_cap", -104 + ex, 34, 20, "#FFD07A", capText, 0, 0.5)
     local percent = 0
@@ -643,8 +725,8 @@ end
 
 renderRefine = function(node, npcid)
     local rx = 100
-    panel(node, "refine_list_panel", -132 + rx, -50, 300, 280, "res/wy/public/tycccc.png")
-    panel(node, "refine_state_panel", 306, -50, 292, 280, "res/wy/public/tycccc.png")
+    panel(node, "refine_list_panel", -132 + rx, -106, 300, 392, "res/wy/public/tycccc.png")
+    panel(node, "refine_state_panel", 306, -50 - 20, 292, 300, "res/wy/public/tycccc.png")
     local d = data()
     local ref = d.refine or {}
     local visible = visibleStones()
@@ -669,36 +751,28 @@ renderRefine = function(node, npcid)
         else
             groups[continent].free[#groups[continent].free + 1] = item
         end
-        if item.idx == selectedStone and not expandedContinent then
-            expandedContinent = continent
-        end
     end
     table.sort(groupOrder)
-    if not expandedContinent and groupOrder[1] then
-        expandedContinent = groupOrder[1]
-    end
     titleBar(node, "refine_title", -132 + rx, 82, "宝石选择", 218)
     text(node, "stone_tip", -132 + rx, 54, 17, "#E9D7B2", "已解锁大陆宝石列表", 0.5, 0.5)
 
     local viewW = 280
-    local viewH = 216
+    local viewH = 304 + 30
     local innerH = 18
     for _, continent in ipairs(groupOrder) do
         innerH = innerH + 42
-        if expandedContinent == continent then
-            local group = groups[continent] or {bind = {}, free = {}}
-            innerH = innerH + math.max(#group.bind, #group.free) * 36 + 6
-        end
+        local group = groups[continent] or {bind = {}, free = {}}
+        innerH = innerH + math.max(#group.bind, #group.free) * 36 + 18
     end
     innerH = math.max(viewH, innerH)
-    local scroll = GUI:ScrollView_Create(node, "stone_scroll", -272 + rx, -182, viewW, viewH, 1)
+    local scroll = GUI:ScrollView_Create(node, "stone_scroll", -272 + rx, -270 - 20, viewW, viewH, 1)
     GUI:ScrollView_setBounceEnabled(scroll, true)
     GUI:ScrollView_setInnerContainerSize(scroll, viewW, innerH)
     local listNode = GUI:Layout_Create(scroll, "stone_list_node", 0, 0, viewW, innerH, false)
 
     local cursorY = innerH - 22
     for _, continent in ipairs(groupOrder) do
-        local isOpen = expandedContinent == continent
+        local isOpen = true
         local group = groups[continent] or {bind = {}, free = {}}
         local headerSkin = "res/wy/public/000.png"
         local headerBg = GUI:Image_Create(listNode, "stone_group_bg_" .. continent, viewW / 2, cursorY, headerSkin)
@@ -708,11 +782,7 @@ renderRefine = function(node, npcid)
         text(listNode, "stone_group_arrow_" .. continent, 36, cursorY + 1, 23, isOpen and "#78FF7A" or "#C58A3E", isOpen and "◆" or "◇", 0.5, 0.5)
         text(listNode, "stone_group_text_" .. continent, 136, cursorY + 1, 27, isOpen and "#FFF1B8" or "#E8B86D", continentName(continent), 0.5, 0.5)
         local headerTouch = GUI:Layout_Create(listNode, "stone_group_touch_" .. continent, 10, cursorY - 19, 260, 38, false)
-        GUI:setTouchEnabled(headerTouch, true)
-        GUI:addOnClickEvent(headerTouch, function()
-            expandedContinent = isOpen and nil or continent
-            npc.render(npcid, true)
-        end)
+        GUI:setTouchEnabled(headerTouch, false)
         cursorY = cursorY - 42
         if isOpen then
             local function renderStoneItem(item, col)
@@ -736,7 +806,6 @@ renderRefine = function(node, npcid)
                 GUI:setTouchEnabled(touch, true)
                 GUI:addOnClickEvent(touch, function()
                     selectedStone = i
-                    expandedContinent = continent
                     npc.render(npcid, true)
                 end)
                 cursorY = cursorY - 36
@@ -755,14 +824,22 @@ renderRefine = function(node, npcid)
     local cfg = stonesCfg()[selectedStone] or stonesCfg()[1] or {}
     titleBar(node, "play_title", 306, 82, "炼灵信息", 230)
     panel(node, "sel_info_bg", 306, 22, 244, 86, "res/wy/public/new_kuang.png")
-    text(node, "sel_label", 306, 51, 17, "#B9F6FF", "当前选择", 0.5, 0.5)
+    text(node, "sel_label", 306, 51 - 3, 17, "#B9F6FF", "当前选择", 0.5, 0.5)
     text(node, "sel_name", 306, 25, 22, "#FFD66A", cfg.name, 0.5, 0.5)
-    text(node, "sel_time", 306, -2, 18, "#9FE2FF", "炼灵耗时  " .. fmtDuration(cfg.time), 0.5, 0.5)
+    text(node, "sel_time", 306, -2 + 3, 18, "#9FE2FF", "炼灵耗时  " .. fmtDuration(refineDuration(cfg.time, d.level)), 0.5, 0.5)
     panel(node, "sel_desc_bg", 306, -70, 244, 86, "res/wy/public/new_kuang.png")
     rich(node, "sel_desc", 196, -32 - 5, "<font color='#E9D7B2'>产出：</font><font color='#F6D08A'>" .. tostring(cfg.desc or "") .. "</font>", 222, 16, 1, 0, 1)
+    panel(node, "refine_preview_bg", 306, -186, 244, 88, "res/wy/public/000.png")
+    -- text(node, "refine_preview_title", 306, -149, 16, "#B9F6C5", "可能获得", 0.5, 0.5)
+    local previewEntries = refinePreviewEntries(cfg)
+    local previewSpacing = #previewEntries >= 3 and 76 or 108
+    local previewStartX = 306 - (#previewEntries - 1) * previewSpacing / 2
+    for i, entry in ipairs(previewEntries) do
+        refinePreviewItem(node, i, entry, previewStartX + (i - 1) * previewSpacing, -177 + 13)
+    end
     if n(ref.active) >= 1 then
         local done = n(ref.done) >= 1
-        panel(node, "ref_countdown_bg", 306, -135, 244, 54, "res/wy/public/000.png")
+        panel(node, "ref_countdown_bg", 306, -124, 244, 38, "res/wy/public/000.png")
         text(node, "ref_status_label", 252, -124, 18, done and "#9DFF7C" or "#FFB85A", done and "炼灵完成" or "剩余倒计时", 0.5, 0.5)
         local countdownText = text(node, "ref_status_time", 356, -124, 26, done and "#9DFF7C" or "#FF5A3D", done and "可领取" or fmtTime(ref.left or 0), 0.5, 0.5)
         if not done then
@@ -771,24 +848,24 @@ renderRefine = function(node, npcid)
                 npc.render(npcid, true)
             end)
         end
-        local claimBtn = button(node, "claim_refine", 266 + 40, -194, "领取产物", function()
+        local claimBtn = button(node, "claim_refine", 266 + 40, -254, "领取产物", function()
             SL:SendLuaNetMsg(101, npcid, 3, 0, "")
-        end, 1.5)
+        end, 1.4)
         if done then
-            NPC_UI_HELPER.redpoint_create_eff(claimBtn, {x = 205, y = 40, autoScale = 0.6})
+            NPC_UI_HELPER.redpoint_create(claimBtn, {x = 143, y = 30, autoScale = 0.7})
         end
     else
-        panel(node, "ref_countdown_bg", 306, -135, 244, 54, "res/wy/public/000.png")
+        panel(node, "ref_countdown_bg", 306, -124, 244, 38, "res/wy/public/000.png")
         text(node, "ref_status_label", 252, -124, 18, "#B9F6C5", "炼灵状态", 0.5, 0.5)
         text(node, "ref_status_time", 356, -124, 22, "#9DFF7C", "空闲", 0.5, 0.5)
-        local startBtn = button(node, "start_refine", 266 + 40, -194, "开始炼灵", function()
+        local startBtn = button(node, "start_refine", 266 + 40, -254, "开始炼灵", function()
             SL:SendLuaNetMsg(101, npcid, 2, 0, SL:JsonEncode({stone = cfg.name}))
-        end, 1.5)
+        end, 1.4)
         local redState = UPGRADE_HELPER and UPGRADE_HELPER.treasureBasinRedState and UPGRADE_HELPER.treasureBasinRedState(d) or {}
         local selectedStoneIndex = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", cfg.name) or 0) or 0
         local selectedStoneCount = selectedStoneIndex > 0 and (tonumber(SL:GetMetaValue("ITEM_COUNT", selectedStoneIndex) or 0) or 0) or 0
         if redState.refine_start and selectedStoneCount > 0 then
-            NPC_UI_HELPER.redpoint_create_eff(startBtn, {x = 205, y = 40, autoScale = 0.6})
+            NPC_UI_HELPER.redpoint_create(startBtn, {x = 143, y = 30, autoScale = 0.7})
         end
     end
 end
@@ -871,21 +948,21 @@ renderForbidden = function(node, npcid)
 
         end, selected and "#FFE7A8" or (active and "#9FE2FF" or "#9DFF7C"))
         if selected and active and redState.forbidden_skill then
-            NPC_UI_HELPER.redpoint_create_eff(actionBtn, {x = 92, y = 30, autoScale = 0.55})
+            NPC_UI_HELPER.redpoint_create_eff(actionBtn, {x = 92 + 16, y = 20, autoScale = 0.5})
         end
         if not active then
             local unlockBtn = smallButton(card, "forbid_unlock_" .. i, cardW / 2 + 55, 8 + 30, "激活", function()
                 SL:SendLuaNetMsg(101, npcid, 4, i, "")
             end, "#FFD66A")
             if redState.forbidden_unlock and redState.forbidden_unlock[i] then
-                NPC_UI_HELPER.redpoint_create_eff(unlockBtn, {x = 92, y = 30, autoScale = 0.55})
+                NPC_UI_HELPER.redpoint_create_eff(unlockBtn, {x = 92 + 16, y = 20, autoScale = 0.5})
             end
         elseif lv < 5 then
             local upgradeBtn = smallButton(card, "forbid_upgrade_" .. i, cardW / 2 + 55, 8 + 30, "升级", function()
                 openForbiddenUpgradePopup(npcid, i, lv)
             end, "#FFD66A")
             if redState.forbidden_upgrade and redState.forbidden_upgrade[i] then
-                NPC_UI_HELPER.redpoint_create_eff(upgradeBtn, {x = 92, y = 30, autoScale = 0.55})
+                NPC_UI_HELPER.redpoint_create_eff(upgradeBtn, {x = 92 + 16, y = 20, autoScale = 0.5})
             end
         end
     end
