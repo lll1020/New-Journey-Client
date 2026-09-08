@@ -175,14 +175,15 @@ local function _add_reward_effect_for_table(node, effectName, x, y, scale, effec
         end
     end
 end
+-- 9.8-1 顶部聚宝盆入口及对应红点逻辑已停用。
+-- 9.8-1 原顶部按钮：{6, "聚宝盆", 517, 517}
 npc.iconpx = {
     {
         -- {15, "天天省钱",509,1}, {3, "福利大厅",511,2}, {17, "游戏攻略",512,3},{4, "活动大厅",507,4},{14, "首充礼包",501,5},{16, "仙途奇缘",515,515},{20, "护体光环",23,23},{21, "马上发财",31,31}
         {15, "天天省钱",509,1}, {3, "福利大厅",511,2}, {17, "游戏攻略",512,3},{4, "活动大厅",507,4},{14, "首充礼包",501,5},{21, "马上发财",31,31}
     },
     {
-        -- {19, "在线充值", 502,11}, {5, "交易行",510,12},{2, "解绑特权",504,13},{7, "狂暴之力",513,14},{12, "世界地图",514,15},{10, "免费赞助",516,16},{22, "灵兽",64,64},{6, "聚宝盆",517,517},
-        {19, "在线充值", 502,11}, {5, "交易行",510,12},{2, "解绑特权",504,13},{10, "免费赞助",516,16},{22, "灵兽",64,64},{6, "聚宝盆",517,517},
+        {19, "在线充值", 502,11}, {5, "交易行",510,12},{2, "解绑特权",504,13},{10, "免费赞助",516,16},{22, "灵兽",64,64},
     }
 }
 npc.LeftTop = GUI:Attach_LeftTop()
@@ -557,21 +558,9 @@ local function createShortcutButton(container, cfg, order, prefix, opts)
     local posY = tonumber(opts.y) or 0
     local button = GUI:Button_Create(container, btnName, posX, posY, "res/wy/icon/top_" .. cfg[1] .. ".png")
     local keepRedPoint = _shortcut_should_show_persistent_redpoint(cfg)
-    if tonumber(cfg[3]) == 517 then
-        local helper = SL:Require("GUILayout/npc/upgrade_helper", true)
-        local state = helper and helper.treasureBasinRedState and helper.treasureBasinRedState()
-        keepRedPoint = state and state.any == true
-    end
     GUI:addOnClickEvent(button, function()
         if tonumber(cfg[3]) == 1029 then
             SL:SendLuaNetMsg(105, cfg[3], 1029, 0, "")
-            if not keepRedPoint then
-                GUI:removeAllChildren(button)
-            end
-            return
-        end
-        if tonumber(cfg[3]) == 517 then
-            SL:SendLuaNetMsg(101, 517, 0, 0, "")
             if not keepRedPoint then
                 GUI:removeAllChildren(button)
             end
@@ -591,26 +580,6 @@ local function createShortcutButton(container, cfg, order, prefix, opts)
     local cacheMap = opts.cacheMap or npc.db_anniu
     cacheMap["" .. cfg[4]] = button
     return button
-end
-local function refreshTreasureBasinTopRedpoint()
-    local button = npc.db_anniu and npc.db_anniu["517"]
-    if not button then
-        return
-    end
-    local helper = SL:Require("GUILayout/npc/upgrade_helper", true)
-    local state = helper and helper.treasureBasinRedState and helper.treasureBasinRedState() or {}
-    local delegate = GUI:ui_delegate(button)
-    local hasRedpoint = delegate and delegate.redpoint
-    if state.any == true then
-        if not hasRedpoint then
-            NPC_UI_HELPER.redpoint_create_eff(button, {
-                x = 80,
-                y = 60,
-            })
-        end
-    elseif hasRedpoint then
-        GUI:removeChildByName(button, "redpoint")
-    end
 end
 local function _shortcut_has_title(titleName)
     if not titleName or titleName == "" then
@@ -979,10 +948,6 @@ local function _shortcut_should_show(cfg)
     end
     if npcid == 23 then
         return not _shortcut_is_body_aura_completed()
-    end
-    if npcid == 517 then
-        local data = _shortcut_get_server_json("T44")
-        return (tonumber(data.task_fixed or 0) or 0) >= 1 or _shortcut_get_mainline_rwid() >= 24
     end
     if npcid == 504 then
         return not _shortcut_is_unbind_completed()
@@ -3337,14 +3302,8 @@ npc[11] = function(p2, p3, Data)
         ["天书仙法"] = true,
         ["限时福利"] = true,
         ["扫荡野火帮"] = true,
-        ["气运占卜"] = true,
         ["深入野火"] = true,
         ["本命灵根"] = true,
-        ["修复聚宝盆"] = true,
-        ["聚宝盆"] = true,
-        ["聚宝盆任务"] = true,
-        ["洗炼天书"] = true,
-        ["引导天书使者洗炼一次"] = true,
         ["装备强化"] = true,
         ["装备强化1次"] = true,
         ["守护森林"] = true,
@@ -6350,7 +6309,7 @@ npc[501] = function(p2, p3, Data)
     end
     local function create_reward_box(parent, name, count, x, y, giftTag)
         local box = GUI:Image_Create(parent, "box_" .. tostring(x) .. "_" .. tostring(y), x, y, "res/custom/top/shochong/kuang.png")
-        _add_reward_item_effect(box, "reward_eff", 25, 24, (name == "聚宝盆碎片" or name == "时装：小小裁决战士") and 0.8 or 0.9,  (name == "聚宝盆碎片" or name == "时装：小小裁决战士") and 13054 or 14192)
+        _add_reward_item_effect(box, "reward_eff", 25, 24, name == "时装：小小裁决战士" and 0.8 or 0.9, name == "时装：小小裁决战士" and 13054 or 14192)
         -- _add_reward_item_effect(box, "reward_eff", 25, 24, 0.9, 10267)
         local itemIndex = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", name) or 0) or 0
         local itemLayer = _get_reward_item_layer(box) or box
@@ -6635,7 +6594,7 @@ npc[502] = function(p2, p3, Data)
         local Input = GUI:TextInput_Create(node, "Input", 180.0 + 324, 50.0 + 363, 50.0, 20.0, 13)
         GUI:TextInput_setPlaceHolder(Input, "最少10")
         GUI:setTouchEnabled(Input, true)
-        local num = GUI:Text_Create(node, "num", 180.0 + 324 + 30, 80.0 + 363, 20, "#FFFFFF", SL:GetThousandSepString(SL:GetMetaValue("TMONEY", "累计充值")))
+        local num = GUI:Text_Create(node, "num", 180.0 + 324 + 30, 80.0 + 363, 20, "#FFFFFF", SL:GetThousandSepString(SL:GetMetaValue("TMONEY", "平台累计充值（真实充值）") + SL:GetMetaValue("TMONEY", "礼包充值")))
         GUI:setAnchorPoint(num, 0.5, 0.5)
         num = GUI:TextAtlas_Create(npc.bg, "num1", 690, 30, SL:GetThousandSepString(SL:GetMetaValue("TMONEY", "真充积分")), "res/custom/public/text1.png", 14, 30, ".")
         GUI:setAnchorPoint(num, 0, 0.5)
@@ -9430,15 +9389,6 @@ npc[516] = function(p2, p3, Data)
             UI_updata(npc.node_516)
         end
     end
-end
--- 顶部按钮聚宝盆入口：独立功能界面，NPC 106 只保留主线修复任务界面。
-npc[517] = function(p2, p3, Data)
-    npc._anniu_517_mod = npc._anniu_517_mod or package.loaded["GUILayout/npc/anniu_517"] or SL:Require("GUILayout/npc/anniu_517.lua", true)
-    local mod = npc._anniu_517_mod
-    if mod and type(mod.main) == "function" then
-        mod.main(517, p2, p3, Data)
-    end
-    refreshTreasureBasinTopRedpoint()
 end
 local xlxl = {
     {

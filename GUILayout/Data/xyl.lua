@@ -247,17 +247,9 @@ local function _xyl_has_jianghu_title()
     return false
 end
 
--- 备注：气运占卜次数是否大于 0
-local function _xyl_has_divination()
-    return _xyl_get_num("U31") > 0
-end
 -- 备注：是否已打开过二大陆限时福利
 local function _xyl_has_second_continent_welfare_open()
     return _xyl_get_num("N$XYL2_WELFARE_OPEN") > 0
-end
--- 备注：是否已完成过一次天书使者洗炼
-local function _xyl_has_second_continent_tianshu_refine()
-    return _xyl_get_num("N$XYL2_TIANSHU_REFINE") > 0
 end
 -- 备注：幸运增幅任务要求实际强化一次
 local function _xyl_has_second_continent_lucky_view()
@@ -397,11 +389,6 @@ end
 local function _xyl_has_treasure()
     return _xyl_get_num("U46") > 0
 end
--- 备注：聚宝盆是否已修复/激活
-local function _xyl_has_treasure_basin_fixed()
-    local data = _xyl_get_json("T44")
-    return (tonumber(data and data.rebuilt or 0) or 0) >= 1
-end
 -- 备注：灵兽全星级是否达到指定等级
 local function _xyl_has_lingshou_star(star)
     local cfg = teshudata and teshudata["npc_64"]
@@ -519,9 +506,9 @@ local function _xyl_check_task(name)
         ["天书强化"] = _xyl_has_tianshu_level,
         ["初识仙法"] = _xyl_has_any_xianfa,
         ["天书仙法"] = _xyl_has_any_xianfa,
+        ["刷新天书仙法"] = _xyl_has_any_xianfa,
         ["装备强化"] = _xyl_has_equip_strength,
         ["装备强化1次"] = _xyl_has_equip_strength,
-        ["气运占卜"] = _xyl_has_divination,
         ["江湖称号"] = _xyl_has_jianghu_title,
         ["引导江湖称号"] = _xyl_has_jianghu_title,
         ["江湖称号强化一次"] = _xyl_has_jianghu_title,
@@ -531,8 +518,6 @@ local function _xyl_check_task(name)
         ["引导幸运增幅"] = _xyl_has_second_continent_lucky_view,
         ["幸运增幅强化一次"] = _xyl_has_second_continent_lucky_view,
         ["限时福利"] = _xyl_has_second_continent_welfare_open,
-        ["洗炼天书"] = _xyl_has_second_continent_tianshu_refine,
-        ["引导天书使者洗炼一次"] = _xyl_has_second_continent_tianshu_refine,
         ["本命灵根"] = _xyl_has_main_linggen,
         ["灵兽孵化"] = _xyl_has_lingshou_hatched,
         ["筑基"] = _xyl_has_foundation_realm,
@@ -557,9 +542,6 @@ local function _xyl_check_task(name)
         ["了解砍树"] = _xyl_has_tree,
         ["种植仙草"] = _xyl_has_xianfu_plant,
         ["寻宝大师"] = _xyl_has_treasure,
-        ["修复聚宝盆"] = _xyl_has_treasure_basin_fixed,
-        ["聚宝盆"] = _xyl_has_treasure_basin_fixed,
-        ["聚宝盆任务"] = _xyl_has_treasure_basin_fixed,
         ["激活全部圣遗物"] = _xyl_has_all_syw,
         ["激活全部天命装备"] = _xyl_has_all_tianming,
         ["灵兽全一星"] = function() return _xyl_has_lingshou_star(1) end,
@@ -2222,8 +2204,7 @@ local function _xyl_beautify_desc_keywords(text)
         return "\1" .. tostring(#protected) .. "\2"
     end)
     local systemWords = {
-        "天书界面", "装备强化界面", "幸运强化界面", "江湖称号界面", "灵根界面", "古玩鉴定", "气运占卜",
-        "灵根培养", "自动砍树", "藏宝图", "仙府", "转生",
+        "天书界面", "装备强化界面", "幸运强化界面", "江湖称号界面", "灵根界面", "古玩鉴定", "灵根培养", "自动砍树", "藏宝图", "仙府", "转生",
         "灵兽", "神石", "千年沉船", "四灾试炼", "西游篇",
     }
     local actionWords = {

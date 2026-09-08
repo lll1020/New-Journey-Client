@@ -40,7 +40,7 @@ local function _refresh_xyl_playerequip_guides()
         return
     end
     if ui.Button1 then
-        NPC_UI_HELPER.tryStartXylGuide(PlayerEquip, ui.Button1, ui.Panel_1, "tianshu_divination", {
+        NPC_UI_HELPER.tryStartXylGuide(PlayerEquip, ui.Button1, ui.Panel_1, "tianshu_xianfa", {
             taskNames = {"天书强化", "天书仙法", "进行天书强化1次", "初识仙法", "进行天书仙法抽取"},
             dir = 5,
             desc = "打开天书界面",

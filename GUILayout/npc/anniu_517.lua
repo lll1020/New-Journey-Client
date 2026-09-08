@@ -41,54 +41,7 @@ local function levelCfg(level)
     return levels[tonumber(level or 1) or 1] or levels[1] or {name = "聚宝盆", speed = 100, cap_text = "无存储"}
 end
 
-local function refineDuration(baseTime, level)
-    if type(baseTime) == "string" then
-        local value = tonumber(string.match(baseTime, "(%d+%.?%d*)")) or 0
-        if string.find(baseTime, "小时") then
-            baseTime = value * 3600
-        elseif string.find(baseTime, "分钟") then
-            baseTime = value * 60
-        else
-            baseTime = value
-        end
-    end
-    local speed = tonumber(levelCfg(level).speed or 100) or 100
-    if speed <= 0 then speed = 100 end
-    return math.max(1, math.ceil((tonumber(baseTime) or 0) * 100 / speed))
-end
-
-local function stonesCfg()
-    return cfg().stones or {}
-end
-
-local function isContinentUnlocked(continent)
-    local c = tonumber(continent or 0) or 0
-    if c <= 1 then return true end
-    local adminUnlock = cogin and cogin.sjtb and tonumber(cogin.sjtb.dl_all_unlock or 0) or 0
-    if adminUnlock == 1 or adminUnlock >= c then
-        return true
-    end
-    if type(dl_unlock_check) == "function" then
-        local ok = dl_unlock_check(c)
-        return ok == true
-    end
-    if type(dl_sz) == "function" then
-        return dl_sz(c) == true
-    end
-    return true
-end
-
-local function visibleStones()
-    local list = {}
-    for i, one in ipairs(stonesCfg()) do
-        local continent = tonumber(one.continent or 0) or 0
-        if continent <= 0 or isContinentUnlocked(continent) then
-            list[#list + 1] = {idx = i, cfg = one}
-        end
-    end
-    return list
-end
-
+-- 9.8-1 Exclusive-gem refining helpers removed.
 local function forbiddenCfg(id)
     local list = cfg().forbidden or {}
     return list[tonumber(id or 0) or 0] or {}
@@ -335,70 +288,7 @@ local function rewardItem(parent, key, itemName, count, x, y)
     return box
 end
 
-local function refinePreviewItem(parent, key, entry, x, y)
-    local box = GUI:Image_Create(parent, "refine_preview_box_" .. tostring(key), x, y, "res/custom/ditu/58_58_kuang.png")
-    GUI:setAnchorPoint(box, 0.5, 0.5)
-    GUI:setContentSize(box, 38, 38)
-    local idx = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", entry.name) or 0) or 0
-    if idx > 0 then
-        local item = GUI:ItemShow_Create(box, "item", 19, 19, {
-            index = idx,
-            disShowCount = true,
-            look = true,
-        })
-        GUI:setAnchorPoint(item, 0.5, 0.5)
-        -- GUI:setScale(item, 0.65)
-    else
-        text(box, "fallback", 19, 20, 19, "#FFD66A", "?", 0.5, 0.5)
-    end
-    -- text(parent, "refine_preview_name_" .. tostring(key), x, y - 26, 12, "#F6D08A", tostring(entry.label or entry.name or ""), 0.5, 0.5)
-    if tostring(entry.rate or "") ~= "" then
-        text(parent, "refine_preview_rate_" .. tostring(key), x, y - 26, 15, "#9DFF7C", tostring(entry.rate), 0.5, 0.5)
-    end
-    return box
-end
-
-local function refinePreviewEntries(stoneCfg)
-    if tostring(stoneCfg.kind or "") == "normal" then
-        return {
-            {name = "灵石", label = "灵石×10", rate = "概率获得"},
-            {name = "金币", label = "金币×50万", rate = "概率获得"},
-            {name = "千年玄铁", label = "千年玄铁×10", rate = "概率获得"},
-        }
-    end
-    local continent = tonumber(stoneCfg.continent or 2) or 2
-    return {
-        {name = "神秘装备", label = "神秘装备"},
-        {name = REBIRTH_STONE_BY_CONTINENT[continent] or "二重转生石", rate = "概率获得"},
-    }
-end
-
-local function stoneBagItem(parent, key, itemName, x, y)
-    local idx = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", itemName) or 0) or 0
-    local count = 0
-    if idx > 0 then
-        count = tonumber(SL:GetMetaValue("ITEM_COUNT", idx) or 0) or 0
-    end
-    local box = GUI:Image_Create(parent, "stone_item_box_" .. tostring(key), x, y, "res/custom/ditu/58_58_kuang.png")
-    GUI:setAnchorPoint(box, 0.5, 0.5)
-    GUI:setContentSize(box, 30, 30)
-    if idx > 0 then
-        local item = GUI:ItemShow_Create(box, "item", 15, 15, {
-            index = idx,
-            count = count,
-            disShowCount = true,
-            look = true,
-        })
-        GUI:setAnchorPoint(item, 0.5, 0.5)
-    end
-    if count > 0 then
-        local num = text(box, "count", 28 + 3 + 2, 1 - 3 - 2, 16, "#FFFFFF", fmt(count), 1, 0)
-        GUI:Text_setFontName(num, "fonts/font4.ttf")
-        GUI:Text_enableOutline(num, "#000000", 2)
-    end
-    return box
-end
-
+-- 9.8-1 Exclusive-gem preview helpers removed.
 local function titleReward(parent, key, titleName, x, y, active, mode)
     local itemName = tostring(titleName or "") .. "[称号]"
     local idx = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", itemName) or 0) or 0
@@ -531,7 +421,6 @@ local function openForbiddenUpgradePopup(npcid, id, lv)
 
     local needLevel = n(cost.need_level)
     local yuanbao = n(cost.yuanbao)
-    local crystal = n(cost.crystal)
     local levelOk = n(data().level) >= needLevel
     panel(bg, "title_bg", 300, 313, 548, 78, "res/wy/public/tycccc.png")
     panel(bg, "item_bg", 158, 154, 224, 210, "res/wy/public/tycccc.png")
@@ -554,9 +443,8 @@ local function openForbiddenUpgradePopup(npcid, id, lv)
     text(bg, "attr", 416, 157 + 80, 19, "#B9F6C5", tostring(fc.plus or ""), 0.5, 0.5)
 
     text(bg, "cost_title", 416, 136 + 75, 23, "#F6D08A", "升级消耗", 0.5, 0.5)
-    -- text(bg, "cost_jy", 334, 107, 19, "#FFF1B8", "禁元神晶：" .. fmt(crystal), 0, 0.5)
     -- text(bg, "cost_yb", 112, 94, 19, "#FFF1B8", "元宝：" .. fmt(yuanbao), 0, 0.5)
-    checkItemNumByTable_img_kuang({{"禁元神晶",crystal},{"元宝",yuanbao}},1, GUI:Node_Create(bg, "cost_items", 416 - 103, 95 + 30))
+    checkItemNumByTable_img_kuang({{"元宝",yuanbao}},1, GUI:Node_Create(bg, "cost_items", 416 - 103, 95 + 30))
     text(bg, "need_level", 416, 78, 18, levelOk and "#9DFF7C" or "#FF5A3D", "聚宝盆品阶要求 Lv." .. tostring(needLevel), 0.5, 0.5)
 
     button(bg, "confirm", 300 + 145 - 28, 23 + 23, "确认升级", function()
@@ -592,7 +480,6 @@ end
 
 local renderLevelInfo
 local renderEnergy
-local renderRefine
 local renderForbidden
 
 local function renderContent(node, npcid)
@@ -603,15 +490,13 @@ local function renderContent(node, npcid)
     if tab == 1 then
         renderLevelInfo(content, npcid)
         renderEnergy(content, npcid)
-    elseif tab == 2 then
-        renderRefine(content, npcid)
     else
         renderForbidden(content, npcid)
     end
 end
 
 local function renderTabs(node, npcid)
-    local names = {"聚能收益", "炼灵宝石", "禁器养成"}
+    local names = {"聚能收益", "禁器养成"}
     local redState = UPGRADE_HELPER and UPGRADE_HELPER.treasureBasinRedState and UPGRADE_HELPER.treasureBasinRedState(data()) or {}
     for i, name in ipairs(names) do
         local y = 44 - (i - 1) * 82
@@ -634,8 +519,7 @@ local function renderTabs(node, npcid)
         text(node, "tab_text_" .. i, -337, y + 1, selected and 28 or 22, selected and "#FFF1B8" or "#C98C45", name, 0.5, 0.5)
         if not selected and (
             (i == 1 and (redState.energy or redState.level))
-            or (i == 2 and redState.refine)
-            or (i == 3 and redState.forbidden)
+            or (i == 2 and redState.forbidden)
         ) then
             NPC_UI_HELPER.redpoint_create_eff(bg, {x = 185 - 115, y = 20, autoScale = 0.75})
         end
@@ -727,153 +611,7 @@ renderEnergy = function(node, npcid)
     end
 end
 
-renderRefine = function(node, npcid)
-    local rx = 100
-    panel(node, "refine_list_panel", -132 + rx, -106, 300, 392, "res/wy/public/tycccc.png")
-    panel(node, "refine_state_panel", 306, -50 - 20, 292, 300, "res/wy/public/tycccc.png")
-    local d = data()
-    local ref = d.refine or {}
-    local visible = visibleStones()
-    local selectedVisible = false
-    for _, item in ipairs(visible) do
-        if item.idx == selectedStone then selectedVisible = true break end
-    end
-    if not selectedVisible and visible[1] then
-        selectedStone = visible[1].idx
-    end
-    local groups = {}
-    local groupOrder = {}
-    for _, item in ipairs(visible) do
-        local continent = tonumber(item.cfg.continent or 1) or 1
-        if continent <= 0 then continent = 1 end
-        if not groups[continent] then
-            groups[continent] = {bind = {}, free = {}}
-            groupOrder[#groupOrder + 1] = continent
-        end
-        if tonumber(item.cfg.bind or 0) == 1 or tonumber(item.cfg.continent or 0) <= 0 then
-            groups[continent].bind[#groups[continent].bind + 1] = item
-        else
-            groups[continent].free[#groups[continent].free + 1] = item
-        end
-    end
-    table.sort(groupOrder)
-    titleBar(node, "refine_title", -132 + rx, 82, "宝石选择", 218)
-    text(node, "stone_tip", -132 + rx, 54, 17, "#E9D7B2", "已解锁大陆宝石列表", 0.5, 0.5)
-
-    local viewW = 280
-    local viewH = 304 + 30
-    local innerH = 18
-    for _, continent in ipairs(groupOrder) do
-        innerH = innerH + 42
-        local group = groups[continent] or {bind = {}, free = {}}
-        innerH = innerH + math.max(#group.bind, #group.free) * 36 + 18
-    end
-    innerH = math.max(viewH, innerH)
-    local scroll = GUI:ScrollView_Create(node, "stone_scroll", -272 + rx, -270 - 20, viewW, viewH, 1)
-    GUI:ScrollView_setBounceEnabled(scroll, true)
-    GUI:ScrollView_setInnerContainerSize(scroll, viewW, innerH)
-    local listNode = GUI:Layout_Create(scroll, "stone_list_node", 0, 0, viewW, innerH, false)
-
-    local cursorY = innerH - 22
-    for _, continent in ipairs(groupOrder) do
-        local isOpen = true
-        local group = groups[continent] or {bind = {}, free = {}}
-        local headerSkin = "res/wy/public/000.png"
-        local headerBg = GUI:Image_Create(listNode, "stone_group_bg_" .. continent, viewW / 2, cursorY, headerSkin)
-        GUI:setAnchorPoint(headerBg, 0.5, 0.5)
-        GUI:setLocalZOrder(headerBg, -1)
-        GUI:setContentSize(headerBg, 260, 38)
-        text(listNode, "stone_group_arrow_" .. continent, 36, cursorY + 1, 23, isOpen and "#78FF7A" or "#C58A3E", isOpen and "◆" or "◇", 0.5, 0.5)
-        text(listNode, "stone_group_text_" .. continent, 136, cursorY + 1, 27, isOpen and "#FFF1B8" or "#E8B86D", continentName(continent), 0.5, 0.5)
-        local headerTouch = GUI:Layout_Create(listNode, "stone_group_touch_" .. continent, 10, cursorY - 19, 260, 38, false)
-        GUI:setTouchEnabled(headerTouch, false)
-        cursorY = cursorY - 42
-        if isOpen then
-            local function renderStoneItem(item, col)
-                local i = item.idx
-                local one = item.cfg
-                local x = viewW / 2
-                local y = cursorY
-                local selected = selectedStone == i
-                local rowBg = GUI:Image_Create(listNode, "stone_row_bg_" .. i, x + 8, y, "res/wy/public/new_kuang.png")
-                GUI:setAnchorPoint(rowBg, 0.5, 0.5)
-                GUI:setContentSize(rowBg, selected and 234 or 222, 32)
-                GUI:setLocalZOrder(rowBg, -1)
-                local displayName = tostring(one.name or "")
-                if tonumber(one.continent or 0) > 1 then
-                    displayName = col == 1 and "宝石·绑定" or "宝石·非绑"
-                end
-                stoneBagItem(listNode, "stone_" .. i, tostring(one.name or ""), x - 88, y + 1)
-                text(listNode, "stone_dot_" .. i, x - 56, y + 1, selected and 20 or 17, selected and "#78FF7A" or "#9B7141", selected and "◆" or "◇", 0.5, 0.5)
-                text(listNode, "stone_" .. i, x - 32, y + 1, selected and 20 or 18, selected and "#9DFF7C" or (col == 1 and "#D9C08A" or "#8FC8E8"), displayName, 0, 0.5)
-                local touch = GUI:Layout_Create(listNode, "stone_touch_" .. i, x - 112, y - 16, 234, 32, false)
-                GUI:setTouchEnabled(touch, true)
-                GUI:addOnClickEvent(touch, function()
-                    selectedStone = i
-                    npc.render(npcid, true)
-                end)
-                cursorY = cursorY - 36
-            end
-            local maxRows = math.max(#group.bind, #group.free)
-            for row = 1, maxRows do
-                if group.bind[row] then renderStoneItem(group.bind[row], 1) end
-                if group.free[row] then renderStoneItem(group.free[row], 2) end
-            end
-            cursorY = cursorY - 6
-        end
-    end
-    if #visible <= 1 then
-        text(listNode, "stone_empty_tip", viewW / 2, innerH / 2, 16, "#FFB85A", "解锁新大陆后开放专属宝石", 0.5, 0.5)
-    end
-    local cfg = stonesCfg()[selectedStone] or stonesCfg()[1] or {}
-    titleBar(node, "play_title", 306, 82, "炼灵信息", 230)
-    panel(node, "sel_info_bg", 306, 22, 244, 86, "res/wy/public/new_kuang.png")
-    text(node, "sel_label", 306, 51 - 3, 17, "#B9F6FF", "当前选择", 0.5, 0.5)
-    text(node, "sel_name", 306, 25, 22, "#FFD66A", cfg.name, 0.5, 0.5)
-    text(node, "sel_time", 306, -2 + 3, 18, "#9FE2FF", "炼灵耗时  " .. fmtDuration(refineDuration(cfg.time, d.level)), 0.5, 0.5)
-    panel(node, "sel_desc_bg", 306, -70, 244, 86, "res/wy/public/new_kuang.png")
-    rich(node, "sel_desc", 196, -32 - 5, "<font color='#E9D7B2'>产出：</font><font color='#F6D08A'>" .. tostring(cfg.desc or "") .. "</font>", 222, 16, 1, 0, 1)
-    panel(node, "refine_preview_bg", 306, -186, 244, 88, "res/wy/public/000.png")
-    -- text(node, "refine_preview_title", 306, -149, 16, "#B9F6C5", "可能获得", 0.5, 0.5)
-    local previewEntries = refinePreviewEntries(cfg)
-    local previewSpacing = #previewEntries >= 3 and 76 or 108
-    local previewStartX = 306 - (#previewEntries - 1) * previewSpacing / 2
-    for i, entry in ipairs(previewEntries) do
-        refinePreviewItem(node, i, entry, previewStartX + (i - 1) * previewSpacing, -177 + 13)
-    end
-    if n(ref.active) >= 1 then
-        local done = n(ref.done) >= 1
-        panel(node, "ref_countdown_bg", 306, -124, 244, 38, "res/wy/public/000.png")
-        text(node, "ref_status_label", 252, -124, 18, done and "#9DFF7C" or "#FFB85A", done and "炼灵完成" or "剩余倒计时", 0.5, 0.5)
-        local countdownText = text(node, "ref_status_time", 356, -124, 26, done and "#9DFF7C" or "#FF5A3D", done and "可领取" or fmtTime(ref.left or 0), 0.5, 0.5)
-        if not done then
-            bindCountdownText(countdownText, ref.left or 0, function()
-                GUI:Text_setString(countdownText, "可领取")
-                npc.render(npcid, true)
-            end)
-        end
-        local claimBtn = button(node, "claim_refine", 266 + 40, -254, "领取产物", function()
-            SL:SendLuaNetMsg(101, npcid, 3, 0, "")
-        end, 1.4)
-        if done then
-            NPC_UI_HELPER.redpoint_create(claimBtn, {x = 143, y = 30, autoScale = 0.7})
-        end
-    else
-        panel(node, "ref_countdown_bg", 306, -124, 244, 38, "res/wy/public/000.png")
-        text(node, "ref_status_label", 252, -124, 18, "#B9F6C5", "炼灵状态", 0.5, 0.5)
-        text(node, "ref_status_time", 356, -124, 22, "#9DFF7C", "空闲", 0.5, 0.5)
-        local startBtn = button(node, "start_refine", 266 + 40, -254, "开始炼灵", function()
-            SL:SendLuaNetMsg(101, npcid, 2, 0, SL:JsonEncode({stone = cfg.name}))
-        end, 1.4)
-        local redState = UPGRADE_HELPER and UPGRADE_HELPER.treasureBasinRedState and UPGRADE_HELPER.treasureBasinRedState(d) or {}
-        local selectedStoneIndex = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", cfg.name) or 0) or 0
-        local selectedStoneCount = selectedStoneIndex > 0 and (tonumber(SL:GetMetaValue("ITEM_COUNT", selectedStoneIndex) or 0) or 0) or 0
-        if redState.refine_start and selectedStoneCount > 0 then
-            NPC_UI_HELPER.redpoint_create(startBtn, {x = 143, y = 30, autoScale = 0.7})
-        end
-    end
-end
-
+-- 9.8-1 Exclusive-gem refining page removed.
 renderForbidden = function(node, npcid)
     local fx = 95
     panel(node, "forbid_list_panel", -16 + fx, -82, 570, 392, "res/wy/public/tycccc.png")
@@ -893,8 +631,7 @@ renderForbidden = function(node, npcid)
     GUI:setContentSize(pointBar, 286, 20)
     GUI:LoadingBar_setPercent(pointBar, pointPercent)
     text(node, "point_value", -58 + fx, 49, 17, "#FFFFFF", string.format("%s/%s", fmt(point), fmt(needPoint)), 0.5, 0.5)
-    tipButton(node, "forbid_point_tip", 194 + fx, 49 + 8,
-        "每击杀一只怪物，聚宝值+1\n炼化[聚宝魔石]：聚宝值+100\n炼化[专属宝石]：聚宝值+（宝石所属大陆*100）")
+    tipButton(node, "forbid_point_tip", 194 + fx, 49 + 8, "每击杀一只怪物，聚宝值+1")
     titleReward(node, "forbid_all_title", "初识禁器", -16 + fx - 244, -188 - 120, n(d.has_forbidden_title) >= 1, "bottom")
     local list = d.forbidden or {}
     local cardW = 250
@@ -993,8 +730,8 @@ function npc.main(npcid, p2, p3, msgData)
         tab = 1
     end
     if tonumber(p2 or 0) >= 4 and tonumber(p2 or 0) <= 7 then
-        forceFullRefresh = tab ~= 3
-        tab = 3
+        forceFullRefresh = tab ~= 2
+        tab = 2
     end
     if msgData and msgData ~= "" then
         npc.data = SL:JsonDecode(msgData, false) or npc.data or {}

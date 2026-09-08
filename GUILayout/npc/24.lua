@@ -708,7 +708,7 @@ function npc.main(npcid, p2, p3, msgData)
                         NPC_UI_HELPER.tryStartXylGuide(npc, Button, npc.xf_node, "tianshu_xianfa_" .. tostring(slot), {
                             idx = 1,
                             once = true,
-                            taskNames = {"初识仙法", "天书仙法", "进行天书仙法抽取"},
+                            taskNames = {"初识仙法", "天书仙法", "刷新天书仙法", "进行天书仙法抽取"},
                             dir = 5,
                             desc = "点击刷新仙法",
                         })
@@ -848,7 +848,7 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data = _ts_normalize_payload(SL:JsonDecode(msgData,false))
         npc.isLookPlayer = tonumber(npc.data and npc.data.lookPlayer or 0) == 1 or npc.data.lookPlayer == true
         UI_updata(npc.node)
-        local isXianfaMainline = NPC_UI_HELPER.isCurrentXylTask({"初识仙法", "查看仙法", "天书仙法", "进行天书仙法抽取"})
+        local isXianfaMainline = NPC_UI_HELPER.isCurrentXylTask({"初识仙法", "查看仙法", "天书仙法", "刷新天书仙法", "进行天书仙法抽取"})
         if (not _ts_is_look_player()) and (not isXianfaMainline)
             and NPC_UI_HELPER.isCurrentXylTask({"天书强化", "进行天书强化1次"})
             and (tonumber(npc.data and npc.data.T_data and npc.data.T_data.level or 0) or 0) >= 1 then

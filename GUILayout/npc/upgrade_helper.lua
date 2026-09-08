@@ -338,23 +338,6 @@ local function _upgrade_check_title_43()
     end
     return true
 end
-local function _upgrade_check_qiyun_26()
-    local cfg = teshudata and teshudata["npc_26"]
-    if not cfg then
-        return true
-    end
-    local details = cfg.details or {}
-    if #details > 0 and _upgrade_has_title(details[#details]) then
-        return false
-    end
-    if _upgrade_get_server_num("U31") <= 0 then
-        return true
-    end
-    if cfg.cost and not _upgrade_can_pay(cfg.cost) then
-        return false
-    end
-    return true
-end
 local function _upgrade_check_skill_27()
     local cfg = teshudata and teshudata["npc_27"]
     if not cfg then
@@ -658,7 +641,6 @@ local UPGRADE_CHECKERS = {
     [22] = _upgrade_check_linggen,
     [13] = _upgrade_check_haogandu,
     [43] = _upgrade_check_title_43,
-    [26] = _upgrade_check_qiyun_26,
     [27] = _upgrade_check_skill_27,
     [28] = _upgrade_check_equip_28,
     [25] = _upgrade_check_lucky_25,
@@ -685,7 +667,6 @@ local OPEN_BTN_LIST = {
     {id = 22, label = "灵根", npcid = 22, continent = 2},
     {id = 21, label = "境界修为", npcid = 21, continent = 2},
     {id = 43, label = "江湖称号", npcid = 43, continent = 2},
-    {id = 26, label = "气运占卜", npcid = 26, continent = 2},
     {id = 28, label = "装备强化", npcid = 28, continent = 2},
     {id = 25, label = "幸运强化", npcid = 25, continent = 2},
     -- 三大陆现在区分半进入/真进入：
@@ -884,7 +865,6 @@ function UpgradeHelper.treasureBasinRedState(data)
     local rawList = type(rawForbidden.list) == "table" and rawForbidden.list or {}
     local point = _upgrade_to_num(data.forbidden_point, _upgrade_to_num(rawForbidden.point, 0))
     local money = _upgrade_to_num(SL:GetMetaValue("MONEY", 4), 0)
-    local crystal = _upgrade_get_item_count_by_name("禁元神晶")
     local selectedId = _upgrade_to_num(rawForbidden.show, 0)
     for id, _ in ipairs(basinCfg.forbidden or {}) do
         local node = forbiddenList[id] or forbiddenList[tostring(id)] or rawList[id] or rawList[tostring(id)] or {}
@@ -899,8 +879,7 @@ function UpgradeHelper.treasureBasinRedState(data)
         elseif lv < 5 then
             local cost = (basinCfg.forbidden_cost or {})[lv + 1] or {}
             if level >= _upgrade_to_num(cost.need_level, 0)
-                and money >= _upgrade_to_num(cost.yuanbao, 0)
-                and crystal >= _upgrade_to_num(cost.crystal, 0) then
+                and money >= _upgrade_to_num(cost.yuanbao, 0) then
                 result.forbidden_upgrade[id] = true
             end
         end
