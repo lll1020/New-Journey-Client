@@ -108,65 +108,6 @@ function npc.main(npcid, p2, p3, msgData)
         end
         SL:SendLuaNetMsg(100, npcid, 2, 0, SL:JsonEncode({caowei = slot}))
     end
-    -- 没有普通仙法卷轴时，先确认是否改为消耗100灵石刷新。
-    local function _open_lingshi_refresh_confirm(slot)
-
-        local parent = GUI:GetWindow(nil, "xf_lingshi_confirm")
-        if parent then
-            GUI:removeAllChildren(parent)
-        else
-            parent = GUI:Win_Create("xf_lingshi_confirm", 0, 0, 0, 0, false, false, true, true, true, nil, 100)
-        end
-        local function close_confirm()
-            GUI:Win_Close(parent)
-        end
-        local overlay = GUI:Image_Create(parent, "overlay", cogin.w / 2, cogin.h / 2, "res/public/1900000651_1.png")
-        GUI:setAnchorPoint(overlay, 0.5, 0.5)
-        GUI:setContentSize(overlay, cogin.w + 100, cogin.h + 100)
-        GUI:setTouchEnabled(overlay, true)
-        GUI:addOnClickEvent(overlay, function()
-            close_confirm()
-        end)
-        local bg = GUI:Image_Create(parent, "bg", cogin.w / 2, cogin.h / 2, "res/wy/public/anniu_999_bj.png")
-        GUI:setAnchorPoint(bg, 0.5, 0.5)
-        GUI:setContentSize(bg, 380, 150)
-        GUI:setTouchEnabled(bg, true)
-        GUI:setLocalZOrder(bg, 10)
-        
-        local title = GUI:Text_Create(bg, "title", 190, 125, 24, "#FFF2C6", "刷新确认")
-        GUI:setAnchorPoint(title, 0.5, 0.5)
-        GUI:Text_enableOutline(title, "#000000", 1)
-        local desc = GUI:Text_Create(bg, "desc", 190, 90, 20, "#FFFFFF", "是否花费100灵石刷新仙法？")
-        GUI:setAnchorPoint(desc, 0.5, 0.5)
-        GUI:Text_enableOutline(desc, "#000000", 1)
-        local checkBox = GUI:CheckBox_Create(bg, "skip_confirm", 92, 36 + 10, "res/wy/public/xz_1.png", "res/wy/public/xz_0.png")
-        GUI:CheckBox_setSelected(checkBox, false)
-        local checkLabel = GUI:Text_Create(bg, "skip_label", 140, 44 + 10, 18, "#FFFFFF", "本次不再提示")
-        GUI:setAnchorPoint(checkLabel, 0, 0.5)
-        GUI:Text_enableOutline(checkLabel, "#000000", 1)
-        
-        GUI:setTouchEnabled(checkLabel, true)
-        GUI:addOnClickEvent(checkLabel, function()
-            local selected = not GUI:CheckBox_isSelected(checkBox)
-            GUI:CheckBox_setSelected(checkBox, selected)
-        end)
-        local cancelBtn = GUI:Button_Create(bg, "cancel_btn", 95, 9, "res/wy/public/kb_btn.png")
-        GUI:setAnchorPoint(cancelBtn, 0.5, 0)
-        GUI:Button_setTitleText(cancelBtn, "取消")
-        GUI:Button_setTitleFontSize(cancelBtn, 18)
-        GUI:addOnClickEvent(cancelBtn, function()
-            close_confirm()
-        end)
-        local confirmBtn = GUI:Button_Create(bg, "confirm_btn", 285, 9, "res/wy/public/kb_btn.png")
-        GUI:setAnchorPoint(confirmBtn, 0.5, 0)
-        GUI:Button_setTitleText(confirmBtn, "确定")
-        GUI:Button_setTitleFontSize(confirmBtn, 18)
-        GUI:addOnClickEvent(confirmBtn, function()
-            npc._xf_skip_lingshi_confirm = GUI:CheckBox_isSelected(checkBox)
-            close_confirm()
-            _send_normal_xianfa_refresh(slot)
-        end)
-    end
     local function _try_refresh_xianfa(slot)
         if _ts_is_look_player() then
             return
@@ -176,11 +117,7 @@ function npc.main(npcid, p2, p3, msgData)
                 _send_normal_xianfa_refresh(slot)
                 return
             end
-            if npc._xf_skip_lingshi_confirm then
-                _send_normal_xianfa_refresh(slot)
-                return
-            end
-            _open_lingshi_refresh_confirm(slot)
+            SL:OpenCommonTipsPop({str="仙法卷轴不足，无法刷新仙法！",btnType=1})
         end
         if checkItemNum({{"极品仙法卷轴",1}}) then
             SL:OpenCommonTipsPop({str="是否要使用极品仙法卷轴，必可得到帝品仙法！",btnType=2,callback=function(atype,param)
@@ -840,7 +777,6 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data = _ts_normalize_payload(SL:JsonDecode(msgData,false))
         npc.isLookPlayer = tonumber(npc.data and npc.data.lookPlayer or 0) == 1 or npc.data.lookPlayer == true
         npc.titles_sign = nil
-        npc._xf_skip_lingshi_confirm = false
         npc._xf_skip_anim = _get_xianfa_skip_anim_default()
         ensureWindow(npcid)
         UI_updata(npc.node)

@@ -5963,6 +5963,18 @@ npc[30] = function(p2, p3, Data)
                     skin = "res/custom/three_city/xianfu/kanshu/tip/btn.png",
                 },
             })
+            local tipLines = {
+                "1.每次砍树都会掉落仙府币，数量由斧头的品质来决定！",
+                "2.仙府币是炼丹的必备材料！",
+                "3.仙府币可以兑换盲盒！数量不限！",
+                "4.仙府币可以升级[斧头]和[自动砍树]！",
+            }
+            local tipY = {236, 193, 150, 107}
+            for i, tipText in ipairs(tipLines) do
+                local label = GUI:Text_Create(npc.xjm_window.node, "tip_text_" .. i, 300, tipY[i], 20, "#FFFFFF", tipText)
+                GUI:setAnchorPoint(label, 0.5, 0.5)
+                GUI:Text_enableOutline(label, "#1D1D1D", 2)
+            end
         end)
         GUI:addOnClickEvent(btn_updata_1, function()
             btn_updata_1_xjm()
@@ -9017,6 +9029,13 @@ npc[514] = function(p2, p3, Data)
             loop = -1,
         })
         GUI:setAnchorPoint(bg, 0.5, 0.5)
+
+        local effwu = GUI:Frames_Create(node, "effwu", 0, 0, "res/wy/eff/city/2_", ".png", 1, 15,
+        { speed = 50, count = 15, loop = 1, finishhide = false })
+        GUI:setAnchorPoint(effwu, 0.5, 0.5)
+        GUI:setScale(effwu,1.5)
+
+
         for i = 1, 8 do
             local isUnlocked = isWorldMapContinentUnlocked(i)
             local skinState = isUnlocked and "l" or "n"
