@@ -59,6 +59,11 @@ local function _formatShapeName(name)
     name = tostring(name or "")
     return (string.gsub(name, "^(足迹：)(.+)$", "%1\n%2"):gsub("^(时装：)(.+)$", "%1\n%2"))
 end
+
+local function _displayShapeName(name)
+    name = tostring(name or "")
+    return string.gsub(name, "^(足迹：|时装：)", "")
+end
 function npc.main(npcid, p2, p3, msgData)
 
     local function getBodyAuraData()
@@ -214,109 +219,162 @@ function npc.main(npcid, p2, p3, msgData)
 
     function GUI_createLabel(Label_node,idx)
         GUI:removeAllChildren(Label_node)
-        if idx ~= 4 then
-            GUI:Image_Create(Label_node, "wz1", 600 - 70, 20, "res/custom/one_city/shape/wz1.png")
-        end
-
-
-        if idx == 1 then
-            local ScrollView = GUI:ScrollView_Create(Label_node, "ScrollView", 30, 12, 670, 370, 1)
-            GUI:ScrollView_setInnerContainerSize(ScrollView, 670, (216 * math.ceil(#npc._config.details.sz/3)))
-            local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 0,0, 670, (216 * math.ceil(#npc._config.details.sz/3)))
-            for k,v in ipairs(npc._config.details.sz) do
-                local kuang = GUI:Image_Create(dbLayout, "kuang"..k, 0, 0.00, "res/custom/one_city/shape/kuang1.png")
-
-                -- GUI:Text_enableOutline(wz5, "#FFFFFF", 1)
-                GUI:Effect_Create(kuang, "rw", 60, 60, 4, v.shape, 0, 0, 3, 1)
-                if npc.data.T_data.dqzb == k then
-                    GUI:setAnchorPoint(GUI:Image_Create(kuang, "xz", 166/2, 30, "res/custom/one_city/shape/bz2.png")
-                    , 0.5, 0.5)
-                elseif npc.data.T_data.yjs[""..k] and npc.data.T_data.yjs[""..k] == 1 then
-                    local btn = GUI:Button_Create(kuang, "btn", 166/2, 30, "res/custom/one_city/shape/btn.png")
-                    GUI:setAnchorPoint(btn, 0.5, 0.5)
-                    GUI:addOnClickEvent(btn, function()
-                        SL:SendLuaNetMsg(100, npcid, 1, k, "")
-                    end)
-                else
-                    GUI:setAnchorPoint(GUI:Image_Create(kuang, "wjs", 166/2, 30, "res/custom/one_city/shape/bz1.png")
-                    , 0.5, 0.5)
-                end
-                GUI:setTouchEnabled(kuang, true)
-                GUI:addOnTouchEvent(kuang, function(self)
-                    local pos = GUI:getWorldPosition(kuang)
-                    SL:OpenItemTips({typeId = SL:GetMetaValue("ITEM_INDEX_BY_NAME",v.name.."[展示]"), pos = {x = pos.x, y = pos.y}})
-                end)
-                local wz5 = GUI:Text_Create(kuang, "wz5",10, 185, 25, "#FF0000", _formatShapeName(v.name))
-                GUI:setAnchorPoint(wz5, 0, 0.5)
-                GUI:Text_setFontName(wz5, "fonts/502.ttf")
-            end
-            GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 3,gap = {x=0, y=0}})
-
-        elseif idx == 2 then
-            local ScrollView = GUI:ScrollView_Create(Label_node, "ScrollView", 30, 12, 670, 370, 1)
-            GUI:ScrollView_setInnerContainerSize(ScrollView, 670, (216 * math.ceil(#npc._config.details.ch/2)))
-            local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 0,0, 670, (216 * math.ceil(#npc._config.details.ch/2)))
-            for k,v in ipairs(npc._config.details.ch) do
-                local kuang = GUI:Image_Create(dbLayout, "kuang"..k, 0, 0.00, "res/custom/one_city/shape/kuang2.png")
-                local wz5 = GUI:Text_Create(kuang, "wz5",256/2, 185, 25, "#FF0000", _formatShapeName(v.name))
-                GUI:setAnchorPoint(wz5, 0.5, 0.5)
-                GUI:Text_setFontName(wz5, "fonts/font4.ttf")
-                GUI:Effect_Create(kuang, "rw", 120, 80, 0, v.sEffect, 0, 0, 3, 1)
-                if SL:GetMetaValue("ACTIVATE_TITLE") == SL:GetMetaValue("ITEM_INDEX_BY_NAME",v.name) then
-                    GUI:setAnchorPoint(GUI:Image_Create(kuang, "xz", 256/2, 30, "res/custom/one_city/shape/bz2.png")
-                    , 0.5, 0.5)
-                elseif SL:GetMetaValue("TITLE_DATA_BY_ID", SL:GetMetaValue("ITEM_INDEX_BY_NAME",v.name)) then
-                    local btn = GUI:Button_Create(kuang, "btn", 256/2, 30, "res/custom/one_city/shape/btn.png")
-                    GUI:setAnchorPoint(btn, 0.5, 0.5)
-                    GUI:addOnClickEvent(btn, function()
-                        SL:ResquestActivateTitle(SL:GetMetaValue("ITEM_INDEX_BY_NAME",v.name))
-                        GUI:Button_loadTextures(btn, "res/custom/one_city/shape/bz2.png")
-                        GUI:Button_setBright(btn, true)
-                    end)
-                else
-                    GUI:setAnchorPoint(GUI:Image_Create(kuang, "wjs", 256/2, 30, "res/custom/one_city/shape/bz1.png")
-                    , 0.5, 0.5)
-                end
-
-            end
-            GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 2,gap = {x=0, y=0}})
-        elseif idx == 3 then
-            local ScrollView = GUI:ScrollView_Create(Label_node, "ScrollView", 30, 12, 670, 370, 1)
-            GUI:ScrollView_setInnerContainerSize(ScrollView, 670, (216 * math.ceil(#npc._config.details.zj/3)))
-            local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 0,0, 670, (216 * math.ceil(#npc._config.details.zj/3)))
-            for k,v in ipairs(npc._config.details.zj) do
-                local kuang = GUI:Image_Create(dbLayout, "kuang"..k, 0, 0.00, "res/custom/one_city/shape/kuang1.png")
-                local wz5 = GUI:Text_Create(kuang, "wz5",166/2, 185, 25, "#FF0000", _formatShapeName(v.name))
-                GUI:setAnchorPoint(wz5, 0.5, 0.5)
-                GUI:Text_setFontName(wz5, "fonts/font4.ttf")
-                -- GUI:Text_enableOutline(wz5, "#FFFFFF", 1)
-                GUI:Effect_Create(kuang, "zj", 60, 60, 0, v.sEffect, 0, 0, 3, 1)
-
-                GUI:Effect_Create(kuang, "rw", 60, 60, 4, 0, 0, 0, 3, 1)
-                if npc.data.T_data.dqzj == k then
-                    GUI:setAnchorPoint(GUI:Image_Create(kuang, "xz", 166/2, 30, "res/custom/one_city/shape/bz2.png")
-                    , 0.5, 0.5)
-                elseif npc.data.T_data.yjszj[""..k] and npc.data.T_data.yjszj[""..k] == 1 then
-                    local btn = GUI:Button_Create(kuang, "btn", 166/2, 30, "res/custom/one_city/shape/btn.png")
-                    GUI:setAnchorPoint(btn, 0.5, 0.5)
-                    GUI:addOnClickEvent(btn, function()
-                        SL:SendLuaNetMsg(100, npcid, 2, k, "")
-                    end)
-                else
-                    GUI:setAnchorPoint(GUI:Image_Create(kuang, "wjs", 166/2, 30, "res/custom/one_city/shape/bz1.png")
-                    , 0.5, 0.5)
-                end
-                GUI:setTouchEnabled(kuang, true)
-                GUI:addOnTouchEvent(kuang, function(self)
-                    local pos = GUI:getWorldPosition(kuang)
-                    SL:OpenItemTips({typeId = SL:GetMetaValue("ITEM_INDEX_BY_NAME",v.name.."[展示]"), pos = {x = pos.x, y = pos.y}})
-                end)
-            end
-            GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 3,gap = {x=0, y=0}})
-
-        elseif idx == 4 then
+        if idx == 4 then
             renderBodyAuraTab(Label_node)
+            return
         end
+
+        local list = idx == 1 and npc._config.details.sz or (idx == 2 and npc._config.details.ch or npc._config.details.zj)
+        local ownedMap = idx == 1 and npc.data.T_data.yjs or (idx == 2 and {} or npc.data.T_data.yjszj)
+        local activeIndex = idx == 1 and tonumber(npc.data.T_data.dqzb or 0) or (idx == 3 and tonumber(npc.data.T_data.dqzj or 0) or 0)
+        local activeTitle = idx == 2 and SL:GetMetaValue("ACTIVATE_TITLE") or nil
+        npc._selectedShapeIndex = npc._selectedShapeIndex or {}
+
+        local function itemId(entry)
+            return SL:GetMetaValue("ITEM_INDEX_BY_NAME", entry.name)
+        end
+
+        local function isOwned(k, entry)
+            if idx == 2 then
+                return SL:GetMetaValue("TITLE_DATA_BY_ID", itemId(entry)) ~= nil
+            end
+            return tonumber(ownedMap["" .. k] or 0) == 1
+        end
+
+        local function isActive(k, entry)
+            if idx == 2 then
+                return activeTitle == itemId(entry)
+            end
+            return activeIndex == k
+        end
+
+        local function getActionType()
+            return idx == 1 and "shape" or (idx == 2 and "title" or "footstep")
+        end
+
+        local previewNode = GUI:Node_Create(Label_node, "preview", 0, 0)
+        local listNode = GUI:Node_Create(Label_node, "list", 0, 0)
+
+        local function createPreview(parent, entry, x, y)
+            if not entry then
+                return
+            end
+            if idx == 1 then
+                GUI:Effect_Create(parent, "current_shape", x, y, 4, entry.shape, 0, 0, 3, 0.86)
+                GUI:setTouchEnabled(parent, true)
+                GUI:addOnTouchEvent(parent, function(self)
+                    local pos = GUI:getWorldPosition(parent)
+                    SL:OpenItemTips({typeId = SL:GetMetaValue("ITEM_INDEX_BY_NAME",entry.name.."[展示]"), pos = {x = pos.x, y = pos.y}})
+                end)
+            elseif idx == 3 then
+                GUI:Effect_Create(parent, "current_effect", x, y, 0, entry.sEffect, 0, 0, 3, 0.86)
+                GUI:setTouchEnabled(parent, true)
+                GUI:addOnTouchEvent(parent, function(self)
+                    local pos = GUI:getWorldPosition(parent)
+                    SL:OpenItemTips({typeId = SL:GetMetaValue("ITEM_INDEX_BY_NAME",entry.name.."[展示]"), pos = {x = pos.x, y = pos.y}})
+                end)
+            else
+                GUI:Effect_Create(parent, "current_effect", x + 15, y, 0, entry.sEffect, 0, 0, 3, 0.86)
+            end
+        end
+
+        local currentIndex = tonumber(npc._selectedShapeIndex[idx] or 0) or 0
+        if currentIndex < 1 or currentIndex > #list then
+            currentIndex = activeIndex
+        end
+        if idx == 2 and currentIndex == 0 then
+            for k, entry in ipairs(list) do
+                if isActive(k, entry) then
+                    currentIndex = k
+                    break
+                end
+            end
+        end
+        if currentIndex < 1 or currentIndex > #list then
+            currentIndex = #list > 0 and 1 or 0
+        end
+        npc._selectedShapeIndex[idx] = currentIndex
+        local function renderPreview(selectedIndex)
+            GUI:removeAllChildren(previewNode)
+            local currentEntry = list[selectedIndex]
+            local currentOwned = currentEntry and isOwned(selectedIndex, currentEntry)
+            local currentActive = currentEntry and isActive(selectedIndex, currentEntry)
+
+            local currentTitle = GUI:Text_Create(previewNode, "current_title", 82 + 33, 386 - 60, 20, "#F5EAD3", "装扮预览")
+            GUI:setAnchorPoint(currentTitle, 0.5, 0.5)
+            GUI:Text_setFontName(currentTitle, "fonts/font4.ttf")
+            GUI:Text_enableOutline(currentTitle, "#18110C", 2)
+            local currentFrame = GUI:Image_Create(previewNode, "current_frame", 82 + 33, 252 - 60, "res/custom/one_city/shape/kuang1.png")
+            GUI:setAnchorPoint(currentFrame, 0.5, 0.5)
+            if currentEntry then
+                createPreview(currentFrame, currentEntry, 82 - 16, 97 - 29)
+                local currentColor = currentActive and "#FFE66B" or (currentOwned and "#70FF6A" or "#A9A9A9")
+                local currentName = GUI:Text_Create(previewNode, "current_name", 82 + 33, 130 - 60, 17, currentColor, _displayShapeName(currentEntry.name))
+                GUI:setAnchorPoint(currentName, 0.5, 0.5)
+                GUI:Text_setFontName(currentName, "fonts/font4.ttf")
+                GUI:Text_enableOutline(currentName, "#081800", 2)
+                if currentActive then
+                    local currentState = GUI:Image_Create(previewNode, "current_state", 82 + 33, 73 - 40, "res/custom/three_city/xianfu/zhuangshi/new.png")
+                    GUI:setAnchorPoint(currentState, 0.5, 0.5)
+                elseif currentOwned then
+                    local equipButton = GUI:Button_Create(previewNode, "current_equip", 82 + 33, 73 - 40, "res/custom/three_city/xianfu/zhuangshi/btn.png")
+                    GUI:setAnchorPoint(equipButton, 0.5, 0.5)
+                    bindPressFeedback(equipButton, function()
+                        local actionType = getActionType()
+                        if actionType == "shape" then
+                            SL:SendLuaNetMsg(100, npcid, 1, selectedIndex, "")
+                        elseif actionType == "title" then
+                            SL:ResquestActivateTitle(itemId(currentEntry))
+                        else
+                            SL:SendLuaNetMsg(100, npcid, 2, selectedIndex, "")
+                        end
+                    end)
+                else
+                    local notOwned = GUI:Text_Create(previewNode, "current_not_owned", 82 + 33, 73 - 60, 16, "#A9A9A9", "尚未拥有")
+                    GUI:setAnchorPoint(notOwned, 0.5, 0.5)
+                    GUI:Text_setFontName(notOwned, "fonts/font4.ttf")
+                    GUI:Text_enableOutline(notOwned, "#18110C", 1)
+                end
+            else
+                local empty = GUI:Text_Create(previewNode, "current_empty", 82 + 33, 252 - 60, 17, "#B7B7B7", "暂无装扮")
+                GUI:setAnchorPoint(empty, 0.5, 0.5)
+                GUI:Text_setFontName(empty, "fonts/font4.ttf")
+                GUI:Text_enableOutline(empty, "#18110C", 1)
+            end
+        end
+
+        renderPreview(currentIndex)
+
+        local columns = 2
+        local rows = math.max(1, math.ceil(#list / columns))
+        local ScrollView = GUI:ScrollView_Create(listNode, "ScrollView", 185 + 40, 0, 405, 402 - 20, 1)
+        GUI:ScrollView_setBounceEnabled(ScrollView, true)
+        GUI:ScrollView_setInnerContainerSize(ScrollView, 350, rows * (22 + 216))
+        local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 0, 0, 350, rows * (22 + 216))
+
+        for k, v in ipairs(list) do
+            local owned = isOwned(k, v)
+            local selected = currentIndex == k
+            local kuang = GUI:Image_Create(dbLayout, "kuang" .. k, 0, 0, "res/custom/one_city/shape/kuang1.png")
+            if idx == 1 then
+                GUI:Effect_Create(kuang, "shape", 166/2 - 28, 82 - 13, 4, v.shape, 0, 0, 3, 0.72)
+            else
+                GUI:Effect_Create(kuang, "effect", 166/2, 82, 0, v.sEffect, 0, 0, 3, 0.72)
+            end
+
+            local nameColor = selected and "#FFE66B" or (owned and "#70FF6A" or "#8A8A8A")
+            local nameText = GUI:Text_Create(kuang, "name", 166/2, 139 + 54, 14, nameColor, _displayShapeName(v.name))
+            GUI:setAnchorPoint(nameText, 0.5, 0.5)
+            GUI:Text_setFontName(nameText, "fonts/font4.ttf")
+            GUI:Text_enableOutline(nameText, "#081800", 1)
+
+            bindPressFeedback(kuang, function()
+                npc._selectedShapeIndex[idx] = k
+                renderPreview(k)
+            end)
+        end
+
+        GUI:UserUILayout(dbLayout, {dir = 3, addDir = 1, colnum = columns, gap = {x = 22, y = 22}})
     end
 
     local function UI_updata(node) --鐣岄潰娓叉煋
