@@ -672,26 +672,26 @@ local UPGRADE_CHECKERS = {
 local OPEN_BTN_LIST = {
     {id = 1, label = "限时福利", npcid = 105, continent = 2},
     {id = 6, label = "切割之斧", npcid = 6, continent = 1},
-    {id = 7, label = "攻速之镰[★]", npcid = 7, continent = 1},
-    {id = 8, label = "斗笠[★]", npcid = 8, continent = 1},
+    {id = 7, label = "攻速之镰", npcid = 7, continent = 1},
+    {id = 8, label = "斗笠", npcid = 8, continent = 1},
     {id = 9, label = "特戒", npcid = 9, continent = 1},
-    {id = 10, label = "酒葫芦[★]", npcid = 10, continent = 1},
+    {id = 10, label = "酒葫芦", npcid = 10, continent = 1},
     {id = 11, label = "基础淬体", npcid = 11, continent = 2, precondition = function()
         return not _upgrade_is_cuiti_54_completed()
     end},
-    {id = 13, label = "小兰赠礼[★]", npcid = 13, continent = 1},
-    {id = 14, label = "小二倒酒[★]", npcid = 14, continent = 1},
-    {id = 24, label = "天书[★]", npcid = 24, continent = 2},
-    {id = 22, label = "灵根[★]", npcid = 22, continent = 2},
-    {id = 21, label = "境界修为[★]", npcid = 21, continent = 2},
-    {id = 43, label = "江湖称号[★]", npcid = 43, continent = 2},
+    {id = 13, label = "小兰赠礼", npcid = 13, continent = 1},
+    {id = 14, label = "小二倒酒", npcid = 14, continent = 1},
+    {id = 24, label = "天书", npcid = 24, continent = 2},
+    {id = 22, label = "灵根", npcid = 22, continent = 2},
+    {id = 21, label = "境界修为", npcid = 21, continent = 2},
+    {id = 43, label = "江湖称号", npcid = 43, continent = 2},
     {id = 26, label = "气运占卜", npcid = 26, continent = 2},
     {id = 28, label = "装备强化", npcid = 28, continent = 2},
     {id = 25, label = "幸运强化", npcid = 25, continent = 2},
     -- 三大陆现在区分半进入/真进入：
     -- 半进入：完成 npc_46 后进入灰界/仙府线，可使用 npc_44
     -- 真进入：完成 npc_46【灾厄入侵】后才算进入三大陆主城功能区
-    {id = 54, label = "高级淬体[★]", npcid = 54, continent = 3, entryMode = "full", precondition = function()
+    {id = 54, label = "高级淬体", npcid = 54, continent = 3, entryMode = "full", precondition = function()
         return _upgrade_is_cuiti_11_completed() and _upgrade_has_third_continent_full_entry()
     end},
     {id = 27, label = "技能强化", npcid = 27, continent = 3, entryMode = "full", precondition = _upgrade_has_third_continent_full_entry},

@@ -2,9 +2,9 @@ local npc = {}
 
 local MIJING_CFG = {
     [86] = {name = "极光秘境", img = "极光秘境.png", need = "高级玩家赞助可进", artifact = "极光石", titleItem = "极光使者[可使用]"},
-    [87] = {name = "苍云秘境", img = "苍云秘境.png", need = "高级玩家赞助可进", artifact = "苍云镜", titleItem = "白云苍狗[可使用]"},
-    [88] = {name = "若水秘境", img = "若水秘境.png", need = "至尊玩家赞助可进", artifact = "若水灵珠", titleItem = "上善若水[可使用]"},
-    [89] = {name = "红尘秘境", img = "红尘秘境.png", need = "至尊玩家赞助可进", artifact = "斩红尘", titleItem = "看破红尘[可使用]"},
+    [87] = {name = "苍云秘境", img = "苍云秘境.png", need = "至尊玩家赞助可进", artifact = "苍云镜", titleItem = "白云苍狗[可使用]"},
+    [88] = {name = "若水秘境", img = "若水秘境.png", need = "激活1条红色仙法", artifact = "若水灵珠", titleItem = "上善若水[可使用]"},
+    [89] = {name = "红尘秘境", img = "红尘秘境.png", need = "激活3条红色仙法", artifact = "斩红尘", titleItem = "看破红尘[可使用]"},
     [90] = {name = "灵虚秘境", img = "灵虚秘境.png", need = "激活5条红色仙法", artifact = "灵虚剑", titleItem = "归入灵虚[可使用]"},
 }
 

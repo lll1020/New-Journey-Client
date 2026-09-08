@@ -990,7 +990,7 @@ local function buildTopOverview(node, snapshot, baseSnapshot, npcid)
         local levelHeader = GUI:Layout_Create(top_img, "xianfu_level_header", 18, -22 + 57, 320, 40, false)
         GUI:setAnchorPoint(levelHeader, 0, 1)
 
-        local levelText = GUI:Text_Create(levelHeader, "xianfu_level_title", 0, 0, 22, colors.primary, string.format("仙府%s级", formatXianfuLevel(levelInfo.level)))
+        local levelText = GUI:Text_Create(levelHeader, "xianfu_level_title", 0, 0, 22, colors.primary, string.format("%s级仙府", formatXianfuLevel(levelInfo.level)))
         GUI:setAnchorPoint(levelText, 0, 1)
         GUI:Text_enableOutline(levelText, "#1d0f09", 2)
 
@@ -2215,7 +2215,7 @@ buildLevelSummary = function(snapshot)
     local nextCfg = (cfg.level_cfg or {})[level + 1]
     local lines = {
         string.format("<font size='18' color='#9fe9ff'>已解锁地块</font><font size='18' color='#ffffff'>%s</font>   \n <font size='18' color='#9fe9ff'>已解锁神石槽</font><font size='18' color='#ffffff'>%s</font>", formatNumber(plotUnlock), formatNumber(openSlots)),
-        string.format("<font size='18' color='#9fe9ff'>今日成长</font><font size='18' color='#ffffff'>%s/%s</font>  \n  <font size='18' color='#9fe9ff'>累计成长</font><font size='18' color='#ffffff'>%s</font>", formatNumber(dailyGrowth), formatNumber(cfg.growth_daily_limit or 0), formatNumber(growth)),
+        string.format("<font size='18' color='#9fe9ff'>今日成长</font><font size='18' color='#ffffff'>%s/%s</font>  \n  <font size='18' color='#9fe9ff'>累计成长</font><font size='18' color='#ffffff'>%s</font>  \n  <font size='18' color='#FF00FF'>成长值可以通过仙府的各种行为获得</font>", formatNumber(dailyGrowth), formatNumber(cfg.growth_daily_limit or 0), formatNumber(growth)),
     }
     local progressList = {}
     if nextCfg then

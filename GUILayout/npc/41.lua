@@ -2,20 +2,6 @@ local npc = {}
 
 npc._config = teshudata["npc_41"]
 
-local function openPrerequisiteGuide(preNpcid)
-    SL:OpenCommonTipsPop({
-        str = "当前条件未满足，请先将斗笠提升到【斗笠[lv10]】，是否立即前往提升？",
-        btnType = 2,
-        callback = function(atype)
-            if atype == 1 then
-                SL:SendLuaNetMsg(105, tonumber(preNpcid) or 8, tonumber(preNpcid) or 8, 0, "")
-            end
-        end,
-    })
-end
-
-
-
 local WINDOW_OPTS = {
     background = {skin = "res/custom/two_city/41_bg.png", eff = true},
     title = {x = 56, y = 464, skin = "res/custom/two_city/41_title.png"},
@@ -92,8 +78,6 @@ function npc.main(npcid, p2, p3, msgData)
         UI_updata(npc.node)
     elseif p2 == 1 then
         UI_updata(npc.node)
-    elseif p2 == 2 then
-        openPrerequisiteGuide(p3)
     end
 end
 
