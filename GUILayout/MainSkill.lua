@@ -309,10 +309,8 @@ function MainSkill.ChangeShowIndex(i, force)
             SL:JumpTo(29)
         end)
 
-        local zz = GUI:Button_Create(MainSkill.cbl, "lbg", width/2, cogin.h - 80, "res/wy/public/main_cbl_htgh.png")
         local syt = GUI:Button_Create(MainSkill.cbl, "sqt", width/2, cogin.h - 80 - 105 - 10, "res/wy/public/main_cbl_kbzl.png")
         local ldl = GUI:Button_Create(MainSkill.cbl, "tj", width/2, cogin.h - 80 - 210 - 20, "res/wy/public/main_cbl_xtqy.png")
-        GUI:setAnchorPoint(zz, 0.5, 1)
         GUI:setAnchorPoint(syt, 0.5, 1)
         GUI:setAnchorPoint(ldl, 0.5, 1)
 
@@ -334,7 +332,6 @@ function MainSkill.ChangeShowIndex(i, force)
             XIAN_TU_QI_YUAN_MAIN_SKILL_REDPOINT_REFRESH(true)
         end
 
-        GUI:addOnClickEvent(zz, function() SL:SendLuaNetMsg(101, 23, 0, 0, "") end)
         GUI:addOnClickEvent(syt, function() SL:SendLuaNetMsg(105, 15, 15, 0, "") end)
         GUI:addOnClickEvent(ldl, function()
             if type(XIAN_TU_QI_YUAN_REFRESH_REDPOINTS) == "function" then

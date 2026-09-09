@@ -9,33 +9,6 @@ local WINDOW_OPTS = {
     title = {x = 56, y = 464, skin = "res/custom/one_city/shape/title.png"},
 }
 
-local BODY_AURA_CARD_CFG = {
-    [1] = {
-        name = "攻击",
-        effect = "每3刀额外造成1000伤害",
-        need = "转生等级达到10级",
-        lockedTip = "需要转生等级达到10级",
-    },
-    [2] = {
-        name = "防御",
-        effect = "每3刀额外造成888伤害",
-        need = "领取首充礼包",
-        lockedTip = "需要先领取首充礼包",
-    },
-    [3] = {
-        name = "斩杀",
-        effect = "每3刀额外造成1000伤害",
-        need = "购买超级特权",
-        lockedTip = "需要先激活超级特权",
-    },
-}
-
-local BODY_AURA_EFFECT = {
-    11501,
-    11506,
-    11505,
-}
-
 local function bindPressFeedback(target, onClick)
     if not target then
         return
@@ -66,56 +39,6 @@ local function _displayShapeName(name)
 end
 function npc.main(npcid, p2, p3, msgData)
 
-    local function getBodyAuraData()
-        local data = npc.data and npc.data.body_aura
-        if type(data) ~= "table" then
-            return {aura = {}, active = 0}
-        end
-        data.aura = type(data.aura) == "table" and data.aura or {}
-        return data
-    end
-
-    local function getBodyAuraInfo(idx)
-        local auraData = getBodyAuraData()
-        local info = auraData.aura[idx] or auraData.aura[tostring(idx)]
-        return type(info) == "table" and info or {}
-    end
-
-    local function getBodyAuraActiveIdx()
-        local auraData = getBodyAuraData()
-        local active = tonumber(auraData.active or 0) or 0
-        if active >= 1 and active <= 3 then
-            return active
-        end
-        for idx = 1, 3 do
-            local info = getBodyAuraInfo(idx)
-            if tonumber(info.active or 0) == 1 then
-                return idx
-            end
-        end
-        return 0
-    end
-
-    local function buildBodyAuraStates()
-        local states = {}
-        local activeIdx = getBodyAuraActiveIdx()
-        for idx, cfg in ipairs(BODY_AURA_CARD_CFG) do
-            local info = getBodyAuraInfo(idx)
-            states[idx] = {
-                idx = idx,
-                name = cfg.name,
-                effect = cfg.effect,
-                need = cfg.need,
-                lockedTip = cfg.lockedTip,
-                canActivate = tonumber(info.open or 0) == 1,
-                active = activeIdx == idx or tonumber(info.active or 0) == 1,
-                visible = activeIdx == idx or tonumber(info.active or 0) == 1,
-            }
-        end
-        return states
-    end
-
-
     local function ensureWindow(npcid)
         local opts = {}
         for k, v in pairs(WINDOW_OPTS) do
@@ -129,101 +52,8 @@ function npc.main(npcid, p2, p3, msgData)
         return npc.node
     end
 
-    local function registerBodyAuraAutoRefresh()
-        if npc._body_aura_refresh_registered then
-            return
-        end
-        npc._body_aura_refresh_registered = true
-        local function refreshBodyAuraTab()
-            if npc._body_aura_refresh_pending then
-                return
-            end
-            if not (npc.node and not tolua.isnull(npc.node) and npc.npcid and npc.titles_sign == 4) then
-                return
-            end
-            npc._body_aura_refresh_pending = true
-            SL:ScheduleOnce(function()
-                npc._body_aura_refresh_pending = false
-                if npc.node and not tolua.isnull(npc.node) and npc.npcid and npc.titles_sign == 4 then
-                    SL:SendLuaNetMsg(100, npc.npcid, 3, -1, "")
-                end
-            end, 0)
-        end
-        SL:RegisterLUAEvent(LUA_EVENT_ROLE_PROPERTY_CHANGE, "shape_body_aura_refresh_prop", refreshBodyAuraTab)
-        SL:RegisterLUAEvent(LUA_EVENT_SERVER_VALUE_CHANGE, "shape_body_aura_refresh_server", refreshBodyAuraTab)
-        SL:RegisterLUAEvent(LUA_EVENT_MAINBUFFUPDATE, "shape_body_aura_refresh_buff", refreshBodyAuraTab)
-    end
-
-    local function setBodyAuraTextStyle(textObj, outlineColor)
-        GUI:Text_setFontName(textObj, "fonts/502.ttf")
-        GUI:Text_enableOutline(textObj, outlineColor or "#081800", 1)
-        GUI:setAnchorPoint(textObj, 0.5, 0.5)
-    end
-
-    local function renderBodyAuraCard(parent, state, x, y)
-        local card = GUI:Image_Create(parent, "huti_card_" .. state.idx, x, y, "res/custom/one_city/shape/kuang1.png")
-        GUI:setAnchorPoint(card, 0, 0)
-        GUI:setTouchEnabled(card, true)
-
-        local equipData = SL:GetMetaValue("EQUIP_DATA", 0) or {}
-        GUI:Effect_Create(card, "effect", 60, 60, 0, BODY_AURA_EFFECT[state.idx], 0, 0, 0, 0.85)
-        GUI:Effect_Create(card, "role", 60, 60, 4, equipData.Shape or 1300, 0, 0, 3, 0.72)
-
-        local nameText = GUI:Text_Create(card, "name_" .. state.idx, 83, 185, 25, "#FF0000", state.name or "")
-        GUI:setAnchorPoint(nameText, 0.5, 0.5)
-        GUI:Text_setFontName(nameText, "fonts/font4.ttf")
-
-        -- local effectText = GUI:Text_Create(card, "effect_" .. state.idx, 83, 145, 14, "#FFF2BE", state.effect or "")
-        -- GUI:setAnchorPoint(effectText, 0.5, 0.5)
-        -- GUI:Text_setFontName(effectText, "fonts/font4.ttf")
-        -- GUI:Text_enableOutline(effectText, "#4B2403", 1)
-
-        -- local needText = GUI:Text_Create(card, "need_" .. state.idx, 83, 124, 14, state.canActivate and "#7CFF7C" or "#FFB36A", state.canActivate and "已满足开启条件" or (state.need or ""))
-        -- GUI:setAnchorPoint(needText, 0.5, 0.5)
-        -- GUI:Text_setFontName(needText, "fonts/font4.ttf")
-        -- GUI:Text_enableOutline(needText, "#4B2403", 1)
-
-        if state.canActivate then
-            local switchSkin = state.visible and "res/custom/one_city/shape/bz2.png" or "res/custom/one_city/shape/btn.png"
-            local switchBtn = GUI:Button_Create(card, "switch_btn_" .. state.idx, 83, 0, switchSkin)
-            GUI:setAnchorPoint(switchBtn, 0.5, 0.5)
-            GUI:addOnClickEvent(switchBtn, function()
-                local nextIdx = state.active and 0 or state.idx
-                SL:SendLuaNetMsg(100, npcid, 3, nextIdx, "")
-            end)
-        else
-            local lockedBtn = GUI:Image_Create(card, "activate_btn_" .. state.idx, 83, 0, "res/custom/one_city/shape/bz1.png")
-            GUI:setAnchorPoint(lockedBtn, 0.5, 0.5)
-            bindPressFeedback(lockedBtn, function()
-                if state.canActivate then
-                    SL:SendLuaNetMsg(100, npcid, 3, state.idx, "")
-                    
-                else
-                    SL:ShowSystemTips(state.lockedTip or "当前条件未满足")
-                end
-            end)
-        end
-    end
-
-    local function renderBodyAuraTab(Label_node)
-        local states = buildBodyAuraStates()
-        local ScrollView = GUI:ScrollView_Create(Label_node, "ScrollView", 30, 12, 670, 370, 1)
-        GUI:ScrollView_setInnerContainerSize(ScrollView, 670, 216)
-        GUI:ScrollView_setBounceEnabled(ScrollView, true)
-        local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 0, 160, 670, 216)
-        for idx = 1, 3 do
-            renderBodyAuraCard(dbLayout, states[idx], 0, 0)
-        end
-        GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 3,gap = {x=0, y=0}})
-    end
-
     function GUI_createLabel(Label_node,idx)
         GUI:removeAllChildren(Label_node)
-        if idx == 4 then
-            renderBodyAuraTab(Label_node)
-            return
-        end
-
         local list = idx == 1 and npc._config.details.sz or (idx == 2 and npc._config.details.ch or npc._config.details.zj)
         local ownedMap = idx == 1 and npc.data.T_data.yjs or (idx == 2 and {} or npc.data.T_data.yjszj)
         local activeIndex = idx == 1 and tonumber(npc.data.T_data.dqzb or 0) or (idx == 3 and tonumber(npc.data.T_data.dqzj or 0) or 0)
@@ -390,10 +220,10 @@ function npc.main(npcid, p2, p3, msgData)
         npc.Label = GUI:Node_Create(node, "Label", 170, 15)
 
         npc.titles_sign = tonumber(npc.titles_sign) or 1
-        if npc.titles_sign < 1 or npc.titles_sign > 4 then
+        if npc.titles_sign < 1 or npc.titles_sign > 3 then
             npc.titles_sign = 1
         end
-        for i = 1, 4 do
+        for i = 1, 3 do
             local cbl_item = GUI:Button_Create(npc.cbl_list, "item" .. i, 0, 0, "res/custom/one_city/shape/list/"..(npc.titles_sign == i and "l" or "n").."/"..i..".png")
             GUI:Image_Create(npc.cbl_list, "fgx"..i, 0, 0, "res/custom/fulitating/list/fgx.png")
             GUI:addOnClickEvent(cbl_item, function()
@@ -415,9 +245,7 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data.T_data.dqzj = npc.data.T_data.dqzj or 0
         npc.data.T_data.yjs = npc.data.T_data.yjs or {}
         npc.data.T_data.yjszj = npc.data.T_data.yjszj or {}
-        npc.data.body_aura = type(npc.data.body_aura) == "table" and npc.data.body_aura or {aura = {}, active = 0}
         npc.npcid = npcid
-        registerBodyAuraAutoRefresh()
         ensureWindow(npcid)
         UI_updata(npc.node)
     elseif p2 == 1 then--鐣岄潰
@@ -426,7 +254,6 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data.T_data.dqzj = npc.data.T_data.dqzj or 0
         npc.data.T_data.yjs = npc.data.T_data.yjs or {}
         npc.data.T_data.yjszj = npc.data.T_data.yjszj or {}
-        npc.data.body_aura = type(npc.data.body_aura) == "table" and npc.data.body_aura or {aura = {}, active = 0}
         GUI_createLabel(npc.Label,npc.titles_sign)
     end
 end

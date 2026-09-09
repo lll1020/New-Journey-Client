@@ -338,11 +338,16 @@ function npc.main(npcid, p2, p3, msgData)
             -- GUI:Image_Create(localNode, "wz3", 490, 380 - 140, "res/custom/four_city/lingshou/xjm/tip_4.png")
 
             
-            GUI:Text_setFontName(GUI:Text_Create(localNode, "b_skill",500,360 - 5, 18, "#FFFFFF", npc._config.config.ls[npc.titles_sign].b_skill)
-            , "fonts/font4.ttf")
-            local s_skill = GUI:Text_Create(localNode, "s_skill",500,360 - 45 - 5, 18, "#FFFFFF", npc._config.config.ls[npc.titles_sign].s_skill)
-            GUI:Text_setFontName(s_skill, "fonts/font4.ttf")
+            local b_skill = GUI:RichText_Create(localNode, "b_skill",500 + 10,360 - 5 + 30,
+                npc._config.config.ls[npc.titles_sign].b_skill or "", 360, 16, "#FFFFFF", 1, nil, nil)
+            GUI:setAnchorPoint(b_skill,0, 1)
+            local s_skill = GUI:RichText_Create(localNode, "s_skill",500 + 10,360 - 45 - 5,
+                npc._config.config.ls[npc.titles_sign].s_skill or "", 360, 16, "#FFFFFF", 1, nil, nil)
             GUI:setAnchorPoint(s_skill,0, 1)
+            local s_skill_req = GUI:RichText_Create(localNode, "s_skill_req",500 + 10,360 - 115 - 5 + 15,
+                "技能释放前置：" .. (npc._config.config.ls[npc.titles_sign].s_skill_req or "出战灵兽亲密度达到Lv.10；"),
+                360, 17, "#FFD36B", 1, nil, nil)
+            GUI:setAnchorPoint(s_skill_req,0, 1)
 
 
             if npc.ls_data.T_data.ls[""..npc.titles_sign] >= npc._config.config.wy.max_level then
@@ -350,10 +355,10 @@ function npc.main(npcid, p2, p3, msgData)
                 , "fonts/font4.ttf")
                 return
             end
-            GUI:Image_Create(localNode, "cost_img", 490, 170, "res/custom/four_city/lingshou/xjm/cost.png")
+            GUI:Image_Create(localNode, "cost_img", 490, 170 + 10, "res/custom/four_city/lingshou/xjm/cost.png")
 
             local cost = checkItemNumByTable_img_kuang(npc._config.config.wy.cost[npc.ls_data.T_data.ls[""..npc.titles_sign] or 1], nil,localNode)
-            GUI:setPosition(cost, 490 + 100, 160)
+            GUI:setPosition(cost, 490 + 100, 160 + 10)
 
             local Button = GUI:Button_Create(localNode, "Button", 570, 90, "res/custom/four_city/lingshou/xjm/btn.png")
             GUI:addOnClickEvent(Button, function()
@@ -366,9 +371,9 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:Image_Create(localNode, "wz1", 490, 380, "res/custom/four_city/lingshou/xjm/tip_2.png")
             GUI:Image_Create(localNode, "wz2", 490, 380 - 100, "res/custom/four_city/lingshou/xjm/tip_3.png")
 
-            GUI:Text_setFontName(GUI:Text_Create(localNode, "attr_give_wz",500,360 - 40, 18, "#FFFFFF", npc._config.config.ls[npc.titles_sign].attr_give_wz)
+            GUI:Text_setFontName(GUI:Text_Create(localNode, "attr_give_wz",500 + 10,360 - 40 + 10, 18, "#FFFFFF", npc._config.config.ls[npc.titles_sign].attr_give_wz)
             , "fonts/font4.ttf")
-            GUI:Text_setFontName(GUI:Text_Create(localNode, "attr_wz",500,360 - 100 - 40, 18, "#FFFFFF", npc._config.config.ls[npc.titles_sign].attr_wz)
+            GUI:Text_setFontName(GUI:Text_Create(localNode, "attr_wz",500 + 10,360 - 100 - 40 + 10, 18, "#FFFFFF", npc._config.config.ls[npc.titles_sign].attr_wz)
             , "fonts/font4.ttf")
 
             local attr = deepCopy(npc._config.config.wy.det[npc.ls_data.T_data.ls[""..npc.titles_sign] or 1].attr)
@@ -408,7 +413,7 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:Text_Create(wz, "qmd", 170, 31, 20, "#FF00FF", ((npc.ls_data.T_data.ls[""..npc.titles_sign] or 0) * 10) .."%")
         GUI:Text_Create(wz, "zhsj", 170, 7, 18, "#00FFFF", npc._config.config.wy.det[npc.ls_data.T_data.ls[""..npc.titles_sign] or 1].time.."秒")
 
-        GUI:Image_Create(npc.xjm_node, "wz2", 430, 415, "res/custom/four_city/lingshou/xjm/wz/wz_"..npc.titles_sign..".png")
+        -- GUI:Image_Create(npc.xjm_node, "wz2", 430, 415, "res/custom/four_city/lingshou/xjm/wz/wz_"..npc.titles_sign..".png")
 
         GUI:Image_Create(npc.xjm_node, "syw", 170, 150, "res/custom/four_city/lingshou/xjm/syw.png")
 

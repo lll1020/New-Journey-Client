@@ -179,7 +179,7 @@ end
 -- 9.8-1 原顶部按钮：{6, "聚宝盆", 517, 517}
 npc.iconpx = {
     {
-        -- {15, "天天省钱",509,1}, {3, "福利大厅",511,2}, {17, "游戏攻略",512,3},{4, "活动大厅",507,4},{14, "首充礼包",501,5},{16, "仙途奇缘",515,515},{20, "护体光环",23,23},{21, "马上发财",31,31}
+        -- {15, "天天省钱",509,1}, {3, "福利大厅",511,2}, {17, "游戏攻略",512,3},{4, "活动大厅",507,4},{14, "首充礼包",501,5},{16, "仙途奇缘",515,515},{21, "马上发财",31,31}
         {15, "天天省钱",509,1}, {3, "福利大厅",511,2}, {17, "游戏攻略",512,3},{4, "活动大厅",507,4},{14, "首充礼包",501,5},{21, "马上发财",31,31}
     },
     {
@@ -475,20 +475,6 @@ local WINDOW_STYLE = {
             skin = "res/wy/public/close_red_big.png",
         },
     },
-    bodyAura = {
-        windowName = "npc_23",
-        overlay = {
-            skin = "res/public/1900000651_1.png",
-        },
-        background = {
-            skin = "res/custom/htgh/bg.png",
-        },
-        closeButton = {
-            x = 875,
-            y = 500,
-            skin = "res/wy/public/close_red_big.png",
-        },
-    },
 }
 local windowCache = {
 }
@@ -769,80 +755,6 @@ _shortcut_is_unbind_completed = function()
     local titleName = (cfg and cfg.ch) or "超级特权"
     return _shortcut_has_title(titleName)
 end
-local HUTI_CARD_CFG = {
-    [1] = {
-        name = "攻击",
-        effect = "每3刀额外造成1000伤害",
-        need = "转生等级达到10级",
-        lockedTip = "需要转生等级达到10级",
-    },
-    [2] = {
-        name = "防御",
-        effect = "每3刀额外造成888伤害",
-        need = "领取首充礼包",
-        lockedTip = "需要先领取首充礼包",
-    },
-    [3] = {
-        name = "斩杀",
-        effect = "每3刀额外造成1000伤害",
-        need = "购买超级特权",
-        lockedTip = "需要先激活超级特权",
-    },
-}
-local function _huti_get_server_data()
-    return type(npc.data_23) == "table" and npc.data_23 or {
-    }
-end
-local function _huti_get_aura_info(idx)
-    local data = _huti_get_server_data()
-    local aura = type(data.aura) == "table" and data.aura or {
-    }
-    local info = aura[idx] or aura[tostring(idx)]
-    return type(info) == "table" and info or {
-    }
-end
-local function _huti_get_local_open_flag(idx)
-    if idx == 1 then
-        return (tonumber(SL:GetMetaValue("RELEVEL") or 0) or 0) >= 1
-    end
-    if idx == 2 then
-        return _shortcut_is_firstcharge_completed()
-    end
-    if idx == 3 then
-        return _shortcut_is_unbind_completed()
-    end
-    return false
-end
-local function _huti_is_open(idx)
-    local info = _huti_get_aura_info(idx)
-    local localOpen = _huti_get_local_open_flag(idx)
-    if info.open ~= nil then
-        return tonumber(info.open or 0) == 1 or localOpen == true
-    end
-    return localOpen
-end
-local function _huti_get_active_idx()
-    local data = _huti_get_server_data()
-    local active = tonumber(data.active or 0) or 0
-    if active >= 1 and active <= 3 then
-        return active
-    end
-    for idx = 1, 3 do
-        local info = _huti_get_aura_info(idx)
-        if tonumber(info.active or 0) == 1 then
-            return idx
-        end
-    end
-    return 0
-end
-local function _shortcut_is_body_aura_completed()
-    for idx = 1, 3 do
-        if not _huti_is_open(idx) then
-            return false
-        end
-    end
-    return true
-end
 local function _shortcut_is_current_xyl_task(taskName)
     local current = tostring(rawget(_G, "XYL_CURRENT_TASK_NAME") or "")
     if current == "" then
@@ -910,27 +822,6 @@ local function _shortcut_should_show_pet_contract()
     end
     return _shortcut_has_reached_xyl_task("灵兽孵化")
 end
-local function _huti_get_card_states()
-    local result = {
-    }
-    local activeIdx = _huti_get_active_idx()
-    for idx, cfg in ipairs(HUTI_CARD_CFG) do
-        local info = _huti_get_aura_info(idx)
-        local canActivate = _huti_is_open(idx)
-        local active = activeIdx == idx or tonumber(info.active or 0) == 1
-        result[idx] = {
-            idx = idx,
-            name = cfg.name,
-            effect = cfg.effect,
-            need = cfg.need,
-            lockedTip = cfg.lockedTip,
-            canActivate = canActivate,
-            active = active == true,
-            visible = active == true,
-        }
-    end
-    return result
-end
 local function _shortcut_should_show(cfg)
     local npcid = tonumber(cfg and cfg[3] or 0)
     if npcid == 31 then
@@ -945,9 +836,6 @@ local function _shortcut_should_show(cfg)
     end
     if npcid == 513 then
         return not _shortcut_is_kuangbao_completed()
-    end
-    if npcid == 23 then
-        return not _shortcut_is_body_aura_completed()
     end
     if npcid == 504 then
         return not _shortcut_is_unbind_completed()
@@ -1853,9 +1741,6 @@ npc[1] = function(p2, p3, msgData)
                     GUI:addOnClickEvent(haoyou, function()
                         SL:JumpTo(28)
                     end)
-                    GUI:addOnClickEvent(sz, function()
-                        SL:JumpTo(23)
-                    end)
                     GUI:addOnClickEvent(paihang, function()
                         SL:JumpTo(32)
                     end)
@@ -1863,22 +1748,10 @@ npc[1] = function(p2, p3, msgData)
                         SL:JumpTo(29)
                     end)
 
-                    local zz = GUI:Button_Create(cbl, "lbg", width/2, cogin.h - 80, "res/wy/public/main_cbl_htgh.png")
                     local syt = GUI:Button_Create(cbl, "sqt", width/2, cogin.h - 80 - 105 - 30, "res/wy/public/main_cbl_kbzl.png")
-                    local ldl = GUI:Button_Create(cbl, "tj", width/2, cogin.h - 80 - 210 - 60, "res/wy/public/main_cbl_xtqy.png")
-                    GUI:setAnchorPoint(zz, 0.5, 1)
                     GUI:setAnchorPoint(syt, 0.5, 1)
-                    GUI:setAnchorPoint(ldl, 0.5, 1)
-                    if npc._xian_tu_qi_yuan_redpoint == true then
-                        _xian_tu_qi_yuan_refresh_redpoints(true)
-                    end
 
-                    GUI:addOnClickEvent(zz, function() SL:SendLuaNetMsg(101, 23, 0, 0, "") end)
                     GUI:addOnClickEvent(syt, function() SL:SendLuaNetMsg(105, 15, 15, 0, "") end)
-                    GUI:addOnClickEvent(ldl, function()
-                        _xian_tu_qi_yuan_refresh_redpoints(false)
-                        SL:SendLuaNetMsg(101, 515, 0, 0, "")
-                    end)
 
 
                     GUI:Timeline_EaseSineIn_MoveTo(cbl, {
@@ -2106,6 +1979,14 @@ npc[2] = function(p2, p3, msgData)
             if size then
                 GUI:Text_setFontSize(widget, size)
             end
+        end
+        local function getRecycleItemNameColor(item_idx)
+            local itemData = SL:GetMetaValue("ITEM_DATA", tonumber(item_idx) or item_idx)
+            local color = type(itemData) == "table" and tonumber(itemData.Color or 0) or 0
+            if color and color > 0 then
+                return SL:GetHexColorByStyleId(color)
+            end
+            return "#F3E8CE"
         end
         local function getGroupNameColor(name)
             local text = tostring(name or "")
@@ -2897,7 +2778,7 @@ npc[2] = function(p2, p3, msgData)
                         local item_checked = item_is_selected(selected_entry, widget.item_idx)
                         GUI:setOpacity(widget.item_row, item_checked and 245 or 165)
                         GUI:CheckBox_setSelected(widget.item_checkbox, item_checked)
-                        setRecycleText(widget.item_name_text, item_checked and "#FFE58F" or "#F3E8CE", 19, "#110b05")
+                        setRecycleText(widget.item_name_text, widget.item_name_color, 19, "#110b05")
                     end
                     dual_refresh_lock = false
                 end
@@ -2997,7 +2878,7 @@ npc[2] = function(p2, p3, msgData)
                             look = true,
                             bgVisible = false,
                         })
-                        GUI:setScale(item_show, 0.5)
+                        GUI:setScale(item_show, 0.8)
                         GUI:setAnchorPoint(item_show, 0.5, 0.5)
                         local item_count = tonumber(SL:GetMetaValue("ITEM_COUNT", item_idx) or 0) or 0
                         if item_count > 0 then
@@ -3008,9 +2889,10 @@ npc[2] = function(p2, p3, msgData)
                         end
                         local item_name = item_cfg and item_cfg[3] or tostring(item_idx)
                         local reward_desc = formatRecycleReward(item_cfg)
-                        local item_name_text = GUI:Text_Create(item_row, "item_name", 62, 25, 19, item_checked and "#FFE58F" or "#F3E8CE", item_name)
+                        local item_name_color = getRecycleItemNameColor(item_idx)
+                        local item_name_text = GUI:Text_Create(item_row, "item_name", 62, 25, 19, item_name_color, item_name)
                         GUI:setAnchorPoint(item_name_text, 0, 0.5)
-                        setRecycleText(item_name_text, item_checked and "#FFE58F" or "#F3E8CE", 19, "#110b05")
+                        setRecycleText(item_name_text, item_name_color, 19, "#110b05")
                         -- local reward_text = GUI:Text_Create(item_row, "reward", 62, 18, 16, item_checked and "#FFF1C2" or "#D8C39A", reward_desc)
                         -- GUI:setAnchorPoint(reward_text, 0, 0.5)
                         -- setRecycleText(reward_text, item_checked and "#FFF1C2" or "#D8C39A", 16, "#110b05")
@@ -3035,6 +2917,7 @@ npc[2] = function(p2, p3, msgData)
                             item_row = item_row,
                             item_checkbox = item_checkbox,
                             item_name_text = item_name_text,
+                            item_name_color = item_name_color,
                             item_idx = item_idx,
                         }
                     end
@@ -3117,7 +3000,7 @@ npc[2] = function(p2, p3, msgData)
                         end)
                         local item_name = item_cfg and item_cfg[3] or tostring(item_idx)
                         local reward_desc = formatRecycleReward(item_cfg)
-                        local s_s_s_wz = GUI:RichText_Create(s_s_s_btn, "s_s_s_wz", 120, 35, item_name, 200, 16, "#f0c14b", 1, nil, nil, {
+                        local s_s_s_wz = GUI:RichText_Create(s_s_s_btn, "s_s_s_wz", 120, 35, item_name, 200, 16, getRecycleItemNameColor(item_idx), 1, nil, nil, {
                         })
                         GUI:setAnchorPoint(s_s_s_wz, 0.5, 0.5)
                         local rewardText = GUI:Text_Create(s_s_s_btn, "reward", 110, 17, 16, "#F3E8CE", reward_desc)
@@ -4785,87 +4668,6 @@ npc[18] = function(p2, p3, Data)
             titleText = "新手礼包",
         })
         renderNewbieGift(win.node)
-    end
-end
-npc[23] = function(p2, p3, Data)
-    local cardPosX = {
-        100,
-        360,
-        620,
-    }
-    local UI_updata
-    local function setCommonText(textObj, outlineColor)
-        GUI:Text_setFontName(textObj, "fonts/502.ttf")
-        GUI:Text_enableOutline(textObj, outlineColor or "#081800", 1)
-        GUI:setAnchorPoint(textObj, 0.5, 0.5)
-    end
-    local function bindPressFeedback(target, onClick)
-        if not target then
-            return
-        end
-        GUI:setTouchEnabled(target, true)
-        GUI:addOnTouchEvent(target, function(sender, touchType)
-            if touchType == SLDefine.TouchEventType.began then
-                GUI:setScale(sender, 0.96)
-            elseif touchType == SLDefine.TouchEventType.ended then
-                GUI:setScale(sender, 1)
-                if onClick then
-                    onClick()
-                end
-            elseif touchType == SLDefine.TouchEventType.canceled then
-                GUI:setScale(sender, 1)
-            end
-        end)
-    end
-    local eff = {
-        11501,
-        11506,
-        11505,
-    }
-    local function renderCard(node, state)
-        local idx = state.idx
-        local card = GUI:Image_Create(node, "huti_card_" .. idx, cardPosX[idx], 34 + 30, "res/custom/htgh/item_" .. idx .. ".png")
-        GUI:setAnchorPoint(card, 0, 0)
-        GUI:setScale(GUI:Effect_Create(card, "effect", 115, 320 - 46, 0, eff[idx], 0, 0, 0, 1), 1)
-        GUI:Effect_Create(card, "rw1", 115, 320 - 46, 4, SL:GetMetaValue("EQUIP_DATA", 0) and SL:GetMetaValue("EQUIP_DATA", 0).Shape or 1300, 0, 0, 2, 0.8)
-        if not state.canActivate then
-            local btn = GUI:Button_Create(card, "activate_btn_" .. idx, 78 + 60, 110 - 30 - 8, "res/custom/htgh/btn_activate.png")
-            GUI:setAnchorPoint(btn, 0.5, 0.5)
-            bindPressFeedback(btn, function()
-                if not state.canActivate then
-                    SL:ShowSystemTips(state.lockedTip or "当前条件未满足")
-                    return
-                end
-                SL:SendLuaNetMsg(101, 23, 1, idx, "")
-            end)
-        end
-    end
-    UI_updata = function(node)
-        GUI:removeAllChildren(node)
-        local states = _huti_get_card_states()
-        GUI:Image_Create(node, "wz1", 150 + 117, 34 + 451, "res/custom/htgh/wz1.png")
-        GUI:Image_Create(node, "wz2", 100, 34, "res/custom/htgh/wz2.png")
-        for idx = 1, 3 do
-            renderCard(node, states[idx])
-        end
-    end
-    if p2 == 0 then
-        npc.data_23 = not Data and {
-        } or SL:JsonDecode(Data, false)
-        rebuildShortcutButtons("")
-        local win = ensureWindow("bodyAura", 23, {
-            titleText = "护体光环",
-        })
-        npc.bg = win.bg
-        npc.node = win.node
-        UI_updata(npc.node)
-    elseif p2 == 1 then
-        npc.data_23 = not Data and {
-        } or SL:JsonDecode(Data, false)
-        if npc.node and not tolua.isnull(npc.node) then
-            UI_updata(npc.node)
-        end
-        rebuildShortcutButtons("")
     end
 end
 npc[20] = function(p2, p3, Data)
@@ -8568,13 +8370,13 @@ npc[512] = function(p2, p3, Data)
     local equipPreviewData = {
         ["顶级装备"] = {
             groups = {
-                {title = "世界专属", items = {"龙魂吊坠", "王权圣戒", "烈焰指环", "炽焰护腕", "傲霜孤", "月华流影"}},
-                {title = "二大陆", items = {"黄金靴子", "黄金腰带", "黄金瞬影戒", "黄金银河护手", "黄金冥王链", "黄金幽灵盔"}},
-                {title = "三大陆", items = {"雷霆幻", "龙鳞震岳", "啸风逐电", "天罚雷击", "烈焰焚天", "霜雪之间"}},
-                {title = "四大陆", items = {"雪隐残锋", "惊雷震世", "烬海残光", "苍穹寂灭", "月华流影", "傲霜孤"}},
-                {title = "五大陆", items = {"深渊游行", "龙骨战魂", "★★寒鸦★★", "紫琅", "烬痕", "长夜メ"}},
-                {title = "六大陆", items = {"天下太平", "封刃护生", "破军弑神", "碎星戮仙", "世事无常", "但求无悔"}},
-                {title = "七大陆", items = {"玄武震天尊", "致命节奏", "熱翔", "东皇钟魂", "净世真言", "天恩圣符"}},
+                {title = "世界专属", items = {"永恒星辰", "炽焰灰烬", "メ孤鸿", "焚息", "归墟", "映月"}},
+                {title = "二大陆", items = {"天痕", "￠破晓￠", "潜锋", "杀破狼", "狱魔神", "雷渊"}},
+                {title = "三大陆", items = {"青霄剑舞", "白莲盛开", "指天", "金刚", "传奇", "色"}},
+                {title = "四大陆", items = {"血月残魂", "亡者契约", "暗影囚笼", "永夜诅咒", "堕落圣歌", "焚天令"}},
+                {title = "五大陆", items = {"风吟鹤唳", "流霞醉客", "星垂平野", "浮生若梦", "幽狱炼魂", "蚀道魔印"}},
+                {title = "六大陆", items = {"亡语回响", "混沌余烬", "古神语", "幻梦之钥", "虚骸", "冥契"}},
+                -- {title = "七大陆", items = {"玄武震天尊", "致命节奏", "熱翔", "东皇钟魂", "净世真言", "天恩圣符"}},
             },
         },
         ["全服孤品"] = {
