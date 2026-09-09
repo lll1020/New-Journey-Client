@@ -20,20 +20,6 @@ PlayerEquip.fictionalUIPos = {
 }
 local LUA_EVENT_YWL_CURRENT_TASK_CHANGE = "伏妖录当前任务变更"
 local posList = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 14, 16, 1000, 1001}
-local function _can_open_linggen_panel()
-    local data = nil
-    if _dl_get_json then
-        data = _dl_get_json("T51")
-    elseif Player and Player.getServerVar and Player.JsonToTbl then
-        data = Player:JsonToTbl(Player:getServerVar("T51"))
-    end
-    data = type(data) == "table" and data or {}
-    if (tonumber(data.total_runs or 0) or 0) >= 6 then
-        return true
-    end
-    SL:ShowSystemTips("请完成通天塔挑战获得灵根功能")
-    return false
-end
 local function _refresh_xyl_playerequip_guides()
     local ui = PlayerEquip._ui
     if not ui or not ui.Panel_1 then
@@ -135,9 +121,7 @@ function PlayerEquip.main(data)
     end)
     Button= GUI:Button_Create(PlayerEquip._ui.Panel_1, "Button3", 180, 10.00, "res/private/player_main_layer_ui/btn_3.png")
     GUI:addOnClickEvent(Button, function()
-        if _can_open_linggen_panel() then
-            SL:SendLuaNetMsg(105, 22, 22, 0, "")
-        end
+        SL:SendLuaNetMsg(105, 22, 22, 0, "")
     end)
     Button= GUI:Button_Create(PlayerEquip._ui.Panel_1, "Button4", 250, 10.00, "res/private/player_main_layer_ui/btn_4.png")
     GUI:addOnClickEvent(Button, function()

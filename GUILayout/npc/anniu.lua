@@ -6673,7 +6673,7 @@ npc[502] = function(p2, p3, Data)
                         dir = 1,
                         guideWidget = guideButton,
                         guideParent = dbLayout,
-                    guideDesc = "点击30元档位获取筑基丹",
+                        guideDesc = "点击10元档位获取筑基丹",
                         isForce = false,
                         hideMask = false,
                     })
