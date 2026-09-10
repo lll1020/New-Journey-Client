@@ -7,6 +7,7 @@ local state = {
     monster_claimed = {},
     equip_claimed = {},
     chapter_claimed = {},
+    monster_attr = {},
 }
 
 local ROOT_NAME = "npc_518_atlas"
@@ -81,28 +82,12 @@ end
 
 local function replaceState(data)
     data = type(data) == "table" and data or {}
-    for _, key in ipairs({"monster", "equip", "monster_claimed", "equip_claimed", "chapter_claimed"}) do
+    for _, key in ipairs({"monster", "equip", "monster_claimed", "equip_claimed", "chapter_claimed", "monster_attr"}) do
         state[key] = type(data[key]) == "table" and data[key] or {}
     end
 end
 
-local function seedDemoState()
-    if AtlasCfg.demo ~= true then
-        return
-    end
-    state.monster = state.monster or {}
-    state.equip = state.equip or {}
-    state.monster_claimed = state.monster_claimed or {}
-    state.equip_claimed = state.equip_claimed or {}
-    state.chapter_claimed = state.chapter_claimed or {}
-    state.monster["m_6_1_1"] = 1
-    state.monster["m_6_1_2"] = 1
-    state.monster_claimed["m_6_1_2"] = 1
-    state.equip["e_6_1_1"] = 1
-    state.equip["e_6_1_2"] = 1
-end
-
-local function setEntryState(kind, id, activated, claimed)
+local function setEntryState(kind, id, activated, claimed, attrValue)
     local key = tostring(id or "")
     if key == "" or (kind ~= "monster" and kind ~= "equip") then
         return
@@ -114,6 +99,9 @@ local function setEntryState(kind, id, activated, claimed)
     end
     if claimed ~= nil then
         claimedMap[key] = tonumber(claimed) == 1 and 1 or nil
+    end
+    if attrValue ~= nil and kind == "monster" then
+        state.monster_attr[key] = tonumber(attrValue) or 0
     end
 end
 
@@ -147,6 +135,36 @@ local function itemIndex(name)
         return 0
     end
     return tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", name) or 0) or 0
+end
+
+local function getEntryNameColor(kind, entry)
+    if kind == "monster" then
+        return RED
+    end
+    local index = itemIndex(getName(entry))
+    local itemData = index > 0 and SL:GetMetaValue("ITEM_DATA", index) or nil
+    local styleId = type(itemData) == "table" and tonumber(itemData.Color or 0) or 0
+    if styleId > 0 then
+        return SL:GetHexColorByStyleId(styleId)
+    end
+    return GOLD
+end
+
+local function framedItem(parent, name, x, y, index, count, grey)
+    local frame = GUI:Image_Create(parent, name .. "_frame", x, y, "res/wy/public/58-60.png")
+    GUI:setAnchorPoint(frame, 0.5, 0.5)
+    local item = GUI:ItemShow_Create(frame, name .. "_show", 29, 30, {
+        index = index,
+        count = count or 1,
+        look = true,
+        movable = false,
+        bgVisible = false,
+    })
+    GUI:setAnchorPoint(item, 0.5, 0.5)
+    if grey then
+        GUI:ItemShow_setIconGrey(item, true)
+    end
+    return frame
 end
 
 local function text(parent, name, x, y, size, color, value, ax, ay, FONTNAME)
@@ -222,11 +240,6 @@ local function renderTopNav(root, active)
         Atlas.renderDetail()
     end)
 
-    -- button(root, "simulate", layout.sw / 2 - 165, layout.topY, "模拟激活", function()
-    --     if type(Atlas.simulateActivation) == "function" then
-    --         Atlas.simulateActivation()
-    --     end
-    -- end)
     button(root, "close", layout.sw / 2 - 65, layout.topY, "", function()
         local win = GUI:GetWindow(nil, ROOT_NAME)
         if win then
@@ -239,17 +252,14 @@ local function addItem(parent, name, x, y, reward)
     local rewardName = getRewardName(reward)
     local idx = itemIndex(rewardName)
     if idx > 0 then
-        local item = GUI:ItemShow_Create(parent, name, x, y, {
-            index = idx,
-            count = getCount(reward),
-            look = true,
-            movable = false,
-            bgVisible = false,
-        })
-        GUI:setAnchorPoint(item, 0.5, 0.5)
-        return item
+        return framedItem(parent, name, x, y, idx, getCount(reward))
     end
-    return text(parent, name, x, y, 14, MUTED, rewardName ~= "" and rewardName or "暂无", 0.5, 0.5)
+    local count = getCount(reward)
+    local label = rewardName ~= "" and rewardName or "暂无"
+    if rewardName ~= "" then
+        label = string.format("%s x%d", label, count)
+    end
+    return text(parent, name, x, y, 14, MUTED, label, 0.5, 0.5)
 end
 
 local function addRewards(parent, rewards, x, y, maxCount)
@@ -262,8 +272,34 @@ local function addRewards(parent, rewards, x, y, maxCount)
     end
     local limit = math.min(#list, maxCount or 3)
     for i = 1, limit do
-        addItem(parent, "reward_" .. i, x + (i - 1) * 58, y, list[i])
+        addItem(parent, "reward_" .. i, x + (i - 1) * 62, y, list[i])
     end
+end
+
+local function addAttrReward(parent, name, attr, x, y)
+    if type(attr) ~= "table" then
+        return
+    end
+    local minValue = tonumber(attr.min or 0) or 0
+    local maxValue = tonumber(attr.max or minValue) or minValue
+    local actualRaw = (state.monster_attr or {})[name]
+    local actual = tonumber(actualRaw or 0) or 0
+    local label
+    if actualRaw ~= nil then
+        label = string.format("%s\n%d", attr.name or "属性", actual)
+    elseif minValue == maxValue then
+        label = string.format("%s\n%d", attr.name or "属性", minValue)
+    else
+        label = string.format("%s\n%d-%d", attr.name or "属性", minValue, maxValue)
+    end
+    text(parent, "attr_reward_" .. tostring(name), x, y, 20, ORANGE, label, 0.5, 0.5)
+end
+
+local function getChapterReward(map, kind)
+    if not map then
+        return {}
+    end
+    return map[kind .. "_chapter_reward"] or map.chapter_reward or {}
 end
 
 local function isActive(kind, entry)
@@ -300,6 +336,55 @@ end
 
 local function mapKey(kind, map)
     return tostring(kind) .. ":" .. tostring(map and map.id or "")
+end
+
+local function mapSupportsKind(kind, map)
+    if not map or type(map[kind]) ~= "table" or #map[kind] == 0 then
+        return false
+    end
+    if kind == "equip" then
+        return true
+    end
+    return map.direct_equip ~= true
+end
+
+local function isContinentUnlocked(continent)
+    local continentId = tonumber(continent and continent.id or 0) or 0
+    if continentId <= 1 then
+        return continentId == 1
+    end
+    if type(dl_unlock_check) == "function" then
+        local ok, unlocked = pcall(dl_unlock_check, continentId)
+        if not ok then
+            return false
+        end
+        return unlocked == true
+            or tonumber(unlocked or 0) == 1
+            or tostring(unlocked) == "true"
+    end
+    local adminUnlock = cogin and cogin.sjtb
+        and tonumber(cogin.sjtb.dl_all_unlock or 0) or 0
+    return adminUnlock == 1 or adminUnlock >= continentId
+end
+
+local function getVisibleMaps(continent, kind)
+    local result = {}
+    for _, map in ipairs((continent and continent.maps) or {}) do
+        if mapSupportsKind(kind, map) then
+            result[#result + 1] = map
+        end
+    end
+    return result
+end
+
+local function getVisibleContinents(kind)
+    local result = {}
+    for _, continent in ipairs(AtlasCfg.continents or {}) do
+        if isContinentUnlocked(continent) and #getVisibleMaps(continent, kind) > 0 then
+            result[#result + 1] = continent
+        end
+    end
+    return result
 end
 
 local function findConfigMap(mapId)
@@ -353,18 +438,19 @@ local function containsAny(value, words)
     return false
 end
 
-local function getCurrentMapSelection()
+local function getCurrentMapSelection(kind)
     local currentMapId = tostring(SL:GetMetaValue("MAP_ID") or "")
     local currentMapName = tostring(SL:GetMetaValue("MAP_NAME") or "")
     local fallbackContinent = tostring(AtlasCfg.default_continent or "6")
     local fallbackMap = tostring(AtlasCfg.default_map or "")
     local selectedContinent
     local selectedMap
+    local continents = getVisibleContinents(kind)
 
-    for _, continent in ipairs(AtlasCfg.continents or {}) do
+    for _, continent in ipairs(continents) do
         local continentId = tostring(continent.id or "")
         local continentMatched = containsAny(currentMapName, CONTINENT_ALIASES[continentId])
-        for _, map in ipairs(continent.maps or {}) do
+        for _, map in ipairs(getVisibleMaps(continent, kind)) do
             local mapId = tostring(map.id or "")
             local mapName = tostring(map.name or map.map_name or "")
             local mapMatched = currentMapName ~= "" and currentMapName == mapName
@@ -396,17 +482,17 @@ local function getCurrentMapSelection()
     end
 
     if not selectedContinent then
-        for _, continent in ipairs(AtlasCfg.continents or {}) do
+        for _, continent in ipairs(continents) do
             if tostring(continent.id or "") == fallbackContinent then
                 selectedContinent = continent
-                selectedMap = continent.maps and continent.maps[1]
+                selectedMap = getVisibleMaps(continent, kind)[1]
                 break
             end
         end
     end
     if not selectedContinent then
-        selectedContinent = (AtlasCfg.continents or {})[1]
-        selectedMap = selectedContinent and selectedContinent.maps and selectedContinent.maps[1]
+        selectedContinent = continents[1]
+        selectedMap = selectedContinent and getVisibleMaps(selectedContinent, kind)[1]
     end
     return selectedContinent, selectedMap
 end
@@ -418,12 +504,6 @@ local function updateRedPoint(show)
 end
 
 local function sendEntryClaim(kind, id)
-    if AtlasCfg.demo == true then
-        ensureStateTable(kind .. "_claimed")[tostring(id or "")] = 1
-        Atlas.refreshEntry(kind, id)
-        SL:ShowSystemTips("<font color='#6DFF9A'>测试领取成功</font>")
-        return
-    end
     SL:SendLuaNetMsg(101, 518, 1, 0, SL:JsonEncode({
         kind = kind,
         id = tostring(id),
@@ -431,32 +511,10 @@ local function sendEntryClaim(kind, id)
 end
 
 local function sendChapterClaim(kind, mapId)
-    if AtlasCfg.demo == true then
-        state.chapter_claimed[tostring(kind or "") .. ":" .. tostring(mapId or "")] = 1
-        Atlas.refreshChapter(kind, mapId)
-        SL:ShowSystemTips("<font color='#6DFF9A'>测试章节奖励领取成功</font>")
-        return
-    end
     SL:SendLuaNetMsg(101, 518, 2, 0, SL:JsonEncode({
         kind = kind,
         map_id = tostring(mapId),
     }, false))
-end
-
-local function simulateActivation()
-    local kind = Atlas.view == "equip" and "equip" or "monster"
-    local map = findConfigMap(Atlas.mapId)
-    local entries = map and map[kind] or {}
-    for _, entry in ipairs(entries or {}) do
-        local id = getEntryId(entry)
-        if not isActive(kind, entry) then
-            ensureStateTable(kind)[id] = 1
-            Atlas.refreshEntry(kind, id)
-            SL:ShowSystemTips("<font color='#6DFF9A'>已模拟激活：" .. getName(entry) .. "</font>")
-            return
-        end
-    end
-    SL:ShowSystemTips("<font color='#FFDFA5'>当前章节已经全部激活</font>")
 end
 
 local function requestState()
@@ -521,7 +579,7 @@ local function renderOverview(root)
             Atlas.renderDetail()
         end)
         local total, active = 0, 0
-        for _, continent in ipairs(AtlasCfg.continents or {}) do
+        for _, continent in ipairs(getVisibleContinents(info.kind)) do
             for _, map in ipairs(continent.maps or {}) do
                 for _, entry in ipairs(map[info.kind] or {}) do
                     total = total + 1
@@ -539,6 +597,8 @@ end
 
 local function renderSideBar(root)
     local layout = getLayout()
+    local kind = Atlas.view == "equip" and "equip" or "monster"
+    local continents = getVisibleContinents(kind)
     -- tj_8 is the dedicated left-side continent and map list background.
     local side = GUI:Image_Create(root, "side_bg", layout.sideX, layout.sideY, RES .. "tj_12.png")
     GUI:setAnchorPoint(side, 0.5, 0.5)
@@ -566,13 +626,14 @@ local function renderSideBar(root)
     GUI:setAnchorPoint(scroll, 0.5, 0.5)
     GUI:ScrollView_setClippingEnabled(scroll, true)
     GUI:ScrollView_setBounceEnabled(scroll, true)
-    local continents = AtlasCfg.continents or {}
     local rowH = 42
     local totalRows = 0
     for _, continent in ipairs(continents) do
+        local maps = getVisibleMaps(continent, kind)
         totalRows = totalRows + 1
-        if Atlas.expanded[tostring(continent.id or "")] == true then
-            totalRows = totalRows + #(continent.maps or {})
+        if Atlas.expanded[tostring(continent.id or "")] == true
+            and not (maps[1] and maps[1].direct_equip) then
+            totalRows = totalRows + #maps
         end
     end
     local innerH = math.max(scrollH, totalRows * rowH + 12)
@@ -581,9 +642,11 @@ local function renderSideBar(root)
     local y = innerH - 25
     for _, continent in ipairs(continents) do
         local continentId = tostring(continent.id or "")
+        local maps = getVisibleMaps(continent, kind)
+        local directMap = maps[1] and maps[1].direct_equip and maps[1] or nil
         local expanded = Atlas.expanded[continentId] == true
         local continentActive = false
-        for _, map in ipairs(continent.maps or {}) do
+        for _, map in ipairs(maps) do
             if tostring(Atlas.mapId or "") == tostring(map.id or "") then
                 continentActive = true
                 break
@@ -591,12 +654,13 @@ local function renderSideBar(root)
         end
         local head = nomove_button(scroll, "continent_" .. continentId, scrollW / 2, y,
             "", function()
-                local shouldExpand = not expanded
+                local firstMap = directMap or maps[1]
                 for _, otherContinent in ipairs(continents) do
                     local otherId = tostring(otherContinent.id or "")
                     Atlas.expanded[otherId] = false
                 end
-                Atlas.expanded[continentId] = shouldExpand
+                Atlas.expanded[continentId] = directMap == nil and firstMap ~= nil
+                Atlas.mapId = firstMap and tostring(firstMap.id or "") or nil
                 Atlas.renderDetail()
             end,"res/wy/public/" .. (expanded and "zl_mrrwwc" or "kfzj_wz") .. ".png")
         GUI:setContentSize(head, scrollW - 8, 38)
@@ -606,8 +670,8 @@ local function renderSideBar(root)
             getName(continent, "未知大陆"), 0, 0.5,"fonts/506.ttf")
             GUI:Text_enableOutline(progress, OUTLINE, expanded and 1 or 0.5)
         y = y - rowH
-        if expanded then
-            for _, map in ipairs(continent.maps or {}) do
+        if expanded and not directMap then
+            for _, map in ipairs(maps) do
                 local mapId = tostring(map.id or "")
                 local selected = tostring(Atlas.mapId or "") == mapId
                 local mapBtn = nomove_button(scroll, "map_" .. mapId, scrollW / 2 - 10, y,
@@ -632,7 +696,6 @@ local function renderMonsterModel(card, entry)
     local model = tonumber(entry.model or entry.mob_shape or entry.shape or 0) or 0
     if model > 0 then
         local node = GUI:Effect_Create(card, "model", CARD_W / 2 - 20, 142, 2, model, 0, 0, 5, 0.65)
-        GUI:setLocalZOrder(node, 2)
     else
 
         local preview = GUI:Image_Create(card, "model_preview", CARD_W / 2, 150 + 28, "res/wy/public/kb_5.png")
@@ -656,17 +719,7 @@ local function renderEntryCard(card, kind, entry)
     else
         local idx = itemIndex(getName(entry))
         if idx > 0 then
-            local item = GUI:ItemShow_Create(card, "item", CARD_W / 2, 142 + 32, {
-                index = idx,
-                count = 1,
-                look = true,
-                movable = false,
-                bgVisible = false,
-            })
-            GUI:setAnchorPoint(item, 0.5, 0.5)
-            if not active then
-                GUI:ItemShow_setIconGrey(item, true)
-            end
+            framedItem(card, "item", CARD_W / 2, 142 + 32, idx, 1, false)
         else
             text(card, "item_empty", CARD_W / 2, 142, 14, MUTED, "未配置物品", 0.5, 0.5)
         end
@@ -676,13 +729,16 @@ local function renderEntryCard(card, kind, entry)
     --     kind == "monster" and "红名 BOSS" or "专属装备", 0, 0.5)
     -- text(card, "active", CARD_W - 12, CARD_H - 22, 11, active and GREEN or MUTED,
     --     claimed and "已领取" or (active and "待领取" or "未激活"), 1, 0.5)
-    text(card, "name", CARD_W / 2, 92+ 185, 20, active and GOLD or MUTED, getName(entry), 0.5, 0.5)
+    text(card, "name", CARD_W / 2, 92 + 185, 20, getEntryNameColor(kind, entry), getName(entry), 0.5, 0.5)
     -- text(card, "trigger", CARD_W / 2, 68, 13, MUTED,
     --     active and (kind == "monster" and "击杀激活" or "拾取激活")
     --         or (kind == "monster" and "击杀对应 BOSS 后激活" or "拾取进入背包后激活"),
     --     0.5, 0.5)
-    text(card, "reward_title", CARD_W / 2 - 54, 48 + 185 - 181, 25, MUTED, "激活\n奖励", 0.5, 0.5)
-    addRewards(card, entry.reward, 68 + 55, 35 + 15, 3)
+    text(card, "reward_title", CARD_W / 2 - 54, 48 + 185 - 181, 20, MUTED, "激活\n奖励", 0.5, 0.5)
+    addRewards(card, entry.reward, 68 + 55 - 20, 35 + 15, 3)
+    if kind == "monster" then
+        addAttrReward(card, getEntryId(entry), entry.attr_reward, 68 + 55 - 15 + 15 + 40, 35 + 15)
+    end
 
     if claimed then
         -- text(card, "claimed", CARD_W / 2, 10, 13, GREEN, "已领取", 0.5, 0.5)
@@ -713,7 +769,7 @@ local function renderChapterPanel(parent, kind, map)
     text(panel, "chapter_label", 10, 104, 20, GOLD, "本章节全部收集奖励", 0, 1)
     text(panel, "chapter_state", 10, 104 - 20, 20, complete and GREEN or MUTED,
         complete and "章节已完成" or string.format("已激活 %d/%d", active, total), 0, 1)
-    addRewards(panel, map.chapter_reward, 30, 30, 3)
+    addRewards(panel, getChapterReward(map, kind), 40, 30, 3)
     if claimed then
         text(panel, "chapter_claimed", 236, 30, 13, GREEN, "已领取", 0.5, 0.5)
     else
@@ -766,20 +822,31 @@ local function renderDetail(root)
         text(root, "empty_config", 0, 0, 20, MUTED, "图鉴配置为空，请先维护客户端 atlas_data.lua", 0.5, 0.5)
         return
     end
-    if not Atlas.mapId then
-        local selectedContinent, selectedMap = getCurrentMapSelection()
+    local visibleContinents = getVisibleContinents(kind)
+    local currentMap, currentContinent = findConfigMap(Atlas.mapId)
+    if not Atlas.mapId
+        or not mapSupportsKind(kind, currentMap)
+        or not isContinentUnlocked(currentContinent) then
+        local selectedContinent, selectedMap = getCurrentMapSelection(kind)
         if selectedContinent then
             Atlas.expanded[tostring(selectedContinent.id or "")] = true
+            local firstMap = getVisibleMaps(selectedContinent, kind)[1]
+            if firstMap and firstMap.direct_equip then
+                Atlas.expanded[tostring(selectedContinent.id or "")] = false
+            end
         end
         Atlas.mapId = selectedMap and tostring(selectedMap.id or "") or nil
-        normalizeExpanded(continents, selectedContinent and selectedContinent.id)
+        normalizeExpanded(visibleContinents, selectedContinent and selectedContinent.id)
     else
-        normalizeExpanded(continents)
+        local selectedMap, selectedContinent = findConfigMap(Atlas.mapId)
+        local firstMap = selectedContinent and getVisibleMaps(selectedContinent, kind)[1]
+        normalizeExpanded(visibleContinents,
+            firstMap and firstMap.direct_equip and nil or (selectedContinent and selectedContinent.id))
     end
     renderSideBar(root)
 
     local map, continent = findConfigMap(Atlas.mapId)
-    if not map then
+    if not map or not isContinentUnlocked(continent) or not mapSupportsKind(kind, map) then
         text(root, "empty_map", layout.panelX, layout.panelY, 18, MUTED, "请选择左侧地图", 0.5, 0.5)
         return
     end
@@ -902,18 +969,14 @@ function Atlas.handle(mode, msgData)
         if not valid(Atlas.root) then
             Atlas.open(true)
         end
-        if AtlasCfg.demo == true then
-            seedDemoState()
-        else
-            replaceState(data.state)
-        end
+        replaceState(data.state)
         if Atlas.view == "monster" or Atlas.view == "equip" then
             Atlas.renderDetail()
         elseif valid(Atlas.root) then
             Atlas.renderOverview()
         end
     elseif mode == 2 or mode == 3 then
-        setEntryState(data.kind, data.id, data.activated, data.claimed)
+        setEntryState(data.kind, data.id, data.activated, data.claimed, data.attr_value)
         Atlas.refreshEntry(data.kind, data.id)
     elseif mode == 4 then
         state.chapter_claimed[tostring(data.kind or "") .. ":" .. tostring(data.map_id or "")] =
@@ -927,7 +990,6 @@ function Atlas.open(skipRequest)
     Atlas.cards = Atlas.cards or {monster = {}, equip = {}}
     Atlas.view = nil
     Atlas.mapId = nil
-    seedDemoState()
     Atlas.root = createRoot()
     Atlas.renderOverview()
     updateRedPoint(false)
@@ -947,7 +1009,5 @@ end
 function Atlas.getState()
     return state
 end
-
-Atlas.simulateActivation = simulateActivation
 
 return Atlas
