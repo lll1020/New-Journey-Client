@@ -70,10 +70,12 @@ function MainSkill.InitButton()
 
     -- 切换
     local Button_change = MainSkill._ui["Button_change"]
-    local function refreshXianTuQiYuanChangeButton(show)
+    local function refreshButtonChangeRedpoint()
         if not Button_change or tolua.isnull(Button_change) then
             return
         end
+        local show = MainSkill._xian_tu_qi_yuan_redpoint == true
+            or MainSkill._atlas518_redpoint == true
         if show == true then
             local delegate = GUI:ui_delegate(Button_change)
             if not (delegate and delegate.redpoint) then
@@ -88,6 +90,13 @@ function MainSkill.InitButton()
             GUI:removeChildByName(Button_change, "redpoint")
         end
     end
+    local function refreshXianTuQiYuanChangeButton(show)
+        if not Button_change or tolua.isnull(Button_change) then
+            return
+        end
+        MainSkill._xian_tu_qi_yuan_redpoint = show == true
+        refreshButtonChangeRedpoint()
+    end
     MainSkill._xian_tu_qi_yuan_refresh_change_button = refreshXianTuQiYuanChangeButton
     XIAN_TU_QI_YUAN_MAIN_SKILL_REDPOINT_REFRESH = function(show)
         refreshXianTuQiYuanChangeButton(show)
@@ -95,8 +104,18 @@ function MainSkill.InitButton()
             MainSkill._xian_tu_qi_yuan_refresh_menu(show)
         end
     end
+    ATLAS518_MAIN_SKILL_REDPOINT_REFRESH = function(show)
+        MainSkill._atlas518_redpoint = show == true
+        refreshButtonChangeRedpoint()
+        if MainSkill._atlas518_refresh_menu then
+            MainSkill._atlas518_refresh_menu(show)
+        end
+    end
     if type(XIAN_TU_QI_YUAN_REDPOINT_STATE) == "function" and XIAN_TU_QI_YUAN_REDPOINT_STATE() then
         XIAN_TU_QI_YUAN_MAIN_SKILL_REDPOINT_REFRESH(true)
+    end
+    if type(ATLAS518_REDPOINT_STATE) == "function" and ATLAS518_REDPOINT_STATE() then
+        ATLAS518_MAIN_SKILL_REDPOINT_REFRESH(true)
     end
     GUI:addOnClickEvent(Button_change, function()
         SL:PlaySound(50005)

@@ -334,8 +334,18 @@ local function mapProgress(kind, map)
     return active, total
 end
 
-local function mapKey(kind, map)
-    return tostring(kind) .. ":" .. tostring(map and map.id or "")
+local function refreshNodeRedPoint(node, show, opts)
+    if not valid(node) then
+        return
+    end
+    local delegate = GUI:ui_delegate(node)
+    if show == true then
+        if not (delegate and delegate.redpoint) then
+            NPC_UI_HELPER.redpoint_create_eff(node, opts)
+        end
+    else
+        GUI:removeChildByName(node, "redpoint")
+    end
 end
 
 local function mapSupportsKind(kind, map)
@@ -375,6 +385,55 @@ local function getVisibleMaps(continent, kind)
         end
     end
     return result
+end
+
+local function mapKey(kind, map)
+    return tostring(kind) .. ":" .. tostring(map and map.id or "")
+end
+
+local function mapHasPending(kind, map)
+    if not map or not mapSupportsKind(kind, map) then
+        return false
+    end
+    for _, entry in ipairs(map[kind] or {}) do
+        if isActive(kind, entry) and not isClaimed(kind, entry) then
+            return true
+        end
+    end
+    return mapComplete(kind, map)
+        and tonumber((state.chapter_claimed or {})[mapKey(kind, map)] or 0) ~= 1
+end
+
+local function continentHasPending(kind, continent)
+    for _, map in ipairs(getVisibleMaps(continent, kind)) do
+        if mapHasPending(kind, map) then
+            return true
+        end
+    end
+    return false
+end
+
+local function refreshSidebarRedpoints()
+    local nodes = Atlas.sidebarNodes
+    local kind = Atlas.sidebarKind
+    if type(nodes) ~= "table" or (kind ~= "monster" and kind ~= "equip") then
+        return
+    end
+
+    for _, data in pairs(nodes.continent or {}) do
+        refreshNodeRedPoint(data.node, continentHasPending(kind, data.continent), {
+            x = data.width - 12,
+            y = data.height / 2,
+            autoScale = 0.55,
+        })
+    end
+    for _, data in pairs(nodes.map or {}) do
+        refreshNodeRedPoint(data.node, mapHasPending(kind, data.map), {
+            x = data.width - 8,
+            y = data.height / 2,
+            autoScale = 0.52,
+        })
+    end
 end
 
 local function getVisibleContinents(kind)
@@ -561,6 +620,8 @@ end
 
 local function renderOverview(root)
     GUI:removeAllChildren(root)
+    Atlas.sidebarKind = nil
+    Atlas.sidebarNodes = nil
     renderTopNav(root, "overview")
     -- text(root, "title", 0, 205, 30, GOLD, "图鉴总览", 0.5, 0.5)
     -- text(root, "subtitle", 0, 168, 15, MUTED, "记录你走过的地图与亲手拾取过的珍稀装备", 0.5, 0.5)
@@ -599,6 +660,11 @@ local function renderSideBar(root)
     local layout = getLayout()
     local kind = Atlas.view == "equip" and "equip" or "monster"
     local continents = getVisibleContinents(kind)
+    Atlas.sidebarKind = kind
+    Atlas.sidebarNodes = {
+        continent = {},
+        map = {},
+    }
     -- tj_8 is the dedicated left-side continent and map list background.
     local side = GUI:Image_Create(root, "side_bg", layout.sideX, layout.sideY, RES .. "tj_12.png")
     GUI:setAnchorPoint(side, 0.5, 0.5)
@@ -664,6 +730,12 @@ local function renderSideBar(root)
                 Atlas.renderDetail()
             end,"res/wy/public/" .. (expanded and "zl_mrrwwc" or "kfzj_wz") .. ".png")
         GUI:setContentSize(head, scrollW - 8, 38)
+        Atlas.sidebarNodes.continent[continentId] = {
+            node = head,
+            continent = continent,
+            width = scrollW - 8,
+            height = 38,
+        }
         -- GUI:Text_Create(head, "progress", 10, 0, 12,expanded and GREEN or MUTED,)
         local progress = text(head, "progress", 10, 38/2 - 2, 25,
             expanded and ORANGE or GOLD,
@@ -681,6 +753,12 @@ local function renderSideBar(root)
                     end,"res/wy/public/" .. (selected and "zl_mrrwwc" or "kfzj_wz") .. ".png")
                 local active, total = mapProgress(Atlas.view, map)
                 GUI:setContentSize(mapBtn, scrollW - 70, 34)
+                Atlas.sidebarNodes.map[mapId] = {
+                    node = mapBtn,
+                    map = map,
+                    width = scrollW - 70,
+                    height = 34,
+                }
                 local map_progress = text(mapBtn, "progress", 10, 34/2 - 2, 20,
                     selected and ORANGE or GOLD,
                     (selected and "└ " or "└ ") .. getName(map, "未知地图"), 0, 0.5,"fonts/506.ttf")
@@ -690,6 +768,7 @@ local function renderSideBar(root)
         end
     end
     GUI:ScrollView_setInnerContainerSize(scroll, scrollW, math.max(scrollH, innerH - y + 12))
+    refreshSidebarRedpoints()
 end
 
 local function renderMonsterModel(card, entry)
@@ -754,6 +833,11 @@ local function renderEntryCard(card, kind, entry)
         if not active then
             GUI:Button_setGrey(claim, true)
         end
+        refreshNodeRedPoint(claim, active and not claimed, {
+            x = CARD_W - 18,
+            y = 15,
+            autoScale = 0.65,
+        })
     end
 end
 
@@ -784,6 +868,11 @@ local function renderChapterPanel(parent, kind, map)
         if not complete then
             GUI:Button_setGrey(claim, true)
         end
+        refreshNodeRedPoint(claim, complete and not claimed, {
+            x = 72,
+            y = 15,
+            autoScale = 0.65,
+        })
     end
 end
 
@@ -948,10 +1037,12 @@ function Atlas.refreshEntry(kind, id)
         refreshProgress(panel, kind, map)
         renderChapterPanel(panel, kind, map)
     end
+    refreshSidebarRedpoints()
 end
 
 function Atlas.refreshChapter(kind, mapId)
     if not valid(Atlas.root) or tostring(Atlas.mapId or "") ~= tostring(mapId or "") then
+        refreshSidebarRedpoints()
         return
     end
     local map = findConfigMap(mapId)
@@ -960,6 +1051,7 @@ function Atlas.refreshChapter(kind, mapId)
         GUI:removeChildByName(panel, "chapter_panel")
         renderChapterPanel(panel, kind, map)
     end
+    refreshSidebarRedpoints()
 end
 
 function Atlas.handle(mode, msgData)
@@ -975,6 +1067,7 @@ function Atlas.handle(mode, msgData)
         elseif valid(Atlas.root) then
             Atlas.renderOverview()
         end
+        refreshSidebarRedpoints()
     elseif mode == 2 or mode == 3 then
         setEntryState(data.kind, data.id, data.activated, data.claimed, data.attr_value)
         Atlas.refreshEntry(data.kind, data.id)

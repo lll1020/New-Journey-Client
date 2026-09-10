@@ -27,6 +27,7 @@ end
 local function _atlas_refresh_redpoints(show)
     npc._atlas518_redpoint = show == true
     local targets = {
+        npc.an_cbl,
         npc.db_anniu and npc.db_anniu["23"],
         npc.atlas_mobile_button,
         rawget(_G, "ATLAS518_MOBILE_BUTTON"),
@@ -42,6 +43,9 @@ local function _atlas_refresh_redpoints(show)
                 _atlas_remove_redpoint(target)
             end
         end
+    end
+    if type(ATLAS518_MAIN_SKILL_REDPOINT_REFRESH) == "function" then
+        ATLAS518_MAIN_SKILL_REDPOINT_REFRESH(show == true)
     end
 end
 
@@ -1728,6 +1732,9 @@ npc[1] = function(p2, p3, msgData)
                     end)
                 end
                 npc.an_cbl = GUI:Button_Create(npc.RightBottom, "an_cbl", -70, 320 - 70, "res/private/main/bottom/1900012580.png")
+                if npc._atlas518_redpoint == true then
+                    _atlas_refresh_redpoints(true)
+                end
                 GUI:addOnClickEvent(npc.an_cbl, function()
                     local parent = GUI:GetWindow(nil, "main_cbl")
                     if parent then
