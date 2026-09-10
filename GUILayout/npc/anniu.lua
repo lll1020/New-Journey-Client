@@ -1,5 +1,55 @@
-﻿local npc = {
+local npc = {
 }
+local function _atlas_has_redpoint(node)
+    if not node or tolua.isnull(node) then
+        return false
+    end
+    local ok, delegate = pcall(function()
+        return GUI:ui_delegate(node)
+    end)
+    return ok and delegate and delegate.redpoint ~= nil
+end
+
+local function _atlas_remove_redpoint(node)
+    if node and not tolua.isnull(node) then
+        pcall(function()
+            GUI:removeChildByName(node, "redpoint")
+        end)
+    end
+end
+
+local function _atlas_menu_button()
+    local parent = GUI:GetWindow(nil, "main_cbl")
+    local bg = parent and GUI:getChildByName(parent, "bj") or nil
+    return bg and GUI:getChildByName(bg, "atlas518") or nil
+end
+
+local function _atlas_refresh_redpoints(show)
+    npc._atlas518_redpoint = show == true
+    local targets = {
+        npc.db_anniu and npc.db_anniu["23"],
+        npc.atlas_mobile_button,
+        rawget(_G, "ATLAS518_MOBILE_BUTTON"),
+        _atlas_menu_button(),
+    }
+    for _, target in ipairs(targets) do
+        if target and not tolua.isnull(target) then
+            if show == true then
+                if not _atlas_has_redpoint(target) then
+                    NPC_UI_HELPER.redpoint_create_eff(target)
+                end
+            else
+                _atlas_remove_redpoint(target)
+            end
+        end
+    end
+end
+
+ATLAS518_REFRESH_REDPOINT = _atlas_refresh_redpoints
+ATLAS518_REDPOINT_STATE = function()
+    return npc._atlas518_redpoint == true
+end
+
 local function _xian_tu_qi_yuan_has_redpoint(node)
     if not node or tolua.isnull(node) then
         return false
@@ -1753,6 +1803,33 @@ npc[1] = function(p2, p3, msgData)
 
                     GUI:addOnClickEvent(syt, function() SL:SendLuaNetMsg(105, 15, 15, 0, "") end)
 
+                    local ldl = GUI:Button_Create(cbl, "tj", width/2, cogin.h - 80 - 210 - 60, "res/wy/public/main_cbl_xtqy.png")
+
+                    GUI:setAnchorPoint(ldl, 0.5, 1)
+
+                    if npc._xian_tu_qi_yuan_redpoint == true then
+                        _xian_tu_qi_yuan_refresh_redpoints(true)
+                    end
+
+                    GUI:addOnClickEvent(ldl, function()
+                        _xian_tu_qi_yuan_refresh_redpoints(false)
+                        SL:SendLuaNetMsg(101, 515, 0, 0, "")
+                    end)
+
+                    local atlasBtn = GUI:Button_Create(cbl, "atlas518", width/2, cogin.h - 80, "res/wy/public/main_cbl_tj.png")
+                    GUI:setAnchorPoint(atlasBtn, 0.5, 1)
+                    npc.atlas_mobile_button = atlasBtn
+                    ATLAS518_MOBILE_BUTTON = atlasBtn
+
+                    if npc._atlas518_redpoint == true then
+                        _atlas_refresh_redpoints(true)
+                    end
+
+                    GUI:addOnClickEvent(atlasBtn, function()
+                        _atlas_refresh_redpoints(false)
+                        SL:SendLuaNetMsg(101, 518, 0, 0, "")
+                    end)
+
 
                     GUI:Timeline_EaseSineIn_MoveTo(cbl, {
                         x = cogin.w,
@@ -1918,6 +1995,10 @@ npc[1] = function(p2, p3, msgData)
             UPGRADE_HELPER.startAutoRefresh(20 * 1)
         end
     elseif p2 == 10 then
+        if tonumber(p3 or 0) == 23 then
+            _atlas_refresh_redpoints(tostring(msgData or "") ~= "0")
+            return
+        end
         if tonumber(p3 or 0) == 515 then
             local show = tostring(msgData or "") ~= "0"
             _xian_tu_qi_yuan_refresh_redpoints(show)
@@ -8878,6 +8959,13 @@ end
 npc[515] = function(p2, p3, Data)
     _xian_tu_qi_yuan_refresh_redpoints(false)
     return Npclib["anniu_515"].main(515, p2, p3, Data)
+end
+npc[518] = function(p2, p3, Data)
+    if p2 == 0 then
+        _atlas_refresh_redpoints(false)
+        return Npclib[518].main(518, p2, p3, Data)
+    end
+    return Npclib[518].handle(p2, Data)
 end
 npc[516] = function(p2, p3, Data)
     local function mfzz_get_details()

@@ -311,8 +311,30 @@ function MainSkill.ChangeShowIndex(i, force)
 
         local syt = GUI:Button_Create(MainSkill.cbl, "sqt", width/2, cogin.h - 80 - 105 - 10, "res/wy/public/main_cbl_kbzl.png")
         local ldl = GUI:Button_Create(MainSkill.cbl, "tj", width/2, cogin.h - 80 - 210 - 20, "res/wy/public/main_cbl_xtqy.png")
+        local atlasBtn = GUI:Button_Create(MainSkill.cbl, "atlas518", width/2, cogin.h - 80, "res/wy/public/main_cbl_tj.png")
         GUI:setAnchorPoint(syt, 0.5, 1)
         GUI:setAnchorPoint(ldl, 0.5, 1)
+        GUI:setAnchorPoint(atlasBtn, 0.5, 1)
+        MainSkill.atlas_mobile_button = atlasBtn
+        ATLAS518_MOBILE_BUTTON = atlasBtn
+
+        local function refreshAtlasRedpoint(show)
+            if not atlasBtn or tolua.isnull(atlasBtn) then
+                return
+            end
+            local delegate = GUI:ui_delegate(atlasBtn)
+            if show == true then
+                if not (delegate and delegate.redpoint) then
+                    NPC_UI_HELPER.redpoint_create_eff(atlasBtn)
+                end
+            else
+                GUI:removeChildByName(atlasBtn, "redpoint")
+            end
+        end
+        MainSkill._atlas518_refresh_menu = refreshAtlasRedpoint
+        if type(ATLAS518_REDPOINT_STATE) == "function" and ATLAS518_REDPOINT_STATE() then
+            refreshAtlasRedpoint(true)
+        end
 
         local function refreshXianTuQiYuanRedpoint(show)
             if not ldl or tolua.isnull(ldl) then
@@ -340,6 +362,14 @@ function MainSkill.ChangeShowIndex(i, force)
                 refreshXianTuQiYuanRedpoint(false)
             end
             SL:SendLuaNetMsg(101, 515, 0, 0, "")
+        end)
+        GUI:addOnClickEvent(atlasBtn, function()
+            if type(ATLAS518_REFRESH_REDPOINT) == "function" then
+                ATLAS518_REFRESH_REDPOINT(false)
+            else
+                refreshAtlasRedpoint(false)
+            end
+            SL:SendLuaNetMsg(101, 518, 0, 0, "")
         end)
 
 
