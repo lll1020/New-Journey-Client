@@ -162,9 +162,12 @@ SL:RegisterLuaNetMsg(103, function(msgID, p1, p2, p3, msgData)
         if msgData.U_dlxz_bc then
             cogin.sjtb.U_dlxz_bc = msgData.U_dlxz_bc
         end
-        if msgData.dl_all_unlock then
-            cogin.sjtb.dl_all_unlock = msgData.dl_all_unlock
-            if Npclib["anniu"] and Npclib["anniu"].refreshWorldMap then
+        if msgData.dl_all_unlock ~= nil then
+            local unlockValue = tonumber(msgData.dl_all_unlock) or 0
+            local previousUnlockValue = tonumber(cogin.sjtb.dl_all_unlock)
+            local changed = previousUnlockValue == nil or previousUnlockValue ~= unlockValue
+            cogin.sjtb.dl_all_unlock = unlockValue
+            if changed and Npclib["anniu"] and Npclib["anniu"].refreshWorldMap then
                 Npclib["anniu"].refreshWorldMap()
             end
         end

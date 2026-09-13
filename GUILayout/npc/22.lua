@@ -1,2299 +1,2054 @@
-﻿local npc = {}
-npc._config = teshudata["npc_22"]
+local npc = {}
+local TreeCfg = SL:Require("GUILayout/Data/talent_tree_data", true) or {}
 
-local MAIN_WINDOW_OPTS = {
-    -- 主界面背景与关闭按钮配置
-    background = {skin = "res/custom/linggen/new/main/bg/eff_1.png", eff = false},
-    closeButton = {x = 926 - 43 + 135, y = 556 - 43, skin = "res/wy/public/close_red_big.png"},
+local ROOT_NAME = "npc_22_talent_tree"
+local GEM_WINDOW_NAME = "npc_22_gem_window"
+local RES = "res/custom/tj/"
+local FONT = "fonts/506.ttf"
+local BUTTON_SKIN = RES .. "tj_21.png"
+local NODE_FRAME = RES .. "tj_19.png"
+local NODE_CORE_SKIN = RES .. "tj_22.png"
+local PANEL_FRAME = RES .. "tj_17.png"
+local UPGRADE_RES = "res/custom/linggen/new/updata/"
+local UPGRADE_BG = UPGRADE_RES .. "upgrade_bg.png"
+local UPGRADE_BUTTON = UPGRADE_RES .. "btn_upgrade.png"
+local UPGRADE_COST_SLOT = UPGRADE_RES .. "cost_slot.png"
+local UPGRADE_BOX_W = 564
+local UPGRADE_BOX_H = 412
+local UPGRADE_LEFT_SCROLL_X = 0 + 38
+local UPGRADE_LEFT_SCROLL_Y = 0 + 58 - 42
+local UPGRADE_RIGHT_X = 170 + 287
+local UPGRADE_PREVIEW_Y = 94
+local UPGRADE_COST_Y = -78 + 190
+local UPGRADE_BUTTON_Y = 40
+-- local PANEL_FRAME = RES .. "tj_17.png"
+local LINK_SKIN = RES .. "tj_13.png"
+local LINK_TEXTURE_WIDTH = 376
+local LINK_VISIBLE_START = 24
+local LINK_VISIBLE_END = 351
+local LINK_VISIBLE_RATIO = (LINK_VISIBLE_END - LINK_VISIBLE_START) / LINK_TEXTURE_WIDTH
+local BUFI_RES = "res/custom/linggen/bufi/"
+local BUFI_DECORATIONS = {
+    metal = {icons = {5, 10, 18}, scale = 0.13, opacity = 50, slots = {{out = 170, side = -220}, {out = 300, side = 180}, {out = 440, side = -80}}},
+    wood = {icons = {8, 12, 20}, scale = 0.13, opacity = 48, slots = {{out = 180, side = 210}, {out = 320, side = -170}, {out = 460, side = 90}}},
+    water = {icons = {14, 22, 23}, scale = 0.13, opacity = 48, slots = {{out = 170, side = -190}, {out = 315, side = 210}, {out = 455, side = -70}}},
+    fire = {icons = {1, 4, 7}, scale = 0.12, opacity = 48, slots = {{out = 175, side = 220}, {out = 310, side = -180}, {out = 450, side = 80}}},
+    earth = {icons = {19, 24, 16}, scale = 0.13, opacity = 48, slots = {{out = 170, side = -210}, {out = 315, side = 175}, {out = 455, side = -85}}},
 }
-local MAIN_DESIGN_SIZE = {width = 1136, height = 640}
-local UPGRADE_WINDOW_OPTS = {
-    -- 升级弹窗背景与关闭按钮配置
-    windowName = "npc_anniu_22_xjm",
-    overlay = {skin = "res/custom/treasureBasin/x.png"},
-    background = {skin = "res/custom/linggen/new/updata/upgrade_bg.png", eff = false},
-    closeButton = {x = 500, y = 376 - 60, skin = "res/wy/public/close_red_big.png"},
+local BUFI_DECORATION_Z = -5
+local CANVAS_W = 2300 + 1000
+local CANVAS_H = 2100 + 1000
+local MIN_ZOOM = 0.30
+local MAX_ZOOM = 1.00
+local DEFAULT_ZOOM = 1.00
+local NODE_SIZE = {small = 30, medium = 40, large = 52, skill = 50, socket = 44, bridge = 34, root = 72}
+local ATTR_NODE_ORIGINAL_SIZE = 80
+local SKILL_NODE_ORIGINAL_SIZE = 68
+local SKILL_NODE_SKIN_BY_ELEMENT = {
+    metal = RES .. "1.png",
+    wood = RES .. "2.png",
+    water = RES .. "3.png",
+    fire = RES .. "4.png",
+    earth = RES .. "5.png",
 }
-local CULTIVATE_WINDOW_OPTS = {
-    -- 培养灵根界面先使用通用窗口，内部布局独立于主界面。
-    windowName = "npc_anniu_22_cultivate",
-    titleText = "灵根培养",
-    titleOptions = {x = 392, y = 486, fontSize = 30, color = "#F4D179"},
-    closeButton = {x = 742, y = 470, skin = "res/wy/public/close_red_big.png"},
+local ATTR_NODE_SKINS = {
+    RES .. "state1.png",
+    RES .. "state2.png",
+    RES .. "state3.png",
+    RES .. "state4.png",
+    RES .. "state5.png",
+    RES .. "state6.png",
+    RES .. "state7.png",
+    RES .. "state8.png",
+    RES .. "state9.png",
+    RES .. "state10.png",
 }
-
-local ROOT_COLORS = {
-    [1] = "#D9B55A",
-    [2] = "#50B45A",
-    [3] = "#4DA3FF",
-    [4] = "#FF7A59",
-    [5] = "#9A7A53",
-    [6] = "#9B72FF",
-    [7] = "#A7D58D",
-    [8] = "#8FDBFF",
-    [9] = "#FF6F5C",
-    [10] = "#7F756C",
+local SKILL_NODE_SKINS = {
+    RES .. "1.png",
+    RES .. "2.png",
+    RES .. "3.png",
+    RES .. "4.png",
+    RES .. "5.png",
 }
-
-local ROOT_GRID_POS = {
-    -- 主界面顶部五行灵根横排，避开背景标题区域，按示意图居中展开。
-    startX = 370,
-    startY = 455,
-    gapX = 150,
-    gapY = 0,
-    cols = 5,
-}
--- 单个顶部灵根格子的尺寸
-local ROOT_SLOT_SIZE = {width = 70, height = 74}
--- 顶部灵根图标缩放
-local ROOT_ICON_SCALE = 0.62
--- 选中框相对格子中心的偏移
-local ROOT_SELECTED_OFFSET = {x = 0, y = 0}
--- 等级条相对格子左下角的位置
-local ROOT_LEVEL_BAR_OFFSET = {x = -5, y = -14}
--- 等级文字在等级条上的位置
-local ROOT_LEVEL_TEXT_POS = {x = 35, y = -1}
-
--- 主灵根槽位中心坐标
-local MAIN_SLOT_POS = {x = 407, y = 282}
--- 主灵根图标实际渲染位置
-local MAIN_SLOT_ITEM_POS = {x = 407, y = 282}
--- 本命灵根点击命中区域尺寸
-local SLOT_TOUCH_SIZE = {width = 125, height = 110}
--- 本命灵根名字相对槽位中心的纵向偏移
-local SLOT_NAME_OFFSET_Y = -146
--- 左下“灵根总体属性”文本区域左下角
-local ATTR_BOX_POS = {x = 686, y = 258, anchorX = "right", anchorY = "top"}
--- 左下“灵根总体属性”文本区域宽高
-local ATTR_BOX_SIZE = {width = 350, height = 156}
--- 中间拖入卸下框的左下角坐标
-local UNEQUIP_DROP_POS = {x = 300, y = 346}
--- 中间拖入卸下框的尺寸
-local UNEQUIP_DROP_SIZE = {width = 410, height = 175}
-local SKILL_PANEL_GROUP = {x = 596, y = 122, gapY = 88, titleGapY = 104, width = 358, titleWidth = 234, rightMargin = 40, anchorX = "right", anchorY = "bottom", minBottomY = 30}
-local SKILL_PANEL_CHILD_POS = {iconX = 54, iconY = 52, textX = 108, textY = 84, textWidth = 226, fontSize = 14}
--- 中间升级按钮位置
-local PAGE_UPGRADE_BTN_POS = {x = 770, y = 45, minY = 81}
--- 主灵根空槽位下方“装配”按钮位置
-local MAIN_EQUIP_BTN_POS = {x = 102, y = 62, minY = 64}
-local DUAL_SWITCH_BTN_POS = {x = 616, y = 45, minY = 36}
-
-local MAIN_STATIC_PARTS = {
-    {name = "attr_panel", x = 620, y = 250, width = 386, rightMargin = 40, anchorX = "right", anchorY = "top", skin = "res/custom/linggen/new/main/itme3.png"},
-    {name = "attr_title", x = 640, y = 438, width = 188, follow = "attr_panel", followCenter = true, anchorX = "right", anchorY = "top", skin = "res/custom/linggen/new/main/itme4.png"},
-    {name = "skill_panel_passive", x = SKILL_PANEL_GROUP.x, group = "skill_panel", offsetY = 0, width = SKILL_PANEL_GROUP.width, rightMargin = SKILL_PANEL_GROUP.rightMargin, anchorX = SKILL_PANEL_GROUP.anchorX, skin = "res/custom/linggen/new/main/itme2.png"},
-    {name = "skill_panel_synergy", x = SKILL_PANEL_GROUP.x, group = "skill_panel", offsetY = -SKILL_PANEL_GROUP.gapY, width = SKILL_PANEL_GROUP.width, rightMargin = SKILL_PANEL_GROUP.rightMargin, anchorX = SKILL_PANEL_GROUP.anchorX, skin = "res/custom/linggen/new/main/itme2.png"},
-    {name = "skill_title", x = SKILL_PANEL_GROUP.x, group = "skill_panel", offsetY = SKILL_PANEL_GROUP.titleGapY, width = SKILL_PANEL_GROUP.titleWidth, follow = "skill_panel_passive", followCenter = true, anchorX = SKILL_PANEL_GROUP.anchorX, skin = "res/custom/linggen/new/main/itme1.png"},
-}
-local FORM_CARD_POS = {
-    basic = {x = 198, y = 314 - 50, anchorX = "left", anchorY = "top", title = "基础形态"},
-    awaken = {x = 198, y = 110 - 50, anchorX = "left", anchorY = "top", title = "觉醒形态"},
-}
-local FORM_CARD_SIZE = {width = 135, height = 161}
-
--- 升级弹窗左侧属性预览区域左下角
-local UPGRADE_PREVIEW_POS = {x = 35, y = 18}
--- 升级弹窗左侧属性预览区域尺寸
-local UPGRADE_PREVIEW_SIZE = {width = 330, height = 300}
--- 升级弹窗右侧灵根图标位置
-local UPGRADE_ITEM_POS = {x = 450, y = 285}
--- 升级弹窗右侧两个消耗框的位置
-local UPGRADE_COST_POS = {
-    {x = 393 - 65, y = 121 - 48},
-    {x = 458 - 65 + 20, y = 121 - 48},
-}
--- 升级弹窗“升级”按钮位置
-local UPGRADE_BTN_POS = {x = 428 + 23, y = 50}
-
-local CULTIVATE_ROOT_POS = {startX = 180, y = 388, gapX = 92}
-local CULTIVATE_ROOT_ICON_SCALE = 0.5
-local CULTIVATE_FORM_ICON_SCALE = 0.8
-local CULTIVATE_FORM_CENTER_X = 108
-local CULTIVATE_FORM_POS = {
-    basic = {x = 60 - 20, y = 238 - 35},
-    awaken = {x = 60 - 20, y = 50},
-}
-local CULTIVATE_MAIN_POS = {x = 276, y = 236}
-local CULTIVATE_ATTR_POS = {x = 486, y = 252, width = 248, height = 142}
-local CULTIVATE_SKILL_BOX_POS = {x = 610, y = 34, width = 150, height = 244}
-local CULTIVATE_SKILL_SLOT_POS = {
-    {x = -42 - 50 + 5 + 20, y = 160 + 50},
-    {x = 50 - 50 - 10 + 20, y = 100 + 50},
-    {x = -42 - 50 + 5 + 20, y = 40 + 50},
-}
-local CULTIVATE_BTN_POS = {
-    upgrade = {x = 190, y = 34},
-    switch = {x = 392, y = 34},
-    back = {x = 596, y = 34},
-}
-local MAIN_OVERVIEW_POS = {
-    rootCard = {x = 150, y = 144, width = 215, height = 172},
-    traitCard = {x = 380, y = 150, width = 386, height = 188},
-    skillCard = {x = 752, y = 150, width = 386, height = 188},
-}
-local MAIN_FLOW_SUMMARY = {
-    [1] = "主打暴击高伤，单挑秒人专用！",
-    [2] = "超级吸血回血，挂机永不回城！",
-    [3] = "大幅提升爆率，打金夺宝必备！",
-    [4] = "群怪切割拉满，开荒冲图最快！",
-    [5] = "高防高减伤，抗BOSS扛团战！",
+local TREE_DRAG_THRESHOLD = 8
+local TREE_EDGE_PADDING = 72
+local TREE_EXTRA_PADDING = 1000
+local TREE_LABEL_PAD_X = 110
+local TREE_LABEL_PAD_Y = 64
+-- Keep the source layout untouched. The display layout folds the long outer
+-- branches inward and gives the middle of each branch a stronger arc.
+local TREE_LAYOUT_RADIAL_SCALE = 0.86
+local TREE_LAYOUT_COMPRESSION_START = 260
+local TREE_LAYOUT_MIDDLE_TWIST_DEG = 24
+-- The first 18 nodes are the visible trunk of each element. Keep their
+-- adjustment independent from the outer flow branches so the dense trunk
+-- does not pull the rest of the tree out of position.
+local TREE_TRUNK_MAX_INDEX = 18
+local TREE_TRUNK_RADIAL_SCALE = 0.80
+local TREE_TRUNK_COMPRESSION_START = 180
+local TREE_TRUNK_TWIST_DEG = 38
+local TREE_TRUNK_SNAKE_DEG = 14
+local TREE_TRUNK_SNAKE_CYCLES = 2
+local TREE_TRUNK_MIN_RADIAL_STEP = 125
+local TREE_BRIDGE_MIN_STEP = 115
+local TREE_BRIDGE_CURVE = 80
+local COLORS = {
+    panel = "#17100D",
+    panel2 = "#2B1D15",
+    text = "#F4E6C0",
+    muted = "#9BA7BB",
+    green = "#69E695",
+    line = "#695143",
+    active_line = "#E2C16A",
 }
 
--- 部分技能图标文件名与技能名不完全一致，这里做映射
-local SPECIAL_SKILL_ICON_NAME = {
-    ["枯木生风"] = "ku_mu_cheng_feng",
-    ["金汤"] = "gu_ruo_jin_tang",
-    ["金之力"] = "jin_force",
-    ["罡杀"] = "gang_sha",
-    ["木之力"] = "mu_force",
-    ["复苏"] = "fu_su",
-    ["水之力"] = "shui_force",
-    ["迟缓"] = "chi_huan",
-    ["火之力"] = "huo_force",
-    ["点燃"] = "dian_ran",
-    ["土之力"] = "tu_force",
-    ["铁壁"] = "tie_bi",
-    ["九重天雷"] = "jiu_zhong_tian_lei",
-    ["雷闪"] = "lei_shan",
-    ["疾风"] = "ji_feng",
-    ["极冰寒冬"] = "ji_bing_han_dong",
-    ["冰冻"] = "bing_dong",
-    ["焚天烈火"] = "fen_tian_lie_huo",
-    ["天火"] = "tian_huo",
-    ["坚如磐石"] = "jian_ru_pan_shi",
-    ["惊雷斩"] = "jin_force",
-    ["万物回春"] = "mu_force",
-    ["寻宝天眼"] = "shui_force",
-    ["烈焰旋风"] = "huo_force",
-    ["山河霸体"] = "tu_force",
-    ["雷霆灭世斩"] = "jiu_zhong_tian_lei",
-    ["风影重生"] = "ji_feng",
-    ["寒霜祈运"] = "ji_bing_han_dong",
-    ["焚天炼狱"] = "fen_tian_lie_huo",
-    ["镇岳结界"] = "jian_ru_pan_shi",
-}
-local SKILL_ICON_BY_ROOT = {
-    [1] = {passive = "jin_force", active = "jin_force", synergy = "gang_sha"},
-    [2] = {passive = "mu_force", active = "mu_force", synergy = "fu_su"},
-    [3] = {passive = "shui_force", active = "shui_force", synergy = "chi_huan"},
-    [4] = {passive = "huo_force", active = "huo_force", synergy = "dian_ran"},
-    [5] = {passive = "tu_force", active = "tu_force", synergy = "tie_bi"},
-    [6] = {passive = "jiu_zhong_tian_lei", active = "jiu_zhong_tian_lei", synergy = "lei_shan"},
-    [7] = {passive = "ji_feng", active = "ji_feng", synergy = "fu_su"},
-    [8] = {passive = "ji_bing_han_dong", active = "ji_bing_han_dong", synergy = "bing_dong"},
-    [9] = {passive = "fen_tian_lie_huo", active = "fen_tian_lie_huo", synergy = "tian_huo"},
-    [10] = {passive = "jian_ru_pan_shi", active = "jian_ru_pan_shi", synergy = "gu_ruo_jin_tang"},
-}
-
-local ACTIVE_SKILL_TEXT_CONFIG = {
-    [1] = {name = "惊雷斩", template = "CD%s秒，向前打出3段斩击，每段造成自身攻击%s伤害。", values = {{12, 12, ""}, {80, 200, "%"}}},
-    [2] = {name = "万物回春", template = "CD%s秒，瞬间恢复自身最大生命%s，接下来3秒受到的所有伤害降低%s。", values = {{45, 45, ""}, {15, 35, "%"}, {4, 12, "%"}}},
-    [3] = {name = "寻宝天眼", template = "CD%s秒，开启5秒寻宝窗口；攻击目标红名怪时专属装备掉落概率增加%s，消耗幸运印记后每层提升秘境爆率%s、古玩爆率%s。", values = {{45, 45, ""}, {20, 200, "%"}, {1, 10, "%"}, {1, 10, "%"}}},
-    [4] = {name = "烈焰旋风", template = "CD%s秒，对自身周围3*3范围释放火焰冲击，对范围内怪物造成自身攻击%s范围伤害。", values = {{10, 10, ""}, {50, 110, "%"}}},
-    [5] = {name = "山河霸体", template = "CD%s秒，接下来5秒内全伤害减免提升%s，受到伤害反弹%s，格挡概率提升%s。", values = {{25, 25, ""}, {7, 18, "%"}, {1, 10, "%"}, {1, 10, "%"}}},
-    [6] = {name = "雷霆灭世斩", template = "CD%s秒，连续打出5段雷霆斩击，每段造成自身攻击%s伤害；命中附带%s控制效果。", values = {{15, 15, ""}, {50, 90, "%"}, {0.6, 1, "秒"}}},
-    [7] = {name = "风影重生", template = "CD%s秒，瞬间恢复%s最大生命，移动速度提升%s，持续%s；自身受治疗效果提升%s。", values = {{35, 35, ""}, {20, 45, "%"}, {5, 30, "%"}, {4, 8, "秒"}, {0, 25, "%"}}},
-    [8] = {name = "寒霜祈运", template = "CD%s秒，开启5秒祈运窗口；目标BOSS额外掉落%s，每层幸运印记提升秘境和古玩爆率%s，并冰封小怪%s。", values = {{50, 50, ""}, {1, 2, "件"}, {1, 10, "%"}, {1, 3, "秒"}}},
-    [9] = {name = "焚天炼狱", template = "CD%s秒，释放全屏烈焰领域，对范围内敌人造成多段灼烧，每段造成自身攻击%s伤害。", values = {{15, 15, ""}, {60, 120, "%"}}},
-    [10] = {name = "镇岳结界", template = "CD%s秒，生成防护结界，自身免伤提升%s，持续%s；身旁行会队友获得%s通用伤害减免。", values = {{25, 25, ""}, {10, 25, "%"}, {5, 8, "秒"}, {5, 10, "%"}}},
-}
-
-local PASSIVE_SKILL_TEXT_CONFIG = {
-    [1] = {name = "金煞破甲", template = "攻击玩家时无视目标%s防御；自身血量高于70%时，暴击伤害额外提升%s。", values = {{5, 20, "%"}, {5, 25, "%"}}},
-    [2] = {name = "枯荣自愈", template = "血量低于30%时触发枯荣自愈，每秒恢复%s最大生命，持续3秒；挂机状态下对怪吸血额外提升%s。", values = {{1, 5, "%"}, {3, 12, "%"}}},
-    [3] = {name = "机缘天赐", template = "击杀任意BOSS叠加1层幸运印记，最多保留%s层；幸运印记死亡不清空、下线保留。", values = {{1, 10, "层"}}},
-    [4] = {name = "烈焰焚身", template = "同时攻击3只以上怪物时，群伤额外提升%s；攻击怪物时有%s概率点燃目标，灼烧造成自身攻击%s伤害。", values = {{5, 20, "%"}, {3, 15, "%"}, {30, 100, "%"}}},
-    [5] = {name = "磐石守御", template = "受到红名怪等BOSS攻击时额外减伤%s；血量低于30%时额外获得%s受怪减伤。", values = {{5, 20, "%"}, {3, 15, "%"}}},
-    [6] = {name = "雷霆震慑", template = "攻击玩家时有%s概率麻痹目标%s；目标被麻痹期间，额外忽视其%s防御。", values = {{1, 5, "%"}, {0.5, 1, "秒"}, {3, 10, "%"}}},
-    [7] = {name = "流云无痕", template = "脱战3秒后回血效率提升%s；挂机状态下受到的治疗效果额外提升%s。", values = {{5, 18, "%"}, {5, 15, "%"}}},
-    [8] = {name = "寒霜锁运", template = "幸运印记上限提升至%s层，金币收益提高%s；攻击怪物时有%s概率冰封目标%s。", values = {{1, 10, "层"}, {1, 8, "%"}, {1, 5, "%"}, {1, 3, "秒"}}},
-    [9] = {name = "焚天灼烧", template = "普攻附带范围灼烧，每段造成自身攻击%s伤害；对战群体怪物时额外造成%s伤害。", values = {{60, 120, "%"}, {5, 15, "%"}}},
-    [10] = {name = "万古不动", template = "受到攻击时有%s概率格挡高额伤害，单次格挡降低%s伤害；格挡成功后短时额外减伤%s。", values = {{3, 12, "%"}, {20, 50, "%"}, {3, 12, "%"}}},
-}
-
-local _lg_refresh_main_page
-local _lg_refresh_upgrade_window
-local _lg_refresh_cultivate_window
-local _lg_base_root_idx
-
-local function _lg_is_valid_node(node)
-    return node and (not (tolua and tolua.isnull) or not tolua.isnull(node))
-end
-
-local function _lg_is_look_player()
-    return npc.isLookPlayer == true
-end
-
-local function _lg_refresh_open_upgrade_window(npcid)
-    if _lg_is_valid_node(npc.xjm_node) and _lg_refresh_upgrade_window then
-        _lg_refresh_upgrade_window(npcid, npc.xjm_node)
-    else
-        npc.xjm_window = nil
-        npc.xjm_node = nil
+local function valid(node)
+    if not node then
+        return false
     end
+    if tolua and tolua.isnull then
+        local ok, isNull = pcall(tolua.isnull, node)
+        return ok and not isNull
+    end
+    return true
 end
 
--- 绑定本命灵根拖拽到中间卸下区域的移动事件。
-local function _lg_bind_move_events(npcid)
-    if npc._moveEventBound then
+local function n(value, fallback)
+    return tonumber(value) or fallback or 0
+end
+
+local function decode(data)
+    if type(data) == "table" then
+        return data
+    end
+    if type(data) == "string" and data ~= "" then
+        return SL:JsonDecode(data, false) or {}
+    end
+    return {}
+end
+
+local function text(parent, name, x, y, size, color, value, ax, ay)
+    local node = GUI:Text_Create(parent, name, x, y, size or 18, color or COLORS.text, tostring(value or ""))
+    GUI:setAnchorPoint(node, ax == nil and 0.5 or ax, ay == nil and 0.5 or ay)
+    GUI:Text_setFontName(node, FONT)
+    GUI:Text_enableOutline(node, "#000000", 1)
+    return node
+end
+
+local function panel(parent, name, x, y, width, height, color)
+    local node = GUI:Layout_Create(parent, name, x, y, width, height, false)
+    GUI:setAnchorPoint(node, 0.5, 0.5)
+    GUI:setPosition(node, x or 0, y or 0)
+    -- GUI:Layout_setBackGroundColorType(node, 1)
+    -- GUI:Layout_setBackGroundColor(node, color or COLORS.panel)
+    -- GUI:Layout_setBackGroundColorOpacity(node, 242)
+    return node
+end
+
+local function centerNode(node)
+    if not valid(node) then
         return
     end
-    -- 灵根卸下已改为按钮操作，这里不再注册拖拽卸下事件。
-    npc._moveEventBound = true
+    GUI:setAnchorPoint(node, 0.5, 0.5)
+    GUI:setPosition(node, 0, 0)
 end
 
--- 获取界面设计尺寸或当前屏幕尺寸；主界面居中与边缘定位时会用到。
-local function _lg_screen_size()
-    local sw = tonumber((cogin and cogin.w) or (SL and SL.GetMetaValue and SL:GetMetaValue("SCREEN_WIDTH")) or MAIN_DESIGN_SIZE.width) or MAIN_DESIGN_SIZE.width
-    local sh = tonumber((cogin and cogin.h) or (SL and SL.GetMetaValue and SL:GetMetaValue("SCREEN_HEIGHT")) or MAIN_DESIGN_SIZE.height) or MAIN_DESIGN_SIZE.height
-    return sw, sh
-end
-
--- X 坐标适配入口；当前版本保持设计稿坐标，保留锚点参数兼容旧布局配置。
-local function _lg_adapt_x(x, anchor)
-    x = tonumber(x or 0) or 0
-    return x
-end
-
--- Y 坐标适配入口；当前主要用于限制底部组件不要低于最小 Y。
-local function _lg_adapt_y(y, anchor, minY)
-    y = tonumber(y or 0) or 0
-    minY = tonumber(minY)
-    local ret = y
-    if minY then
-        ret = math.max(minY, ret)
+local function createModalWindow(name)
+    local win = GUI:GetWindow(nil, name)
+    if win then
+        GUI:removeAllChildren(win)
+        GUI:setPosition(win, n(cogin and cogin.w, 1280) / 2, n(cogin and cogin.h, 720) / 2)
+        GUI:setVisible(win, true)
+        return win
     end
-    return ret
+    return GUI:Win_Create(name, n(cogin and cogin.w, 1280) / 2, n(cogin and cogin.h, 720) / 2,
+        0, 0, false, false, true, true, true, 22, 1000)
 end
 
--- 把配置表里的 pos 转成最终渲染坐标，供静态面板/按钮共用。
-local function _lg_adapt_pos(pos, defaultAnchorX, defaultAnchorY)
-    return {
-        x = _lg_adapt_x(pos and pos.x or 0, pos and pos.anchorX or defaultAnchorX),
-        y = _lg_adapt_y(pos and pos.y or 0, pos and pos.anchorY or defaultAnchorY, pos and pos.minY),
-    }
-end
-
--- 按设计稿右边距计算右侧面板 X 坐标，用于属性、技能等靠右区域。
-local function _lg_right_aligned_x(width, rightMargin)
-    return MAIN_DESIGN_SIZE.width - (tonumber(rightMargin or 70) or 70) - (tonumber(width or 0) or 0)
-end
-
--- 读取一个静态面板的基础 X；带 rightMargin 的面板按右边距定位。
-local function _lg_part_base_x(part)
-    if part and part.rightMargin and part.width then
-        return _lg_right_aligned_x(part.width, part.rightMargin)
+local function closeModalWindow(name)
+    local win = GUI:GetWindow(nil, name)
+    if valid(win) then
+        GUI:Win_Close(win)
     end
-    return part and part.x or 0
-end
-
--- 计算技能面板组的基础 Y，保证两个技能框和标题整体不会贴底。
-local function _lg_group_base_y(group)
-    if group == "skill_panel" then
-        local bottomY = _lg_adapt_y(SKILL_PANEL_GROUP.y - SKILL_PANEL_GROUP.gapY, SKILL_PANEL_GROUP.anchorY)
-        local minBottomY = tonumber(SKILL_PANEL_GROUP.minBottomY or 0) or 0
-        return SKILL_PANEL_GROUP.y + math.max(0, minBottomY - bottomY)
+    if name == "npc_22_rules_window" then
+        npc.rulesWindow = nil
+        npc.rulesBox = nil
+    elseif name == "npc_22_upgrade_window" then
+        npc.upgradeWindow = nil
+        npc.upgradeBox = nil
+    elseif name == GEM_WINDOW_NAME then
+        npc.gemWindow = nil
+        npc.gemBox = nil
+        npc.gemList = nil
     end
-    return 0
 end
 
--- 计算组内组件 Y 坐标，主界面旧技能面板布局保留这个入口。
-local function _lg_group_y(group, offsetY)
-    if group == "skill_panel" then
-        return _lg_adapt_y(_lg_group_base_y(group) + (tonumber(offsetY or 0) or 0), SKILL_PANEL_GROUP.anchorY)
+local function setMainTreeVisible(visible)
+    if valid(npc.header) then
+        GUI:setVisible(npc.header, visible)
     end
-    return _lg_adapt_y(tonumber(offsetY or 0) or 0, "bottom")
-end
-
--- 创建灵根主界面窗口并缓存引用；主界面承载顶部五灵根、左侧本命卡和中右说明区。
-local function ensureMainWindow(npcid)
-    npc._window = NPC_UI_HELPER.ensureWindow(npc._window, npcid, MAIN_WINDOW_OPTS)
-    npc.bg = npc._window.bg
-    npc.node = npc._window.node
-    GUI:setLocalZOrder(GUI:Frames_Create(npc.bg, "bg_eff", 0, 0, "res/custom/linggen/new/main/bg/eff_", ".png", 1, 15, {speed = 100, count = 15, loop = -1}), 1)
-
-    if npc._window.parent then
-        GUI:setPosition(npc._window.parent, cogin.w / 2, cogin.h / 2)
+    if valid(npc.infoPanel) then
+        GUI:setVisible(npc.infoPanel, visible)
     end
-    return npc.node
+    if valid(npc.treeScroll) then
+        GUI:setVisible(npc.treeScroll, visible)
+    end
+    if valid(npc.treeFrame) then
+        GUI:setVisible(npc.treeFrame, visible)
+    end
+    if valid(npc.mask) then
+        GUI:setVisible(npc.mask, visible)
+    end
+    if valid(npc.bg) then
+        GUI:setVisible(npc.bg, visible)
+    end
 end
 
--- 创建灵根升级弹窗并缓存引用；升级弹窗展示属性预览、消耗物品和升级按钮。
-local function ensureUpgradeWindow(npcid)
-    npc.xjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, UPGRADE_WINDOW_OPTS)
-    npc.xjm_node = npc.xjm_window and npc.xjm_window.node or nil
-    return npc.xjm_node
+local function imageFrame(parent, name, x, y, width, height, path, zorder)
+    local node = GUI:Image_Create(parent, name, x, y, path)
+    GUI:setAnchorPoint(node, 0.5, 0.5)
+    GUI:setContentSize(node, width, height)
+    if zorder ~= nil then
+        GUI:setLocalZOrder(node, zorder)
+    end
+    return node
 end
 
--- 创建灵根培养弹窗并缓存引用；培养弹窗展示形态选择、本命灵根、总属性和技能占位。
-local function ensureCultivateWindow(npcid)
-    npc.cultivate_window = NPC_UI_HELPER.ensureWindow(npc.cultivate_window, npcid, CULTIVATE_WINDOW_OPTS)
-    npc.cultivate_node = npc.cultivate_window and npc.cultivate_window.node or nil
-    return npc.cultivate_node
-end
--- 任务完成后同时关闭灵根主界面和升级弹窗，避免残留窗口。
-local function _lg_close_all_windows()
-    NPC_UI_HELPER.closeWindow(npc.xjm_window)
-    npc.xjm_window = nil
-    npc.xjm_node = nil
-    NPC_UI_HELPER.closeWindow(npc.cultivate_window)
-    npc.cultivate_window = nil
-    npc.cultivate_node = nil
-    NPC_UI_HELPER.closeWindow(npc._window)
-end
--- 旧版 xyl 灵根装配任务已废弃，保留空实现兼容历史调用点。
-local function _lg_try_finish_xyl_and_close()
-    return false
+local function nodeSkinIndex(node, count)
+    local source = tostring((node and node.id) or (node and node.name) or "")
+    local sum = 0
+    for i = 1, string.len(source) do
+        sum = sum + string.byte(source, i)
+    end
+    return sum % count + 1
 end
 
--- 创建带描边的文本，统一字体与描边风格。
-local function strokeText(parent, name, x, y, size, color, text, font)
-    local label = GUI:Text_Create(parent, name, x, y, size or 18, color or "#FFFFFF", tostring(text or ""))
-    GUI:Text_setFontName(label, font or "fonts/font4.ttf")
-    GUI:Text_enableOutline(label, "#000000", 2)
-    return label
+local function isSocketNode(node)
+    return node and (node.kind == "socket" or node.slot_type == "X" or node.slot_type == "socket")
 end
 
--- 创建带描边的富文本，主用于属性与效果描述。
-local function richText(parent, name, x, y, html, width, size, align)
-    local widget = GUI:RichText_Create(parent, name, x, y, html or "", width or 200, size or 16, "#f7f7de", align or 1, nil, nil, {outlineSize = 1, outlineColor = "#000000"})
-    return widget
+local function isSkillNode(node)
+    if not node then
+        return false
+    end
+    local slotType = tostring(node.slot_type or "")
+    if node.kind == "skill" or slotType == "skill" or string.sub(slotType, 1, 1) == "J" then
+        return true
+    end
+    local content = tostring(node.name or "") .. tostring(node.effect or "") .. tostring(node.desc or "")
+    return string.find(content, "技能", 1, true) ~= nil
+        or string.find(content, "强化", 1, true) ~= nil
+        or string.find(content, "本命", 1, true) ~= nil
+        or string.find(content, "终式", 1, true) ~= nil
 end
 
--- 获取灵根基础倍率配置。
-local function _lg_base_ratio()
-    return tonumber((npc._config or {}).base_ratio or 0.4) or 0.4
+local function nodeButtonSkin(node)
+    if not node then
+        return NODE_CORE_SKIN
+    end
+    if node.kind == "root" or isSocketNode(node) then
+        return NODE_CORE_SKIN
+    end
+    if isSkillNode(node) then
+        return SKILL_NODE_SKIN_BY_ELEMENT[node.element]
+            or SKILL_NODE_SKINS[nodeSkinIndex(node, #SKILL_NODE_SKINS)]
+    end
+    return ATTR_NODE_SKINS[nodeSkinIndex(node, #ATTR_NODE_SKINS)]
 end
 
--- 读取当前角色所有灵根等级表。
-local function _lg_level_map()
-    return npc.data and npc.data.T_data and npc.data.T_data.level or {}
+local function shouldShowNodeFrame(node)
+    return node and (node.kind == "root" or isSocketNode(node))
 end
 
--- 判断指定灵根是否已经激活。
-local function _lg_has_root(idx)
-    idx = tonumber(idx or 0) or 0
-    local levelMap = _lg_level_map()
-    return idx > 0 and levelMap and levelMap[tostring(idx)] ~= nil
+local function copyTreeNode(node)
+    local copy = {}
+    for key, value in pairs(node or {}) do
+        copy[key] = value
+    end
+    return copy
 end
 
--- 读取指定灵根当前等级。
-local function _lg_level_value(idx)
-    local levelMap = _lg_level_map()
-    return tonumber(levelMap[tostring(idx)] or 0) or 0
+local function getMainTrunkIndex(id)
+    local element, index = string.match(tostring(id or ""), "^([%a]+)_M(%d+)$")
+    index = tonumber(index)
+    if not element or not index or index < 1 or index > TREE_TRUNK_MAX_INDEX then
+        return nil
+    end
+    return index
 end
 
--- 返回第一个已激活的灵根，用于主灵根未装配时的默认选中。
-local function _lg_first_active_idx()
-    for idx, _ in ipairs(npc._config.main_r or {}) do
-        if _lg_has_root(idx) then
-            return idx
+local function buildTreePositionOverrides(sourceNodes)
+    local sourcePositions = {}
+    for _, node in ipairs(sourceNodes or {}) do
+        sourcePositions[node.id] = {
+            x = n(node.x),
+            y = n(node.y),
+        }
+    end
+
+    local overrides = {}
+    local function position(id)
+        return sourcePositions[id]
+    end
+    local function setPosition(id, value)
+        if value then
+            overrides[id] = {
+                x = value.x,
+                y = value.y,
+            }
         end
     end
-    return 0
-end
 
--- 进入界面时默认优先选中主灵根，否则选中当前已激活的灵根。
-local function _lg_default_selected_idx()
-    local mainIdx = tonumber(npc.data and npc.data.T_data and npc.data.T_data.main or 0) or 0
-    if mainIdx > 0 then
-        return mainIdx > 5 and _lg_base_root_idx(mainIdx) or mainIdx
+    -- Swap the first three positions of each flow with its side branch.
+    -- The fourth flow node continues from the side branch's last position,
+    -- because a flow has four nodes while the side branch has three.
+    for _, element in ipairs(TreeCfg.elements or {}) do
+        for flow = 1, 2 do
+            local mainIds = {}
+            local sideIds = {}
+            for index = 1, 4 do
+                mainIds[index] = tostring(element.id) .. "_F" .. tostring(flow) .. "_" .. tostring(index + 5)
+            end
+            for index = 1, 3 do
+                sideIds[index] = tostring(element.id) .. "_F" .. tostring(flow) .. "_5a" .. tostring(index)
+            end
+
+            local mainPositions = {}
+            local sidePositions = {}
+            for index = 1, 4 do
+                mainPositions[index] = position(mainIds[index])
+            end
+            for index = 1, 3 do
+                sidePositions[index] = position(sideIds[index])
+            end
+
+            if mainPositions[1] and mainPositions[2] and mainPositions[3] and mainPositions[4]
+                and sidePositions[1] and sidePositions[2] and sidePositions[3]
+            then
+                for index = 1, 3 do
+                    setPosition(mainIds[index], sidePositions[index])
+                    setPosition(sideIds[index], mainPositions[index])
+                end
+
+                local tailX = sidePositions[3].x + (sidePositions[3].x - sidePositions[2].x)
+                local tailY = sidePositions[3].y + (sidePositions[3].y - sidePositions[2].y)
+                setPosition(mainIds[4], {x = tailX, y = tailY})
+            end
+        end
     end
-    local activeIdx = _lg_first_active_idx()
-    if activeIdx > 0 then
-        return activeIdx
+
+    return overrides
+end
+
+local function applyOuterFlowerLayout(resultMap)
+    local root = resultMap and resultMap.root
+    if not root then
+        return
     end
-    return 1
+
+    local elements = {"metal", "wood", "water", "fire", "earth"}
+    local centers = {}
+    for _, element in ipairs(elements) do
+        local center = resultMap[element .. "_M18"]
+        if center then
+            centers[element] = {
+                x = n(center.x),
+                y = n(center.y),
+            }
+        end
+    end
+
+    local function setPoint(element, id, outward, tangent, x, y)
+        local node = resultMap[element .. "_" .. id]
+        local center = centers[element]
+        if not node or not center then
+            return
+        end
+        node.x = center.x + outward.x * x + tangent.x * y
+        node.y = center.y + outward.y * x + tangent.y * y
+    end
+
+    local function direction(fromPoint, toPoint)
+        local dx = n(toPoint and toPoint.x) - n(fromPoint and fromPoint.x)
+        local dy = n(toPoint and toPoint.y) - n(fromPoint and fromPoint.y)
+        local length = math.sqrt(dx * dx + dy * dy)
+        if length <= 0 then
+            return 1, 0, 0
+        end
+        return dx / length, dy / length, length
+    end
+
+    local function setFromAnchor(element, anchorId, id, radial, tangentOffset)
+        local anchor = resultMap[element .. "_" .. anchorId]
+        local node = resultMap[element .. "_" .. id]
+        if not anchor or not node then
+            return
+        end
+        local dx = n(anchor.x) - n(root.x)
+        local dy = n(anchor.y) - n(root.y)
+        local length = math.sqrt(dx * dx + dy * dy)
+        if length <= 0 then
+            return
+        end
+        local outward = {
+            x = dx / length,
+            y = dy / length,
+        }
+        local tangent = {
+            x = -outward.y,
+            y = outward.x,
+        }
+        node.x = n(anchor.x) + outward.x * radial + tangent.x * tangentOffset
+        node.y = n(anchor.y) + outward.y * radial + tangent.y * tangentOffset
+    end
+
+    -- The source file contains very large radial coordinates for the side
+    -- branches. Rebuild these short branches around their real M5/M10/M15
+    -- parent instead of letting them cut diagonally across the tree.
+    local sideBranches = {
+        {anchor = "M5", prefix = "M5"},
+        {anchor = "M10", prefix = "M10"},
+        {anchor = "M15", prefix = "M15"},
+    }
+    for _, element in ipairs(elements) do
+        for _, branch in ipairs(sideBranches) do
+            setFromAnchor(element, branch.anchor, branch.prefix .. "a1", -70, -150)
+            setFromAnchor(element, branch.anchor, branch.prefix .. "a2", -145, -220)
+            setFromAnchor(element, branch.anchor, branch.prefix .. "b1", -45, 112)
+            setFromAnchor(element, branch.anchor, branch.prefix .. "b2", -90, 224)
+        end
+    end
+
+    -- Keep the two flow lanes compact around M18. Each lane first grows
+    -- outward, then bends back inward; the two mirrored paths never need to
+    -- cross and their shared terminal stays inside the flower.
+    local flowerUpper = {
+        {120, 90},
+        {230, 145},
+        {340, 180},
+        {445, 165},
+        {545, 120},
+        {500, 250},
+        {430, 345},
+        {340, 390},
+        {245, 350},
+    }
+    local inwardSide = {
+        {455, 65},
+        {360, 45},
+        {280, 80},
+    }
+
+    for index, element in ipairs(elements) do
+        local center = centers[element]
+        if center then
+            local rootDx = center.x - n(root.x)
+            local rootDy = center.y - n(root.y)
+            local radius = math.sqrt(rootDx * rootDx + rootDy * rootDy)
+            if radius <= 0 then
+                radius = 1
+            end
+            local outward = {
+                x = rootDx / radius,
+                y = rootDy / radius,
+            }
+            local tangent = {
+                x = -outward.y,
+                y = outward.x,
+            }
+
+            -- Keep the socket off the two flow starts so it does not sit on
+            -- top of the first pair of nodes.
+            setPoint(element, "M18_X", outward, tangent, 0, -145)
+            for flowIndex, offset in ipairs(flowerUpper) do
+                setPoint(element, "F1_" .. tostring(flowIndex), outward, tangent, offset[1], offset[2])
+                setPoint(element, "F2_" .. tostring(flowIndex), outward, tangent, offset[1], -offset[2])
+            end
+
+            -- Both side chains fold inward from F1/F2-5. Their last nodes
+            -- meet the shared terminal from opposite sides without crossing.
+            for sideIndex, offset in ipairs(inwardSide) do
+                setPoint(element, "F1_5a" .. tostring(sideIndex), outward, tangent, offset[1], offset[2])
+                setPoint(element, "F2_5a" .. tostring(sideIndex), outward, tangent, offset[1], -offset[2])
+            end
+            setPoint(element, "shared_F5a4", outward, tangent, 220, 0)
+
+            local nextElement = elements[index % #elements + 1]
+            local previousElement = elements[(index - 2) % #elements + 1]
+            local nextCenter = centers[nextElement]
+            local previousCenter = centers[previousElement]
+
+            -- Draw the two bridge routes on opposite sides of the same
+            -- boundary chord. This keeps the bridge nodes out of the flower
+            -- and prevents the paired routes from crossing each other.
+            if nextCenter then
+                local dx, dy, coreDistance = direction(center, nextCenter)
+                local step = math.min(150, math.max(TREE_BRIDGE_MIN_STEP, (coreDistance - 150) / 10))
+                for bridgeIndex = 1, 5 do
+                    local progress = step * bridgeIndex
+                    local curve = math.sin((bridgeIndex / 6) * math.pi) * TREE_BRIDGE_CURVE
+                    setPoint(element, "K2_" .. tostring(bridgeIndex),
+                        {x = dx, y = dy},
+                        {x = -dy, y = dx},
+                        progress,
+                        curve)
+                end
+            end
+            if previousCenter then
+                local dx, dy, coreDistance = direction(center, previousCenter)
+                local step = math.min(150, math.max(TREE_BRIDGE_MIN_STEP, (coreDistance - 150) / 10))
+                for bridgeIndex = 1, 5 do
+                    local curve = -math.sin((bridgeIndex / 6) * math.pi) * TREE_BRIDGE_CURVE
+                    setPoint(element, "K1_" .. tostring(bridgeIndex),
+                        {x = dx, y = dy},
+                        {x = -dy, y = dx},
+                        step * bridgeIndex,
+                        curve)
+                end
+            end
+        end
+    end
+
+    -- Put each K2-6 exactly between the two terminal nodes it joins.
+    for index, element in ipairs(elements) do
+        local nextElement = elements[index % #elements + 1]
+        local currentTerminal = resultMap[element .. "_K2_5"]
+        local nextTerminal = resultMap[nextElement .. "_K1_5"]
+        local shared = resultMap[element .. "_K2_6"]
+        if currentTerminal and nextTerminal and shared then
+            shared.x = (n(currentTerminal.x) + n(nextTerminal.x)) / 2
+            shared.y = (n(currentTerminal.y) + n(nextTerminal.y)) / 2
+        end
+    end
 end
 
--- 读取当前左上角/主线引导任务名，供灵根界面决定是否弹出按钮引导。
-local function _lg_get_current_xyl_task_name()
-    return tostring(rawget(_G, "XYL_CURRENT_TASK_NAME") or "")
+local function enforceTrunkRadialSpacing(resultMap)
+    local elements = {"metal", "wood", "water", "fire", "earth"}
+
+    for _, element in ipairs(elements) do
+        local previousRadius
+        for index = 1, TREE_TRUNK_MAX_INDEX do
+            local node = resultMap[element .. "_M" .. tostring(index)]
+            if node then
+                local dx = n(node.x) - n(resultMap.root and resultMap.root.x)
+                local dy = n(node.y) - n(resultMap.root and resultMap.root.y)
+                local radius = math.sqrt(dx * dx + dy * dy)
+                local angle = math.atan2(dy, dx)
+
+                -- Keep the trunk growing outward. Euclidean nudging can
+                -- reverse a tight turn (especially around M6-M8), putting
+                -- a later node back on top of an earlier one.
+                if previousRadius and radius < previousRadius + TREE_TRUNK_MIN_RADIAL_STEP then
+                    radius = previousRadius + TREE_TRUNK_MIN_RADIAL_STEP
+                    node.x = n(resultMap.root.x) + math.cos(angle) * radius
+                    node.y = n(resultMap.root.y) + math.sin(angle) * radius
+                end
+                previousRadius = radius
+            end
+        end
+    end
 end
 
--- 灵根界面内的异闻录任务引导封装，统一按任务名匹配并绑定到具体按钮/格子。
-local function _lg_try_xyl_guide(button, parent, marker, taskNames, desc, opts)
+local function buildTreeLayout()
+    local sourceNodes = TreeCfg.nodes or {}
+    local sourceRoot = TreeCfg.node_map and TreeCfg.node_map.root
+    local rootX = n(sourceRoot and sourceRoot.x, CANVAS_W / 2)
+    local rootY = n(sourceRoot and sourceRoot.y, CANVAS_H / 2)
+    local positionOverrides = buildTreePositionOverrides(sourceNodes)
+    local maxRadius = 1
+
+    for _, node in ipairs(sourceNodes) do
+        local position = positionOverrides[node.id] or node
+        local dx = n(position.x) - rootX
+        local dy = n(position.y) - rootY
+        maxRadius = math.max(maxRadius, math.sqrt(dx * dx + dy * dy))
+    end
+
+    local result = {}
+    local resultMap = {}
+    for _, sourceNode in ipairs(sourceNodes) do
+        local node = copyTreeNode(sourceNode)
+        local position = positionOverrides[sourceNode.id] or sourceNode
+        local dx = n(position.x) - rootX
+        local dy = n(position.y) - rootY
+        local radius = math.sqrt(dx * dx + dy * dy)
+        local trunkIndex = getMainTrunkIndex(sourceNode.id)
+
+        if sourceNode.kind == "root" then
+            node.x = rootX
+            node.y = rootY
+        elseif radius > 0 then
+            local compressedRadius
+            local angle = math.atan2(dy, dx)
+            if trunkIndex then
+                -- Normalize by trunk depth instead of the whole tree. The
+                -- outer branches are much longer, so using maxRadius here
+                -- made the M1-M18 curve barely visible.
+                local trunkRatio = (trunkIndex - 1) / (TREE_TRUNK_MAX_INDEX - 1)
+                compressedRadius = radius
+                if radius > TREE_TRUNK_COMPRESSION_START then
+                    compressedRadius = TREE_TRUNK_COMPRESSION_START
+                        + (radius - TREE_TRUNK_COMPRESSION_START) * TREE_TRUNK_RADIAL_SCALE
+                end
+
+                local arcWeight = math.sin(trunkRatio * math.pi)
+                local arcTwist = math.rad(TREE_TRUNK_TWIST_DEG) * arcWeight
+                local snake = math.rad(TREE_TRUNK_SNAKE_DEG)
+                    * math.sin(trunkRatio * math.pi * TREE_TRUNK_SNAKE_CYCLES)
+                angle = angle + arcTwist + snake
+            else
+                compressedRadius = radius
+                if radius > TREE_LAYOUT_COMPRESSION_START then
+                    compressedRadius = TREE_LAYOUT_COMPRESSION_START
+                        + (radius - TREE_LAYOUT_COMPRESSION_START) * TREE_LAYOUT_RADIAL_SCALE
+                end
+
+                local radiusRatio = math.min(1, radius / maxRadius)
+                local middleWeight = math.sin(radiusRatio * math.pi)
+                local twist = math.rad(TREE_LAYOUT_MIDDLE_TWIST_DEG) * middleWeight
+                angle = angle + twist
+            end
+
+            node.x = rootX + math.cos(angle) * compressedRadius
+            node.y = rootY + math.sin(angle) * compressedRadius
+        else
+            node.x = rootX
+            node.y = rootY
+        end
+
+        result[#result + 1] = node
+        resultMap[node.id] = node
+    end
+
+    enforceTrunkRadialSpacing(resultMap)
+    applyOuterFlowerLayout(resultMap)
+    npc.layoutNodes = result
+    npc.layoutNodeMap = resultMap
+    return result, resultMap
+end
+
+local function getLayoutNode(id)
+    return npc.layoutNodeMap and npc.layoutNodeMap[id]
+        or (TreeCfg.node_map and TreeCfg.node_map[id])
+end
+
+local function createTreeDecorations(parent)
+    local elementNodes = {}
+    local rootX, rootY = CANVAS_W / 2, CANVAS_H / 2
+    for _, node in ipairs(npc.layoutNodes or TreeCfg.nodes or {}) do
+        if node.kind == "root" then
+            rootX = n(node.x, rootX)
+            rootY = n(node.y, rootY)
+        elseif node.element then
+            local group = elementNodes[node.element] or {}
+            group[#group + 1] = node
+            elementNodes[node.element] = group
+        end
+    end
+
+    for element, decoration in pairs(BUFI_DECORATIONS) do
+        local nodes = elementNodes[element]
+        if nodes and #nodes > 0 then
+            local sumX, sumY = 0, 0
+            for _, node in ipairs(nodes) do
+                sumX = sumX + n(node.x)
+                sumY = sumY + n(node.y)
+            end
+            local centerX = sumX / #nodes
+            local centerY = sumY / #nodes
+            local dirX = centerX - rootX
+            local dirY = centerY - rootY
+            local length = math.sqrt(dirX * dirX + dirY * dirY)
+            if length <= 0 then
+                length = 1
+            end
+            dirX = dirX / length
+            dirY = dirY / length
+            local sideX = -dirY
+            local sideY = dirX
+            for index, icon in ipairs(decoration.icons or {}) do
+                local slot = decoration.slots and decoration.slots[index] or {}
+                local out = n(slot.out, 180 + index * 120)
+                local side = n(slot.side, index % 2 == 0 and 160 or -160)
+                local image = GUI:Image_Create(parent, "bufi_" .. element .. "_" .. tostring(index),
+                    centerX + dirX * out + sideX * side,
+                    centerY + dirY * out + sideY * side,
+                    BUFI_RES .. "icon_" .. tostring(icon) .. ".png")
+                GUI:setAnchorPoint(image, 0.5, 0.5)
+                GUI:setScale(image, decoration.scale)
+                GUI:setOpacity(image, decoration.opacity)
+                GUI:setLocalZOrder(image, BUFI_DECORATION_Z)
+            end
+        end
+    end
+end
+
+local function nodeDisplaySize(node)
+    if not node then
+        return NODE_SIZE.small
+    end
+    if node.kind == "root" or isSocketNode(node) then
+        return NODE_SIZE[node.kind] or NODE_SIZE.socket
+    end
+    if isSkillNode(node) then
+        local skin = nodeButtonSkin(node)
+        if skin == SKILL_NODE_SKIN_BY_ELEMENT.water then
+            return 66
+        end
+        return SKILL_NODE_ORIGINAL_SIZE
+    end
+    return ATTR_NODE_ORIGINAL_SIZE
+end
+
+local function setNodeLinkState(link, active)
+    if not valid(link) then
+        return
+    end
+    GUI:setOpacity(link, active and 215 or 105)
+    if GUI.Image_setGrey then
+        GUI:Image_setGrey(link, not active)
+    else
+        GUI:setGrey(link, not active)
+    end
+end
+
+local function createNodeLinkImage(parent, name, fromPoint, toPoint, opts)
     opts = opts or {}
-    return NPC_UI_HELPER.tryStartXylGuide(npc, button, parent, marker, {
-        taskNames = taskNames,
-        desc = desc,
-        dir = opts.dir or 3,
-        isForce = opts.isForce == true,
-        hideMask = opts.hideMask,
-        once = opts.once,
-        idx = opts.idx,
+    local fromX = n(fromPoint and fromPoint.x)
+    local fromY = n(fromPoint and fromPoint.y)
+    local toX = n(toPoint and toPoint.x)
+    local toY = n(toPoint and toPoint.y)
+    local dx = toX - fromX
+    local dy = toY - fromY
+    local length = math.sqrt(dx * dx + dy * dy)
+    if length <= 1 then
+        return nil
+    end
+    local angle = math.atan2(dy, dx)
+    local link = GUI:Image_Create(parent, name, fromX, fromY, opts.skin or LINK_SKIN)
+    GUI:setAnchorPoint(link, 0, 0.5)
+    GUI:setLocalZOrder(link, opts.zorder or 0)
+    GUI:setContentSize(link, length, opts.width or 8)
+    -- GUI coordinates use the inverse mathematical Y direction for rotation.
+    GUI:setRotation(link, -math.deg(angle))
+    setNodeLinkState(link, opts.active == true)
+    return link
+end
+
+local function button(parent, name, x, y, title, callback, width, height, skin)
+    local node = GUI:Button_Create(parent, name, x, y, skin or BUTTON_SKIN)
+    GUI:Button_loadTexturePressed(node, skin or BUTTON_SKIN)
+    GUI:setAnchorPoint(node, 0.5, 0.5)
+    GUI:setContentSize(node, width or 132, height or 42)
+    GUI:Button_setTitleText(node, title or "")
+    GUI:Button_setTitleFontName(node, FONT)
+    GUI:Button_setTitleFontSize(node, 17)
+    GUI:Button_setTitleColor(node, COLORS.text)
+    GUI:Button_titleEnableOutline(node, "#000000", 1)
+    GUI:addOnClickEvent(node, callback)
+    return node
+end
+
+local function costText(costs)
+    local parts = {}
+    for _, cost in ipairs(costs or {}) do
+        parts[#parts + 1] = tostring(cost[1] or "") .. " × " .. tostring(cost[2] or 0)
+    end
+    return #parts > 0 and table.concat(parts, "、") or "无"
+end
+
+local function collectUpgradeAttrs(levelCfg)
+    local result = {}
+    local seen = {}
+    local groups = {"hp", "attack", "defense", "cut", "recovery", "percent"}
+    for _, group in ipairs(groups) do
+        for _, attr in ipairs(((levelCfg or {}).attrs or {})[group] or {}) do
+            local value = n(attr.value)
+            local line = tostring(attr.text or "")
+            if line == "" then
+                line = "属性 " .. tostring(attr.id or "") .. " +" .. tostring(value)
+            end
+            if value ~= 0 and not seen[line] then
+                seen[line] = true
+                result[#result + 1] = line
+            end
+        end
+    end
+    return result
+end
+
+local function renderUpgradeAttrScroll(box, state, nextCfg)
+    local oldScroll = GUI:getChildByName(box, "upgrade_attr_scroll")
+    if oldScroll then
+        GUI:removeFromParent(oldScroll)
+    end
+
+    local scrollW = 312
+    local scrollH = 258 + 42
+    -- upgrade_box is centered. Keep the scroll view centered in the left
+    -- panel instead of relying on the engine's default anchor.
+    local scroll = GUI:ScrollView_Create(box, "upgrade_attr_scroll",
+        UPGRADE_LEFT_SCROLL_X, UPGRADE_LEFT_SCROLL_Y, scrollW, scrollH, 1)
+    GUI:ScrollView_setClippingEnabled(scroll, true)
+    GUI:ScrollView_setBounceEnabled(scroll, true)
+
+    local attrs = collectUpgradeAttrs(nextCfg)
+    local rowH = 35
+    local innerH = math.max(scrollH, 46 + math.max(1, #attrs) * rowH + 10 + 42)
+    GUI:ScrollView_setInnerContainerSize(scroll, scrollW, innerH)
+    local root = GUI:Layout_Create(scroll, "upgrade_attr_root", 0, 0, scrollW, innerH, false)
+    GUI:setAnchorPoint(root, 0, 0)
+
+    local currentLevel = n(state.core_level)
+    local nextLevel = nextCfg and n(nextCfg.level, currentLevel + 1) or currentLevel
+    local levelTitle = GUI:RichText_Create(root, "upgrade_level_title", 8, innerH - 8,
+        string.format("<font color='#6A8792'>当前核心</font> <font color='#344A58'>Lv.%d</font>"
+            .. "  <font color='#B48A42'>→</font>  <font color='#2E8B57'>升级后 Lv.%d</font>",
+            currentLevel, nextLevel),
+        scrollW - 16, 17, "#344A58", 0, nil, nil,
+        {outlineSize = 1, outlineColor = "#FFFFFF"})
+    GUI:setAnchorPoint(levelTitle, 0, 1)
+
+    if not nextCfg then
+        local maxText = GUI:Text_Create(root, "upgrade_max_text", scrollW / 2, innerH / 2,
+            18, "#2E8B57", "灵根核心已达到最高等级")
+        GUI:setAnchorPoint(maxText, 0.5, 0.5)
+        GUI:Text_setFontName(maxText, FONT)
+        return
+    end
+
+    if n(nextCfg.point_gain) > 0 then
+        attrs[#attrs + 1] = "天赋点 +" .. tostring(n(nextCfg.point_gain))
+    end
+    for index, line in ipairs(attrs) do
+        local row = GUI:Layout_Create(root, "upgrade_attr_row_" .. tostring(index), 6,
+            innerH - 48 - index * rowH, scrollW - 12, rowH - 2, false)
+        GUI:setAnchorPoint(row, 0, 0)
+        GUI:setTouchEnabled(row, false)
+        local dot = GUI:Text_Create(row, "dot", 8, (rowH - 2) / 2, 22, "#3C9A70", "◆")
+        GUI:setAnchorPoint(dot, 0.5, 0.5)
+        GUI:Text_setFontName(dot, FONT)
+        local value = GUI:Text_Create(row, "value", 24, (rowH - 2) / 2, 22,
+            index == #attrs and "#B48A42" or "#000000", line)
+        GUI:setAnchorPoint(value, 0, 0.5)
+        GUI:Text_setFontName(value, FONT)
+        GUI:Text_enableOutline(value, "#FFFFFF", 1)
+    end
+end
+
+local function renderUpgradeCosts(box, nextCfg)
+    local oldRoot = GUI:getChildByName(box, "upgrade_cost_root")
+    if oldRoot then
+        GUI:removeFromParent(oldRoot)
+    end
+
+    local costRoot = GUI:Node_Create(box, "upgrade_cost_root", UPGRADE_RIGHT_X, UPGRADE_COST_Y)
+    GUI:setLocalZOrder(costRoot, 6)
+    local costs = (nextCfg and nextCfg.cost) or {}
+    local slotGap = 68 - 4
+    local slotStartX = -((#costs - 1) * slotGap) / 2 - 4 
+    for index, cost in ipairs(costs) do
+        local slotX = slotStartX + (index - 1) * slotGap
+        local slot = GUI:Image_Create(costRoot, "cost_slot_" .. tostring(index), slotX, 0, UPGRADE_COST_SLOT)
+        GUI:setAnchorPoint(slot, 0.5, 0.5)
+        local itemIndex = SL:GetMetaValue("ITEM_INDEX_BY_NAME", cost[1])
+        if itemIndex then
+            local item = GUI:ItemShow_Create(slot, "item", 25, 25, {
+                index = itemIndex,
+                count = cost[2],
+                look = true,
+                movable = false,
+                bgVisible = false,
+            })
+            GUI:setAnchorPoint(item, 0.5, 0.5)
+        end
+        -- local name = GUI:Text_Create(slot, "cost_name", 0, -31, 13, "#344A58", cost[1] or "")
+        -- GUI:setAnchorPoint(name, 0.5, 0.5)
+        -- GUI:Text_setFontName(name, FONT)
+        -- local count = GUI:Text_Create(slot, "cost_count", 0, -47, 14, "#B48A42",
+        --     "×" .. tostring(cost[2] or 0))
+        -- GUI:setAnchorPoint(count, 0.5, 0.5)
+        -- GUI:Text_setFontName(count, FONT)
+    end
+end
+
+local function closeResetConfirm()
+    if valid(npc.resetConfirm) then
+        GUI:removeFromParent(npc.resetConfirm)
+    end
+    if valid(npc.resetConfirmMask) then
+        GUI:removeFromParent(npc.resetConfirmMask)
+    end
+    npc.resetConfirm = nil
+    npc.resetConfirmMask = nil
+end
+
+local function openResetConfirm(resetType)
+    closeResetConfirm()
+    local costs = resetType == "single" and TreeCfg.single_reset_cost or TreeCfg.reset_cost
+    local title = resetType == "single" and "确认退点" or "确认重置灵根"
+    local action = resetType == "single" and "退点" or "重置"
+    local selectedId = npc.selectedId
+
+    local mask = GUI:Layout_Create(npc.window, "reset_confirm_mask", 0, 0, 1, 1, false)
+    GUI:setAnchorPoint(mask, 0.5, 0.5)
+    GUI:setPosition(mask, 0, 0)
+    GUI:setContentSize(mask, n(cogin and cogin.w, 1280), n(cogin and cogin.h, 720))
+    GUI:Layout_setBackGroundColorType(mask, 1)
+    GUI:Layout_setBackGroundColor(mask, "#000000")
+    GUI:Layout_setBackGroundColorOpacity(mask, 90)
+    GUI:setLocalZOrder(mask, 100)
+    GUI:setTouchEnabled(mask, true)
+    GUI:setSwallowTouches(mask, true)
+    npc.resetConfirmMask = mask
+
+    local confirm = GUI:Layout_Create(npc.window, "reset_confirm", 0, 0, 420, 220, false)
+    GUI:setAnchorPoint(confirm, 0.5, 0.5)
+    GUI:setPosition(confirm, 0, 0)
+    GUI:Layout_setBackGroundColorType(confirm, 1)
+    GUI:Layout_setBackGroundColor(confirm, "#18242D")
+    GUI:Layout_setBackGroundColorOpacity(confirm, 248)
+    GUI:setLocalZOrder(confirm, 101)
+    GUI:setTouchEnabled(confirm, true)
+    GUI:setSwallowTouches(confirm, true)
+    npc.resetConfirm = confirm
+
+    local bigkuang = GUI:Image_Create(confirm, "bigkuang", 420/2, 220/2, "res/wy/public/box.png")
+    GUI:setAnchorPoint(bigkuang, 0.5, 0.5)
+    GUI:setContentSize(bigkuang, 420 + 4, 220 + 4)
+    GUI:setLocalZOrder(bigkuang, 99)
+
+    text(confirm, "title", 0 + 210, 82 + 115, 22, "#F4D179", title, 0.5, 0.5)
+    local desc = GUI:RichText_Create(confirm, "desc", -180 + 210, 52 + 115,
+        "<font color='#E9F2F6'>本次操作需要消耗：</font><br/>"
+            .. "<font color='#FFD66B'>" .. costText(costs) .. "</font><br/>"
+            .. "<font color='#AAB5C8'>确认后才会提交操作。</font>",
+        360, 16, "#E9F2F6", 0, nil, nil, {outlineSize = 1, outlineColor = "#000000"})
+    GUI:setAnchorPoint(desc, 0, 1)
+
+    local cancel = button(confirm, "cancel", -86 + 210, -78 + 115, "取消", closeResetConfirm, 112, 38)
+    GUI:setLocalZOrder(cancel, 2)
+    local confirmButton = button(confirm, "confirm", 86 + 210, -78 + 115, action, function()
+        closeResetConfirm()
+        if resetType == "single" then
+            SL:SendLuaNetMsg(100, 22, 2, 0, SL:JsonEncode({id = selectedId}, false))
+        else
+            SL:SendLuaNetMsg(100, 22, 3, 0, "")
+        end
+    end, 112, 38)
+    GUI:setLocalZOrder(confirmButton, 2)
+end
+
+local function stateActive(id)
+    return n((npc.state.nodes or {})[tostring(id)] or 0) == 1
+end
+
+local function currentSocketGem(nodeId)
+    return tostring((npc.state.sockets or {})[tostring(nodeId)] or "")
+end
+
+local function refreshNodeSocketGem(nodeId)
+    local view = npc.nodeViews and npc.nodeViews[tostring(nodeId)]
+    local node = TreeCfg.node_map and TreeCfg.node_map[tostring(nodeId)]
+    if not view or not node or not isSocketNode(node) or not valid(view.holder) then
+        return
+    end
+    if valid(view.gemShow) then
+        GUI:removeFromParent(view.gemShow)
+        view.gemShow = nil
+    end
+
+    local gemName = currentSocketGem(nodeId)
+    if gemName == "" then
+        return
+    end
+    local gemIndex = n(SL:GetMetaValue("ITEM_INDEX_BY_NAME", gemName), 0)
+    if gemIndex <= 0 then
+        return
+    end
+
+    local gemShow = GUI:ItemShow_Create(view.holder, "socket_gem", 0, 0, {
+        index = gemIndex,
+        count = 1,
+        look = true,
+        movable = false,
+        bgVisible = false,
+    })
+    GUI:setAnchorPoint(gemShow, 0.5, 0.5)
+    GUI:setScale(gemShow, 0.68)
+    GUI:setLocalZOrder(gemShow, 4)
+    GUI:setTouchEnabled(gemShow, false)
+    if GUI.ItemShow_setItemTouchSwallow then
+        GUI:ItemShow_setItemTouchSwallow(gemShow, true)
+    end
+    view.gemShow = gemShow
+end
+
+local function gemAttrText(gem)
+    local attrs = {}
+    for _, attr in ipairs(gem and gem.attrs or {}) do
+        attrs[#attrs + 1] = tostring(attr.text or ("属性 " .. tostring(attr.id or attr[1] or "")
+            .. " +" .. tostring(attr.value or attr[2] or 0)))
+    end
+    return #attrs > 0 and table.concat(attrs, "、") or "属性由服务端配置"
+end
+
+local openGemWindow
+
+local function buildGemWindowRow(parent, index, gem, nodeId)
+    local rowH = 78
+    local row = GUI:Layout_Create(parent, "gem_row_" .. tostring(index), 6, 0, 648, rowH, false)
+    GUI:setAnchorPoint(row, 0, 0)
+    GUI:setTouchEnabled(row, true)
+    GUI:setSwallowTouches(row, true)
+    local rowBg = GUI:Image_Create(row, "row_bg", 324, rowH / 2, PANEL_FRAME)
+    GUI:setAnchorPoint(rowBg, 0.5, 0.5)
+    GUI:setContentSize(rowBg, 644, rowH - 4)
+    GUI:setOpacity(rowBg, 185)
+    local frame = imageFrame(row, "item_frame", 42, rowH / 2, 66, 66, NODE_FRAME, 2)
+    local item = GUI:ItemShow_Create(row, "item", 42, rowH / 2, {
+        index = n(gem.idx),
+        count = 1,
+        look = true,
+        movable = false,
+        bgVisible = false,
+    })
+    GUI:setAnchorPoint(item, 0.5, 0.5)
+    GUI:setLocalZOrder(item, 3)
+    text(row, "gem_name", 88, 50, 18, "#F4E6C0", gem.name, 0, 0.5)
+    text(row, "gem_level", 88, 25, 15, "#9FE2FF",
+        "等级 " .. tostring(gem.level or 1) .. "    拥有 " .. tostring(gem.count or 0), 0, 0.5)
+    -- text(row, "gem_attrs", 280, 38, 15, "#B9F6C5", gemAttrText(gem), 0, 0.5)
+    local choose = button(row, "choose", 585, rowH / 2, "镶嵌", function()
+        SL:SendLuaNetMsg(100, 22, 4, 0, SL:JsonEncode({
+            id = nodeId,
+            gem = gem.name,
+        }, false))
+    end, 92, 36)
+    GUI:setLocalZOrder(choose, 4)
+    return row
+end
+
+local function renderGemList(gemList, nodeId)
+    if not valid(npc.gemBox) then
+        return
+    end
+    local oldScroll = GUI:getChildByName(npc.gemBox, "gem_scroll")
+    if oldScroll then
+        GUI:removeFromParent(oldScroll)
+    end
+    gemList = type(gemList) == "table" and gemList or {}
+    npc.gemList = gemList
+    local scroll = GUI:ScrollView_Create(npc.gemBox, "gem_scroll", 40, 0, 660, 360, 1)
+    GUI:ScrollView_setClippingEnabled(scroll, true)
+    GUI:ScrollView_setBounceEnabled(scroll, true)
+    local innerH = math.max(360, #gemList * 82 + 10)
+    GUI:ScrollView_setInnerContainerSize(scroll, 660, innerH)
+    local listRoot = GUI:Layout_Create(scroll, "gem_list_root", 0, 0, 660, innerH, false)
+    for index, gem in ipairs(gemList) do
+        local row = buildGemWindowRow(listRoot, index, gem, nodeId)
+        GUI:setPosition(row, 6, innerH - index * 82 - 4)
+    end
+    if #gemList == 0 then
+        text(listRoot, "empty", 330, innerH / 2, 18, "#FFB85A",
+            "当前没有符合该槽位要求的宝石", 0.5, 0.5)
+    end
+end
+
+openGemWindow = function()
+    local nodeId = tostring(npc.selectedId or "")
+    local node = TreeCfg.node_map and TreeCfg.node_map[nodeId]
+    if not node or not isSocketNode(node) or not stateActive(nodeId) then
+        return
+    end
+    local sw = n(cogin and cogin.w, 1280)
+    local sh = n(cogin and cogin.h, 720)
+    local boxW = math.min(760, sw - 80)
+    local boxH = math.min(540, sh - 80)
+    npc.gemWindow = createModalWindow(GEM_WINDOW_NAME)
+    local mask = GUI:Image_Create(npc.gemWindow, "mask", 0, 0, "res/public/1900000651_1.png")
+    GUI:setAnchorPoint(mask, 0.5, 0.5)
+    GUI:setContentSize(mask, sw + 100, sh + 100)
+    GUI:setTouchEnabled(mask, true)
+    local box = GUI:Image_Create(npc.gemWindow, "gem_box", 0, 0, PANEL_FRAME)
+    GUI:setAnchorPoint(box, 0.5, 0.5)
+    GUI:setContentSize(box, boxW, boxH)
+    GUI:setTouchEnabled(box, true)
+    GUI:setSwallowTouches(box, true)
+
+    local bigkuang = GUI:Image_Create(npc.gemWindow, "bigkuang", 0, 0, "res/wy/public/box.png")
+    GUI:setAnchorPoint(bigkuang, 0.5, 0.5)
+    GUI:setContentSize(bigkuang, boxW + 4, boxH + 4)
+
+
+    npc.gemBox = box
+    text(box, "gem_title", boxW/2, boxH - 20, 25, "#F1D176", "选择镶嵌宝石", 0.5, 0.5)
+    text(box, "gem_hint", boxW/2, boxH - 40, 15, "#AAB5C8",
+        "仅显示背包中拥有且符合当前槽位等级要求的宝石", 0.5, 0.5)
+    local close = button(box, "gem_close", boxW - 48, boxH - 34, "", function()
+        closeModalWindow(GEM_WINDOW_NAME)
+    end, 60, 54,"res/wy/public/gjyj_x.png")
+    local current = currentSocketGem(nodeId)
+    text(box, "gem_current",  boxW/2, boxH/2 + 150, 25, "#FFD66B",
+        current ~= "" and ("当前镶嵌：" .. current) or "当前未镶嵌宝石", 0.5, 0.5)
+    renderGemList({}, nodeId)
+    SL:SendLuaNetMsg(100, 22, 4, 0, SL:JsonEncode({id = nodeId}, false))
+end
+
+local function nodeColor(node)
+    if node.kind == "root" then
+        return "#F1D176"
+    end
+    local element = TreeCfg.element_map and TreeCfg.element_map[node.element]
+    return element and element.color or "#B9C4D6"
+end
+
+local function attrLines(node)
+    local result = {}
+    local seen = {}
+    for _, attr in ipairs(node.attrs or {}) do
+        local line = attr.text or ("属性 " .. tostring(attr.id) .. " +" .. tostring(attr.value))
+        if not seen[line] then
+            seen[line] = true
+            result[#result + 1] = line
+        end
+    end
+    return result
+end
+
+local function requirementText(node)
+    if node.kind == "root" then
+        return "无需前置节点"
+    end
+    local linked = {}
+    local linkedSet = {}
+    local function addLinked(id)
+        local key = tostring(id)
+        if not linkedSet[key] then
+            linkedSet[key] = true
+            local linkedNode = TreeCfg.node_map and TreeCfg.node_map[key]
+            linked[#linked + 1] = linkedNode and linkedNode.name or key
+        end
+    end
+    for _, id in ipairs(node.requires or {}) do
+        addLinked(id)
+    end
+    for _, id in ipairs(node.requires_any or {}) do
+        addLinked(id)
+    end
+    for _, candidate in ipairs(TreeCfg.nodes or {}) do
+        if tostring(candidate.id) ~= tostring(node.id) then
+            for _, id in ipairs(candidate.requires or {}) do
+                if tostring(id) == tostring(node.id) then
+                    addLinked(candidate.id)
+                    break
+                end
+            end
+            for _, id in ipairs(candidate.requires_any or {}) do
+                if tostring(id) == tostring(node.id) then
+                    addLinked(candidate.id)
+                    break
+                end
+            end
+        end
+    end
+    if #linked == 0 then
+        return "暂无相连节点"
+    end
+    return "可从任一相连节点点亮：" .. table.concat(linked, "、")
+end
+
+local function buildInfoHtml(node)
+    if not node then
+        return ""
+    end
+    local lines = {}
+    for _, value in ipairs(attrLines(node)) do
+        lines[#lines + 1] = "<font color='#9FE2FF'>" .. value .. "</font>"
+    end
+    if node.special and node.special.name then
+        lines[#lines + 1] = "<font color='#FFD66B'>" .. node.special.name .. "："
+            .. tostring(node.special.desc or "") .. "</font>"
+    end
+    if isSocketNode(node) then
+        local gemName = currentSocketGem(node.id)
+        lines[#lines + 1] = "<font color='#FFD66B'>"
+            .. (gemName ~= "" and ("当前镶嵌：" .. gemName) or "当前未镶嵌宝石")
+            .. "</font>"
+    end
+    if #lines == 0 then
+        lines[#lines + 1] = "<font color='#9BA7BB'>该节点暂为占位节点</font>"
+    end
+    lines[#lines + 1] = "<font color='#AAB5C8'>" .. requirementText(node) .. "</font>"
+    lines[#lines + 1] = "<font color='#AAB5C8'>点数消耗："
+        .. tostring(node.point_cost or 1) .. "点"
+        .. "天赋点</font>"
+    if node.cost and #node.cost > 0 then
+        local costs = {}
+        for _, cost in ipairs(node.cost) do
+            costs[#costs + 1] = tostring(cost[1]) .. "×" .. tostring(cost[2])
+        end
+        lines[#lines + 1] = "<font color='#AAB5C8'>材料消耗："
+            .. table.concat(costs, "、") .. "</font>"
+    end
+    if node.core_level and n(node.core_level) > 0 then
+        lines[#lines + 1] = "<font color='#FFD66B'>需要灵根核心达到 "
+            .. tostring(node.core_level) .. " 级</font>"
+    end
+    return table.concat(lines, "<br/>")
+end
+
+local function refreshZoomText()
+    if valid(npc.zoomText) then
+        GUI:Text_setString(npc.zoomText, "缩放 " .. tostring(math.floor((npc.zoom or DEFAULT_ZOOM) * 100)) .. "%")
+    end
+end
+
+local function zoomToSliderPercent(zoom)
+    return (n(zoom, DEFAULT_ZOOM) - MIN_ZOOM) / (MAX_ZOOM - MIN_ZOOM) * 100
+end
+
+local function sliderPercentToZoom(percent)
+    return MIN_ZOOM + (MAX_ZOOM - MIN_ZOOM) * n(percent, zoomToSliderPercent(DEFAULT_ZOOM)) / 100
+end
+
+local function getNodeVisualRadius(node)
+    local size = nodeDisplaySize(node)
+    return size / 2 + 8
+end
+
+local function calculateTreeBounds()
+    local minX, minY = math.huge, math.huge
+    local maxX, maxY = -math.huge, -math.huge
+    for _, node in ipairs(npc.layoutNodes or TreeCfg.nodes or {}) do
+        local radius = getNodeVisualRadius(node)
+        minX = math.min(minX, n(node.x) - radius - TREE_LABEL_PAD_X)
+        minY = math.min(minY, n(node.y) - radius - TREE_LABEL_PAD_Y)
+        maxX = math.max(maxX, n(node.x) + radius + TREE_LABEL_PAD_X)
+        maxY = math.max(maxY, n(node.y) + radius)
+    end
+    if minX == math.huge then
+        return {minX = 0, minY = 0, maxX = CANVAS_W, maxY = CANVAS_H}
+    end
+    return {minX = minX, minY = minY, maxX = maxX, maxY = maxY}
+end
+
+local function clampTreePosition(posX, posY)
+    local viewW = n(npc.treeViewW, 0)
+    local viewH = n(npc.treeViewH, 0)
+    local zoom = n(npc.zoom, DEFAULT_ZOOM)
+    local bounds = npc.treeBounds or {minX = 0, minY = 0, maxX = CANVAS_W, maxY = CANVAS_H}
+    local contentW = (bounds.maxX - bounds.minX) * zoom
+    local contentH = (bounds.maxY - bounds.minY) * zoom
+    local dragPadding = TREE_EDGE_PADDING + TREE_EXTRA_PADDING
+    local minX, maxX
+    local minY, maxY
+    if contentW <= viewW then
+        minX = viewW / 2 - (bounds.minX + bounds.maxX) / 2 * zoom
+        maxX = minX
+    else
+        minX = viewW - dragPadding - bounds.maxX * zoom
+        maxX = dragPadding - bounds.minX * zoom
+    end
+    if contentH <= viewH then
+        minY = viewH / 2 - (bounds.minY + bounds.maxY) / 2 * zoom
+        maxY = minY
+    else
+        minY = viewH - dragPadding - bounds.maxY * zoom
+        maxY = dragPadding - bounds.minY * zoom
+    end
+    posX = math.max(minX, math.min(maxX, n(posX, minX)))
+    posY = math.max(minY, math.min(maxY, n(posY, minY)))
+    return posX, posY
+end
+
+local function positionTreeCanvas(posX, posY)
+    if not valid(npc.treeCanvas) then
+        return
+    end
+    posX, posY = clampTreePosition(posX, posY)
+    GUI:setPosition(npc.treeCanvas, posX, posY)
+    npc.treeCanvasPos = {x = posX, y = posY}
+end
+
+local function centerTreeCanvas()
+    local zoom = n(npc.zoom, DEFAULT_ZOOM)
+    local viewW = n(npc.treeViewW, 0)
+    local viewH = n(npc.treeViewH, 0)
+    local root = TreeCfg.node_map and TreeCfg.node_map.root
+    root = getLayoutNode(root and root.id or "root")
+    local centerX = n(root and root.x, 900)
+    local centerY = n(root and root.y, 650)
+    positionTreeCanvas(viewW / 2 - centerX * zoom, viewH / 2 - centerY * zoom)
+end
+
+local function beginTreeGesture(sender)
+    local touch = GUI:getTouchBeganPosition(sender)
+    if not touch or not valid(npc.treeCanvas) then
+        return
+    end
+    local canvas = GUI:getPosition(npc.treeCanvas)
+    npc.treeGesture = {
+        beginTouch = touch,
+        beginCanvas = canvas,
+        moved = false,
+    }
+    npc.treeDragging = false
+    npc.suppressNodeClick = false
+end
+
+local function moveTreeGesture(sender)
+    local gesture = npc.treeGesture
+    local moveTouch = GUI:getTouchMovePosition(sender)
+    if not gesture or not moveTouch then
+        return
+    end
+    local dx = moveTouch.x - gesture.beginTouch.x
+    local dy = moveTouch.y - gesture.beginTouch.y
+    if math.abs(dx) >= TREE_DRAG_THRESHOLD or math.abs(dy) >= TREE_DRAG_THRESHOLD then
+        gesture.moved = true
+        npc.treeDragging = true
+        npc.suppressNodeClick = true
+    end
+    positionTreeCanvas((gesture.beginCanvas.x or 0) + dx, (gesture.beginCanvas.y or 0) + dy)
+end
+
+local function endTreeGesture(sender)
+    npc.treeDragging = npc.treeGesture and npc.treeGesture.moved == true or false
+    npc.treeGesture = nil
+end
+
+local function setZoom(value)
+    local oldZoom = n(npc.zoom, DEFAULT_ZOOM)
+    local oldPos = valid(npc.treeCanvas) and GUI:getPosition(npc.treeCanvas) or nil
+    npc.zoom = math.max(MIN_ZOOM, math.min(MAX_ZOOM, n(value, DEFAULT_ZOOM)))
+    if valid(npc.treeCanvas) then
+        GUI:setScale(npc.treeCanvas, npc.zoom)
+        local viewW = n(npc.treeViewW, 0)
+        local viewH = n(npc.treeViewH, 0)
+        local root = TreeCfg.node_map and TreeCfg.node_map.root
+        root = getLayoutNode(root and root.id or "root")
+        local rootX = n(root and root.x, 900)
+        local rootY = n(root and root.y, 650)
+        local oldX = oldPos and oldPos.x or (viewW / 2 - rootX * oldZoom)
+        local oldY = oldPos and oldPos.y or (viewH / 2 - rootY * oldZoom)
+        local worldX = (viewW / 2 - oldX) / oldZoom
+        local worldY = (viewH / 2 - oldY) / oldZoom
+        positionTreeCanvas(viewW / 2 - worldX * npc.zoom, viewH / 2 - worldY * npc.zoom)
+    end
+    if npc.zoomSlider and npc.zoomSlider.setPercent then
+        npc.updatingZoomSlider = true
+        npc.zoomSlider.setPercent(zoomToSliderPercent(npc.zoom))
+        npc.updatingZoomSlider = false
+    end
+    refreshZoomText()
+end
+
+local function createZoomControl(sw, sh)
+    local controlX = sw / 2 - (npc.infoW or 250) - 30
+    local controlY = -10
+    local controlH = math.min(360, math.max(250, sh - 210))
+    local trackW = 18
+
+    npc.zoomControl = GUI:Node_Create(npc.window, "zoom_control", controlX, controlY)
+    GUI:setLocalZOrder(npc.zoomControl, 20)
+
+    local track = panel(npc.zoomControl, "zoom_track", 0, 0, trackW, controlH, "#211812")
+    GUI:setLocalZOrder(track, 1)
+    local trackLine = GUI:Image_Create(npc.zoomControl, "zoom_track_line", 0, 0, RES .. "tj_30.png")
+    GUI:setAnchorPoint(trackLine, 0.5, 0.5)
+    GUI:setContentSize(trackLine, 8, controlH - 20)
+    -- GUI:setRotation(trackLine, 90)
+    GUI:setLocalZOrder(trackLine, 2)
+
+    local thumb = GUI:Image_Create(npc.zoomControl, "zoom_thumb", 0, 0, RES .. "tj_21.png")
+    GUI:setAnchorPoint(thumb, 0.5, 0.5)
+    GUI:setContentSize(thumb, 24, 24)
+    GUI:setLocalZOrder(thumb, 4)
+
+    -- local topText = text(npc.zoomControl, "zoom_top", 30, controlH / 2 - 12, 12, COLORS.muted, "100%", 0, 0.5)
+    -- local midText = text(npc.zoomControl, "zoom_mid", 30, 0, 12, COLORS.text, "100%", 0, 0.5)
+    -- local bottomText = text(npc.zoomControl, "zoom_bottom", 30, -controlH / 2 + 12, 12, COLORS.muted, "30%", 0, 0.5)
+    -- -- GUI:setLocalZOrder(topText, 3)
+    -- -- GUI:setLocalZOrder(midText, 3)
+    -- GUI:setLocalZOrder(bottomText, 3)
+    npc.zoomText = text(npc.zoomControl, "zoom_text", 0, -controlH / 2 - 24, 13, COLORS.text, "", 0.5, 0.5)
+    GUI:setLocalZOrder(npc.zoomText, 3)
+
+    local touch = GUI:Layout_Create(npc.zoomControl, "zoom_touch", 0, 0, 72, controlH + 24, false)
+    GUI:setAnchorPoint(touch, 0.5, 0.5)
+    GUI:setLocalZOrder(touch, 10)
+    GUI:setTouchEnabled(touch, true)
+    GUI:setSwallowTouches(touch, true)
+
+    local function updateFromTouch(sender)
+        local pos = GUI:getTouchMovePosition(sender) or GUI:getTouchBeganPosition(sender)
+        if not pos then
+            return
+        end
+        local localY = pos.y - (sh / 2 + controlY)
+        local percent = math.max(0, math.min(100, (localY + controlH / 2) / controlH * 100))
+        setZoom(sliderPercentToZoom(percent))
+    end
+
+    GUI:addOnTouchEvent(touch, function(sender, eventType)
+        if eventType == SLDefine.TouchEventType.began
+            or eventType == SLDefine.TouchEventType.moved
+            or eventType == SLDefine.TouchEventType.ended then
+            updateFromTouch(sender)
+        end
+    end)
+    npc.zoomSlider = {
+        track = track,
+        thumb = thumb,
+        controlH = controlH,
+        setPercent = function(percent)
+            local y = -controlH / 2 + controlH * math.max(0, math.min(100, percent)) / 100
+            GUI:setPosition(thumb, 0, y)
+        end,
+    }
+    npc.zoomSlider.setPercent(zoomToSliderPercent(DEFAULT_ZOOM))
+    refreshZoomText()
+end
+
+local function updateInfo()
+    local info = npc.infoPanel
+    local node = TreeCfg.node_map and TreeCfg.node_map[npc.selectedId or "root"]
+    if not valid(info) or not node then
+        return
+    end
+    local active = stateActive(node.id)
+    local kicker = GUI:getChildByName(info, "info_kicker")
+    local infoTitle = GUI:getChildByName(info, "info_title")
+    local title = GUI:getChildByName(info, "node_title")
+    local status = GUI:getChildByName(info, "node_status")
+    local desc = GUI:getChildByName(info, "node_desc")
+    local icon = GUI:getChildByName(info, "info_node_icon")
+    if kicker then
+        local laneText = node.kind == "root" and "CORE ROOT" or string.upper(tostring(node.lane or "NODE"))
+        GUI:Text_setString(kicker, laneText)
+    end
+    if infoTitle then
+        GUI:Text_setString(infoTitle, node.kind == "root" and "灵根本源" or "节点详情")
+    end
+    if title then
+        GUI:Text_setString(title, node.name or "")
+        GUI:Text_setTextColor(title, nodeColor(node))
+    end
+    if status then
+        GUI:Text_setString(status, node.kind == "root" and "核心节点" or (active and "已点亮" or "未点亮"))
+        GUI:Text_setTextColor(status, active and COLORS.green or COLORS.muted)
+    end
+    if icon then
+        GUI:setOpacity(icon, node.kind == "root" and 255 or (active and 255 or 150))
+        GUI:setGrey(icon, node.kind ~= "root" and not active)
+    end
+    if desc then
+        local old_pos = GUI:getPosition(desc)
+        GUI:removeFromParent(desc)
+        local newDesc = GUI:RichText_Create(info, "node_desc", old_pos.x, old_pos.y, buildInfoHtml(node), npc.infoDescW or 282, 16,
+            COLORS.text, 0, nil, nil, {outlineSize = 1, outlineColor = "#000000"})
+        GUI:setAnchorPoint(newDesc, 0, 1)
+    end
+    local action = GUI:getChildByName(info, "node_action")
+    if action then
+        if node.kind == "root" then
+            GUI:Button_setTitleText(action, "升级核心")
+        elseif isSocketNode(node) and active then
+            GUI:Button_setTitleText(action, "镶嵌")
+        elseif active then
+            GUI:Button_setTitleText(action, "退点")
+        else
+            GUI:Button_setTitleText(action, "点亮")
+        end
+    end
+end
+
+local function refreshUpgradeInfo()
+    local box = npc.upgradeBox
+    if not valid(box) then
+        return
+    end
+    local state = npc.state or {}
+    local nextCfg = TreeCfg.core_level_map and TreeCfg.core_level_map[n(state.core_level) + 1]
+    renderUpgradeAttrScroll(box, state, nextCfg)
+
+    local oldPreview = GUI:getChildByName(box, "upgrade_preview")
+    if oldPreview then
+        GUI:removeFromParent(oldPreview)
+    end
+    local preview = GUI:Node_Create(box, "upgrade_preview", UPGRADE_RIGHT_X, UPGRADE_PREVIEW_Y)
+    GUI:setLocalZOrder(preview, 5)
+    local coreNode = TreeCfg.node_map and TreeCfg.node_map.root
+    local coreSkin = coreNode and nodeButtonSkin(coreNode) or NODE_CORE_SKIN
+    -- local coreItem = GUI:Image_Create(preview, "core_item", 0, 0, coreSkin)
+    -- GUI:setAnchorPoint(coreItem, 0.5, 0.5)
+    -- GUI:setContentSize(coreItem, 74, 74)
+    local levelText = text(preview, "core_level", 0, -68 + 247, 15, "#F4D179",
+        "当前核心 " .. tostring(n(state.core_level)) .. " 级", 0.5, 0.5)
+    GUI:setLocalZOrder(levelText, 2)
+    renderUpgradeCosts(box, nextCfg)
+
+    local action = GUI:getChildByName(box, "upgrade_core")
+    if action then
+        GUI:setGrey(action, not nextCfg)
+    end
+end
+
+local function updateNodeVisual(nodeId)
+    local item = npc.nodeViews and npc.nodeViews[nodeId]
+    local cfg = TreeCfg.node_map and TreeCfg.node_map[nodeId]
+    if not item or not cfg or not valid(item.button) then
+        return
+    end
+    local active = stateActive(nodeId)
+    local selected = npc.selectedId == nodeId
+    local color = selected and nodeColor(cfg) or (active and nodeColor(cfg) or "#596273")
+    -- if valid(item.halo) then
+    --     GUI:Layout_setBackGroundColor(item.halo, color)
+    --     GUI:Layout_setBackGroundColorOpacity(item.halo, selected and 255 or (active and 245 or 105))
+    -- end
+    for _, line in ipairs(item.lines or {}) do
+        if valid(line) then
+            setNodeLinkState(line, active)
+        end
+    end
+    GUI:setGrey(item.button, cfg.kind ~= "root" and not active and not selected)
+    local stateText = GUI:getChildByName(item.button, "state")
+    if stateText then
+        GUI:Text_setString(stateText, selected and "◆" or (active and "●" or ""))
+        GUI:Text_setTextColor(stateText, selected and "#FFF3B0" or (active and COLORS.green or COLORS.muted))
+    end
+    refreshNodeSocketGem(nodeId)
+end
+
+local function updateAllNodeVisuals()
+    for id in pairs(npc.nodeViews or {}) do
+        updateNodeVisual(id)
+    end
+    updateInfo()
+end
+
+local function refreshChangedNodeVisuals(changedIds)
+    local selectedChanged = false
+    for id in pairs(changedIds or {}) do
+        updateNodeVisual(id)
+        if tostring(id) == tostring(npc.selectedId) then
+            selectedChanged = true
+        end
+    end
+    if selectedChanged then
+        updateInfo()
+    end
+end
+
+local function refreshTalentPointsText()
+    if type(npc.state) ~= "table" or not valid(npc.header) then
+        return
+    end
+    local points = GUI:getChildByName(npc.header, "points")
+    if not valid(points) then
+        return
+    end
+    local remaining = math.max(0, n(npc.state.normal_points))
+    local total = math.max(0, n(npc.state.normal_total))
+    local used = math.min(total, math.max(0, total - remaining))
+    GUI:Text_setString(points, string.format(
+        "剩余天赋点：%d\n已使用天赋点：%d",
+        remaining, used
+    ))
+end
+
+local function applyClientConfigDefaults(state)
+    state = type(state) == "table" and state or {}
+    state.version = n(TreeCfg.version, state.version)
+    state.core_max_level = 0
+    for _, levelCfg in ipairs(TreeCfg.core_levels or {}) do
+        state.core_max_level = math.max(state.core_max_level, n(levelCfg.level))
+    end
+    state.normal_point_limit = n(TreeCfg.normal_point_limit, 210)
+    state.external_normal_point_limit = n(TreeCfg.external_normal_point_limit, 7)
+    state.single_branch_limit = n(TreeCfg.single_branch_limit, 40)
+    state.side_branch_limit = n(TreeCfg.side_branch_limit, 6)
+    state.reset_cost = TreeCfg.reset_cost or {}
+    state.single_reset_cost = TreeCfg.single_reset_cost or {}
+    return state
+end
+
+local function refreshPayload(payload)
+    payload = decode(payload)
+    if payload.payload then
+        payload = payload.payload
+    end
+
+    npc.state = applyClientConfigDefaults(npc.state)
+    local oldCoreLevel = n(npc.state.core_level)
+    local changedNodes = {}
+    local socketChanged = false
+    if type(payload.nodes) == "table" then
+        local oldNodes = npc.state.nodes or {}
+        local checked = {}
+        for id, value in pairs(oldNodes) do
+            checked[tostring(id)] = true
+            if n(value) ~= n(payload.nodes[id]) then
+                changedNodes[tostring(id)] = true
+            end
+        end
+        for id, value in pairs(payload.nodes) do
+            local key = tostring(id)
+            if not checked[key] and n(value) ~= n(oldNodes[id]) then
+                changedNodes[key] = true
+            end
+        end
+        npc.state.nodes = payload.nodes
+    end
+    if type(payload.special) == "table" then
+        npc.state.special = payload.special
+    end
+    if type(payload.sockets) == "table" then
+        local oldSockets = npc.state.sockets or {}
+        local checkedSockets = {}
+        for id, value in pairs(oldSockets) do
+            checkedSockets[tostring(id)] = true
+            if tostring(value or "") ~= tostring(payload.sockets[id] or "") then
+                changedNodes[tostring(id)] = true
+                socketChanged = true
+            end
+        end
+        for id, value in pairs(payload.sockets) do
+            local key = tostring(id)
+            if not checkedSockets[key] and tostring(value or "") ~= "" then
+                changedNodes[key] = true
+                socketChanged = true
+            end
+        end
+        npc.state.sockets = payload.sockets
+    end
+    if type(payload.gem_list) == "table" then
+        npc.gemList = payload.gem_list
+        if valid(npc.gemBox) then
+            renderGemList(payload.gem_list, tostring(payload.id or npc.selectedId or ""))
+            local current = GUI:getChildByName(npc.gemBox, "gem_current")
+            if current then
+                local currentGem = currentSocketGem(tostring(payload.id or npc.selectedId or ""))
+                GUI:Text_setString(current, currentGem ~= "" and ("当前镶嵌：" .. currentGem) or "当前未镶嵌宝石")
+            end
+        end
+    end
+    npc.state.normal_points = n(payload.normal_points, npc.state.normal_points)
+    npc.state.normal_total = n(payload.normal_total, npc.state.normal_total)
+    npc.state.core_level = n(payload.core_level, npc.state.core_level)
+    npc.state.normal_external_total = n(payload.normal_external_total, npc.state.normal_external_total)
+    applyClientConfigDefaults(npc.state)
+    refreshTalentPointsText()
+    refreshChangedNodeVisuals(changedNodes)
+    if socketChanged then
+        updateInfo()
+    end
+    if n(payload.socket_result, 0) == 1 then
+        closeModalWindow(GEM_WINDOW_NAME)
+    end
+    if oldCoreLevel ~= n(npc.state.core_level) then
+        refreshUpgradeInfo()
+    end
+end
+
+local function drawLine(parent, name, fromNode, toNode)
+    local isTrunk = fromNode.id == "root"
+        or fromNode.lane == "main"
+        or toNode.lane == "main"
+    local lineWidth = isTrunk and 7 or (toNode.kind == "bridge" and 3 or 4)
+    return createNodeLinkImage(parent, name, fromNode, toNode, {
+        width = lineWidth,
+        active = stateActive(toNode.id),
+        skin = LINK_SKIN,
     })
 end
 
--- 计算灵根效果倍率：当前等级 + 预览增量 + 基础倍率。
-local function _lg_effect_scale(idx, extraLevel)
-    if not _lg_has_root(idx) then
-        return 0
-    end
-    local lv = _lg_level_value(idx)
-    local extra = tonumber(extraLevel or 0) or 0
-    if lv <= 0 and extra <= 0 then
-        return 0
-    end
-    return lv + extra + _lg_base_ratio()
-end
-
--- 数值四舍五入并保证最小为 1。
-local function _lg_round_value(value)
-    value = tonumber(value) or 0
-    if value <= 0 then
-        return 0
-    end
-    local ret = math.floor(value + 0.5)
-    if ret <= 0 then
-        ret = 1
-    end
-    return ret
-end
-
--- 读取指定灵根配置。
-local function _lg_root_cfg(idx)
-    return npc._config and npc._config.main_r and npc._config.main_r[idx] or nil
-end
-
--- 生成指定灵根当前/预览等级下的属性列表。
-local function _lg_lv0_attr_list(idx)
-    local high = (tonumber(idx or 0) or 0) > 5
-    local base = high and 100 or 10
-    local hpmp = high and 2000 or 200
-    return {
-        {1, hpmp}, {2, hpmp},
-        {3, base}, {4, base}, {5, base}, {6, base}, {7, base}, {8, base},
-        {9, base}, {10, base},
-    }
-end
-
-local function _lg_build_attr_list(idx, extraLevel)
-    local cfg = _lg_root_cfg(idx)
-    local attrList = {}
-    if not cfg or not _lg_has_root(idx) then
-        return attrList
-    end
-    for _, one in ipairs(_lg_lv0_attr_list(idx)) do
-        table.insert(attrList, one)
-    end
-    local scale = _lg_effect_scale(idx, extraLevel)
-    if scale <= 0 then
-        return attrList
-    end
-    local lv = math.max(1, math.min(10, math.floor(scale - _lg_base_ratio() + 0.5)))
-    for _, one in ipairs(cfg.attr or {}) do
-        local v1 = tonumber(one[2]) or 0
-        local v10 = tonumber(one[3])
-        local value = v10 and (v1 + (v10 - v1) * (lv - 1) / 9) or (v1 * scale)
-        table.insert(attrList, {one[1], _lg_round_value(value)})
-    end
-    return attrList
-end
-
--- 生成指定灵根当前/预览等级下的特殊效果列表，特殊效果不走 Player 属性表。
-local function _lg_build_special_list(idx, extraLevel)
-    local cfg = _lg_root_cfg(idx)
-    local scale = _lg_effect_scale(idx, extraLevel)
-    local list = {}
-    if not cfg or scale <= 0 then
-        return list
-    end
-    local lv = math.max(1, math.min(10, math.floor(scale - _lg_base_ratio() + 0.5)))
-    for _, one in ipairs(cfg.special or {}) do
-        local v1 = tonumber(one.v1 or one[2]) or 0
-        local v10 = tonumber(one.v10 or one[3])
-        local value = v10 and (v1 + (v10 - v1) * (lv - 1) / 9) or (v1 * scale)
-        list[#list + 1] = {
-            key = one.key,
-            name = one.name or one[1] or one.key or "特殊效果",
-            value = _lg_round_value(value),
-            unit = one.unit or "",
-        }
-    end
-    return list
-end
-
--- 生成用于技能描述展示的倍率文本。
-local function _lg_format_scale_text(idx, extraLevel)
-    local scale = _lg_effect_scale(idx, extraLevel)
-    if scale <= 0 then
-        return "0.0"
-    end
-    -- 直接回显当前倍率值，避免继续显示占位文本。
-    return string.format("%.1f", scale)
-end
-
--- 将数值格式化为更适合文案展示的文本：整数不带小数，小数最多保留两位。
-local function _lg_format_effect_number(value)
-    value = tonumber(value) or 0
-    if math.abs(value - math.floor(value + 0.5)) < 0.0001 then
-        return tostring(math.floor(value + 0.5))
-    end
-    local text = string.format("%.2f", value)
-    text = text:gsub("0+$", "")
-    text = text:gsub("%.$", "")
-    return text
-end
-
-local _lg_is_max_level
-
-local function _lg_skill_value_by_level(valueCfg, level)
-    if not valueCfg then
-        return 0
-    end
-    level = math.max(0, math.min(10, tonumber(level or 0) or 0))
-    if level <= 0 then
-        return 0
-    end
-    local v1 = tonumber(valueCfg[1] or 0) or 0
-    local v10 = tonumber(valueCfg[2] or v1) or v1
-    return v1 + (v10 - v1) * (level - 1) / 9
-end
-
-local function _lg_format_skill_value(valueCfg, level, previewNext)
-    local unit = tostring(valueCfg and valueCfg[3] or "")
-    level = tonumber(level or 0) or 0
-    local current = _lg_format_effect_number(_lg_skill_value_by_level(valueCfg, level)) .. unit
-    if not previewNext then
-        return current
-    end
-    local nextLevel = math.min(10, (tonumber(level or 1) or 1) + 1)
-    local nextValue = _lg_format_effect_number(_lg_skill_value_by_level(valueCfg, nextLevel)) .. unit
-    if current == nextValue then
-        return current
-    end
-    return string.format("%s<font color='#8C6B35'> -> </font><font color='#4DA3FF'>%s</font><font color='#8C6B35'>[下级属性]</font>", current, nextValue)
-end
-
--- 技能文案里会写“70%”这类字面百分号，只保留 %s 等合法占位，避免 string.format 崩溃。
-local function _lg_escape_skill_template(template)
-    local text = tostring(template or "")
-    text = text:gsub("%%([^cdiouxXeEfgGaAqs%%])", "%%%%%1")
-    text = text:gsub("%%$", "%%%%")
-    return text
-end
-
-local function _lg_color_skill_desc(text)
-    text = tostring(text or "")
-    if text == "" or text == "暂无" then
-        return "<font color='#8F8576'>暂无</font>"
-    end
-
-    local placeholders = {}
-    local seq = 0
-    local function tokenFor(value)
-        seq = seq + 1
-        local token = "\1LGHTML" .. string.rep("X", seq) .. "\2"
-        placeholders[token] = value
-        return token
-    end
-    local function restore(value)
-        return (value:gsub("\1LGHTMLX+\2", function(token)
-            return placeholders[token] or ""
-        end))
-    end
-
-    text = text:gsub("<font.-</font>", tokenFor)
-    text = text:gsub("(【.-】)", function(v)
-        return tokenFor("<font color='#FFD45A'>" .. v .. "</font>")
-    end)
-    text = text:gsub("([%+%-]?%d+%.?%d*%%)", function(v)
-        return tokenFor("<font color='#FF5A3D'>" .. v .. "</font>")
-    end)
-    text = text:gsub("([%+%-]?%d+%.?%d*倍)", function(v)
-        return tokenFor("<font color='#FF5A3D'>" .. v .. "</font>")
-    end)
-    text = text:gsub("(CD%d+%.?%d*秒?)", function(v)
-        return tokenFor("<font color='#D7B56D'>" .. v .. "</font>")
-    end)
-    text = text:gsub("([%+%-]?%d+%.?%d*)", function(v)
-        return tokenFor("<font color='#9FE2FF'>" .. v .. "</font>")
-    end)
-    text = text:gsub("(暴击)", function(v)
-        return tokenFor("<font color='#FF7700'>" .. v .. "</font>")
-    end)
-    text = text:gsub("(真实伤害)", function(v)
-        return tokenFor("<font color='#FF7700'>" .. v .. "</font>")
-    end)
-    text = text:gsub("(无视目标防御)", function(v)
-        return tokenFor("<font color='#A7F0C1'>" .. v .. "</font>")
-    end)
-    text = text:gsub("(生命|血量|攻击|防御|麻痹|冰封|忽视防御)", function(v)
-        return tokenFor("<font color='#A7F0C1'>" .. v .. "</font>")
-    end)
-    return restore(text)
-end
-local function _lg_format_skill_desc(defaultName, cfg, values)
-    local unpackFunc = table.unpack or unpack
-    local skillName = tostring(cfg and cfg.name or defaultName or "技能")
-    local fmt = "【%s】" .. _lg_escape_skill_template(cfg and cfg.template or "")
-    local ok, result = pcall(string.format, fmt, skillName, unpackFunc(values or {}))
-    if ok then
-        return _lg_color_skill_desc(result)
-    end
-    return _lg_color_skill_desc("【" .. skillName .. "】" .. tostring(cfg and cfg.template or ""))
-end
-
-local function _lg_build_unactivated_skill_preview(rawText, fallbackName)
-    local text = tostring(rawText or "")
-    local skillName = tostring(fallbackName or "技能")
-    if text == "" or text == "暂无" then
-        return _lg_color_skill_desc("【" .. skillName .. "】效果预览暂未配置。") .. "<br><font color='#9FE2FF'>灵根达到Lv.1后激活。</font>"
-    end
-    text = text:gsub("；Lv1.*$", "")
-    text = text:gsub("。Lv1.*$", "。")
-    text = text:gsub("，Lv1.*$", "")
-    text = text:gsub("Lv1.*$", "")
-    text = text:gsub("%s+$", "")
-    return _lg_color_skill_desc(text) .. "<br><font color='#9FE2FF'>灵根达到Lv.1后激活。</font>"
-end
-
-local function _lg_build_active_skill_desc(idx, previewNext, levelOverride)
-    local rootCfg = _lg_root_cfg(idx) or {}
-    local level = math.max(0, math.min(10, tonumber(levelOverride or _lg_level_value(idx) or 0) or 0))
-    local text = tostring(rootCfg.active or "")
-    local cfg = ACTIVE_SKILL_TEXT_CONFIG[tonumber(idx or 0) or 0]
-    if cfg then
-        if level <= 0 and not previewNext then
-            local rawText = text ~= "" and text or ("【" .. tostring(cfg.name or "主动技能") .. "】" .. tostring(cfg.template or ""))
-            return _lg_build_unactivated_skill_preview(rawText, cfg.name or "主动技能")
-        end
-        local values = {}
-        for _, valueCfg in ipairs(cfg.values or {}) do
-            values[#values + 1] = _lg_format_skill_value(valueCfg, level, previewNext and not _lg_is_max_level(idx))
-        end
-        return _lg_format_skill_desc("主动技能", cfg, values)
-    end
-    if text == "" or text == "暂无" then
-        return "暂无"
-    end
-    if level <= 0 and not previewNext then
-        return _lg_build_unactivated_skill_preview(text, "主动技能")
-    end
-    return _lg_color_skill_desc(text)
-end
-local function _lg_build_passive_skill_desc(idx, previewNext, levelOverride)
-    local rootCfg = _lg_root_cfg(idx) or {}
-    local level = math.max(0, math.min(10, tonumber(levelOverride or _lg_level_value(idx) or 0) or 0))
-    local text = tostring(rootCfg.passive or "")
-    local cfg = PASSIVE_SKILL_TEXT_CONFIG[tonumber(idx or 0) or 0]
-    if cfg then
-        if level <= 0 and not previewNext then
-            local rawText = text ~= "" and text or ("【" .. tostring(cfg.name or "被动技能") .. "】" .. tostring(cfg.template or ""))
-            return _lg_build_unactivated_skill_preview(rawText, cfg.name or "被动技能")
-        end
-        local values = {}
-        for _, valueCfg in ipairs(cfg.values or {}) do
-            values[#values + 1] = _lg_format_skill_value(valueCfg, level, previewNext and not _lg_is_max_level(idx))
-        end
-        return _lg_format_skill_desc("被动技能", cfg, values)
-    end
-    if text == "" or text == "暂无" then
-        return "暂无"
-    end
-    if level <= 0 and not previewNext then
-        return _lg_build_unactivated_skill_preview(text, "被动技能")
-    end
-    return _lg_color_skill_desc(text)
-end
--- 将灵根效果文案中的“5000*灵根倍率+2000”一类公式直接结算为实际数值。
-local function _lg_strip_html(text)
-    local plain = tostring(text or "")
-    plain = plain:gsub("<[^>]->", "")
-    plain = plain:gsub("^%s+", "")
-    plain = plain:gsub("%s+$", "")
-    return plain
-end
-
--- 把属性列表按属性 ID 累加，用于总属性展示和升级预览的同类合并。
-local function _lg_sum_attr_map(attrs)
-    local sum = {}
-    for _, attr in ipairs(attrs or {}) do
-        local attrId = tonumber(attr[1]) or 0
-        if attrId > 0 then
-            sum[attrId] = (sum[attrId] or 0) + (tonumber(attr[2]) or 0)
-        end
-    end
-    return sum
-end
-
-local _lg_resolve_effect_text
-
--- 构建升级预览里的特殊效果变化文案，负责显示当前值 -> 下级值。
-local function _lg_format_effect_preview_text(template, baseValue, idx)
-    local currentText = _lg_resolve_effect_text(template, baseValue, idx, 0)
-    if _lg_is_max_level(idx) then
-        return currentText
-    end
-    local nextText = _lg_resolve_effect_text(template, baseValue, idx, 1)
-    local currentValue = currentText:match("%[(.-)%]")
-    local nextValue = nextText:match("%[(.-)%]")
-    if currentValue and nextValue and currentValue ~= nextValue then
-        local previewContent = string.format(
-            "<font color='#FFFFFF'>%s</font><font color='#8C6B35'> -> </font><font color='#4DA3FF'>%s</font>",
-            currentValue,
-            nextValue
-        )
-        currentText = currentText:gsub("%[.-%]", function()
-            return "[" .. previewContent .. "]"
-        end, 1)
-    end
-    return currentText
-end
-
--- 生成一组特殊效果预览行，供升级弹窗左侧详情滚动区展示。
-local function _lg_build_effect_preview_lines(titleColor, titleText, template, baseValue, idx)
-    return {
-        string.format("<font color='%s'>%s</font>", titleColor or "#FFFFFF", titleText or ""),
-        "　　" .. tostring(_lg_format_effect_preview_text(template, baseValue, idx) or "")
-    }
-end
-
--- 根据灵根倍率解析技能/特殊效果公式，输出最终展示用的数值文本。
-_lg_resolve_effect_text = function(template, baseValue, idx, extraLevel)
-    template = tostring(template or "")
-    if template == "" then
-        return ""
-    end
-    local scale = _lg_effect_scale(idx, extraLevel)
-    if scale <= 0 then
-        scale = 0
-    end
-    local formatted = string.format(template, tostring(baseValue or 0), _lg_format_effect_number(scale))
-    formatted = formatted:gsub("([%d%.]+)%%%*([%d%.]+)%+([%d%.]+)%%", function(base, mul, add)
-        local result = (tonumber(base) or 0) * (tonumber(mul) or 0) + (tonumber(add) or 0)
-        return _lg_format_effect_number(result) .. "%"
-    end)
-    formatted = formatted:gsub("([%d%.]+)%*([%d%.]+)%+([%d%.]+)", function(base, mul, add)
-        local result = (tonumber(base) or 0) * (tonumber(mul) or 0) + (tonumber(add) or 0)
-        return _lg_format_effect_number(result)
-    end)
-    return formatted
-end
-
--- 生成灵根本体图标路径。
-local function _lg_root_item_path(idx)
-    if not idx or idx <= 0 then
-        return nil
-    end
-    return "res/custom/linggen/itme_" .. tostring(idx) .. ".png"
-end
-
--- 从技能描述中提取【技能名】。
-local function _lg_extract_skill_name(text)
-    local name = tostring(text or ""):match("【(.-)】") or ""
-    return SPECIAL_SKILL_ICON_NAME[name] or name
-end
-
--- 根据技能名映射并生成技能图标路径。
-local function _lg_skill_icon_path(skillName)
-    skillName = tostring(skillName or "")
-    if skillName == "" then
-        return nil
-    end
-    return "res/custom/linggen/new/icon/" .. skillName .. ".png"
-end
-
--- 根据灵根类型读取升级配置表（低阶/高阶）。
-local function _lg_upgrade_detail(idx)
-    local details = npc._config and npc._config.main_updata and npc._config.main_updata.details or {}
-    return details[idx and idx <= 5 and "low" or "up"] or {}
-end
-
--- 读取指定灵根下一等级的升级配置。
-local function _lg_next_upgrade_cfg(idx)
-    if not idx or idx <= 0 then
-        return nil
-    end
-    local lv = _lg_level_value(idx)
-    return _lg_upgrade_detail(idx)[lv + 1]
-end
-
--- 灵根升级人物等级限制：基础灵根走平民档，高级/觉醒灵根走大佬档。
-local function _lg_need_role_level(idx, nextLevel)
-    nextLevel = tonumber(nextLevel or 0) or 0
-    if nextLevel <= 0 then
-        return nil
-    elseif nextLevel <= 3 then
-        return (tonumber(idx or 0) or 0) <= 5 and 80 or 152
-    elseif nextLevel <= 6 then
-        return (tonumber(idx or 0) or 0) <= 5 and 100 or 155
-    elseif nextLevel <= 9 then
-        return (tonumber(idx or 0) or 0) <= 5 and 150 or 160
-    elseif nextLevel == 10 then
-        return (tonumber(idx or 0) or 0) <= 5 and 151 or 165
-    end
-    return nil
-end
-
-local function _lg_role_level()
-    return tonumber(SL:GetMetaValue("LEVEL") or 0) or 0
-end
-
-local function _lg_upgrade_level_ok(idx)
-    if not idx or idx <= 0 or _lg_is_max_level(idx) then
-        return true, nil, _lg_role_level(), _lg_level_value(idx)
-    end
-    local nextLevel = _lg_level_value(idx) + 1
-    local needLevel = _lg_need_role_level(idx, nextLevel)
-    local roleLevel = _lg_role_level()
-    return not needLevel or roleLevel >= needLevel, needLevel, roleLevel, nextLevel
-end
-
--- 判断指定灵根是否已满级。
-_lg_is_max_level = function(idx)
-    return _lg_level_value(idx) >= tonumber(npc._config.main_updata.max_level or 0)
-end
-
--- 判断指定灵根是否满足升级条件：已激活、未满级、人物等级达标且背包材料足够。
-local function _lg_can_upgrade(idx)
-    if not idx or idx <= 0 or not _lg_has_root(idx) or _lg_is_max_level(idx) then
-        return false
-    end
-    local levelOk = _lg_upgrade_level_ok(idx)
-    if not levelOk then
-        return false
-    end
-    local nextCfg = _lg_next_upgrade_cfg(idx)
-    return nextCfg and checkItemNum(nextCfg.cost) or false
-end
-
--- 兼容旧字段：新版基础灵根默认Lv0可选。
-local function _lg_unlock_chance()
-    return 0
-end
-
--- 兼容旧入口：新版基础灵根不再走额外入口。
-local function _lg_can_unlock_basic(idx)
-    return false
-end
-
--- 判断当前本命灵根是否拥有可切换的基础/觉醒配对形态。
-local function _lg_can_dual_switch(mainIdx)
-    mainIdx = tonumber(mainIdx or 0) or 0
-    local pairIdx = npc._config and npc._config.awaken_pairs and npc._config.awaken_pairs[mainIdx] or nil
-    return pairIdx and pairIdx > 0 and _lg_has_root(pairIdx), pairIdx
-end
-
--- 将觉醒灵根 ID 映射回基础灵根 ID；基础灵根本身直接返回。
-_lg_base_root_idx = function(idx)
-    idx = tonumber(idx or 0) or 0
-    if idx <= 0 then
-        return 0
-    end
-    if idx <= 5 then
-        return idx
-    end
-    return tonumber(npc._config and npc._config.awaken_pairs and npc._config.awaken_pairs[idx] or 0) or 0
-end
-
--- 将基础灵根 ID 映射到觉醒灵根 ID；觉醒灵根本身直接返回。
-local function _lg_awaken_root_idx(idx)
-    idx = tonumber(idx or 0) or 0
-    if idx <= 0 then
-        return 0
-    end
-    if idx > 5 then
-        return idx
-    end
-    return tonumber(npc._config and npc._config.awaken_pairs and npc._config.awaken_pairs[idx] or 0) or 0
-end
-
-local function _lg_current_upgrade_idx(selectedIdx, mainIdx)
-    selectedIdx = tonumber(selectedIdx or 0) or 0
-    mainIdx = tonumber(mainIdx or 0) or 0
-    if mainIdx > 5 and selectedIdx > 0 and _lg_base_root_idx(mainIdx) == _lg_base_root_idx(selectedIdx) then
-        return mainIdx
-    end
-    return selectedIdx
-end
-
--- 读取左侧形态卡素材路径，基础/觉醒都使用对应基础五行的 x_* 卡片。
-local function _lg_element_card_path(idx)
-    local baseIdx = _lg_base_root_idx(idx)
-    if baseIdx <= 0 then
-        baseIdx = math.max(1, math.min(5, tonumber(idx or 1) or 1))
-    end
-    return "res/custom/linggen/new/main/x_" .. tostring(baseIdx) .. ".png"
-end
-
--- 汇总当前所有已拥有灵根的总属性。
-local function _lg_collect_total_attrs()
-    local attrs = {}
-    for idx, _ in pairs(_lg_level_map()) do
-        idx = tonumber(idx) or 0
-        for _, attr in ipairs(_lg_build_attr_list(idx, 0)) do
-            table.insert(attrs, attr)
-        end
-    end
-    return attrs
-end
-
--- 汇总当前所有已拥有灵根的特殊效果。
-local function _lg_collect_total_specials()
-    local list = {}
-    for idx, _ in pairs(_lg_level_map()) do
-        idx = tonumber(idx) or 0
-        for _, one in ipairs(_lg_build_special_list(idx, 0)) do
-            list[#list + 1] = one
-        end
-    end
-    return list
-end
-
--- 解析 Player:showAttr 的单条结果，复用原属性名、颜色和百分比格式。
-local function _lg_attr_display_parts(attrId, value)
-    local html = _lg_strip_html(Player:showAttr({{attrId, value}}))
-    local name, textValue = html:match("^(.-)%+(.+)$")
-    local attConfig = SL:GetMetaValue("ATTR_CONFIG", attrId)
-    return tostring(name or attrId or ""), tostring(textValue or value or 0), (attConfig and attConfig.color) or 255
-end
-
--- 将属性配置里的颜色样式 ID 转成富文本可用的十六进制颜色。
-local function _lg_attr_color_hex(color)
-    return SL:GetHexColorByStyleId(color or 255)
-end
-
--- 拼一条属性展示富文本，例如“攻击+10-20”。
-local function _lg_total_attr_line(name, valueText, color)
-    return string.format("<font color='%s'>%s+%s</font>", _lg_attr_color_hex(color), tostring(name or ""), tostring(valueText or 0))
-end
-
--- 将同 ID 属性先累加，再把攻击/魔法/道术/防御/魔防上下限合并为一条范围。
-local function _lg_build_total_attr_lines(attrs)
-    local sum = _lg_sum_attr_map(attrs)
-
-    local rangePairs = {
-        {low = 3, high = 4, name = "攻击"},
-        {low = 5, high = 6, name = "魔法"},
-        {low = 7, high = 8, name = "道术"},
-        {low = 9, high = 10, name = "防御"},
-        {low = 11, high = 12, name = "魔防"},
-    }
-    local consumed = {}
-    local rangeLineByLow = {}
-    for _, pair in ipairs(rangePairs) do
-        if sum[pair.low] ~= nil and sum[pair.high] ~= nil then
-            local _, lowText, color = _lg_attr_display_parts(pair.low, sum[pair.low])
-            local _, highText = _lg_attr_display_parts(pair.high, sum[pair.high])
-            rangeLineByLow[pair.low] = _lg_total_attr_line(pair.name, lowText .. "-" .. highText, color)
-            consumed[pair.low] = true
-            consumed[pair.high] = true
-        end
-    end
-
-    local sortedIds = {}
-    for attrId, _ in pairs(sum) do
-        sortedIds[#sortedIds + 1] = attrId
-    end
-    table.sort(sortedIds)
-
-    local lines = {}
-    for _, attrId in ipairs(sortedIds) do
-        if rangeLineByLow[attrId] then
-            lines[#lines + 1] = rangeLineByLow[attrId]
-        elseif not consumed[attrId] then
-            local name, valueText, color = _lg_attr_display_parts(attrId, sum[attrId])
-            lines[#lines + 1] = _lg_total_attr_line(name, valueText, color)
-        end
-    end
-    return lines
-end
-
--- 格式化特殊效果展示行，例如切割、回血等不属于普通属性表的效果。
-local function _lg_format_special_line(one)
-    if not one then
-        return ""
-    end
-    return string.format("<font color='#A7D58D'>%s+%s%s</font>", tostring(one.name or "特殊效果"), tostring(one.value or 0), tostring(one.unit or ""))
-end
-
--- 汇总并排序特殊效果展示行，供主界面/培养界面总属性区使用。
-local function _lg_build_total_special_lines(list)
-    local map = {}
-    local order = {}
-    for _, one in ipairs(list or {}) do
-        local key = tostring(one.key or one.name or "")
-        if key ~= "" then
-            if not map[key] then
-                map[key] = {key = key, name = one.name, value = 0, unit = one.unit}
-                order[#order + 1] = key
-            end
-            map[key].value = (tonumber(map[key].value) or 0) + (tonumber(one.value) or 0)
-        end
-    end
-    table.sort(order)
-    local lines = {}
-    for _, key in ipairs(order) do
-        lines[#lines + 1] = _lg_format_special_line(map[key])
-    end
-    return lines
-end
-
--- 生成升级预览中的单条普通属性变化行。
-local function _lg_attr_preview_range_line(name, currentText, nextText, color, isMaxLevel)
-    local currentLine = _lg_total_attr_line(name, currentText, color)
-    if isMaxLevel then
-        return currentLine .. "<font color='#8C6B35'> [当前已满级]</font>"
-    end
-    return string.format(
-        "%s<font color='#8C6B35'> -> </font><font color='#4DA3FF'>%s</font><font color='#8C6B35'>[下级属性]</font>",
-        currentLine,
-        tostring(nextText or 0)
-    )
-end
-
--- 升级预览属性同样合并同类、上下限，并按属性 ID 排序。
-local function _lg_build_attr_preview_lines(currentAttrs, nextAttrs, isMaxLevel)
-    local currentSum = _lg_sum_attr_map(currentAttrs)
-    local nextSum = _lg_sum_attr_map(nextAttrs)
-    local rangePairs = {
-        {low = 3, high = 4, name = "攻击"},
-        {low = 5, high = 6, name = "魔法"},
-        {low = 7, high = 8, name = "道术"},
-        {low = 9, high = 10, name = "防御"},
-        {low = 11, high = 12, name = "魔防"},
-    }
-    local consumed = {}
-    local rangeLineByLow = {}
-    for _, pair in ipairs(rangePairs) do
-        local hasCurrentRange = currentSum[pair.low] ~= nil and currentSum[pair.high] ~= nil
-        local hasNextRange = nextSum[pair.low] ~= nil and nextSum[pair.high] ~= nil
-        if hasCurrentRange or hasNextRange then
-            local _, curLowText, color = _lg_attr_display_parts(pair.low, currentSum[pair.low] or 0)
-            local _, curHighText = _lg_attr_display_parts(pair.high, currentSum[pair.high] or 0)
-            local _, nextLowText = _lg_attr_display_parts(pair.low, nextSum[pair.low] or currentSum[pair.low] or 0)
-            local _, nextHighText = _lg_attr_display_parts(pair.high, nextSum[pair.high] or currentSum[pair.high] or 0)
-            rangeLineByLow[pair.low] = _lg_attr_preview_range_line(pair.name, curLowText .. "-" .. curHighText, nextLowText .. "-" .. nextHighText, color, isMaxLevel)
-            consumed[pair.low] = true
-            consumed[pair.high] = true
-        end
-    end
-
-    local sortedIds = {}
-    for attrId, _ in pairs(currentSum) do
-        sortedIds[#sortedIds + 1] = attrId
-    end
-    for attrId, _ in pairs(nextSum) do
-        if currentSum[attrId] == nil then
-            sortedIds[#sortedIds + 1] = attrId
-        end
-    end
-    table.sort(sortedIds)
-
-    local lines = {}
-    for _, attrId in ipairs(sortedIds) do
-        if rangeLineByLow[attrId] then
-            lines[#lines + 1] = rangeLineByLow[attrId]
-        elseif not consumed[attrId] then
-            local name, currentText, color = _lg_attr_display_parts(attrId, currentSum[attrId] or 0)
-            local _, nextText = _lg_attr_display_parts(attrId, nextSum[attrId] or currentSum[attrId] or 0)
-            lines[#lines + 1] = _lg_attr_preview_range_line(name, currentText, nextText, color, isMaxLevel)
-        end
-    end
-    return lines
-end
-
--- 生成升级预览中的特殊效果变化行。
-local function _lg_build_special_preview_lines(currentList, nextList, isMaxLevel)
-    local currentMap = {}
-    local nextMap = {}
-    local keys = {}
-    local exists = {}
-    for _, one in ipairs(currentList or {}) do
-        local key = tostring(one.key or one.name or "")
-        if key ~= "" then
-            currentMap[key] = one
-            if not exists[key] then
-                keys[#keys + 1] = key
-                exists[key] = true
-            end
-        end
-    end
-    for _, one in ipairs(nextList or {}) do
-        local key = tostring(one.key or one.name or "")
-        if key ~= "" then
-            nextMap[key] = one
-            if not exists[key] then
-                keys[#keys + 1] = key
-                exists[key] = true
-            end
-        end
-    end
-    table.sort(keys)
-    local lines = {}
-    for _, key in ipairs(keys) do
-        local one = currentMap[key] or nextMap[key]
-        local nextOne = nextMap[key] or one
-        local currentLine = _lg_format_special_line(currentMap[key] or {name = one.name, value = 0, unit = one.unit})
-        if isMaxLevel then
-            lines[#lines + 1] = currentLine .. "<font color='#6b6257'>（已满级）</font>"
-        else
-            lines[#lines + 1] = string.format(
-                "%s <font color='#6b6257'>-></font> <font color='#54FF9F'>%s+%s%s</font>",
-                currentLine,
-                tostring(nextOne.name or one.name or "特殊效果"),
-                tostring(nextOne.value or one.value or 0),
-                tostring(nextOne.unit or one.unit or "")
-            )
-        end
-    end
-    return lines
-end
-
-local function _lg_build_upgrade_need_line(idx)
-    if _lg_is_max_level(idx) then
-        return "<font color='#7CFF7C'>升级条件：当前灵根已满级</font>"
-    end
-    local ok, needLevel, roleLevel, nextLevel = _lg_upgrade_level_ok(idx)
-    if not needLevel then
-        return ""
-    end
-    local color = ok and "#7CFF7C" or "#FF3030"
-    local state = ok and "已完成" or "未完成"
-    return string.format(
-        "<font color='%s'>升级条件：灵根Lv.%d 需要玩家Lv.%d（当前Lv.%d）[%s]</font>",
-        color,
-        tonumber(nextLevel or 0) or 0,
-        tonumber(needLevel or 0) or 0,
-        tonumber(roleLevel or 0) or 0,
-        state
-    )
-end
-
--- 将展示行拆成左右两列显示。
-local function _lg_split_attr_lines(attrs)
-    local line1 = {}
-    local line2 = {}
-    for i, attr in ipairs(attrs or {}) do
-        if i % 2 == 1 then
-            line1[#line1 + 1] = attr
-        else
-            line2[#line2 + 1] = attr
-        end
-    end
-    return line1, line2
-end
-
--- 构建升级弹窗左侧的属性预览与技能描述 HTML。
-local function _lg_build_attr_preview_html(idx)
-    if not idx or idx <= 0 then
-        return "<font color='#6b6257'>请选择一个灵根</font>"
-    end
-    local cfg = _lg_root_cfg(idx)
-    if not cfg then
-        return "<font color='#6b6257'>暂无数据</font>"
-    end
-
-    local currentAttrs = _lg_build_attr_list(idx, 0)
-    local nextAttrs = _lg_build_attr_list(idx, 1)
-    local currentSpecials = _lg_build_special_list(idx, 0)
-    local nextSpecials = _lg_build_special_list(idx, 1)
-    local lines = {
-        _lg_build_upgrade_need_line(idx),
-        "<font color='#FFFFFF'>属性预览：</font>",
-    }
-    if #currentAttrs == 0 then
-        lines[#lines + 1] = "<font color='#FF0000'>当前灵根未激活</font>"
-    else
-        for _, line in ipairs(_lg_build_attr_preview_lines(currentAttrs, nextAttrs, _lg_is_max_level(idx))) do
-            lines[#lines + 1] = line
-        end
-        for _, line in ipairs(_lg_build_special_preview_lines(currentSpecials, nextSpecials, _lg_is_max_level(idx))) do
-            lines[#lines + 1] = line
-        end
-    end
-
-    lines[#lines + 1] = "<font color='#DE0000'>被动技能：</font>"
-    lines[#lines + 1] = "　　" .. _lg_build_passive_skill_desc(idx, true)
-    lines[#lines + 1] = "<font color='#4169E1'>主动技能：</font>"
-    lines[#lines + 1] = "　　" .. _lg_build_active_skill_desc(idx, true)
-    lines[#lines + 1] = "<font color='#F4D179'>灵兽专属协同：</font>"
-    lines[#lines + 1] = "　　" .. _lg_color_skill_desc(tostring(cfg.synergy or "暂无"))
-    lines[#lines + 1] = "<font color='#A7D58D'>天书回响共鸣：</font>"
-    lines[#lines + 1] = "　　" .. _lg_color_skill_desc("【" .. tostring(cfg.echo_name or "未配置") .. "】" .. tostring(cfg.echo_desc or ""))
-
-    return table.concat(lines, "\n")
-end
-
--- 只给灵根详情 tooltip 使用的手动换行：每行约 25 个可见字符，数字/百分比整体不断开。
-local function _lg_wrap_detail_tip_text(text, limit, prefix)
-    text = tostring(text or "")
-    limit = tonumber(limit or 25) or 25
-    prefix = tostring(prefix or "")
-    local lines = {}
-    local current = ""
-    local count = 0
-    local i = 1
-    while i <= #text do
-        local token = text:sub(i):match("^%d+%.?%d*%%?")
-        if not token or token == "" then
-            local b = string.byte(text, i) or 0
-            local len = 1
-            if b >= 240 then
-                len = 4
-            elseif b >= 224 then
-                len = 3
-            elseif b >= 192 then
-                len = 2
-            end
-            token = text:sub(i, i + len - 1)
-        end
-        local tokenLen = 1
-        if token:match("^%d") then
-            tokenLen = 0
-            for _ in token:gmatch("[%z\1-\127\194-\244][\128-\191]*") do
-                tokenLen = tokenLen + 1
-            end
-        end
-        if count > 0 and count + tokenLen > limit then
-            lines[#lines + 1] = prefix .. current
-            current = token
-            count = tokenLen
-        else
-            current = current .. token
-            count = count + tokenLen
-        end
-        i = i + #token
-    end
-    if current ~= "" then
-        lines[#lines + 1] = prefix .. current
-    end
-    return table.concat(lines, "\n")
-end
-
-local function _lg_tip_label_line(label, value, color)
-    value = tostring(value or "")
-    if value == "" then
-        value = "暂无"
-    end
-    return string.format("<font color='#F4D179' size='15'>%s</font>\n<font color='%s' size='15'>　　%s</font>", label, color or "#D9D2C2", value)
-end
-
-local function _lg_tip_separator()
-    return "<font color='#6B5630' size='15'>━━━━━━━━━━━━━━</font>"
-end
-
-local function _lg_tip_title_line(idx, level)
-    local cfg = _lg_root_cfg(idx) or {}
-    return string.format("<font color='%s' size='15'>【%s灵根】</font> <font color='#CFC6B4' size='15'>Lv.%d</font>",
-        ROOT_COLORS[idx] or "#F4D179", tostring(cfg.name or ""), tonumber(level or 0) or 0)
-end
-
-local function _lg_tip_section_title(label)
-    return string.format("<font color='#F4D179' size='15'>%s</font>", tostring(label or ""))
-end
-
-local function _lg_tip_attr_line(value)
-    return string.format("<font color='#D9D2C2' size='12'>　◆ %s</font>", tostring(value or ""))
-end
-
-local function _lg_strip_skill_html(text)
-    local plain = tostring(text or "")
-    plain = plain:gsub("<[^>]->", "")
-    return plain
-end
-
-local function _lg_color_plain_skill_line(text)
-    text = tostring(text or "")
-    if text == "" then
-        return ""
-    end
-
-    local placeholders = {}
-    local seq = 0
-    local function hold(value)
-        seq = seq + 1
-        local token = "\1LGPLAIN" .. string.rep("X", seq) .. "\2"
-        placeholders[token] = value
-        return token
-    end
-    local function color(pattern, colorHex)
-        text = text:gsub(pattern, function(v)
-            return hold("<font color='" .. colorHex .. "'>" .. v .. "</font>")
-        end)
-    end
-
-    color("(【.-】)", "#FFD45A")
-    color("([%+%-]?%d+%.?%d*%%)", "#FF5A3D")
-    color("([%+%-]?%d+%.?%d*倍)", "#FF5A3D")
-    color("(CD%d+%.?%d*秒?)", "#D7B56D")
-    color("([%+%-]?%d+%.?%d*)", "#9FE2FF")
-    color("(暴击|真实伤害)", "#FF7700")
-    color("(无视目标防御|生命|血量|攻击|防御|麻痹|冰封|忽视防御)", "#A7F0C1")
-
-    text = text:gsub("\1LGPLAINX+\2", function(token)
-        return placeholders[token] or ""
-    end)
-    return text
-end
-local function _lg_wrap_rich_tip_text(text, limit, prefix)
-    local plain = _lg_strip_skill_html(text)
-    local wrapped = _lg_wrap_detail_tip_text(plain, limit or 24, prefix or "")
-    local lines = {}
-    for line in tostring(wrapped or ""):gmatch("[^\n]+") do
-        lines[#lines + 1] = _lg_color_plain_skill_line(line)
-    end
-    return table.concat(lines, "\n")
-end
-local function _lg_split_skill_desc(value)
-    value = tostring(value or "")
-    local skillName, desc = value:match("^【([^】]+)】(.+)$")
-    if not skillName then
-        skillName, desc = value:match("^%[([^%]]+)%](.+)$")
-    end
-    if skillName then
-        return skillName, desc
-    end
-    return nil, value
-end
-
-local function _lg_tip_skill_block(label, value, color)
-    value = tostring(value or "暂无")
-    local title = tostring(label or "")
-    if value:find("<font", 1, true) then
-        -- 富文本按可见字符换行，遇到 <font> 标签整体跳过，避免拆断标签。
-        local wrapped = _lg_wrap_rich_tip_text(value, 24, "　　")
-        return string.format("%s\n<font color='%s' size='15'>%s</font>", _lg_tip_section_title(title), color or "#D9D2C2", wrapped)
-    end
-
-    local skillName, desc = _lg_split_skill_desc(value)
-    if skillName and skillName ~= "" then
-        title = title .. " · " .. skillName
-    end
-    local wrapped = _lg_wrap_detail_tip_text(desc or "暂无", 24, "　　")
-    return string.format("%s\n<font color='%s' size='15'>%s</font>", _lg_tip_section_title(title), color or "#D9D2C2", wrapped)
-end
-
--- 构建主界面点击灵根时的只读详情，不展示升级预览值。
-local function _lg_build_attr_detail_html(idx)
-    if not idx or idx <= 0 then
-        return "<font color='#6b6257'>请选择一个灵根</font>"
-    end
-    local cfg = _lg_root_cfg(idx)
-    if not cfg then
-        return "<font color='#6b6257'>暂无数据</font>"
-    end
-
-    local currentAttrs = _lg_build_attr_list(idx, 0)
-    local currentSpecials = _lg_build_special_list(idx, 0)
-    local lines = {
-        _lg_tip_title_line(idx, _lg_level_value(idx)),
-        _lg_tip_separator(),
-        _lg_tip_label_line("流派定位", cfg.flow or "未配置", "#D9D2C2"),
-        _lg_tip_section_title("灵根属性"),
-    }
-
-    if #currentAttrs == 0 then
-        lines[#lines + 1] = "<font color='#FF6B6B'>　◆ 当前灵根未激活</font>"
-    else
-        for _, line in ipairs(_lg_build_total_attr_lines(currentAttrs)) do
-            lines[#lines + 1] = _lg_tip_attr_line(line)
-        end
-        for _, line in ipairs(_lg_build_total_special_lines(currentSpecials)) do
-            lines[#lines + 1] = _lg_tip_attr_line(line)
-        end
-    end
-
-    lines[#lines + 1] = _lg_tip_skill_block("被动技能", _lg_build_passive_skill_desc(idx, false), "#B9F6C5")
-    lines[#lines + 1] = _lg_tip_skill_block("主动技能", _lg_build_active_skill_desc(idx, false), "#F2E7C8")
-    lines[#lines + 1] = _lg_tip_skill_block("灵兽协同", cfg.synergy or "暂无", "#B9F6C5")
-    lines[#lines + 1] = _lg_tip_skill_block("天书协调", "【" .. tostring(cfg.echo_name or "未配置") .. "】" .. tostring(cfg.echo_desc or ""), "#A7D58D")
-    return table.concat(lines, "\n")
-end
-
--- 给灵根图标/卡片绑定属性与效果预览；PC 悬停，移动端点击。
-local function _lg_bind_detail_tip(widget, idx)
-    if not widget or not idx or idx <= 0 then
+local openUpgrade
+
+local function selectNode(id)
+    if npc.suppressNodeClick then
+        npc.suppressNodeClick = false
         return
     end
-    local function openTip()
-        local pos = GUI:getWorldPosition(widget)
-        SL:OpenCommonDescTipsPop({
-            str = _lg_build_attr_detail_html(idx),
-            worldPos = {x = pos.x + 20, y = pos.y + 20},
-            anchorPoint = {x = 0, y = 0},
-            formatWay = 1,
-        })
-    end
-    if SL:GetMetaValue("WINPLAYMODE") then
-        GUI:addMouseMoveEvent(widget, {
-            onEnterFunc = function()
-                openTip()
-            end,
-            onLeaveFunc = function()
-                SL:CloseCommonDescTipsPop()
-            end,
-        })
-    else
-        GUI:setTouchEnabled(widget, true)
-        GUI:addOnTouchEvent(widget, function(_, touchType)
-            if touchType == SLDefine.TouchEventType.ended then
-                openTip()
-            end
-        end)
+    local previousId = npc.selectedId
+    npc.selectedId = id
+    updateNodeVisual(previousId)
+    updateNodeVisual(id)
+    updateInfo()
+    if id == "root" then
+        openUpgrade()
     end
 end
 
--- 构建技能预览 tooltip 文案，主界面/培养界面的被动、协同技能图标共用。
-local function _lg_build_skill_tip_html(idx, skillType)
-    local cfg = _lg_root_cfg(idx)
-    if not cfg then
-        return "<font color='#6b6257'>暂无技能数据</font>"
+local function createNodeView(parent, node)
+    local size = nodeDisplaySize(node)
+    local holder = GUI:Node_Create(parent, "holder_" .. node.id, node.x, node.y)
+    local halo = GUI:Node_Create(holder, "halo", 0, 0)
+    -- local halo = panel(holder, "halo", 0, 0, size + 10, size + 10, nodeColor(node))
+    GUI:setLocalZOrder(halo, 1)
+    if shouldShowNodeFrame(node) then
+        imageFrame(holder, "archive_frame", 0, 0, size + 16, size + 16, NODE_FRAME, 2)
     end
-    local title = skillType == "active" and "主动技能" or (skillType == "synergy" and "灵兽协同" or "被动技能")
-    local color = skillType == "active" and "#F2E7C8" or (skillType == "synergy" and "#B9F6C5" or "#B9F6C5")
-    local desc = skillType == "active" and _lg_build_active_skill_desc(idx, false) or (skillType == "synergy" and cfg.synergy or _lg_build_passive_skill_desc(idx, false))
-    local lines = {
-        _lg_tip_title_line(idx, _lg_level_value(idx)),
-        _lg_tip_separator(),
-        _lg_tip_skill_block(title, desc or "暂无", color),
-    }
-    return table.concat(lines, "\n")
-end
-
--- 给技能图标绑定效果预览；PC 悬停，移动端点击。
-local function _lg_bind_skill_tip(widget, idx, skillType)
-    if not widget or not idx or idx <= 0 then
-        return
-    end
-    GUI:setTouchEnabled(widget, true)
-    local function openTip()
-        local pos = GUI:getWorldPosition(widget)
-        SL:OpenCommonDescTipsPop({
-            str = _lg_build_skill_tip_html(idx, skillType),
-            worldPos = {x = pos.x + 20, y = pos.y + 20},
-            anchorPoint = {x = 0, y = 0},
-            formatWay = 1,
-        })
-    end
-    if SL:GetMetaValue("WINPLAYMODE") then
-        GUI:addMouseMoveEvent(widget, {
-            onEnterFunc = function()
-                openTip()
-            end,
-            onLeaveFunc = function()
-                SL:CloseCommonDescTipsPop()
-            end,
-        })
-    else
-        GUI:addOnTouchEvent(widget, function(_, touchType)
-            if touchType == SLDefine.TouchEventType.ended then
-                openTip()
-            end
-        end)
-    end
-end
-
--- 渲染升级弹窗右侧的消耗物品格子。
-local function _lg_create_cost_items(parent, costList, positions)
-    -- for i, pos in ipairs(positions or {}) do
-    --     GUI:Image_Create(parent, "cost_bg_" .. i, pos.x, pos.y, "res/custom/linggen/new/updata/cost_slot.png")
-    -- end
-    if not costList then
-        return
-    end
-    for i, one in ipairs(costList) do
-        local pos = positions[i]
-        if not pos then
-            break
-        end
-        local node = checkItemNumByTable_img_kuang({one}, nil, GUI:Node_Create(parent, "cost_node_" .. i, 0, 0))
-        GUI:setPosition(node, pos.x + 25, pos.y + 25)
-    end
-end
-
--- 渲染灵根主界面的静态底图组件；旧版主界面右侧属性/技能框仍通过配置表批量创建。
-local function _lg_render_main_static_parts(parent)
-    local rendered = {}
-    for _, part in ipairs(MAIN_STATIC_PARTS) do
-        local baseX = _lg_part_base_x(part)
-        if part.follow and rendered[part.follow] and part.followCenter then
-            baseX = rendered[part.follow].baseX + ((rendered[part.follow].width or 0) - (part.width or 0)) / 2
-        end
-        local partY = part.group and _lg_group_y(part.group, part.offsetY) or _lg_adapt_y(part.y, part.anchorY, part.minY)
-        local img = GUI:Image_Create(parent, part.name, _lg_adapt_x(baseX, part.anchorX), partY, part.skin)
-        GUI:setLocalZOrder(img, -10)
-        rendered[part.name] = {baseX = baseX, width = part.width}
-    end
-end
-
--- 将主界面总属性区域渲染为可滚动面板，负责展示全部已拥有灵根的普通属性和特殊效果。
-local function _lg_render_attr_scroll(parent, attrs, specials)
-    local attrPos = _lg_adapt_pos(ATTR_BOX_POS, "right", "top")
-    local scroll = GUI:ScrollView_Create(parent, "attr_scroll", attrPos.x + 60, attrPos.y + 9, ATTR_BOX_SIZE.width, ATTR_BOX_SIZE.height, 1)
-    GUI:ScrollView_setBounceEnabled(scroll, true)
-    GUI:ScrollView_setInnerContainerSize(scroll, ATTR_BOX_SIZE.width, ATTR_BOX_SIZE.height)
-    local attrFontSize = 13
-
-    if (not attrs or #attrs <= 0) and (not specials or #specials <= 0) then
-        local emptyText = richText(scroll, "total_attr_empty", 0, ATTR_BOX_SIZE.height - 10, "<font color='#6b6257'>暂无灵根属性</font>", ATTR_BOX_SIZE.width, attrFontSize, 1)
-        GUI:setAnchorPoint(emptyText, 0, 1)
-        return scroll
-    end
-
-    local displayLines = _lg_build_total_attr_lines(attrs)
-    for _, line in ipairs(_lg_build_total_special_lines(specials)) do
-        displayLines[#displayLines + 1] = line
-    end
-    local line1Attrs, line2Attrs = _lg_split_attr_lines(displayLines)
-    local colWidth = math.floor(ATTR_BOX_SIZE.width / 2) - 8
-    local line1 = richText(scroll, "total_attr_1", 0, ATTR_BOX_SIZE.height - 10, table.concat(line1Attrs, "\n"), colWidth, attrFontSize, 1)
-    GUI:setAnchorPoint(line1, 0, 1)
-    local line2 = richText(scroll, "total_attr_2", colWidth + 14, ATTR_BOX_SIZE.height - 10, table.concat(line2Attrs, "\n"), colWidth, attrFontSize, 1)
-    GUI:setAnchorPoint(line2, 0, 1)
-
-    local h1 = GUI:getBoundingBox(line1).height
-    local h2 = GUI:getBoundingBox(line2).height
-    local innerH = math.max(ATTR_BOX_SIZE.height, math.max(h1, h2) + 12)
-    GUI:ScrollView_setInnerContainerSize(scroll, ATTR_BOX_SIZE.width, innerH)
-    GUI:setPosition(line1, 0, innerH - 10)
-    GUI:setPosition(line2, colWidth + 14, innerH - 10)
-    return scroll
-end
-
--- 将升级弹窗左侧属性预览区域渲染为可滚动面板，负责显示当前等级、下级属性和技能描述。
-local function _lg_render_preview_scroll(parent, html)
-    local scroll = GUI:ScrollView_Create(parent, "preview_scroll", UPGRADE_PREVIEW_POS.x, UPGRADE_PREVIEW_POS.y, UPGRADE_PREVIEW_SIZE.width, UPGRADE_PREVIEW_SIZE.height, 1)
-    GUI:ScrollView_setBounceEnabled(scroll, true)
-    GUI:ScrollView_setInnerContainerSize(scroll, UPGRADE_PREVIEW_SIZE.width, UPGRADE_PREVIEW_SIZE.height)
-
-    local content = richText(scroll, "preview_content", 0, UPGRADE_PREVIEW_SIZE.height - 6, tostring(html or ""), UPGRADE_PREVIEW_SIZE.width - 8, 17, 1)
-    GUI:setAnchorPoint(content, 0, 1)
-
-    local contentHeight = GUI:getBoundingBox(content).height
-    local innerH = math.max(UPGRADE_PREVIEW_SIZE.height, contentHeight + 12)
-    GUI:ScrollView_setInnerContainerSize(scroll, UPGRADE_PREVIEW_SIZE.width, innerH)
-    GUI:setPosition(content, 0, innerH - 6)
-    return scroll
-end
-
--- 在指定位置绘制灵根本体图标；这里不做缩放，保证素材按原始尺寸显示。
-local function _lg_show_root_icon(parent, name, x, y, idx, scale)
-    if not idx or idx <= 0 then
-        return nil
-    end
-    local item = GUI:Image_Create(parent, name, x, y, _lg_root_item_path(idx))
-    GUI:setAnchorPoint(item, 0.5, 0.5)
-    return item
-end
-
--- 渲染灵根主界面同款动态图标，用于培养页顶部选择栏和左侧形态预览。
-local function _lg_show_root_anim(parent, name, x, y, idx)
-    if not idx or idx <= 0 then
-        return nil
-    end
-    local anim = GUI:Frames_Create(parent, name, idx > 5 and (x - 8) or x, y, "res/custom/linggen/UI内/" .. tostring(idx) .. "/show_2_", ".png", 0, 15, {speed = 75, count = 16, loop = -1})
-    GUI:setAnchorPoint(anim, 0.5, 0.5)
-    return anim
-end
-
--- 渲染主界面旧版左侧“基础形态/觉醒形态”卡片；当前主界面主要保留点击切换能力。
-local function _lg_render_form_card(parent, name, idx, pos, npcid)
-    if not idx or idx <= 0 or not pos then
-        return nil
-    end
-    local active = _lg_has_root(idx)
-    local cardPos = _lg_adapt_pos(pos, "left", "center")
-    local card = GUI:Image_Create(parent, name .. "_card", cardPos.x, cardPos.y, _lg_element_card_path(idx))
-    GUI:setLocalZOrder(card, -4)
-    if not active then
-        GUI:Image_setGrey(card, true)
-    end
-
-    local title = strokeText(parent, name .. "_title", cardPos.x + FORM_CARD_SIZE.width / 2, cardPos.y + FORM_CARD_SIZE.height + 18, 18, "#F4D179", pos.title or "", "fonts/font4.ttf")
-    GUI:setAnchorPoint(title, 0.5, 0.5)
-    -- local icon = _lg_show_root_icon(parent, name .. "_item", cardPos.x + FORM_CARD_SIZE.width / 2, cardPos.y + 86, idx, 0.78)
-    if icon and not active then
-        GUI:Image_setGrey(icon, true)
-    end
-
-    local cfg = _lg_root_cfg(idx) or {}
-    local stateText = active and ("Lv." .. tostring(_lg_level_value(idx))) or "未激活"
-    local label = strokeText(parent, name .. "_state", cardPos.x + FORM_CARD_SIZE.width / 2, cardPos.y + 18, 15, active and "#FFFFFF" or "#9B9B9B", stateText, "fonts/font4.ttf")
-    GUI:setAnchorPoint(label, 0.5, 0.5)
-
-    local touch = GUI:Layout_Create(parent, name .. "_touch", cardPos.x, cardPos.y, FORM_CARD_SIZE.width, FORM_CARD_SIZE.height, false)
-    GUI:setTouchEnabled(touch, true)
-    GUI:addOnClickEvent(touch, function()
-        npc.current_idx = idx
-        _lg_refresh_main_page(npcid, parent)
-        if not _lg_is_look_player() then
-            _lg_refresh_open_upgrade_window(npcid)
-        end
-    end)
-    return card
-end
-
--- 渲染主界面旧版左侧两张形态卡：上方基础形态、下方觉醒形态。
-local function _lg_render_left_form_cards(parent, npcid, idx)
-    local baseIdx = _lg_base_root_idx(idx)
-    if baseIdx <= 0 then
-        baseIdx = math.max(1, math.min(5, tonumber(idx or 1) or 1))
-    end
-    _lg_render_form_card(parent, "form_basic", baseIdx, FORM_CARD_POS.basic, npcid)
-    local awakenIdx = _lg_awaken_root_idx(baseIdx)
-    if awakenIdx > 0 then
-        _lg_render_form_card(parent, "form_awaken", awakenIdx, FORM_CARD_POS.awaken, npcid)
-    end
-end
-
--- 在本命灵根槽位下方绘制灵根名称。
-local function _lg_create_slot_name(parent, name, x, y, idx)
-    if not idx or idx <= 0 then
-        return nil
-    end
-    local cfg = _lg_root_cfg(idx) or {}
-    local label = strokeText(parent, name, x, y + SLOT_NAME_OFFSET_Y, 20, ROOT_COLORS[idx] or "#FFFFFF", tostring(cfg.name or "") .. "灵根", "fonts/font4.ttf")
-    GUI:setAnchorPoint(label, 0.5, 0.5)
-    return label
-end
-
--- 创建中间拖入卸下区域，拖拽时显示提示框。
-local function _lg_create_unequip_drag_area(parent)
-    -- 保留旧函数名，当前版本不再显示拖拽卸下区域。
-    return nil
-end
-
--- 为本命灵根槽位挂载拖拽控件，并绑定拖拽中跟随显示与卸下提示。
-local function _lg_attach_drag_widget(parent, name, x, y, moveType, beginIdx)
-    -- 保留旧函数名，避免旧调用报错；当前版本不再挂拖拽控件。
-    return nil
-end
-
--- 渲染右下当前选中灵根：图标 + 对应技能效果说明。
-local function _lg_render_skill_icons(parent)
-    local mainIdx = npc.data and npc.data.T_data and npc.data.T_data.main or 0
-    local mainCfg = _lg_root_cfg(mainIdx)
-
-    local function renderOne(name, panelName, sourceText, color, iconKey)
-        if tostring(sourceText or "") == "" then
-            return
-        end
-        local panel = GUI:getChildByName(parent, panelName)
-        if not panel then
-            return
-        end
-        local icon = GUI:Image_Create(panel, name, SKILL_PANEL_CHILD_POS.iconX, SKILL_PANEL_CHILD_POS.iconY, _lg_skill_icon_path(iconKey))
-        GUI:setAnchorPoint(icon, 0.5, 0.5)
-        -- GUI:addOnClickEvent(icon, function()
-        --     if sourceText and sourceText ~= "" then
-        --         local posWorld = GUI:getWorldPosition(icon)
-        --         SL:OpenCommonDescTipsPop({
-        --             str = tostring(sourceText),
-        --             worldPos = {x = posWorld.x, y = posWorld.y},
-        --             anchorPoint = {x = 0, y = 0},
-        --             formatWay = 1,
-        --         })
-        --     end
-        -- end)
-        GUI:setTouchEnabled(icon, true)
-        local effect = richText(panel, name .. "_effect", SKILL_PANEL_CHILD_POS.textX, SKILL_PANEL_CHILD_POS.textY, tostring(sourceText or ""), SKILL_PANEL_CHILD_POS.textWidth, SKILL_PANEL_CHILD_POS.fontSize, 1)
-        GUI:setAnchorPoint(effect, 0, 1)
-    end
-
-    local iconCfg = SKILL_ICON_BY_ROOT[tonumber(mainIdx or 0) or 0] or {}
-    renderOne("skill_passive", "skill_panel_passive", mainCfg and _lg_build_passive_skill_desc(mainIdx, false) or "", "#9FE2FF", iconCfg.passive)
-    renderOne("skill_active", "skill_panel_synergy", mainCfg and _lg_build_active_skill_desc(mainIdx, false) or "", "#F4D179", iconCfg.active)
-end
-
--- 创建通用文字按钮；主界面“培养/激活”、培养界面“升级/切换/返回”共用。
-local function _lg_button(parent, name, x, y, text, callback)
-    local btn = GUI:Button_Create(parent, name, x, y, "res/custom/linggen/quchu.png")
+    local skin = nodeButtonSkin(node)
+    local btn = GUI:Button_Create(holder, "button", 0, 0, skin)
+    GUI:Button_loadTexturePressed(btn, skin)
     GUI:setAnchorPoint(btn, 0.5, 0.5)
-    GUI:Button_setTitleText(btn, tostring(text or ""))
-    GUI:Button_setTitleFontSize(btn, 18)
-    GUI:Button_setTitleColor(btn, "#F4E7B5")
-    GUI:Button_titleEnableOutline(btn, "#110b05", 2)
-    if callback then
-        GUI:addOnClickEvent(btn, callback)
+    if node.kind == "root" or isSocketNode(node) then
+        GUI:setContentSize(btn, size, size)
     end
-    return btn
-end
-
--- 培养页和主界面大按钮统一使用 502 字体与粗描边。
-local function _lg_apply_big_button_style(btn)
-    if not btn then
-        return
-    end
-    GUI:Button_setTitleFontName(btn, "fonts/502.ttf")
-    GUI:Button_setTitleFontSize(btn, 24)
-    GUI:Button_titleEnableOutline(btn, "#110b05", 3)
-end
-
--- 创建图片并设置锚点；保留 scale 参数兼容旧调用，但当前不缩放素材。
-local function _lg_scaled_image(parent, name, x, y, skin, scale, anchorX, anchorY)
-    local img = GUI:Image_Create(parent, name, x, y, skin)
-    GUI:setAnchorPoint(img, anchorX or 0, anchorY or 0)
-    return img
-end
-
--- 渲染小标题条，主界面中间/右侧标题和培养界面各区域标题共用。
-local function _lg_title_bar(parent, name, x, y, text, width)
-    local bar = _lg_scaled_image(parent, name .. "_bar", x, y, "res/custom/linggen/new/main/di.png", nil, 0.5, 0.5)
-    local label = strokeText(parent, name .. "_text", x, y + 1, 19, "#FFFFFF", text, "fonts/font4.ttf")
-    GUI:setAnchorPoint(label, 0.5, 0.5)
-    return bar, label
-end
-
--- 渲染培养界面的滚动文本区，主要用于右上“总体属性加成”面板。
-local function _lg_render_cultivate_text_scroll(parent, name, x, y, width, height, lines)
-    local scroll = GUI:ScrollView_Create(parent, name, x, y, width, height, 1)
-    GUI:ScrollView_setBounceEnabled(scroll, true)
-    GUI:ScrollView_setInnerContainerSize(scroll, width, height)
-    local html = table.concat(lines or {}, "\n")
-    local content = richText(scroll, name .. "_content", 0, height - 8, html, width - 8, 15, 1)
-    GUI:setAnchorPoint(content, 0, 1)
-    local contentHeight = GUI:getBoundingBox(content).height
-    local innerH = math.max(height, contentHeight + 16)
-    GUI:ScrollView_setInnerContainerSize(scroll, width, innerH)
-    GUI:setPosition(content, 0, innerH - 8)
-    return scroll
-end
-
--- 培养界面顶部灵根点击处理：只切换当前预览灵根，不在这里做激活。
-local function _lg_select_or_unlock_root(npcid, parent, idx)
-    -- 培养界面只负责切换查看，激活统一回到主页按钮处理。
-    npc.current_idx = idx
-    _lg_refresh_cultivate_window(npcid, parent)
-    if not _lg_is_look_player() then
-        _lg_refresh_open_upgrade_window(npcid)
-    end
-end
-
--- 渲染培养界面顶部五个基础灵根入口，负责选中框、置灰和等级状态入口。
-local function _lg_render_cultivate_roots(parent, npcid, selectedIdx)
-    for idx = 1, 5 do
-        local x = CULTIVATE_ROOT_POS.startX + (idx - 1) * CULTIVATE_ROOT_POS.gapX
-        local slot = GUI:Layout_Create(parent, "cultivate_root_" .. idx, x - 50 - 100, CULTIVATE_ROOT_POS.y - 20, 100, 100, false)
-        local item = _lg_show_root_anim(slot, "item", 50, 50, idx)
-        local active = _lg_has_root(idx)
-        if item then
-            GUI:setScale(item, CULTIVATE_ROOT_ICON_SCALE)
-            GUI:setGrey(item, not active)
-        end
-        GUI:setTouchEnabled(slot, true)
-        GUI:addOnClickEvent(slot, function()
-            _lg_select_or_unlock_root(npcid, parent, idx)
-        end)
-        if selectedIdx == idx then
-            local sel = GUI:Image_Create(slot, "selected", 50, 50, "res/custom/linggen/new/main/selected_frame.png")
-            GUI:setAnchorPoint(sel, 0.5, 0.5)
-            GUI:setLocalZOrder(sel, 2)
-        end
-        local cfg = _lg_root_cfg(idx) or {}
-        local label = strokeText(parent, "cultivate_root_name_" .. idx, x - 100, CULTIVATE_ROOT_POS.y - 22, 15, ROOT_COLORS[idx] or "#FFFFFF", tostring(cfg.name or "") .. "灵根", "fonts/font4.ttf")
-        GUI:setAnchorPoint(label, 0.5, 0.5)
-    end
-end
-
--- 渲染培养界面左侧单张形态卡，用于“基础形态”和“觉醒形态”两块。
-local function _lg_render_cultivate_form(parent, npcid, name, idx, pos, title)
-    local active = _lg_has_root(idx)
-    local centerX = CULTIVATE_FORM_CENTER_X
-    local centerY = pos.y + 84
-    local anim = _lg_show_root_anim(parent, name .. "_anim", centerX, centerY, idx)
-    if anim and not active then
-        GUI:setGrey(anim, true)
-    end
-    if anim and idx <= 5 then
-        GUI:setScale(anim, CULTIVATE_FORM_ICON_SCALE)
-    end
-    strokeText(parent, name .. "_title", centerX, centerY + 54, 18, "#F4D179", title, "fonts/font4.ttf")
-    GUI:setAnchorPoint(GUI:getChildByName(parent, name .. "_title"), 0.5, 0.5)
-    local state = active and ("Lv." .. tostring(_lg_level_value(idx))) or (idx > 5 and "未觉醒" or "未激活")
-    strokeText(parent, name .. "_state", centerX, centerY - 60, 16, active and "#FFFFFF" or "#FF6B6B", state, "fonts/font4.ttf")
-    GUI:setAnchorPoint(GUI:getChildByName(parent, name .. "_state"), 0.5, 0.5)
-    -- local touch = GUI:Layout_Create(parent, name .. "_touch", centerX - 50, centerY - 60, 100, 120, false)
-    -- GUI:setTouchEnabled(touch, true)
-    -- GUI:addOnClickEvent(touch, function()
-    --     _lg_select_or_unlock_root(npcid, parent, idx)
-    -- end)
-end
-
--- 渲染培养界面右侧技能区域：被动、主动、协同三个技能竖排显示。
-local function _lg_render_cultivate_skills(iconParent, idx)
-    local cfg = _lg_root_cfg(idx) or {}
-    local iconCfg = SKILL_ICON_BY_ROOT[tonumber(idx or 0) or 0] or {}
-    local skillList = {
-        {name = "passive", text = "被动技能", icon = iconCfg.passive},
-        {name = "active", text = "主动技能", icon = iconCfg.active},
-        {name = "synergy", text = "协同技能", icon = iconCfg.synergy},
-    }
-    for i, one in ipairs(skillList) do
-        local pos = CULTIVATE_SKILL_SLOT_POS[i]
-        local slotX = pos.x
-        local slotY = pos.y
-        local kuang = GUI:Image_Create(iconParent, "cultivate_skill_kuang_" .. i, slotX, slotY, "res/custom/linggen/new/main/slot_bg.png")
-        GUI:setAnchorPoint(kuang, 0.5, 0.5)
-        local iconPath = _lg_skill_icon_path(one.icon)
-        local labelParent = iconParent
-        local labelX = slotX
-        local labelY = slotY - 52
-        if iconPath then
-            local icon = GUI:Image_Create(iconParent, "cultivate_skill_icon_" .. i, slotX, slotY, iconPath)
-            GUI:setAnchorPoint(icon, 0.5, 0.5)
-            labelParent = icon
-            local iconSize = GUI:getContentSize(icon)
-            labelX = iconSize.width / 2
-            labelY = -14
-        end
-        local label = strokeText(labelParent, "cultivate_skill_name_" .. i, labelX, labelY, 14, "#F4D179", tostring(one.text), "fonts/font4.ttf")
-        GUI:setAnchorPoint(label, 0.5, 0.5)
-        local touch = GUI:Layout_Create(iconParent, "cultivate_skill_touch_" .. i, slotX - 45, slotY - 45, 90, 100, false)
-        GUI:setLocalZOrder(touch, 20)
-        _lg_bind_skill_tip(touch, idx, one.name)
-    end
-end
-
--- 刷新整个培养灵根弹窗：顶部灵根选择、左侧形态卡、中间本命灵根、右侧属性/技能和底部按钮。
-_lg_refresh_cultivate_window = function(npcid, node)
-    if not node then
-        return
-    end
-    GUI:removeAllChildren(node)
-    local selectedIdx = tonumber(npc.current_idx or 0) or 0
-    if selectedIdx <= 0 then
-        selectedIdx = _lg_default_selected_idx()
-        npc.current_idx = selectedIdx
-    end
-    local baseIdx = _lg_base_root_idx(selectedIdx)
-    if baseIdx <= 0 then
-        baseIdx = math.max(1, math.min(5, selectedIdx))
-    end
-    local awakenIdx = _lg_awaken_root_idx(baseIdx)
-    local mainIdx = npc.data and npc.data.T_data and npc.data.T_data.main or 0
-    local eff_1 = GUI:Frames_Create(node, "eff_1", 25, 13, "res/custom/linggen/eff/eff_", ".png", 0, 25, {speed = 75,count = 25,loop = -1,})
-    GUI:setContentSize(eff_1, 730, 450)
-    local icon = GUI:Image_Create(node, "icon",364, 230, "res/custom/linggen/bufi/icon_"..selectedIdx..".png")
-    GUI:setAnchorPoint(icon, 0.5, 0.5)
-    GUI:setContentSize(icon,300,300)
-
-
-    -- _lg_title_bar(node, "cultivate_roots_title", 392, 428, "选择培养灵根", 210)
-    _lg_render_cultivate_roots(node, npcid, baseIdx)
-    -- _lg_title_bar(node, "cultivate_form_title", 128, 360, "形态选择", 168)
-    _lg_render_cultivate_form(node, npcid, "cultivate_basic", baseIdx, CULTIVATE_FORM_POS.basic, "基础形态")
-    if awakenIdx > 0 then
-        _lg_render_cultivate_form(node, npcid, "cultivate_awaken", awakenIdx, CULTIVATE_FORM_POS.awaken, "觉醒形态")
-    end
-    -- strokeText(node, "cultivate_main_title", CULTIVATE_MAIN_POS.x, CULTIVATE_MAIN_POS.y + 108, 24, "#FF6B6B", "本命灵根", "fonts/font4.ttf")
-    -- GUI:setAnchorPoint(GUI:getChildByName(node, "cultivate_main_title"), 0.5, 0.5)
-    local cfg = _lg_root_cfg(selectedIdx) or {}
-    strokeText(icon, "cultivate_main_name", 150, 150 - 50, 18, ROOT_COLORS[selectedIdx] or "#FFFFFF", tostring(cfg.name or "") .. "灵根", "fonts/font4.ttf")
-    GUI:setAnchorPoint(GUI:getChildByName(icon, "cultivate_main_name"), 0.5, 0.5)
-
-    local cultivate_attr_panel = GUI:Image_Create(node, "cultivate_attr_panel", CULTIVATE_ATTR_POS.x + 20, CULTIVATE_ATTR_POS.y - 8 + 35, "res/custom/linggen/new/main/itme5.png")
-    local cultivateAttrPanelSize = GUI:getContentSize(cultivate_attr_panel)
-    GUI:setContentSize(cultivate_attr_panel,166,170)
-    cultivateAttrPanelSize = GUI:getContentSize(cultivate_attr_panel)
-    _lg_title_bar(cultivate_attr_panel, "cultivate_attr_title", cultivateAttrPanelSize.width / 2, cultivateAttrPanelSize.height - 14, "总体属性加成", 188)
-    local attrLines = {}
-    for _, line in ipairs(_lg_build_total_attr_lines(_lg_collect_total_attrs())) do
-        attrLines[#attrLines + 1] = line
-    end
-    for _, line in ipairs(_lg_build_total_special_lines(_lg_collect_total_specials())) do
-        attrLines[#attrLines + 1] = line
-    end
-    if #attrLines <= 0 then
-        attrLines[#attrLines + 1] = "<font color='#8E8E8E'>暂无灵根属性</font>"
-    end
-    _lg_render_cultivate_text_scroll(cultivate_attr_panel, "cultivate_attr_scroll", 10 + 10, 0, CULTIVATE_ATTR_POS.width, CULTIVATE_ATTR_POS.height - 5, attrLines)
-    local cultivate_skill_panel = GUI:Layout_Create(node, "cultivate_skill_panel", CULTIVATE_SKILL_BOX_POS.x, CULTIVATE_SKILL_BOX_POS.y, CULTIVATE_SKILL_BOX_POS.width, CULTIVATE_SKILL_BOX_POS.height, false)
-    _lg_render_cultivate_skills(cultivate_skill_panel, selectedIdx)
-
-    local upgradeIdx = _lg_current_upgrade_idx(selectedIdx, mainIdx)
-    if not _lg_is_look_player() then
-        local upgradeBtn = _lg_button(node, "cultivate_btn_upgrade", CULTIVATE_BTN_POS.upgrade.x - 80, CULTIVATE_BTN_POS.upgrade.y, "升级灵根", function()
-            npc.current_idx = upgradeIdx
-            local xNode = ensureUpgradeWindow(npcid)
-            if xNode then
-                _lg_refresh_upgrade_window(npcid, xNode)
-            end
-        end)
-        _lg_apply_big_button_style(upgradeBtn)
-        if upgradeIdx > 0 and _lg_can_upgrade(upgradeIdx) then
-            NPC_UI_HELPER.redpoint_create(upgradeBtn, {x = 130, y = 33})
-        end
-        local canSwitch, pairIdx = _lg_can_dual_switch(mainIdx)
-        local switchBtn = _lg_button(node, "cultivate_btn_switch", CULTIVATE_BTN_POS.switch.x - 25, CULTIVATE_BTN_POS.switch.y, "切换形态", function()
-            if canSwitch then
-                SL:SendLuaNetMsg(100, npcid, 6, pairIdx, "")
-            else
-                SL:ShowSystemTips("需要同时拥有本命灵根与对应觉醒灵根后才可切换")
-            end
-        end)
-        _lg_apply_big_button_style(switchBtn)
-        GUI:Button_setBright(switchBtn, canSwitch == true)
-    end
-    local backBtn = _lg_button(node, "cultivate_btn_back", CULTIVATE_BTN_POS.back.x + 88, CULTIVATE_BTN_POS.back.y, "返回上级", function()
-        NPC_UI_HELPER.closeWindow(npc.cultivate_window)
-        npc.cultivate_window = nil
-        npc.cultivate_node = nil
-    end)
-    _lg_apply_big_button_style(backBtn)
-end
-
--- 构建主界面中间“觉醒路径”文案，显示当前基础灵根后续可觉醒到哪一系。
-local function _lg_awaken_path_text(idx)
-    local pairIdx = _lg_awaken_root_idx(_lg_base_root_idx(idx))
-    local pairCfg = _lg_root_cfg(pairIdx) or {}
-    if pairIdx and pairIdx > 0 then
-        return "后续可觉醒为——" .. tostring(pairCfg.name or "") .. "灵根"
-    end
-    return "暂无觉醒路径"
-end
-
--- 主页顶部只选择基础灵根；只有本命已切换为觉醒形态时，中间展示区才显示觉醒形态。
-local function _lg_main_display_idx(selectedIdx, mainIdx)
-    selectedIdx = tonumber(selectedIdx or 0) or 0
-    mainIdx = tonumber(mainIdx or 0) or 0
-    if selectedIdx > 0 and selectedIdx <= 5 then
-        if mainIdx > 5 and _lg_base_root_idx(mainIdx) == selectedIdx then
-            return mainIdx
-        end
-    end
-    return selectedIdx
-end
-
--- 渲染主界面主体信息区：
--- 左侧为当前激活/选中的灵根图标和本命按钮；
--- 中间为流派特性、觉醒路径、灵根等级；
--- 右侧为被动/协同技能预览占位和培养入口。
-local function _lg_render_main_overview(node, npcid, selectedIdx, mainIdx)
-    local displayIdx = _lg_main_display_idx(selectedIdx, mainIdx)
-    local cfg = _lg_root_cfg(displayIdx) or _lg_root_cfg(selectedIdx) or {}
-    local selectedActive = _lg_has_root(selectedIdx)
-    local active = _lg_has_root(displayIdx)
-    local baseIdx = _lg_base_root_idx(displayIdx)
-    if baseIdx <= 0 then
-        baseIdx = selectedIdx
-    end
-
-    local rootCard = MAIN_OVERVIEW_POS.rootCard
-    
-    local skill = MAIN_OVERVIEW_POS.skillCard
-    -- res\custom\linggen\eff
-    -- _lg_scaled_image(node, "main_root_card_bg", rootCard.x + rootCard.width / 2, rootCard.y + rootCard.height / 2, "res/custom/linggen/new/main/itme6.png", nil, 0.5, 0.5)
-    -- GUI:Frames_Create(node, "main_root_card_frame", rootCard.x + rootCard.width / 2 - 140, rootCard.y + rootCard.height / 2 - 138, "res/custom/linggen/eff/0_", ".png", 0, 15, {speed = 75,count = 15,loop = -1,})
-    local main_overview_root_icon = GUI:Frames_Create(node, "main_overview_root_icon", rootCard.x + rootCard.width / 2 - 40, rootCard.y + 106, "res/custom/linggen/UI内/"..displayIdx.."/show_2_", ".png", 0, 15, {speed = 75,count = 16,loop = -1,})
-    GUI:setAnchorPoint(main_overview_root_icon, 0.5, 0.5)
-    local rootTitle = strokeText(node, "main_overview_root_title", rootCard.x + rootCard.width / 2 - 38, rootCard.y + rootCard.height, 26, ROOT_COLORS[displayIdx] or "#FFFFFF", tostring(cfg.name or "") .. "灵根", "fonts/font4.ttf")
-    GUI:setAnchorPoint(rootTitle, 0.5, 0.5)
-    GUI:Text_setFontSize(rootTitle, 26)
-    GUI:Text_enableOutline(rootTitle, "#110b05", 3)
-    GUI:Text_setFontName(rootTitle, "fonts/502.ttf")
-    -- _lg_show_root_icon(node, "main_overview_root_icon", rootCard.x + rootCard.width / 2 - 40, rootCard.y + 106, displayIdx, 0.98)
-
-    if not active then
-        GUI:setGrey(main_overview_root_icon,true)
-    end
-    local setText = active and ((mainIdx == displayIdx) and "卸下灵根" or "设为本命") or "未觉醒"
-    local setBtn = _lg_button(node, "main_overview_set_btn", skill.x + skill.width / 2 - 30, skill.y - 36, setText, function()
-        if _lg_is_look_player() then
-            return
-        end
-        if not active then
-            SL:ShowSystemTips("该灵根未觉醒，无法设为本命灵根")
-            return
-        end
-        local targetIdx = (mainIdx == displayIdx) and 0 or displayIdx
-        if (tonumber(mainIdx or 0) or 0) <= 0 and targetIdx > 0 then
-            SL:SendLuaNetMsg(100, npcid, 2, targetIdx, "")
-            return
-        end
-        local actionText = targetIdx == 0 and "卸下本命灵根" or "更换本命灵根"
-        SL:OpenCommonTipsPop({
-            str = actionText .. "需要消耗【卸灵咒】x1，确认继续吗？",
-            btnType = 2,
-            callback = function(atype)
-                if atype == 1 then
-                    SL:SendLuaNetMsg(100, npcid, 2, targetIdx, "")
-                end
-            end,
-        })
-    end)
-    GUI:Button_setTitleFontName(setBtn, "fonts/502.ttf")
-    GUI:Button_setTitleFontSize(setBtn, 24)
-    GUI:Button_titleEnableOutline(setBtn, "#110b05", 3)
-    GUI:Button_setBright(setBtn, active)
-    if _lg_is_look_player() then
-        GUI:setVisible(setBtn, false)
-        GUI:setTouchEnabled(setBtn, false)
-    end
-    -- if active and mainIdx ~= displayIdx then
-    --     _lg_try_xyl_guide(setBtn, node, "main_linggen_set", {"本命灵根"}, "选择一个作为本命灵根", {dir = 3, once = false})
-    -- end
-    local overviewTipTouch = GUI:Layout_Create(node, "main_overview_tip_touch", rootCard.x, rootCard.y + 72, rootCard.width, rootCard.height - 72)
-    GUI:setTouchEnabled(overviewTipTouch, true)
-    _lg_bind_detail_tip(overviewTipTouch, active and displayIdx or selectedIdx)
-
-    local trait = MAIN_OVERVIEW_POS.traitCard
-    local main_trait_bg = _lg_scaled_image(node, "main_trait_bg", trait.x - 50, trait.y - 125, "res/custom/linggen/new/main/itme3.png", nil, 0, 0)
-    GUI:setContentSize(main_trait_bg, GUI:getContentSize(main_trait_bg).width, 270 + 50)
-    _lg_title_bar(main_trait_bg, "main_trait_title", GUI:getContentSize(main_trait_bg).width / 2, 270, "流派特性", 188)
-    local flowText = MAIN_FLOW_SUMMARY[baseIdx] or tostring(cfg.flow or "")
-    local commaPos = flowText:find("，", 1, true) or flowText:find(",", 1, true)
-    local flowTop = commaPos and flowText:sub(1, commaPos - 1) or flowText
-    local flowBottom = commaPos and flowText:sub(commaPos + 3) or ""
-    if commaPos and flowText:sub(commaPos, commaPos) == "," then
-        flowBottom = flowText:sub(commaPos + 1)
-    end
-    local flowTopText = strokeText(main_trait_bg, "main_trait_flow_top", 30, 246, 26, "#FF5B50", flowTop, "fonts/502.ttf")
-    GUI:setAnchorPoint(flowTopText, 0, 1)
-    if flowBottom ~= "" then
-        local flowBottomText = strokeText(main_trait_bg, "main_trait_flow_bottom", GUI:getContentSize(main_trait_bg).width - 30, 214, 26, "#FF5B50", flowBottom, "fonts/502.ttf")
-        GUI:setAnchorPoint(flowBottomText, 1, 1)
-    end
-    _lg_title_bar(main_trait_bg, "main_path_title", GUI:getContentSize(main_trait_bg).width / 2, 150, "觉醒路径", 188)
-    local path = strokeText(main_trait_bg, "main_awaken_path", GUI:getContentSize(main_trait_bg).width / 2, 104, 26, "#FFFFFF", _lg_awaken_path_text(selectedIdx), "fonts/font4.ttf")
-    GUI:setAnchorPoint(path, 0.5, 0.5)
-    GUI:Text_setFontName(path, "fonts/502.ttf")
-
-    local main_skill_kuang = GUI:Image_Create(node, "main_skill_kuang", skill.x - 30, skill.y, "res/custom/linggen/new/main/itme3.png")
-    local skillKuangSize = GUI:getContentSize(main_skill_kuang)
-    _lg_title_bar(main_skill_kuang, "main_skill_title", skillKuangSize.width / 2, skillKuangSize.height - 35, "灵根技能预览", 188)
-    local iconCfg = SKILL_ICON_BY_ROOT[tonumber(displayIdx or 0) or 0] or {}
-    local previewSlots = {
-        {name = "passive", text = "被动技能", icon = iconCfg.passive, x = 146 - 30, y = 92},
-        {name = "active", text = "主动技能", icon = iconCfg.active, x = 300 - 30, y = 92},
-    }
-    for i, one in ipairs(previewSlots) do
-        local kuang = GUI:Image_Create(main_skill_kuang, "main_skill_preview_kuang_" .. i, one.x, one.y, "res/custom/linggen/new/main/slot_bg.png")
-        GUI:setAnchorPoint(kuang, 0.5, 0.5)
-        local iconPath = _lg_skill_icon_path(one.icon)
-        local labelParent = main_skill_kuang
-        local labelX = one.x
-        local labelY = one.y - 52
-        if iconPath then
-            local icon = GUI:Image_Create(main_skill_kuang, "main_skill_preview_icon_" .. i, one.x, one.y, iconPath)
-            GUI:setAnchorPoint(icon, 0.5, 0.5)
-            labelParent = icon
-            local iconSize = GUI:getContentSize(icon)
-            labelX = iconSize.width / 2
-            labelY = -14
-        end
-        local label = strokeText(labelParent, "main_skill_preview_name_" .. i, labelX, labelY, 14, "#F4D179", tostring(one.text), "fonts/font4.ttf")
-        GUI:setAnchorPoint(label, 0.5, 0.5)
-        local touch = GUI:Layout_Create(main_skill_kuang, "main_skill_preview_touch_" .. i, one.x - 45, one.y - 66, 90, 118, false)
-        GUI:setLocalZOrder(touch, 20)
-        _lg_bind_skill_tip(touch, displayIdx, one.name)
-    end
-    local cultivateText = "培养灵根"
-    local cultivateBtn = _lg_button(node, "main_open_cultivate", rootCard.x + rootCard.width / 2 - 40, MAIN_OVERVIEW_POS.skillCard.y - 36, cultivateText, function()
-        if _lg_is_look_player() then
-            return
-        end
-        if not selectedActive then
-            SL:ShowSystemTips("请先完成对应基础灵根试炼觉醒")
-            return
-        end
-        local cNode = ensureCultivateWindow(npcid)
-        if cNode then
-            _lg_refresh_cultivate_window(npcid, cNode)
-        end
-    end)
-    GUI:Button_setTitleFontName(cultivateBtn, "fonts/502.ttf")
-    GUI:Button_setTitleFontSize(cultivateBtn, 24)
-    GUI:Button_titleEnableOutline(cultivateBtn, "#110b05", 3)
-    local overviewUpgradeIdx = _lg_current_upgrade_idx(selectedIdx, mainIdx)
-    if overviewUpgradeIdx > 0 and _lg_can_upgrade(overviewUpgradeIdx) then
-        NPC_UI_HELPER.redpoint_create(cultivateBtn, {x = 130, y = 33})
-    end
-    if _lg_is_look_player() then
-        GUI:setVisible(cultivateBtn, false)
-        GUI:setTouchEnabled(cultivateBtn, false)
-    end
-end
-
--- 刷新灵根主界面：顶部五灵根列表负责选择灵根，下方主体区由 _lg_render_main_overview 渲染。
-_lg_refresh_main_page = function(npcid, node)
-    GUI:removeAllChildren(node)
-    _lg_bind_move_events(npcid)
-
-    local selectedIdx = tonumber(npc.current_idx or 0) or 0
-    if selectedIdx <= 0 then
-        selectedIdx = _lg_default_selected_idx()
-        npc.current_idx = selectedIdx
-    end
-    local mainIdx = npc.data and npc.data.T_data and npc.data.T_data.main or 0
-
-    for idx, cfg in ipairs(npc._config.main_r or {}) do
-        if idx > 5 then
-            break
-        end
-        local row = math.floor((idx - 1) / ROOT_GRID_POS.cols)
-        local col = (idx - 1) % ROOT_GRID_POS.cols
-        local x = _lg_adapt_x(ROOT_GRID_POS.startX + col * ROOT_GRID_POS.gapX, "left") - 83
-        local y = _lg_adapt_y(ROOT_GRID_POS.startY - row * ROOT_GRID_POS.gapY, "top") - 51
-        -- 每个灵根格子都提前缓存激活状态，后续点击与置灰共用同一份判断。
-        local rootActive = _lg_has_root(idx)
-        local slot = GUI:Layout_Create(node, "root_slot_" .. idx, x - ROOT_SLOT_SIZE.width / 2, y - ROOT_SLOT_SIZE.height / 2, ROOT_SLOT_SIZE.width, ROOT_SLOT_SIZE.height, false)
-        GUI:Image_Create(slot, "bg", 0, 0, "res/custom/linggen/new/main/slot_bg.png")
-        -- local rootItem = _lg_show_root_icon(slot, "item", ROOT_SLOT_SIZE.width / 2, ROOT_SLOT_SIZE.height / 2, idx, ROOT_ICON_SCALE)
-        local rootItem = GUI:Frames_Create(slot, "root_icon_" .. idx, ROOT_SLOT_SIZE.width / 2, ROOT_SLOT_SIZE.height / 2 - 3, "res/custom/linggen/UI内/"..idx.."/show_2_", ".png", 0, 15, {speed = 75,count = 16,loop = -1,})
-        GUI:setTouchEnabled(slot, true)
-        GUI:setAnchorPoint(rootItem, 0.5, 0.5)
-        GUI:setScale(rootItem, 0.5)
-        GUI:addOnTouchEvent(slot, function(sender, type)
-            -- 顶部灵根列表只负责切换当前选择，激活统一交给右下按钮。
-            if type == SLDefine.TouchEventType.ended then
-                npc.current_idx = idx
-                _lg_refresh_main_page(npcid, node)
-                if not _lg_is_look_player() then
-                    _lg_refresh_open_upgrade_window(npcid)
-                end
-            end
-        end)
-        if rootItem then
-            GUI:Image_setGrey(rootItem, not rootActive)
-        end
-        if _lg_can_upgrade(idx) then
-            local upgradeMark = GUI:Image_Create(slot, "upgrade_mark", ROOT_SLOT_SIZE.width + 8, 0, "res/wy/public/upup.png")
-            GUI:setAnchorPoint(upgradeMark, 1, 0)
-            GUI:setLocalZOrder(upgradeMark, 98)
-        end
-        if selectedIdx == idx then
-            local sel = GUI:Image_Create(slot, "selected", ROOT_SLOT_SIZE.width / 2, ROOT_SLOT_SIZE.height / 2 - 3, "res/custom/linggen/new/main/selected_frame.png")
-            GUI:setAnchorPoint(sel, 0.5, 0.5)
-            GUI:setLocalZOrder(sel, 1)
-        end
-        if tonumber(mainIdx or 0) == idx then
-            local mainTagBg = GUI:Image_Create(slot, "main_linggen_tag_bg", ROOT_SLOT_SIZE.width - 8 - 80 + 54, ROOT_SLOT_SIZE.height - 8 - 28 + 40, "res/wy/public/new_kuang.png")
-            GUI:setAnchorPoint(mainTagBg, 0.5, 0.5)
-            GUI:setContentSize(mainTagBg, 120, 35)
-            GUI:setLocalZOrder(mainTagBg, 120)
-            local mainTag = strokeText(slot, "main_linggen_tag", ROOT_SLOT_SIZE.width - 8 - 80 + 54, ROOT_SLOT_SIZE.height - 8 - 28 + 40, 25, "#FFD45A", "本命灵根", "fonts/502.ttf")
-            -- local mainTag = GUI:Text_Create(slot, "main_linggen_tag", ROOT_SLOT_SIZE.width - 8, ROOT_SLOT_SIZE.height - 8, "#FFD45A", "本\n命\n灵\n根")
-            GUI:Text_setFontName(mainTag, "fonts/502.ttf")
-            GUI:setAnchorPoint(mainTag, 0.5, 0.5)
-            GUI:setLocalZOrder(mainTag, 121)
-            GUI:Text_enableOutline(mainTag, "#000000", 2)
-        end
-        local level = _lg_has_root(idx) and ("Lv." .. tostring(_lg_level_value(idx))) or "未激活"
-        local lv_bar = GUI:Image_Create(slot, "lv_bar", ROOT_LEVEL_BAR_OFFSET.x, ROOT_LEVEL_BAR_OFFSET.y, "res/custom/linggen/new/main/level_bar.png")
-        GUI:setLocalZOrder(lv_bar, 95)
-        GUI:setLocalZOrder(strokeText(slot, "lv", ROOT_LEVEL_TEXT_POS.x, ROOT_LEVEL_TEXT_POS.y, 14, _lg_has_root(idx) and "#FFFFFF" or "#8E8E8E", level, "fonts/font4.ttf"), 99)
-        
-        GUI:setAnchorPoint(GUI:getChildByName(slot, "lv"), 0.5, 0.5)
-    end
-
-    _lg_render_main_overview(node, npcid, selectedIdx, mainIdx)
-end
-
--- 刷新灵根升级弹窗：左侧预览当前/下级属性，右侧显示当前灵根图标、升级消耗和升级按钮。
-_lg_refresh_upgrade_window = function(npcid, xNode)
-    if not xNode then
-        return
-    end
-    GUI:removeAllChildren(xNode)
-    local idx = tonumber(npc.current_idx or 0) or 0
-    if idx <= 0 then
-        idx = _lg_default_selected_idx()
-        npc.current_idx = idx
-    end
-
-    _lg_render_preview_scroll(xNode, _lg_build_attr_preview_html(idx))
-
-    local cfg = _lg_root_cfg(idx)
-    if cfg then
-        _lg_show_root_icon(xNode, "item", UPGRADE_ITEM_POS.x, UPGRADE_ITEM_POS.y, idx, 1.0)
-        strokeText(xNode, "title", UPGRADE_ITEM_POS.x, UPGRADE_ITEM_POS.y - 70, 20, ROOT_COLORS[idx] or "#FFFFFF", tostring(cfg.name or "") .. "灵根", "fonts/font4.ttf")
-        GUI:setAnchorPoint(GUI:getChildByName(xNode, "title"), 0.5, 0.5)
-        -- strokeText(xNode, "lv", UPGRADE_ITEM_POS.x, UPGRADE_ITEM_POS.y - 98, 18, "#FFFFFF", "Lv." .. tostring(_lg_level_value(idx)), "fonts/font4.ttf")
-        -- GUI:setAnchorPoint(GUI:getChildByName(xNode, "lv"), 0.5, 0.5)
-    end
-
-    local nextCfg = _lg_next_upgrade_cfg(idx)
-    _lg_create_cost_items(xNode, nextCfg and nextCfg.cost or nil, UPGRADE_COST_POS)
-
-    local btn = GUI:Button_Create(xNode, "btn_upgrade", UPGRADE_BTN_POS.x, UPGRADE_BTN_POS.y, "res/custom/linggen/new/updata/btn_upgrade.png")
-    GUI:setAnchorPoint(btn, 0.5, 0.5)
+    GUI:setLocalZOrder(btn, 3)
     GUI:addOnClickEvent(btn, function()
-        if _lg_is_look_player() then
-            return
-        end
-        if idx > 0 and not _lg_is_max_level(idx) then
-            local levelOk, needLevel, roleLevel = _lg_upgrade_level_ok(idx)
-            if not levelOk then
-                SL:ShowSystemTips(string.format("升级该灵根需要玩家等级达到Lv.%d，当前Lv.%d", tonumber(needLevel or 0) or 0, tonumber(roleLevel or 0) or 0))
-                return
-            end
-            SL:SendLuaNetMsg(100, npcid, 5, idx, "")
-        end
+        selectNode(node.id)
     end)
-
-    if _lg_is_max_level(idx) then
-        strokeText(xNode, "max_tip", UPGRADE_BTN_POS.x, UPGRADE_BTN_POS.y + 76, 18, "#7CFF7C", "当前灵根已满级", "fonts/font4.ttf")
-        GUI:setAnchorPoint(GUI:getChildByName(xNode, "max_tip"), 0.5, 0.5)
-    elseif _lg_can_upgrade(idx) then
-        NPC_UI_HELPER.redpoint_create(btn, {x = 120, y = 46})
-    end
-    if _lg_is_look_player() then
-        GUI:setVisible(btn, false)
-        GUI:setTouchEnabled(btn, false)
-    end
+    GUI:setTouchEnabled(btn, true)
+    -- The viewport owns drag gestures. Keeping a second drag listener on each
+    -- node causes short taps to compete with the button click callback.
+    GUI:setSwallowTouches(btn, false)
+    local label = text(holder, "label", 0, -size / 2 - 15, 18, nodeColor(node), node.name, 0.5, 1)
+    GUI:setLocalZOrder(label, 6)
+    local dot = text(btn, "state", size / 2, -6, 18, COLORS.green, "", 0.5, 0.5)
+    GUI:setLocalZOrder(dot, 5)
+    npc.nodeViews[node.id] = {
+        holder = holder,
+        halo = halo,
+        button = btn,
+        skin = skin,
+        lines = npc.lineViews and npc.lineViews[node.id] or {},
+    }
+    refreshNodeSocketGem(node.id)
 end
 
--- 服务端推送入口：
--- p2=0 首次打开主界面；
--- p2=1 数据刷新后同步刷新主界面/升级弹窗/培养弹窗；
--- p2=2 直接打开升级弹窗。
-function npc.main(npcid, p2, p3, msgData)
-    local previewData = SL:JsonDecode(msgData, false) or {}
-    local lookPlayer = previewData.lookPlayer == true or tonumber(previewData.lookPlayer or 0) == 1
-    npc.isLookPlayer = lookPlayer == true
-    if p2 == 0 then
-        npc.data = previewData
-        npc.current_idx = _lg_default_selected_idx()
-        ensureMainWindow(npcid)
-        _lg_refresh_main_page(npcid, npc.node)
-    elseif p2 == 1 then
-        npc.data = previewData or npc.data or {}
-        if tonumber(npc.current_idx or 0) <= 0 then
-            npc.current_idx = _lg_default_selected_idx()
+local function createTree()
+    local sw = n(cogin and cogin.w, 1280)
+    local sh = n(cogin and cogin.h, 720)
+    local layoutNodes, layoutNodeMap = buildTreeLayout()
+    -- The tree is the full-screen map; the detail panel is a floating overlay.
+    local treeW = sw
+    local treeH = sh
+    local treeX = 0
+    npc.treeX = treeX
+    npc.treeViewW = treeW
+    npc.treeViewH = treeH
+    npc.treeBounds = calculateTreeBounds()
+    npc.treeFrame = imageFrame(npc.window, "tree_frame", treeX, -12, treeW + 8, treeH + 8, PANEL_FRAME, 2)
+    local viewport = GUI:Layout_Create(npc.window, "tree_viewport", treeX, -12, treeW, treeH, true)
+    GUI:setAnchorPoint(viewport, 0.5, 0.5)
+    -- GUI:Layout_setBackGroundColorType(viewport, 1)
+    -- GUI:Layout_setBackGroundColor(viewport, "#110B08")
+    -- GUI:Layout_setBackGroundColorOpacity(viewport, 135)
+    GUI:setLocalZOrder(viewport, 3)
+    GUI:Layout_setClippingEnabled(viewport, true)
+    npc.treeScroll = viewport
+    npc.treeCanvas = GUI:Node_Create(viewport, "tree_canvas", 0, 0)
+    npc.nodeViews = {}
+    npc.lineViews = {}
+    createTreeDecorations(npc.treeCanvas)
+    GUI:setTouchEnabled(viewport, true)
+    GUI:setSwallowTouches(viewport, false)
+    GUI:addOnTouchEvent(viewport, function(sender, eventType)
+        if eventType == SLDefine.TouchEventType.began then
+            beginTreeGesture(sender)
+        elseif eventType == SLDefine.TouchEventType.moved then
+            moveTreeGesture(sender)
+        elseif eventType == SLDefine.TouchEventType.ended
+            or eventType == SLDefine.TouchEventType.canceled then
+            endTreeGesture(sender)
         end
-        ensureMainWindow(npcid)
-        _lg_refresh_main_page(npcid, npc.node)
-        if _lg_is_valid_node(npc.xjm_node) then
-            _lg_refresh_upgrade_window(npcid, npc.xjm_node)
-        else
-            npc.xjm_window = nil
-            npc.xjm_node = nil
+    end)
+    for _, node in ipairs(layoutNodes or {}) do
+        for _, requiredId in ipairs(node.requires or {}) do
+            local required = layoutNodeMap and layoutNodeMap[requiredId]
+            if required then
+                drawLine(npc.treeCanvas, "line_" .. node.id .. "_" .. requiredId, required, node)
+                local line = GUI:getChildByName(npc.treeCanvas, "line_" .. node.id .. "_" .. requiredId)
+                npc.lineViews[node.id] = npc.lineViews[node.id] or {}
+                npc.lineViews[node.id][#npc.lineViews[node.id] + 1] = line
+            end
         end
-        if _lg_is_valid_node(npc.cultivate_node) then
-            _lg_refresh_cultivate_window(npcid, npc.cultivate_node)
-        else
-            npc.cultivate_window = nil
-            npc.cultivate_node = nil
+        for _, requiredId in ipairs(node.requires_any or {}) do
+            local required = layoutNodeMap and layoutNodeMap[requiredId]
+            if required then
+                drawLine(npc.treeCanvas, "line_" .. node.id .. "_any_" .. requiredId, required, node)
+                local line = GUI:getChildByName(npc.treeCanvas, "line_" .. node.id .. "_any_" .. requiredId)
+                npc.lineViews[node.id] = npc.lineViews[node.id] or {}
+                npc.lineViews[node.id][#npc.lineViews[node.id] + 1] = line
+            end
         end
-        _lg_try_finish_xyl_and_close()
-    elseif p2 == 2 then
-        npc.data = previewData or npc.data or {}
-        if _lg_is_valid_node(npc.node) then
-            _lg_refresh_main_page(npcid, npc.node)
-        end
-        if _lg_is_valid_node(npc.cultivate_node) then
-            _lg_refresh_cultivate_window(npcid, npc.cultivate_node)
-        else
-            npc.cultivate_window = nil
-            npc.cultivate_node = nil
-        end
-        local xNode = ensureUpgradeWindow(npcid)
-        _lg_refresh_upgrade_window(npcid, xNode)
     end
+    for _, node in ipairs(layoutNodes or {}) do
+        createNodeView(npc.treeCanvas, node)
+    end
+    GUI:setScale(npc.treeCanvas, DEFAULT_ZOOM)
+    npc.zoom = DEFAULT_ZOOM
+    centerTreeCanvas()
+    setZoom(DEFAULT_ZOOM)
+end
+
+local function openRules()
+    local sw = n(cogin and cogin.w, 1280)
+    local sh = n(cogin and cogin.h, 720)
+    local boxW = math.min(620, sw - 40)
+    local boxH = math.min(480, sh - 60)
+    local boxX = math.max(0, sw / 2 - boxW / 2 - 20)
+    npc.rulesWindow = createModalWindow("npc_22_rules_window")
+    local mask = GUI:Image_Create(npc.rulesWindow, "mask", 0, 0, "res/public/1900000651_1.png")
+    GUI:setAnchorPoint(mask, 0.5, 0.5)
+    GUI:setContentSize(mask, sw + 100, sh + 100)
+    GUI:setLocalZOrder(mask, 0)
+    GUI:setTouchEnabled(mask, true)
+    npc.rulesBox = GUI:Image_Create(npc.rulesWindow, "rules_box", 0, 0, PANEL_FRAME)
+    GUI:setAnchorPoint(npc.rulesBox, 0.5, 0.5)
+    GUI:setContentSize(npc.rulesBox, boxW, boxH)
+    GUI:setLocalZOrder(npc.rulesBox, 10)
+    GUI:setTouchEnabled(npc.rulesBox, true)
+    GUI:setSwallowTouches(npc.rulesBox, true)
+    local bigkuang = GUI:Image_Create(npc.rulesWindow, "bigkuang", 0, 0, "res/wy/public/box.png")
+    GUI:setAnchorPoint(bigkuang, 0.5, 0.5)
+    GUI:setContentSize(bigkuang, boxW + 4, boxH + 4)
+    GUI:setLocalZOrder(bigkuang, 99)
+
+    local box = npc.rulesBox
+    local boxTop = boxH / 2
+    local rulesLine = GUI:Image_Create(box, "rules_line", boxW / 2, boxH - 100, RES .. "tj_12.png")
+    GUI:setAnchorPoint(rulesLine, 0.5, 0.5)
+    GUI:setContentSize(rulesLine, math.max(260, boxW - 40), 12)
+    GUI:setLocalZOrder(rulesLine, 3)
+    local title = text(box, "rules_title", boxW / 2, boxH - 30, 28, "#F1D176", "天赋树规则", 0.5, 1)
+    GUI:setLocalZOrder(title, 4)
+    local rules = table.concat({
+        "1. 五行主干从中心向外展开，主干节点可继续分出两条外扩支路。",
+        "2. 小点提供固定属性，中点提供更高属性，大点提供特殊技能或机制效果。",
+        "3. 点亮节点需要天赋点，并同时消耗服务端配置的货币与材料。",
+        "4. 退点只能从末端节点开始；洗点会返还已消耗的天赋点、货币与材料。",
+        "5. 每个灵根分支最多激活40点，侧枝最多激活6点；同一流派只能选择一条路线。",
+        "6. 天赋点上限210点，核心最多40级；核心升级可获得33点，其他系统预留7点。",
+        "7. 节点按连接关系判断，任意相连节点已激活即可从任意方向点亮。",
+        "8. 跨系通道节点不消耗天赋点，但必须满足核心等级和相连节点条件。",
+    }, "<br/>")
+    local desc = GUI:RichText_Create(box, "rules_desc", boxW / 2, boxTop, rules,
+        math.max(220, boxW - 40), 17, "#E5D8B8", 0, nil, nil, {outlineSize = 1, outlineColor = "#000000"})
+    GUI:setAnchorPoint(desc, 0.5, 0.5)
+    GUI:setLocalZOrder(desc, 4)
+    local closeTop = button(box, "rules_close_top", boxW - 48, boxH - 30, "", function()
+        closeModalWindow("npc_22_rules_window")
+        setMainTreeVisible(true)
+    end, 60, 54,"res/wy/public/gjyj_x.png")
+    GUI:setLocalZOrder(closeTop, 6)
+    -- local close = button(box, "rules_close", 0, -boxTop + 28, "返回天赋树", function()
+    --     closeModalWindow("npc_22_rules_window")
+    -- end, 150, 42)
+    -- GUI:setLocalZOrder(close, 5)
+end
+
+openUpgrade = function()
+    local sw = n(cogin and cogin.w, 1280)
+    local sh = n(cogin and cogin.h, 720)
+    local boxW = UPGRADE_BOX_W
+    local boxH = UPGRADE_BOX_H
+    npc.upgradeWindow = createModalWindow("npc_22_upgrade_window")
+    local mask = GUI:Image_Create(npc.upgradeWindow, "mask", 0, 0, "res/public/1900000651_1.png")
+    GUI:setAnchorPoint(mask, 0.5, 0.5)
+    GUI:setContentSize(mask, sw + 100, sh + 100)
+    GUI:setLocalZOrder(mask, 0)
+    GUI:setTouchEnabled(mask, true)
+    npc.upgradeBox = GUI:Image_Create(npc.upgradeWindow, "upgrade_box", 0, 0, UPGRADE_BG)
+    GUI:setAnchorPoint(npc.upgradeBox, 0.5, 0.5)
+    GUI:setLocalZOrder(npc.upgradeBox, 10)
+    GUI:setTouchEnabled(npc.upgradeBox, true)
+    GUI:setSwallowTouches(npc.upgradeBox, true)
+    local box = npc.upgradeBox
+    local boxTop = boxH / 2
+    local closeTop = button(box, "upgrade_close_top", boxW / 2 - 34 + 282, boxTop - 30 + 172, "", function()
+        closeModalWindow("npc_22_upgrade_window")
+        setMainTreeVisible(true)
+    end, 60, 54,"res/wy/public/gjyj_x.png")
+    GUI:setLocalZOrder(closeTop, 6)
+    local upgrade = GUI:Button_Create(box, "upgrade_core", UPGRADE_RIGHT_X, UPGRADE_BUTTON_Y, UPGRADE_BUTTON)
+    GUI:Button_loadTexturePressed(upgrade, UPGRADE_BUTTON)
+    GUI:setAnchorPoint(upgrade, 0.5, 0.5)
+    GUI:addOnClickEvent(upgrade, function()
+        if not (TreeCfg.core_level_map and TreeCfg.core_level_map[n(npc.state.core_level) + 1]) then
+            return
+        end
+        SL:SendLuaNetMsg(100, 22, 6, 0, "")
+    end)
+    GUI:setLocalZOrder(upgrade, 5)
+    refreshUpgradeInfo()
+end
+
+local function createHeader(sw, sh)
+    -- The header is a top overlay, not a bottom status bar. Keep its children
+    -- in the header's local coordinate system so the layout remains stable.
+    local headerW = math.max(720, sw - 36)
+    local headerH = 82
+    npc.header = GUI:Node_Create(npc.window, "header",  - cogin.w/2, cogin.h/2)
+    GUI:setLocalZOrder(npc.header, 10)
+    local headerLine = GUI:Image_Create(npc.header, "header_line", 0, 0, RES .. "tj_23.png")
+    GUI:setAnchorPoint(headerLine, 0, 1)
+    GUI:setContentSize(headerLine, cogin.w, 80)
+
+    -- local rootIcon = panel(npc.header, "root_icon", -headerW / 2 + 48, 0, 50, 50, "#14263A")
+    -- GUI:setLocalZOrder(rootIcon, 3)
+    -- local rootRing = GUI:Image_Create(rootIcon, "root_ring", 0, 0, RES .. "tj_14.png")
+    -- GUI:setAnchorPoint(rootRing, 0.5, 0.5)
+    -- GUI:setContentSize(rootRing, 50, 16)
+    -- GUI:setRotation(rootRing, 90)
+    -- text(rootIcon, "root_text", 0, 0, 23, "#F1D176", "根", 0.5, 0.5)
+
+    -- local mark = GUI:Image_Create(npc.header, "brand_mark", brandX, layout.topY, "res/wy/public/itembg.png")
+    -- GUI:setAnchorPoint(mark, 0.5, 0.5)
+    -- GUI:setContentSize(mark, 50, 50)
+    -- text(root, "brand_mark_text", brandX, layout.topY, 40, GOLD, "鉴", 0.5, 0.5)
+    -- text(root, "brand_title", brandTextX, layout.topY, 30, GOLD, "万象图鉴", 0, 0.5)
+
+    local leftX = 10
+    text(npc.header, "title", leftX, -40, 25, "#F1D176", "灵根天赋树", 0, 0.5)
+    text(npc.header, "subtitle", leftX, -60, 13, "#8FA6C0",
+        "相生相克 · 主干成长 · 流派分支 · 宝石共鸣", 0, 0.5)
+
+    local pointsX = headerW / 2 + 150
+    local pointsBg = panel(npc.header, "points_bg", pointsX + 115, -16 - 30, 224 + 30, 54, "#10253B")
+    GUI:setLocalZOrder(pointsBg, 3)
+    local points = text(npc.header, "points", pointsX + 115, -16 - 30, 15, "#E6F0FF", "", 0.5, 0.5)
+    GUI:setLocalZOrder(points, 4)
+    refreshTalentPointsText()
+    button(npc.header, "upgrade", 200 + headerW / 2 - 410, -50, "升级核心", openUpgrade, 108, 38)
+    button(npc.header, "rules", 300 + headerW / 2 - 286 - 88, -50, "查看规则", openRules, 104, 38)
+    button(npc.header, "reset", 300 + headerW / 2 - 176 - 60, -50, "重置灵根", function()
+        openResetConfirm("all")
+    end, 126, 38)
+    button(npc.header, "close", headerW - 52, -50, "", function()
+        local win = GUI:GetWindow(nil, ROOT_NAME)
+        if win then
+            GUI:Win_Close(win)
+        end
+    end, 60, 54,"res/wy/public/gjyj_x.png")
+end
+
+local function createInfoPanel(sw, sh)
+    npc.infoW = 250
+    npc.infoH = math.min(570, math.max(430, sh - 126))
+    npc.infoDescW = math.max(205, npc.infoW - 48)
+
+    -- The detail panel belongs to the main talent-tree window. Close any
+    -- leftover window created by an older version before rebuilding it.
+    local infoWindowName = "npc_22_info_window"
+    local oldWindow = GUI:GetWindow(nil, infoWindowName)
+    if oldWindow then
+        GUI:Win_Close(oldWindow)
+    end
+    npc.infoWindow = nil
+
+    -- npc.window is centered at the screen center, so this is a local
+    -- right-side offset rather than a screen-space coordinate.
+    local panelX = sw / 2 - npc.infoW / 2
+    local panelY = -10
+
+    npc.infoPanel = GUI:Image_Create(npc.window, "side_bg", panelX, cogin.h/2 - 80, RES .. "kk_bg.png")
+    GUI:setAnchorPoint(npc.infoPanel, 0.5, 1)
+    GUI:setContentSize(npc.infoPanel, npc.infoW, npc.infoH)
+    GUI:setLocalZOrder(npc.infoPanel, 11)
+    GUI:setTouchEnabled(npc.infoPanel, true)
+
+
+    local bigkuang = GUI:Image_Create(npc.window, "bigkuang", panelX, cogin.h/2 - 80, "res/wy/public/box.png")
+    GUI:setAnchorPoint(bigkuang, 0.5, 1)
+    GUI:setContentSize(bigkuang, npc.infoW + 4, npc.infoH + 4)
+    GUI:setLocalZOrder(bigkuang, 99)
+
+    local panelTop = npc.infoH
+    local contentX = 20
+    local contentRight = panelY - 20
+
+
+    text(npc.infoPanel, "info_title", 30, panelTop - 10, 22, "#F1D176", "灵根本源", 0, 1)
+    text(npc.infoPanel, "node_status", npc.infoW - 10 , panelTop - 40, 20, COLORS.green, "", 1, 1)
+    text(npc.infoPanel, "node_title", 10, panelTop - 40, 20, "#E8F1FF", "", 0, 1)
+    text(npc.infoPanel, "info_effect_title", 10, panelTop - 90, 20, "#F1D176", "节点效果", 0, 0.5)
+
+    local desc = GUI:RichText_Create(npc.infoPanel, "node_desc", 10, panelTop - 100, "", npc.infoDescW, 15, COLORS.text, 0, nil, nil, {outlineSize = 1, outlineColor = "#000000"})
+    GUI:setAnchorPoint(desc, 0, 1)
+
+    -- text(npc.infoPanel, "synergy_title", 10, panelTop - 354, 30, "#F1D176", "相生相克", 0, 0.5)
+    -- local synergy = GUI:RichText_Create(npc.infoPanel, "synergy_desc", 10, panelTop - 378,
+    --     "<font color='#FFB79E'>金克木：金系节点越深，木系回复效果越弱。</font>",
+    --     npc.infoDescW, 14, "#E5D8B8", 0, nil, nil, {outlineSize = 1, outlineColor = "#000000"})
+    -- GUI:setAnchorPoint(synergy, 0, 1)
+    -- text(npc.infoPanel, "hint_title", 10, panelTop - 300, 15, "#F1D176", "构筑提示", 0, 0.5)
+    -- local hint = GUI:RichText_Create(npc.infoPanel, "hint_desc", 10, -panelTop + 118,
+    --     "主干节点默认按前置顺序点亮，宝石槽与技能强化节点会在外圈逐步解锁。",
+    --     npc.infoDescW, 14, "#AAB5C8", 0, nil, nil, {outlineSize = 1, outlineColor = "#000000"})
+    -- GUI:setAnchorPoint(hint, 0, 1)
+    local actionY = 30
+    local actionX = npc.infoW >= 300 and -90 or 0
+    local ruleX = npc.infoW/2
+    local action = button(npc.infoPanel, "node_action", ruleX - 60, actionY, "点亮", function()
+        local node = TreeCfg.node_map and TreeCfg.node_map[npc.selectedId or "root"]
+        if not node then
+            return
+        end
+        if node.kind == "root" then
+            openUpgrade()
+        elseif isSocketNode(node) and stateActive(node.id) then
+            openGemWindow()
+        elseif stateActive(node.id) then
+            openResetConfirm("single")
+        else
+            SL:SendLuaNetMsg(100, 22, 1, 0, SL:JsonEncode({id = node.id}, false))
+        end
+    end, 90, 40)
+    GUI:setLocalZOrder(action, 5)
+    local rule = button(npc.infoPanel, "info_rule", ruleX + 60, actionY, "查看规则", openRules,
+         90, 40)
+    GUI:setLocalZOrder(rule, 5)
+end
+
+local function createWindow()
+    local sw = n(cogin and cogin.w, 1280)
+    local sh = n(cogin and cogin.h, 720)
+    local win = GUI:GetWindow(nil, ROOT_NAME)
+    if win then
+        GUI:removeAllChildren(win)
+        GUI:setPosition(win, sw / 2, sh / 2)
+    else
+        win = GUI:Win_Create(ROOT_NAME, sw / 2, sh / 2, 0, 0, false, false, true, true, true, 22, 999)
+    end
+    npc.window = win
+    local mask = panel(win, "mask", 0, 0, sw + 80, sh + 80, "#080A0F")
+    npc.mask = mask
+    -- GUI:Layout_setBackGroundColorOpacity(mask, 238)
+    GUI:setTouchEnabled(mask, true)
+    local bg = GUI:Image_Create(win, "bg", 0, -5, "res/custom/tj/tj_17.png")
+    npc.bg = bg
+    GUI:setAnchorPoint(bg, 0.5, 0.5)
+    GUI:setContentSize(bg, sw, sh)
+    GUI:setLocalZOrder(bg, 1)
+    GUI:addMouseOverTips(bg, "", {x = 0, y = 0}, {x = 0, y = 0})
+    GUI:setLocalZOrder(mask, 0)
+    createHeader(sw, sh)
+    createInfoPanel(sw, sh)
+    createZoomControl(sw, sh)
+    createTree()
+    npc.selectedId = "root"
+    updateInfo()
+    updateAllNodeVisuals()
+end
+
+function npc.main(npcid, p2, p3, msgData)
+    local payload = decode(msgData)
+    if p2 == 0 then
+        npc.state = applyClientConfigDefaults(payload)
+        createWindow()
+        return
+    end
+    if not valid(npc.window) then
+        npc.state = applyClientConfigDefaults(payload.payload or payload)
+        createWindow()
+        return
+    end
+    refreshPayload(payload)
 end
 
 return npc
-
-
-
-
-
-
-
-
-
-
-

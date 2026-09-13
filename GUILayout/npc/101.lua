@@ -42,12 +42,14 @@ local BOX_NAME = {
     low = "低级材料自选箱",
     high = "高级材料自选箱",
     super = "特级材料自选箱",
+    gem = "灵根宝石随机宝箱",
 }
 
 local BOX_P2 = {
     low = 1,
     high = 2,
     super = 3,
+    gem = 4,
 }
 
 local UI_updata
@@ -116,6 +118,14 @@ local function getBuyCostText()
     return "0"
 end
 
+local function getBuyCostItemName()
+    local buyCost = getBuyCost()
+    if type(buyCost) == "table" and type(buyCost[1]) == "table" then
+        return tostring(buyCost[1][1] or "灵石")
+    end
+    return "灵石"
+end
+
 local function getDayCardConfig()
     return getConfigValue("day_card", {}) or {}
 end
@@ -137,7 +147,7 @@ local function getExchangeNeed()
 end
 
 local function getExchangeLimit()
-    return toNumber((npc.data and npc.data.exchange_limit), toNumber(getConfigValue("exchange_daily_limit", 50), 50))
+    return toNumber((npc.data and npc.data.exchange_limit), toNumber(getConfigValue("exchange_daily_limit", 10), 10))
 end
 
 local function getExchangeUsedCount()
@@ -184,7 +194,10 @@ end
 local function getBoxPool(boxType)
     local cfg = getConfig()
     local boxPool = cfg.box_pool or {}
-    return boxPool[boxType] or {}
+    if boxPool[boxType] then
+        return boxPool[boxType]
+    end
+    return (cfg.gem_pool and boxType == "gem" and cfg.gem_pool) or {}
 end
 
 local function buildPoolTipText()
@@ -204,9 +217,9 @@ local function buildPoolTipText()
                 lines[#lines + 1] = "<font color='#FF9A6A'>时装奖励</font>"
                 fashionStarted = true
             end
+            lines[#lines + 1] = string.format("<font color='#F3E8D0'>时装池（%d款合计）</font><font color='#9FFFD2'>  %s</font>", #fashionPool, tostring(entry.show_rate or "0.5%"))
             for fashionIdx, fashionCfg in ipairs(fashionPool) do
-                local rateText = fashionIdx <= 4 and "0.5%" or "0.25%"
-                lines[#lines + 1] = string.format("<font color='#F3E8D0'>%s</font><font color='#9FFFD2'>  %s</font>", tostring(fashionCfg.name or ("时装" .. tostring(fashionIdx))), rateText)
+                lines[#lines + 1] = string.format("<font color='#F3E8D0'>%s</font><font color='#9FFFD2'>  时装池内随机</font>", tostring(fashionCfg.name or ("时装" .. tostring(fashionIdx))))
             end
         else
             lines[#lines + 1] = string.format("<font color='#F3E8D0'>%s</font><font color='#9FFFD2'>  %s</font>", tostring(entry.label or ""), tostring(entry.show_rate or ""))
@@ -381,6 +394,11 @@ local function isDayCardUnlocked()
     return unlocked == true or toNumber(unlocked, 0) == 1
 end
 
+local function hasDayCardTitle()
+    local owned = npc.data and npc.data.day_card_has_title
+    return owned == true or toNumber(owned, 0) == 1
+end
+
 local function isMilestoneClaimed(idx, isCrown)
     local T_data = (npc.data and npc.data.T_data) or {}
     local bucket = isCrown and (T_data.claim_crown or {}) or (T_data.claim_normal or {})
@@ -458,7 +476,7 @@ local function setTextStyle(widget, outlineColor)
     if not widget then
         return
     end
-    GUI:Text_setFontName(widget, "fonts/font4.ttf")
+    GUI:Text_setFontName(widget, "fonts/506.ttf")
     GUI:Text_enableOutline(widget, outlineColor or "#100808", 2)
 end
 
@@ -511,7 +529,7 @@ local function createRewardCell(parent, name, x, y, rewardPack, stateText, state
         end
 
         if reward.count > 1 then
-            local numText = GUI:Text_Create(bg, "num", 25, 1, 12, "#ffffff", tostring(reward.count))
+            local numText = GUI:Text_Create(bg, "num", 25, 1, 15, "#ffffff", tostring(reward.count))
             GUI:setAnchorPoint(numText, 0.5, 0)
             setTextStyle(numText, "#000000")
         end
@@ -547,15 +565,14 @@ local function closeBuyPopup()
     end
 end
 
-local function _get_buy_popup_count()
-    if not npc.buyPopupInput then
-        return 1
+local function closeExchangePopup()
+    local popup = npc.exchangePopup
+    npc.exchangePopup = nil
+    if popup then
+        pcall(function()
+            GUI:removeFromParent(popup)
+        end)
     end
-    local count = tonumber(GUI:TextInput_getString(npc.buyPopupInput) or 0) or 0
-    if count < 1 then
-        count = 1
-    end
-    return math.floor(count)
 end
 
 local function openBuyPopup()
@@ -565,61 +582,209 @@ local function openBuyPopup()
 
     GUI:setLocalZOrder(npc.buyPopup, 100) -- 确保在其他界面元素之上
 
-    local overlay = GUI:Image_Create(npc.buyPopup, "overlay", 0, 0, "res/public/1900000651_1.png")
-    GUI:setAnchorPoint(overlay, 0, 0)
-    GUI:setContentSize(overlay, 818, 542)
-    GUI:setIgnoreContentAdaptWithSize(overlay, false)
-    GUI:setTouchEnabled(overlay, true)
-    GUI:addOnClickEvent(overlay, function()
-        closeBuyPopup()
-    end)
+    -- local overlay = GUI:Image_Create(npc.buyPopup, "overlay", 0, 0, "res/public/1900000651_1.png")
+    -- GUI:setAnchorPoint(overlay, 0, 0)
+    -- GUI:setContentSize(overlay, 818, 542)
+    -- GUI:setIgnoreContentAdaptWithSize(overlay, false)
+    -- GUI:setTouchEnabled(overlay, true)
+    -- GUI:addOnClickEvent(overlay, function()
+    --     closeBuyPopup()
+    -- end)
 
-    local panel = GUI:Image_Create(npc.buyPopup, "panel", 409, 271, "res/wy/public/500-300.png")
+    local panel = GUI:Image_Create(npc.buyPopup, "panel", 409, 271,  "res/wy/public/anniu_999_bj.png")
     GUI:setAnchorPoint(panel, 0.5, 0.5)
-    GUI:setContentSize(panel, 360, 220)
-    GUI:setIgnoreContentAdaptWithSize(panel, false)
+    GUI:setContentSize(panel, 650, 370)
+
     GUI:setTouchEnabled(panel, true)
 
-    local title = GUI:Text_Create(panel, "title", 180, 188, 22, "#ffe07a", "购买数量")
+    local title = GUI:Text_Create(panel, "title", 325, 335, 24, "#ffe7a2", "购买数量")
     GUI:setAnchorPoint(title, 0.5, 0.5)
     setTextStyle(title)
 
-    local closeBtn = GUI:Button_Create(panel, "close", 332, 190, "res/wy/public/close_red_big.png")
+    local closeBtn = GUI:Button_Create(panel, "close", 620, 335, "res/wy/public/close_red_big.png")
     GUI:addOnClickEvent(closeBtn, function()
         closeBuyPopup()
     end)
 
-    local tip = GUI:Text_Create(panel, "tip", 180, 146, 16, "#f3e8ce", string.format("每个消耗 %s灵石", tostring(getBuyCostText())))
-    GUI:setAnchorPoint(tip, 0.5, 0.5)
-    setTextStyle(tip)
+    local tokenCount = toNumber(npc.data and npc.data.token_count, 0)
+    local tokenName = getTokenName()
+    local costName = getBuyCostItemName()
+    local costEach = toNumber(getBuyCostText(), 0)
+    local currencyCount = toNumber(SL:GetMetaValue("TMONEY", costName), 0)
+    -- local current = GUI:RichText_Create(panel, "current_token", 409, 382,
+    --     string.format("当前%s：<font color='#ffe45e'>%s</font>", tostring(tokenName), tostring(tokenCount)),
+    --     600, 24, "#f3e8ce", 1, nil, nil,
+    --     {outlineSize = 2, outlineColor = "#120b08"})
+    -- GUI:setAnchorPoint(current, 0.5, 0.5)
 
-    local inputBg = GUI:Image_Create(panel, "input_bg", 70, 96, "res/public/1900000668.png")
-    GUI:setContentSize(inputBg, 220, 36)
-    GUI:setIgnoreContentAdaptWithSize(inputBg, false)
+    local rule = GUI:RichText_Create(panel, "buy_rule", 325, 280,
+        string.format("每 <font color='#55ff66'>%s</font>%s，可购买 <font color='#ff5555'>1个%s</font>",
+            tostring(costEach), tostring(costName), tostring(tokenName)),
+        700, 22, "#f3e8ce", 1, nil, nil,
+        {outlineSize = 2, outlineColor = "#120b08"})
+    GUI:setAnchorPoint(rule, 0.5, 0.5)
 
-    local input = GUI:TextInput_Create(inputBg, "input", 10, 4, 200, 28, 18)
-    GUI:TextInput_setInputMode(input, 2)
-    GUI:TextInput_setMaxLength(input, 6)
-    GUI:TextInput_setString(input, "1")
-    GUI:TextInput_setPlaceHolder(input, "请输入数量")
-    GUI:TextInput_setFontColor(input, "#ffffff")
-    npc.buyPopupInput = input
+    local function createBuyOption(name, x, count)
+        local option = GUI:Button_Create(panel, name, x, 80, "res/custom/msfc/page1/action_1.png")
+        GUI:setAnchorPoint(option, 0.5, 0.5)
+        local label = GUI:Text_Create(panel, "label" .. name, x, 80 + 50, 19, "#ffe7a2", "购买" .. tostring(count) .. "个")
+        GUI:setAnchorPoint(label, 0.5, 0.5)
+        setTextStyle(label, "#26160d")
+        GUI:addOnClickEvent(option, function()
+            SL:SendLuaNetMsg(100, 101, 4, count, SL:JsonEncode({count = count}, false))
+        end)
+        local needCost = costEach * count
+        local costColor = currencyCount >= needCost and "#45ff93" or "#ff6666"
+        local cost = GUI:RichText_Create(panel, name .. "_cost", x, 153,
+            string.format("<font color='%s'>%s</font><font color='#f3e8ce'> %s%s</font>",
+                costColor, tostring(needCost), tostring(costName), ""),
+            170, 17, "#f3e8ce", 1, nil, nil,
+            {outlineSize = 2, outlineColor = "#120b08"})
+        GUI:setAnchorPoint(cost, 0.5, 0.5)
+        return option
+    end
 
-    local desc = GUI:Text_Create(panel, "desc", 180, 74, 16, "#8fd6ff", string.format("将购买【%s】", tostring(getTokenName())))
-    GUI:setAnchorPoint(desc, 0.5, 0.5)
-    setTextStyle(desc)
+    createBuyOption("buy_1", 220 - 90, 1)
+    createBuyOption("buy_10", 409 - 90, 10)
+    createBuyOption("buy_100", 598 - 90, 100)
 
-    local confirm = GUI:Button_Create(panel, "confirm", 200, 18, "res/custom/msfc/page1/action_2.png")
-    GUI:addOnClickEvent(confirm, function()
-        local count = _get_buy_popup_count()
-        closeBuyPopup()
-        SL:SendLuaNetMsg(100, 101, 4, count, SL:JsonEncode({count = count}, false))
+    -- local totalCost = GUI:RichText_Create(panel, "total_cost", 409, 124,
+    --     string.format("每个%s消耗：<font color='#ffdf55'>%s%s</font>",
+    --         tostring(tokenName),
+    --         tostring(costEach), tostring(costName)),
+    --     700, 18, "#f3e8ce", 1, nil, nil,
+    --     {outlineSize = 2, outlineColor = "#120b08"})
+    -- GUI:setAnchorPoint(totalCost, 0.5, 0.5)
+
+    -- local desc = GUI:RichText_Create(panel, "desc", 409, 78,
+    --     string.format("购买后获得：<font color='#45ff93'>%s</font>", tostring(tokenName)),
+    --     600, 20, "#f3e8ce", 1, nil, nil,
+    --     {outlineSize = 2, outlineColor = "#120b08"})
+    -- GUI:setAnchorPoint(desc, 0.5, 0.5)
+end
+
+local function openExchangePopup()
+    closeExchangePopup()
+
+    npc.exchangePopup = GUI:Node_Create(npc.bg, "exchange_popup", 0, 0)
+    GUI:setLocalZOrder(npc.exchangePopup, 100)
+
+
+    local panel = GUI:Image_Create(npc.exchangePopup, "panel", 409, 271, "res/wy/public/anniu_999_bj.png")
+    GUI:setAnchorPoint(panel, 0.5, 0.5)
+    GUI:setContentSize(panel, 650, 370)
+    GUI:setIgnoreContentAdaptWithSize(panel, false)
+    GUI:setTouchEnabled(panel, true)
+
+    local title = GUI:Text_Create(panel, "title", 325, 335, 24, "#ffe07a", "兑换鹤嘴锄")
+    GUI:setAnchorPoint(title, 0.5, 0.5)
+    setTextStyle(title)
+
+    local closeBtn = GUI:Button_Create(panel, "close", 620, 335, "res/wy/public/close_red_big.png")
+    GUI:addOnClickEvent(closeBtn, function()
+        closeExchangePopup()
     end)
 
-    -- local cancel = GUI:Button_Create(panel, "cancel", 190, 18, "res/custom/msfc/page1/action_3.png")
-    -- GUI:addOnClickEvent(cancel, function()
-    --     closeBuyPopup()
-    -- end)
+    local tokenCount = toNumber(npc.data and npc.data.token_count, 0)
+    local exchangeNeed = getExchangeNeed()
+    local exchangeProgress = toNumber(npc.data and npc.data.exchange_progress, 0)
+    local exchangeAvailable = toNumber(npc.data and npc.data.exchange_available, 0)
+    local exchangeUsed = getExchangeUsedCount()
+    local exchangeLimit = getExchangeLimit()
+    local progressColor = exchangeAvailable > 0 and "#45ff93" or "#ff6666"
+
+    local current = GUI:Text_Create(panel, "current_token", 325, 280, 20, "#ffe7a2", string.format("当前鹤嘴锄：%s", tostring(tokenCount)))
+    GUI:setAnchorPoint(current, 0.5, 0.5)
+    setTextStyle(current)
+
+    local progress = GUI:RichText_Create(
+        panel,
+        "progress",
+        325,
+        238,
+        string.format("每击杀 <font color='#45ff93'>%s</font> 只怪可兑换 1 个鹤嘴锄", tostring(exchangeNeed)),
+        580,
+        20,
+        "#f3e8ce",
+        0,
+        nil,
+        nil,
+        {outlineSize = 1, outlineColor = "#100808"}
+    )
+    GUI:setAnchorPoint(progress, 0.5, 0.5)
+
+    local progressText = GUI:RichText_Create(
+        panel,
+        "progress_value",
+        325,
+        198,
+        string.format("当前进度：<font color='%s'>%s/%s</font>  可兑换：<font color='%s'>%s</font> 个",
+            progressColor,
+            tostring(exchangeProgress),
+            tostring(exchangeNeed),
+            progressColor,
+            tostring(exchangeAvailable)
+        ),
+        580,
+        20,
+        "#f3e8ce",
+        0,
+        nil,
+        nil,
+        {outlineSize = 1, outlineColor = "#100808"}
+    )
+    GUI:setAnchorPoint(progressText, 0.5, 0.5)
+
+    local dailyText = GUI:RichText_Create(
+        panel,
+        "daily",
+        325,
+        160,
+        string.format("今日兑换：<font color='%s'>%s</font> / <font color='#ffffff'>%s</font> 次",
+            exchangeUsed < exchangeLimit and "#45ff93" or "#ff6666",
+            tostring(exchangeUsed),
+            tostring(exchangeLimit)
+        ),
+        580,
+        20,
+        "#f3e8ce",
+        0,
+        nil,
+        nil,
+        {outlineSize = 1, outlineColor = "#100808"}
+    )
+    GUI:setAnchorPoint(dailyText, 0.5, 0.5)
+
+    local function createExchangeOption(name, x, count)
+        local button = GUI:Button_Create(panel, name, x, 74, "res/custom/msfc/page1/action_1.png")
+        GUI:setAnchorPoint(button, 0.5, 0.5)
+        local available = exchangeAvailable >= count
+        local label = GUI:Text_Create(panel, "label"..name, x, 74 + 50, 18,
+            available and "#ffe7a2" or "#888888", "兑换" .. tostring(count) .. "个")
+        GUI:setAnchorPoint(label, 0.5, 0.5)
+        setTextStyle(label)
+        GUI:addOnClickEvent(button, function()
+            if exchangeAvailable < count then
+                SL:ShowSystemTips("当前剩余可兑换次数不足")
+                return
+            end
+            SL:SendLuaNetMsg(100, 101, 3, count, SL:JsonEncode({count = count}, false))
+        end)
+        if available then
+            NPC_UI_HELPER.redpoint_create(button)
+        end
+        return button
+    end
+
+    createExchangeOption("exchange_1", 120 + 100, 1)
+    createExchangeOption("exchange_10", 325 + 100, 10)
+
+    local tipText = hasDayCardTitle()
+        and "已拥有日卡：每日最多兑换50次"
+        or "未拥有日卡：每日最多兑换10次"
+    local tip = GUI:Text_Create(panel, "tip", 325, 28, 20, "#ff66ff", tipText)
+    GUI:setAnchorPoint(tip, 0.5, 0.5)
+    setTextStyle(tip, "#240024")
 end
 
 local function openBoxPopup(boxType)
@@ -884,8 +1049,11 @@ function npc.renderFucai(node)
 
     local exchangeBtn = GUI:Button_Create(node, "exchange", 322 - 90, 17, "res/custom/msfc/page1/action_1.png")
     GUI:setAnchorPoint(exchangeBtn, 0, 0)
+    -- local exchangeLabel = GUI:Text_Create(exchangeBtn, "label", 78, 22, 18, "#ffe7a2", "兑换鹤嘴锄")
+    -- GUI:setAnchorPoint(exchangeLabel, 0.5, 0.5)
+    -- setTextStyle(exchangeLabel)
     GUI:addOnClickEvent(exchangeBtn, function()
-        SL:SendLuaNetMsg(100, 101, 3, 0, "")
+        openExchangePopup()
     end)
     if toNumber(npc.data and npc.data.exchange_available, 0) > 0 then
         NPC_UI_HELPER.redpoint_create(exchangeBtn, {x = 156, y = 23})

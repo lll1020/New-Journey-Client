@@ -133,7 +133,7 @@ return {
                         "乱葬岗",
                     },
                     monster = {
-                        {id = "m_2_3_1", name = "枯骨客", model = 12023, reward = {{"金币",10000}}, attr_reward = {name = "攻击", min = 0, max = 2}},
+                        {id = "m_2_3_1", name = "「遗兵之王·断戈」", model = 150, reward = {{"金币",10000}}, attr_reward = {name = "攻击", min = 0, max = 2}},
                         {id = "m_2_3_2", name = "「万冢冥吏·白煞」", model = 12027, reward = {{"金币",10000}}, attr_reward = {name = "攻击", min = 0, max = 2}},
                         {id = "m_2_3_3", name = "★阴墓鬼皇·腐土尊★", model = 12028, reward = {{"金币",10000}}, attr_reward = {name = "攻击", min = 0, max = 2}},
                     },

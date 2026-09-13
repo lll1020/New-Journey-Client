@@ -333,14 +333,7 @@ function npc.main(npcid, p2, p3, msgData)
     local function GUI_createLabel(localNode,idx) --小界面渲染
         GUI:removeAllChildren(localNode)
         if idx == 1 then
-            GUI:Image_Create(localNode, "wz1", 490, 380, "res/custom/four_city/lingshou/xjm/tip_1.png")
             GUI:Image_Create(localNode, "wz2", 490, 380 - 70, "res/custom/four_city/lingshou/xjm/tip_5.png")
-            -- GUI:Image_Create(localNode, "wz3", 490, 380 - 140, "res/custom/four_city/lingshou/xjm/tip_4.png")
-
-            
-            local b_skill = GUI:RichText_Create(localNode, "b_skill",500 + 10,360 - 5 + 30,
-                npc._config.config.ls[npc.titles_sign].b_skill or "", 360, 16, "#FFFFFF", 1, nil, nil)
-            GUI:setAnchorPoint(b_skill,0, 1)
             local s_skill = GUI:RichText_Create(localNode, "s_skill",500 + 10,360 - 45 - 5,
                 npc._config.config.ls[npc.titles_sign].s_skill or "", 360, 16, "#FFFFFF", 1, nil, nil)
             GUI:setAnchorPoint(s_skill,0, 1)

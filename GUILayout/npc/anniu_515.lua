@@ -229,7 +229,17 @@ local function getTotalDoneCount()
 end
 
 local function getAllDetails()
-    return npc._config.details or {}
+    local list = {}
+    for _, detail in ipairs(npc._config.details or {}) do
+        local kind = type(detail.rule) == "table" and detail.rule.kind or ""
+        if kind ~= "tianshu_level"
+            and kind ~= "linggen_count"
+            and kind ~= "linggen_group"
+            and kind ~= "linggen_level" then
+            list[#list + 1] = detail
+        end
+    end
+    return list
 end
 
 -- 详情配置按 id 查找，解锁弹窗和右侧属性汇总都依赖这里。
