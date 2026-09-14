@@ -20,10 +20,10 @@ local function getPanelState()
     return T_data["npc_74"]
 end
 local other_wz = {
-    "极品仙法爆率 + 5%",
-    "境界等级压制 + 10%",
-    "全部灵根属性 + 5%",
-    "灵兽人物属性 + 5%",
+    "元宝*10W、神·五行石*1",
+    "元宝*10W、仙法卷轴*20",
+    "元宝*10W、灵兽蛋*3",
+    "大修为丹*5、元宝*10W",
 }
 local function isActivated(idx)
     return tonumber(getPanelState()[tostring(idx)] or 0) == 1
@@ -72,27 +72,30 @@ local function renderDetail(npcId, idx)
     GUI:removeAllChildren(node)
     GUI:Image_Create(node, "bg", 0, 0, "res/custom/five_city/tdmp/xjm/" .. tostring(idx) .. ".png")
 
-    -- local nameText = GUI:Text_Create(node, "name", 152, 308, 24, "#FFF2B0", cfg.name or "")
+    -- local nameText = GUI:Text_Create(node, "name", 154, 306, 24, "#FFF2B0", cfg.name or "")
     -- GUI:Text_setFontName(nameText, "fonts/500.ttf")
     -- GUI:setAnchorPoint(nameText, 0.5, 0.5)
 
-    -- local descTitle = GUI:Text_Create(node, "desc_title", 152, 246, 20, "#FF2E2E", "激活条件")
+    -- local descTitle = GUI:Text_Create(node, "desc_title", 154, 266, 19, "#FFE17A", "激活条件")
     -- GUI:Text_setFontName(descTitle, "fonts/font4.ttf")
     -- GUI:setAnchorPoint(descTitle, 0.5, 0.5)
-    GUI:setAnchorPoint(GUI:RichText_Create(node, "attr_desc", 80, 270, Player:showAttrMergedRange(npc._config.details[idx].attr).."\n"..other_wz[idx], 200, 16, "#FF00FF", 0,nil,nil)
-    , 0, 1)
-    local desc = GUI:Text_Create(node, "desc", 308/2, 214 - 115, 18, "#FFFFFF", cfg.desc or "无")
-    GUI:setAnchorPoint(desc, 0.5, 0.5)
-    GUI:Text_setFontName(desc, "fonts/font4.ttf")
-    -- local rewardTitle = GUI:Text_Create(node, "reward_title", 70, 172, 20, "#FFE17A", "额外奖励")
-    -- GUI:Text_setFontName(rewardTitle, "fonts/font4.ttf")
-    -- GUI:setAnchorPoint(rewardTitle, 0, 0.5)
-    -- GUI:setAnchorPoint(GUI:Text_Create(node, "reward", 26, 144, 18, "#FFFFFF", cfg.reward_desc or "无"), 0, 0.5)
 
-    -- local allDesc = npc._config.all_desc or ""
-    -- if allDesc ~= "" then
-    --     GUI:setAnchorPoint(GUI:Text_Create(node, "all_desc", 26, 104, 18, hasAllBonus() and "#FFE17A" or "#FFE17A", allDesc), 0, 0.5)
-    -- end
+    local desc = GUI:Text_Create(node, "desc", 308/2, 214 - 115, 20, "#FFE17A", cfg.desc or "无")
+    GUI:setAnchorPoint(desc, 0.5, 0.5)
+    GUI:Text_setFontName(desc, "fonts/506.ttf")
+
+    local rewardTitle = GUI:Text_Create(node, "reward_title", 154, 198, 25, "#FFE17A", "激活奖励")
+    GUI:Text_setFontName(rewardTitle, "fonts/506.ttf")
+    GUI:setAnchorPoint(rewardTitle, 0.5, 0.5)
+    local reward = GUI:Text_Create(node, "reward", 154, 174, 16, "#FFFFFF", cfg.reward_desc or "无")
+    GUI:setAnchorPoint(reward, 0.5, 0.5)
+    GUI:Text_setFontName(reward, "fonts/font4.ttf")
+
+    local attrDesc = Player:showAttrMergedRange(npc._config.details[idx].attr) or ""
+    if attrDesc ~= "" then
+        local attr = GUI:RichText_Create(node, "attr_desc", 154, 150 + 116, npc._config.details[idx].title, 250, 16, "#FFB8FF", 0, nil, nil)
+        GUI:setAnchorPoint(attr, 0.5, 1)
+    end
 
     local costNode = GUI:Node_Create(node, "cost_node", 34 + 12, 26)
     checkItemNumByTable_img_kuang(cfg.cost or {}, nil, costNode)

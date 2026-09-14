@@ -83,7 +83,7 @@ local RULE_TIP_TEXTS = {
     stage1 = table.concat({
         "<  古玩鉴定规则  /FCOLOR=250>\\",
         "<真伪概率：/FCOLOR=251><真品90%/FCOLOR=254><  赝品10%/FCOLOR=249>\\",
-        -- "<年代权重：/FCOLOR=251><唐1/FCOLOR=250>< 宋49/FCOLOR=254>< 元100/FCOLOR=253>< 明200/FCOLOR=242>< 清300/FCOLOR=243>< 近代350/FCOLOR=249>\\",
+        -- "<确定年份概率：/FCOLOR=251><唐0.10%/FCOLOR=250>< 宋1.90%/FCOLOR=254>< 元5%/FCOLOR=253>< 明15%/FCOLOR=242>< 清29%/FCOLOR=243>< 近代49%/FCOLOR=249>\\",
         -- "<提示：本页只展示初次鉴定需要的信息。/FCOLOR=255>"
     }, ""),
     conservative = table.concat({
@@ -96,16 +96,14 @@ local RULE_TIP_TEXTS = {
         "<  断代鉴定说明  /FCOLOR=250>\\",
         "<成功：/FCOLOR=251><年代 +1级/FCOLOR=254>\\",
         "<失败：/FCOLOR=251><年代 -1级/FCOLOR=249>\\",
-        -- "<边界保护：/FCOLOR=251><到唐代或近代时只停住，不会越界。/FCOLOR=253>\\",
-        -- "<概率：宋5% 元10% 明20% 清40% 近代80%/FCOLOR=243>"
+        -- "<概率：唐不可进行；宋5% 元10% 明20% 清40% 近代80%/FCOLOR=243>"
     }, ""),
     final = table.concat({
         "<  终极鉴定说明  /FCOLOR=250>\\",
         -- "<开启：/FCOLOR=251><断代成功后才可使用。/FCOLOR=255>\\",
         "<成功：/FCOLOR=251><年代 +1级/FCOLOR=254>\\",
         "<失败：/FCOLOR=251><年代 -1级/FCOLOR=249>\\",
-        -- "<边界保护：/FCOLOR=251><到唐代或近代时只停住，不会越界。/FCOLOR=253>\\",
-        -- "<概率：宋5% 元10% 明30% 清50%/FCOLOR=243>"
+        -- "<概率：唐、近代不可进行；宋5% 元10% 明30% 清50%/FCOLOR=243>"
     }, ""),
 }
 
@@ -650,16 +648,22 @@ local function renderStageTwo(node)
             end, getUnknownItemName(state.idx))
         end)
 
-        local btnSegment = GUI:Button_Create(node, "btn_segment", 430, 130, BTN_SEGMENT)
-        GUI:addOnClickEvent(btnSegment, function()
-            openStageConfirm(node, "segment", buildStageCost("segment"), function()
-                if not hasEnoughCost(buildStageCost("segment")) then
-                    sendStageAction(3, state.idx, false)
-                    return
-                end
-                confirmProtectAndSend("segment", 3, state.idx, "是否在断代失败时自动使用断代护符？")
-            end, getUnknownItemName(state.idx))
-        end)
+        if toNumber(state.era, 0) > 1 then
+            local btnSegment = GUI:Button_Create(node, "btn_segment", 430, 130, BTN_SEGMENT)
+            GUI:addOnClickEvent(btnSegment, function()
+                openStageConfirm(node, "segment", buildStageCost("segment"), function()
+                    if not hasEnoughCost(buildStageCost("segment")) then
+                        sendStageAction(3, state.idx, false)
+                        return
+                    end
+                    confirmProtectAndSend("segment", 3, state.idx, "是否在断代失败时自动使用断代护符？")
+                end, getUnknownItemName(state.idx))
+            end)
+        else
+            local segmentLimit = GUI:Text_Create(node, "segment_limit", 430, 130, 18, "#E7C98A", "唐代已达年代上限")
+            GUI:setAnchorPoint(segmentLimit, 0.5, 0.5)
+            setTextStyle(segmentLimit, "fonts/font4.ttf", "#000000", 1)
+        end
     else
         -- renderCostList(node, 455, 145, buildStageCost("final"))
 
@@ -668,7 +672,8 @@ local function renderStageTwo(node)
             sendStageAction(5, state.idx, false, {preview = 1})
         end)
 
-        if tonumber(state.can_final) == 1 then
+        local maxEra = #(getCfg().eras or {})
+        if tonumber(state.can_final) == 1 and toNumber(state.era, 0) > 1 and toNumber(state.era, 0) < maxEra then
             local btnFinal = GUI:Button_Create(node, "btn_final", 512 + 137, 120, BTN_FINAL)
             GUI:addOnClickEvent(btnFinal, function()
                 openStageConfirm(node, "final", buildStageCost("final"), function()

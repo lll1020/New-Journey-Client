@@ -649,9 +649,18 @@ local function renderPlotText(parent, plotIndex, plot, cellSize)
     NPC_UI_HELPER.createRichText(parent, 'plot_text_' .. plotIndex, 10, 0, content, {width = cellSize - 10, height = 20, anchor = {x = 0.5, y = 0.5}})
 end
 
-local function formatAttrValue(value, percent)
+local DIRECT_PERCENT_ATTRS = {
+    [280] = true, [281] = true, [282] = true, [283] = true, [284] = true, [285] = true,
+    [286] = true, [287] = true, [288] = true, [289] = true, [290] = true, [291] = true,
+    [300] = true,
+}
+
+local function formatAttrValue(value, percent, directPercent, attrId)
     local num = tonumber(value) or 0
     if percent and tonumber(percent) == 1 then
+        if directPercent == true or DIRECT_PERCENT_ATTRS[tonumber(attrId)] then
+            return string.format('%s%%', tostring(math.floor(num)))
+        end
         return string.format('%s%%', tostring(math.floor(num / 100)))
     end
     return formatNumber(num)

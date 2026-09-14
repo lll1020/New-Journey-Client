@@ -330,14 +330,48 @@ function npc.main(npcid, p2, p3, msgData)
         return npc.node
     end
 
+    local function _format_lingshou_attr(attr)
+        local lines = {}
+        for _, value in ipairs(attr or {}) do
+            local attrId = tonumber(value[1])
+            local attrValue = tonumber(value[2]) or 0
+            if attrId and attrValue ~= 0 then
+                local desc = Player:showAttr({{attrId, attrValue}})
+                if desc and desc ~= "" then
+                    lines[#lines + 1] = desc
+                end
+            end
+        end
+        return table.concat(lines, "\n")
+    end
+
+    local function _get_lingshou_attr_text(petCfg)
+        return petCfg and petCfg.attr_give_wz or "暂无基础属性"
+    end
+
+    local function _get_lingshou_cut_text(levelCfg)
+        for _, value in ipairs(levelCfg and levelCfg.attr or {}) do
+            local attrId = tonumber(value[1])
+            local attrValue = tonumber(value[2]) or 0
+            if attrId == 244 then
+                return "打怪切割 +" .. tostring(attrValue)
+            end
+        end
+        local attrText = _format_lingshou_attr(levelCfg and levelCfg.attr)
+        if attrText ~= "" then
+            return attrText
+        end
+        return "无"
+    end
+
     local function GUI_createLabel(localNode,idx) --小界面渲染
         GUI:removeAllChildren(localNode)
         if idx == 1 then
-            GUI:Image_Create(localNode, "wz2", 490, 380 - 70, "res/custom/four_city/lingshou/xjm/tip_5.png")
-            local s_skill = GUI:RichText_Create(localNode, "s_skill",500 + 10,360 - 45 - 5,
+            GUI:Image_Create(localNode, "wz2", 490, 380 + 40, "res/custom/four_city/lingshou/xjm/tip_5.png")
+            local s_skill = GUI:RichText_Create(localNode, "s_skill",500 + 10,350,
                 npc._config.config.ls[npc.titles_sign].s_skill or "", 360, 16, "#FFFFFF", 1, nil, nil)
             GUI:setAnchorPoint(s_skill,0, 1)
-            local s_skill_req = GUI:RichText_Create(localNode, "s_skill_req",500 + 10,360 - 115 - 5 + 15,
+            local s_skill_req = GUI:RichText_Create(localNode, "s_skill_req",500 + 10,400,
                 "技能释放前置：" .. (npc._config.config.ls[npc.titles_sign].s_skill_req or "出战灵兽亲密度达到Lv.10；"),
                 360, 17, "#FFD36B", 1, nil, nil)
             GUI:setAnchorPoint(s_skill_req,0, 1)
@@ -361,22 +395,46 @@ function npc.main(npcid, p2, p3, msgData)
 
 
         elseif idx == 2 then
-            GUI:Image_Create(localNode, "wz1", 490, 380, "res/custom/four_city/lingshou/xjm/tip_2.png")
-            GUI:Image_Create(localNode, "wz2", 490, 380 - 100, "res/custom/four_city/lingshou/xjm/tip_3.png")
+            GUI:Image_Create(localNode, "wz1", 490, 380 + 40, "res/custom/four_city/lingshou/xjm/tip_2.png")
+            local petCfg = npc._config.config.ls[npc.titles_sign] or {}
+            local intimacyCfg = npc._config.config.wy or {}
+            local details = intimacyCfg.det or {}
+            local currentLevel = tonumber(npc.ls_data.T_data.ls[""..npc.titles_sign] or 0) or 0
+            local maxLevel = tonumber(intimacyCfg.max_level or #details) or #details
+            currentLevel = math.max(0, math.min(maxLevel, currentLevel))
 
-            GUI:Text_setFontName(GUI:Text_Create(localNode, "attr_give_wz",500 + 10,360 - 40 + 10, 18, "#FFFFFF", npc._config.config.ls[npc.titles_sign].attr_give_wz)
-            , "fonts/font4.ttf")
-            GUI:Text_setFontName(GUI:Text_Create(localNode, "attr_wz",500 + 10,360 - 100 - 40 + 10, 18, "#FFFFFF", npc._config.config.ls[npc.titles_sign].attr_wz)
-            , "fonts/font4.ttf")
+            local currentCfg = details[currentLevel]
+            local nextCfg = currentLevel < maxLevel and details[currentLevel + 1] or nil
+            local lines = {
+                "<font color='#FFD36B'>灵兽本体属性</font>",
+                _get_lingshou_attr_text(petCfg),
+                "",
+                string.format("<font color='#FFD36B'>当前亲密度 Lv.%d</font>", currentLevel),
+                "当前提供：" .. _get_lingshou_cut_text(currentCfg),
+            }
+            if nextCfg then
+                lines[#lines + 1] = ""
+                lines[#lines + 1] = string.format("<font color='#FFD36B'>下一亲密度 Lv.%d</font>", currentLevel + 1)
+                lines[#lines + 1] = "升级后提供：" .. _get_lingshou_cut_text(nextCfg)
+            else
+                lines[#lines + 1] = ""
+                lines[#lines + 1] = "<font color='#FF7070'>已达最高亲密度</font>"
+            end
 
-            local attr = deepCopy(npc._config.config.wy.det[npc.ls_data.T_data.ls[""..npc.titles_sign] or 1].attr)
-            -- for v,k in pairs(attr) do
-            --     local kuang = GUI:Image_Create(localNode, "kuang"..v, 500, 360 - (v-1)*20 - 30, "res/custom/tianshu/qh/tip.png")
-            --     -- k[2] = k[2] * npc.data.T_data.level[""..npc.current_idx]
-            --     GUI:RichText_Create(kuang, "attr_desc", 20, 0, Player:showAttr({{k[1],k[2]}}), 200, 17, "#f7f7de", 3,nil,nil)
-            --     GUI:Image_Create(kuang, "jt", 150, 0, "res/custom/tianshu/qh/jt.png")
-            --     GUI:Text_Create(kuang, "old_attr_v",200,3, 17, "#00FFFF", (npc.ls_data.T_data.ls[""..npc.titles_sign] < npc._config.config.wy.max_level) and (npc._config.config.wy.det[(npc.ls_data.T_data.ls[""..npc.titles_sign] or 1) + 1].attr[v][2]) .. "(下一等级亲密度)" or "已满级")
-            -- end
+            local attrText = GUI:RichText_Create(
+                localNode,
+                "attr_detail",
+                500 + 10,
+                360 - 40 + 10 + 83,
+                table.concat(lines, "\n"),
+                390,
+                18,
+                "#FFFFFF",
+                1,
+                nil,
+                "fonts/font4.ttf"
+            )
+            GUI:setAnchorPoint(attrText, 0, 1)
 
         end
     end
@@ -431,7 +489,7 @@ function npc.main(npcid, p2, p3, msgData)
         
         npc.Label = GUI:Node_Create(npc.xjm_node, "Label", 0, 0)
  
-        npc.xjm_titles_sign = 1
+        npc.xjm_titles_sign = 2
         for i = 1, 2 do
             local cbl_item = GUI:Button_Create(npc.xjm_node, "item" .. i, 570 + (i-1)*150, 455, "res/custom/four_city/lingshou/xjm/list/"..(npc.xjm_titles_sign == i and "l" or "n").."/"..i..".png")
             GUI:addOnClickEvent(cbl_item, function()
@@ -493,16 +551,24 @@ function npc.main(npcid, p2, p3, msgData)
 
         local panelBg = GUI:Image_Create(panel, "panel_bg", 445, 215, "res/wy/public/anniu_999_bj.png")
         GUI:setAnchorPoint(panelBg, 0.5, 0.5)
-        GUI:setContentSize(panelBg, 890, 300)
+        GUI:setContentSize(panelBg, 1000, 300)
         GUI:setOpacity(panelBg, 235)
         GUI:setTouchEnabled(panelBg, true)
 
-        local title = _outline_text(panel, "panel_title", 445, 393 - 55, 26, "#FFE49A", "灵兽星级仓库", {
-            font = "fonts/502.ttf",
+        local title = _outline_text(panel, "panel_title", 445, 393 - 10, 40, "#FFE49A", "灵兽星级仓库", {
+            font = "fonts/506.ttf",
             outline = "#170A02",
             outlineSize = 2,
         })
         GUI:setAnchorPoint(title, 0.5, 0.5)
+        local node = GUI:Text_Create(panel, "panel_title_shadow1", -5, 130, 18, "#00FFFF", "[灵兽全1星]全属性+1% PK增伤+1% PK减伤+1% 暴击伤害+1% 伤害吸收+1% 最终攻击+1% 最终生命+1%")
+        GUI:Text_setFontName(node, "fonts/502.ttf")
+
+        node = GUI:Text_Create(panel, "panel_title_shadow2", -5, 108, 18, "#FF00FF", "[灵兽全2星]全属性+3% PK增伤+2% PK减伤+2% 暴击伤害+3% 伤害吸收+2% 最终攻击+2% 最终生命+2%")
+        GUI:Text_setFontName(node, "fonts/502.ttf")
+
+        node = GUI:Text_Create(panel, "panel_title_shadow3", -5, 86, 18, "#FF0000", "[灵兽全3星]全属性+5% PK增伤+5% PK减伤+5% 暴击伤害+5% 伤害吸收+3% 最终攻击+5% 最终生命+5%")
+        GUI:Text_setFontName(node, "fonts/502.ttf")
 
         local data = npc.ls_data and npc.ls_data.T_data or {}
         local cardPos = {
@@ -513,10 +579,10 @@ function npc.main(npcid, p2, p3, msgData)
             {x = 690, y = 105},
         }
         for i = 1, 5 do
-            local card = GUI:Layout_Create(panel, "pet_card_" .. i, cardPos[i].x, cardPos[i].y - 20, 150, 240, false)
+            local card = GUI:Layout_Create(panel, "pet_card_" .. i, cardPos[i].x, cardPos[i].y - 20 + 50, 150, 240 - 60, false)
             local cardBg = GUI:Image_Create(card, "card_bg", 85, 120, "res/wy/public/tycccc.png")
             GUI:setAnchorPoint(cardBg, 0.5, 0.5)
-            GUI:setContentSize(cardBg, 150, 240)
+            GUI:setContentSize(cardBg, 150, 240 - 60)
             GUI:setOpacity(cardBg, 90)
 
             local itemName = LINGSHOU_BABY_ITEMS[i]
@@ -538,7 +604,7 @@ function npc.main(npcid, p2, p3, msgData)
                     end
                 end
                 local cellX = {28 + 15 + 2, 105 + 15 + 2}
-                local cellY = {157, 77}
+                local cellY = {157 - 8, 77 - 8}
                 for itemIndexInGrid, owned in ipairs(ownedItems) do
                     local gridIndex = itemIndexInGrid - 1
                     local itemX = cellX[(gridIndex % 2) + 1]
@@ -574,7 +640,7 @@ function npc.main(npcid, p2, p3, msgData)
                 GUI:setAnchorPoint(emptyText, 0.5, 0.5)
             end
 
-            local nameText = _outline_text(card, "name_text", 85, 18, 17, "#F4E7C5", itemName, {
+            local nameText = _outline_text(card, "name_text", 85, 18 + 173, 17, "#F4E7C5", itemName, {
                 font = "fonts/502.ttf",
                 outline = "#170A02",
                 outlineSize = 2,

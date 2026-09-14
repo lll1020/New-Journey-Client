@@ -13,7 +13,6 @@ local COMPLETE_SKIN = "res/wy/public/7_1.png"
 local CHALLENGE_SKIN = "res/custom/three_city/zerq/btn_tz.png"
 local PREP_POS = {600, 100}
 local CHALLENGE_POS = {300, 100}
-local CHALLENGE_TIP = "进入前请将【嘲天笑地】装备到武器位，否则会被嘲灾反弹伤害。"
 local OPTIONAL_PREP_TIP = "前置任务为独立可选线路，可直接挑战讨伐。"
 local GUIDE_TASK_NAME = "讨伐嘲灾"
 
@@ -78,12 +77,6 @@ local function renderReward(node, reward)
     local rewardNode = ItemNumByTable_img_new(reward, nil, GUI:Node_Create(node, "jl", 0, 0))
     GUI:setPosition(rewardNode, 330 + 135, 120 + 40)
 
-    createOutlineText(node, "tip2", 330 + 110 + 150, 120 + 30, "关\n键\n物\n品", "#FFE46C", 14)
-
-    local rewardNode = ItemNumByTable_img_new({{npc._config.prep_task.name,1}}, nil, GUI:Node_Create(node, "jl1", 0, 0))
-    GUI:setPosition(rewardNode, 330 + 135 + 150, 120 + 40)
-
-
 end
 
 local function renderPrepSection(node, npcid, cfg, data, key)
@@ -94,18 +87,9 @@ local function renderPrepSection(node, npcid, cfg, data, key)
     local killCount = safeKill(data, key .. "_rw")
     local prepLine = createOutlineText(node, "prep_line_1", 455 + 170, 240, string.format("当前击杀：%d/%d", killCount, need), "#7BFFB0", 20)
     GUI:Text_enableOutline(prepLine, "#CA352C", 2)
-
-    -- if prepState >= 2 then
-    --     createOutlineText(node, "prep_done", 455, 150, string.format("前置已完成：%s", prep.name or "已完成"), "#7CFF7C", 20)
-    --     GUI:setAnchorPoint(GUI:Image_Create(node, "prep_finish", PREP_POS[1], PREP_POS[2], COMPLETE_SKIN), 0.5, 0.5)
-    --     return true
-    -- end
-
-    -- if prepState == 0 then
-    --     createOutlineText(node, "prep_tip", 455, 150, string.format("点击下方领取前置：%s", prep.name or "前置任务"), "#FFE46C", 20)
-    -- else
-    --     createOutlineText(node, "prep_tip", 455, 150, "材料满足后再次点击下方按钮提交", "#FFE46C", 20)
-    -- end
+    local stateText = prepState >= 2 and "反弹压制：已完成" or "反弹压制：未完成"
+    local stateColor = prepState >= 2 and "#7CFF7C" or "#FFE46C"
+    createOutlineText(node, "prep_state", 455 + 170, 205, stateText, stateColor, 18)
 
     local prepBtn = createActionButton(node, "prep_btn", PREP_POS[1], PREP_POS[2], prepState == 0 and TAKE_BUTTON_SKIN or PREP_BUTTON_SKIN, function()
         SL:SendLuaNetMsg(100, npcid, 2, 0, "")
@@ -126,21 +110,6 @@ local function renderChallengeSection(node, npcid, data, key, prepDone)
         GUI:setAnchorPoint(GUI:Image_Create(node, "main_finish", CHALLENGE_POS[1], CHALLENGE_POS[2], COMPLETE_SKIN), 0.5, 0.5)
         return
     end
-
-    -- if CHALLENGE_TIP ~= "" then
-    --     NPC_UI_HELPER.createRichText(
-    --         node,
-    --         "challenge_tip",
-    --         455,
-    --         95,
-    --         CHALLENGE_TIP,
-    --         {width = 250, height = 70, anchor = {x = 0, y = 1}, color = "#f4e6b8", fontSize = 16}
-    --     )
-    -- end
-
-    -- if not prepDone then
-    --     createOutlineText(node, "challenge_optional", 455, 70, OPTIONAL_PREP_TIP, "#FFE46C", 20)
-    -- end
 
     local challengeBtn = createActionButton(node, "challenge_btn", CHALLENGE_POS[1], CHALLENGE_POS[2], CHALLENGE_SKIN, function()
         SL:SendLuaNetMsg(100, npcid, 1, 0, "")

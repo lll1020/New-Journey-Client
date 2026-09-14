@@ -965,7 +965,7 @@ local function _get_lingshou_hatch_left(data)
 end
 local function _open_lingshou_contract_entry()
     rawset(_G, "NPC64_OPEN_CONTRACT_ONCE", true)
-    SL:SendLuaNetMsg(105, 1029, 1029, 0, "")
+    SL:SendLuaNetMsg(105, 64, 64, 0, "")
 end
 npc.refreshLingshouMainEntry = function()
     if not npc.LeftTop or tolua.isnull(npc.LeftTop) then
@@ -5052,9 +5052,18 @@ npc[30] = function(p2, p3, Data)
         return (#parts > 0) and table.concat(parts, ' / ') or '—'
     end
 
-    local function format_doll_attr_value(value, percent)
+    local direct_doll_percent_attrs = {
+        [280] = true, [281] = true, [282] = true, [283] = true, [284] = true, [285] = true,
+        [286] = true, [287] = true, [288] = true, [289] = true, [290] = true, [291] = true,
+        [300] = true,
+    }
+
+    local function format_doll_attr_value(value, percent, directPercent, attrId)
         local num = tonumber(value) or 0
         if tonumber(percent or 0) == 1 then
+            if directPercent == true or direct_doll_percent_attrs[tonumber(attrId)] then
+                return string.format('%s%%', tostring(math.floor(num)))
+            end
             return string.format('%s%%', tostring(math.floor(num / 100)))
         end
         return format_doll_number(num)
@@ -6419,7 +6428,11 @@ npc[502] = function(p2, p3, Data)
     local function create_502_item(parent, itemName, itemCount, itemKey)
         local itemNode = GUI:Image_Create(parent, "itme" .. tostring(itemKey or itemName), 0, 0, "dev/res/wy/public/40-42.png")
         
-        if itemKey == 4 then
+        if tostring(itemName or "") == "极品仙法卷轴" then
+            _add_reward_item_effect(itemNode, "reward_eff", 20, 21, 0.85, REWARD_ITEM_EFFECT_14193)
+        elseif tostring(itemName or "") == "三级宝石自选包" then
+            _add_reward_item_effect(itemNode, "reward_eff", 20, 21, 0.75, 13054)
+        elseif itemKey == 4 then
             _add_reward_item_effect(itemNode, "reward_eff", 20, 21, 0.6, 13054)
         end
         -- _add_reward_item_effect(itemNode, "reward_eff", 20, 21, 0.7, itemKey < 3 and 10266 or 10267)
@@ -8711,6 +8724,36 @@ npc[514] = function(p2, p3, Data)
         end
         return storyNodeDone(storyData["npc_46"])
     end
+    local function hasLinggenSocketLevel(needLevel)
+        needLevel = tonumber(needLevel) or 1
+        local raw = Player and Player.getServerVar and Player:getServerVar("T74") or ""
+        if not raw or raw == "" then
+            return false
+        end
+        local ok, talentData = pcall(function()
+            return Player:JsonToTbl(raw)
+        end)
+        if not ok or type(talentData) ~= "table" or type(talentData.sockets) ~= "table" then
+            return false
+        end
+        local gemLevelByIdx = {
+            [14249] = 1,
+            [14250] = 2,
+            [14251] = 3,
+            [14252] = 3,
+            [14253] = 3,
+            [14254] = 3,
+            [14255] = 3,
+            [14256] = 4,
+        }
+        for _, gemName in pairs(talentData.sockets) do
+            local idx = tonumber(gemName) or tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", tostring(gemName or "")) or 0) or 0
+            if (gemLevelByIdx[idx] or 0) >= needLevel then
+                return true
+            end
+        end
+        return false
+    end
     local pos = {
         {
             100 + 123 - 58,
@@ -8893,7 +8936,7 @@ npc[514] = function(p2, p3, Data)
         end
         if continent == 4 then
             local done, total = worldMapGetStoryProgress(3)
-            return done >= 25 and worldMapGetRelevel() >= 30 and worldMapGetLevel() >= 150
+            return done >= 25 and worldMapGetRelevel() >= 30 and worldMapGetLevel() >= 150 and hasLinggenSocketLevel(3)
         elseif continent == 5 then
             local done, total = worldMapGetStoryProgress(4)
             return done >= 57 and worldMapGetRelevel() >= 40 and worldMapHasAllLinggen()
@@ -8931,6 +8974,10 @@ npc[514] = function(p2, p3, Data)
             local skinState = isUnlocked and "l" or "n"
             local btn = GUI:Button_Create(bg, 'btn' .. i, pos[i][1], pos[i][2], 'res/custom/sjdt/dl/' .. skinState .. '/' .. i .. '.png')
             GUI:addOnClickEvent(btn, function()
+                if i == 4 and not hasLinggenSocketLevel(3) then
+                    SL:ShowSystemTips("<font color='#FF0000'>需要先在灵根天赋树镶嵌一颗三级宝石</font>")
+                    return
+                end
                 if not isUnlocked then
                     SL:ShowSystemTips("<font color='#FF0000'>还未达到进入条件，不能传送</font>")
                     return

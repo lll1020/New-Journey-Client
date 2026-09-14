@@ -1906,7 +1906,7 @@ local function createHeader(sw, sh)
     local leftX = 10
     text(npc.header, "title", leftX, -40, 25, "#F1D176", "灵根天赋树", 0, 0.5)
     text(npc.header, "subtitle", leftX, -60, 13, "#8FA6C0",
-        "相生相克 · 主干成长 · 流派分支 · 宝石共鸣", 0, 0.5)
+        "相生相克 · 主干成长 · 流派分支 · 宝石镶嵌", 0, 0.5)
 
     local pointsX = headerW / 2 + 150
     local pointsBg = panel(npc.header, "points_bg", pointsX + 115, -16 - 30, 224 + 30, 54, "#10253B")

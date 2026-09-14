@@ -463,7 +463,7 @@ local function _create_quality_stone_icon(parent, prefix, x, y, slotIndex, quali
     if quality > 0 and QUALITY_FRAME_SKIN[quality] then
         local frame = GUI:Image_Create(parent, prefix .. "_quality_frame", x, y, QUALITY_FRAME_SKIN[quality])
         GUI:setAnchorPoint(frame, 0.5, 0.5)
-        GUI:setScale(frame, scale or (quality >= 3 and 0.76 or 0.68))
+        -- GUI:setScale(frame, scale or (quality >= 3 and 0.76 or 0.68))
     end
     local icon = GUI:Image_Create(parent, prefix .. "_icon", x + 5, y - 10, _get_slot_icon_path(slotIndex, bright ~= false))
     GUI:setAnchorPoint(icon, 0.5, 0.5)
@@ -1296,7 +1296,7 @@ local function _render_compose_target_slots(node)
         -- _create_quality_label(baseNode, "compose_quality_" .. slotIndex, 54, 104, quality)
         local selectedCount = _toint(counts[slotIndex], 0)
         if selectedCount > 0 then
-            _create_stroke_text(baseNode, "compose_count_" .. slotIndex, 84 - 53, 100, 20, "#53F8BC", "x" .. tostring(selectedCount), 0.5, 0.5)
+            _create_stroke_text(baseNode, "compose_count_" .. slotIndex, 84 - 53, 100, 20, "#53F8BC", tostring(selectedCount).."0%", 0.5, 0.5)
         end
     end
 end
@@ -1334,7 +1334,7 @@ local function _render_compose_bag(node, npcid)
                     npc._render_current_page(node, npcid)
                 end
             else
-                SL:ShowSystemTips("<font color='#FF0000'>当前神石数量不足、阶段不一致或已放满</font>")
+                SL:ShowSystemTips("<font color='#FF0000'>当前已经填满，可以合成神石了</font>")
             end
         end)
     end
@@ -1394,7 +1394,7 @@ end
 local function _render_box_preview(node)
     local boxName = _get_current_box_name()
     local previewPool = _build_box_preview_pool(boxName)
-    local list = GUI:ListView_Create(node, "box_preview_list", 184, 250, 532 + 113, 116, 2)
+    local list = GUI:ListView_Create(node, "box_preview_list", 184, 250, 532 + 113, 125, 2)
     GUI:ListView_setItemsMargin(list, 10)
     if #previewPool <= 7 then
         GUI:ListView_setItemsMargin(list, 4)

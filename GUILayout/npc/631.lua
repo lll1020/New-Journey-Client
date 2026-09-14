@@ -62,6 +62,9 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:Text_setFontName(desc, "fonts/502.ttf")
         GUI:Text_enableOutline(desc, "#CA352C", 2)
 
+        desc = GUI:Text_Create(node, "desc1",180,100, 20, "#00FFFF", "每次搜查可以获得：对怪切割 + 666")
+        GUI:Text_setFontName(desc, "fonts/506.ttf")
+
         local ch_kuang = GUI:Image_Create(node, "ch_kuang", 240 + 320, 145, "res/wy/public/70_70_k.png")
         UiTools.showItemData(ch_kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.ch.."[称号]")))
 

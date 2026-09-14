@@ -94,7 +94,20 @@ local RAW_ATTR_META = {
     [245] = {label = "对怪增伤", percent = true},
     [248] = {label = "对怪固定吸血"},
     [255] = {label = "受怪格挡"},
-    [282] = {label = "人物攻击", percent = true},
+    -- 280-291、300 为直接百分比属性：1 就是 1%。
+    [280] = {label = "人物生命", percent = true, directPercent = true},
+    [281] = {label = "人物魔法", percent = true, directPercent = true},
+    [282] = {label = "人物攻击", percent = true, directPercent = true},
+    [283] = {label = "人物魔法上限", percent = true, directPercent = true},
+    [284] = {label = "人物道术上限", percent = true, directPercent = true},
+    [285] = {label = "人物物防", percent = true, directPercent = true},
+    [286] = {label = "人物魔防", percent = true, directPercent = true},
+    [287] = {label = "人物攻击下限", percent = true, directPercent = true},
+    [288] = {label = "人物魔法下限", percent = true, directPercent = true},
+    [289] = {label = "人物道术下限", percent = true, directPercent = true},
+    [290] = {label = "人物物防下限", percent = true, directPercent = true},
+    [291] = {label = "人物魔防下限", percent = true, directPercent = true},
+    [300] = {label = "全属性", percent = true, directPercent = true},
 }
 
 local SPECIAL_ATTR_META = {
@@ -257,7 +270,9 @@ end
 local function getGroupDetails(groupName)
     local list = {}
     for _, detail in ipairs(getAllDetails()) do
-        if tostring(detail.group or "") == tostring(groupName or "") then
+        local kind = type(detail.rule) == "table" and tostring(detail.rule.kind or "") or ""
+        local retired = kind == "linggen_count" or kind == "linggen_group" or kind == "linggen_level"
+        if not retired and tostring(detail.group or "") == tostring(groupName or "") then
             list[#list + 1] = detail
         end
     end
@@ -481,6 +496,7 @@ local function buildValueAttrEntry(label, value, meta, extraLabel, extraFormat)
         label = label,
         value = value * scale,
         percent = isPercent and 1 or nil,
+        directPercent = config.directPercent == true,
         sign = config.sign,
         color = config.color,
     }
@@ -530,6 +546,27 @@ local function getDetailAttrShowEntries(detail)
     end
 
     local attrs = type(detail.attr) == "table" and detail.attr or {}
+    local directPercentIds = {
+        [280] = true, [281] = true, [282] = true, [283] = true, [284] = true, [285] = true,
+        [286] = true, [287] = true, [288] = true, [289] = true, [290] = true, [291] = true,
+        [300] = true,
+    }
+    local directPercentValue = nil
+    local directPercentCount = 0
+    for _, info in ipairs(attrs) do
+        local attrId = type(info) == "table" and toNumber(info[1], 0) or 0
+        local attrValue = type(info) == "table" and toNumber(info[2], 0) or 0
+        if directPercentIds[attrId] and attrValue > 0 then
+            directPercentCount = directPercentCount + 1
+            if directPercentValue == nil then
+                directPercentValue = attrValue
+            elseif directPercentValue ~= attrValue then
+                directPercentCount = 0
+                break
+            end
+        end
+    end
+    local hasAllDirectPercentAttrs = directPercentCount == 13
     local idx = 1
     while idx <= #attrs do
         local info = attrs[idx]
@@ -538,11 +575,22 @@ local function getDetailAttrShowEntries(detail)
         local labelText = type(info) == "table" and info[3] or nil
         local valueFormat = type(info) == "table" and info[4] or nil
 
-        local comboValue = matchComboAttr(attrs, idx, {3, 4, 5, 6, 7, 8})
-        if comboValue then
-            cached[#cached + 1] = {label = "攻魔道", value = comboValue}
-            idx = idx + 6
-        elseif toNumber(attrKey, 0) == 3 then
+        if hasAllDirectPercentAttrs and directPercentIds[toNumber(attrKey, 0)] then
+            if toNumber(attrKey, 0) == 300 then
+                cached[#cached + 1] = {
+                    label = "全属性",
+                    value = toNumber(directPercentValue, 0),
+                    percent = 1,
+                    directPercent = true,
+                }
+            end
+            idx = idx + 1
+        else
+            local comboValue = matchComboAttr(attrs, idx, {3, 4, 5, 6, 7, 8})
+            if comboValue then
+                cached[#cached + 1] = {label = "攻魔道", value = comboValue}
+                idx = idx + 6
+            elseif toNumber(attrKey, 0) == 3 then
             local nextInfo = attrs[idx + 1]
             if type(nextInfo) == "table" and toNumber(nextInfo[1], 0) == 4 then
                 local entry = buildRangeAttrEntry("攻击", attrValue, nextInfo[2])
@@ -557,13 +605,13 @@ local function getDetailAttrShowEntries(detail)
                 end
                 idx = idx + 1
             end
-        elseif toNumber(attrKey, 0) == 4 then
+            elseif toNumber(attrKey, 0) == 4 then
             local entry = buildRangeAttrEntry("攻击", 0, attrValue)
             if entry then
                 cached[#cached + 1] = entry
             end
             idx = idx + 1
-        elseif toNumber(attrKey, 0) == 8 then
+            elseif toNumber(attrKey, 0) == 8 then
             local nextInfo = attrs[idx + 1]
             if type(nextInfo) == "table" and toNumber(nextInfo[1], 0) == 9 then
                 local entry = buildRangeAttrEntry("防御", attrValue, nextInfo[2])
@@ -578,28 +626,29 @@ local function getDetailAttrShowEntries(detail)
                 end
                 idx = idx + 1
             end
-        elseif toNumber(attrKey, 0) == 9 then
+            elseif toNumber(attrKey, 0) == 9 then
             local entry = buildRangeAttrEntry("防御", 0, attrValue)
             if entry then
                 cached[#cached + 1] = entry
             end
             idx = idx + 1
-        elseif type(attrKey) == "number" then
+            elseif type(attrKey) == "number" then
             local meta = RAW_ATTR_META[toNumber(attrKey, 0)]
             local entry = buildValueAttrEntry(nil, attrValue, meta)
             if entry then
                 cached[#cached + 1] = entry
             end
             idx = idx + 1
-        elseif type(attrKey) == "string" then
+            elseif type(attrKey) == "string" then
             local meta = SPECIAL_ATTR_META[attrKey] or {}
             local entry = buildValueAttrEntry(nil, attrValue, meta, labelText, valueFormat)
             if entry then
                 cached[#cached + 1] = entry
             end
             idx = idx + 1
-        else
-            idx = idx + 1
+            else
+                idx = idx + 1
+            end
         end
     end
 
@@ -640,8 +689,11 @@ local function formatAttrPanelText(text)
     return text
 end
 
-local function formatPanelPercent(value)
-    local num = toNumber(value, 0) / 100
+local function formatPanelPercent(value, directPercent)
+    local num = toNumber(value, 0)
+    if not directPercent then
+        num = num / 100
+    end
     if math.floor(num) == num then
         return tostring(math.floor(num)) .. "%"
     end
@@ -675,6 +727,7 @@ local function buildUnlockAttrText(detail)
         local sign = tostring(info.sign or "+")
         local mode = tostring(info.mode or "")
         local isPercent = info.percent == true or toNumber(info.percent, 0) >= 1
+        local directPercent = info.directPercent == true
         local color = resolveSummaryColor(label, info.color, isPercent)
         local text = ""
         if mode == "range" then
@@ -690,7 +743,12 @@ local function buildUnlockAttrText(detail)
         else
             local value = toNumber(info.value, 0)
             if value > 0 then
-                text = string.format("%s%s%s", label, sign, isPercent and formatPanelPercent(value) or tostring(value))
+                text = string.format(
+                    "%s%s%s",
+                    label,
+                    sign,
+                    isPercent and formatPanelPercent(value, directPercent) or tostring(value)
+                )
             end
         end
         if text ~= "" then
@@ -783,6 +841,7 @@ local function buildAttrSummaryLines()
                     local isPercent = info.percent == true or toNumber(info.percent, 0) >= 1
                     local node = ensureNode(info.label, info.color, isPercent, sign)
                     if node then
+                        node.directPercent = node.directPercent or info.directPercent == true
                         node.value = node.value + toNumber(info.value, 0)
                     end
                 end
@@ -805,7 +864,11 @@ local function buildAttrSummaryLines()
             end
         else
             if node.value > 0 then
-                valueText = string.format("%s%s", node.sign, node.percent and formatPanelPercent(node.value) or tostring(node.value))
+                valueText = string.format(
+                    "%s%s",
+                    node.sign,
+                    node.percent and formatPanelPercent(node.value, node.directPercent) or tostring(node.value)
+                )
             end
         end
         if valueText ~= "" then

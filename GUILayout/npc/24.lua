@@ -120,7 +120,7 @@ function npc.main(npcid, p2, p3, msgData)
             SL:OpenCommonTipsPop({str="仙法卷轴不足，无法刷新仙法！",btnType=1})
         end
         if checkItemNum({{"极品仙法卷轴",1}}) then
-            SL:OpenCommonTipsPop({str="是否要使用极品仙法卷轴，必可得到帝品仙法！",btnType=2,callback=function(atype,param)
+            SL:OpenCommonTipsPop({str="是否要使用极品仙法卷轴，必可得到极品仙法！",btnType=2,callback=function(atype,param)
                 if atype == 1 then
                     SL:SendLuaNetMsg(100, npcid, 2, 2, SL:JsonEncode({caowei = slot}))
                 else
@@ -266,7 +266,7 @@ function npc.main(npcid, p2, p3, msgData)
                 GUI:setAnchorPoint(name, 0.5, 0.5)
                 GUI:Text_enableOutline(name, "#000000", 1)
                 local statusColor = owned and "#45FF93" or "#FF6B6B"
-                local statusText = owned and "已激活" or "未激活"
+                local statusText = owned and "已点亮" or "未点亮"
                 local statusBg = GUI:Image_Create(item, "status_bg", 84, 34, "res/wy/public/input.png")
                 GUI:setAnchorPoint(statusBg, 0.5, 0.5)
                 GUI:setContentSize(statusBg, 118, 26)
@@ -378,15 +378,6 @@ function npc.main(npcid, p2, p3, msgData)
                 if item then
                     local level = GUI:Text_Create(Label_node, "level",30 + 288,40 + 93, 30, "#FF0000", "天书【lv."..(npc.data.T_data.level or 0).."】")
                     GUI:Text_setFontName(level, "fonts/501.ttf")
-                    -- if (tonumber(npc.data.T_data.level or 0) or 0) >= 20 then
-                    --     local echoLines = {"<font color='#F4D179'>灵根回响共鸣：</font>"}
-                    --     for _, cfg in ipairs(((teshudata["npc_22"] or {}).main_r or {})) do
-                    --         if cfg.echo_name and cfg.echo_desc then
-                    --             echoLines[#echoLines + 1] = string.format("<font color='#A7D58D'>%s</font><font color='#FFFFFF'>：%s</font>", tostring(cfg.echo_name), tostring(cfg.echo_desc))
-                    --         end
-                    --     end
-                    --     GUI:RichText_Create(Label_node, "linggen_echo", 120, 420, table.concat(echoLines, "\n"), 360, 18, "#f7f7de", 1, nil, nil, {outlineSize = 1, outlineColor = SL:ConvertColorFromHexString("#100808")})
-                    -- end
                     local new_config = npc._config.details[1].details[(npc.data.T_data.level or 0) + 1]
                     local old_config = npc._config.details[1].details[(npc.data.T_data.level or 0)]
                     local jdt = GUI:LoadingBar_Create(Label_node, "jdt", 726,227,"res/custom/tianshu/qh/jdt.png", 0)
@@ -633,7 +624,7 @@ function npc.main(npcid, p2, p3, msgData)
                             end
                             local cur_quality = slot_data and slot_data[1] or 0
                             if cur_quality >= 4 then
-                                SL:OpenCommonTipsPop({str="当前已是仙品仙法，是否继续刷新？",btnType=2,callback=function(atype,param)
+                                SL:OpenCommonTipsPop({str="当前已是高品质仙法，是否继续刷新？",btnType=2,callback=function(atype,param)
                                     if atype == 1 then
                                         do_refresh()
                                     end

@@ -118,13 +118,6 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 1, 0, "")
             end)
-        elseif task46Done or hasTitleReward then
-            local gotoBtn = GUI:Button_Create(node, "Button_go_dl3", 540 + 30, 30.00, "res/wy/public/an_ljqw.png")
-            GUI:Button_setTitleColor(gotoBtn, "#F4E7B5")
-            GUI:Button_titleEnableOutline(gotoBtn, "#110b05", 2)
-            GUI:addOnClickEvent(gotoBtn, function()
-                SL:SendLuaNetMsg(100, 503, 1, 0, "")
-            end)
         elseif not canClaim then
             -- GUI:Text_Create(node, "claim_lock", 485, 18, 18, "#ff7676", "需完成全部灰界与四灾任务后领取")
         end
@@ -163,7 +156,7 @@ function npc.main(npcid, p2, p3, msgData)
         ensureWindow(npcid)
         UI_updata(npc.node)
     elseif p2 == 1 then
-        UI_updata(npc.node)
+        NPC_UI_HELPER.closeWindow(npc._window)
     elseif p2 == 8 then
         local data = SL:JsonDecode(msgData, false) or {}
         if NPC_UI_HELPER and NPC_UI_HELPER.setThreeCityIntroSeen then
