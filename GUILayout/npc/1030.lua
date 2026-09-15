@@ -94,16 +94,28 @@ local function ensureWindow(npcid)
     return npc.node
 end
 
+local function refreshMainlineUi()
+    if MainAssist and type(MainAssist.UpdateCurrentXylTaskWidget) == "function" then
+        MainAssist.UpdateCurrentXylTaskWidget()
+    end
+    if MainAssist and type(MainAssist.RequestGrayWorldTaskIconRefresh) == "function" then
+        MainAssist.RequestGrayWorldTaskIconRefresh()
+    end
+end
+
 function npc.main(npcid, p2, p3, msgData)
     npc.currentNpcid = npcid
     if p2 == 0 then
         npc.data = SL:JsonDecode(msgData, false) or {}
         ensureWindow(npcid)
         renderFormula(npc.node, tonumber(npc.data.done or 0) == 1)
-    elseif p2 == 1 and npc.node then
+    elseif p2 == 1 then
         npc.data = npc.data or {}
         npc.data.done = tonumber((SL:JsonDecode(msgData, false) or {}).done or p3 or 0) or 0
-        renderFormula(npc.node, npc.data.done == 1 or tonumber(p3 or 0) == 2)
+        if npc.node then
+            renderFormula(npc.node, npc.data.done == 1 or tonumber(p3 or 0) == 2)
+        end
+        refreshMainlineUi()
     end
 end
 

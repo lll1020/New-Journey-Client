@@ -328,9 +328,10 @@ local function _story_node_done(node)
     end
     return false
 end
-local function hasThirdContinentHalfEntry()
+
+local function hasThirdContinentFullEntry()
     local raw = Player and Player.getServerVar and Player:getServerVar("T13") or ""
-    if not raw or raw == "" then
+    if type(raw) ~= "string" or raw == "" then
         return false
     end
     local ok, storyData = pcall(function()
@@ -341,6 +342,7 @@ local function hasThirdContinentHalfEntry()
     end
     return _story_node_done(storyData["npc_46"])
 end
+
 function npc.main(npcid, p2, p3, msgData)
     local function ensureWindow(npcid)
         local opts = {
@@ -383,17 +385,11 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:setAnchorPoint(lockText, 0.5, 0.5)
         -- 进入按钮
         local button = GUI:Button_Create(node, "btn_enter", math.floor(bgSize.width / 2) + 50, 50, "res/custom/dlcs/btn.png")
-        GUI:setAnchorPoint(button, 0.5, 0.5)
-        GUI:addOnClickEvent(button, function()
-            -- if not enterOK then
-            --     SL:ShowSystemTips("<font color='#FF0000'>还未达到进入条件，不能传送</font>")
-            --     return
-            -- end
-            if npcid == 503 then
-                if not hasThirdContinentHalfEntry() then
-                    NPC_UI_HELPER.guochang_3()
-                    return
-                end
+            GUI:setAnchorPoint(button, 0.5, 0.5)
+            GUI:addOnClickEvent(button, function()
+            if npcid == 503 and not hasThirdContinentFullEntry() then
+                NPC_UI_HELPER.guochang_3()
+                return
             end
             SL:SendLuaNetMsg(100, npcid, 1, 0, "")
         end)

@@ -35,6 +35,8 @@ local cf_teshunpc = {
     [101] = 101,
     [9998] = 9998, -- 改名卡界面
     [46] = 46, -- 灾厄入侵
+    [1030] = 1030, -- 合成夜明珠
+    [1031] = 1031, -- 进入三大陆
     [1028] = 16, -- 沙巴克
 
 }
@@ -130,9 +132,15 @@ SL:RegisterLuaNetMsg(103, function(msgID, p1, p2, p3, msgData)
             cogin.sjtb.zxrwid = msgData.rwid
             if MainAssist and type(MainAssist.UpdateCurrentXylTaskWidget) == "function" then
                 MainAssist.UpdateCurrentXylTaskWidget()
+                if type(MainAssist.RequestGrayWorldTaskIconRefresh) == "function" then
+                    MainAssist.RequestGrayWorldTaskIconRefresh()
+                end
                 SL:ScheduleOnce(function()
                     if MainAssist and type(MainAssist.UpdateCurrentXylTaskWidget) == "function" then
                         MainAssist.UpdateCurrentXylTaskWidget()
+                        if type(MainAssist.RequestGrayWorldTaskIconRefresh) == "function" then
+                            MainAssist.RequestGrayWorldTaskIconRefresh()
+                        end
                     end
                 end, 0.05)
             end

@@ -1592,7 +1592,8 @@ local function openNpcPanelForGuide(npcid)
 end
 local MAINLINE_PANEL_GUIDE = {
     [17] = 24, -- 天书强化
-    [18] = 24, -- 天书仙法
+    [20] = 24, -- 天书强化
+    [23] = 22, -- 灵根天赋点亮
     [26] = 43, -- 江湖称号升级
 }
 local guideDispatch = {
@@ -1634,7 +1635,7 @@ local guideDispatch = {
             return
         end
         local rwid = tonumber(data and data.rwid) or 0
-        if rwid == 22 or rwid == 32 then
+        if rwid == 22 or rwid == 32 or rwid == 23 then
             openRoleGuide()
             return
         end
@@ -3494,17 +3495,8 @@ npc[11] = function(p2, p3, Data)
         return _ywl_story_node_done(storyData["npc_46"])
     end
     function _ywl_has_third_continent_half_entry()
-        local raw = Player:getServerVar("T13")
-        if not raw or raw == "" then
-            return false
-        end
-        local ok, storyData = pcall(function()
-            return Player:JsonToTbl(raw)
-        end)
-        if not ok or type(storyData) ~= "table" then
-            return false
-        end
-        return _ywl_story_node_done(storyData["npc_46"])
+        -- 完成主线 35 后即可进入灰界前沿；灾厄入侵完成才是正式进入三大陆。
+        return type(dl_sz) == "function" and dl_sz(3) == true
     end
     local function _ywl_is_third_continent_half_chapter(name)
         if not name or name == "" then
@@ -8711,19 +8703,6 @@ npc[514] = function(p2, p3, Data)
         end
         return false
     end
-    local function hasThirdContinentHalfEntry()
-        local raw = Player and Player.getServerVar and Player:getServerVar("T13") or ""
-        if not raw or raw == "" then
-            return false
-        end
-        local ok, storyData = pcall(function()
-            return Player:JsonToTbl(raw)
-        end)
-        if not ok or type(storyData) ~= "table" then
-            return false
-        end
-        return storyNodeDone(storyData["npc_46"])
-    end
     local function hasLinggenSocketLevel(needLevel)
         needLevel = tonumber(needLevel) or 1
         local raw = Player and Player.getServerVar and Player:getServerVar("T74") or ""
@@ -8981,12 +8960,6 @@ npc[514] = function(p2, p3, Data)
                 if not isUnlocked then
                     SL:ShowSystemTips("<font color='#FF0000'>还未达到进入条件，不能传送</font>")
                     return
-                end
-                if i == 3 then
-                    if not hasThirdContinentHalfEntry() then
-                        NPC_UI_HELPER.guochang_3()
-                        return
-                    end
                 end
                 if i == 7 then
                     SL:ShowSystemTips("<font color='#FF0000'>暂未开放</font>")
@@ -9284,7 +9257,7 @@ npc[516] = function(p2, p3, Data)
             GUI:setAnchorPoint(conditionRich, 0, 0.5)
         end
         local needRealCharge = tonumber(cfg and cfg.need_real_charge or 0) or 0
-        if needRealCharge > 0 then
+        if needRealCharge > 0 and  idx == 1 then
             local curData = mfzz_get_data()
             local realCharge = tonumber(curData.real_charge or 0) or 0
             local progressText = GUI:Text_Create(node, "real_charge_progress", cardPos.x + 82, cardPos.y + 326 - 353 - 10, 18, conditionColor, string.format("当前真实充值: %s元", tostring(realCharge), tostring(needRealCharge)))
@@ -9883,6 +9856,7 @@ npc[9999] = function(p2, p3, msgData)
     end
 end
 return npc
+
 
 
 

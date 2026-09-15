@@ -943,6 +943,392 @@ local function stateActive(id)
     return n((npc.state.nodes or {})[tostring(id)] or 0) == 1
 end
 
+local function getMainlineRwid()
+    local rwid = tonumber(cogin and cogin.sjtb and cogin.sjtb.rwid) or 0
+    local zxrwid = tonumber(cogin and cogin.sjtb and cogin.sjtb.zxrwid) or 0
+    rwid = math.max(rwid, zxrwid)
+    if Player and type(Player.getServerVar) == "function" then
+        rwid = math.max(rwid, tonumber(Player:getServerVar("U11") or 0) or 0)
+        rwid = math.max(rwid, tonumber(Player:getServerVar("U_zxrw") or 0) or 0)
+    end
+    return rwid
+end
+
+local function isNodeLinkedToActive(node)
+    if not node or node.kind == "root" then
+        return false
+    end
+    for _, id in ipairs(node.requires or {}) do
+        if stateActive(id) then
+            return true
+        end
+    end
+    for _, id in ipairs(node.requires_any or {}) do
+        if stateActive(id) then
+            return true
+        end
+    end
+    for _, candidate in ipairs(TreeCfg.nodes or {}) do
+        if tostring(candidate.id) ~= tostring(node.id) and stateActive(candidate.id) then
+            for _, id in ipairs(candidate.requires or {}) do
+                if tostring(id) == tostring(node.id) then
+                    return true
+                end
+            end
+            for _, id in ipairs(candidate.requires_any or {}) do
+                if tostring(id) == tostring(node.id) then
+                    return true
+                end
+            end
+        end
+    end
+    return false
+end
+
+local MAINLINE_TALENT_CHOICE_IDS = {
+    "metal_M1",
+    "wood_M1",
+    "water_M1",
+    "fire_M1",
+    "earth_M1",
+}
+local updateNodeVisual
+local updateTalentChoiceGuidePosition
+
+local function isMainlineTalentChoiceNode(nodeId)
+    nodeId = tostring(nodeId or "")
+    for _, id in ipairs(MAINLINE_TALENT_CHOICE_IDS) do
+        if id == nodeId then
+            return true
+        end
+    end
+    return false
+end
+
+local function getMainlineTalentChoiceNodeIds()
+    local result = {}
+    for _, id in ipairs(MAINLINE_TALENT_CHOICE_IDS) do
+        result[#result + 1] = id
+    end
+    return result
+end
+
+local function hasMainlineTalentChoiceActive()
+    for _, id in ipairs(MAINLINE_TALENT_CHOICE_IDS) do
+        if stateActive(id) then
+            return true
+        end
+    end
+    return false
+end
+
+local function requestMainlineGuide(marker, guideWidget, guideParent, desc, opts)
+    if not (NPC_UI_HELPER and guideWidget and guideParent) then
+        return false
+    end
+    opts = opts or {}
+    local guideKey = string.format("%s_%s_%s", opts.keyPrefix or "mainline_linggen_talent", tostring(opts.rwid or getMainlineRwid()), tostring(marker or 0))
+    npc._guide_key = guideKey
+    return NPC_UI_HELPER.requestGuide("mainline", guideKey, {
+        dir = opts.dir or 3,
+        guideWidget = guideWidget,
+        guideParent = guideParent,
+        guideDesc = desc,
+        isForce = opts.isForce == true,
+        hideMask = opts.hideMask,
+        priority = opts.priority,
+    })
+end
+
+local function closeTalentChoiceGuide()
+    if valid(npc.talentChoiceGuide) then
+        GUI:removeFromParent(npc.talentChoiceGuide)
+    end
+    npc.talentChoiceGuide = nil
+    npc.talentChoiceGuideNodeId = nil
+    npc.talentChoiceGuideNodeIds = nil
+    npc.talentChoiceGuideMarkers = nil
+    npc.talentChoiceGuideTip = nil
+end
+
+local function guideLine(parent, name, x, y, width, height)
+    local line = GUI:Layout_Create(parent, name, x, y, width, height, false)
+    GUI:setAnchorPoint(line, 0.5, 0.5)
+    GUI:Layout_setBackGroundColorType(line, 1)
+    GUI:Layout_setBackGroundColor(line, "#E2C16A")
+    GUI:Layout_setBackGroundColorOpacity(line, 230)
+    GUI:setLocalZOrder(line, 3)
+    return line
+end
+
+local function getNodeGuidePosition(nodeId)
+    local view = npc.nodeViews and npc.nodeViews[tostring(nodeId or "")]
+    if not (view and valid(view.holder) and valid(npc.treeCanvas)) then
+        return nil
+    end
+    return GUI:getPosition(view.holder)
+end
+
+local function getTalentChoiceGuideSide(nodeId, node)
+    local id = tostring(nodeId or node and node.id or "")
+    local fixedSides = {
+        fire_M1 = -1,
+        earth_M1 = -1,
+        metal_M1 = 1,
+        wood_M1 = 1,
+        water_M1 = 1,
+    }
+    if fixedSides[id] then
+        return fixedSides[id]
+    end
+    local root = TreeCfg.node_map and TreeCfg.node_map.root
+    return n(node and node.x) >= n(root and root.x) and 1 or -1
+end
+
+local function createTalentChoiceMarker(parent, name, node, nodeId)
+    local marker = GUI:Node_Create(parent, name, 0, 0)
+    GUI:setTouchEnabled(marker, false)
+    GUI:setLocalZOrder(marker, 3)
+
+    local choiceIntro = {
+        metal_M1 = {title = "金刃破", desc = "穿刺剑气 斩杀增伤", color = "#F7D15B"},
+        wood_M1 = {title = "蔓生种", desc = "枯萎持续 减速压制", color = "#6DEB8C"},
+        water_M1 = {title = "冰棱弹", desc = "水蚀增伤 潮汐强化", color = "#76D9FF"},
+        fire_M1 = {title = "星火术", desc = "灼烧叠层 死亡溅射", color = "#FF8060"},
+        earth_M1 = {title = "土岩落", desc = "落石破防 岩盾护身", color = "#E8B35C"},
+    }
+    local intro = choiceIntro[tostring(nodeId or "")]
+        or {title = node and node.name or "本命技能", desc = tostring(node and node.effect or ""), color = nodeColor(node)}
+    local side = getTalentChoiceGuideSide(nodeId, node)
+    local nodeHalf = math.max(32, nodeDisplaySize(node) / 2 + 8)
+    local lineLen = 42
+    local cardW = 172
+    local cardH = 70
+    local thick = 2
+    local rectCenterX = side * (nodeHalf + lineLen + cardW / 2)
+    local lineCenterX = side * (nodeHalf + lineLen / 2)
+
+    guideLine(marker, "choice_line", lineCenterX, 0, lineLen, thick)
+    local card = GUI:Image_Create(marker, "choice_card", rectCenterX, 0, RES .. "tj_5.png")
+    GUI:setAnchorPoint(card, 0.5, 0.5)
+    GUI:setContentSize(card, cardW, cardH)
+    GUI:setOpacity(card, 238)
+    GUI:setLocalZOrder(card, 4)
+
+    local title = text(marker, "choice_title", rectCenterX, 14, 20, intro.color, intro.title, 0.5, 0.5)
+    GUI:setLocalZOrder(title, 5)
+    local desc = text(marker, "choice_desc", rectCenterX, -10, 18, "#E8D8B8", intro.desc, 0.5, 0.5)
+    GUI:setLocalZOrder(desc, 5)
+    return marker, rectCenterX, cardH / 2
+end
+
+updateTalentChoiceGuidePosition = function()
+    if not valid(npc.talentChoiceGuide) or not npc.talentChoiceGuideNodeIds then
+        return
+    end
+    local firstPos = nil
+    local firstHalf = 46
+    local visibleCount = 0
+    for _, marker in ipairs(npc.talentChoiceGuideMarkers or {}) do
+        local pos = getNodeGuidePosition(marker.nodeId)
+        if pos and valid(marker.node) then
+            GUI:setPosition(marker.node, pos.x, pos.y)
+            GUI:setVisible(marker.node, true)
+            visibleCount = visibleCount + 1
+            if not firstPos then
+                firstPos = pos
+                firstHalf = marker.half or firstHalf
+            end
+        elseif valid(marker.node) then
+            GUI:setVisible(marker.node, false)
+        end
+    end
+    if visibleCount <= 0 then
+        closeTalentChoiceGuide()
+        return
+    end
+    if valid(npc.talentChoiceGuideTip) and firstPos then
+        GUI:setPosition(npc.talentChoiceGuideTip, firstPos.x, firstPos.y + firstHalf + 62)
+        GUI:setVisible(npc.talentChoiceGuideTip, true)
+    end
+end
+
+local function showTalentChoiceGuide(candidateIds)
+    if type(candidateIds) ~= "table" then
+        candidateIds = { candidateIds }
+    end
+    local validIds = {}
+    for _, nodeId in ipairs(candidateIds or {}) do
+        local id = tostring(nodeId or "")
+        local node = TreeCfg.node_map and TreeCfg.node_map[id]
+        local view = node and npc.nodeViews and npc.nodeViews[node.id]
+        if node and view and valid(view.holder) then
+            validIds[#validIds + 1] = id
+        end
+    end
+    if #validIds ~= #candidateIds or not valid(npc.treeCanvas) then
+        return false
+    end
+    if NPC_UI_HELPER then
+        NPC_UI_HELPER.closeGuideByDomain("mainline")
+    end
+    closeTalentChoiceGuide()
+
+    local layer = GUI:Node_Create(npc.treeCanvas, "talent_choice_guide", 0, 0)
+    GUI:setLocalZOrder(layer, 980)
+    GUI:setTouchEnabled(layer, false)
+    npc.talentChoiceGuide = layer
+    npc.talentChoiceGuideNodeIds = validIds
+    npc.talentChoiceGuideNodeId = validIds[1]
+    npc.talentChoiceGuideMarkers = {}
+
+    for index, id in ipairs(validIds) do
+        local node = TreeCfg.node_map[id]
+        local markerNode, offsetX, half = createTalentChoiceMarker(layer, "choice_marker_" .. tostring(index), node, id)
+        npc.talentChoiceGuideMarkers[#npc.talentChoiceGuideMarkers + 1] = {
+            nodeId = id,
+            node = markerNode,
+            offsetX = offsetX,
+            half = half,
+        }
+    end
+    npc.talentChoiceGuideTip = nil
+    GUI:setVisible(npc.talentChoiceGuide, true)
+    updateTalentChoiceGuidePosition()
+    return true
+end
+
+local function tryStartMainlineCoreNodeGuide()
+    if getMainlineRwid() ~= 22 then
+        return false
+    end
+    local view = npc.nodeViews and npc.nodeViews.root
+    if not (view and valid(view.button) and valid(view.holder)) then
+        return false
+    end
+    return requestMainlineGuide("core_node", view.button, view.holder, "点击灵根核心", {
+        rwid = 22,
+        keyPrefix = "mainline_linggen_core",
+        priority = 320,
+    })
+end
+
+local function tryStartMainlineCoreUpgradeGuide()
+    if getMainlineRwid() ~= 22 or not valid(npc.upgradeBox) then
+        return false
+    end
+    local upgrade = GUI:getChildByName(npc.upgradeBox, "upgrade_core")
+    if not valid(upgrade) then
+        return false
+    end
+    return requestMainlineGuide("core_upgrade", upgrade, npc.upgradeBox, "点击升级核心", {
+        rwid = 22,
+        keyPrefix = "mainline_linggen_core",
+        priority = 330,
+    })
+end
+
+local function tryStartMainlineTalentNodeGuide()
+    if getMainlineRwid() ~= 23 then
+        closeTalentChoiceGuide()
+        return false
+    end
+    local candidateIds = getMainlineTalentChoiceNodeIds()
+    if #candidateIds <= 0 then
+        npc.mainlineTalentChoice = nil
+        closeTalentChoiceGuide()
+        if NPC_UI_HELPER then
+            NPC_UI_HELPER.closeGuideByDomain("mainline")
+        end
+        return false
+    end
+    npc.mainlineTalentChoice = {}
+    for _, id in ipairs(candidateIds) do
+        npc.mainlineTalentChoice[id] = true
+    end
+    for _, id in ipairs(MAINLINE_TALENT_CHOICE_IDS) do
+        updateNodeVisual(id)
+    end
+    local nodeId = candidateIds[1]
+    local view = nodeId and npc.nodeViews and npc.nodeViews[nodeId]
+    if not (view and valid(view.button) and valid(view.holder)) then
+        closeTalentChoiceGuide()
+        return false
+    end
+    return showTalentChoiceGuide(candidateIds)
+end
+
+local function tryStartMainlineTalentGuides()
+    local rwid = getMainlineRwid()
+    if rwid == 22 then
+        npc.mainlineTalentChoice = nil
+        if npc._waitMainlineTalentAfterCore then
+            if NPC_UI_HELPER then
+                NPC_UI_HELPER.closeGuideByDomain("mainline")
+            end
+            return false
+        end
+        if valid(npc.upgradeBox) then
+            return tryStartMainlineCoreUpgradeGuide()
+        end
+        return tryStartMainlineCoreNodeGuide()
+    elseif rwid == 23 then
+        npc._waitMainlineTalentAfterCore = nil
+        npc._mainlineGuideSyncRetry = nil
+        closeModalWindow("npc_22_upgrade_window")
+        setMainTreeVisible(true)
+        if hasMainlineTalentChoiceActive() then
+            npc.mainlineTalentChoice = nil
+            closeTalentChoiceGuide()
+            for _, id in ipairs(MAINLINE_TALENT_CHOICE_IDS) do
+                updateNodeVisual(id)
+            end
+            if NPC_UI_HELPER then
+                NPC_UI_HELPER.closeGuideByDomain("mainline")
+            end
+            return false
+        end
+        return tryStartMainlineTalentNodeGuide()
+    end
+    npc.mainlineTalentChoice = nil
+    closeTalentChoiceGuide()
+    npc._waitMainlineTalentAfterCore = nil
+    npc._mainlineGuideSyncRetry = nil
+    if NPC_UI_HELPER then
+        NPC_UI_HELPER.closeGuideByDomain("mainline")
+    end
+    return false
+end
+
+local function scheduleMainlineGuideSync()
+    if npc._mainlineGuideSyncScheduled then
+        return
+    end
+    npc._mainlineGuideSyncScheduled = true
+    local function syncGuide()
+        npc._mainlineGuideSyncScheduled = nil
+        if not valid(npc.window) then
+            return
+        end
+        tryStartMainlineTalentGuides()
+        if npc._waitMainlineTalentAfterCore and getMainlineRwid() == 22 then
+            npc._mainlineGuideSyncRetry = n(npc._mainlineGuideSyncRetry) + 1
+            if npc._mainlineGuideSyncRetry <= 8 then
+                scheduleMainlineGuideSync()
+            else
+                npc._waitMainlineTalentAfterCore = nil
+                npc._mainlineGuideSyncRetry = nil
+                tryStartMainlineTalentGuides()
+            end
+        end
+    end
+    if SL and type(SL.ScheduleOnce) == "function" then
+        SL:ScheduleOnce(syncGuide, 0.05)
+    else
+        syncGuide()
+    end
+end
+
 local function currentSocketGem(nodeId)
     return tostring((npc.state.sockets or {})[tostring(nodeId)] or "")
 end
@@ -1103,6 +1489,23 @@ local function nodeColor(node)
     return element and element.color or "#B9C4D6"
 end
 
+local function getUnfilledSocketPrerequisite(node)
+    if not node or stateActive(node.id) then
+        return nil
+    end
+    local function findIn(list)
+        for _, requiredId in ipairs(list or {}) do
+            local required = TreeCfg.node_map and TreeCfg.node_map[tostring(requiredId)]
+            local gemName = tostring((npc.state.sockets or {})[tostring(requiredId)] or "")
+            if required and isSocketNode(required) and stateActive(requiredId) and gemName == "" then
+                return required.name or tostring(requiredId)
+            end
+        end
+        return nil
+    end
+    return findIn(node.requires) or findIn(node.requires_any)
+end
+
 local function attrLines(node)
     local result = {}
     local seen = {}
@@ -1154,6 +1557,10 @@ local function requirementText(node)
     end
     if #linked == 0 then
         return "暂无相连节点"
+    end
+    local socketName = getUnfilledSocketPrerequisite(node)
+    if socketName then
+        return "请先在" .. socketName .. "镶嵌宝石"
     end
     return "可从任一相连节点点亮：" .. table.concat(linked, "、")
 end
@@ -1269,6 +1676,7 @@ local function positionTreeCanvas(posX, posY)
     posX, posY = clampTreePosition(posX, posY)
     GUI:setPosition(npc.treeCanvas, posX, posY)
     npc.treeCanvasPos = {x = posX, y = posY}
+    updateTalentChoiceGuidePosition()
 end
 
 local function centerTreeCanvas()
@@ -1452,10 +1860,13 @@ local function updateInfo()
     end
     local action = GUI:getChildByName(info, "node_action")
     if action then
+        local blockedSocket = not active and getUnfilledSocketPrerequisite(node)
         if node.kind == "root" then
             GUI:Button_setTitleText(action, "升级核心")
         elseif isSocketNode(node) and active then
             GUI:Button_setTitleText(action, "镶嵌")
+        elseif blockedSocket then
+            GUI:Button_setTitleText(action, "先镶嵌宝石")
         elseif active then
             GUI:Button_setTitleText(action, "退点")
         else
@@ -1495,7 +1906,7 @@ local function refreshUpgradeInfo()
     end
 end
 
-local function updateNodeVisual(nodeId)
+updateNodeVisual = function(nodeId)
     local item = npc.nodeViews and npc.nodeViews[nodeId]
     local cfg = TreeCfg.node_map and TreeCfg.node_map[nodeId]
     if not item or not cfg or not valid(item.button) then
@@ -1513,11 +1924,13 @@ local function updateNodeVisual(nodeId)
             setNodeLinkState(line, active)
         end
     end
-    GUI:setGrey(item.button, cfg.kind ~= "root" and not active and not selected)
+    local isMainlineChoice = npc.mainlineTalentChoice
+        and npc.mainlineTalentChoice[tostring(nodeId)]
+    GUI:setGrey(item.button, cfg.kind ~= "root" and not active and not selected and not isMainlineChoice)
     local stateText = GUI:getChildByName(item.button, "state")
     if stateText then
-        GUI:Text_setString(stateText, selected and "◆" or (active and "●" or ""))
-        GUI:Text_setTextColor(stateText, selected and "#FFF3B0" or (active and COLORS.green or COLORS.muted))
+        GUI:Text_setString(stateText, selected and "◆" or (active and "●" or (isMainlineChoice and "◆" or "")))
+        GUI:Text_setTextColor(stateText, selected and "#FFF3B0" or (active and COLORS.green or (isMainlineChoice and "#FFD66B" or COLORS.muted)))
     end
     refreshNodeSocketGem(nodeId)
 end
@@ -1650,6 +2063,21 @@ local function refreshPayload(payload)
     end
     if oldCoreLevel ~= n(npc.state.core_level) then
         refreshUpgradeInfo()
+        if oldCoreLevel < n(npc.state.core_level) then
+            npc._waitMainlineTalentAfterCore = true
+            npc._mainlineGuideSyncRetry = 0
+            if NPC_UI_HELPER then
+                NPC_UI_HELPER.closeGuideByDomain("mainline")
+            end
+        end
+        scheduleMainlineGuideSync()
+    else
+        for id in pairs(changedNodes) do
+            if isMainlineTalentChoiceNode(id) and stateActive(id) then
+                scheduleMainlineGuideSync()
+                break
+            end
+        end
     end
 end
 
@@ -1672,10 +2100,21 @@ local function selectNode(id)
         npc.suppressNodeClick = false
         return
     end
+    local isMainlineChoice = npc.mainlineTalentChoice
+        and npc.mainlineTalentChoice[tostring(id)]
+    -- Mainline choice guide stays visible after selecting a node.
+    -- It is closed only after the server confirms the talent is lit.
     local previousId = npc.selectedId
     npc.selectedId = id
     updateNodeVisual(previousId)
     updateNodeVisual(id)
+    if isMainlineChoice then
+        for _, choiceId in ipairs(MAINLINE_TALENT_CHOICE_IDS) do
+            if tostring(choiceId) ~= tostring(previousId) and tostring(choiceId) ~= tostring(id) then
+                updateNodeVisual(choiceId)
+            end
+        end
+    end
     updateInfo()
     if id == "root" then
         openUpgrade()
@@ -1876,6 +2315,7 @@ openUpgrade = function()
     end)
     GUI:setLocalZOrder(upgrade, 5)
     refreshUpgradeInfo()
+    tryStartMainlineCoreUpgradeGuide()
 end
 
 local function createHeader(sw, sh)
@@ -1996,6 +2436,11 @@ local function createInfoPanel(sw, sh)
         elseif stateActive(node.id) then
             openResetConfirm("single")
         else
+            local socketName = getUnfilledSocketPrerequisite(node)
+            if socketName then
+                SL:ShowSystemTips("请先在" .. socketName .. "镶嵌宝石")
+                return
+            end
             SL:SendLuaNetMsg(100, 22, 1, 0, SL:JsonEncode({id = node.id}, false))
         end
     end, 90, 40)
@@ -2034,6 +2479,9 @@ local function createWindow()
     npc.selectedId = "root"
     updateInfo()
     updateAllNodeVisuals()
+    SL:ScheduleOnce(function()
+        tryStartMainlineTalentGuides()
+    end, 0)
 end
 
 function npc.main(npcid, p2, p3, msgData)
@@ -2049,6 +2497,15 @@ function npc.main(npcid, p2, p3, msgData)
         return
     end
     refreshPayload(payload)
+    scheduleMainlineGuideSync()
 end
 
 return npc
+
+
+
+
+
+
+
+

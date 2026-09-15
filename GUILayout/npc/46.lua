@@ -29,6 +29,23 @@ local route_info = {
 
 local need_keys = {"npc_621", "npc_622", "npc_623", "npc_624", "npc_625", "npc_626", "npc_627", "npc_628"}
 
+local function refreshMainlineUi()
+    if MainAssist and type(MainAssist.UpdateCurrentXylTaskWidget) == "function" then
+        MainAssist.UpdateCurrentXylTaskWidget()
+    end
+    if MainAssist and type(MainAssist.RequestGrayWorldTaskIconRefresh) == "function" then
+        MainAssist.RequestGrayWorldTaskIconRefresh()
+    end
+end
+
+function npc._isTaskAccepted()
+    local task46Data = npc.data and npc.data.T_data and npc.data.T_data["npc_46"]
+    if type(task46Data) == "table" then
+        return (tonumber(task46Data.start or 0) or 0) >= 1 or (tonumber(task46Data.wc or 0) or 0) >= 1
+    end
+    return (tonumber(task46Data or 0) or 0) >= 1
+end
+
 function npc.main(npcid, p2, p3, msgData)
 
 
@@ -157,6 +174,10 @@ function npc.main(npcid, p2, p3, msgData)
         UI_updata(npc.node)
     elseif p2 == 1 then
         NPC_UI_HELPER.closeWindow(npc._window)
+        refreshMainlineUi()
+    elseif p2 == 3 then
+        NPC_UI_HELPER.closeWindow(npc._window)
+        refreshMainlineUi()
     elseif p2 == 8 then
         local data = SL:JsonDecode(msgData, false) or {}
         if NPC_UI_HELPER and NPC_UI_HELPER.setThreeCityIntroSeen then

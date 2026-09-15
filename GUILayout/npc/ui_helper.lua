@@ -21,7 +21,7 @@ local GUIDE_DOMAIN_PRIORITY = {
 local MAINLINE_TASK_BY_UPGRADE_NPC = {
     [32] = 15,
 }
-local GRAY_WORLD_GUIDE_RWID = 36
+local GRAY_WORLD_GUIDE_RWID = 38
 local GRAY_WORLD_GUIDE_MAP_NAMES = {
     ["灰界"] = true,
     ["灰界南部"] = true,
@@ -118,6 +118,8 @@ function UIHelper.isGrayWorldMap()
 end
 function UIHelper.shouldSuppressGrayWorldGuide(rwid)
     local mainlineRwid = tonumber(rwid) or getMainlineRwidValue()
+    -- 38 期间仍在灰界收尾，普通主线引导不能提前把玩家指向 1031。
+    -- 灰界任务自己的 guide domain 由 requestGuide 单独放行。
     return mainlineRwid >= GRAY_WORLD_GUIDE_RWID and UIHelper.isGrayWorldMap()
 end
 -- 规范化描边配置：
@@ -252,7 +254,7 @@ end
 function UIHelper.requestGuide(domain, guideKey, opts)
     domain = tostring(domain or "default")
     opts = opts or {}
-    if (domain == "xyl" or domain == "mainline" or domain == "gray_world") and UIHelper.shouldSuppressGrayWorldGuide(opts.rwid) then
+    if (domain == "xyl" or domain == "mainline") and UIHelper.shouldSuppressGrayWorldGuide(opts.rwid) then
         UIHelper.closeGuideByDomain(domain)
         return false
     end
@@ -484,7 +486,7 @@ function UIHelper.tryStartMainlineUpgradeGuide(guideCache, button, guideParent, 
         return false
     end
     opts = opts or {}
-    local rwid = tonumber(cogin and cogin.sjtb and cogin.sjtb.rwid) or 0
+    local rwid = getMainlineRwidValue()
     local taskMap = opts.taskMap or MAINLINE_TASK_BY_UPGRADE_NPC
     local targetTask = taskMap[npcid]
     SL:release_print('NPC_UI_HELPER: tryStartMainlineUpgradeGuide', rwid, targetTask, npcid)

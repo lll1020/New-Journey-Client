@@ -50,7 +50,7 @@ local GRAY_WORLD_SINGLE_FLOW_WIDTH = 136
 local GRAY_WORLD_SINGLE_FLOW_FONT_SIZE = 13
 local GRAY_WORLD_FINAL_BTN_POS = {x = 100, y = 95}
 local GRAY_WORLD_FINAL_BTN_TEXT = ""
-local XYL_FINAL_ENTRY_RWID = 36
+local XYL_FINAL_ENTRY_RWID = 38
 local XYL_FINAL_ENTRY_BTN_TEXT = "更多剧情"
 local GRAY_WORLD_LINE_MAP_ALIASES = {
     ["虚妄山脉"] = 4,
@@ -121,8 +121,8 @@ local MAINLINE_CURRENT_TASK_REWARD_CONFIG = {
     [11] = {{"天书残卷四", 1}},
     [13] = {{"绑定金币", 100000},{"天书", 1}},
     [14] = {{"绑定金币", 100000}, {"一重转生石", 10}},
-    [17] = {{"仙法卷轴", 1}},
-    [19] = {{"野火燎原[称号]", 1}},
+    [17] = {},
+    [19] = {{"野火燎原[称号]", 1},{"绑定元宝", 10000}},
     [20] = {{"1元真实充值", 1}},
     [21] = {{"除魔卫道[称号]", 1}},
     [22] = {},
@@ -133,7 +133,7 @@ local MAINLINE_CURRENT_TASK_REWARD_CONFIG = {
     [30] = {{"1元真实充值", 1}, {"轩辕剑传人[称号]", 1}},
     [31] = {{"绑定金币", 150000}, {"玫瑰花", 50}},
     [33] = {{"绑定金币", 150000}, {"古刹魔瓶", 1}},
-    [34] = {{"1元真实充值", 1}, {"仙法卷轴", 1}},
+    [34] = {{"1元真实充值", 1},},
 }
 
 local function _get_mainline_rwid_value()
@@ -153,8 +153,41 @@ local function _get_mainline_rwid_value()
     return rwid
 end
 
+local function _get_server_json_table(varName)
+    if not Player or type(Player.getServerVar) ~= "function" then
+        return {}
+    end
+    local raw = Player:getServerVar(varName)
+    if type(raw) ~= "string" or raw == "" then
+        return {}
+    end
+    local ok, data = pcall(function()
+        return Player:JsonToTbl(raw)
+    end)
+    if ok and type(data) == "table" then
+        return data
+    end
+    return {}
+end
+
+local function _is_gray_world_final_entry_ready()
+    if _get_mainline_rwid_value() ~= XYL_FINAL_ENTRY_RWID then
+        return false
+    end
+    local storyData = _get_server_json_table("T13")
+    local task46 = storyData["npc_46"]
+    local task46Done = false
+    if type(task46) == "table" then
+        task46Done = (tonumber(task46.wc or task46.finish or task46.done or 0) or 0) >= 1
+    else
+        task46Done = (tonumber(task46 or 0) or 0) >= 2
+    end
+    local entered = (tonumber(storyData["npc_1031"] or 0) or 0) >= 1
+    return task46Done and not entered
+end
+
 local function _is_mainline_final_entry_open_value()
-    return _get_mainline_rwid_value() >= XYL_FINAL_ENTRY_RWID
+    return _is_gray_world_final_entry_ready()
 end
 
 local function _resolve_reward_effect_parent(parent)
@@ -781,6 +814,23 @@ function MainAssistXylHelper.bind(MainAssist)
         local task46 = type(jqData) == "table" and jqData["npc_46"] or nil
         if type(task46) == "table" then
             return _gray_world_to_num(task46.wc, 0) >= 1
+        end
+        return _gray_world_to_num(task46, 0) >= 1
+    end
+
+    local function _gray_world_is_pre_guide_done(jqData)
+        if type(jqData) ~= "table" then
+            return false
+        end
+        -- The gray-world panel starts after the new pearl NPC (1030) is
+        -- visited. Do not let the retired 1029 entry unlock this panel.
+        return _gray_world_to_num(jqData["npc_1030"], 0) >= 1
+    end
+
+    local function _gray_world_is_task46_started(jqData)
+        local task46 = type(jqData) == "table" and jqData["npc_46"] or nil
+        if type(task46) == "table" then
+            return _gray_world_to_num(task46.start, 0) >= 1 or _gray_world_to_num(task46.wc, 0) >= 1
         end
         return _gray_world_to_num(task46, 0) >= 1
     end
@@ -1590,6 +1640,7 @@ function MainAssistXylHelper.bind(MainAssist)
         end
         local currentEvent = eventData or MainAssist._grayWorldLastMapEvent
         local isGrayWorldMap = _is_gray_world_map(currentEvent)
+        local jqDataForGuide = _gray_world_get_runtime_data()
         local currentMapName = _gray_world_get_current_map_name()
         local currentLineIdx = _gray_world_get_line_idx_by_map(currentMapName)
         local isOverviewMap = isGrayWorldMap and not currentLineIdx
@@ -1598,6 +1649,15 @@ function MainAssistXylHelper.bind(MainAssist)
             lastIsGrayWorldMap = _gray_world_is_gray_map_id(currentEvent.lastMapID) or lastIsGrayWorldMap
         end
         MainAssist._grayWorldAllowOverviewGuide = type(eventData) == "table" and isOverviewMap and (not lastIsGrayWorldMap)
+
+        if isGrayWorldMap and not _gray_world_is_pre_guide_done(jqDataForGuide) then
+            if MainAssist._grayWorldTaskIcon then
+                GUI:setVisible(MainAssist._grayWorldTaskIcon, false)
+            end
+            NPC_UI_HELPER.closeGuideByDomain("gray_world")
+            MainAssist._grayWorldPrevIsGrayMap = isGrayWorldMap
+            return
+        end
 
         local panel = _ensure_gray_world_icon()
         if not panel then
@@ -2051,14 +2111,14 @@ function MainAssistXylHelper.bind(MainAssist)
             end
         end
 
-        local tipText = GUI:Text_Create(panel, "tip_text", GRAY_WORLD_FINAL_BTN_POS.x + 5, GRAY_WORLD_FINAL_BTN_POS.y + 20, 21, "#ffffff", "品牌游戏 值得信赖\n\n丰富剧情 精彩纷呈\n\n更多精彩 敬请期待")
+        local tipText = GUI:Text_Create(panel, "tip_text", GRAY_WORLD_FINAL_BTN_POS.x + 5, GRAY_WORLD_FINAL_BTN_POS.y + 20, 21, "#ffffff", "灰界任务已完成\n\n点击传送门前往三大陆主城\n\n继续新的剧情引导")
         GUI:setAnchorPoint(tipText, 0.5, 0.5)
         GUI:Text_setFontName(tipText, "fonts/502.ttf")
         GUI:Text_enableOutline(tipText, "#000000", 2)
         -- GUI:Text_enableUnderline(tipText)
 
         local btn = NPC_UI_HELPER.createPrimaryButton(panel, "xyl_final_entry_btn", GRAY_WORLD_FINAL_BTN_POS.x + 10, GRAY_WORLD_FINAL_BTN_POS.y - 70, "", function()
-            SL:SendLuaNetMsg(101, 11, 0, 0, "")
+            SL:SendLuaNetMsg(105, 1031, 1031, 0, "")
         end, {
             skin = "res/wy/public/an15.png",
             fontSize = 14,
