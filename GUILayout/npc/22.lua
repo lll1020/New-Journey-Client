@@ -943,6 +943,18 @@ local function stateActive(id)
     return n((npc.state.nodes or {})[tostring(id)] or 0) == 1
 end
 
+local function conflictingM1(node)
+    if not node or node.exclusive_group ~= "core_m1" then
+        return nil
+    end
+    for _, candidate in ipairs(TreeCfg.nodes or {}) do
+        if candidate.exclusive_group == "core_m1" and candidate.id ~= node.id
+            and stateActive(candidate.id) then
+            return candidate
+        end
+    end
+end
+
 local function getMainlineRwid()
     local rwid = tonumber(cogin and cogin.sjtb and cogin.sjtb.rwid) or 0
     local zxrwid = tonumber(cogin and cogin.sjtb and cogin.sjtb.zxrwid) or 0
@@ -1519,6 +1531,75 @@ local function attrLines(node)
     return result
 end
 
+local function isInternalNodeDesc(value)
+    value = tostring(value or "")
+    return value == ""
+        or value:match("^M%d+：$") ~= nil
+        or value == "流派A"
+        or value == "流派B"
+        or value == "本命技能"
+        or value == "终极双流派共主技能"
+        or value == "双流派共主终极技能"
+        or value == "跨系通道节点。桥梁宝石槽不消耗天赋点，集群宝石不可镶嵌。"
+end
+
+local function displayNodeText(value)
+    value = tostring(value or "")
+    value = value:gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;")
+    value = value:gsub("\r\n", "\n"):gsub("\r", "\n"):gsub("\n", "<br/>")
+    return value
+end
+
+local function configuredDescLines(node)
+    local result = {}
+    local seen = {}
+    local function add(value)
+        value = tostring(value or "")
+        local key = value:gsub("%s+", "")
+        if key == "" or seen[key] or value:match("^M%d+：$") then
+            return
+        end
+        seen[key] = true
+        result[#result + 1] = value
+    end
+
+    local hasEffect = not isInternalNodeDesc(node.effect)
+    -- Prefer the designed effect, including effects with no attribute binding.
+    if hasEffect then
+        add(node.effect)
+    else
+        for _, value in ipairs(attrLines(node)) do
+            add(value)
+        end
+    end
+
+    local special = node.special
+    local element = TreeCfg.element_map and TreeCfg.element_map[node.element]
+    if node.slot_type == "J-终极" and element and element.ultimate then
+        local skill = element.ultimate
+        add("技能设计：" .. tostring(skill.name or node.name)
+            .. "（冷却 " .. tostring(skill.cd or "") .. "）")
+        add(skill.desc)
+    elseif special and (node.slot_type == "skill"
+        or special.key == tostring(node.element) .. "_ultimate") then
+        if not isInternalNodeDesc(node.desc) then
+            add(node.desc)
+        else
+            add(special.name)
+            add(special.desc)
+        end
+    elseif not hasEffect then
+        if special and not isInternalNodeDesc(special.desc) then
+            add(special.desc)
+        elseif not isInternalNodeDesc(node.desc) then
+            add(node.desc)
+        end
+    elseif isSocketNode(node) and not isInternalNodeDesc(node.desc) then
+        add(node.desc)
+    end
+    return result
+end
+
 local function requirementText(node)
     if node.kind == "root" then
         return "无需前置节点"
@@ -1570,33 +1651,35 @@ local function buildInfoHtml(node)
         return ""
     end
     local lines = {}
-    for _, value in ipairs(attrLines(node)) do
-        lines[#lines + 1] = "<font color='#9FE2FF'>" .. value .. "</font>"
-    end
-    if node.special and node.special.name then
-        lines[#lines + 1] = "<font color='#FFD66B'>" .. node.special.name .. "："
-            .. tostring(node.special.desc or "") .. "</font>"
+    for _, value in ipairs(configuredDescLines(node)) do
+        lines[#lines + 1] = "<font color='#D8C39A'>" .. displayNodeText(value) .. "</font>"
     end
     if isSocketNode(node) then
         local gemName = currentSocketGem(node.id)
         lines[#lines + 1] = "<font color='#FFD66B'>"
-            .. (gemName ~= "" and ("当前镶嵌：" .. gemName) or "当前未镶嵌宝石")
+            .. displayNodeText(gemName ~= "" and ("当前镶嵌：" .. gemName) or "当前未镶嵌宝石")
             .. "</font>"
     end
     if #lines == 0 then
-        lines[#lines + 1] = "<font color='#9BA7BB'>该节点暂为占位节点</font>"
+        lines[#lines + 1] = "<font color='#D8C39A'>" .. displayNodeText(node.name or "节点") .. "</font>"
     end
-    lines[#lines + 1] = "<font color='#AAB5C8'>" .. requirementText(node) .. "</font>"
+    if node.exclusive_group == "core_m1" then
+        lines[#lines + 1] = "<font color='#FFD66B'>五系 M1 互斥，只能点亮其中一个。</font>"
+        local other = conflictingM1(node)
+        if other then
+            lines[#lines + 1] = "<font color='#FF8585'>已选择：" .. displayNodeText(other.name) .. "</font>"
+        end
+    end
+    lines[#lines + 1] = "<font color='#AAB5C8'>" .. displayNodeText(requirementText(node)) .. "</font>"
     lines[#lines + 1] = "<font color='#AAB5C8'>点数消耗："
-        .. tostring(node.point_cost or 1) .. "点"
-        .. "天赋点</font>"
+        .. tostring(node.point_cost or 1) .. " 天赋点</font>"
     if node.cost and #node.cost > 0 then
         local costs = {}
         for _, cost in ipairs(node.cost) do
             costs[#costs + 1] = tostring(cost[1]) .. "×" .. tostring(cost[2])
         end
         lines[#lines + 1] = "<font color='#AAB5C8'>材料消耗："
-            .. table.concat(costs, "、") .. "</font>"
+            .. displayNodeText(table.concat(costs, "、")) .. "</font>"
     end
     if node.core_level and n(node.core_level) > 0 then
         lines[#lines + 1] = "<font color='#FFD66B'>需要灵根核心达到 "
@@ -1830,7 +1913,7 @@ local function updateInfo()
     local infoTitle = GUI:getChildByName(info, "info_title")
     local title = GUI:getChildByName(info, "node_title")
     local status = GUI:getChildByName(info, "node_status")
-    local desc = GUI:getChildByName(info, "node_desc")
+    local descScroll = GUI:getChildByName(info, "node_desc_scroll")
     local icon = GUI:getChildByName(info, "info_node_icon")
     if kicker then
         local laneText = node.kind == "root" and "CORE ROOT" or string.upper(tostring(node.lane or "NODE"))
@@ -1851,12 +1934,23 @@ local function updateInfo()
         GUI:setOpacity(icon, node.kind == "root" and 255 or (active and 255 or 150))
         GUI:setGrey(icon, node.kind ~= "root" and not active)
     end
-    if desc then
-        local old_pos = GUI:getPosition(desc)
-        GUI:removeFromParent(desc)
-        local newDesc = GUI:RichText_Create(info, "node_desc", old_pos.x, old_pos.y, buildInfoHtml(node), npc.infoDescW or 282, 16,
+    local html = buildInfoHtml(node)
+    if descScroll and (npc.infoDescId ~= node.id or npc.infoDescHtml ~= html) then
+        local desc = GUI:getChildByName(descScroll, "node_desc")
+        if desc then
+            GUI:removeFromParent(desc)
+        end
+        local viewSize = GUI:getContentSize(descScroll)
+        GUI:ScrollView_setInnerContainerSize(descScroll, viewSize.width, viewSize.height)
+        local newDesc = GUI:RichText_Create(descScroll, "node_desc", 0, 0, html, npc.infoDescW, 16,
             COLORS.text, 0, nil, nil, {outlineSize = 1, outlineColor = "#000000"})
         GUI:setAnchorPoint(newDesc, 0, 1)
+        GUI:setTouchEnabled(newDesc, false)
+        local innerH = math.max(viewSize.height, GUI:getContentSize(newDesc).height + 8)
+        GUI:ScrollView_setInnerContainerSize(descScroll, viewSize.width, innerH)
+        GUI:setPosition(newDesc, 0, innerH)
+        npc.infoDescId = node.id
+        npc.infoDescHtml = html
     end
     local action = GUI:getChildByName(info, "node_action")
     if action then
@@ -1869,6 +1963,8 @@ local function updateInfo()
             GUI:Button_setTitleText(action, "先镶嵌宝石")
         elseif active then
             GUI:Button_setTitleText(action, "退点")
+        elseif conflictingM1(node) then
+            GUI:Button_setTitleText(action, "本命互斥")
         else
             GUI:Button_setTitleText(action, "点亮")
         end
@@ -1944,10 +2040,16 @@ end
 
 local function refreshChangedNodeVisuals(changedIds)
     local selectedChanged = false
+    local selected = TreeCfg.node_map and TreeCfg.node_map[npc.selectedId]
     for id in pairs(changedIds or {}) do
         updateNodeVisual(id)
         if tostring(id) == tostring(npc.selectedId) then
             selectedChanged = true
+        elseif selected and selected.exclusive_group == "core_m1" then
+            local changed = TreeCfg.node_map[id]
+            if changed and changed.exclusive_group == "core_m1" then
+                selectedChanged = true
+            end
         end
     end
     if selectedChanged then
@@ -2408,8 +2510,15 @@ local function createInfoPanel(sw, sh)
     text(npc.infoPanel, "node_title", 10, panelTop - 40, 20, "#E8F1FF", "", 0, 1)
     text(npc.infoPanel, "info_effect_title", 10, panelTop - 90, 20, "#F1D176", "节点效果", 0, 0.5)
 
-    local desc = GUI:RichText_Create(npc.infoPanel, "node_desc", 10, panelTop - 100, "", npc.infoDescW, 15, COLORS.text, 0, nil, nil, {outlineSize = 1, outlineColor = "#000000"})
-    GUI:setAnchorPoint(desc, 0, 1)
+    local descScroll = GUI:ScrollView_Create(npc.infoPanel, "node_desc_scroll", 10, 65,
+        npc.infoDescW, panelTop - 165, 1)
+    GUI:setAnchorPoint(descScroll, 0, 0)
+    GUI:ScrollView_setClippingEnabled(descScroll, true)
+    GUI:ScrollView_setBounceEnabled(descScroll, false)
+    GUI:setTouchEnabled(descScroll, true)
+    GUI:setSwallowTouches(descScroll, true)
+    npc.infoDescId = nil
+    npc.infoDescHtml = nil
 
     -- text(npc.infoPanel, "synergy_title", 10, panelTop - 354, 30, "#F1D176", "相生相克", 0, 0.5)
     -- local synergy = GUI:RichText_Create(npc.infoPanel, "synergy_desc", 10, panelTop - 378,
@@ -2436,6 +2545,11 @@ local function createInfoPanel(sw, sh)
         elseif stateActive(node.id) then
             openResetConfirm("single")
         else
+            local other = conflictingM1(node)
+            if other then
+                SL:ShowSystemTips("五系 M1 只能点亮一个，当前已选择：" .. tostring(other.name))
+                return
+            end
             local socketName = getUnfilledSocketPrerequisite(node)
             if socketName then
                 SL:ShowSystemTips("请先在" .. socketName .. "镶嵌宝石")
@@ -2501,11 +2615,3 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
-
-
-
-
-
-
-
-
