@@ -9,6 +9,10 @@ local BUTTON_SKIN = RES .. "tj_21.png"
 local NODE_FRAME = RES .. "tj_19.png"
 local NODE_CORE_SKIN = RES .. "tj_22.png"
 local PANEL_FRAME = RES .. "tj_17.png"
+local NODE_ROOT_BACK = "res/custom/linggen/bufi/icon_11.png"
+local NODE_ROOT_BACK_SIZE = 180
+local NODE_ACTIVE_BACK = "res/wy/public/itembg.png"
+local LINK_ACTIVE_OVERLAY = "res/wy/public/fz_kt_33.png"
 local UPGRADE_RES = "res/custom/linggen/new/updata/"
 local UPGRADE_BG = UPGRADE_RES .. "upgrade_bg.png"
 local UPGRADE_BUTTON = UPGRADE_RES .. "btn_upgrade.png"
@@ -22,23 +26,23 @@ local UPGRADE_PREVIEW_Y = 94
 local UPGRADE_COST_Y = -78 + 190
 local UPGRADE_BUTTON_Y = 40
 -- local PANEL_FRAME = RES .. "tj_17.png"
-local LINK_SKIN = RES .. "tj_13.png"
+local LINK_SKIN = "res/wy/public/jdt_1.png"
 local LINK_TEXTURE_WIDTH = 376
 local LINK_VISIBLE_START = 24
 local LINK_VISIBLE_END = 351
 local LINK_VISIBLE_RATIO = (LINK_VISIBLE_END - LINK_VISIBLE_START) / LINK_TEXTURE_WIDTH
 local BUFI_RES = "res/custom/linggen/bufi/"
 local BUFI_DECORATIONS = {
-    metal = {icons = {5, 10, 18}, scale = 0.13, opacity = 50, slots = {{out = 170, side = -220}, {out = 300, side = 180}, {out = 440, side = -80}}},
-    wood = {icons = {8, 12, 20}, scale = 0.13, opacity = 48, slots = {{out = 180, side = 210}, {out = 320, side = -170}, {out = 460, side = 90}}},
-    water = {icons = {14, 22, 23}, scale = 0.13, opacity = 48, slots = {{out = 170, side = -190}, {out = 315, side = 210}, {out = 455, side = -70}}},
-    fire = {icons = {1, 4, 7}, scale = 0.12, opacity = 48, slots = {{out = 175, side = 220}, {out = 310, side = -180}, {out = 450, side = 80}}},
-    earth = {icons = {19, 24, 16}, scale = 0.13, opacity = 48, slots = {{out = 170, side = -210}, {out = 315, side = 175}, {out = 455, side = -85}}},
+    metal = {icons = {5, 10, 18}, scale = {0.6,0.8,1.3}, opacity = {100, 100, 150}, anchors = {"M5", "M12", "ultimate"}, offsets = {{x = -70 + 69, y = -16}, {x = 70 - 67, y = 16 - 37}, {x = -86 + 85, y = 30 - 45}}},
+    wood = {icons = {8, 12, 20}, scale = {0.6,0.8,1.3}, opacity = {100, 100, 150}, anchors = {"M5", "M12", "ultimate"}, offsets = {{x = -70 + 69, y = -16}, {x = 70 - 67, y = 16 - 37}, {x = -86 + 85, y = 30 - 45}}},
+    water = {icons = {14, 22, 23}, scale = {0.6,0.6,1.3}, opacity = {100, 150, 150}, anchors = {"M5", "M12", "ultimate"}, offsets = {{x = -70 + 69, y = -16}, {x = 70 - 67, y = 16 - 37}, {x = -86 + 85, y = 30 - 45}}},
+    fire = {icons = {1, 4, 7}, scale = {0.6,0.6,1.3}, opacity = {100, 100, 150}, anchors = {"M5", "M12", "ultimate"}, offsets = {{x = -70 + 69, y = -16}, {x = 70 - 67, y = 16 - 37}, {x = -86 + 85, y = 30 - 45}}},
+    earth = {icons = {19, 24, 16}, scale = {0.6,0.8,1.3}, opacity = {100, 100, 150}, anchors = {"M5", "M12", "ultimate"}, offsets = {{x = -72 + 59 + 14, y = 14 - 88 + 36}, {x = 72 - 66, y = 66 - 88 + 36}, {x = -86 + 85, y = 30 - 45}}},
 }
 local BUFI_DECORATION_Z = -5
 local CANVAS_W = 2300 + 1000
 local CANVAS_H = 2100 + 1000
-local MIN_ZOOM = 0.30
+local MIN_ZOOM = 0.20
 local MAX_ZOOM = 1.00
 local DEFAULT_ZOOM = 1.00
 local NODE_SIZE = {small = 30, medium = 40, large = 52, skill = 50, socket = 44, bridge = 34, root = 72}
@@ -62,6 +66,28 @@ local ATTR_NODE_SKINS = {
     RES .. "state8.png",
     RES .. "state9.png",
     RES .. "state10.png",
+}
+local ATTR_NODE_SKINS_BY_ELEMENT = {
+    metal = {
+        RES .. "state1_metal.png", RES .. "state2_metal.png", RES .. "state3_metal.png", RES .. "state4_metal.png", RES .. "state5_metal.png",
+        RES .. "state6_metal.png", RES .. "state7_metal.png", RES .. "state8_metal.png", RES .. "state9_metal.png", RES .. "state10_metal.png",
+    },
+    wood = {
+        RES .. "state1_wood.png", RES .. "state2_wood.png", RES .. "state3_wood.png", RES .. "state4_wood.png", RES .. "state5_wood.png",
+        RES .. "state6_wood.png", RES .. "state7_wood.png", RES .. "state8_wood.png", RES .. "state9_wood.png", RES .. "state10_wood.png",
+    },
+    water = {
+        RES .. "state1_water.png", RES .. "state2_water.png", RES .. "state3_water.png", RES .. "state4_water.png", RES .. "state5_water.png",
+        RES .. "state6_water.png", RES .. "state7_water.png", RES .. "state8_water.png", RES .. "state9_water.png", RES .. "state10_water.png",
+    },
+    fire = {
+        RES .. "state1_fire.png", RES .. "state2_fire.png", RES .. "state3_fire.png", RES .. "state4_fire.png", RES .. "state5_fire.png",
+        RES .. "state6_fire.png", RES .. "state7_fire.png", RES .. "state8_fire.png", RES .. "state9_fire.png", RES .. "state10_fire.png",
+    },
+    earth = {
+        RES .. "state1_earth.png", RES .. "state2_earth.png", RES .. "state3_earth.png", RES .. "state4_earth.png", RES .. "state5_earth.png",
+        RES .. "state6_earth.png", RES .. "state7_earth.png", RES .. "state8_earth.png", RES .. "state9_earth.png", RES .. "state10_earth.png",
+    },
 }
 local SKILL_NODE_SKINS = {
     RES .. "1.png",
@@ -190,6 +216,12 @@ local function setMainTreeVisible(visible)
     if valid(npc.infoPanel) then
         GUI:setVisible(npc.infoPanel, visible)
     end
+    if valid(npc.infoFrame) then
+        GUI:setVisible(npc.infoFrame, visible)
+    end
+    if valid(npc.zoomControl) then
+        GUI:setVisible(npc.zoomControl, visible)
+    end
     if valid(npc.treeScroll) then
         GUI:setVisible(npc.treeScroll, visible)
     end
@@ -204,8 +236,13 @@ local function setMainTreeVisible(visible)
     end
 end
 
+local setInfoDrawer
+
 local function imageFrame(parent, name, x, y, width, height, path, zorder)
     local node = GUI:Image_Create(parent, name, x, y, path)
+    if not valid(node) then
+        return nil
+    end
     GUI:setAnchorPoint(node, 0.5, 0.5)
     GUI:setContentSize(node, width, height)
     if zorder ~= nil then
@@ -253,7 +290,8 @@ local function nodeButtonSkin(node)
         return SKILL_NODE_SKIN_BY_ELEMENT[node.element]
             or SKILL_NODE_SKINS[nodeSkinIndex(node, #SKILL_NODE_SKINS)]
     end
-    return ATTR_NODE_SKINS[nodeSkinIndex(node, #ATTR_NODE_SKINS)]
+    local skins = ATTR_NODE_SKINS_BY_ELEMENT[node.element] or ATTR_NODE_SKINS
+    return skins[nodeSkinIndex(node, #skins)]
 end
 
 local function shouldShowNodeFrame(node)
@@ -402,9 +440,9 @@ local function applyOuterFlowerLayout(resultMap)
         node.y = n(anchor.y) + outward.y * radial + tangent.y * tangentOffset
     end
 
-    -- The source file contains very large radial coordinates for the side
-    -- branches. Rebuild these short branches around their real M5/M10/M15
-    -- parent instead of letting them cut diagonally across the tree.
+    -- Rebuild the short branches around their real M5/M10/M15 parent instead
+    -- of letting the source coordinates cut diagonally across the tree. M5a
+    -- is intentionally opened toward the outer arc to match the main trunk.
     local sideBranches = {
         {anchor = "M5", prefix = "M5"},
         {anchor = "M10", prefix = "M10"},
@@ -412,8 +450,13 @@ local function applyOuterFlowerLayout(resultMap)
     }
     for _, element in ipairs(elements) do
         for _, branch in ipairs(sideBranches) do
-            setFromAnchor(element, branch.anchor, branch.prefix .. "a1", -70, -150)
-            setFromAnchor(element, branch.anchor, branch.prefix .. "a2", -145, -220)
+            if branch.prefix == "M5" then
+                setFromAnchor(element, branch.anchor, branch.prefix .. "a1", 55, -145)
+                setFromAnchor(element, branch.anchor, branch.prefix .. "a2", 125, -260)
+            else
+                setFromAnchor(element, branch.anchor, branch.prefix .. "a1", -70, -150)
+                setFromAnchor(element, branch.anchor, branch.prefix .. "a2", -145, -220)
+            end
             setFromAnchor(element, branch.anchor, branch.prefix .. "b1", -45, 112)
             setFromAnchor(element, branch.anchor, branch.prefix .. "b2", -90, 224)
         end
@@ -423,20 +466,20 @@ local function applyOuterFlowerLayout(resultMap)
     -- outward, then bends back inward; the two mirrored paths never need to
     -- cross and their shared terminal stays inside the flower.
     local flowerUpper = {
-        {120, 90},
-        {230, 145},
-        {340, 180},
-        {445, 165},
-        {545, 120},
-        {500, 250},
-        {430, 345},
-        {340, 390},
-        {245, 350},
+        {140, 105},
+        {265, 170},
+        {390, 210},
+        {510, 195},
+        {625, 140},
+        {575, 285},
+        {500, 395},
+        {400, 455},
+        {290, 400},
     }
     local inwardSide = {
-        {455, 65},
-        {360, 45},
-        {280, 80},
+        {510, 75},
+        {400, 55},
+        {305, 95},
     }
 
     for index, element in ipairs(elements) do
@@ -459,7 +502,7 @@ local function applyOuterFlowerLayout(resultMap)
 
             -- Keep the socket off the two flow starts so it does not sit on
             -- top of the first pair of nodes.
-            setPoint(element, "M18_X", outward, tangent, 0, -145)
+            setPoint(element, "M18_X", outward, tangent, 0, -175)
             for flowIndex, offset in ipairs(flowerUpper) do
                 setPoint(element, "F1_" .. tostring(flowIndex), outward, tangent, offset[1], offset[2])
                 setPoint(element, "F2_" .. tostring(flowIndex), outward, tangent, offset[1], -offset[2])
@@ -471,7 +514,7 @@ local function applyOuterFlowerLayout(resultMap)
                 setPoint(element, "F1_5a" .. tostring(sideIndex), outward, tangent, offset[1], offset[2])
                 setPoint(element, "F2_5a" .. tostring(sideIndex), outward, tangent, offset[1], -offset[2])
             end
-            setPoint(element, "shared_F5a4", outward, tangent, 220, 0)
+            setPoint(element, "shared_F5a4", outward, tangent, 255, 0)
 
             local nextElement = elements[index % #elements + 1]
             local previousElement = elements[(index - 2) % #elements + 1]
@@ -633,51 +676,31 @@ local function getLayoutNode(id)
 end
 
 local function createTreeDecorations(parent)
-    local elementNodes = {}
-    local rootX, rootY = CANVAS_W / 2, CANVAS_H / 2
-    for _, node in ipairs(npc.layoutNodes or TreeCfg.nodes or {}) do
-        if node.kind == "root" then
-            rootX = n(node.x, rootX)
-            rootY = n(node.y, rootY)
-        elseif node.element then
-            local group = elementNodes[node.element] or {}
-            group[#group + 1] = node
-            elementNodes[node.element] = group
-        end
-    end
-
     for element, decoration in pairs(BUFI_DECORATIONS) do
-        local nodes = elementNodes[element]
-        if nodes and #nodes > 0 then
-            local sumX, sumY = 0, 0
-            for _, node in ipairs(nodes) do
-                sumX = sumX + n(node.x)
-                sumY = sumY + n(node.y)
+        for index, icon in ipairs(decoration.icons or {}) do
+            local anchorKey = decoration.anchors and decoration.anchors[index]
+            local anchorId
+            if anchorKey == "M5" or anchorKey == "M12" then
+                anchorId = tostring(element) .. "_" .. anchorKey
+            elseif anchorKey == "ultimate" then
+                anchorId = tostring(element) .. "_shared_F5a4"
+            else
+                anchorId = tostring(anchorKey or "")
             end
-            local centerX = sumX / #nodes
-            local centerY = sumY / #nodes
-            local dirX = centerX - rootX
-            local dirY = centerY - rootY
-            local length = math.sqrt(dirX * dirX + dirY * dirY)
-            if length <= 0 then
-                length = 1
-            end
-            dirX = dirX / length
-            dirY = dirY / length
-            local sideX = -dirY
-            local sideY = dirX
-            for index, icon in ipairs(decoration.icons or {}) do
-                local slot = decoration.slots and decoration.slots[index] or {}
-                local out = n(slot.out, 180 + index * 120)
-                local side = n(slot.side, index % 2 == 0 and 160 or -160)
+
+            local anchor = getLayoutNode(anchorId)
+            if anchor then
+                local offset = decoration.offsets and decoration.offsets[index] or {}
                 local image = GUI:Image_Create(parent, "bufi_" .. element .. "_" .. tostring(index),
-                    centerX + dirX * out + sideX * side,
-                    centerY + dirY * out + sideY * side,
+                    n(anchor.x) + n(offset.x),
+                    n(anchor.y) + n(offset.y),
                     BUFI_RES .. "icon_" .. tostring(icon) .. ".png")
-                GUI:setAnchorPoint(image, 0.5, 0.5)
-                GUI:setScale(image, decoration.scale)
-                GUI:setOpacity(image, decoration.opacity)
-                GUI:setLocalZOrder(image, BUFI_DECORATION_Z)
+                if valid(image) then
+                    GUI:setAnchorPoint(image, 0.5, 0.5)
+                    GUI:setScale(image, n(decoration.scale[index], 1))
+                    GUI:setOpacity(image, n(decoration.opacity[index], 100))
+                    GUI:setLocalZOrder(image, BUFI_DECORATION_Z)
+                end
             end
         end
     end
@@ -704,11 +727,16 @@ local function setNodeLinkState(link, active)
     if not valid(link) then
         return
     end
-    GUI:setOpacity(link, active and 215 or 105)
+    GUI:setOpacity(link, 205)
     if GUI.Image_setGrey then
-        GUI:Image_setGrey(link, not active)
+        GUI:Image_setGrey(link, false)
     else
-        GUI:setGrey(link, not active)
+        GUI:setGrey(link, false)
+    end
+    local activeOverlay = GUI:getChildByName(link, "active_overlay")
+    if activeOverlay then
+        GUI:setContentSize(link, GUI:getContentSize(activeOverlay).width, active and 16 or 8)
+        GUI:setPosition(activeOverlay, 0, (active and 16 or 8)/2)
     end
 end
 
@@ -728,9 +756,14 @@ local function createNodeLinkImage(parent, name, fromPoint, toPoint, opts)
     local link = GUI:Image_Create(parent, name, fromX, fromY, opts.skin or LINK_SKIN)
     GUI:setAnchorPoint(link, 0, 0.5)
     GUI:setLocalZOrder(link, opts.zorder or 0)
-    GUI:setContentSize(link, length, opts.width or 8)
+    GUI:setContentSize(link, length, opts.width or 4)
     -- GUI coordinates use the inverse mathematical Y direction for rotation.
     GUI:setRotation(link, -math.deg(angle))
+    local activeOverlay = GUI:Image_Create(link, "active_overlay", 0, (opts.width or 4)/2, LINK_ACTIVE_OVERLAY)
+    GUI:setAnchorPoint(activeOverlay, 0, 0.5)
+    GUI:setContentSize(activeOverlay, length, math.max(opts.width or 4, 8))
+    GUI:setOpacity(activeOverlay, 230)
+    GUI:setLocalZOrder(activeOverlay, 1)
     setNodeLinkState(link, opts.active == true)
     return link
 end
@@ -757,24 +790,113 @@ local function costText(costs)
     return #parts > 0 and table.concat(parts, "、") or "无"
 end
 
-local function collectUpgradeAttrs(levelCfg)
-    local result = {}
-    local seen = {}
+local function parseUpgradeAttr(attr)
+    local rawText = tostring(attr and attr.text or "")
+    local label, displayValue = rawText:match("^%s*(.-)%s*[+＋]%s*([%-%d%.]+)")
+    label = label and label ~= "" and label or ("属性 " .. tostring(attr and attr.id or ""))
+    displayValue = tonumber(displayValue)
+    local unit = rawText:find("%", 1, true) and "%" or ""
+    local rawValue = n(attr and attr.value)
+    local scale = 1
+    if displayValue and displayValue ~= 0 and rawValue ~= 0 then
+        scale = math.abs(rawValue / displayValue)
+    elseif unit == "%" and rawValue ~= 0 then
+        scale = 100
+    end
+    return label, unit, scale
+end
+
+local function formatUpgradeAttrValue(value, unit, scale)
+    local display = n(value) / math.max(1, n(scale, 1))
+    if math.abs(display - math.floor(display)) < 0.001 then
+        display = math.floor(display)
+    end
+    local prefix = display >= 0 and "+" or ""
+    return prefix .. tostring(display) .. tostring(unit or "")
+end
+
+local function buildUpgradeAttrRows(currentLevel, nextLevel)
+    local rows = {}
+    local rowMap = {}
     local groups = {"hp", "attack", "defense", "cut", "recovery", "percent"}
-    for _, group in ipairs(groups) do
-        for _, attr in ipairs(((levelCfg or {}).attrs or {})[group] or {}) do
-            local value = n(attr.value)
-            local line = tostring(attr.text or "")
-            if line == "" then
-                line = "属性 " .. tostring(attr.id or "") .. " +" .. tostring(value)
-            end
-            if value ~= 0 and not seen[line] then
-                seen[line] = true
-                result[#result + 1] = line
+
+    local function ensureRow(attr, group)
+        local label, unit, scale = parseUpgradeAttr(attr)
+        local key = tostring(group or "") .. "|" .. tostring(label) .. "|" .. tostring(unit)
+        local row = rowMap[key]
+        if not row then
+            row = {
+                label = label,
+                unit = unit,
+                scale = scale,
+                current = 0,
+                next = 0,
+            }
+            rowMap[key] = row
+            rows[#rows + 1] = row
+        elseif n(row.scale) == 1 and n(scale) ~= 1 then
+            row.scale = scale
+        end
+        return row
+    end
+
+    for _, levelCfg in ipairs(TreeCfg.core_levels or {}) do
+        local level = n(levelCfg.level)
+        if level > nextLevel then
+            break
+        end
+        for _, group in ipairs(groups) do
+            for _, attr in ipairs(((levelCfg or {}).attrs or {})[group] or {}) do
+                local row = ensureRow(attr, group)
+                local value = n(attr.value)
+                if level <= currentLevel then
+                    row.current = row.current + value
+                end
+                row.next = row.next + value
             end
         end
     end
+
+    local result = {}
+    for _, row in ipairs(rows) do
+        local delta = n(row.next) - n(row.current)
+        if row.next ~= 0 or row.current ~= 0 or delta ~= 0 then
+            result[#result + 1] = string.format("%s %s -> %s",
+                row.label,
+                formatUpgradeAttrValue(row.current, row.unit, row.scale),
+                formatUpgradeAttrValue(row.next, row.unit, row.scale),
+                formatUpgradeAttrValue(delta, row.unit, row.scale)
+            )
+        end
+    end
     return result
+end
+
+local function cumulativeCorePointGain(level)
+    local total = 0
+    for _, levelCfg in ipairs(TreeCfg.core_levels or {}) do
+        if n(levelCfg.level) <= n(level) then
+            total = total + n(levelCfg.point_gain)
+        end
+    end
+    return total
+end
+
+local function buildUpgradeTopRows(currentLevel, nextCfg)
+    local rows = {}
+    local nextLevel = nextCfg and n(nextCfg.level, currentLevel + 1) or currentLevel
+    rows[#rows + 1] = string.format("天赋点 %s -> %s",
+        formatUpgradeAttrValue(cumulativeCorePointGain(currentLevel), "", 1),
+        formatUpgradeAttrValue(cumulativeCorePointGain(nextLevel), "", 1),
+        formatUpgradeAttrValue(n(nextCfg and nextCfg.point_gain), "", 1)
+    )
+
+    local unlock = tostring(nextCfg and nextCfg.unlock or "")
+    unlock = unlock:gsub("^%s*天赋点%s*[+＋]%s*%d+%s*", "")
+    if unlock ~= "" then
+        rows[#rows + 1] = "特殊效果：" .. unlock
+    end
+    return rows
 end
 
 local function renderUpgradeAttrScroll(box, state, nextCfg)
@@ -792,15 +914,17 @@ local function renderUpgradeAttrScroll(box, state, nextCfg)
     GUI:ScrollView_setClippingEnabled(scroll, true)
     GUI:ScrollView_setBounceEnabled(scroll, true)
 
-    local attrs = collectUpgradeAttrs(nextCfg)
+    local currentLevel = n(state.core_level)
+    local nextLevel = nextCfg and n(nextCfg.level, currentLevel + 1) or currentLevel
+    local topRows = nextCfg and buildUpgradeTopRows(currentLevel, nextCfg) or {}
+    local attrs = nextCfg and buildUpgradeAttrRows(currentLevel, nextLevel) or {}
     local rowH = 35
-    local innerH = math.max(scrollH, 46 + math.max(1, #attrs) * rowH + 10 + 42)
+    local totalRows = #topRows + #attrs
+    local innerH = math.max(scrollH, 46 + math.max(1, totalRows) * rowH + 10 + 42)
     GUI:ScrollView_setInnerContainerSize(scroll, scrollW, innerH)
     local root = GUI:Layout_Create(scroll, "upgrade_attr_root", 0, 0, scrollW, innerH, false)
     GUI:setAnchorPoint(root, 0, 0)
 
-    local currentLevel = n(state.core_level)
-    local nextLevel = nextCfg and n(nextCfg.level, currentLevel + 1) or currentLevel
     local levelTitle = GUI:RichText_Create(root, "upgrade_level_title", 8, innerH - 8,
         string.format("<font color='#6A8792'>当前核心</font> <font color='#344A58'>Lv.%d</font>"
             .. "  <font color='#B48A42'>→</font>  <font color='#2E8B57'>升级后 Lv.%d</font>",
@@ -817,22 +941,25 @@ local function renderUpgradeAttrScroll(box, state, nextCfg)
         return
     end
 
-    if n(nextCfg.point_gain) > 0 then
-        attrs[#attrs + 1] = "天赋点 +" .. tostring(n(nextCfg.point_gain))
+    local renderRows = {}
+    for _, line in ipairs(topRows) do
+        renderRows[#renderRows + 1] = {text = line, top = true}
     end
-    for index, line in ipairs(attrs) do
+    for _, line in ipairs(attrs) do
+        renderRows[#renderRows + 1] = {text = line, top = false}
+    end
+    for index, item in ipairs(renderRows) do
         local row = GUI:Layout_Create(root, "upgrade_attr_row_" .. tostring(index), 6,
             innerH - 48 - index * rowH, scrollW - 12, rowH - 2, false)
         GUI:setAnchorPoint(row, 0, 0)
         GUI:setTouchEnabled(row, false)
-        local dot = GUI:Text_Create(row, "dot", 8, (rowH - 2) / 2, 22, "#3C9A70", "◆")
+        local dot = GUI:Text_Create(row, "dot", 8, (rowH - 2) / 2, 22, item.top and "#10FF00" or "#3C9A70", "◆")
         GUI:setAnchorPoint(dot, 0.5, 0.5)
-        GUI:Text_setFontName(dot, FONT)
-        local value = GUI:Text_Create(row, "value", 24, (rowH - 2) / 2, 22,
-            index == #attrs and "#B48A42" or "#000000", line)
+        GUI:Text_setFontName(dot, "fonts/502.ttf")
+        local value = GUI:Text_Create(row, "value", 24, (rowH - 2) / 2, item.top and 22 or 20,
+            item.top and "#B48A42" or "#00FFFF", item.text)
         GUI:setAnchorPoint(value, 0, 0.5)
-        GUI:Text_setFontName(value, FONT)
-        GUI:Text_enableOutline(value, "#FFFFFF", 1)
+        GUI:Text_setFontName(value, "fonts/506.ttf")
     end
 end
 
@@ -1237,6 +1364,7 @@ local function tryStartMainlineCoreUpgradeGuide()
         rwid = 22,
         keyPrefix = "mainline_linggen_core",
         priority = 330,
+        dir = 5
     })
 end
 
@@ -1800,6 +1928,9 @@ local function moveTreeGesture(sender)
         gesture.moved = true
         npc.treeDragging = true
         npc.suppressNodeClick = true
+        if setInfoDrawer and npc.infoDrawerOpen then
+            setInfoDrawer(false, true)
+        end
     end
     positionTreeCanvas((gesture.beginCanvas.x or 0) + dx, (gesture.beginCanvas.y or 0) + dy)
 end
@@ -1842,6 +1973,8 @@ local function createZoomControl(sw, sh)
     local trackW = 18
 
     npc.zoomControl = GUI:Node_Create(npc.window, "zoom_control", controlX, controlY)
+    npc.zoomControlOpenX = controlX
+    npc.zoomControlClosedX = sw / 2 - 24
     GUI:setLocalZOrder(npc.zoomControl, 20)
 
     local track = panel(npc.zoomControl, "zoom_track", 0, 0, trackW, controlH, "#211812")
@@ -1859,7 +1992,7 @@ local function createZoomControl(sw, sh)
 
     -- local topText = text(npc.zoomControl, "zoom_top", 30, controlH / 2 - 12, 12, COLORS.muted, "100%", 0, 0.5)
     -- local midText = text(npc.zoomControl, "zoom_mid", 30, 0, 12, COLORS.text, "100%", 0, 0.5)
-    -- local bottomText = text(npc.zoomControl, "zoom_bottom", 30, -controlH / 2 + 12, 12, COLORS.muted, "30%", 0, 0.5)
+    -- local bottomText = text(npc.zoomControl, "zoom_bottom", 30, -controlH / 2 + 12, 12, COLORS.muted, "10%", 0, 0.5)
     -- -- GUI:setLocalZOrder(topText, 3)
     -- -- GUI:setLocalZOrder(midText, 3)
     -- GUI:setLocalZOrder(bottomText, 3)
@@ -1877,7 +2010,9 @@ local function createZoomControl(sw, sh)
         if not pos then
             return
         end
-        local localY = pos.y - (sh / 2 + controlY)
+        local controlPos = GUI:getPosition(npc.zoomControl)
+        local controlWorldY = sh / 2 + (controlPos.y or controlY)
+        local localY = pos.y - controlWorldY
         local percent = math.max(0, math.min(100, (localY + controlH / 2) / controlH * 100))
         setZoom(sliderPercentToZoom(percent))
     end
@@ -1900,6 +2035,45 @@ local function createZoomControl(sw, sh)
     }
     npc.zoomSlider.setPercent(zoomToSliderPercent(DEFAULT_ZOOM))
     refreshZoomText()
+end
+
+setInfoDrawer = function(open, animate)
+    if not valid(npc.window) then
+        return
+    end
+
+    local openX = n(npc.infoPanelOpenX, 0)
+    local closedX = n(npc.infoPanelClosedX, openX)
+    local targetX = open and openX or closedX
+    local zoomOpenX = n(npc.zoomControlOpenX, openX)
+    local zoomClosedX = n(npc.zoomControlClosedX, n(cogin and cogin.w, 1280) / 2 - 24)
+    local duration = animate and 0.24 or 0
+
+    npc.infoDrawerOpen = open == true
+
+    local function move(node)
+        if not valid(node) then
+            return
+        end
+        if duration > 0 then
+            GUI:Timeline_EaseSineIn_MoveTo(node, {x = targetX, y = GUI:getPosition(node).y}, duration)
+        else
+            local pos = GUI:getPosition(node)
+            GUI:setPosition(node, targetX, pos.y)
+        end
+    end
+
+    move(npc.infoPanel)
+    move(npc.infoFrame)
+    if valid(npc.zoomControl) then
+        local zoomX = open and zoomOpenX or zoomClosedX
+        if duration > 0 then
+            GUI:Timeline_EaseSineIn_MoveTo(npc.zoomControl, {x = zoomX, y = GUI:getPosition(npc.zoomControl).y}, duration)
+        else
+            local pos = GUI:getPosition(npc.zoomControl)
+            GUI:setPosition(npc.zoomControl, zoomX, pos.y)
+        end
+    end
 end
 
 local function updateInfo()
@@ -1931,8 +2105,8 @@ local function updateInfo()
         GUI:Text_setTextColor(status, active and COLORS.green or COLORS.muted)
     end
     if icon then
-        GUI:setOpacity(icon, node.kind == "root" and 255 or (active and 255 or 150))
-        GUI:setGrey(icon, node.kind ~= "root" and not active)
+        GUI:setOpacity(icon, 255)
+        GUI:setGrey(icon, false)
     end
     local html = buildInfoHtml(node)
     if descScroll and (npc.infoDescId ~= node.id or npc.infoDescHtml ~= html) then
@@ -1991,9 +2165,15 @@ local function refreshUpgradeInfo()
     -- local coreItem = GUI:Image_Create(preview, "core_item", 0, 0, coreSkin)
     -- GUI:setAnchorPoint(coreItem, 0.5, 0.5)
     -- GUI:setContentSize(coreItem, 74, 74)
-    local levelText = text(preview, "core_level", 0, -68 + 247, 15, "#F4D179",
-        "当前核心 " .. tostring(n(state.core_level)) .. " 级", 0.5, 0.5)
+
+    local core_frame = GUI:Image_Create(preview, "core_frame", -8 + 2, -68 + 247 + 7 + 7, NODE_ROOT_BACK)
+    GUI:setAnchorPoint(core_frame, 0.5, 0.5)
+    GUI:setContentSize(core_frame, 100, 100)
+    local levelText = text(preview, "core_level", -8 + 2, -68 + 247 + 7 + 7, 50, "#FF0000",
+    tostring(n(state.core_level)) .. "级", 0.5, 0.5)
     GUI:setLocalZOrder(levelText, 2)
+    GUI:Text_setFontName(levelText, "fonts/502.ttf")
+
     renderUpgradeCosts(box, nextCfg)
 
     local action = GUI:getChildByName(box, "upgrade_core")
@@ -2022,7 +2202,10 @@ updateNodeVisual = function(nodeId)
     end
     local isMainlineChoice = npc.mainlineTalentChoice
         and npc.mainlineTalentChoice[tostring(nodeId)]
-    GUI:setGrey(item.button, cfg.kind ~= "root" and not active and not selected and not isMainlineChoice)
+    GUI:setGrey(item.button, false)
+    if valid(item.activeBack) then
+        GUI:setVisible(item.activeBack, active == true)
+    end
     local stateText = GUI:getChildByName(item.button, "state")
     if stateText then
         GUI:Text_setString(stateText, selected and "◆" or (active and "●" or (isMainlineChoice and "◆" or "")))
@@ -2208,6 +2391,9 @@ local function selectNode(id)
     -- It is closed only after the server confirms the talent is lit.
     local previousId = npc.selectedId
     npc.selectedId = id
+    if setInfoDrawer then
+        setInfoDrawer(true, true)
+    end
     updateNodeVisual(previousId)
     updateNodeVisual(id)
     if isMainlineChoice then
@@ -2232,6 +2418,22 @@ local function createNodeView(parent, node)
     if shouldShowNodeFrame(node) then
         imageFrame(holder, "archive_frame", 0, 0, size + 16, size + 16, NODE_FRAME, 2)
     end
+    local rootBack
+    if node.kind == "root" then
+        rootBack = GUI:Image_Create(holder, "root_back", 0, 0, NODE_ROOT_BACK)
+        if valid(rootBack) then
+            GUI:setAnchorPoint(rootBack, 0.5, 0.5)
+            GUI:setContentSize(rootBack, NODE_ROOT_BACK_SIZE, NODE_ROOT_BACK_SIZE)
+            GUI:setLocalZOrder(rootBack, 99)
+        end
+    end
+    local activeBack = GUI:Image_Create(holder, "active_back", 0, 0, NODE_ACTIVE_BACK)
+    if valid(activeBack) then
+        GUI:setAnchorPoint(activeBack, 0.5, 0.5)
+        GUI:setLocalZOrder(activeBack, 2)
+        GUI:setVisible(activeBack, false)
+        GUI:setContentSize(activeBack, 78, 78)
+    end
     local skin = nodeButtonSkin(node)
     local btn = GUI:Button_Create(holder, "button", 0, 0, skin)
     GUI:Button_loadTexturePressed(btn, skin)
@@ -2254,6 +2456,8 @@ local function createNodeView(parent, node)
     npc.nodeViews[node.id] = {
         holder = holder,
         halo = halo,
+        rootBack = rootBack,
+        activeBack = activeBack,
         button = btn,
         skin = skin,
         lines = npc.lineViews and npc.lineViews[node.id] or {},
@@ -2273,8 +2477,8 @@ local function createTree()
     npc.treeViewW = treeW
     npc.treeViewH = treeH
     npc.treeBounds = calculateTreeBounds()
-    npc.treeFrame = imageFrame(npc.window, "tree_frame", treeX, -12, treeW + 8, treeH + 8, PANEL_FRAME, 2)
-    local viewport = GUI:Layout_Create(npc.window, "tree_viewport", treeX, -12, treeW, treeH, true)
+    npc.treeFrame = imageFrame(npc.window, "tree_frame", treeX, 0, treeW + 8, treeH + 8, RES .. "tj_31.png", 2)
+    local viewport = GUI:Layout_Create(npc.window, "tree_viewport", treeX, 0, treeW, treeH, true)
     GUI:setAnchorPoint(viewport, 0.5, 0.5)
     -- GUI:Layout_setBackGroundColorType(viewport, 1)
     -- GUI:Layout_setBackGroundColor(viewport, "#110B08")
@@ -2493,12 +2697,15 @@ local function createInfoPanel(sw, sh)
     GUI:setContentSize(npc.infoPanel, npc.infoW, npc.infoH)
     GUI:setLocalZOrder(npc.infoPanel, 11)
     GUI:setTouchEnabled(npc.infoPanel, true)
+    npc.infoPanelOpenX = panelX
 
 
     local bigkuang = GUI:Image_Create(npc.window, "bigkuang", panelX, cogin.h/2 - 80, "res/wy/public/box.png")
     GUI:setAnchorPoint(bigkuang, 0.5, 1)
     GUI:setContentSize(bigkuang, npc.infoW + 4, npc.infoH + 4)
     GUI:setLocalZOrder(bigkuang, 99)
+    npc.infoFrame = bigkuang
+    npc.infoPanelClosedX = sw / 2 + npc.infoW / 2 + 12
 
     local panelTop = npc.infoH
     local contentX = 20
@@ -2562,6 +2769,7 @@ local function createInfoPanel(sw, sh)
     local rule = button(npc.infoPanel, "info_rule", ruleX + 60, actionY, "查看规则", openRules,
          90, 40)
     GUI:setLocalZOrder(rule, 5)
+
 end
 
 local function createWindow()
@@ -2579,10 +2787,10 @@ local function createWindow()
     npc.mask = mask
     -- GUI:Layout_setBackGroundColorOpacity(mask, 238)
     GUI:setTouchEnabled(mask, true)
-    local bg = GUI:Image_Create(win, "bg", 0, -5, "res/custom/tj/tj_17.png")
+    local bg = GUI:Image_Create(win, "bg", 0, -5, "res/custom/tj/tj_31.png")
     npc.bg = bg
     GUI:setAnchorPoint(bg, 0.5, 0.5)
-    GUI:setContentSize(bg, sw, sh)
+    GUI:setContentSize(bg, sw + 20, sh + 20)
     GUI:setLocalZOrder(bg, 1)
     GUI:addMouseOverTips(bg, "", {x = 0, y = 0}, {x = 0, y = 0})
     GUI:setLocalZOrder(mask, 0)
@@ -2590,9 +2798,9 @@ local function createWindow()
     createInfoPanel(sw, sh)
     createZoomControl(sw, sh)
     createTree()
-    npc.selectedId = "root"
-    updateInfo()
+    npc.selectedId = nil
     updateAllNodeVisuals()
+    setInfoDrawer(false, false)
     SL:ScheduleOnce(function()
         tryStartMainlineTalentGuides()
     end, 0)
