@@ -1289,14 +1289,14 @@ function MainAssistXylHelper.bind(MainAssist)
             local singleBtn = GUI:getChildByName(panel, "single_touch_btn")
             if lineState and singleBtn and lineState.canJump == true and lineState.completed ~= true and MainAssist._grayWorldAllowOverviewGuide == true then
                 local singleGuideKey = string.format("gray_world_line_%s_single", tostring(lineState.idx))
-                return NPC_UI_HELPER.requestGuide("gray_world", singleGuideKey, {
-                    dir = 7,
-                    guideWidget = singleBtn,
-                    guideParent = panel,
-                    guideDesc = "当前任务",
-                    isForce = false,
-                    hideMask = true,
-                })
+                -- return NPC_UI_HELPER.requestGuide("gray_world", singleGuideKey, {
+                --     dir = 7,
+                --     guideWidget = singleBtn,
+                --     guideParent = panel,
+                --     guideDesc = "当前任务",
+                --     isForce = false,
+                --     hideMask = true,
+                -- })
             end
             return NPC_UI_HELPER.closeGuideByDomain("gray_world")
         end
@@ -1331,14 +1331,14 @@ function MainAssistXylHelper.bind(MainAssist)
         local touchBtn = lineNode and GUI:getChildByName(lineNode, "touch_btn") or nil
         if touchBtn and GUI:getVisible(lineNode) then
             local overviewGuideKey = string.format("gray_world_line_%s_overview", tostring(targetIdx))
-            return NPC_UI_HELPER.requestGuide("gray_world", overviewGuideKey, {
-                dir = 7,
-                guideWidget = touchBtn,
-                guideParent = panel,
-                guideDesc = "点击当前线任务",
-                isForce = false,
-                hideMask = true,
-            })
+            -- return NPC_UI_HELPER.requestGuide("gray_world", overviewGuideKey, {
+            --     dir = 7,
+            --     guideWidget = touchBtn,
+            --     guideParent = panel,
+            --     guideDesc = "点击当前线任务",
+            --     isForce = false,
+            --     hideMask = true,
+            -- })
         end
         return NPC_UI_HELPER.closeGuideByDomain("gray_world")
     end

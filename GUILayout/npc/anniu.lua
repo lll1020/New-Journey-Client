@@ -6424,7 +6424,7 @@ npc[502] = function(p2, p3, Data)
         if tostring(itemName or "") == "极品仙法卷轴" then
             _add_reward_item_effect(itemNode, "reward_eff", 20, 21, 0.85, REWARD_ITEM_EFFECT_14193)
         elseif tostring(itemName or "") == "三级宝石自选包" then
-            _add_reward_item_effect(itemNode, "reward_eff", 20, 21, 0.75, 13054)
+            _add_reward_item_effect(itemNode, "reward_eff", 20, 21, 0.75, REWARD_ITEM_EFFECT_14193)
         elseif itemKey == 4 then
             _add_reward_item_effect(itemNode, "reward_eff", 20, 21, 0.6, 13054)
         end

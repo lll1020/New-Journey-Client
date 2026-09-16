@@ -8,17 +8,17 @@ npc._config = {
         {"金币", 880000},
         {"千年玄铁", 38},
     },
-    reward = "诸邪退散（光环）",
+    ch = "诸邪退散",
 }
 
 local WINDOW_OPTS = {
     windowName = "npc_1030",
     background = {
-        skin = "res/wy/public/jqdt_bj1.png",
+        skin = "res/custom/all_story_mission/3/1030_bg.png"
     },
     closeButton = {
-        x = 875,
-        y = 505,
+        x = 900,
+        y = 390,
         skin = "res/wy/public/close_red_big.png",
     },
 }
@@ -57,34 +57,52 @@ end
 local function renderFormula(node, done)
     GUI:removeAllChildren(node)
 
-    text(node, "title", 472, 465, 30, "#FFE9A5", "合成夜明珠", 0.5, 0.5)
-    text(node, "formula_title", 472, 405, 20, "#D9D0C0", "合成公式", 0.5, 0.5)
+    -- text(node, "title", 472, 465, 30, "#FFE9A5", "合成夜明珠", 0.5, 0.5)
+    -- text(node, "formula_title", 472, 405, 20, "#D9D0C0", "合成公式", 0.5, 0.5)
 
-    renderItem(node, "cost_1", 175, 300, "夜明珠", 1)
-    text(node, "plus_1", 260, 300, 34, "#F4D179", "+", 0.5, 0.5)
-    renderItem(node, "cost_2", 355, 300, "金币", 880000)
-    text(node, "plus_2", 440, 300, 34, "#F4D179", "+", 0.5, 0.5)
-    renderItem(node, "cost_3", 535, 300, "千年玄铁", 38)
+    -- renderItem(node, "cost_1", 175, 300, "夜明珠", 1)
+    -- text(node, "plus_1", 260, 300, 34, "#F4D179", "+", 0.5, 0.5)
+    -- renderItem(node, "cost_2", 355, 300, "金币", 880000)
+    -- text(node, "plus_2", 440, 300, 34, "#F4D179", "+", 0.5, 0.5)
+    -- renderItem(node, "cost_3", 535, 300, "千年玄铁", 38)
 
-    text(node, "equal", 635, 300, 36, "#F4D179", "=", 0.5, 0.5)
-    renderItem(node, "reward", 770, 300, "诸邪退散（光环）", 1)
+    -- text(node, "equal", 635, 300, 36, "#F4D179", "=", 0.5, 0.5)
+    -- renderItem(node, "reward", 770, 300, "诸邪退散（光环）", 1)
+
+    -- if done then
+    --     text(node, "done", 472, 145, 26, "#8CFF9B", "已完成", 0.5, 0.5)
+    --     text(node, "done_desc", 472, 112, 17, "#D9D0C0", "该称号不可重复合成", 0.5, 0.5)
+    --     return
+    -- end
+
+    -- local button = GUI:Button_Create(node, "compose", 472, 125, "res/public/1900000660.png")
+    -- GUI:setAnchorPoint(button, 0.5, 0.5)
+    -- GUI:Button_setTitleText(button, "立即合成")
+    -- GUI:Button_setTitleFontName(button, "fonts/502.ttf")
+    -- GUI:Button_setTitleFontSize(button, 20)
+    -- GUI:Button_setTitleColor(button, "#FFE9A5")
+    -- GUI:Button_titleEnableOutline(button, "#000000", 2)
+    -- GUI:addOnClickEvent(button, function()
+    --     SL:SendLuaNetMsg(100, npc.currentNpcid or npc._config.id, 1, 0, "")
+    -- end)
+
+    local cost = checkItemNumByTable_img_kuang(npc._config.cost, nil,GUI:Node_Create(node, "cost", 0, 0))
+    GUI:setPosition(cost, 410, 225)
+
+    local kuang = GUI:Image_Create(node, "kuang2", 750 - 327, 105, "res/wy/public/70_70_k.png")
+    UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.ch.."[称号]")))
+
 
     if done then
-        text(node, "done", 472, 145, 26, "#8CFF9B", "已完成", 0.5, 0.5)
-        text(node, "done_desc", 472, 112, 17, "#D9D0C0", "该称号不可重复合成", 0.5, 0.5)
-        return
+        GUI:Image_Create(node, "Button", 550, 30.00, "res/wy/public/7_1.png")
+    else
+        local Button= GUI:Button_Create(node, "Button", 550, 30.00, "res/custom/two_city/601_btn.png")
+        GUI:addOnClickEvent(Button, function()
+            SL:SendLuaNetMsg(100, npc.currentNpcid or npc._config.id, 1, 0, "")
+        end)
     end
 
-    local button = GUI:Button_Create(node, "compose", 472, 125, "res/public/1900000660.png")
-    GUI:setAnchorPoint(button, 0.5, 0.5)
-    GUI:Button_setTitleText(button, "立即合成")
-    GUI:Button_setTitleFontName(button, "fonts/502.ttf")
-    GUI:Button_setTitleFontSize(button, 20)
-    GUI:Button_setTitleColor(button, "#FFE9A5")
-    GUI:Button_titleEnableOutline(button, "#000000", 2)
-    GUI:addOnClickEvent(button, function()
-        SL:SendLuaNetMsg(100, npc.currentNpcid or npc._config.id, 1, 0, "")
-    end)
+
 end
 
 local function ensureWindow(npcid)
@@ -120,5 +138,4 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
-
 
