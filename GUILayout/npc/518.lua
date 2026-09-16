@@ -26,6 +26,9 @@ local CARD_H = 315
 local CARD_GAP = 12
 local SIDE_W = 278
 local SIDE_H = 590
+local CARD_LAZY_BUFFER = CARD_H * 1.5
+local ItemIndexCache = {}
+local ItemNameColorCache = {}
 
 local function getScreenSize()
     local sw = tonumber(cogin and cogin.w) or SCREEN_W
@@ -87,6 +90,14 @@ local function replaceState(data)
     end
 end
 
+local function snapshotState()
+    local snapshot = {}
+    for _, key in ipairs({"monster", "equip", "monster_claimed", "equip_claimed", "chapter_claimed", "monster_attr"}) do
+        snapshot[key] = state[key]
+    end
+    return snapshot
+end
+
 local function setEntryState(kind, id, activated, claimed, attrValue)
     local key = tostring(id or "")
     if key == "" or (kind ~= "monster" and kind ~= "equip") then
@@ -131,23 +142,35 @@ local function getRewardName(entry)
 end
 
 local function itemIndex(name)
-    if not name or name == "" then
+    name = tostring(name or "")
+    if name == "" then
         return 0
     end
-    return tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", name) or 0) or 0
+    if ItemIndexCache[name] ~= nil then
+        return ItemIndexCache[name]
+    end
+    local index = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", name) or 0) or 0
+    ItemIndexCache[name] = index
+    return index
 end
 
 local function getEntryNameColor(kind, entry)
     if kind == "monster" then
         return RED
     end
-    local index = itemIndex(getName(entry))
+    local name = getName(entry)
+    if ItemNameColorCache[name] then
+        return ItemNameColorCache[name]
+    end
+    local index = itemIndex(name)
     local itemData = index > 0 and SL:GetMetaValue("ITEM_DATA", index) or nil
     local styleId = type(itemData) == "table" and tonumber(itemData.Color or 0) or 0
+    local color = GOLD
     if styleId > 0 then
-        return SL:GetHexColorByStyleId(styleId)
+        color = SL:GetHexColorByStyleId(styleId) or GOLD
     end
-    return GOLD
+    ItemNameColorCache[name] = color
+    return color
 end
 
 local function framedItem(parent, name, x, y, index, count, grey)
@@ -310,6 +333,70 @@ local function isClaimed(kind, entry)
     return tonumber((state[kind .. "_claimed"] or {})[getEntryId(entry)] or 0) == 1
 end
 
+local function isEntryClaimable(kind, entry)
+    return isActive(kind, entry) and not isClaimed(kind, entry)
+end
+
+local function getEntryRenderKey(kind, entry)
+    local id = getEntryId(entry)
+    local active = isActive(kind, entry) and "1" or "0"
+    local claimed = isClaimed(kind, entry) and "1" or "0"
+    local attrValue = kind == "monster" and tostring((state.monster_attr or {})[id] or "") or ""
+    return active .. ":" .. claimed .. ":" .. attrValue
+end
+
+local function getEntryCardSkin(kind, entry)
+    if entry and entry.card_skin then
+        return entry.card_skin
+    end
+    if isClaimed(kind, entry) then
+        return RES .. "tj_28.png"
+    end
+    return isActive(kind, entry) and RES .. "tj_26.png" or RES .. "tj_25.png"
+end
+
+local function applyEntryCardShell(card, kind, entry)
+    if valid(card) then
+        GUI:Image_loadTexture(card, getEntryCardSkin(kind, entry))
+    end
+end
+
+local function getSortedEntries(kind, entries)
+    if type(entries) ~= "table" or #entries <= 1 then
+        return entries or {}
+    end
+
+    -- Keep the configured order stable inside each group. Only move entries
+    -- that can be claimed to the front of the current map.
+    local claimable = {}
+    local rest = {}
+    for index, entry in ipairs(entries) do
+        local item = {entry = entry, index = index}
+        if isEntryClaimable(kind, entry) then
+            claimable[#claimable + 1] = item
+        else
+            rest[#rest + 1] = item
+        end
+    end
+
+    local result = {}
+    for _, item in ipairs(claimable) do
+        result[#result + 1] = item.entry
+    end
+    for _, item in ipairs(rest) do
+        result[#result + 1] = item.entry
+    end
+    return result
+end
+
+local function getEntriesOrderKey(entries)
+    local ids = {}
+    for index, entry in ipairs(entries or {}) do
+        ids[index] = getEntryId(entry, index)
+    end
+    return table.concat(ids, "|")
+end
+
 local function mapComplete(kind, map)
     local entries = map and map[kind] or {}
     if type(entries) ~= "table" or #entries == 0 then
@@ -343,7 +430,7 @@ local function refreshNodeRedPoint(node, show, opts)
         if not (delegate and delegate.redpoint) then
             NPC_UI_HELPER.redpoint_create_eff(node, opts)
         end
-    else
+    elseif delegate and delegate.redpoint then
         GUI:removeChildByName(node, "redpoint")
     end
 end
@@ -784,15 +871,20 @@ local function renderMonsterModel(card, entry)
 end
 
 local function renderEntryCard(card, kind, entry)
+    local id = getEntryId(entry)
+    local renderKey = getEntryRenderKey(kind, entry)
+    local data = Atlas.cards and Atlas.cards[kind] and Atlas.cards[kind][id] or nil
+    if data and data.rendered == true and data.renderKey == renderKey then
+        return
+    end
     GUI:removeAllChildren(card)
+    if data then
+        data.rendered = true
+        data.renderKey = renderKey
+    end
     local active = isActive(kind, entry)
     local claimed = isClaimed(kind, entry)
-    local skin = entry.card_skin
-    if not skin then
-        skin = claimed and RES .. "tj_28.png"
-            or (active and RES .. "tj_26.png" or RES .. "tj_25.png")
-    end
-    GUI:Image_loadTexture(card, skin)
+    applyEntryCardShell(card, kind, entry)
     if kind == "monster" then
         renderMonsterModel(card, entry)
     else
@@ -899,6 +991,105 @@ local function refreshProgress(parent, kind, map)
     end
 end
 
+local refreshEntryPositions
+local updateVisibleEntryCards
+
+local function refreshOverviewProgress()
+    if not valid(Atlas.root) then
+        return
+    end
+
+    for _, kind in ipairs({"monster", "equip"}) do
+        local total, active = 0, 0
+        for _, continent in ipairs(getVisibleContinents(kind)) do
+            for _, map in ipairs(continent.maps or {}) do
+                for _, entry in ipairs(map[kind] or {}) do
+                    total = total + 1
+                    if isActive(kind, entry) then
+                        active = active + 1
+                    end
+                end
+            end
+        end
+        local progress = GUI:getChildByName(Atlas.root, kind .. "_overview_progress")
+        if progress then
+            GUI:Text_setString(progress, string.format("%d/%d", active, total))
+            GUI:Text_setTextColor(progress, active > 0 and GREEN or MUTED)
+        end
+    end
+end
+
+local function refreshDetailState(previousState)
+    local kind = Atlas.view == "equip" and "equip" or "monster"
+    local map = findConfigMap(Atlas.mapId)
+    local panel = valid(Atlas.root) and GUI:getChildByName(Atlas.root, "detail_panel") or nil
+    if not map or not panel or not mapSupportsKind(kind, map) then
+        return false
+    end
+
+    local activeChanged = false
+    local cardChanged = false
+    local chapterKey = mapKey(kind, map)
+    local chapterChanged = (tonumber((previousState.chapter_claimed or {})[chapterKey] or 0) == 1)
+        ~= (tonumber((state.chapter_claimed or {})[chapterKey] or 0) == 1)
+    for _, entry in ipairs(map[kind] or {}) do
+        local id = getEntryId(entry)
+        local oldActive = tonumber((previousState[kind] or {})[id] or 0) == 1
+        local newActive = isActive(kind, entry)
+        local oldClaimed = tonumber((previousState[kind .. "_claimed"] or {})[id] or 0) == 1
+        local newClaimed = isClaimed(kind, entry)
+        local oldAttr = kind == "monster" and (tonumber((previousState.monster_attr or {})[id] or 0) or 0) or 0
+        local newAttr = kind == "monster" and (tonumber((state.monster_attr or {})[id] or 0) or 0) or 0
+
+        if oldActive ~= newActive then
+            activeChanged = true
+        end
+        if oldActive ~= newActive or oldClaimed ~= newClaimed or oldAttr ~= newAttr then
+            local data = (Atlas.cards[kind] or {})[id]
+            if data and valid(data.node) then
+                renderEntryCard(data.node, kind, data.entry)
+            end
+            cardChanged = true
+        end
+    end
+
+    if cardChanged then
+        refreshEntryPositions(kind, map)
+    end
+    if activeChanged or cardChanged or chapterChanged then
+        GUI:removeChildByName(panel, "chapter_panel")
+        refreshProgress(panel, kind, map)
+        renderChapterPanel(panel, kind, map)
+    end
+    return activeChanged or cardChanged or chapterChanged
+end
+
+local function sameStateTable(a, b)
+    a = type(a) == "table" and a or {}
+    b = type(b) == "table" and b or {}
+    for key, value in pairs(a) do
+        if tostring(value) ~= tostring(b[key]) then
+            return false
+        end
+    end
+    for key, value in pairs(b) do
+        if tostring(value) ~= tostring(a[key]) then
+            return false
+        end
+    end
+    return true
+end
+
+local function stateChanged(previousState)
+    previousState = type(previousState) == "table" and previousState or {}
+    for _, key in ipairs({"monster", "equip", "monster_claimed", "equip_claimed", "chapter_claimed", "monster_attr"}) do
+        if not sameStateTable(previousState[key], state[key]) then
+            return true
+        end
+    end
+    return false
+end
+
 local function renderDetail(root)
     GUI:removeAllChildren(root)
     local kind = Atlas.view == "equip" and "equip" or "monster"
@@ -974,7 +1165,7 @@ local function renderDetail(root)
     GUI:setContentSize(qyl_fgx, layout.panelW, 2)
 
 
-    local entries = map[kind] or {}
+    local entries = getSortedEntries(kind, map[kind] or {})
     local viewW = layout.panelW - 40
     local viewH = layout.panelH - 120
     local viewX = 20 + viewW / 2
@@ -991,6 +1182,27 @@ local function renderDetail(root)
     local innerH = math.max(viewH, rows * CARD_H + (rows + 1) * CARD_GAP)
     GUI:ScrollView_setInnerContainerSize(scroll, innerW, innerH)
     Atlas.cards[kind] = {}
+    Atlas.entryLayout = {
+        kind = kind,
+        mapId = tostring(map.id or ""),
+        scroll = scroll,
+        viewW = viewW,
+        viewH = viewH,
+        columns = columns,
+        gridW = gridW,
+        innerW = innerW,
+        innerH = innerH,
+        orderKey = getEntriesOrderKey(entries),
+    }
+    if type(GUI.ScrollView_addOnScrollEvent) == "function" then
+        pcall(function()
+            GUI:ScrollView_addOnScrollEvent(scroll, function()
+                if updateVisibleEntryCards then
+                    updateVisibleEntryCards()
+                end
+            end)
+        end)
+    end
     for i, entry in ipairs(entries) do
         local id = getEntryId(entry, i)
         local col = (i - 1) % columns
@@ -1004,13 +1216,103 @@ local function renderDetail(root)
             entry.card_skin or (kind == "monster" and RES .. "tj_25.png" or RES .. "tj_26.png"))
         GUI:setAnchorPoint(card, 0, 0.5)
         GUI:setContentSize(card, CARD_W, CARD_H)
-        Atlas.cards[kind][id] = {node = card, entry = entry}
-        renderEntryCard(card, kind, entry)
+        Atlas.cards[kind][id] = {
+            node = card,
+            entry = entry,
+            order = i,
+            kind = kind,
+            y = cardY,
+        }
+        applyEntryCardShell(card, kind, entry)
+        if i <= columns * 2 then
+            renderEntryCard(card, kind, entry)
+        end
+    end
+    if updateVisibleEntryCards then
+        updateVisibleEntryCards()
     end
     if #entries == 0 then
         text(panel, "empty_entries", 0, -80, 18, MUTED, "当前地图暂无图鉴配置", 0.5, 0.5)
     end
     renderChapterPanel(panel, kind, map)
+end
+
+refreshEntryPositions = function(kind, map)
+    local layout = Atlas.entryLayout
+    if type(layout) ~= "table"
+        or layout.kind ~= kind
+        or tostring(layout.mapId or "") ~= tostring(map and map.id or "")
+        or not valid(layout.scroll) then
+        return
+    end
+
+    local entries = getSortedEntries(kind, map[kind] or {})
+    local orderKey = getEntriesOrderKey(entries)
+    if layout.orderKey == orderKey then
+        if updateVisibleEntryCards then
+            updateVisibleEntryCards()
+        end
+        return
+    end
+    layout.orderKey = orderKey
+    local gridLeft = math.max(CARD_GAP, (layout.innerW - layout.gridW) / 2)
+    for index, entry in ipairs(entries) do
+        local id = getEntryId(entry, index)
+        local data = (Atlas.cards[kind] or {})[id]
+        if data and valid(data.node) then
+            local col = (index - 1) % layout.columns
+            local row = math.floor((index - 1) / layout.columns)
+            local cardX = gridLeft + col * (CARD_W + CARD_GAP)
+            local cardY = layout.innerH - CARD_GAP - CARD_H / 2
+                - row * (CARD_H + CARD_GAP)
+            GUI:setPosition(data.node, cardX, cardY)
+            data.y = cardY
+            data.order = index
+        end
+    end
+    if updateVisibleEntryCards then
+        updateVisibleEntryCards()
+    end
+end
+
+local function getEntryScrollInnerY(scroll)
+    if type(GUI.ScrollView_getInnerContainerPosition) ~= "function" then
+        return nil
+    end
+    local ok, pos = pcall(function()
+        return GUI:ScrollView_getInnerContainerPosition(scroll)
+    end)
+    if ok and pos then
+        return tonumber(pos.y or 0) or 0
+    end
+    return nil
+end
+
+local function isEntryDataNearView(data, layout, innerY)
+    if innerY == nil then
+        return true
+    end
+    local y = tonumber(data.y or (valid(data.node) and GUI:getPositionY(data.node)) or 0) or 0
+    local top = y + CARD_H / 2
+    local bottom = y - CARD_H / 2
+    local viewBottom = -innerY - CARD_LAZY_BUFFER
+    local viewTop = -innerY + (layout.viewH or 0) + CARD_LAZY_BUFFER
+    return top >= viewBottom and bottom <= viewTop
+end
+
+updateVisibleEntryCards = function()
+    local layout = Atlas.entryLayout
+    if type(layout) ~= "table" or not valid(layout.scroll) then
+        return
+    end
+    local kind = layout.kind
+    local cards = Atlas.cards and Atlas.cards[kind] or {}
+    local innerY = getEntryScrollInnerY(layout.scroll)
+    for _, data in pairs(cards) do
+        if data and valid(data.node) and isEntryDataNearView(data, layout, innerY) then
+            renderEntryCard(data.node, kind, data.entry)
+        end
+    end
 end
 
 function Atlas.renderOverview()
@@ -1032,7 +1334,17 @@ function Atlas.refreshEntry(kind, id)
     end
     local map = findConfigMap(Atlas.mapId)
     local panel = valid(Atlas.root) and GUI:getChildByName(Atlas.root, "detail_panel") or nil
-    if map and panel then
+    local affectsCurrentMap = false
+    if map then
+        for _, entry in ipairs(map[kind] or {}) do
+            if getEntryId(entry) == tostring(id or "") then
+                affectsCurrentMap = true
+                break
+            end
+        end
+    end
+    if map and panel and affectsCurrentMap then
+        refreshEntryPositions(kind, map)
         GUI:removeChildByName(panel, "chapter_panel")
         refreshProgress(panel, kind, map)
         renderChapterPanel(panel, kind, map)
@@ -1061,13 +1373,18 @@ function Atlas.handle(mode, msgData)
         if not valid(Atlas.root) then
             Atlas.open(true)
         end
+        local previousState = snapshotState()
         replaceState(data.state)
-        if Atlas.view == "monster" or Atlas.view == "equip" then
-            Atlas.renderDetail()
-        elseif valid(Atlas.root) then
-            Atlas.renderOverview()
+        if not stateChanged(previousState) then
+            return
         end
-        refreshSidebarRedpoints()
+        if Atlas.view == "monster" or Atlas.view == "equip" then
+            refreshDetailState(previousState)
+            refreshSidebarRedpoints()
+        elseif valid(Atlas.root) then
+            refreshOverviewProgress()
+            refreshSidebarRedpoints()
+        end
     elseif mode == 2 or mode == 3 then
         setEntryState(data.kind, data.id, data.activated, data.claimed, data.attr_value)
         Atlas.refreshEntry(data.kind, data.id)

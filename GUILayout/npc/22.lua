@@ -1010,12 +1010,62 @@ local function closeResetConfirm()
     npc.resetConfirmMask = nil
 end
 
+local function stateActive(id)
+    return n((npc.state.nodes or {})[tostring(id)] or 0) == 1
+end
+
+local function isM1Node(node)
+    return node and (
+        node.exclusive_group == "core_m1"
+        or tostring(node.id or ""):match("^[^_]+_M1$")
+    )
+end
+
+local function activeM1Node(excludeId)
+    for _, node in ipairs(TreeCfg.nodes or {}) do
+        if isM1Node(node)
+            and tostring(node.id) ~= tostring(excludeId or "")
+            and stateActive(node.id)
+        then
+            return node
+        end
+    end
+end
+
+local function activeTalentPointCount()
+    local count = 0
+    for id, value in pairs((npc.state and npc.state.nodes) or {}) do
+        if tostring(id) ~= "root" and n(value) == 1 then
+            local node = TreeCfg.node_map and TreeCfg.node_map[tostring(id)]
+            count = count + math.max(0, n(node and node.point_cost, 1))
+        end
+    end
+    return count
+end
+
+local function resetCostFor(resetType, selectedId)
+    if resetType == "switch_m1" then
+        return TreeCfg.m1_reset_cost or {{"灵石", 100}}
+    end
+    if resetType == "single" then
+        local node = TreeCfg.node_map and TreeCfg.node_map[tostring(selectedId or "")]
+        if isM1Node(node) then
+            return TreeCfg.m1_reset_cost or {{"灵石", 100}}
+        end
+        return TreeCfg.single_reset_cost or {{"灵石", 20}}
+    end
+    local amount = activeTalentPointCount() * math.max(0, n(TreeCfg.talent_reset_point_cost, 20))
+    return amount > 0 and {{"灵石", amount}} or {}
+end
+
 local function openResetConfirm(resetType)
     closeResetConfirm()
-    local costs = resetType == "single" and TreeCfg.single_reset_cost or TreeCfg.reset_cost
-    local title = resetType == "single" and "确认退点" or "确认重置灵根"
-    local action = resetType == "single" and "退点" or "重置"
     local selectedId = npc.selectedId
+    local costs = resetCostFor(resetType, selectedId)
+    local title = resetType == "switch_m1" and "确认切换本命灵根"
+        or (resetType == "single" and "确认退点" or "确认重置灵根")
+    local action = resetType == "switch_m1" and "切换"
+        or (resetType == "single" and "退点" or "重置")
 
     local mask = GUI:Layout_Create(npc.window, "reset_confirm_mask", 0, 0, 1, 1, false)
     GUI:setAnchorPoint(mask, 0.5, 0.5)
@@ -1059,15 +1109,14 @@ local function openResetConfirm(resetType)
         closeResetConfirm()
         if resetType == "single" then
             SL:SendLuaNetMsg(100, 22, 2, 0, SL:JsonEncode({id = selectedId}, false))
+        elseif resetType == "switch_m1" then
+            SL:SendLuaNetMsg(100, 22, 1, 0,
+                SL:JsonEncode({id = selectedId, switch = true}, false))
         else
             SL:SendLuaNetMsg(100, 22, 3, 0, "")
         end
     end, 112, 38)
     GUI:setLocalZOrder(confirmButton, 2)
-end
-
-local function stateActive(id)
-    return n((npc.state.nodes or {})[tostring(id)] or 0) == 1
 end
 
 local function conflictingM1(node)
@@ -2138,7 +2187,7 @@ local function updateInfo()
         elseif active then
             GUI:Button_setTitleText(action, "退点")
         elseif conflictingM1(node) then
-            GUI:Button_setTitleText(action, "本命互斥")
+            GUI:Button_setTitleText(action, "切换本命")
         else
             GUI:Button_setTitleText(action, "点亮")
         end
@@ -2754,7 +2803,7 @@ local function createInfoPanel(sw, sh)
         else
             local other = conflictingM1(node)
             if other then
-                SL:ShowSystemTips("五系 M1 只能点亮一个，当前已选择：" .. tostring(other.name))
+                openResetConfirm("switch_m1")
                 return
             end
             local socketName = getUnfilledSocketPrerequisite(node)

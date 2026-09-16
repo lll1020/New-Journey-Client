@@ -1,5 +1,6 @@
 local npc = {
 }
+npc._zz516_redpoint = false
 local function _atlas_has_redpoint(node)
     if not node or tolua.isnull(node) then
         return false
@@ -15,6 +16,23 @@ local function _atlas_remove_redpoint(node)
         pcall(function()
             GUI:removeChildByName(node, "redpoint")
         end)
+    end
+end
+local function _zz516_refresh_redpoint(show)
+    npc._zz516_redpoint = show == true
+    local target = npc.db_anniu and npc.db_anniu["16"]
+    if not target or tolua.isnull(target) then
+        return
+    end
+    if show == true then
+        if not _atlas_has_redpoint(target) then
+            NPC_UI_HELPER.redpoint_create_eff(target, {
+                x = 80,
+                y = 60,
+            })
+        end
+    else
+        _atlas_remove_redpoint(target)
     end
 end
 
@@ -580,6 +598,9 @@ local _shortcut_is_firstcharge_completed
 local _shortcut_is_unbind_completed
 local function _shortcut_should_show_persistent_redpoint(cfg)
     local npcid = tonumber(cfg and cfg[3] or 0) or 0
+    if npcid == 516 then
+        return npc._zz516_redpoint == true
+    end
     if npcid == 501 then
         return not _shortcut_is_firstcharge_completed()
     end
@@ -2011,6 +2032,10 @@ npc[1] = function(p2, p3, msgData)
         if tonumber(p3 or 0) == 515 then
             local show = tostring(msgData or "") ~= "0"
             _xian_tu_qi_yuan_refresh_redpoints(show)
+            return
+        end
+        if tonumber(p3 or 0) == 16 then
+            _zz516_refresh_redpoint(tostring(msgData or "") ~= "0")
             return
         end
         if tonumber(p3 or 0) == 31 then

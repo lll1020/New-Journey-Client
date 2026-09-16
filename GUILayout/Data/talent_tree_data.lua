@@ -7,16 +7,23 @@ local data = {
     initial_core_level = 0,
     single_branch_limit = 40,
     side_branch_limit = 6,
+    talent_reset_point_cost = 20,
     reset_cost = {
         {
             "灵石",
-            400,
+            20,
         },
     },
     single_reset_cost = {
         {
             "灵石",
-            10,
+            20,
+        },
+    },
+    m1_reset_cost = {
+        {
+            "灵石",
+            100,
         },
     },
     elements = {
