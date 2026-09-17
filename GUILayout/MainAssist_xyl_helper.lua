@@ -50,7 +50,7 @@ local GRAY_WORLD_SINGLE_FLOW_WIDTH = 136
 local GRAY_WORLD_SINGLE_FLOW_FONT_SIZE = 13
 local GRAY_WORLD_FINAL_BTN_POS = {x = 100, y = 95}
 local GRAY_WORLD_FINAL_BTN_TEXT = ""
-local XYL_FINAL_ENTRY_RWID = 38
+local XYL_FINAL_ENTRY_RWID = 40
 local XYL_FINAL_ENTRY_BTN_TEXT = "更多剧情"
 local GRAY_WORLD_LINE_MAP_ALIASES = {
     ["虚妄山脉"] = 4,
@@ -68,8 +68,8 @@ local GRAY_WORLD_LINE_MAP_ALIASES = {
 }
 local GRAY_WORLD_LINE_SUFFIX_ALIASES = {
     ["_npc625"] = 1,
-    ["_npc626"] = 2,
-    ["_npc627"] = 3,
+    ["_npc627"] = 2,
+    ["_npc626"] = 3,
     ["_npc628"] = 4,
 }
 local GRAY_WORLD_REDPOINT_POS = {
@@ -188,6 +188,11 @@ end
 
 local function _is_mainline_final_entry_open_value()
     return _is_gray_world_final_entry_ready()
+end
+
+local function _is_gray_world_special_guide_task()
+    local rwid = _get_mainline_rwid_value()
+    return rwid == 37 or rwid == 39
 end
 
 local function _resolve_reward_effect_parent(parent)
@@ -820,6 +825,17 @@ function MainAssistXylHelper.bind(MainAssist)
 
     local function _gray_world_is_pre_guide_done(jqData)
         if type(jqData) ~= "table" then
+            return false
+        end
+        local rwid = _get_mainline_rwid_value()
+        if rwid == 37 then
+            local task46 = jqData["npc_46"]
+            if type(task46) == "table" then
+                return _gray_world_to_num(task46.start, 0) >= 1 or _gray_world_to_num(task46.wc, 0) >= 1
+            end
+            return _gray_world_to_num(task46, 0) >= 1
+        end
+        if rwid ~= 39 then
             return false
         end
         -- The gray-world panel starts after the new pearl NPC (1030) is
@@ -1625,6 +1641,13 @@ function MainAssistXylHelper.bind(MainAssist)
 
 
     function MainAssist.UpdateGrayWorldTaskIcon(eventData)
+        if not _is_gray_world_special_guide_task() then
+            if MainAssist._grayWorldTaskIcon then
+                GUI:setVisible(MainAssist._grayWorldTaskIcon, false)
+            end
+            NPC_UI_HELPER.closeGuideByDomain("gray_world")
+            return
+        end
         if _is_mainline_final_entry_open_value() then
             if MainAssist._grayWorldTaskIcon then
                 GUI:setVisible(MainAssist._grayWorldTaskIcon, false)

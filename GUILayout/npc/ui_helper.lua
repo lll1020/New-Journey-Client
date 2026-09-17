@@ -21,7 +21,7 @@ local GUIDE_DOMAIN_PRIORITY = {
 local MAINLINE_TASK_BY_UPGRADE_NPC = {
     [32] = 15,
 }
-local GRAY_WORLD_GUIDE_RWID = 38
+local GRAY_WORLD_GUIDE_RWID = 36
 local GRAY_WORLD_GUIDE_MAP_NAMES = {
     ["灰界"] = true,
     ["灰界南部"] = true,
@@ -118,7 +118,7 @@ function UIHelper.isGrayWorldMap()
 end
 function UIHelper.shouldSuppressGrayWorldGuide(rwid)
     local mainlineRwid = tonumber(rwid) or getMainlineRwidValue()
-    -- 38 期间仍在灰界收尾，普通主线引导不能提前把玩家指向 1031。
+    -- 36-40 期间处于灰界主线，普通主线引导不能提前把玩家指向 1031。
     -- 灰界任务自己的 guide domain 由 requestGuide 单独放行。
     return mainlineRwid >= GRAY_WORLD_GUIDE_RWID and UIHelper.isGrayWorldMap()
 end

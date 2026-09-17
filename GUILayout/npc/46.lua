@@ -69,6 +69,33 @@ function npc.main(npcid, p2, p3, msgData)
 
         GUI:removeAllChildren(node)
 
+        local currentRwid = 0
+        if cogin and cogin.sjtb then
+            currentRwid = tonumber(cogin.sjtb.rwid or cogin.sjtb.zxrwid or 0) or 0
+        end
+        if Player and type(Player.getServerVar) == "function" then
+            local serverRwid = tonumber(Player:getServerVar("U11") or 0) or 0
+            if serverRwid <= 0 then
+                serverRwid = tonumber(Player:getServerVar("U_zxrw") or 0) or 0
+            end
+            if serverRwid > 0 then
+                currentRwid = serverRwid
+            end
+        end
+
+        local expectedRoute = nil
+        if currentRwid == 37 then
+            expectedRoute = 1
+        elseif currentRwid == 39 then
+            for routeIdx = 1, 4 do
+                local route = route_info[routeIdx]
+                if route and (npc.data.T_data[route.boss] or 0) < 2 then
+                    expectedRoute = routeIdx
+                    break
+                end
+            end
+        end
+
 
         local function GUI_createLabel(label_node, idx)
             GUI:removeAllChildren(label_node)
@@ -101,11 +128,25 @@ function npc.main(npcid, p2, p3, msgData)
             if route then
                 local stepDone = (npc.data.T_data[route.step] or 0) >= 2
                 local bossDone = (npc.data.T_data[route.boss] or 0) >= 2
-                local statusText = bossDone and "当前阶段：已完成" or (stepDone and "当前阶段：可前往讨伐" or "当前阶段：先完成前置")
-                local statusColor = bossDone and "#7CFF7C" or (stepDone and "#FFE46C" or "#FF6666")
+                local isCurrentRoute = expectedRoute == idx
+                local statusText
+                local statusColor
+                if bossDone then
+                    statusText = "当前阶段：已完成"
+                    statusColor = "#7CFF7C"
+                elseif not isCurrentRoute then
+                    statusText = "当前阶段：待后续开放"
+                    statusColor = "#AAAAAA"
+                elseif stepDone then
+                    statusText = "当前阶段：可前往讨伐"
+                    statusColor = "#FFE46C"
+                else
+                    statusText = "当前阶段：先完成前置"
+                    statusColor = "#FF6666"
+                end
                 local  route_status = GUI:Text_Create(label_node, "route_status", 200, 78, 20, statusColor, statusText)
                 GUI:Text_setFontName(route_status, "fonts/font4.ttf")
-                if not bossDone then
+                if not bossDone and isCurrentRoute and npc._isTaskAccepted() then
                     NPC_UI_HELPER.createPrimaryButton(label_node, "goto_btn", 570, 30, "", function()
                         SL:SendLuaNetMsg(100, npcid, 2, idx, "")
                     end, {fontSize = 18,skin = "res/wy/public/an_ljqw.png"})
@@ -124,13 +165,23 @@ function npc.main(npcid, p2, p3, msgData)
         local task46Data = npc.data.T_data["npc_46"]
         local task46Done = (type(task46Data) == "table" and tonumber(task46Data.wc or 0) or tonumber(task46Data or 0) or 0) >= 1
         local hasTitleReward = SL:GetMetaValue("TITLE_DATA_BY_ID", SL:GetMetaValue("ITEM_INDEX_BY_NAME", npc._config.ch))
+        local shouldAcceptMainline = currentRwid == 36 and not npc._isTaskAccepted()
 
         local kuang = GUI:Image_Create(node, "kuang2", 320 + 140, 15, "res/wy/public/70_70_k.png")
         UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.ch.."[称号]")))
 
         npc.Label = GUI:Node_Create(node, "Label", 0, 0)
 
-        if (not hasTitleReward) and canClaim then
+        if shouldAcceptMainline then
+            local acceptButton = GUI:Button_Create(node, "Button_accept_mainline", 540, 10.00, "res/custom/all_story_mission/2/btn_take.png")
+            GUI:addOnClickEvent(acceptButton, function()
+                SL:SendLuaNetMsg(100, npcid, 3, 0, "")
+            end)
+            -- local acceptText = GUI:Text_Create(acceptButton, "accept_text", 105, 30, 20, "#FFE9A5", "接受灾厄入侵")
+            -- GUI:setAnchorPoint(acceptText, 0.5, 0.5)
+            -- GUI:Text_setFontName(acceptText, "fonts/502.ttf")
+            -- GUI:Text_enableOutline(acceptText, "#000000", 2)
+        elseif (not hasTitleReward) and canClaim then
             local Button= GUI:Button_Create(node, "Button_all", 540, 10.00, "res/custom/three_city/zerq/btn.png")
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 1, 0, "")
