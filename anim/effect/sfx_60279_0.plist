@@ -6,132 +6,132 @@
       <key>sfx_60279_0_0000.png</key>
       <dict>
         <key>frame</key>
-        <string>{{0,0},{69,88}}</string>
+        <string>{{0,0},{56,70}}</string>
         <key>offset</key>
-        <string>{-31,43}</string>
+        <string>{-25,34}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{69,88}}</string>
+        <string>{{0,0},{56,70}}</string>
         <key>sourceSize</key>
-        <string>{69,88}</string>
+        <string>{56,70}</string>
       </dict>
       <key>sfx_60279_0_0001.png</key>
       <dict>
         <key>frame</key>
-        <string>{{80,86},{68,83}}</string>
+        <string>{{58,0},{55,67}}</string>
         <key>offset</key>
-        <string>{-31,37}</string>
+        <string>{-25,30}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{68,83}}</string>
+        <string>{{0,0},{55,67}}</string>
         <key>sourceSize</key>
-        <string>{68,83}</string>
+        <string>{55,67}</string>
       </dict>
       <key>sfx_60279_0_0002.png</key>
       <dict>
         <key>frame</key>
-        <string>{{86,171},{69,83}}</string>
+        <string>{{0,142},{56,67}}</string>
         <key>offset</key>
-        <string>{-32,37}</string>
+        <string>{-26,30}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{69,83}}</string>
+        <string>{{0,0},{56,67}}</string>
         <key>sourceSize</key>
-        <string>{69,83}</string>
+        <string>{56,67}</string>
       </dict>
       <key>sfx_60279_0_0003.png</key>
       <dict>
         <key>frame</key>
-        <string>{{0,177},{77,84}}</string>
+        <string>{{58,142},{62,67}}</string>
         <key>offset</key>
-        <string>{-39,44}</string>
+        <string>{-31,35}</string>
         <key>rotated</key>
-        <true />
+        <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{77,84}}</string>
+        <string>{{0,0},{62,67}}</string>
         <key>sourceSize</key>
-        <string>{77,84}</string>
+        <string>{62,67}</string>
       </dict>
       <key>sfx_60279_0_0004.png</key>
       <dict>
         <key>frame</key>
-        <string>{{0,90},{78,85}}</string>
+        <string>{{0,72},{63,68}}</string>
         <key>offset</key>
-        <string>{-37,50}</string>
+        <string>{-30,40}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{78,85}}</string>
+        <string>{{0,0},{63,68}}</string>
         <key>sourceSize</key>
-        <string>{78,85}</string>
+        <string>{63,68}</string>
       </dict>
       <key>sfx_60279_0_0005.png</key>
       <dict>
         <key>frame</key>
-        <string>{{71,0},{77,84}}</string>
+        <string>{{65,69},{58,67}}</string>
         <key>offset</key>
-        <string>{-38,49}</string>
+        <string>{-30,39}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{77,84}}</string>
+        <string>{{0,0},{58,67}}</string>
         <key>sourceSize</key>
-        <string>{77,84}</string>
+        <string>{58,67}</string>
       </dict>
       <key>sfx_60279_0_0006.png</key>
       <dict>
         <key>frame</key>
-        <string>{{157,160},{68,79}}</string>
+        <string>{{173,62},{54,63}}</string>
         <key>offset</key>
-        <string>{-33,49}</string>
+        <string>{-26,39}</string>
         <key>rotated</key>
-        <false />
+        <true />
         <key>sourceColorRect</key>
-        <string>{{0,0},{68,79}}</string>
+        <string>{{0,0},{54,63}}</string>
         <key>sourceSize</key>
-        <string>{68,79}</string>
+        <string>{54,63}</string>
       </dict>
       <key>sfx_60279_0_0007.png</key>
       <dict>
         <key>frame</key>
-        <string>{{221,76},{68,76}}</string>
+        <string>{{122,138},{55,61}}</string>
         <key>offset</key>
-        <string>{-31,48}</string>
+        <string>{-25,38}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{68,76}}</string>
+        <string>{{0,0},{55,61}}</string>
         <key>sourceSize</key>
-        <string>{68,76}</string>
+        <string>{55,61}</string>
       </dict>
       <key>sfx_60279_0_0008.png</key>
       <dict>
         <key>frame</key>
-        <string>{{150,76},{69,82}}</string>
+        <string>{{115,0},{56,66}}</string>
         <key>offset</key>
-        <string>{-31,46}</string>
+        <string>{-25,37}</string>
         <key>rotated</key>
         <false />
         <key>sourceColorRect</key>
-        <string>{{0,0},{69,82}}</string>
+        <string>{{0,0},{56,66}}</string>
         <key>sourceSize</key>
-        <string>{69,82}</string>
+        <string>{56,66}</string>
       </dict>
       <key>sfx_60279_0_0009.png</key>
       <dict>
         <key>frame</key>
-        <string>{{157,0},{74,83}}</string>
+        <string>{{173,0},{60,66}}</string>
         <key>offset</key>
-        <string>{-31,43}</string>
+        <string>{-25,34}</string>
         <key>rotated</key>
         <true />
         <key>sourceColorRect</key>
-        <string>{{0,0},{74,83}}</string>
+        <string>{{0,0},{60,66}}</string>
         <key>sourceSize</key>
-        <string>{74,83}</string>
+        <string>{60,66}</string>
       </dict>
     </dict>
     <key>metadata</key>
@@ -141,7 +141,7 @@
       <key>realTextureFileName</key>
       <string>sfx_60279_0.png</string>
       <key>size</key>
-      <string>{512,256}</string>
+      <string>{256,256}</string>
       <key>textureFileName</key>
       <string>sfx_60279_0.png</string>
     </dict>

@@ -50,7 +50,7 @@ local GRAY_WORLD_SINGLE_FLOW_WIDTH = 136
 local GRAY_WORLD_SINGLE_FLOW_FONT_SIZE = 13
 local GRAY_WORLD_FINAL_BTN_POS = {x = 100, y = 95}
 local GRAY_WORLD_FINAL_BTN_TEXT = ""
-local XYL_FINAL_ENTRY_RWID = 40
+local XYL_FINAL_ENTRY_RWID = 41
 local XYL_FINAL_ENTRY_BTN_TEXT = "更多剧情"
 local GRAY_WORLD_LINE_MAP_ALIASES = {
     ["虚妄山脉"] = 4,
@@ -182,8 +182,9 @@ local function _is_gray_world_final_entry_ready()
     else
         task46Done = (tonumber(task46 or 0) or 0) >= 2
     end
-    local entered = (tonumber(storyData["npc_1031"] or 0) or 0) >= 1
-    return task46Done and not entered
+    -- local entered = (tonumber(storyData["npc_1031"] or 0) or 0) >= 1
+    local entered = true
+    return task46Done
 end
 
 local function _is_mainline_final_entry_open_value()
@@ -2146,14 +2147,14 @@ function MainAssistXylHelper.bind(MainAssist)
             end
         end
 
-        local tipText = GUI:Text_Create(panel, "tip_text", GRAY_WORLD_FINAL_BTN_POS.x + 5, GRAY_WORLD_FINAL_BTN_POS.y + 20, 21, "#ffffff", "灰界任务已完成\n\n点击传送门前往三大陆主城\n\n继续新的剧情引导")
+        local tipText = GUI:Text_Create(panel, "tip_text", GRAY_WORLD_FINAL_BTN_POS.x + 5, GRAY_WORLD_FINAL_BTN_POS.y + 20, 21, "#ffffff", "品牌游戏 值得信赖\n\n丰富剧情 精彩纷呈\n\n更多精彩 敬请期待")
         GUI:setAnchorPoint(tipText, 0.5, 0.5)
         GUI:Text_setFontName(tipText, "fonts/502.ttf")
         GUI:Text_enableOutline(tipText, "#000000", 2)
         -- GUI:Text_enableUnderline(tipText)
 
         local btn = NPC_UI_HELPER.createPrimaryButton(panel, "xyl_final_entry_btn", GRAY_WORLD_FINAL_BTN_POS.x + 10, GRAY_WORLD_FINAL_BTN_POS.y - 70, "", function()
-            SL:SendLuaNetMsg(105, 1031, 1031, 0, "")
+            SL:SendLuaNetMsg(101, 11, 0, 0, "")
         end, {
             skin = "res/wy/public/an15.png",
             fontSize = 14,

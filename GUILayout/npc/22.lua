@@ -34,9 +34,9 @@ local LINK_VISIBLE_RATIO = (LINK_VISIBLE_END - LINK_VISIBLE_START) / LINK_TEXTUR
 local BUFI_RES = "res/custom/linggen/bufi/"
 local BUFI_DECORATIONS = {
     metal = {icons = {5, 10, 18}, scale = {0.6,0.8,1.3}, opacity = {100, 100, 150}, anchors = {"M5", "M12", "ultimate"}, offsets = {{x = -70 + 69, y = -16}, {x = 70 - 67, y = 16 - 37}, {x = -86 + 85, y = 30 - 45}}},
-    wood = {icons = {8, 12, 20}, scale = {0.6,0.8,1.3}, opacity = {100, 100, 150}, anchors = {"M5", "M12", "ultimate"}, offsets = {{x = -70 + 69, y = -16}, {x = 70 - 67, y = 16 - 37}, {x = -86 + 85, y = 30 - 45}}},
+    wood = {icons = {18, 15, 4}, scale = {0.6,0.8,1.3}, opacity = {100, 100, 150}, anchors = {"M5", "M12", "ultimate"}, offsets = {{x = -70 + 69, y = -16}, {x = 70 - 67, y = 16 - 37}, {x = -86 + 85, y = 30 - 45}}},
     water = {icons = {14, 22, 23}, scale = {0.6,0.6,1.3}, opacity = {100, 150, 150}, anchors = {"M5", "M12", "ultimate"}, offsets = {{x = -70 + 69, y = -16}, {x = 70 - 67, y = 16 - 37}, {x = -86 + 85, y = 30 - 45}}},
-    fire = {icons = {1, 4, 7}, scale = {0.6,0.6,1.3}, opacity = {100, 100, 150}, anchors = {"M5", "M12", "ultimate"}, offsets = {{x = -70 + 69, y = -16}, {x = 70 - 67, y = 16 - 37}, {x = -86 + 85, y = 30 - 45}}},
+    fire = {icons = {1, 5, 7}, scale = {0.6,0.9,1.3}, opacity = {100, 100, 150}, anchors = {"M5", "M12", "ultimate"}, offsets = {{x = -70 + 69, y = -16}, {x = 70 - 67, y = 16 - 37}, {x = -86 + 85, y = 30 - 45}}},
     earth = {icons = {19, 24, 16}, scale = {0.6,0.8,1.3}, opacity = {100, 100, 150}, anchors = {"M5", "M12", "ultimate"}, offsets = {{x = -72 + 59 + 14, y = 14 - 88 + 36}, {x = 72 - 66, y = 66 - 88 + 36}, {x = -86 + 85, y = 30 - 45}}},
 }
 local BUFI_DECORATION_Z = -5
@@ -45,6 +45,7 @@ local CANVAS_H = 2100 + 1000
 local MIN_ZOOM = 0.20
 local MAX_ZOOM = 1.00
 local DEFAULT_ZOOM = 1.00
+local ELEMENT_ORDER = {"metal", "water", "wood", "fire", "earth"}
 local NODE_SIZE = {small = 30, medium = 40, large = 52, skill = 50, socket = 44, bridge = 34, root = 72}
 local ATTR_NODE_ORIGINAL_SIZE = 80
 local SKILL_NODE_ORIGINAL_SIZE = 68
@@ -207,6 +208,16 @@ local function closeModalWindow(name)
         npc.gemBox = nil
         npc.gemList = nil
     end
+end
+
+local function closeOverlappedBaseWindows()
+    local function safeClose(closeFn)
+        if type(closeFn) == "function" then
+            pcall(closeFn, SL)
+        end
+    end
+    safeClose(SL and SL.CloseMyPlayerUI)
+    safeClose(SL and SL.CloseBagUI)
 end
 
 local function setMainTreeVisible(visible)
@@ -384,7 +395,7 @@ local function applyOuterFlowerLayout(resultMap)
         return
     end
 
-    local elements = {"metal", "wood", "water", "fire", "earth"}
+    local elements = ELEMENT_ORDER
     local centers = {}
     for _, element in ipairs(elements) do
         local center = resultMap[element .. "_M18"]
@@ -566,7 +577,7 @@ local function applyOuterFlowerLayout(resultMap)
 end
 
 local function enforceTrunkRadialSpacing(resultMap)
-    local elements = {"metal", "wood", "water", "fire", "earth"}
+    local elements = ELEMENT_ORDER
 
     for _, element in ipairs(elements) do
         local previousRadius
@@ -588,6 +599,34 @@ local function enforceTrunkRadialSpacing(resultMap)
                 end
                 previousRadius = radius
             end
+        end
+    end
+end
+
+local function swapElementTreePositions(resultMap, firstElement, secondElement)
+    if not resultMap then
+        return
+    end
+
+    local firstPrefix = tostring(firstElement or "") .. "_"
+    local secondPrefix = tostring(secondElement or "") .. "_"
+    local firstBySuffix = {}
+    local secondBySuffix = {}
+
+    for id, node in pairs(resultMap) do
+        id = tostring(id)
+        if string.sub(id, 1, #firstPrefix) == firstPrefix then
+            firstBySuffix[string.sub(id, #firstPrefix + 1)] = node
+        elseif string.sub(id, 1, #secondPrefix) == secondPrefix then
+            secondBySuffix[string.sub(id, #secondPrefix + 1)] = node
+        end
+    end
+
+    for suffix, firstNode in pairs(firstBySuffix) do
+        local secondNode = secondBySuffix[suffix]
+        if firstNode and secondNode then
+            firstNode.x, secondNode.x = secondNode.x, firstNode.x
+            firstNode.y, secondNode.y = secondNode.y, firstNode.y
         end
     end
 end
@@ -664,6 +703,7 @@ local function buildTreeLayout()
     end
 
     enforceTrunkRadialSpacing(resultMap)
+    swapElementTreePositions(resultMap, "wood", "water")
     applyOuterFlowerLayout(resultMap)
     npc.layoutNodes = result
     npc.layoutNodeMap = resultMap
@@ -775,9 +815,20 @@ local function button(parent, name, x, y, title, callback, width, height, skin)
     GUI:setContentSize(node, width or 132, height or 42)
     GUI:Button_setTitleText(node, title or "")
     GUI:Button_setTitleFontName(node, FONT)
-    GUI:Button_setTitleFontSize(node, 17)
-    GUI:Button_setTitleColor(node, COLORS.text)
-    GUI:Button_titleEnableOutline(node, "#000000", 1)
+    GUI:Button_setTitleFontSize(node, 18)
+    GUI:Button_setTitleColor(node, "#F7E7B0")
+    GUI:Button_titleEnableOutline(node, "#3B1708", 2)
+    if tostring(title or "") ~= "" then
+        local bw = width or 132
+        local bh = height or 42
+        local glow = GUI:Image_Create(node, "button_glow", bw / 2, math.max(7, bh * 0.23), RES .. "tj_12.png")
+        if valid(glow) then
+            GUI:setAnchorPoint(glow, 0.5, 0.5)
+            GUI:setContentSize(glow, math.max(48, bw * 0.68), 3)
+            GUI:setOpacity(glow, 130)
+            GUI:setLocalZOrder(glow, 1)
+        end
+    end
     GUI:addOnClickEvent(node, callback)
     return node
 end
@@ -1175,8 +1226,8 @@ end
 
 local MAINLINE_TALENT_CHOICE_IDS = {
     "metal_M1",
-    "wood_M1",
     "water_M1",
+    "wood_M1",
     "fire_M1",
     "earth_M1",
 }
@@ -2028,15 +2079,15 @@ local function createZoomControl(sw, sh)
 
     local track = panel(npc.zoomControl, "zoom_track", 0, 0, trackW, controlH, "#211812")
     GUI:setLocalZOrder(track, 1)
-    local trackLine = GUI:Image_Create(npc.zoomControl, "zoom_track_line", 0, 0, RES .. "tj_30.png")
+    local trackLine = GUI:Image_Create(npc.zoomControl, "zoom_track_line", 0, 0, RES .. "tj_24.png")
     GUI:setAnchorPoint(trackLine, 0.5, 0.5)
-    GUI:setContentSize(trackLine, 8, controlH - 20)
+    GUI:setContentSize(trackLine, 13, controlH - 20)
     -- GUI:setRotation(trackLine, 90)
     GUI:setLocalZOrder(trackLine, 2)
 
-    local thumb = GUI:Image_Create(npc.zoomControl, "zoom_thumb", 0, 0, RES .. "tj_21.png")
+    local thumb = GUI:Image_Create(npc.zoomControl, "zoom_thumb", 0, 0, "res/wy/public/anniu_25_close.png")
     GUI:setAnchorPoint(thumb, 0.5, 0.5)
-    GUI:setContentSize(thumb, 24, 24)
+    GUI:setContentSize(thumb, 40, 30)
     GUI:setLocalZOrder(thumb, 4)
 
     -- local topText = text(npc.zoomControl, "zoom_top", 30, controlH / 2 - 12, 12, COLORS.muted, "100%", 0, 0.5)
@@ -2091,37 +2142,83 @@ setInfoDrawer = function(open, animate)
         return
     end
 
+    open = open == true
     local openX = n(npc.infoPanelOpenX, 0)
     local closedX = n(npc.infoPanelClosedX, openX)
     local targetX = open and openX or closedX
     local zoomOpenX = n(npc.zoomControlOpenX, openX)
     local zoomClosedX = n(npc.zoomControlClosedX, n(cogin and cogin.w, 1280) / 2 - 24)
-    local duration = animate and 0.24 or 0
+    local zoomTargetX = open and zoomOpenX or zoomClosedX
 
-    npc.infoDrawerOpen = open == true
-
-    local function move(node)
-        if not valid(node) then
-            return
-        end
-        if duration > 0 then
-            GUI:Timeline_EaseSineIn_MoveTo(node, {x = targetX, y = GUI:getPosition(node).y}, duration)
-        else
-            local pos = GUI:getPosition(node)
-            GUI:setPosition(node, targetX, pos.y)
+    local function stopMove(node)
+        if valid(node) and GUI and type(GUI.stopAllActions) == "function" then
+            GUI:stopAllActions(node)
         end
     end
 
-    move(npc.infoPanel)
-    move(npc.infoFrame)
-    if valid(npc.zoomControl) then
-        local zoomX = open and zoomOpenX or zoomClosedX
-        if duration > 0 then
-            GUI:Timeline_EaseSineIn_MoveTo(npc.zoomControl, {x = zoomX, y = GUI:getPosition(npc.zoomControl).y}, duration)
-        else
-            local pos = GUI:getPosition(npc.zoomControl)
-            GUI:setPosition(npc.zoomControl, zoomX, pos.y)
+    local function snapNode(node, x)
+        if not valid(node) then
+            return
         end
+        local pos = GUI:getPosition(node)
+        GUI:setPosition(node, x, pos.y)
+    end
+
+    local function snapAll()
+        snapNode(npc.infoPanel, targetX)
+        snapNode(npc.infoFrame, targetX)
+        snapNode(npc.zoomControl, zoomTargetX)
+    end
+
+    if npc.infoDrawerAnimating then
+        if npc.infoDrawerTargetOpen == open then
+            return
+        end
+        animate = false
+    elseif npc.infoDrawerOpen == open and npc.infoDrawerTargetOpen == open then
+        snapAll()
+        return
+    end
+
+    npc.infoDrawerOpen = open
+    npc.infoDrawerTargetOpen = open
+
+    stopMove(npc.infoPanel)
+    stopMove(npc.infoFrame)
+    stopMove(npc.zoomControl)
+
+    npc.infoDrawerToken = n(npc.infoDrawerToken, 0) + 1
+    local token = npc.infoDrawerToken
+    local duration = animate and 0.24 or 0
+    if duration <= 0 then
+        npc.infoDrawerAnimating = false
+        snapAll()
+        return
+    end
+
+    local function move(node, x)
+        if not valid(node) then
+            return
+        end
+        GUI:Timeline_EaseSineIn_MoveTo(node, {x = x, y = GUI:getPosition(node).y}, duration)
+    end
+
+    npc.infoDrawerAnimating = true
+    move(npc.infoPanel, targetX)
+    move(npc.infoFrame, targetX)
+    move(npc.zoomControl, zoomTargetX)
+
+    if SL and type(SL.ScheduleOnce) == "function" then
+        SL:ScheduleOnce(function()
+            if npc.infoDrawerToken ~= token then
+                return
+            end
+            npc.infoDrawerAnimating = false
+            snapAll()
+        end, duration + 0.02)
+    else
+        npc.infoDrawerAnimating = false
+        snapAll()
     end
 end
 
@@ -2134,6 +2231,7 @@ local function updateInfo()
     local active = stateActive(node.id)
     local kicker = GUI:getChildByName(info, "info_kicker")
     local infoTitle = GUI:getChildByName(info, "info_title")
+    local effectTitle = GUI:getChildByName(info, "info_effect_title")
     local title = GUI:getChildByName(info, "node_title")
     local status = GUI:getChildByName(info, "node_status")
     local descScroll = GUI:getChildByName(info, "node_desc_scroll")
@@ -2143,7 +2241,12 @@ local function updateInfo()
         GUI:Text_setString(kicker, laneText)
     end
     if infoTitle then
-        GUI:Text_setString(infoTitle, node.kind == "root" and "灵根本源" or "节点详情")
+        GUI:Text_setString(infoTitle, "天赋预览")
+        GUI:Text_setTextColor(infoTitle, nodeColor(node))
+    end
+    if effectTitle then
+        GUI:Text_setString(effectTitle, "天赋效果")
+        GUI:Text_setTextColor(effectTitle, nodeColor(node))
     end
     if title then
         GUI:Text_setString(title, node.name or "")
@@ -2218,7 +2321,7 @@ local function refreshUpgradeInfo()
     local core_frame = GUI:Image_Create(preview, "core_frame", -8 + 2, -68 + 247 + 7 + 7, NODE_ROOT_BACK)
     GUI:setAnchorPoint(core_frame, 0.5, 0.5)
     GUI:setContentSize(core_frame, 100, 100)
-    local levelText = text(preview, "core_level", -8 + 2, -68 + 247 + 7 + 7, 50, "#FF0000",
+    local levelText = text(preview, "core_level", -8 + 2, -68 + 247 + 7 + 7 - 70, 25, "#FF0000",
     tostring(n(state.core_level)) .. "级", 0.5, 0.5)
     GUI:setLocalZOrder(levelText, 2)
     GUI:Text_setFontName(levelText, "fonts/502.ttf")
@@ -2293,17 +2396,24 @@ local function refreshTalentPointsText()
     if type(npc.state) ~= "table" or not valid(npc.header) then
         return
     end
-    local points = GUI:getChildByName(npc.header, "points")
-    if not valid(points) then
-        return
-    end
     local remaining = math.max(0, n(npc.state.normal_points))
     local total = math.max(0, n(npc.state.normal_total))
     local used = math.min(total, math.max(0, total - remaining))
-    GUI:Text_setString(points, string.format(
-        "剩余天赋点：%d\n已使用天赋点：%d",
-        remaining, used
-    ))
+    local remainingValue = GUI:getChildByName(npc.header, "points_remaining_value")
+    local usedValue = GUI:getChildByName(npc.header, "points_used_value")
+    local points = GUI:getChildByName(npc.header, "points")
+    if valid(remainingValue) then
+        GUI:Text_setString(remainingValue, tostring(remaining))
+    end
+    if valid(usedValue) then
+        GUI:Text_setString(usedValue, tostring(used))
+    end
+    if valid(points) then
+        GUI:Text_setString(points, string.format(
+            "剩余天赋点：%d\n已使用天赋点：%d",
+            remaining, used
+        ))
+    end
 end
 
 local function applyClientConfigDefaults(state)
@@ -2620,6 +2730,7 @@ local function openRules()
         "6. 天赋点上限210点，核心最多40级；核心升级可获得33点，其他系统预留7点。",
         "7. 节点按连接关系判断，任意相连节点已激活即可从任意方向点亮。",
         "8. 跨系通道节点不消耗天赋点，但必须满足核心等级和相连节点条件。",
+        "9. 五行相克共振：攻击怪物额外忽视30%防御，攻击玩家忽视5%防御；自身受到所有伤害提高20%。",
     }, "<br/>")
     local desc = GUI:RichText_Create(box, "rules_desc", boxW / 2, boxTop, rules,
         math.max(220, boxW - 40), 17, "#E5D8B8", 0, nil, nil, {outlineSize = 1, outlineColor = "#000000"})
@@ -2699,22 +2810,46 @@ local function createHeader(sw, sh)
     -- text(root, "brand_title", brandTextX, layout.topY, 30, GOLD, "万象图鉴", 0, 0.5)
 
     local leftX = 10
-    text(npc.header, "title", leftX, -40, 25, "#F1D176", "灵根天赋树", 0, 0.5)
-    text(npc.header, "subtitle", leftX, -60, 13, "#8FA6C0",
-        "相生相克 · 主干成长 · 流派分支 · 宝石镶嵌", 0, 0.5)
+    text(npc.header, "title", leftX, -30, 25, "#F1D176", "灵根天赋树", 0, 0.5)
+    text(npc.header, "subtitle", leftX, -60, 20, "#8FA6C0",
+        "五行共振 · 主干成长 · 流派分支 · 宝石镶嵌", 0, 0.5)
 
-    local pointsX = headerW / 2 + 150
-    local pointsBg = panel(npc.header, "points_bg", pointsX + 115, -16 - 30, 224 + 30, 54, "#10253B")
-    GUI:setLocalZOrder(pointsBg, 3)
-    local points = text(npc.header, "points", pointsX + 115, -16 - 30, 15, "#E6F0FF", "", 0.5, 0.5)
-    GUI:setLocalZOrder(points, 4)
+    local pointsX = headerW / 2 + 150 + 50
+    local pointsBg = imageFrame(npc.header, "points_bg", pointsX + 115, -46, 286, 58, RES .. "tj_19.png", 3)
+    if valid(pointsBg) then
+        GUI:setOpacity(pointsBg, 235)
+    end
+    -- local pointsLine = GUI:Image_Create(npc.header, "points_line", pointsX + 115, -46, RES .. "tj_12.png")
+    -- if valid(pointsLine) then
+    --     GUI:setAnchorPoint(pointsLine, 0.5, 0.5)
+    --     GUI:setContentSize(pointsLine, 112, 3)
+    --     GUI:setRotation(pointsLine, 90)
+    --     GUI:setOpacity(pointsLine, 125)
+    --     GUI:setLocalZOrder(pointsLine, 4)
+    -- end
+    local remainLabel = text(npc.header, "points_remaining_label", pointsX + 54, -36, 20, "#9FB4C8", "剩余天赋", 0.5, 0.5)
+    local remainValue = text(npc.header, "points_remaining_value", pointsX + 54, -58, 22, "#7CFFAE", "0", 0.5, 0.5)
+    local usedLabel = text(npc.header, "points_used_label", pointsX + 176, -36, 20, "#9FB4C8", "已用天赋", 0.5, 0.5)
+    local usedValue = text(npc.header, "points_used_value", pointsX + 176, -58, 22, "#F4D17A", "0", 0.5, 0.5)
+    GUI:setLocalZOrder(remainLabel, 5)
+    GUI:setLocalZOrder(remainValue, 5)
+    GUI:setLocalZOrder(usedLabel, 5)
+    GUI:setLocalZOrder(usedValue, 5)
     refreshTalentPointsText()
-    button(npc.header, "upgrade", 200 + headerW / 2 - 410, -50, "升级核心", openUpgrade, 108, 38)
-    button(npc.header, "rules", 300 + headerW / 2 - 286 - 88, -50, "查看规则", openRules, 104, 38)
-    button(npc.header, "reset", 300 + headerW / 2 - 176 - 60, -50, "重置灵根", function()
+    local upgrade = button(npc.header, "upgrade", 75, -100 - 10, "  升级核心", openUpgrade, 150, 50,"res/custom/linggen/new/main/itme3.png")
+    local rules = button(npc.header, "rules",75, -150 - 10, "  查看规则", openRules, 150, 50,"res/custom/linggen/new/main/itme3.png")
+    local reset = button(npc.header, "reset", 75, -200 - 10, "  重置灵根", function()
         openResetConfirm("all")
-    end, 126, 38)
-    button(npc.header, "close", headerW - 52, -50, "", function()
+    end, 150, 50,"res/custom/linggen/new/main/itme3.png")
+
+    -- dev/res/custom/tj/redo.png dev/res/custom/tj/align-right.png dev/res/custom/tj/angle-double-up.png
+    GUI:setContentSize(GUI:Image_Create(upgrade, "upgrade_icon", 13, 15, RES .. "angle-double-up.png"), 20, 20)
+    GUI:setContentSize(GUI:Image_Create(rules, "rules_icon", 13, 15, RES .. "align-right.png"), 20, 20)
+    GUI:setContentSize(GUI:Image_Create(reset, "reset_icon", 13, 15, RES .. "redo.png"), 20, 20)
+    GUI:Button_setTitleFontSize(upgrade, 22)
+    GUI:Button_setTitleFontSize(rules, 22)
+    GUI:Button_setTitleFontSize(reset, 22)
+    button(npc.header, "close", headerW - 20, -50, "", function()
         local win = GUI:GetWindow(nil, ROOT_NAME)
         if win then
             GUI:Win_Close(win)
@@ -2761,10 +2896,17 @@ local function createInfoPanel(sw, sh)
     local contentRight = panelY - 20
 
 
-    text(npc.infoPanel, "info_title", 30, panelTop - 10, 22, "#F1D176", "灵根本源", 0, 1)
+    text(npc.infoPanel, "info_title", npc.infoW / 2, panelTop - 10, 22, "#F1D176", "天赋预览", 0.5, 1)
+    local titleLine = GUI:Image_Create(npc.infoPanel, "info_title_line", npc.infoW / 2, panelTop - 34, RES .. "tj_12.png")
+    if valid(titleLine) then
+        GUI:setAnchorPoint(titleLine, 0.5, 0.5)
+        GUI:setContentSize(titleLine, npc.infoW - 56, 3)
+        GUI:setOpacity(titleLine, 150)
+        GUI:setLocalZOrder(titleLine, 2)
+    end
     text(npc.infoPanel, "node_status", npc.infoW - 10 , panelTop - 40, 20, COLORS.green, "", 1, 1)
     text(npc.infoPanel, "node_title", 10, panelTop - 40, 20, "#E8F1FF", "", 0, 1)
-    text(npc.infoPanel, "info_effect_title", 10, panelTop - 90, 20, "#F1D176", "节点效果", 0, 0.5)
+    text(npc.infoPanel, "info_effect_title", 10, panelTop - 90, 20, "#F1D176", "天赋效果", 0, 0.5)
 
     local descScroll = GUI:ScrollView_Create(npc.infoPanel, "node_desc_scroll", 10, 65,
         npc.infoDescW, panelTop - 165, 1)
@@ -2789,6 +2931,13 @@ local function createInfoPanel(sw, sh)
     local actionY = 30
     local actionX = npc.infoW >= 300 and -90 or 0
     local ruleX = npc.infoW/2
+    local actionLine = GUI:Image_Create(npc.infoPanel, "info_action_line", npc.infoW / 2, actionY + 38, RES .. "tj_12.png")
+    if valid(actionLine) then
+        GUI:setAnchorPoint(actionLine, 0.5, 0.5)
+        GUI:setContentSize(actionLine, npc.infoW - 48, 3)
+        GUI:setOpacity(actionLine, 115)
+        GUI:setLocalZOrder(actionLine, 2)
+    end
     local action = button(npc.infoPanel, "node_action", ruleX - 60, actionY, "点亮", function()
         local node = TreeCfg.node_map and TreeCfg.node_map[npc.selectedId or "root"]
         if not node then
@@ -2815,13 +2964,15 @@ local function createInfoPanel(sw, sh)
         end
     end, 90, 40)
     GUI:setLocalZOrder(action, 5)
-    local rule = button(npc.infoPanel, "info_rule", ruleX + 60, actionY, "查看规则", openRules,
-         90, 40)
-    GUI:setLocalZOrder(rule, 5)
+    -- local rule = button(npc.infoPanel, "info_rule", ruleX + 60, actionY, "查看规则", openRules,
+    --      90, 40)
+    -- GUI:setLocalZOrder(rule, 5)
 
 end
 
 local function createWindow()
+    closeOverlappedBaseWindows()
+
     local sw = n(cogin and cogin.w, 1280)
     local sh = n(cogin and cogin.h, 720)
     local win = GUI:GetWindow(nil, ROOT_NAME)

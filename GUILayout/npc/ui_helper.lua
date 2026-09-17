@@ -5,6 +5,7 @@
 --   * 采用懒加载（NPC_UI_HELPER 全局单例），避免重复 require
 local existingHelper = rawget(_G, "NPC_UI_HELPER")
 local UIHelper = existingHelper or {}
+local TalentTreeData = SL and SL.Require and SL:Require("GUILayout/Data/talent_tree_data", true) or {}
 -- ===== 默认素材配置 =====
 local DEFAULT_OVERLAY = 'res/wy/public/40-40.png'  -- 全屏遮罩：点击关闭窗口
 local DEFAULT_BG = 'res/wy/public/tongyong_0.png'              -- 背景面板：承载 UI 内容
@@ -753,12 +754,181 @@ local function _linggen_slot_current(data)
     return idx, level
 end
 
+local function _linggen_talent_state_from_server()
+    local raw = ""
+    if Player and type(Player.getServerVar) == "function" then
+        raw = Player:getServerVar("T74") or ""
+    end
+    if (raw == nil or raw == "") and SL and type(SL.GetMetaValue) == "function" then
+        raw = SL:GetMetaValue("SERVER_VALUE", "T74")
+    end
+    if type(raw) == "table" then
+        return raw
+    end
+    if type(raw) ~= "string" or raw == "" then
+        return {}
+    end
+    if Player and type(Player.JsonToTbl) == "function" then
+        local ok, result = pcall(function()
+            return Player:JsonToTbl(raw)
+        end)
+        if ok and type(result) == "table" then
+            return result
+        end
+    end
+    if SL and type(SL.JsonDecode) == "function" then
+        return SL:JsonDecode(raw, false) or {}
+    end
+    return {}
+end
+
+local function _linggen_node_active(nodes, id)
+    nodes = type(nodes) == "table" and nodes or {}
+    local value = nodes[tostring(id)]
+    if value == nil then
+        value = nodes[id]
+    end
+    if type(value) == "number" then
+        return value > 0
+    end
+    if type(value) == "boolean" then
+        return value
+    end
+    if type(value) == "table" then
+        return _linggen_slot_toint(value.level or value.lv or value.active or value[1], 0) > 0
+    end
+    return tostring(value or "") ~= "" and tostring(value) ~= "0"
+end
+
+local function _linggen_clean_attr_line(value)
+    value = tostring(value or "")
+    value = value:gsub("^%s+", ""):gsub("%s+$", "")
+    return value
+end
+
+local function _linggen_add_attr_summary(rowMap, rows, line, sourceSeen)
+    line = _linggen_clean_attr_line(line)
+    if line == "" or sourceSeen[line] then
+        return
+    end
+    sourceSeen[line] = true
+
+    local sign = 1
+    local label, amount, unit = line:match("^(.-)%s*[+＋]%s*([%d%.]+)%s*(%%?)$")
+    if not label or label == "" then
+        label, amount, unit = line:match("^(.-)%s*%-%s*([%d%.]+)%s*(%%?)$")
+        sign = -1
+    end
+    if not label or label == "" then
+        label = line
+        amount = 0
+        unit = ""
+    end
+    label = label:gsub("%s+$", "")
+    local key = label .. "|" .. tostring(unit or "")
+    local row = rowMap[key]
+    if not row then
+        row = {label = label, unit = unit or "", value = 0}
+        rowMap[key] = row
+        rows[#rows + 1] = row
+    end
+    row.value = row.value + sign * (tonumber(amount) or 0)
+end
+
+local function _linggen_attr_line_from_attr(attr)
+    if type(attr) ~= "table" then
+        return ""
+    end
+    if attr.text and tostring(attr.text) ~= "" then
+        return tostring(attr.text)
+    end
+    return "属性" .. tostring(attr.id or "") .. " +" .. tostring(attr.value or 0)
+end
+
+local function _linggen_talent_attr_summary(state)
+    state = type(state) == "table" and state or {}
+    local rowMap = {}
+    local rows = {}
+    local coreLevel = _linggen_slot_toint(state.core_level, 0)
+    local groups = {"hp", "attack", "defense", "cut", "recovery", "percent"}
+
+    for _, levelCfg in ipairs(TalentTreeData.core_levels or {}) do
+        if _linggen_slot_toint(levelCfg.level, 0) <= coreLevel then
+            local seen = {}
+            for _, group in ipairs(groups) do
+                for _, attr in ipairs(((levelCfg or {}).attrs or {})[group] or {}) do
+                    _linggen_add_attr_summary(rowMap, rows, _linggen_attr_line_from_attr(attr), seen)
+                end
+            end
+        end
+    end
+
+    for _, node in ipairs(TalentTreeData.nodes or {}) do
+        if _linggen_node_active(state.nodes, node.id) then
+            local seen = {}
+            for _, attr in ipairs(node.attrs or {}) do
+                _linggen_add_attr_summary(rowMap, rows, _linggen_attr_line_from_attr(attr), seen)
+            end
+        end
+    end
+
+    local result = {}
+    local function formatValue(value)
+        if math.floor(value) == value then
+            return tostring(math.floor(value))
+        end
+        return tostring(value):gsub("0+$", ""):gsub("%.$", "")
+    end
+
+    for _, row in ipairs(rows) do
+        if row.value ~= 0 then
+            local sign = row.value > 0 and "+" or "-"
+            result[#result + 1] = string.format("%s %s%s%s",
+                row.label, sign, formatValue(math.abs(row.value)), row.unit or "")
+        end
+    end
+    if #result == 0 then
+        result[#result + 1] = "暂无已生效属性"
+    end
+    return result
+end
+
+local function _linggen_socket_summary(state)
+    local result = {}
+    local sockets = type(state) == "table" and type(state.sockets) == "table" and state.sockets or {}
+    for nodeId, gemName in pairs(sockets) do
+        gemName = tostring(gemName or "")
+        if gemName ~= "" then
+            local node = TalentTreeData.node_map and TalentTreeData.node_map[tostring(nodeId)]
+            result[#result + 1] = string.format("%s：%s", tostring(node and node.name or nodeId), gemName)
+        end
+    end
+    table.sort(result)
+    if #result == 0 then
+        result[#result + 1] = "暂未镶嵌宝石"
+    end
+    return result
+end
+
+local function _linggen_join_limited(lines, limit, prefix)
+    lines = type(lines) == "table" and lines or {}
+    limit = tonumber(limit or 6) or 6
+    prefix = tostring(prefix or "　　")
+    local result = {}
+    for index, line in ipairs(lines) do
+        if index > limit then
+            result[#result + 1] = prefix .. "还有" .. tostring(#lines - limit) .. "条..."
+            break
+        end
+        result[#result + 1] = prefix .. tostring(line)
+    end
+    return table.concat(result, "\n")
+end
+
 local function _linggen_slot_tip(data)
     local idx, level = _linggen_slot_current(data)
     local cfg = teshudata and teshudata["npc_22"] and teshudata["npc_22"].main_r and teshudata["npc_22"].main_r[idx]
-    if not cfg then
-        return "<font color='#CFCFCF'>暂未装配本命灵根</font>"
-    end
+    local talentState = _linggen_talent_state_from_server()
     local function cleanText(text)
         text = tostring(text or "")
         text = text:gsub("主动技能逻辑待接入。", "")
@@ -807,22 +977,9 @@ local function _linggen_slot_tip(data)
         end
         return table.concat(lines, "\n")
     end
-    local function splitSkill(value)
-        value = cleanText(value)
-        local skillName, desc = value:match("^【([^】]+)】(.+)$")
-        if skillName then
-            return skillName, desc
-        end
-        return nil, value
-    end
     local function section(label, value, color)
-        local skillName, desc = splitSkill(value or "暂无")
-        local title = tostring(label or "")
-        if skillName and skillName ~= "" then
-            title = title .. " · " .. skillName
-        end
         return string.format("<font color='#E8C879'>%s</font>\n<font color='%s'>%s</font>",
-            title, color or "#D9D2C2", wrapText(desc or "暂无", 24, "　　"))
+            tostring(label or ""), color or "#D9D2C2", wrapText(value or "暂无", 24, "　　"))
     end
     local rootColor = "#F4D179"
     if idx == 1 or idx == 6 then
@@ -836,15 +993,25 @@ local function _linggen_slot_tip(data)
     elseif idx == 5 or idx == 10 then
         rootColor = "#D7B37A"
     end
+    local rootName = cfg and tostring(cfg.name or "") or ""
+    if rootName == "" then
+        rootName = idx > 0 and "未知灵根" or "暂未装配本命灵根"
+    else
+        rootName = rootName .. "灵根"
+    end
+    local coreLevel = _linggen_slot_toint(talentState.core_level, 0)
+    local attrSummary = _linggen_join_limited(_linggen_talent_attr_summary(talentState), 8, "　　")
+    local socketSummary = _linggen_join_limited(_linggen_socket_summary(talentState), 6, "　　")
+    local synergy = cfg and cfg.synergy or "暂无"
     local lines = {
-        "<font color='#E8C879'>【本命灵根】</font>",
-        string.format("<font color='%s'>%s灵根</font> <font color='#CFC6B4'>Lv.%d</font>", rootColor, tostring(cfg.name or ""), level),
+        "<font color='#E8C879'>【灵根总览】</font>",
+        string.format("<font color='%s'>%s</font> <font color='#CFC6B4'>Lv.%d</font>", rootColor, rootName, level),
         "<font color='#6B5630'>━━━━━━━━━━━━━━━━</font>",
-        string.format("<font color='#E8C879'>流派定位</font>\n<font color='#D9D2C2'>　　%s</font>", tostring(cfg.flow or "未配置")),
+        string.format("<font color='#E8C879'>灵根核心等级</font>\n<font color='#F2E7C8'>　　Lv.%d</font>", coreLevel),
+        string.format("<font color='#E8C879'>天赋树属性合计</font>\n<font color='#B9F6C5'>%s</font>", attrSummary),
+        string.format("<font color='#E8C879'>已镶嵌宝石</font>\n<font color='#9FE2FF'>%s</font>", socketSummary),
     }
-    lines[#lines + 1] = section("被动技能", cfg.passive, "#B9F6C5")
-    lines[#lines + 1] = section("主动技能", cfg.active, "#F2E7C8")
-    lines[#lines + 1] = section("灵兽协同", cfg.synergy, "#B9F6C5")
+    lines[#lines + 1] = section("灵兽协同效果", synergy, "#B9F6C5")
     return table.concat(lines, "\n")
 end
 

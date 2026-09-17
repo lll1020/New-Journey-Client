@@ -185,64 +185,94 @@ local data = {
     },
     relations = {
         {
-            name = "金克木",
-            damage = 1.25,
-            taken = 1.15,
-            desc = "金打木伤害 + 25%；木攻击金时，金受到伤害 + 15%",
-        },
-        {
             name = "木克土",
-            damage = 1.25,
-            taken = 1.15,
-            desc = "木打土伤害 + 25%；土攻击木时，木受到伤害 + 15%",
+            relation_type = "restrain",
+            source = "wood",
+            target = "earth",
+            damage = 1,
+            taken = 1.2,
+            monster_defense_ignore = 30,
+            player_defense_ignore = 5,
+            desc = "五行相克共振：攻击怪物额外忽视30%防御；攻击玩家忽视5%防御；自身受到所有伤害提高20%",
         },
         {
             name = "土克水",
-            damage = 1.25,
-            taken = 1.15,
-            desc = "土打水伤害 + 25%；水攻击土时，土受到伤害 + 15%",
+            relation_type = "restrain",
+            source = "earth",
+            target = "water",
+            damage = 1,
+            taken = 1.2,
+            monster_defense_ignore = 30,
+            player_defense_ignore = 5,
+            desc = "五行相克共振：攻击怪物额外忽视30%防御；攻击玩家忽视5%防御；自身受到所有伤害提高20%",
         },
         {
             name = "水克火",
-            damage = 1.25,
-            taken = 1.15,
-            desc = "水打火伤害 + 25%；火攻击水时，水受到伤害 + 15%",
+            relation_type = "restrain",
+            source = "water",
+            target = "fire",
+            damage = 1,
+            taken = 1.2,
+            monster_defense_ignore = 30,
+            player_defense_ignore = 5,
+            desc = "五行相克共振：攻击怪物额外忽视30%防御；攻击玩家忽视5%防御；自身受到所有伤害提高20%",
         },
         {
             name = "火克金",
-            damage = 1.25,
-            taken = 1.15,
-            desc = "火打金伤害 + 25%；金攻击火时，火受到伤害 + 15%",
+            relation_type = "restrain",
+            source = "fire",
+            target = "metal",
+            damage = 1,
+            taken = 1.2,
+            monster_defense_ignore = 30,
+            player_defense_ignore = 5,
+            desc = "五行相克共振：攻击怪物额外忽视30%防御；攻击玩家忽视5%防御；自身受到所有伤害提高20%",
+        },
+        {
+            name = "金克木",
+            relation_type = "restrain",
+            source = "metal",
+            target = "wood",
+            damage = 1,
+            taken = 1.2,
+            monster_defense_ignore = 30,
+            player_defense_ignore = 5,
+            desc = "五行相克共振：攻击怪物额外忽视30%防御；攻击玩家忽视5%防御；自身受到所有伤害提高20%",
         },
         {
             name = "金生水",
-            damage = 1.1,
+            relation_type = "disabled",
+            damage = 1,
             taken = 1,
-            desc = "金→水，伤害 + 10%，无受击惩罚",
+            desc = "新版已取消相生增益",
         },
         {
             name = "水生木",
-            damage = 1.1,
+            relation_type = "disabled",
+            damage = 1,
             taken = 1,
-            desc = "水→木，伤害 + 10%，无受击惩罚",
+            desc = "新版已取消相生增益",
         },
         {
             name = "木生火",
-            damage = 1.1,
+            relation_type = "disabled",
+            damage = 1,
             taken = 1,
-            desc = "木→火，伤害 + 10%，无受击惩罚",
+            desc = "新版已取消相生增益",
         },
         {
             name = "火生土",
-            damage = 1.1,
+            relation_type = "disabled",
+            damage = 1,
             taken = 1,
-            desc = "火→土，伤害 + 10%，无受击惩罚",
+            desc = "新版已取消相生增益",
         },
         {
             name = "土生金",
-            damage = 1.1,
+            relation_type = "disabled",
+            damage = 1,
             taken = 1,
-            desc = "土→金，伤害 + 10%，无受击惩罚",
+            desc = "新版已取消相生增益",
         },
         {
             name = "同属性",
@@ -6434,7 +6464,7 @@ local data = {
         },
         {
             id = "metal_K2_6",
-            name = "金·K2-6（与木 K1-6共用）",
+            name = "金·K2-6（与水 K1-6共用）",
             element = "metal",
             lane = "bridge",
             kind = "bridge",
@@ -6445,11 +6475,11 @@ local data = {
             core_level = 35,
             requires_any = {
                 "metal_K2_5",
-                "wood_K1_5",
+                "water_K1_5",
             },
             attrs = {},
             effect = "只能装1/2级宝石",
-            desc = "相邻灵根共用的跨系通道节点。可由本系K2-5或木灵根K1-5连接。桥梁宝石槽不消耗天赋点，集群宝石不可镶嵌。",
+            desc = "相邻灵根共用的跨系通道节点。可由本系K2-5或水灵根K1-5连接。桥梁宝石槽不消耗天赋点，集群宝石不可镶嵌。",
             special = {
                 key = "metal_K2_6",
                 value = 1,
@@ -6459,10 +6489,10 @@ local data = {
             cost = {},
             x = 3672.5,
             y = 917.8,
-            shared_group = "metal_wood_K6",
+            shared_group = "metal_water_K6",
             shared_elements = {
                 "metal",
-                "wood",
+                "water",
             },
         },
         {
@@ -8366,7 +8396,7 @@ local data = {
         },
         {
             id = "wood_K2_6",
-            name = "木·K2-6（与水 K1-6共用）",
+            name = "木·K2-6（与火 K1-6共用）",
             element = "wood",
             lane = "bridge",
             kind = "bridge",
@@ -8377,11 +8407,11 @@ local data = {
             core_level = 35,
             requires_any = {
                 "wood_K2_5",
-                "water_K1_5",
+                "fire_K1_5",
             },
             attrs = {},
             effect = "只能装1/2级宝石",
-            desc = "相邻灵根共用的跨系通道节点。可由本系K2-5或水灵根K1-5连接。桥梁宝石槽不消耗天赋点，集群宝石不可镶嵌。",
+            desc = "相邻灵根共用的跨系通道节点。可由本系K2-5或火灵根K1-5连接。桥梁宝石槽不消耗天赋点，集群宝石不可镶嵌。",
             special = {
                 key = "wood_K2_6",
                 value = 1,
@@ -8391,10 +8421,10 @@ local data = {
             cost = {},
             x = 2055.2,
             y = 3408.2,
-            shared_group = "wood_water_K6",
+            shared_group = "wood_fire_K6",
             shared_elements = {
                 "wood",
-                "water",
+                "fire",
             },
         },
         {
@@ -10298,7 +10328,7 @@ local data = {
         },
         {
             id = "water_K2_6",
-            name = "水·K2-6（与火 K1-6共用）",
+            name = "水·K2-6（与木 K1-6共用）",
             element = "water",
             lane = "bridge",
             kind = "bridge",
@@ -10309,11 +10339,11 @@ local data = {
             core_level = 35,
             requires_any = {
                 "water_K2_5",
-                "fire_K1_5",
+                "wood_K1_5",
             },
             attrs = {},
             effect = "只能装1/2级宝石",
-            desc = "相邻灵根共用的跨系通道节点。可由本系K2-5或火灵根K1-5连接。桥梁宝石槽不消耗天赋点，集群宝石不可镶嵌。",
+            desc = "相邻灵根共用的跨系通道节点。可由本系K2-5或木灵根K1-5连接。桥梁宝石槽不消耗天赋点，集群宝石不可镶嵌。",
             special = {
                 key = "water_K2_6",
                 value = 1,
@@ -10323,10 +10353,10 @@ local data = {
             cost = {},
             x = -813.1,
             y = 2639.7,
-            shared_group = "water_fire_K6",
+            shared_group = "water_wood_K6",
             shared_elements = {
                 "water",
-                "fire",
+                "wood",
             },
         },
         {
@@ -14258,6 +14288,10 @@ local data = {
 data.element_map = {}
 data.node_map = {}
 data.core_level_map = {}
+local element_order = {metal = 1, water = 2, wood = 3, fire = 4, earth = 5}
+table.sort(data.elements or {}, function(a, b)
+    return (element_order[a.id] or 99) < (element_order[b.id] or 99)
+end)
 for _, element in ipairs(data.elements or {}) do data.element_map[element.id] = element end
 for _, node in ipairs(data.nodes or {}) do data.node_map[node.id] = node end
 for _, level_cfg in ipairs(data.core_levels or {}) do data.core_level_map[level_cfg.level] = level_cfg end
