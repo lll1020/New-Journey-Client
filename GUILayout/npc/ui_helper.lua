@@ -49,6 +49,15 @@ local GRAY_WORLD_GUIDE_MAP_IDS = {
     ["303"] = true,
 }
 local GRAY_WORLD_GUIDE_KEYWORDS = {"灰界", "虚妄山脉", "山脉入口", "鬼嘲深渊", "旷野之原", "叹息旷野", "恐怖裂隙", "禁忌之海", "海峰孤岛", "讨伐嘲灾", "讨伐忌灾", "讨伐息灾", "讨伐妄灾"}
+local GRAY_WORLD_MAINLINE_NPC_GUIDES = {
+    [46] = true,
+    [625] = true,
+    [626] = true,
+    [627] = true,
+    [628] = true,
+    [1030] = true,
+    [1031] = true,
+}
 -- ===== 基础工具函数 =====
 -- 空函数：用于 overlay / closeBtn 的默认 onClick，避免频繁创建匿名函数
 local function noop() end
@@ -121,6 +130,14 @@ function UIHelper.shouldSuppressGrayWorldGuide(rwid)
     -- 36-40 期间处于灰界主线，普通主线引导不能提前把玩家指向 1031。
     -- 灰界任务自己的 guide domain 由 requestGuide 单独放行。
     return mainlineRwid >= GRAY_WORLD_GUIDE_RWID and UIHelper.isGrayWorldMap()
+end
+function UIHelper.isGrayWorldMainlineNpcGuide(npcid, rwid)
+    local mainlineRwid = tonumber(rwid) or getMainlineRwidValue()
+    local targetNpcId = tonumber(npcid) or 0
+    return mainlineRwid >= 36
+        and mainlineRwid <= 40
+        and GRAY_WORLD_MAINLINE_NPC_GUIDES[targetNpcId] == true
+        and UIHelper.isGrayWorldMap()
 end
 -- 规范化描边配置：
 --   opts = false -> 不启用描边

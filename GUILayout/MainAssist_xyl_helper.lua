@@ -1020,6 +1020,18 @@ function MainAssistXylHelper.bind(MainAssist)
         return {x = 94, y = 84}
     end
 
+    -- 左上角任务卡片按线路请求跳转；服务端负责传送并返回对应 NPC 的引导。
+    local function _gray_world_open_invasion_npc(button)
+        local routeIdx = button and tonumber(button._grayWorldRouteIdx) or 0
+        if routeIdx <= 0 then
+            return
+        end
+        if SL.GetMetaValue and SL:GetMetaValue("BATTLE_IS_AFK") then
+            SL:SetMetaValue("BATTLE_AFK_END")
+        end
+        SL:SendLuaNetMsg(100, 46, 2, routeIdx, "")
+    end
+
     local function _gray_world_update_panel_bg(panel, path)
         if not panel then
             return
@@ -1224,7 +1236,7 @@ function MainAssistXylHelper.bind(MainAssist)
                 if touchBtn._grayWorldCompleted then
                     return
                 end
-                SL:SendLuaNetMsg(100, 46, 2, touchBtn._grayWorldRouteIdx or 0, "")
+                _gray_world_open_invasion_npc(touchBtn)
             end)
         end
         touchBtn._grayWorldRouteIdx = routeState.idx
@@ -1472,7 +1484,7 @@ function MainAssistXylHelper.bind(MainAssist)
                         if singleBtn._grayWorldCompleted then
                             return
                         end
-                        SL:SendLuaNetMsg(100, 46, 2, singleBtn._grayWorldRouteIdx or 0, "")
+                        _gray_world_open_invasion_npc(singleBtn)
                     end)
                 end
                 singleBtn._grayWorldRouteIdx = lineState.idx

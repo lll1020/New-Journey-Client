@@ -23,7 +23,7 @@ local data = {
     m1_reset_cost = {
         {
             "灵石",
-            100,
+            1000,
         },
     },
     elements = {

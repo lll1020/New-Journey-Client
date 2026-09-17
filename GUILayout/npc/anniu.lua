@@ -1533,13 +1533,15 @@ local function startGuideOnButton(data)
     })
 end
 local function triggerNavigate(point, meta)
-    if NPC_UI_HELPER.shouldSuppressGrayWorldGuide and NPC_UI_HELPER.shouldSuppressGrayWorldGuide() then
-        return
-    end
+    -- local allowGrayWorldMainlineNpc = meta and meta.allowGrayWorldMainlineNpc == true
+    -- if not allowGrayWorldMainlineNpc
+    --     and NPC_UI_HELPER.shouldSuppressGrayWorldGuide
+    --     and NPC_UI_HELPER.shouldSuppressGrayWorldGuide() then
+    --     return
+    -- end
     if meta and tonumber(meta.type or 0) == 1 then
         local npcID = tonumber(meta.index or 0) or 0
-        if npcID > 0 and SL.RequestNPCTalk then
-            -- SL:RequestNPCTalk(npcID)
+        if npcID > 0 then
             if SL.GetMetaValue and SL:GetMetaValue("BATTLE_IS_AFK") then
                 SL:SetMetaValue("BATTLE_AFK_END")
             end
@@ -1623,9 +1625,13 @@ local guideDispatch = {
         startGuideOnButton(data)
     end,
     [2] = function(data)
-        if NPC_UI_HELPER.shouldSuppressGrayWorldGuide and NPC_UI_HELPER.shouldSuppressGrayWorldGuide(data and data.rwid) then
-            return
-        end
+        -- local allowGrayWorldMainlineNpc = NPC_UI_HELPER.isGrayWorldMainlineNpcGuide
+        --     and NPC_UI_HELPER.isGrayWorldMainlineNpcGuide(data and data.npcid, data and data.rwid)
+        -- if not allowGrayWorldMainlineNpc
+        --     and NPC_UI_HELPER.shouldSuppressGrayWorldGuide
+        --     and NPC_UI_HELPER.shouldSuppressGrayWorldGuide(data and data.rwid) then
+        --     return
+        -- end
         if tostring(data.npcdt or "") == "二大陆主城" and type(dl_sz) == "function" and not dl_sz(2) then
             SL:ShowSystemTips("<font color='#FF0000'>需完成主线引导后才可进入二大陆</font>")
             return
@@ -1644,6 +1650,7 @@ local guideDispatch = {
             }, {
                 type = 1,
                 index = data.npcid,
+                -- allowGrayWorldMainlineNpc = allowGrayWorldMainlineNpc == true,
             })
         end, 0.2)
     end,
