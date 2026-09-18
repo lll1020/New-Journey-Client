@@ -1207,14 +1207,14 @@ function UIHelper.renderLinggenEquipSlot(owner, opts)
     opts = opts or {}
     local ui = owner and owner._ui
     local parent = opts.parent or (ui and ui.Panel_1)
-    if not parent then
+    if not isValidGuideNode(parent) then
         return nil
     end
-    if ui and ui.Text_guildinfo then
-        GUI:setVisible(ui.Text_guildinfo, true)
+    if ui and isValidGuideNode(ui.Text_guildinfo) then
+        pcall(GUI.setVisible, GUI, ui.Text_guildinfo, true)
     end
-    GUI:removeChildByName(parent, "linggen_equip_slot")
-    GUI:removeChildByName(parent, "linggen_equip_desc")
+    pcall(GUI.removeChildByName, GUI, parent, "linggen_equip_slot")
+    pcall(GUI.removeChildByName, GUI, parent, "linggen_equip_desc")
     local data = opts.data
     if data == nil and not opts.lookPlayer then
         data = _linggen_slot_data_from_server()
@@ -1233,7 +1233,13 @@ function UIHelper.renderLinggenEquipSlot(owner, opts)
         end
     end
 
-    local iconAnchor = ui and ui.Text_guildinfo and GUI:getPosition(ui.Text_guildinfo)
+    local iconAnchor
+    if ui and isValidGuideNode(ui.Text_guildinfo) then
+        local ok, value = pcall(GUI.getPosition, GUI, ui.Text_guildinfo)
+        if ok then
+            iconAnchor = value
+        end
+    end
     local pos = iconAnchor or {x = 171, y = 407}
     if idx <= 0 then
         return nil
@@ -1241,7 +1247,10 @@ function UIHelper.renderLinggenEquipSlot(owner, opts)
 
     local x = (opts.x ~= nil) and opts.x or pos.x
     local y = (opts.y ~= nil) and opts.y or pos.y
-    local slot = GUI:Layout_Create(parent, "linggen_equip_slot", x, y, 72, 82, false)
+    local ok, slot = pcall(GUI.Layout_Create, GUI, parent, "linggen_equip_slot", x, y, 72, 82, false)
+    if not ok or not isValidGuideNode(slot) then
+        return nil
+    end
     GUI:setAnchorPoint(slot, 0.5, 0.5)
     GUI:setLocalZOrder(slot, opts.zOrder or 20)
     GUI:setTouchEnabled(slot, true)
@@ -1268,7 +1277,9 @@ function UIHelper.renderLinggenEquipSlot(owner, opts)
 end
 
 function UIHelper.refreshLinggenEquipSlot()
-    if PlayerEquip and PlayerEquip._ui then
+    if PlayerEquip and PlayerEquip._ui
+        and isValidGuideNode(PlayerEquip._ui.Panel_1)
+    then
         UIHelper.renderLinggenEquipSlot(PlayerEquip)
     end
 end

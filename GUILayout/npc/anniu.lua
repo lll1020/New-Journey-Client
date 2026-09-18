@@ -7144,7 +7144,7 @@ npc[507] = function(p2, p3, Data)
             if open == 1 then
                 cfg.time = cfg.time .. "\n当前活动进行中，可直接点击参与"
             end
-            cfg.desc = string.format("进入【%s】后守住村庄并清理来袭怪物，核心是持续清怪和争取更高表现。", tostring(bwcz.display_map or bwcz.map or "村庄"))
+            cfg.desc = string.format("村庄的四个门随机刷新怪物入侵村庄中心，每次攻击怪物只会掉1滴血，击杀怪物获得积分！兑换称号！做咱村唯一的希望！", tostring(bwcz.display_map or bwcz.map or "村庄"))
             cfg.reward = "击杀奖励：金币18W、金币88W、元宝5W；前三名达到镇境武侯可得50元真实充值"
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 local killReward = bwcz.kill_reward or {}

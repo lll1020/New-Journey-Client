@@ -32,31 +32,25 @@ local function openFoundationDanPopup(npcid)
     npc.foundationDanPopup = popup
     GUI:setLocalZOrder(popup, 200)
 
-    local overlay = GUI:Layout_Create(popup, "overlay", 0, 0, 818, 542, false)
-    GUI:Layout_setBackGroundColorType(overlay, 1)
-    GUI:Layout_setBackGroundColor(overlay, "#000000")
-    GUI:Layout_setBackGroundColorOpacity(120)
-    GUI:setTouchEnabled(overlay, true)
-
-    local panel = GUI:Image_Create(popup, "panel", 409, 271, "res/wy/public/anniu_999_bj.png")
+    local panel = GUI:Image_Create(popup, "panel", 409, 100, "res/wy/public/anniu_999_bj.png")
     GUI:setAnchorPoint(panel, 0.5, 0.5)
-    GUI:setContentSize(panel, 650, 370)
+    GUI:setContentSize(panel, 650, 270)
     GUI:setIgnoreContentAdaptWithSize(panel, false)
     GUI:setTouchEnabled(panel, true)
 
-    local title = GUI:Text_Create(panel, "title", 325, 335, 24, "#ffe7a2", "筑基丹获取说明")
+    local title = GUI:Text_Create(panel, "title", 325, 335 - 100, 24, "#ffe7a2", "筑基丹获取说明")
     GUI:setAnchorPoint(title, 0.5, 0.5)
     GUI:Text_setFontName(title, "fonts/502.ttf")
     GUI:Text_enableOutline(title, "#26160d", 2)
 
-    local closeBtn = GUI:Button_Create(panel, "close", 620, 335, "res/wy/public/close_red_big.png")
+    local closeBtn = GUI:Button_Create(panel, "close", 620, 335 - 100, "res/wy/public/close_red_big.png")
     GUI:addOnClickEvent(closeBtn, closeFoundationDanPopup)
 
     local desc = GUI:RichText_Create(
         panel,
         "desc",
         325,
-        255,
+        255 - 100,
         "你若想筑基，还需服用<font color='#ff6666'>1枚筑基丹</font>。\n" ..
         "筑基丹获取方法：\n" ..
         "1. <font color='#ffe45e'>十个筑基丹碎片</font>可合成1枚筑基丹（碎片全大陆打怪掉落）\n" ..
@@ -71,7 +65,8 @@ local function openFoundationDanPopup(npcid)
     )
     GUI:setAnchorPoint(desc, 0.5, 0.5)
 
-    local buyBtn = GUI:Button_Create(panel, "buy", 210, 68, "res/custom/msfc/page1/action_1.png")
+    local buyBtn = GUI:Button_Create(panel, "buy", 210, 20, "res/wy/public/an15.png")
+    GUI:setContentSize(buyBtn, 120, 40)
     GUI:Button_setTitleText(buyBtn, "立即购买")
     GUI:Button_setTitleFontName(buyBtn, "fonts/502.ttf")
     GUI:Button_setTitleFontSize(buyBtn, 19)
@@ -81,7 +76,9 @@ local function openFoundationDanPopup(npcid)
         SL:SendLuaNetMsg(100, npcid, 2, 0, "")
     end)
 
-    local continueBtn = GUI:Button_Create(panel, "continue", 440, 68, "res/custom/msfc/page1/action_2.png")
+    local continueBtn = GUI:Button_Create(panel, "continue", 440, 20, "res/wy/public/an15.png")
+    GUI:setContentSize(continueBtn, 120, 40)
+
     GUI:Button_setTitleText(continueBtn, "继续打怪")
     GUI:Button_setTitleFontName(continueBtn, "fonts/502.ttf")
     GUI:Button_setTitleFontSize(continueBtn, 19)

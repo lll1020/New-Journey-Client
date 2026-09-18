@@ -247,6 +247,19 @@ local function setMainTreeVisible(visible)
     end
 end
 
+local function requestTalentTreeSync(delay)
+    local function sync()
+        if valid(npc.window) then
+            SL:SendLuaNetMsg(100, 22, 8, 0, "")
+        end
+    end
+    if SL and type(SL.ScheduleOnce) == "function" then
+        SL:ScheduleOnce(sync, delay or 0.2)
+    else
+        sync()
+    end
+end
+
 local setInfoDrawer
 
 local function imageFrame(parent, name, x, y, width, height, path, zorder)
@@ -1167,6 +1180,7 @@ local function openResetConfirm(resetType)
         else
             SL:SendLuaNetMsg(100, 22, 3, 0, "")
         end
+        requestTalentTreeSync(0.25)
     end, 112, 38)
     GUI:setLocalZOrder(confirmButton, 2)
 end
@@ -1651,6 +1665,7 @@ local function buildGemWindowRow(parent, index, gem, nodeId)
             id = nodeId,
             gem = gem.name,
         }, false))
+        requestTalentTreeSync(0.25)
     end, 92, 36)
     GUI:setLocalZOrder(choose, 4)
     return row
@@ -1892,16 +1907,6 @@ local function buildInfoHtml(node)
     if #lines == 0 then
         lines[#lines + 1] = "<font color='#D8C39A'>" .. displayNodeText(node.name or "节点") .. "</font>"
     end
-    if node.exclusive_group == "core_m1" then
-        lines[#lines + 1] = "<font color='#FFD66B'>五系 M1 互斥，只能点亮其中一个。</font>"
-        local other = conflictingM1(node)
-        if other then
-            lines[#lines + 1] = "<font color='#FF8585'>已选择：" .. displayNodeText(other.name) .. "</font>"
-        end
-    end
-    lines[#lines + 1] = "<font color='#AAB5C8'>" .. displayNodeText(requirementText(node)) .. "</font>"
-    lines[#lines + 1] = "<font color='#AAB5C8'>点数消耗："
-        .. tostring(node.point_cost or 1) .. " 天赋点</font>"
     if node.cost and #node.cost > 0 then
         local costs = {}
         for _, cost in ipairs(node.cost) do
@@ -2417,6 +2422,12 @@ local function refreshTalentPointsText()
     end
 end
 
+local function refreshCoreDependentViews()
+    refreshTalentPointsText()
+    refreshUpgradeInfo()
+    updateAllNodeVisuals()
+end
+
 local function applyClientConfigDefaults(state)
     state = type(state) == "table" and state or {}
     state.version = n(TreeCfg.version, state.version)
@@ -2441,19 +2452,20 @@ local function publishTalentTreeState()
         NPC_UI_HELPER._linggenTalentStateRequested = false
     end
     rawset(_G, "LINGGEN_TALENT_TREE_STATE", npc.state)
-    if NPC_UI_HELPER and NPC_UI_HELPER.refreshLinggenEquipSlot then
-        NPC_UI_HELPER.refreshLinggenEquipSlot()
-    end
 end
 
-local function refreshPayload(payload)
-    payload = decode(payload)
+local function refreshPayload(payload, forceCoreRefresh)
+    local packet = decode(payload)
+    local packetId = packet and packet.id
+    payload = packet or {}
     if payload.payload then
         payload = payload.payload
     end
 
     npc.state = applyClientConfigDefaults(npc.state)
     local oldCoreLevel = n(npc.state.core_level)
+    local oldNormalPoints = n(npc.state.normal_points)
+    local oldNormalTotal = n(npc.state.normal_total)
     local changedNodes = {}
     local socketChanged = false
     if type(payload.nodes) == "table" then
@@ -2472,6 +2484,9 @@ local function refreshPayload(payload)
             end
         end
         npc.state.nodes = payload.nodes
+    end
+    if packetId ~= nil and tostring(packetId) ~= "" then
+        changedNodes[tostring(packetId)] = true
     end
     if type(payload.special) == "table" then
         npc.state.special = payload.special
@@ -2513,15 +2528,16 @@ local function refreshPayload(payload)
     applyClientConfigDefaults(npc.state)
     publishTalentTreeState()
     refreshTalentPointsText()
-    refreshChangedNodeVisuals(changedNodes)
-    if socketChanged then
-        updateInfo()
-    end
+    updateAllNodeVisuals()
+    refreshUpgradeInfo()
     if n(payload.socket_result, 0) == 1 then
         closeModalWindow(GEM_WINDOW_NAME)
     end
-    if oldCoreLevel ~= n(npc.state.core_level) then
-        refreshUpgradeInfo()
+    local coreChanged = oldCoreLevel ~= n(npc.state.core_level)
+    local pointsChanged = oldNormalPoints ~= n(npc.state.normal_points)
+        or oldNormalTotal ~= n(npc.state.normal_total)
+    if coreChanged or forceCoreRefresh then
+        refreshCoreDependentViews()
         if oldCoreLevel < n(npc.state.core_level) then
             npc._waitMainlineTalentAfterCore = true
             npc._mainlineGuideSyncRetry = 0
@@ -2531,6 +2547,9 @@ local function refreshPayload(payload)
         end
         scheduleMainlineGuideSync()
     else
+        if pointsChanged then
+            refreshTalentPointsText()
+        end
         for id in pairs(changedNodes) do
             if isMainlineTalentChoiceNode(id) and stateActive(id) then
                 scheduleMainlineGuideSync()
@@ -2793,6 +2812,13 @@ openUpgrade = function()
             return
         end
         SL:SendLuaNetMsg(100, 22, 6, 0, "")
+        if SL and type(SL.ScheduleOnce) == "function" then
+            SL:ScheduleOnce(function()
+                if valid(npc.upgradeBox) then
+                    SL:SendLuaNetMsg(100, 22, 8, 0, "")
+                end
+            end, 0.25)
+        end
     end)
     GUI:setLocalZOrder(upgrade, 5)
     refreshUpgradeInfo()
@@ -2976,6 +3002,7 @@ local function createInfoPanel(sw, sh)
                 return
             end
             SL:SendLuaNetMsg(100, 22, 1, 0, SL:JsonEncode({id = node.id}, false))
+            requestTalentTreeSync(0.25)
         end
     end, 90, 40)
     GUI:setLocalZOrder(action, 5)
@@ -3023,16 +3050,17 @@ end
 
 function npc.main(npcid, p2, p3, msgData)
     local payload = decode(msgData)
-    if p2 == 8 then
+    local mode = tonumber(p2) or 0
+    if mode == 8 then
         if valid(npc.window) then
-            refreshPayload(payload)
+            refreshPayload(payload, true)
         else
             npc.state = applyClientConfigDefaults(payload.payload or payload)
             publishTalentTreeState()
         end
         return
     end
-    if p2 == 0 then
+    if mode == 0 then
         npc.state = applyClientConfigDefaults(payload)
         publishTalentTreeState()
         createWindow()
@@ -3044,7 +3072,7 @@ function npc.main(npcid, p2, p3, msgData)
         createWindow()
         return
     end
-    refreshPayload(payload)
+    refreshPayload(payload, mode == 6)
     scheduleMainlineGuideSync()
 end
 
