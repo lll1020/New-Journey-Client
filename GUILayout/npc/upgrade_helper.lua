@@ -2,7 +2,9 @@ local UpgradeHelper = {}
 local AUTO_REFRESH_INTERVAL = 1 * 60
 local AUTO_REFRESH_TIMER_KEY = "__UPGRADE_BTN_AUTO_REFRESH_TIMER__"
 local EQUIP_REFRESH_LISTENER_KEY = "__UPGRADE_BTN_EQUIP_REFRESH_LISTENER__"
+local SERVER_VALUE_REFRESH_LISTENER_KEY = "__UPGRADE_BTN_SERVER_VALUE_REFRESH_LISTENER__"
 local OPEN_BTN_STATE_KEY = "__UPGRADE_OPEN_BTN_STATE__"
+local TalentTreeData = SL:Require("GUILayout/Data/talent_tree_data", true) or {}
 local function _to_num(v, defaultValue)
     local n = tonumber(v)
     if n == nil then
@@ -197,52 +199,23 @@ local function _upgrade_check_tianshu()
     return true
 end
 local function _upgrade_check_linggen()
-    local cfg = teshudata and teshudata["npc_22"]
-    local mainCfg = cfg and cfg.main_updata
-    if not mainCfg then
+    local cached = rawget(_G, "LINGGEN_TALENT_TREE_STATE")
+    local data = type(cached) == "table" and cached or nil
+    if not data then
+        data = _upgrade_get_server_json("T74")
+    end
+    data = type(data) == "table" and data or {}
+
+    -- 有未使用的天赋点时，灵根入口必须保持可见，方便玩家继续点亮节点。
+    if _upgrade_to_num(data.normal_points, 0) > 0 then
         return true
     end
-    local data = _upgrade_get_server_json("T41")
-    local levels = data.level or (data.T_data and data.T_data.level) or {}
-    local mainIdx = _upgrade_to_num(data.main or (data.T_data and data.T_data.main), 0)
-    local otherIdx = _upgrade_to_num(data.other or (data.T_data and data.T_data.other), 0)
-    local checkIdx = {}
-    if mainIdx > 0 then
-        checkIdx[#checkIdx + 1] = mainIdx
-    end
-    if otherIdx > 0 and otherIdx ~= mainIdx then
-        checkIdx[#checkIdx + 1] = otherIdx
-    end
-    -- 未装配主/副灵根时，不显示灵根升级提示
-    if #checkIdx <= 0 then
-        return false
-    end
-    local maxLevel = _upgrade_to_num(mainCfg.max_level, 0)
-    local hasAnySlot = false
-    for _, i in ipairs(checkIdx) do
-        local rawLv = levels[tostring(i)]
-        if rawLv == nil then
-            rawLv = levels[i]
-        end
-        -- 未激活（无等级数据）时，不参与可升级检测
-        if rawLv ~= nil then
-            local lv = _upgrade_to_num(rawLv, 0)
-        if maxLevel <= 0 or lv < maxLevel then
-            local det = mainCfg.details and ((i <= 5) and mainCfg.details.low or mainCfg.details.up)
-            local nextCfg = det and det[lv + 1]
-            if nextCfg then
-                hasAnySlot = true
-                if _upgrade_can_pay(nextCfg.cost) then
-                    return true
-                end
-            end
-        end
-        end
-    end
-    if hasAnySlot then
-        return false
-    end
-    return false
+
+    -- 核心升级使用新版客户端配置，服务端只同步 T74 状态。
+    local currentLevel = _upgrade_to_num(data.core_level, 0)
+    local nextCfg = TalentTreeData.core_level_map
+        and TalentTreeData.core_level_map[currentLevel + 1]
+    return nextCfg ~= nil and _upgrade_can_pay(nextCfg.cost)
 end
 local function _upgrade_check_realm_21()
     local cfg = teshudata and teshudata["npc_21"]
@@ -546,6 +519,21 @@ local function _upgrade_is_story_done(storyKey)
     end
     return false
 end
+local function _upgrade_check_night_pearl_1030()
+    local cfg = teshudata and teshudata["npc_1030"]
+    if not cfg then
+        return false
+    end
+
+    -- 合成完成后不再显示入口；已有称号时也视为已经完成。
+    if _upgrade_is_story_done("npc_1030")
+        or _upgrade_has_title("诸邪退散")
+        or _upgrade_has_title("诸邪退散[称号]") then
+        return false
+    end
+
+    return _upgrade_can_pay(cfg.cost)
+end
 local function _upgrade_is_cuiti_11_completed()
     local cfg = teshudata and teshudata["npc_11"]
     if not cfg then
@@ -650,6 +638,7 @@ local UPGRADE_CHECKERS = {
     [65] = _upgrade_check_guwan_65,
     [66] = _upgrade_check_emojiuguan_66,
     [70] = _upgrade_check_emojiuguan_66,
+    [1030] = _upgrade_check_night_pearl_1030,
 }
 local OPEN_BTN_LIST = {
     {id = 1, label = "限时福利", npcid = 105, continent = 2},
@@ -666,6 +655,7 @@ local OPEN_BTN_LIST = {
     {id = 24, label = "天书", npcid = 24, continent = 2},
     {id = 22, label = "灵根", npcid = 22, continent = 2},
     {id = 21, label = "境界修为", npcid = 21, continent = 2},
+    {id = 1030, label = "合成夜明珠", npcid = 1030, continent = 2},
     {id = 43, label = "江湖称号", npcid = 43, continent = 2},
     {id = 28, label = "装备强化", npcid = 28, continent = 2},
     {id = 25, label = "幸运强化", npcid = 25, continent = 2},
@@ -790,6 +780,28 @@ function UpgradeHelper.startAutoRefresh(intervalSec)
         UpgradeHelper.registerOpenNpcButtons()
     end, interval)
     rawset(_G, AUTO_REFRESH_TIMER_KEY, timer)
+
+    -- 灵根核心升级、点亮节点和退点都会更新 T74，状态变化后立即重算入口。
+    if not rawget(_G, SERVER_VALUE_REFRESH_LISTENER_KEY)
+        and SL and type(SL.RegisterLUAEvent) == "function" then
+        pcall(function()
+            SL:UnRegisterLUAEvent(LUA_EVENT_SERVER_VALUE_CHANGE, "upgrade_helper_server_value_on")
+        end)
+        SL:RegisterLUAEvent(LUA_EVENT_SERVER_VALUE_CHANGE, "upgrade_helper_server_value_on", function(data)
+            local key = type(data) == "table" and data.key or nil
+            if key ~= nil and tostring(key) ~= "T74" then
+                return
+            end
+            if tostring(key or "") == "T74" then
+                local state = _upgrade_get_server_json("T74")
+                if type(state) == "table" and next(state) ~= nil then
+                    rawset(_G, "LINGGEN_TALENT_TREE_STATE", state)
+                end
+            end
+            UpgradeHelper.registerOpenNpcButtons()
+        end)
+        rawset(_G, SERVER_VALUE_REFRESH_LISTENER_KEY, true)
+    end
 end
 function UpgradeHelper.startEquipChangeRefresh()
 SL:release_print("startEquipChangeRefresh")

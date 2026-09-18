@@ -1,5 +1,6 @@
 local npc = {}
 local TreeCfg = SL:Require("GUILayout/Data/talent_tree_data", true) or {}
+local UpgradeHelper = SL:Require("GUILayout/npc/upgrade_helper", true)
 
 local ROOT_NAME = "npc_22_talent_tree"
 local GEM_WINDOW_NAME = "npc_22_gem_window"
@@ -12,7 +13,7 @@ local PANEL_FRAME = RES .. "tj_17.png"
 local NODE_ROOT_BACK = "res/custom/linggen/bufi/icon_11.png"
 local NODE_ROOT_BACK_SIZE = 180
 local NODE_ACTIVE_BACK = "res/wy/public/itembg.png"
-local LINK_ACTIVE_OVERLAY = "res/wy/public/fz_kt_33.png"
+local LINK_ACTIVE_OVERLAY = RES .. "npc_176_bj_3_7.png"
 local UPGRADE_RES = "res/custom/linggen/new/updata/"
 local UPGRADE_BG = UPGRADE_RES .. "upgrade_bg.png"
 local UPGRADE_BUTTON = UPGRADE_RES .. "btn_upgrade.png"
@@ -26,7 +27,7 @@ local UPGRADE_PREVIEW_Y = 94
 local UPGRADE_COST_Y = -78 + 190
 local UPGRADE_BUTTON_Y = 40
 -- local PANEL_FRAME = RES .. "tj_17.png"
-local LINK_SKIN = "res/wy/public/jdt_1.png"
+local LINK_SKIN = "res/wy/public/guang_all.png"
 local LINK_TEXTURE_WIDTH = 376
 local LINK_VISIBLE_START = 24
 local LINK_VISIBLE_END = 351
@@ -200,6 +201,7 @@ local function closeModalWindow(name)
     if name == "npc_22_rules_window" then
         npc.rulesWindow = nil
         npc.rulesBox = nil
+        npc.rulesPageLayer = nil
     elseif name == "npc_22_upgrade_window" then
         npc.upgradeWindow = nil
         npc.upgradeBox = nil
@@ -2361,6 +2363,7 @@ updateNodeVisual = function(nodeId)
     local isMainlineChoice = npc.mainlineTalentChoice
         and npc.mainlineTalentChoice[tostring(nodeId)]
     GUI:setGrey(item.button, false)
+    GUI:setOpacity(item.button, active and 255 or 150)
     if valid(item.activeBack) then
         GUI:setVisible(item.activeBack, active == true)
     end
@@ -2452,6 +2455,9 @@ local function publishTalentTreeState()
         NPC_UI_HELPER._linggenTalentStateRequested = false
     end
     rawset(_G, "LINGGEN_TALENT_TREE_STATE", npc.state)
+    if UpgradeHelper and type(UpgradeHelper.registerOpenNpcButtons) == "function" then
+        UpgradeHelper.registerOpenNpcButtons()
+    end
 end
 
 local function refreshPayload(payload, forceCoreRefresh)
@@ -2749,36 +2755,121 @@ local function openRules()
 
     local box = npc.rulesBox
     local boxTop = boxH / 2
-    local rulesLine = GUI:Image_Create(box, "rules_line", boxW / 2, boxH - 100, RES .. "tj_12.png")
-    GUI:setAnchorPoint(rulesLine, 0.5, 0.5)
-    GUI:setContentSize(rulesLine, math.max(260, boxW - 40), 12)
-    GUI:setLocalZOrder(rulesLine, 3)
-    local title = text(box, "rules_title", boxW / 2, boxH - 30, 28, "#F1D176", "天赋树规则", 0.5, 1)
+    -- local rulesLine = GUI:Image_Create(box, "rules_line", boxW / 2, boxH - 100, RES .. "tj_12.png")
+    -- GUI:setAnchorPoint(rulesLine, 0.5, 0.5)
+    -- GUI:setContentSize(rulesLine, math.max(260, boxW - 40), 12)
+    -- GUI:setLocalZOrder(rulesLine, 3)
+    local title = text(box, "rules_title", boxW / 2, boxH - 10, 28, "#F1D176", "天赋树规则", 0.5, 1)
     GUI:setLocalZOrder(title, 4)
-    local rules = table.concat({
-        "1. 五行主干从中心向外展开，主干节点可继续分出两条外扩支路。",
-        "2. 小点提供固定属性，中点提供更高属性，大点提供特殊技能或机制效果。",
-        "3. 点亮节点需要天赋点，并同时消耗服务端配置的货币与材料。",
-        "4. 退点只能从末端节点开始；洗点会返还已消耗的天赋点、货币与材料。",
-        "5. 每个灵根分支最多激活40点，侧枝最多激活6点；同一流派只能选择一条路线。",
-        "6. 天赋点上限210点，核心最多40级；核心升级可获得33点，其他系统预留7点。",
-        "7. 节点按连接关系判断，任意相连节点已激活即可从任意方向点亮。",
-        "8. 跨系通道节点不消耗天赋点，但必须满足核心等级和相连节点条件。",
-        "9. 五行相克共振：攻击怪物额外忽视30%防御，攻击玩家忽视5%防御；自身受到所有伤害提高20%。",
-    }, "<br/>")
-    local desc = GUI:RichText_Create(box, "rules_desc", boxW / 2, boxTop, rules,
-        math.max(220, boxW - 40), 17, "#E5D8B8", 0, nil, nil, {outlineSize = 1, outlineColor = "#000000"})
-    GUI:setAnchorPoint(desc, 0.5, 0.5)
-    GUI:setLocalZOrder(desc, 4)
     local closeTop = button(box, "rules_close_top", boxW - 48, boxH - 30, "", function()
         closeModalWindow("npc_22_rules_window")
         setMainTreeVisible(true)
     end, 60, 54,"res/wy/public/gjyj_x.png")
     GUI:setLocalZOrder(closeTop, 6)
-    -- local close = button(box, "rules_close", 0, -boxTop + 28, "返回天赋树", function()
-    --     closeModalWindow("npc_22_rules_window")
-    -- end, 150, 42)
-    -- GUI:setLocalZOrder(close, 5)
+
+    local rulesPages = {
+        table.concat({
+            "<font color='#F1D176'>系统简介</font>",
+            "灵根是角色核心成长体系，分为<font color='#EBCB72'>金</font>、<font color='#70D69A'>木</font>、<font color='#71C7FF'>水</font>、<font color='#FF896D'>火</font>、<font color='#C8A276'>土</font>五大灵根。",
+            "每位修士拥有<font color='#FF625D'>唯一一本命灵根</font>，决定自身<font color='#FF625D'>本命技能</font>、<font color='#FF625D'>流派玩法</font>与<font color='#FF625D'>终极技能</font>。",
+            "<font color='#FF625D'>所有灵根都成型后才完全公平</font>，无先天弱势，玩法差异来自<font color='#71C7FF'>分支流派</font>、<font color='#70D69A'>天赋机制</font>与<font color='#FF896D'>宝石搭配</font>。",
+            "",
+            "<font color='#F1D176'>天赋点</font>",
+            "1. 通过升级灵根核心，来获取天赋点。<font color='#FF625D'>灵根核心每升级1级，可获得天赋点+1</font>",
+            "2. 每点亮一个天赋，需消耗1点天赋点。",
+            "3. <font color='#FF896D'>镶嵌宝石</font>需消耗1点天赋点。（注意：跨区或跨通道镶宝石后，仍需消耗天赋点）",
+            "4. 天赋点总量固定，全部分配完成后，一切都看你自己的搭配。",
+            "",
+            "<font color='#F1D176'>天赋槽</font>",
+            "天赋槽分为：<font color='#FF625D'>属性槽</font>、<font color='#71C7FF'>技能槽</font>和<font color='#FF896D'>宝石槽</font>。",
+            "",
+            "<font color='#F1D176'>流派分支</font>",
+            "每个灵根拥有<font color='#FF625D'>两个专属流派分支</font>，决定最终玩法定位。五行特色完全区分；分支请根据自身喜好选择，选择1个分支后，不可再点亮另1条分支的天赋。",
+        }, "<br/>"),
+        table.concat({
+            "<font color='#F1D176'>终极技能</font>",
+            "1. 同一灵根双流派<font color='#FF625D'>共用一个终极技能</font>，技能形态、冷却、基础效果完全一致",
+            "2. 不同流派会触发<font color='#FF625D'>专属技能联动效果</font>，让大招适配两种不同玩法。",
+            "",
+            "<font color='#F1D176'>宝石系统</font>",
+            "宝石可镶嵌于天赋树宝石槽，提升属性与专属能力。",
+            "1. 一级、二级通用宝石：全区域通用，仅提供基础属性，无专属效果。",
+            "2. 三级专属宝石：分为金、木、水、火、土五种，基础属性全额生效；<font color='#FF625D'>专属BUFF仅对本命根区域生效。</font>",
+            "3. M18（主线第18个槽）专属宝石槽：特殊限定槽位，仅可镶嵌对应区域的专属宝石，是跨区玩法的核心。",
+            "4. 四级宝石：顶级毕业宝石，附带专属羁绊与更高基础属性，此版本稀有度最高。",
+            "5. 跨区域规则：需点亮其他区域的M18节点后，才可在M18专属槽位镶嵌<font color='#FF625D'>对应区域的宝石</font>。",
+            "",
+            "<font color='#F1D176'>点亮与退点</font>",
+            "节点按连接关系判断，任意相连节点已激活即可从任意方向点亮；跨系通道仍需满足核心等级和相连节点条件。",
+            "退点只能从末端节点开始，重置或退点会返还对应的天赋点、货币、材料以及已镶嵌宝石。",
+        }, "<br/>"),
+        table.concat({
+            "<font color='#F1D176'>多灵根玩法</font>",
+            "1. 跨区无法点亮本命根核心，无法解锁该根技能，无法复刻其他灵根核心玩法。",
+            "2. 仅M18枢纽与属性槽位，可让跨区玩家获取到灵根根节点技能。",
+            "3. 可通过点亮双灵根M18节点，解锁<font color='#FF625D'>五行相克共振</font>效果，解锁特殊效果。",
+            "",
+            "<font color='#F1D176'>五行相克共振</font>",
+            "<font color='#70D69A'>正面：</font>你的攻击伤害会额外忽视怪物<font color='#FF625D'>30%</font>的防御；会忽视玩家<font color='#FF625D'>5%</font>的防御。",
+            "<font color='#FF6B6B'>负面：</font>你受到的所有伤害提高<font color='#FF625D'>20%</font>。",
+            "",
+            "<font color='#F1D176'>水灵根专属机制说明</font>",
+            "潮汐BUFF：水灵根专属层数增益，技能命中目标可叠加<font color='#71C7FF'>潮汐层数</font>，每层持续5秒，并拥有<font color='#FF625D'>叠层上限</font>。",
+            "潮汐真实机制：<font color='#71C7FF'>潮汐层数满层后</font>，会触发<font color='#FF625D'>真实护盾</font>。真实护盾内无法新增潮汐层数，已有层数会正常衰减，避免永久满层增益，形成循环玩法。",
+            "",
+            "<font color='#F1D176'>新手养成建议</font>",
+            "1. 前期优先点亮<font color='#FF625D'>主干节点</font>，快速提升基础战力，所有灵根主干成长差距不大",
+            "2. 点亮M18枢纽后，根据自身喜好选择流派，逐渐形成流派成型。",
+            "3. 优先镶嵌本命三级宝石，最大化角色专属成长。",
+            "4. 前期不建议盲目跨根，天赋点集中投入本命根，更快成型；跨区、共振方向后期再规划。",
+        }, "<br/>"),
+    }
+
+    npc.rulesPage = 1
+    npc.rulesPageLayer = GUI:Node_Create(box, "rules_page_layer", boxW / 2, boxTop - 10)
+    GUI:setAnchorPoint(npc.rulesPageLayer, 0.5, 0.5)
+    GUI:setLocalZOrder(npc.rulesPageLayer, 4)
+    GUI:setTouchEnabled(npc.rulesPageLayer, false)
+
+    local function renderRulesPage()
+        if not valid(npc.rulesPageLayer) then
+            return
+        end
+        GUI:removeAllChildren(npc.rulesPageLayer)
+        local page = math.max(1, math.min(3, n(npc.rulesPage, 1)))
+        npc.rulesPage = page
+        local desc = GUI:RichText_Create(npc.rulesPageLayer, "rules_desc", 0, 0, rulesPages[page],
+            math.max(220, boxW - 44), 17, "#E5D8B8", 0, nil, nil,
+            {outlineSize = 1, outlineColor = "#000000"})
+        GUI:setAnchorPoint(desc, 0.5, 0.5)
+        GUI:setLocalZOrder(desc, 4)
+
+        local prev = button(npc.rulesPageLayer, "rules_prev", -150 - 186 - 10, -boxH / 2 + 24 + 224, "", function()
+            if npc.rulesPage > 1 then
+                npc.rulesPage = npc.rulesPage - 1
+                renderRulesPage()
+                
+            end
+        end, 100, 118, "res/wy/public/ljcz_z.png")
+        local nextPage = button(npc.rulesPageLayer, "rules_next", 150 + 186, -boxH / 2 + 24 + 224, "", function()
+            if npc.rulesPage < 3 then
+                npc.rulesPage = npc.rulesPage + 1
+                renderRulesPage()
+            end
+        end, 100, 118, "res/wy/public/ljcz_y.png")
+        GUI:Button_setTitleFontSize(prev, 16)
+        GUI:Button_setTitleFontSize(nextPage, 16)
+        GUI:Button_setGrey(prev, page <= 1)
+        GUI:Button_setGrey(nextPage, page >= 3)
+        GUI:setLocalZOrder(prev, 6)
+        GUI:setLocalZOrder(nextPage, 6)
+
+        local pageText = text(npc.rulesPageLayer, "rules_page_text", 0, -boxH / 2 + 24,
+            17, "#E5D8B8", string.format("第%d页 / 共3页", page), 0.5, 0.5)
+        GUI:setLocalZOrder(pageText, 6)
+    end
+
+    renderRulesPage()
 end
 
 openUpgrade = function()
