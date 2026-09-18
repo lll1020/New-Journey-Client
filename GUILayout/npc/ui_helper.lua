@@ -6,6 +6,55 @@
 local existingHelper = rawget(_G, "NPC_UI_HELPER")
 local UIHelper = existingHelper or {}
 local TalentTreeData = SL and SL.Require and SL:Require("GUILayout/Data/talent_tree_data", true) or {}
+local TALENT_GEM_LEVEL_BY_INDEX = {
+    [14249] = 1,
+    [14250] = 2,
+    [14251] = 3,
+    [14252] = 3,
+    [14253] = 3,
+    [14254] = 3,
+    [14255] = 3,
+    [14256] = 4,
+}
+local TALENT_ALL_PERCENT_ATTRS = {280, 281, 282, 283, 284, 285, 286, 287, 288, 289, 290, 291, 300}
+
+local function _linggen_gem_attrs(gemName)
+    local itemIndex = tonumber(gemName) or 0
+    if itemIndex <= 0 and SL and type(SL.GetMetaValue) == "function" then
+        itemIndex = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", tostring(gemName or "")) or 0) or 0
+    end
+    local level = TALENT_GEM_LEVEL_BY_INDEX[itemIndex]
+    if not level then
+        return {}
+    end
+    local hp = ({[1] = 2000, [2] = 5000, [3] = 20000, [4] = 20000})[level] or 0
+    local cut = ({[1] = 50, [2] = 100, [3] = 400, [4] = 400})[level] or 0
+    local defense = ({[1] = 25, [2] = 50, [3] = 200, [4] = 200})[level] or 0
+    local allPercent = ({[1] = 1, [2] = 2, [3] = 3, [4] = 3})[level] or 0
+    local attrs = {
+        {id = 1, value = hp, text = "人物生命 +" .. tostring(hp)},
+        {id = 2, value = hp, text = "人物魔法 +" .. tostring(hp)},
+        {id = 244, value = cut, text = "人物切割 +" .. tostring(cut)},
+        {id = 5, value = defense, text = "人物物防 +" .. tostring(defense)},
+        {id = 6, value = defense, text = "人物魔防 +" .. tostring(defense)},
+    }
+    for _, attrId in ipairs(TALENT_ALL_PERCENT_ATTRS) do
+        attrs[#attrs + 1] = {id = attrId, value = allPercent, text = "全属性 +" .. tostring(allPercent) .. "%"}
+    end
+    return attrs
+end
+
+local function _linggen_gem_display_name(gemName)
+    local text = tostring(gemName or "")
+    local itemIndex = tonumber(text) or 0
+    if itemIndex > 0 and SL and type(SL.GetMetaValue) == "function" then
+        local name = tostring(SL:GetMetaValue("ITEM_NAME", itemIndex) or "")
+        if name ~= "" then
+            return name
+        end
+    end
+    return text
+end
 -- ===== 默认素材配置 =====
 local DEFAULT_OVERLAY = 'res/wy/public/40-40.png'  -- 全屏遮罩：点击关闭窗口
 local DEFAULT_BG = 'res/wy/public/tongyong_0.png'              -- 背景面板：承载 UI 内容
@@ -754,7 +803,55 @@ local function _linggen_slot_current(data)
     return idx, level
 end
 
+local LINGGEN_M1_INDEX = {
+    ["metal_M1"] = 1,
+    ["wood_M1"] = 2,
+    ["water_M1"] = 3,
+    ["fire_M1"] = 4,
+    ["earth_M1"] = 5,
+}
+local LINGGEN_M1_ORDER = {"metal_M1", "wood_M1", "water_M1", "fire_M1", "earth_M1"}
+
+local _linggen_node_active
+
+local function _linggen_current_m1_index(state)
+    if type(state) ~= "table" or type(state.nodes) ~= "table" then
+        return 0
+    end
+    for _, nodeId in ipairs(LINGGEN_M1_ORDER) do
+        if _linggen_node_active(state.nodes, nodeId) then
+            return LINGGEN_M1_INDEX[nodeId] or 0
+        end
+    end
+    return 0
+end
+
+local function _linggen_current_by_talent(data, talentState)
+    local idx = _linggen_current_m1_index(talentState)
+    if idx <= 0 then
+        return 0, 0
+    end
+    local level = 0
+    if type(data) == "table" then
+        local levelMap = type(data.level) == "table" and data.level or {}
+        level = _linggen_slot_toint(levelMap[tostring(idx)] or levelMap[idx] or data.lv or data.root_level, 0)
+    end
+    return idx, level > 0 and level or 1
+end
+
+local function _linggen_root_cfg(idx)
+    return teshudata
+        and teshudata["npc_22"]
+        and teshudata["npc_22"].main_r
+        and teshudata["npc_22"].main_r[tonumber(idx) or 0]
+        or nil
+end
+
 local function _linggen_talent_state_from_server()
+    local cached = rawget(_G, "LINGGEN_TALENT_TREE_STATE")
+    if type(cached) == "table" and type(cached.nodes) == "table" then
+        return cached
+    end
     local raw = ""
     if Player and type(Player.getServerVar) == "function" then
         raw = Player:getServerVar("T74") or ""
@@ -782,7 +879,20 @@ local function _linggen_talent_state_from_server()
     return {}
 end
 
-local function _linggen_node_active(nodes, id)
+local function _linggen_request_talent_state_if_needed(state)
+    if type(state) == "table" and type(state.nodes) == "table" then
+        return
+    end
+    if UIHelper._linggenTalentStateRequested then
+        return
+    end
+    UIHelper._linggenTalentStateRequested = true
+    if SL and type(SL.SendLuaNetMsg) == "function" then
+        SL:SendLuaNetMsg(100, 22, 8, 0, "")
+    end
+end
+
+_linggen_node_active = function(nodes, id)
     nodes = type(nodes) == "table" and nodes or {}
     local value = nodes[tostring(id)]
     if value == nil then
@@ -872,6 +982,13 @@ local function _linggen_talent_attr_summary(state)
         end
     end
 
+    for _, gemName in pairs(state.sockets or {}) do
+        local seen = {}
+        for _, attr in ipairs(_linggen_gem_attrs(gemName)) do
+            _linggen_add_attr_summary(rowMap, rows, _linggen_attr_line_from_attr(attr), seen)
+        end
+    end
+
     local result = {}
     local function formatValue(value)
         if math.floor(value) == value then
@@ -900,7 +1017,7 @@ local function _linggen_socket_summary(state)
         gemName = tostring(gemName or "")
         if gemName ~= "" then
             local node = TalentTreeData.node_map and TalentTreeData.node_map[tostring(nodeId)]
-            result[#result + 1] = string.format("%s：%s", tostring(node and node.name or nodeId), gemName)
+            result[#result + 1] = string.format("%s：%s", tostring(node and node.name or nodeId), _linggen_gem_display_name(gemName))
         end
     end
     table.sort(result)
@@ -925,10 +1042,18 @@ local function _linggen_join_limited(lines, limit, prefix)
     return table.concat(result, "\n")
 end
 
-local function _linggen_slot_tip(data)
+local function _linggen_slot_tip(data, useTalentM1)
     local idx, level = _linggen_slot_current(data)
-    local cfg = teshudata and teshudata["npc_22"] and teshudata["npc_22"].main_r and teshudata["npc_22"].main_r[idx]
+    local cfg = _linggen_root_cfg(idx)
     local talentState = _linggen_talent_state_from_server()
+    if useTalentM1 then
+        local talentIdx, talentLevel = _linggen_current_by_talent(data, talentState)
+        if talentIdx > 0 then
+            idx = talentIdx
+            level = talentLevel
+            cfg = _linggen_root_cfg(idx)
+        end
+    end
     local function cleanText(text)
         text = tostring(text or "")
         text = text:gsub("主动技能逻辑待接入。", "")
@@ -1002,7 +1127,6 @@ local function _linggen_slot_tip(data)
     local coreLevel = _linggen_slot_toint(talentState.core_level, 0)
     local attrSummary = _linggen_join_limited(_linggen_talent_attr_summary(talentState), 8, "　　")
     local socketSummary = _linggen_join_limited(_linggen_socket_summary(talentState), 6, "　　")
-    local synergy = cfg and cfg.synergy or "暂无"
     local lines = {
         "<font color='#E8C879'>【灵根总览】</font>",
         string.format("<font color='%s'>%s</font> <font color='#CFC6B4'>Lv.%d</font>", rootColor, rootName, level),
@@ -1011,14 +1135,68 @@ local function _linggen_slot_tip(data)
         string.format("<font color='#E8C879'>天赋树属性合计</font>\n<font color='#B9F6C5'>%s</font>", attrSummary),
         string.format("<font color='#E8C879'>已镶嵌宝石</font>\n<font color='#9FE2FF'>%s</font>", socketSummary),
     }
-    lines[#lines + 1] = section("灵兽协同效果", synergy, "#B9F6C5")
     return table.concat(lines, "\n")
 end
 
-local function _linggen_slot_open_tip(widget, data)
+local function _linggen_slot_summary(data, useTalentM1)
+    local talentState = _linggen_talent_state_from_server()
+    local idx, level = _linggen_slot_current(data)
+    if useTalentM1 then
+        local talentIdx, talentLevel = _linggen_current_by_talent(data, talentState)
+        if talentIdx > 0 then
+            idx = talentIdx
+            level = talentLevel
+        end
+    end
+    local cfg = _linggen_root_cfg(idx)
+    local rootName = cfg and tostring(cfg.name or "") or ""
+    if rootName == "" then
+        rootName = idx > 0 and "未知灵根" or "暂未选择本命灵根"
+    else
+        rootName = rootName .. "灵根"
+    end
+    local coreLevel = _linggen_slot_toint(talentState.core_level, 0)
+    local sockets = _linggen_socket_summary(talentState)
+    local socketText = tostring(sockets[1] or "暂未镶嵌宝石")
+    if socketText == "暂未镶嵌宝石" then
+        socketText = "宝石：暂无"
+    else
+        socketText = "宝石：" .. socketText
+    end
+    return string.format("%s Lv.%d　核心Lv.%d　%s", rootName, math.max(0, level), coreLevel, socketText)
+end
+
+local function _linggen_visible_desc(data, useTalentM1)
+    local talentState = _linggen_talent_state_from_server()
+    local idx, level = _linggen_slot_current(data)
+    if useTalentM1 then
+        local talentIdx, talentLevel = _linggen_current_by_talent(data, talentState)
+        if talentIdx > 0 then
+            idx = talentIdx
+            level = talentLevel
+        end
+    end
+    local cfg = _linggen_root_cfg(idx)
+    local rootName = cfg and tostring(cfg.name or "") or ""
+    if rootName == "" then
+        rootName = idx > 0 and "未知灵根" or "暂未选择本命灵根"
+    else
+        rootName = rootName .. "灵根"
+    end
+    local coreLevel = _linggen_slot_toint(talentState.core_level, 0)
+    local attrs = _linggen_join_limited(_linggen_talent_attr_summary(talentState), 2, "")
+    local sockets = _linggen_join_limited(_linggen_socket_summary(talentState), 2, "")
+    return table.concat({
+        string.format("<font color='#F6D784'>本命灵根：%s Lv.%d　核心：Lv.%d</font>", rootName, math.max(0, level), coreLevel),
+        string.format("<font color='#B9F6C5'>天赋属性：%s</font>", attrs),
+        string.format("<font color='#9FE2FF'>已镶嵌：%s</font>", sockets),
+    }, "\n")
+end
+
+local function _linggen_slot_open_tip(widget, data, useTalentM1)
     local pos = GUI:getWorldPosition(widget)
     SL:OpenCommonDescTipsPop({
-        str = _linggen_slot_tip(data),
+        str = _linggen_slot_tip(data, useTalentM1),
         worldPos = {x = pos.x, y = pos.y},
         anchorPoint = {x = 0, y = 0},
         formatWay = 1
@@ -1032,32 +1210,49 @@ function UIHelper.renderLinggenEquipSlot(owner, opts)
     if not parent then
         return nil
     end
+    if ui and ui.Text_guildinfo then
+        GUI:setVisible(ui.Text_guildinfo, true)
+    end
     GUI:removeChildByName(parent, "linggen_equip_slot")
+    GUI:removeChildByName(parent, "linggen_equip_desc")
     local data = opts.data
     if data == nil and not opts.lookPlayer then
         data = _linggen_slot_data_from_server()
     end
+    local useTalentM1 = not opts.lookPlayer
+    local talentState = useTalentM1 and _linggen_talent_state_from_server() or {}
+    if useTalentM1 then
+        _linggen_request_talent_state_if_needed(talentState)
+    end
     local idx, level = _linggen_slot_current(data)
+    if useTalentM1 then
+        local talentIdx, talentLevel = _linggen_current_by_talent(data, talentState)
+        if talentIdx > 0 then
+            idx = talentIdx
+            level = talentLevel
+        end
+    end
+
+    local iconAnchor = ui and ui.Text_guildinfo and GUI:getPosition(ui.Text_guildinfo)
+    local pos = iconAnchor or {x = 171, y = 407}
     if idx <= 0 then
         return nil
     end
 
-    local basePanel = ui and (ui.Panel_pos13 or ui.Panel_pos2 or ui.Panel_pos0)
-    local pos = basePanel and GUI:getPosition(basePanel) or {x = 96, y = 328}
     local x = (opts.x ~= nil) and opts.x or pos.x
-    local y = (opts.y ~= nil) and opts.y or (pos.y + 78)
+    local y = (opts.y ~= nil) and opts.y or pos.y
     local slot = GUI:Layout_Create(parent, "linggen_equip_slot", x, y, 72, 82, false)
     GUI:setAnchorPoint(slot, 0.5, 0.5)
     GUI:setLocalZOrder(slot, opts.zOrder or 20)
     GUI:setTouchEnabled(slot, true)
 
-    local icon = GUI:Image_Create(slot, "icon", 36, 49, string.format("res/custom/linggen/icon/%d.png", idx))
+    local icon = GUI:Image_Create(slot, "icon", 36, 41, string.format("res/custom/linggen/icon/%d.png", idx))
     GUI:setAnchorPoint(icon, 0.5, 0.5)
     GUI:setScale(icon, opts.iconScale or 1.15)
     if SL:GetMetaValue("WINPLAYMODE") then
         GUI:addMouseMoveEvent(slot, {
             onEnterFunc = function()
-                _linggen_slot_open_tip(slot, data)
+                _linggen_slot_open_tip(slot, data, useTalentM1)
             end,
             onLeaveFunc = function()
                 SL:CloseCommonDescTipsPop()
@@ -1066,10 +1261,16 @@ function UIHelper.renderLinggenEquipSlot(owner, opts)
     else
         GUI:setTouchEnabled(slot, true)
         GUI:addOnTouchEvent(slot, function()
-            _linggen_slot_open_tip(slot, data)
+            _linggen_slot_open_tip(slot, data, useTalentM1)
         end)
     end
     return slot
+end
+
+function UIHelper.refreshLinggenEquipSlot()
+    if PlayerEquip and PlayerEquip._ui then
+        UIHelper.renderLinggenEquipSlot(PlayerEquip)
+    end
 end
 function UIHelper.setThreeCityIntroSeen(seen)
     UIHelper._threeCityIntroSeen = tonumber(seen or 0) == 1

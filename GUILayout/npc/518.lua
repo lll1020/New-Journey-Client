@@ -905,15 +905,18 @@ local function renderEntryCard(card, kind, entry)
     --     active and (kind == "monster" and "击杀激活" or "拾取激活")
     --         or (kind == "monster" and "击杀对应 BOSS 后激活" or "拾取进入背包后激活"),
     --     0.5, 0.5)
-    text(card, "reward_title", CARD_W / 2 - 54, 48 + 185 - 181, 20, MUTED, "激活\n奖励", 0.5, 0.5)
-    addRewards(card, entry.reward, 68 + 55 - 20, 35 + 15, 3)
-    if kind == "monster" then
-        addAttrReward(card, getEntryId(entry), entry.attr_reward, 68 + 55 - 15 + 15 + 40, 35 + 15)
-    end
+
 
     if claimed then
         -- text(card, "claimed", CARD_W / 2, 10, 13, GREEN, "已领取", 0.5, 0.5)
+        GUI:Image_Create(card, "claimed", CARD_W / 2, 50, "res/wy/public/10_2.png")
+        GUI:setAnchorPoint(GUI:getChildByName(card, "claimed"), 0.5, 0.5)
     else
+        text(card, "reward_title", CARD_W / 2 - 54, 48 + 185 - 181, 20, MUTED, "激活\n奖励", 0.5, 0.5)
+        addRewards(card, entry.reward, 68 + 55 - 20, 35 + 15, 3)
+        -- if kind == "monster" then
+        --     addAttrReward(card, getEntryId(entry), entry.attr_reward, 68 + 55 - 15 + 15 + 40, 35 + 15)
+        -- end
         local claim = button(card, "claim", CARD_W / 2, 0, active and "领取奖励" or "未激活", function()
             if not active then
                 SL:ShowSystemTips("<font color='#FF6666'>该图鉴尚未激活</font>")

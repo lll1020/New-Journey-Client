@@ -720,7 +720,7 @@ local function openExchangePopup()
         198,
         string.format("当前进度：<font color='%s'>%s/%s</font>  可兑换：<font color='%s'>%s</font> 个",
             progressColor,
-            tostring(exchangeProgress),
+            getDailyKillCount() - exchangeNeed * exchangeUsed,
             tostring(exchangeNeed),
             progressColor,
             tostring(exchangeAvailable)
@@ -771,7 +771,7 @@ local function openExchangePopup()
             SL:SendLuaNetMsg(100, 101, 3, count, SL:JsonEncode({count = count}, false))
         end)
         if available then
-            NPC_UI_HELPER.redpoint_create(button)
+            NPC_UI_HELPER.redpoint_create(button,{x=28 + 60,y=25})
         end
         return button
     end
@@ -1229,7 +1229,21 @@ function npc.main(npcid, p2, p3, msgData)
     if not npc.node then
         ensureWindow(npcid)
     end
+    local refreshExchangePopup = tonumber(p2 or 0) == 3 and npc.exchangePopup ~= nil
+    local refreshBuyPopup = tonumber(p2 or 0) == 4 and npc.buyPopup ~= nil
+    if refreshExchangePopup then
+        closeExchangePopup()
+    end
+    if refreshBuyPopup then
+        closeBuyPopup()
+    end
     UI_updata(npc.node)
+    if refreshExchangePopup and npc.currentTab == 1 then
+        openExchangePopup()
+    end
+    if refreshBuyPopup and npc.currentTab == 1 then
+        openBuyPopup()
+    end
 end
 
 return npc

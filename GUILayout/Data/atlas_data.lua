@@ -9,11 +9,11 @@ return {
     continents = {
         {
             id = "1",
-            name = "第一大陆",
+            name = "世界",
             maps = {
                 {
                     id = "1_world",
-                    name = "专属装备（世界）",
+                    name = "专属装备（全大陆）",
                     aliases = {
                         "第一大陆",
                         "一大陆",

@@ -593,7 +593,7 @@ function npc.main(npcid, p2, p3, msgData)
                         GUI:setContentSize(GUI:Image_Create(guang, "img1", 0, 0, "res/wy/public/input.png"), 180, 30)
                         GUI:setContentSize(GUI:Image_Create(guang, "img2", 0, 0, "res/wy/public/jdtk_1.png"), 100, 30)
                         GUI:Text_Create(guang, "text", 5, 5, 18, "#FFFFFF", "刷新消耗：")
-                        GUI:setScale(GUI:ItemShow_Create(guang, "icon",105, 5, {index = SL:GetMetaValue("ITEM_INDEX_BY_NAME","仙法卷轴")}), 0.6)
+                        GUI:setScale(GUI:ItemShow_Create(guang, "icon",105, 5, {index = SL:GetMetaValue("ITEM_INDEX_BY_NAME","仙法卷轴"),look = true,}), 0.6)
                         local currentTokenCount = SL:GetMetaValue("ITEM_COUNT", SL:GetMetaValue("ITEM_INDEX_BY_NAME","仙法卷轴"))
                         local drawOnceCost = 1
                         local currentTokenColor = currentTokenCount >= drawOnceCost and "#45ff93" or "#ff6666"

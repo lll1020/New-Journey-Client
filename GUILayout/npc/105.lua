@@ -152,7 +152,7 @@ local function _claim_all(npcid, payload, T_data)
     end
     if tonumber(payload.first_charge_ready or 0) < 1 then
         SL:OpenCommonTipsPop({
-            str = "是否立即前往【首冲福利】拿走所有奖励？",
+            str = "是否立即前往【首充礼包】拿走所有奖励？",
             btnType = 2,
             callback = function(atype)
                 if atype == 1 then

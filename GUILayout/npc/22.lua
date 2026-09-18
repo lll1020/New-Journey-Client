@@ -1004,13 +1004,14 @@ local function renderUpgradeAttrScroll(box, state, nextCfg)
             innerH - 48 - index * rowH, scrollW - 12, rowH - 2, false)
         GUI:setAnchorPoint(row, 0, 0)
         GUI:setTouchEnabled(row, false)
-        local dot = GUI:Text_Create(row, "dot", 8, (rowH - 2) / 2, 22, item.top and "#10FF00" or "#3C9A70", "◆")
+        local dot = GUI:Image_Create(row, "dot", 8, (rowH - 2) / 2, "res/custom/tianshu/qh/tip.png")
+        -- local dot = GUI:Text_Create(row, "dot", 8, (rowH - 2) / 2, 22, item.top and "#10FF00" or "#3C9A70", "◆")
         GUI:setAnchorPoint(dot, 0.5, 0.5)
-        GUI:Text_setFontName(dot, "fonts/502.ttf")
+        -- GUI:Text_setFontName(dot, "fonts/502.ttf")
         local value = GUI:Text_Create(row, "value", 24, (rowH - 2) / 2, item.top and 22 or 20,
             item.top and "#B48A42" or "#00FFFF", item.text)
         GUI:setAnchorPoint(value, 0, 0.5)
-        GUI:Text_setFontName(value, "fonts/506.ttf")
+        GUI:Text_setFontName(value, "fonts/502.ttf")
     end
 end
 
@@ -2432,6 +2433,19 @@ local function applyClientConfigDefaults(state)
     return state
 end
 
+local function publishTalentTreeState()
+    if type(npc.state) ~= "table" then
+        return
+    end
+    if NPC_UI_HELPER then
+        NPC_UI_HELPER._linggenTalentStateRequested = false
+    end
+    rawset(_G, "LINGGEN_TALENT_TREE_STATE", npc.state)
+    if NPC_UI_HELPER and NPC_UI_HELPER.refreshLinggenEquipSlot then
+        NPC_UI_HELPER.refreshLinggenEquipSlot()
+    end
+end
+
 local function refreshPayload(payload)
     payload = decode(payload)
     if payload.payload then
@@ -2497,6 +2511,7 @@ local function refreshPayload(payload)
     npc.state.core_level = n(payload.core_level, npc.state.core_level)
     npc.state.normal_external_total = n(payload.normal_external_total, npc.state.normal_external_total)
     applyClientConfigDefaults(npc.state)
+    publishTalentTreeState()
     refreshTalentPointsText()
     refreshChangedNodeVisuals(changedNodes)
     if socketChanged then
@@ -3008,13 +3023,24 @@ end
 
 function npc.main(npcid, p2, p3, msgData)
     local payload = decode(msgData)
+    if p2 == 8 then
+        if valid(npc.window) then
+            refreshPayload(payload)
+        else
+            npc.state = applyClientConfigDefaults(payload.payload or payload)
+            publishTalentTreeState()
+        end
+        return
+    end
     if p2 == 0 then
         npc.state = applyClientConfigDefaults(payload)
+        publishTalentTreeState()
         createWindow()
         return
     end
     if not valid(npc.window) then
         npc.state = applyClientConfigDefaults(payload.payload or payload)
+        publishTalentTreeState()
         createWindow()
         return
     end

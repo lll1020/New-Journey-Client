@@ -55,7 +55,7 @@ local function _atlas_refresh_redpoints(show)
         if target and not tolua.isnull(target) then
             if show == true then
                 if not _atlas_has_redpoint(target) then
-                    NPC_UI_HELPER.redpoint_create_eff(target)
+                    NPC_UI_HELPER.redpoint_create_eff(target,{x=20 + 48,y=20 + 25})
                 end
             else
                 _atlas_remove_redpoint(target)

@@ -471,136 +471,136 @@ teshudata = {
                 },
                 details = {
                     [1] = {
-                        {name = "小强般顽强",icon = "res/buff_icon/00420.PNG",attr = {{1,100}},wz = "生命值+100"},
+                        {name = "小强般顽强",icon = "res/buff_icon/420.PNG",attr = {{1,100}},wz = "生命值+100"},
                         -- 特殊逻辑：选中该仙法时一次性给金币（npc_24.lua/xianfa_refresh）
-                        {name = "捡钱啦",icon = "res/buff_icon/00421.PNG",attr = {},wz = "选择后立即获得10w金币"},
+                        {name = "捡钱啦",icon = "res/buff_icon/421.PNG",attr = {},wz = "选择后立即获得10w金币"},
                         -- 特殊逻辑：仅在拥有"狂暴之力"称号时生效（npc_24.lua/xianfa_refresh）
-                        {name = "狂暴到底",icon = "res/buff_icon/00422.PNG",attr = {},spa_attr = {{1,50},{2,50},{3,50},{4,50},{5,50},{6,50},{7,50},{8,50},{9,50},{10,50},{11,50},{12,50}},wz = "开狂暴时，额外获得50点全属性"},
-                        {name = "来财",icon = "res/buff_icon/00423.PNG",attr = {{204,500},{205,500}},wz = "装备回收收益+5%"},
-                        {name = "血蓝双修",icon = "res/buff_icon/00424.PNG",attr = {{1,100},{2,100}},wz = "生命值+100，魔法值+100"},
-                        {name = "多穿点衣服",icon = "res/buff_icon/00425.PNG",attr = {{36,100},{37,100}},wz = "防御加成+1%"},
-                        {name = "打人好痛",icon = "res/buff_icon/00426.PNG",attr = {{76,500}},wz = "PK增伤+5%"},
-                        {name = "嘻嘻不疼",icon = "res/buff_icon/00427.PNG",attr = {{77,500}},wz = "PK减伤+5%"},
-                        {name = "杀怪老手",icon = "res/buff_icon/00428.PNG",attr = {{66,1000}},wz = "杀怪经验+10%"},
-                        {name = "变强咯",icon = "res/buff_icon/00429.PNG",attr = {{1,50},{2,50},{3,50},{4,50},{5,50},{6,50},{7,50},{8,50},{9,50},{10,50},{11,50},{12,50}},wz = "全属性+50-50"},
-                        {name = "怪物杀手",icon = "res/buff_icon/00430.PNG",attr = {{245,200}},wz = "对怪增伤+2% "},
-                        {name = "力量涌动",icon = "res/buff_icon/00431.PNG",attr = {{3,50},{4,50}},wz = "攻击+50"},
-                        {name = "治疗术",icon = "res/buff_icon/00432.PNG",attr = {{71,50},{91,50}},wz = "每秒恢复50点HP和MP"},
+                        {name = "狂暴到底",icon = "res/buff_icon/422.PNG",attr = {},spa_attr = {{1,50},{2,50},{3,50},{4,50},{5,50},{6,50},{7,50},{8,50},{9,50},{10,50},{11,50},{12,50}},wz = "开狂暴时，额外获得50点全属性"},
+                        {name = "来财",icon = "res/buff_icon/423.PNG",attr = {{204,500},{205,500}},wz = "装备回收收益+5%"},
+                        {name = "血蓝双修",icon = "res/buff_icon/424.PNG",attr = {{1,100},{2,100}},wz = "生命值+100，魔法值+100"},
+                        {name = "多穿点衣服",icon = "res/buff_icon/425.PNG",attr = {{36,100},{37,100}},wz = "防御加成+1%"},
+                        {name = "打人好痛",icon = "res/buff_icon/426.PNG",attr = {{76,500}},wz = "PK增伤+5%"},
+                        {name = "嘻嘻不疼",icon = "res/buff_icon/427.PNG",attr = {{77,500}},wz = "PK减伤+5%"},
+                        {name = "杀怪老手",icon = "res/buff_icon/428.PNG",attr = {{66,1000}},wz = "杀怪经验+10%"},
+                        {name = "变强咯",icon = "res/buff_icon/429.PNG",attr = {{1,50},{2,50},{3,50},{4,50},{5,50},{6,50},{7,50},{8,50},{9,50},{10,50},{11,50},{12,50}},wz = "全属性+50-50"},
+                        {name = "怪物杀手",icon = "res/buff_icon/430.PNG",attr = {{245,200}},wz = "对怪增伤+2% "},
+                        {name = "力量涌动",icon = "res/buff_icon/431.PNG",attr = {{3,50},{4,50}},wz = "攻击+50"},
+                        {name = "治疗术",icon = "res/buff_icon/432.PNG",attr = {{71,50},{91,50}},wz = "每秒恢复50点HP和MP"},
                         -- 特殊逻辑：复活触发移速加成30秒（npc_24.lua/xianfa_revive_trigger + Buff[302]）
-                        {name = "溜了溜了",icon = "res/buff_icon/00433.PNG",attr = {},spa_attr = {{243,5}},wz = "复活后：移动速度+5%，持续30秒。"},
-                        {name = "揭示弱点",icon = "res/buff_icon/00434.PNG",attr = {{28,3}},wz = "忽视目标防御+3%"},
+                        {name = "溜了溜了",icon = "res/buff_icon/433.PNG",attr = {},spa_attr = {{243,5}},wz = "复活后：移动速度+5%，持续30秒。"},
+                        {name = "揭示弱点",icon = "res/buff_icon/434.PNG",attr = {{28,3}},wz = "忽视目标防御+3%"},
                     },
                     [2] = {
                         -- 特殊逻辑：组队时才生效（npc_24.lua/xianfa_refresh）
-                        {name = "朋友多多",icon = "res/buff_icon/00435.PNG",attr = {},spa_attr = {{1,200},{2,200},{3,200},{4,200},{5,200},{6,200},{7,200},{8,200},{9,200},{10,200},{11,200},{12,200}},wz = "组队时：全属性+200-200"},
+                        {name = "朋友多多",icon = "res/buff_icon/435.PNG",attr = {},spa_attr = {{1,200},{2,200},{3,200},{4,200},{5,200},{6,200},{7,200},{8,200},{9,200},{10,200},{11,200},{12,200}},wz = "组队时：全属性+200-200"},
                         -- 特殊逻辑：AI挂机开启时才生效（npc_24.lua/xianfa_refresh）
-                        {name = "挂机佬",icon = "res/buff_icon/00436.PNG",attr = {},spa_attr = {{206,500}},wz = "挂机时，受到伤害降低5%"},
-                        {name = "兰顿之兆",icon = "res/buff_icon/00437.PNG",attr = {{24,2}},wz = "暴伤抵抗+2%"},
-                        {name = "暴击斗篷",icon = "res/buff_icon/00438.PNG",attr = {{21,2}},wz = "暴击几率+2%"},
+                        {name = "挂机佬",icon = "res/buff_icon/436.PNG",attr = {},spa_attr = {{206,500}},wz = "挂机时，受到伤害降低5%"},
+                        {name = "兰顿之兆",icon = "res/buff_icon/437.PNG",attr = {{24,2}},wz = "暴伤抵抗+2%"},
+                        {name = "暴击斗篷",icon = "res/buff_icon/438.PNG",attr = {{21,2}},wz = "暴击几率+2%"},
                         -- 特殊逻辑：技能伤害+3%（npc_24.lua/_xianfa_apply_skill_bonus）
-                        {name = "熟能生巧",icon = "res/buff_icon/00439.PNG",attr = {},wz = "全部技能伤害+3%"},
-                        {name = "瞄准镜",icon = "res/buff_icon/00440.PNG",attr = {{13,3}},wz = "命中率+3%"},
-                        {name = "蝴蝶",icon = "res/buff_icon/00441.PNG",attr = {{14,3}},wz = "闪避+3%"},
-                        {name = "怪物猎人",icon = "res/buff_icon/00442.PNG",attr = {{245,800}},wz = "对怪增伤+8%"},
+                        {name = "熟能生巧",icon = "res/buff_icon/439.PNG",attr = {},wz = "全部技能伤害+3%"},
+                        {name = "瞄准镜",icon = "res/buff_icon/440.PNG",attr = {{13,3}},wz = "命中率+3%"},
+                        {name = "蝴蝶",icon = "res/buff_icon/441.PNG",attr = {{14,3}},wz = "闪避+3%"},
+                        {name = "怪物猎人",icon = "res/buff_icon/442.PNG",attr = {{245,800}},wz = "对怪增伤+8%"},
                         -- 特殊逻辑：随开服天数叠加，最高40天（npc_24.lua/xianfa_refresh）
-                        {name = "开服元老",icon = "res/buff_icon/00443.PNG",attr = {},spa_attr = {{9,5},{10,5},{11,5},{12,5}},wz = "获得随开服天数的防御：每天+5-5（最高200）"},
+                        {name = "开服元老",icon = "res/buff_icon/443.PNG",attr = {},spa_attr = {{9,5},{10,5},{11,5},{12,5}},wz = "获得随开服天数的防御：每天+5-5（最高200）"},
                         -- 特殊逻辑：攻击2%概率蛛网减速3秒（npc_24.lua/xianfa_attack_trigger）
-                        {name = "蜘蛛侠",icon = "res/buff_icon/00444.PNG",attr = {},wz = "攻击有2%概率释放蛛网，减速对方3秒"},
-                        {name = "不怕暴击",icon = "res/buff_icon/00445.PNG",attr = {{23,5}},wz = "暴击抵抗+5%"},
+                        {name = "蜘蛛侠",icon = "res/buff_icon/444.PNG",attr = {},wz = "攻击有2%概率释放蛛网，减速对方3秒"},
+                        {name = "不怕暴击",icon = "res/buff_icon/445.PNG",attr = {{23,5}},wz = "暴击抵抗+5%"},
                     },
                     [3] = {
-                        {name = "追求专属",icon = "res/buff_icon/00446.PNG",attr = {{246,5000}},wz = "专属装备爆率+50%"},
+                        {name = "追求专属",icon = "res/buff_icon/446.PNG",attr = {{246,5000}},wz = "专属装备爆率+50%"},
                         -- 特殊逻辑：攻击低血怪物额外真实伤害（npc_24.lua/xianfa_attack_trigger）
-                        {name = "欺负弱小",icon = "res/buff_icon/00447.PNG",attr = {},wz = "攻击时对生命值低于30%的怪物额外造成75%的真实伤害"},
+                        {name = "欺负弱小",icon = "res/buff_icon/447.PNG",attr = {},wz = "攻击时对生命值低于30%的怪物额外造成75%的真实伤害"},
                         -- 特殊逻辑：按LV5+灵根数量叠加（npc_24.lua/xianfa_refresh）
-                        {name = "灵根之主",icon = "res/buff_icon/00448.PNG",attr = {},spa_attr = {{1,500},{3,50},{4,50}},wz = "每拥有一个LV.5以上的灵根：攻击+50，生命+500"},
+                        {name = "灵根之主",icon = "res/buff_icon/448.PNG",attr = {},spa_attr = {{1,500},{3,50},{4,50}},wz = "每拥有一个LV.5以上的灵根：攻击+50，生命+500"},
                         -- 特殊逻辑：受伤+8%由代码叠加（npc_24.lua/xianfa_struck_adjust）
-                        {name = "双刃剑",icon = "res/buff_icon/00449.PNG",attr = {{35,800}},wz = "所有攻击伤害+8%，且受到伤害+8%"},
+                        {name = "双刃剑",icon = "res/buff_icon/449.PNG",attr = {{35,800}},wz = "所有攻击伤害+8%，且受到伤害+8%"},
                         -- 特殊逻辑：按2星+灵兽数量叠加（npc_24.lua/xianfa_refresh）
-                        {name = "灵兽之王",icon = "res/buff_icon/00450.PNG",attr = {},wz = "每拥有一个2星以上的灵兽：攻击+100，生命+1000"},
+                        {name = "灵兽之王",icon = "res/buff_icon/450.PNG",attr = {},wz = "每拥有一个2星以上的灵兽：攻击+100，生命+1000"},
                         -- 特殊逻辑：1%偷金币，单次/每日上限（npc_24.lua/xianfa_attack_trigger）
-                        {name = "神偷",icon = "res/buff_icon/00451.PNG",attr = {},wz = "攻击玩家时，有1%概率窃取对方1%的金币（每次最多100w，单日上限2000w）"},
+                        {name = "神偷",icon = "res/buff_icon/451.PNG",attr = {},wz = "攻击玩家时，有1%概率窃取对方1%的金币（每次最多100w，单日上限2000w）"},
                         -- 特殊逻辑：死亡反伤击杀者最大HP 30%（npc_24.lua/_xianfa_on_playdie）
-                        {name = "自爆",icon = "res/buff_icon/00452.PNG",attr = {},wz = "死亡时，对击杀者造成其最大生命值30%的真实伤害"},
+                        {name = "自爆",icon = "res/buff_icon/452.PNG",attr = {},wz = "死亡时，对击杀者造成其最大生命值30%的真实伤害"},
                         -- 特殊逻辑：不组队时生效（npc_24.lua/xianfa_refresh）
-                        {name = "独狼",icon = "res/buff_icon/00453.PNG",attr = {},wz = "不组队时：对怪增伤+10%"},
-                        {name = "鹰眼",icon = "res/buff_icon/00454.PNG",attr = {{28,10}},wz = "忽视目标防御+10%"},
-                        {name = "猎手本能",icon = "res/buff_icon/00455.PNG",attr = {{72,15}},wz = "对怪暴击+15%"},
-                        {name = "身经百战",icon = "res/buff_icon/00456.PNG",attr = {{206,500},{208,500}},wz = "伤害减免+5%，最大生命+5%"},
-                        {name = "狂战暴血",icon = "res/buff_icon/00457.PNG",attr = {{208,-1000}},wz = "最大生命-10%，"},
+                        {name = "独狼",icon = "res/buff_icon/453.PNG",attr = {},wz = "不组队时：对怪增伤+10%"},
+                        {name = "鹰眼",icon = "res/buff_icon/454.PNG",attr = {{28,10}},wz = "忽视目标防御+10%"},
+                        {name = "猎手本能",icon = "res/buff_icon/455.PNG",attr = {{72,15}},wz = "对怪暴击+15%"},
+                        {name = "身经百战",icon = "res/buff_icon/456.PNG",attr = {{206,500},{208,500}},wz = "伤害减免+5%，最大生命+5%"},
+                        {name = "狂战暴血",icon = "res/buff_icon/457.PNG",attr = {{208,-1000}},wz = "最大生命-10%，"},
                         -- 特殊逻辑：击杀玩家回血5%最大HP（npc_24.lua/_xianfa_on_killplay）
-                        {name = "饮血剑",icon = "res/buff_icon/00458.PNG",attr = {},wz = "杀死一名玩家后：恢复5%最大生命值"},
+                        {name = "饮血剑",icon = "res/buff_icon/458.PNG",attr = {},wz = "杀死一名玩家后：恢复5%最大生命值"},
                         -- 特殊逻辑：血量<50%加双防，需定时监控（npc_24.lua/xianfa_apply_hp_state）
-                        {name = "愈战愈勇",icon = "res/buff_icon/00459.PNG",attr = {},wz = "血量低于50%时：自身双防御+20%"},
+                        {name = "愈战愈勇",icon = "res/buff_icon/459.PNG",attr = {},wz = "血量低于50%时：自身双防御+20%"},
                         -- 特殊逻辑：3%概率额外伤害（npc_24.lua/xianfa_attack_trigger）
-                        {name = "扼雷指",icon = "res/buff_icon/00460.PNG",attr = {},wz = "攻击有3%概率引发雷电，对目标造成最大攻击50%的伤害"},
-                        {name = "无尽之刃",icon = "res/buff_icon/00461.PNG",attr = {{21,8}},wz = "暴击几率+8%"},
-                        {name = "精准而优雅",icon = "res/buff_icon/00462.PNG",attr = {{13,12}},wz = "命中率+12%"},
-                        {name = "闪避高手",icon = "res/buff_icon/00463.PNG",attr = {{14,12}},wz = "闪避+12%"},
+                        {name = "扼雷指",icon = "res/buff_icon/460.PNG",attr = {},wz = "攻击有3%概率引发雷电，对目标造成最大攻击50%的伤害"},
+                        {name = "无尽之刃",icon = "res/buff_icon/461.PNG",attr = {{21,8}},wz = "暴击几率+8%"},
+                        {name = "精准而优雅",icon = "res/buff_icon/462.PNG",attr = {{13,12}},wz = "命中率+12%"},
+                        {name = "闪避高手",icon = "res/buff_icon/463.PNG",attr = {{14,12}},wz = "闪避+12%"},
                         -- 特殊逻辑：幸运强化成功率+10%（npc_25.lua）
-                        {name = "无比幸运",icon = "res/buff_icon/00464.PNG",attr = {},wz = "幸运强化时：成功几率+10%"},
+                        {name = "无比幸运",icon = "res/buff_icon/464.PNG",attr = {},wz = "幸运强化时：成功几率+10%"},
                         -- 特殊逻辑：随天书等级提升爆率（npc_24.lua/xianfa_refresh）
-                        {name = "读书人",icon = "res/buff_icon/00465.PNG",attr = {},wz = "天书每升一级：打怪爆率+2%"},
+                        {name = "读书人",icon = "res/buff_icon/465.PNG",attr = {},wz = "天书每升一级：打怪爆率+2%"},
                     },
                     [4] = {
                         -- 特殊逻辑：血量<30%每秒回血，需定时监控（npc_24.lua/xianfa_apply_hp_state）
-                        {name = "不死族",icon = "res/buff_icon/00466.PNG",attr = {},wz = "血量低于30%时，每秒恢复3%最大生命值，直至血量大于30%"},
+                        {name = "不死族",icon = "res/buff_icon/466.PNG",attr = {},wz = "血量低于30%时，每秒恢复3%最大生命值，直至血量大于30%"},
                         -- 特殊逻辑：额外按等级增加切割（npc_24.lua/xianfa_refresh）
-                        {name = "天胡",icon = "res/buff_icon/00467.PNG",attr = {{66,5000}},wz = "打怪经验倍率+50%，等级每升一级获得100点打怪切割。"},
-                        {name = "爆爆爆",icon = "res/buff_icon/00468.PNG",attr = {{242,10000}},wz = "打怪爆率+100%"},
+                        {name = "天胡",icon = "res/buff_icon/467.PNG",attr = {{66,5000}},wz = "打怪经验倍率+50%，等级每升一级获得100点打怪切割。"},
+                        {name = "爆爆爆",icon = "res/buff_icon/468.PNG",attr = {{242,10000}},wz = "打怪爆率+100%"},
                         -- 特殊逻辑：选中该仙法时一次性给绑定金币（npc_24.lua/xianfa_refresh）
-                        {name = "天降横财",icon = "res/buff_icon/00469.PNG",attr = {},wz = "选择后立即获得3000w绑定金币"},
+                        {name = "天降横财",icon = "res/buff_icon/469.PNG",attr = {},wz = "选择后立即获得3000w绑定金币"},
                         -- 特殊逻辑：背后攻击才触发普攻/技能增伤（npc_24.lua/xianfa_attack_trigger）
-                        {name = "刺客信条",icon = "res/buff_icon/00470.PNG",attr = {},wz = "在背后攻击敌人时，普通伤害+20%，技能伤害+50%"},
+                        {name = "刺客信条",icon = "res/buff_icon/470.PNG",attr = {},wz = "在背后攻击敌人时，普通伤害+20%，技能伤害+50%"},
                         -- 特殊逻辑：对低等级玩家1%禁锢，CD60s（npc_24.lua/xianfa_attack_trigger）
-                        {name = "魅惑",icon = "res/buff_icon/00471.PNG",attr = {},wz = "攻击比自己等级低的敌人时，有1%概率使其无法攻击。CD：60s"},
+                        {name = "魅惑",icon = "res/buff_icon/471.PNG",attr = {},wz = "攻击比自己等级低的敌人时，有1%概率使其无法攻击。CD：60s"},
                         -- 特殊逻辑：释放技能后下一普攻增伤（npc_24.lua/xianfa_attack_trigger）
-                        {name = "咒术回响",icon = "res/buff_icon/00472.PNG",attr = {},wz = "释放主动技能后，下一次普通攻击造成额外30%的伤害"},
+                        {name = "咒术回响",icon = "res/buff_icon/472.PNG",attr = {},wz = "释放主动技能后，下一次普通攻击造成额外30%的伤害"},
                         -- 特殊逻辑：按金币数额外伤害（npc_24.lua/xianfa_attack_trigger）
-                        {name = "富可敌国",icon = "res/buff_icon/00473.PNG",attr = {},wz = "每拥有1000W金币，额外造成1%的伤害（最多10%）"},
+                        {name = "富可敌国",icon = "res/buff_icon/473.PNG",attr = {},wz = "每拥有1000W金币，额外造成1%的伤害（最多10%）"},
                         -- 特殊逻辑：隐身模式（npc_24.lua/_xianfa_set_invis）
-                        {name = "我是六娃",icon = "res/buff_icon/00474.PNG",attr = {},wz = "获得隐身效果（怪物无法看见你）"},
+                        {name = "我是六娃",icon = "res/buff_icon/474.PNG",attr = {},wz = "获得隐身效果（怪物无法看见你）"},
                         -- 特殊逻辑：等级上限+2且受伤+10%（npc_24.lua/xianfa_refresh + xianfa_struck_adjust）
-                        {name = "诅咒冠冕",icon = "res/buff_icon/00475.PNG",attr = {},wz = "人物等级上限+2，但受到伤害+10%"},
+                        {name = "诅咒冠冕",icon = "res/buff_icon/475.PNG",attr = {},wz = "人物等级上限+2，但受到伤害+10%"},
                         -- 特殊逻辑：技能伤害+20%（npc_24.lua/_xianfa_apply_skill_bonus）
-                        {name = "技能导师",icon = "res/buff_icon/00476.PNG",attr = {},wz = "技能伤害+20%"},
+                        {name = "技能导师",icon = "res/buff_icon/476.PNG",attr = {},wz = "技能伤害+20%"},
                         -- 特殊逻辑：每日一次防掉落（QFunction-0.lua/xianfa_check_drop）
-                        {name = "守财奴",icon = "res/buff_icon/00477.PNG",attr = {},wz = " 每天获得1次防止身上装备掉落。（凌晨12点刷新）"},
-                        {name = "要钱不要命",icon = "res/buff_icon/00478.PNG",attr = {{242,10000},{208,-2000}},wz = "打怪爆率+100%，最大生命-20%"},
-                        {name = "圣遗物我来了",icon = "res/buff_icon/00479.PNG",attr = {},wz = "神兽圣遗物爆率+100%"},
+                        {name = "守财奴",icon = "res/buff_icon/477.PNG",attr = {},wz = " 每天获得1次防止身上装备掉落。（凌晨12点刷新）"},
+                        {name = "要钱不要命",icon = "res/buff_icon/478.PNG",attr = {{242,10000},{208,-2000}},wz = "打怪爆率+100%，最大生命-20%"},
+                        {name = "圣遗物我来了",icon = "res/buff_icon/479.PNG",attr = {},wz = "神兽圣遗物爆率+100%"},
                         -- 特殊逻辑：基础+每只3星神兽叠加（npc_24.lua/xianfa_refresh）
-                        {name = "神兽大帝",icon = "res/buff_icon/00480.PNG",attr = {},wz = "最终攻击+3%，最终生命+3%，每拥有一个3星神兽：最终攻击+5%，最终生命+5%"},
-                        {name = "最后的轻语",icon = "res/buff_icon/00481.PNG",attr = {{28,15}},wz = "破防几率+15%"},
-                        {name = "力中暴力",icon = "res/buff_icon/00482.PNG",attr = {{21,15}},wz = "暴击几率+15%"},
+                        {name = "神兽大帝",icon = "res/buff_icon/480.PNG",attr = {},wz = "最终攻击+3%，最终生命+3%，每拥有一个3星神兽：最终攻击+5%，最终生命+5%"},
+                        {name = "最后的轻语",icon = "res/buff_icon/481.PNG",attr = {{28,15}},wz = "破防几率+15%"},
+                        {name = "力中暴力",icon = "res/buff_icon/482.PNG",attr = {{21,15}},wz = "暴击几率+15%"},
                         -- 特殊逻辑：每刀吸对方最大MP 3%（npc_24.lua/xianfa_attack_trigger）
-                        {name = "吸蓝刀",icon = "res/buff_icon/00483.PNG",attr = {},wz = "每刀吸收对方3%最大魔法值"},
+                        {name = "吸蓝刀",icon = "res/buff_icon/483.PNG",attr = {},wz = "每刀吸收对方3%最大魔法值"},
                         -- 特殊逻辑：死亡标记仇人，对其额外伤害（npc_24.lua/_xianfa_on_playdie + xianfa_attack_trigger）
-                        {name = "睚眦必报",icon = "res/buff_icon/00484.PNG",attr = {},wz = "死亡后将击杀者标记为仇人：对仇人额外造成20%的伤害。"},
+                        {name = "睚眦必报",icon = "res/buff_icon/484.PNG",attr = {},wz = "死亡后将击杀者标记为仇人：对仇人额外造成20%的伤害。"},
                     },
                     [5] = {
-                        {name = "为我独尊",icon = "res/buff_icon/00485.PNG",attr = {{21,15},{22,15}},wz = "暴击几率+15%，暴击伤害+15%"},
-                        {name = "金刚不坏",icon = "res/buff_icon/00486.PNG",attr = {{208,200},{77,2000},{1,66666}},wz = "最大生命+2%，PK减伤+20%，固定生命+66666"},
-                        {name = "唯快不破",icon = "res/buff_icon/00487.PNG",attr = {{200,6600},{201,6600},{243,10}},wz = "攻击速度+66%，移动速度+10%"},
-                        {name = "切割之王",icon = "res/buff_icon/00488.PNG",attr = {{244,88888},{253,880}},wz = "打怪切割+88888，切割倍率+8.8%"},
+                        {name = "为我独尊",icon = "res/buff_icon/485.PNG",attr = {{21,15},{22,15}},wz = "暴击几率+15%，暴击伤害+15%"},
+                        {name = "金刚不坏",icon = "res/buff_icon/486.PNG",attr = {{208,200},{77,2000},{1,66666}},wz = "最大生命+2%，PK减伤+20%，固定生命+66666"},
+                        {name = "唯快不破",icon = "res/buff_icon/487.PNG",attr = {{200,6600},{201,6600},{243,10}},wz = "攻击速度+66%，移动速度+10%"},
+                        {name = "切割之王",icon = "res/buff_icon/488.PNG",attr = {{244,88888},{253,880}},wz = "打怪切割+88888，切割倍率+8.8%"},
                         -- 特殊逻辑：按高品质仙法数量叠加（npc_24.lua/xianfa_refresh）
-                        {name = "仙法大佬",icon = "res/buff_icon/00489.PNG",attr = {{300,2},{280,2},{281,2},{282,2},{283,2},{284,2},{285,2},{286,2},{287,2},{288,2},{289,2},{290,2},{291,2}},wz = "每拥有一个圣品仙法或极品仙法：全属性+2%"},
-                        {name = "谁敢惹我",icon = "res/buff_icon/00490.PNG",attr = {{76,2000},{77,2000}},wz = "PK增伤+20%，PK减伤+20%"},
+                        {name = "仙法大佬",icon = "res/buff_icon/489.PNG",attr = {{300,2},{280,2},{281,2},{282,2},{283,2},{284,2},{285,2},{286,2},{287,2},{288,2},{289,2},{290,2},{291,2}},wz = "每拥有一个圣品仙法或极品仙法：全属性+2%"},
+                        {name = "谁敢惹我",icon = "res/buff_icon/490.PNG",attr = {{76,2000},{77,2000}},wz = "PK增伤+20%，PK减伤+20%"},
                         -- 特殊逻辑：150级后等级上限+5（npc_24.lua/xianfa_refresh）
-                        {name = "打破枷锁",icon = "res/buff_icon/00491.PNG",attr = {},wz = "150级后等级+5"},
+                        {name = "打破枷锁",icon = "res/buff_icon/491.PNG",attr = {},wz = "150级后等级+5"},
                         -- 特殊逻辑：2%召唤元神协战50秒（npc_24.lua/xianfa_attack_trigger）
-                        {name = "元神助战",icon = "res/buff_icon/00492.PNG",attr = {},wz = "攻击有2%的几率召唤元神协助作战，元神拥有100%自身属性，持续50秒"},
-                        {name = "寻宝大师",icon = "res/buff_icon/00493.PNG",attr = {{246,8800},{242,18800}},wz = "专属爆率+88%，打怪爆率+188%"},
+                        {name = "元神助战",icon = "res/buff_icon/492.PNG",attr = {},wz = "攻击有2%的几率召唤元神协助作战，元神拥有100%自身属性，持续50秒"},
+                        {name = "寻宝大师",icon = "res/buff_icon/493.PNG",attr = {{246,8800},{242,18800}},wz = "专属爆率+88%，打怪爆率+188%"},
                         -- 特殊逻辑：攻沙期间PK增/减伤（npc_24.lua/xianfa_refresh）
-                        {name = "沙老大",icon = "res/buff_icon/00494.PNG",attr = {},wz = "攻沙期间：PK增伤+50%，PK减伤+50%"},
+                        {name = "沙老大",icon = "res/buff_icon/494.PNG",attr = {},wz = "攻沙期间：PK增伤+50%，PK减伤+50%"},
                         -- 特殊逻辑：击杀玩家回血20%最大HP（npc_24.lua/_xianfa_on_killplay）
-                        {name = "修罗血衣",icon = "res/buff_icon/00495.PNG",attr = {},wz = "击杀一名玩家，恢复20%最大生命值"},
+                        {name = "修罗血衣",icon = "res/buff_icon/495.PNG",attr = {},wz = "击杀一名玩家，恢复20%最大生命值"},
                         -- 特殊逻辑：2%禁锢2秒（npc_24.lua/xianfa_attack_trigger）
-                        {name = "跪下",icon = "res/buff_icon/00496.PNG",attr = {},wz = "攻击有2%的几率使得对方玩家禁锢原地，持续2秒"},
-                        {name = "神力灌体",icon = "res/buff_icon/00497.PNG",attr = {{67,800},{203,1000},{3,1888},{4,1888}},wz = "神力倍功+8%，人物攻击+10%，攻击力+1888，"},
+                        {name = "跪下",icon = "res/buff_icon/496.PNG",attr = {},wz = "攻击有2%的几率使得对方玩家禁锢原地，持续2秒"},
+                        {name = "神力灌体",icon = "res/buff_icon/497.PNG",attr = {{67,800},{203,1000},{3,1888},{4,1888}},wz = "神力倍功+8%，人物攻击+10%，攻击力+1888，"},
                         -- 特殊逻辑：名字更长额外伤害（npc_24.lua/xianfa_attack_trigger）
-                        {name = "名字长就牛比",icon = "res/buff_icon/00498.PNG",attr = {},wz = "对名字比自己短的玩家造成额外20%的伤害"},
+                        {name = "名字长就牛比",icon = "res/buff_icon/498.PNG",attr = {},wz = "对名字比自己短的玩家造成额外20%的伤害"},
                         -- 特殊逻辑：名字更短额外伤害（npc_24.lua/xianfa_attack_trigger）
-                        {name = "名字短就牛比",icon = "res/buff_icon/00499.PNG",attr = {},wz = "对名字比自己长的玩家造成额外20%的伤害"},
+                        {name = "名字短就牛比",icon = "res/buff_icon/499.PNG",attr = {},wz = "对名字比自己长的玩家造成额外20%的伤害"},
                     },
                 }
             },
@@ -1006,7 +1006,7 @@ teshudata = {
         id = 46,
         name = "灾厄入侵",
         details = {
-            {idx = 1, key = 625,name = "嘲灾", mob_name = "嘲灾", mob_eff = 16416, num = 1,jl = {{"无相镜",1}},map = "旷野之原",spa = "无相",spa_details = "未完成前置任务时，嘲灾会反弹所受伤害", time = 300,kz = "前置：压制反弹", kz_details = "旷野之原击杀50只怪物并提交，完成后挑战嘲灾时不再受到反弹伤害"},
+            {idx = 1, key = 625,name = "嘲灾", mob_name = "嘲灾", mob_eff = 16416, num = 1,jl = {{"无相镜",1}},map = "旷野之原",spa = "无相",spa_details = "未完成前置任务时，嘲灾会反弹所受伤害", time = 300,kz = "前置：压制反弹", kz_details = "旷野之原击杀20只怪物并提交，完成后挑战嘲灾时不再受到反弹伤害"},
             {idx = 2, key = 627,name = "息灾", mob_name = "息灾", mob_eff = 16408, num = 1,jl = {{"定风珠",1}},map = "恐怖裂隙",spa = "叹息",spa_details = "被攻击时，会快速逃离玩家", time = 300,kz = "前置：定身符", kz_details = "恐怖裂隙打怪收集10个定身符碎片，提交后挑战息灾时可压制逃离"},
             {idx = 3, key = 626,name = "忌灾", mob_name = "忌灾", mob_eff = 16418, num = 1,jl = {{"诅咒傀儡",1}},map = "海峰孤岛",spa = "诅咒",spa_details = "攻击会令你陷入诅咒", time = 300,kz = "前置：净化宝石", kz_details = "海峰孤岛打怪收集10个净化之泪，提交后挑战忌灾时可抵御诅咒"},
             {idx = 4, key = 628,name = "妄灾", mob_name = "妄灾", mob_eff = 16419, num = 1,jl = {{"破妄之瞳",1}},map = "山脉入口",spa = "隐身",spa_details = "平时无法直视妄灾", time = 300,kz = "前置：真视之眼", kz_details = "山脉入口先后找回真视之眼左、真视之眼右，提交后挑战妄灾时可看见真身"},
@@ -1753,10 +1753,10 @@ teshudata = {
     ["npc_610"] = {id = 610,name = "掘墓人",level = 2,map = "乱葬岗",desc = "提交：唐三彩*5",cost = {{"唐三彩",5}},rwjl = {{"绑定金币",150000}},ch = "摸金校尉"},
     ["npc_620"] = {id = 620,name = "阴阳玉佩",cost = {{"极阴石",1},{"极阳石",1},{"天道魂魄",1},{"元宝",280000},},give = {{"阴阳玉佩",1}},},
     ["npc_621"]  = {id = 621, name = "踏入·山脉入口",map = "灰界南部",shaguai_id = 621,num = 30,tp_map = {"虚妄山脉",92,50}},
-    ["npc_622"]  = {id = 622, name = "踏入·恐怖裂隙",map = "灰界北部",shaguai_id = 622,num = 30,tp_map = {"叹息旷野",34,41}},
-    ["npc_623"]  = {id = 623, name = "踏入·旷野之原",map = "灰界东部",shaguai_id = 623,num = 30,tp_map = {"鬼嘲深渊",273,33}},
+    ["npc_622"]  = {id = 622, name = "踏入·恐怖裂隙",map = "灰界北部",shaguai_id = 622,num = 20,tp_map = {"叹息旷野",34,41}},
+    ["npc_623"]  = {id = 623, name = "踏入·旷野之原",map = "灰界东部",shaguai_id = 623,num = 10,tp_map = {"鬼嘲深渊",273,33}},
     ["npc_624"]  = {id = 624, name = "踏入·海峰孤岛",map = "灰界西部",shaguai_id = 624,num = 30,tp_map = {"禁忌之海",33,133}},
-    ["npc_625"]  = {id = 625, name = "讨伐嘲灾",fb_map = "mwsl",mob = "嘲灾",jl = {{"无相镜",1}},prep_task = {task_name = "压制反弹",map = "旷野之原",need = 50,progress_name = "压制反弹"}},
+    ["npc_625"]  = {id = 625, name = "讨伐嘲灾",fb_map = "mwsl",mob = "嘲灾",jl = {{"无相镜",1}},prep_task = {task_name = "压制反弹",map = "旷野之原",need = 20,progress_name = "压制反弹"}},
     ["npc_626"]  = {id = 626, name = "讨伐忌灾",fb_map = "mwsl",mob = "忌灾",jl = {{"诅咒傀儡",1}},prep_task = {name = "净化宝石",map = "海峰孤岛",need = 10,drop_every = 5,item_name = "净化之泪"}},
     ["npc_627"]  = {id = 627, name = "讨伐息灾",fb_map = "mwsl",mob = "息灾",jl = {{"定风珠",1}},prep_task = {name = "定身符",map = "恐怖裂隙",need = 10,drop_every = 5,item_name = "定身符碎片"}},
     ["npc_628"]  = {id = 628, name = "讨伐妄灾",fb_map = "mwsl",mob = "妄灾",mob_x = "妄灾[未显]",jl = {{"破妄之瞳",1}},prep_task = {name = "真视之眼",map = "山脉入口",left_need = 15,right_need = 35,left_name = "真视之眼左",right_name = "真视之眼右"}},

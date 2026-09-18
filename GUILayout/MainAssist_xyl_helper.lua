@@ -132,7 +132,7 @@ local MAINLINE_CURRENT_TASK_REWARD_CONFIG = {
     [29] = {{"绑定金币", 150000}, {"摸金校尉[称号]", 1}},
     [30] = {{"1元真实充值", 1}, {"轩辕剑传人[称号]", 1}},
     [31] = {{"绑定金币", 150000}, {"玫瑰花", 50}},
-    [33] = {{"绑定金币", 150000}, {"古刹魔瓶", 1}},
+    [33] = {{"绑定金币", 1000000}, {"古刹魔瓶", 1}},
     [34] = {{"1元真实充值", 1},},
 }
 
@@ -669,7 +669,7 @@ function MainAssistXylHelper.bind(MainAssist)
 
         local prepCfg = type(bossCfg.prep_task) == "table" and bossCfg.prep_task or {}
         if bossKey == "npc_625" then
-            return _gray_world_to_num(sgData[bossKey .. "_rw"], 0) >= 50
+            return _gray_world_to_num(sgData[bossKey .. "_rw"], 0) >= 20
         end
         if bossKey == "npc_626" or bossKey == "npc_627" then
             return _gray_world_get_bag_count(prepCfg.item_name) >= _gray_world_to_num(prepCfg.need, 0)

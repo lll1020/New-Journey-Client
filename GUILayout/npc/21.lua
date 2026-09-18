@@ -10,6 +10,85 @@ local function _jj_is_look_player()
     return npc.isLookPlayer == true
 end
 
+local function closeFoundationDanPopup()
+    local popup = npc.foundationDanPopup
+    npc.foundationDanPopup = nil
+    if popup then
+        pcall(function()
+            GUI:removeFromParent(popup)
+        end)
+    end
+end
+
+local function openFoundationDanPopup(npcid)
+    closeFoundationDanPopup()
+
+    local parent = npc.bg or npc.node
+    if not parent then
+        return
+    end
+
+    local popup = GUI:Node_Create(parent, "foundation_dan_popup", 0, 0)
+    npc.foundationDanPopup = popup
+    GUI:setLocalZOrder(popup, 200)
+
+    local overlay = GUI:Layout_Create(popup, "overlay", 0, 0, 818, 542, false)
+    GUI:Layout_setBackGroundColorType(overlay, 1)
+    GUI:Layout_setBackGroundColor(overlay, "#000000")
+    GUI:Layout_setBackGroundColorOpacity(120)
+    GUI:setTouchEnabled(overlay, true)
+
+    local panel = GUI:Image_Create(popup, "panel", 409, 271, "res/wy/public/anniu_999_bj.png")
+    GUI:setAnchorPoint(panel, 0.5, 0.5)
+    GUI:setContentSize(panel, 650, 370)
+    GUI:setIgnoreContentAdaptWithSize(panel, false)
+    GUI:setTouchEnabled(panel, true)
+
+    local title = GUI:Text_Create(panel, "title", 325, 335, 24, "#ffe7a2", "筑基丹获取说明")
+    GUI:setAnchorPoint(title, 0.5, 0.5)
+    GUI:Text_setFontName(title, "fonts/502.ttf")
+    GUI:Text_enableOutline(title, "#26160d", 2)
+
+    local closeBtn = GUI:Button_Create(panel, "close", 620, 335, "res/wy/public/close_red_big.png")
+    GUI:addOnClickEvent(closeBtn, closeFoundationDanPopup)
+
+    local desc = GUI:RichText_Create(
+        panel,
+        "desc",
+        325,
+        255,
+        "你若想筑基，还需服用<font color='#ff6666'>1枚筑基丹</font>。\n" ..
+        "筑基丹获取方法：\n" ..
+        "1. <font color='#ffe45e'>十个筑基丹碎片</font>可合成1枚筑基丹（碎片全大陆打怪掉落）\n" ..
+        "2. 在线充值中<font color='#ffe45e'>10元礼包</font>赠送1枚筑基丹",
+        560,
+        20,
+        "#f3e8ce",
+        5,
+        nil,
+        nil,
+        {outlineSize = 2, outlineColor = "#120b08"}
+    )
+    GUI:setAnchorPoint(desc, 0.5, 0.5)
+
+    local buyBtn = GUI:Button_Create(panel, "buy", 210, 68, "res/custom/msfc/page1/action_1.png")
+    GUI:Button_setTitleText(buyBtn, "立即购买")
+    GUI:Button_setTitleFontName(buyBtn, "fonts/502.ttf")
+    GUI:Button_setTitleFontSize(buyBtn, 19)
+    GUI:Button_setTitleColor(buyBtn, "#ffe45e")
+    GUI:addOnClickEvent(buyBtn, function()
+        closeFoundationDanPopup()
+        SL:SendLuaNetMsg(100, npcid, 2, 0, "")
+    end)
+
+    local continueBtn = GUI:Button_Create(panel, "continue", 440, 68, "res/custom/msfc/page1/action_2.png")
+    GUI:Button_setTitleText(continueBtn, "继续打怪")
+    GUI:Button_setTitleFontName(continueBtn, "fonts/502.ttf")
+    GUI:Button_setTitleFontSize(continueBtn, 19)
+    GUI:Button_setTitleColor(continueBtn, "#8dffad")
+    GUI:addOnClickEvent(continueBtn, closeFoundationDanPopup)
+end
+
 function npc.main(npcid, p2, p3, msgData)
     local function format_attr_value(attrIdx, value)
         local num = tonumber(value) or 0
@@ -160,15 +239,7 @@ function npc.main(npcid, p2, p3, msgData)
         end
     end
     if p2 == 2 and not _jj_is_look_player() then
-        SL:OpenCommonTipsPop({
-            str = "未检测到筑基丹，是否前往在线充值购买？",
-            btnType = 2,
-            callback = function(atype)
-                if atype == 1 then
-                    SL:SendLuaNetMsg(100, npcid, 2, 0, "")
-                end
-            end,
-        })
+        openFoundationDanPopup(npcid)
         return
     end
     if p2 == 0 then--界面
