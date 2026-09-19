@@ -156,6 +156,13 @@ local function _draw_rank_list(node, rankData)
     local rankText = _outline_text(node, "rank_title", 870 - 180, 347 - 240, 24, "#F5F1E7", "排行榜", 0.5, 0.5)
     GUI:Text_enableUnderline(rankText)
     GUI:setTouchEnabled(rankText, true)
+    for i = 1, 5 do
+        local row = rankData[i] or {}
+        local name = tostring(row.name or "未上榜")
+        local score = tonumber(row.score or 0) or 0
+        local text = string.format("%d. %s  %s功勋", i, name, score)
+        _outline_text(node, "rank_row_" .. i, 610, 92 - (i - 1) * 18, 15, "#F4D4A8", text, 0, 0.5)
+    end
     if SL:GetMetaValue("WINPLAYMODE") then
         GUI:addMouseMoveEvent(rankText, {onEnterFunc = function()
             _open_rank_tips(rankText, rankData)

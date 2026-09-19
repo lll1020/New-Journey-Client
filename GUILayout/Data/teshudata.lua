@@ -2990,7 +2990,7 @@ teshudata = {
                     spawn = {
                         {name = "焚村火卒", count = 50, hp = 100, merit = 1, type = "small"},
                         {name = "熔甲先锋", count = 10, hp = 200, merit = 5, type = "elite"},
-                        {name = "【焚村魔魁·赤烬】", count = 3, hp = 500, merit = 20, type = "boss"},
+                        {name = "「焚村魔魁·赤烬」", count = 3, hp = 500, merit = 20, type = "boss"},
                     },
                 },
                 {
@@ -2998,7 +2998,7 @@ teshudata = {
                     spawn = {
                         {name = "霜牙妖狐", count = 50, hp = 100, merit = 1, type = "small"},
                         {name = "寒羽妖雀", count = 10, hp = 200, merit = 5, type = "elite"},
-                        {name = "【寒狱统领·冰魄】", count = 3, hp = 500, merit = 20, type = "boss"},
+                        {name = "「寒狱统领·冰魄」", count = 3, hp = 500, merit = 20, type = "boss"},
                     },
                 },
                 {
@@ -3006,7 +3006,7 @@ teshudata = {
                     spawn = {
                         {name = "枯藤妖鹿", count = 50, hp = 100, merit = 1, type = "small"},
                         {name = "毒叶魅影", count = 10, hp = 200, merit = 5, type = "elite"},
-                        {name = "【古木灾主·森魇】", count = 3, hp = 500, merit = 20, type = "boss"},
+                        {name = "「古木灾主·森魇」", count = 3, hp = 500, merit = 20, type = "boss"},
                     },
                 },
             },
@@ -3050,6 +3050,7 @@ teshudata = {
             start_hour = 16,
             start_minute_clock = 0,
             duration_min = 30,
+            min_open_day = 2,
             score_per_join = 10,
             collect_sec = 8,
             title_collect_sec = 4,

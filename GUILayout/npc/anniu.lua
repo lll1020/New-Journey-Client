@@ -593,6 +593,49 @@ local function openFirstChargeWelfareConfirm()
         end,
     })
 end
+local function _format_txzr_top_countdown(seconds)
+    seconds = math.max(0, math.floor(tonumber(seconds) or 0))
+    local minute = math.floor(seconds / 60)
+    local second = seconds % 60
+    return string.format("%02d:%02d", minute, second)
+end
+local function _refresh_txzr_top_countdown(button)
+    button = button or npc.txzr_activity_button or (npc.db_anniu and npc.db_anniu["7"])
+    if not button or tolua.isnull(button) then
+        return
+    end
+    local label = GUI:getChildByName(button, "txzr_countdown")
+    if not label or tolua.isnull(label) then
+        return
+    end
+    local data = npc._txzr_top_countdown or {}
+    if npc._txzr_top_finished or tonumber(data.finished or 0) == 1 then
+        GUI:setVisible(label, false)
+        return
+    end
+    local seconds = tonumber(data.seconds or 0) or 0
+    local receivedAt = tonumber(data.received_at or os.time()) or os.time()
+    local left = math.max(0, seconds - math.max(0, os.time() - receivedAt))
+    GUI:setVisible(label, true)
+    GUI:Text_setString(label, "开奖 " .. _format_txzr_top_countdown(left))
+    local token = tonumber(npc._txzr_top_countdown_token or 0) or 0
+    SL:ScheduleOnce(function()
+        if token == (tonumber(npc._txzr_top_countdown_token or 0) or 0) then
+            _refresh_txzr_top_countdown(button)
+        end
+    end, 1)
+end
+local _refresh_txzr_activity_button
+local function _set_txzr_top_countdown(data)
+    npc._txzr_top_countdown = type(data) == "table" and data or {}
+    npc._txzr_top_countdown.received_at = os.time()
+    npc._txzr_top_countdown_token = (tonumber(npc._txzr_top_countdown_token or 0) or 0) + 1
+    if _refresh_txzr_activity_button then
+        _refresh_txzr_activity_button()
+    else
+        _refresh_txzr_top_countdown()
+    end
+end
 -- 这两个快捷入口判定会在函数定义前被引用，先前置声明，避免运行时落到全局查找。
 local _shortcut_is_firstcharge_completed
 local _shortcut_is_unbind_completed
@@ -617,7 +660,17 @@ local function createShortcutButton(container, cfg, order, prefix, opts)
     local btnName = string.format("%s_%d", prefix, order)
     local posX = tonumber(opts.x) or (498 - 80 * order)
     local posY = tonumber(opts.y) or 0
-    local button = GUI:Button_Create(container, btnName, posX, posY, "res/wy/icon/top_" .. cfg[1] .. ".png")
+    local iconPath = tostring(cfg[5] or "")
+    if iconPath == "" then
+        iconPath = "res/wy/icon/top_" .. cfg[1] .. ".png"
+    end
+    local button = GUI:Button_Create(container, btnName, posX, posY, iconPath)
+    if tonumber(cfg[3]) == 506 then
+        local buttonSize = GUI:getContentSize(button)
+        local countdown = GUI:Text_Create(button, "txzr_countdown", buttonSize.width / 2, -13, 15, "#00FB00", "")
+        GUI:setAnchorPoint(countdown, 0.5, 0.5)
+        GUI:Text_enableOutline(countdown, "#000000", 1)
+    end
     local keepRedPoint = _shortcut_should_show_persistent_redpoint(cfg)
     GUI:addOnClickEvent(button, function()
         if tonumber(cfg[3]) == 1029 then
@@ -628,7 +681,7 @@ local function createShortcutButton(container, cfg, order, prefix, opts)
             return
         end
         SL:SendLuaNetMsg(101, cfg[3], 0, 0, "")
-        if not keepRedPoint then
+        if not keepRedPoint and tonumber(cfg[3]) ~= 506 then
             GUI:removeAllChildren(button)
         end
     end)
@@ -640,7 +693,57 @@ local function createShortcutButton(container, cfg, order, prefix, opts)
     end
     local cacheMap = opts.cacheMap or npc.db_anniu
     cacheMap["" .. cfg[4]] = button
+    if tonumber(cfg[3]) == 506 then
+        _refresh_txzr_top_countdown(button)
+    end
     return button
+end
+local TXZR_ACTIVITY_CFG = {
+    9,
+    "天选之人",
+    506,
+    7,
+    "res/wy/icon/9.png",
+}
+_refresh_txzr_activity_button = function()
+    local button = npc.txzr_activity_button
+    if not button or tolua.isnull(button) then
+        return
+    end
+    local visible = npc._txzr_top_finished ~= true
+    GUI:setVisible(button, visible)
+    GUI:setTouchEnabled(button, visible)
+    if visible then
+        _refresh_txzr_top_countdown(button)
+    else
+        local label = GUI:getChildByName(button, "txzr_countdown")
+        if label and not tolua.isnull(label) then
+            GUI:setVisible(label, false)
+        end
+    end
+end
+local function createTxzrActivityButton()
+    local panel = MainAssist and MainAssist._ui and MainAssist._ui["Panel_hide"]
+    if not panel or tolua.isnull(panel) then
+        return
+    end
+    if npc.txzr_activity_button and not tolua.isnull(npc.txzr_activity_button) then
+        _refresh_txzr_activity_button()
+        return
+    end
+    local existing = GUI:getChildByName(panel, "txzr_activity_1")
+    if existing and not tolua.isnull(existing) then
+        npc.txzr_activity_button = existing
+        _refresh_txzr_activity_button()
+        return
+    end
+    npc.txzr_activity_button = createShortcutButton(panel, TXZR_ACTIVITY_CFG, 1, "txzr_activity", {
+        x = 100 - 60,
+        y = 100 - 60,
+        cacheMap = {},
+    })
+    GUI:setLocalZOrder(npc.txzr_activity_button, 10000)
+    _refresh_txzr_activity_button()
 end
 local function _shortcut_has_title(titleName)
     if not titleName or titleName == "" then
@@ -902,6 +1005,9 @@ local function _shortcut_should_show(cfg)
     if npcid == 31 then
      -- 马上发财：二大陆主线阶段（rwid >= 16）后才显示快捷按钮。
         return (tonumber(cogin and cogin.sjtb and cogin.sjtb.rwid) or 0) >= 16
+    end
+    if npcid == 506 then
+        return npc._txzr_top_finished ~= true
     end
     if npcid == 516 then
         return not _shortcut_is_freesponsor_completed()
@@ -1331,11 +1437,13 @@ local function _build_shortcut_render_signature()
                 parts[#parts + 1] = table.concat({
                     rowIndex,
                     tostring(cfg[1] or ""),
-                    tostring(cfg[2] or ""),
-                    tostring(cfg[3] or ""),
-                    tostring(cfg[4] or ""),
-                    _shortcut_should_show_persistent_redpoint(cfg) and "1" or "0",
-                    extraState,
+                     tostring(cfg[2] or ""),
+                     tostring(cfg[3] or ""),
+                     tostring(cfg[4] or ""),
+                     tostring(cfg[5] or ""),
+                     tostring(cfg[6] or ""),
+                     _shortcut_should_show_persistent_redpoint(cfg) and "1" or "0",
+                     extraState,
                 }, ":")
             end
         end
@@ -1359,9 +1467,13 @@ local function rebuildShortcutButtons(filterKey)
     }
     local function renderRow(list, rowY, prefix)
         local order = 1
+        local txzrGap = 0
         for _, cfg in ipairs(list) do
             if _shortcut_should_show(cfg) then
-                local posX = 498 - 70 * order
+                if cfg[6] == "txzr" then
+                    txzrGap = 30
+                end
+                local posX = 498 - 70 * order - txzrGap
                 local posY = rowY
                 local button = createShortcutButton(npc.dbLayout, cfg, order, prefix, {
                     x = posX,
@@ -2013,6 +2125,7 @@ npc[1] = function(p2, p3, msgData)
                 npc._shortcut_collapsed = not npc._shortcut_collapsed
                 _refresh_shortcut_collapsed_state(true)
             end)
+            createTxzrActivityButton()
             rebuildShortcutButtons("")
             refreshLingshouMainEntrySoon()
             startLingshouMainEntryLoginRefresh()
@@ -2021,6 +2134,7 @@ npc[1] = function(p2, p3, msgData)
             UPGRADE_HELPER.startEquipChangeRefresh()
             UPGRADE_HELPER.startAutoRefresh(20 * 1)
         elseif p3 == 1 then
+            createTxzrActivityButton()
             rebuildShortcutButtons(msgData or "")
             refreshLingshouMainEntrySoon()
             startLingshouMainEntryLoginRefresh()
@@ -4646,6 +4760,18 @@ npc[12] = function(p2, p3, Data)
         if npc.hdan then
             closeActivityShortcut()
         end
+    elseif p2 == 11 then
+        if tonumber(p3 or 0) == 7 then
+            local data = SL:JsonDecode(Data, false) or {}
+            npc._txzr_top_finished = tonumber(data.finished or 0) == 1
+            if npc._txzr_top_finished then
+                npc._txzr_top_countdown = nil
+                npc._txzr_top_countdown_token = (tonumber(npc._txzr_top_countdown_token or 0) or 0) + 1
+                _refresh_txzr_activity_button()
+            else
+                _set_txzr_top_countdown(data)
+            end
+        end
     end
 end
 npc[13] = function(p2, p3, msgData)
@@ -6008,30 +6134,46 @@ npc[498] = function(p2, p3, Data)
         if hasRankingWindow() then
             return
         end
-        npc.tyec = GUI:Image_Create(MainAssist._ui["Panel_hide"], "tyec_bj", 18, 0.0, "res/wy/public/tycccc.png")
+        npc.tyec = GUI:Image_Create(MainAssist._ui["Panel_hide"], "tyec_bj",  - 200, 0.0, "res/wy/public/black_t.png")
         GUI:setLocalZOrder(npc.tyec, 10000)
-        GUI:setContentSize(npc.tyec, 260, 185)
+        GUI:setContentSize(npc.tyec, 200, 190)
+        GUI:setTouchEnabled(npc.tyec, true)
         local height = GUI:getContentSize(npc.tyec).height
         GUI:setPositionY(npc.tyec, height)
         GUI:runAction(npc.tyec, GUI:ActionMoveBy(0.3, 0, -height))
-        local desc = GUI:Text_Create(npc.tyec, "Text", 70.0, 164.0, 14, "#d6a573", "排名数据/10s刷新")
+        local desc = GUI:Text_Create(npc.tyec, "Text", 62.0, 164.0, 14, "#d6a573", "排名数据/10s刷新")
         GUI:Text_enableOutline(desc, "#000000", 1)
         npc.tyecdesc = desc
-        local campScore = GUI:Text_Create(npc.tyec, "camp_score", 108.0, 145.0 + 5, 14, "#d6a573", "正方:0  邪方:0")
+        local campScore = GUI:ScrollText_Create(npc.tyec, "camp_score", 100.0, 145.0 + 5, 190, 12, "#d6a573", "正方:0  邪方:0", 10, nil)
         GUI:setAnchorPoint(campScore, 0.5, 0.5)
-        GUI:Text_enableOutline(campScore, "#000000", 1)
+        GUI:ScrollText_setHorizontalAlignment(campScore, 2)
+        GUI:ScrollText_enableOutline(campScore, "#000000", 1)
         npc.tyeccamp = campScore
-        local activityState = GUI:Text_Create(npc.tyec, "activity_state", 108.0, 128.0, 14, "#d6a573", "")
+        local activityState = GUI:ScrollText_Create(npc.tyec, "activity_state", 100.0, 128.0, 190, 12, "#d6a573", "", 10, nil)
         GUI:setAnchorPoint(activityState, 0.5, 0.5)
-        GUI:Text_enableOutline(activityState, "#000000", 1)
+        GUI:ScrollText_setHorizontalAlignment(activityState, 2)
+        GUI:ScrollText_enableOutline(activityState, "#000000", 1)
         npc.tyecstate = activityState
-        local scoreLabel = GUI:Text_Create(npc.tyec, "Text_1", 72.0, 6.0, 14, "#d6a573", "当前个人积分:")
+        local scoreLabel = GUI:Text_Create(npc.tyec, "Text_1", 18.0, 6.0, 12, "#d6a573", "当前个人积分:")
         GUI:Text_enableOutline(scoreLabel, "#000000", 1)
         npc.tyecscoreLabel = scoreLabel
-        npc.tyecgr = GUI:Text_Create(scoreLabel, "Textxx", 92.0, 0.0, 14, "#d6a573", "0")
+        npc.tyecgr = GUI:Text_Create(scoreLabel, "Textxx", 92.0, 0.0, 12, "#d6a573", "0")
         GUI:Text_enableOutline(npc.tyecgr, "#000000", 1)
-        local list = GUI:ListView_Create(npc.tyec, "ListView", 0.0, 29.0, 261.0, 112.0, 1)
+        local list = GUI:ListView_Create(npc.tyec, "ListView", 0.0, 29.0, 200.0, 112.0, 1)
         GUI:ListView_setItemsMargin(list, 2)
+        npc.tyecList = list
+        local questionText = GUI:Text_Create(npc.tyec, "question_text", 100.0, 95.0, 12, "#d6a573", "")
+        GUI:setAnchorPoint(questionText, 0.5, 0.5)
+        GUI:Text_setTextAreaSize(questionText, {
+            width = 184,
+            height = 92,
+        })
+        GUI:Text_setTextHorizontalAlignment(questionText, 1)
+        if GUI.Text_setTextVerticalAlignment then
+            GUI:Text_setTextVerticalAlignment(questionText, 1)
+        end
+        GUI:Text_enableOutline(questionText, "#000000", 1)
+        npc.tyecquestion = questionText
         npc.tyecpmm = {
         }
         npc.tyecpmf = {
@@ -6040,18 +6182,23 @@ npc[498] = function(p2, p3, Data)
         }
         for i = 1, 5 do
             local row = GUI:Image_Create(list, "rank_row_" .. i, 0, 0, "res/wy/public/guang.png")
-            GUI:setContentSize(row, 260, 25)
-            local prefix = GUI:Text_Create(row, "rank_prefix", 10.0, 3.0, 14, "#d6a573", string.format("NO.%d    ", i))
+            GUI:setContentSize(row, 200, 20)
+            local prefix = GUI:Text_Create(row, "rank_prefix", 6.0, 2.0, 12, "#d6a573", string.format("NO.%d    ", i))
             GUI:Text_enableOutline(prefix, "#000000", 1)
             npc.tyecpmprefix[i] = prefix
-            npc.tyecpmm[i] = GUI:Text_Create(row, "player_" .. i, 55.0, 3.0, 14, "#d6a573", "")
-            GUI:Text_enableOutline(npc.tyecpmm[i], "#000000", 1)
-            npc.tyecpmf[i] = GUI:Text_Create(row, "score_" .. i, 200.0, 3.0, 14, "#d6a573", "")
+            npc.tyecpmm[i] = GUI:ScrollText_Create(row, "player_" .. i, 45.0, 2.0, 105, 12, "#d6a573", "", 10, nil)
+            GUI:ScrollText_enableOutline(npc.tyecpmm[i], "#000000", 1)
+            npc.tyecpmf[i] = GUI:Text_Create(row, "score_" .. i, 158.0, 2.0, 12, "#d6a573", "")
             GUI:Text_enableOutline(npc.tyecpmf[i], "#000000", 1)
         end
         if npc.refreshLingshouMainEntry then
             npc._lingshou_main_render_sig = nil
             npc.refreshLingshouMainEntry()
+        end
+    end
+    local function setScrollText(widget, value)
+        if widget and not tolua.isnull(widget) then
+            GUI:ScrollText_setString(widget, tostring(value or ""))
         end
     end
     local function updateRankingWidgets(data)
@@ -6068,19 +6215,16 @@ npc[498] = function(p2, p3, Data)
             if npc.tyecscoreLabel then
                 GUI:Text_setString(npc.tyecscoreLabel, "")
             end
-            for i = 1, 5 do
-                if npc.tyecpmprefix and npc.tyecpmprefix[i] then
-                    GUI:Text_setString(npc.tyecpmprefix[i], "")
-                end
-                GUI:setPositionX(npc.tyecpmm[i], 16)
-                GUI:Text_setString(npc.tyecpmm[i], "")
-                GUI:Text_setString(npc.tyecpmf[i], "")
+            if npc.tyecList then
+                GUI:setVisible(npc.tyecList, false)
             end
-            local idx = tonumber(data.idx or 0) or 0
-            local total = tonumber(data.total or 0) or 0
+            if npc.tyecquestion then
+                GUI:setVisible(npc.tyecquestion, true)
+            end
             local question = tostring(data.question or "")
-            GUI:Text_setString(npc.tyecpmm[1], string.format("第%s/%s题", tostring(idx), tostring(total)))
-            GUI:Text_setString(npc.tyecpmm[2], question)
+            if npc.tyecquestion then
+                GUI:Text_setString(npc.tyecquestion, question)
+            end
             GUI:Text_setString(npc.tyecgr, "")
             local remain = tonumber(data.limit_sec or 0) or 0
             local endTs = tonumber(data.end_ts or 0) or 0
@@ -6092,19 +6236,25 @@ npc[498] = function(p2, p3, Data)
                 remain = math.max(0, math.floor(endTs - nowTs))
             end
             if npc.tyeccamp then
-                GUI:Text_setString(npc.tyeccamp, "答题倒计时：" .. tostring(remain) .. "秒")
+                setScrollText(npc.tyeccamp, "答题倒计时：" .. tostring(remain) .. "秒")
             end
             if npc.tyecstate then
-                GUI:Text_setString(npc.tyecstate, "")
+                setScrollText(npc.tyecstate, "")
             end
             return
         end
         if mode == "bwcz" then
+            if npc.tyecList then
+                GUI:setVisible(npc.tyecList, true)
+            end
+            if npc.tyecquestion then
+                GUI:setVisible(npc.tyecquestion, false)
+            end
             if npc.tyecdesc then
                 GUI:Text_setString(npc.tyecdesc, "怪物剩余/10s刷新")
             end
             if npc.tyecscoreLabel then
-                GUI:Text_setString(npc.tyecscoreLabel, "当前个人积分:")
+                GUI:Text_setString(npc.tyecscoreLabel, "当前个人功勋:")
             end
             for i = 1, 5 do
                 if npc.tyecpmprefix and npc.tyecpmprefix[i] then
@@ -6113,21 +6263,27 @@ npc[498] = function(p2, p3, Data)
                 GUI:setPositionX(npc.tyecpmm[i], 16)
                 local info = data.mon_left and data.mon_left[i]
                 if type(info) == "table" then
-                    GUI:Text_setString(npc.tyecpmm[i], tostring(info.name or ""))
+                    setScrollText(npc.tyecpmm[i], tostring(info.name or ""))
                     GUI:Text_setString(npc.tyecpmf[i], tostring(info.left or 0))
                 else
-                    GUI:Text_setString(npc.tyecpmm[i], "")
+                    setScrollText(npc.tyecpmm[i], "")
                     GUI:Text_setString(npc.tyecpmf[i], "")
                 end
             end
             GUI:Text_setString(npc.tyecgr, data.grjf or 0)
             if npc.tyeccamp then
-                GUI:Text_setString(npc.tyeccamp, string.format("军团:%s", tostring(data.wave_name or "未知")))
+                setScrollText(npc.tyeccamp, string.format("军团:%s  总剩余:%s", tostring(data.wave_name or "未知"), tostring(data.left_mon or 0)))
             end
             if npc.tyecstate then
-                GUI:Text_setString(npc.tyecstate, string.format("总剩余:%s", tostring(data.left_mon or 0)))
+                setScrollText(npc.tyecstate, "")
             end
             return
+        end
+        if npc.tyecList then
+            GUI:setVisible(npc.tyecList, true)
+        end
+        if npc.tyecquestion then
+            GUI:setVisible(npc.tyecquestion, false)
         end
         local mc = 1
         if npc.tyecdesc then
@@ -6142,29 +6298,29 @@ npc[498] = function(p2, p3, Data)
             end
             GUI:setPositionX(npc.tyecpmm[i], 55)
             if data.pmsj and data.pmsj[i * 2] and data.pmsj[i * 2] > 0 then
-                GUI:Text_setString(npc.tyecpmm[i], data.pmsj[mc])
+                setScrollText(npc.tyecpmm[i], data.pmsj[mc])
                 GUI:Text_setString(npc.tyecpmf[i], data.pmsj[i * 2])
                 mc = mc + 2
             else
-                GUI:Text_setString(npc.tyecpmm[i], "")
+                setScrollText(npc.tyecpmm[i], "")
                 GUI:Text_setString(npc.tyecpmf[i], "")
             end
         end
         GUI:Text_setString(npc.tyecgr, data.grjf or 0)
         if npc.tyeccamp then
             if data.wave_name or data.left_mon then
-                GUI:Text_setString(npc.tyeccamp, string.format("军团:%s", tostring(data.wave_name or "未知")))
+                setScrollText(npc.tyeccamp, string.format("军团:%s", tostring(data.wave_name or "未知")))
             elseif mode == "zxdz" or data.hjf ~= nil or data.ljf ~= nil then
-                GUI:Text_setString(npc.tyeccamp, string.format("正方:%s  邪方:%s", data.hjf or 0, data.ljf or 0))
+                setScrollText(npc.tyeccamp, string.format("正方:%s  邪方:%s", data.hjf or 0, data.ljf or 0))
             else
-                GUI:Text_setString(npc.tyeccamp, "")
+                setScrollText(npc.tyeccamp, "")
             end
         end
         if npc.tyecstate then
             if data.wave_name or data.left_mon then
-                GUI:Text_setString(npc.tyecstate, string.format("剩余怪物:%s", tostring(data.left_mon or 0)))
+                setScrollText(npc.tyecstate, string.format("剩余怪物:%s", tostring(data.left_mon or 0)))
             else
-                GUI:Text_setString(npc.tyecstate, "")
+                setScrollText(npc.tyecstate, "")
             end
         end
     end
@@ -6742,7 +6898,7 @@ npc[504] = function(p2, p3, Data)
             create_reward_box(npc.node, item[1], item[2], x, startY, tostring(item[1] or "") == "灵石")
         end
         if tonumber(npc.kryb.mztq or 0) == 0 then
-            local btn = GUI:Button_Create(npc.node, "buy_btn", 100, 44, "res/custom/top/kryb/btn.png")
+            local btn = GUI:Button_Create(npc.node, "buy_btn", 100 + 80, 44 + 46, "res/custom/top/kryb/btn.png")
             GUI:addOnClickEvent(btn, function()
                 SL:SendLuaNetMsg(101, 504, 1, 0, "")
             end)
@@ -7156,7 +7312,7 @@ npc[507] = function(p2, p3, Data)
         elseif i == 2 then
             cfg.title = "全民夺矿"
             cfg.time = string.format("每日%02d:%02d开启，持续%s分钟", tonumber(qmdk.start_hour or 19) or 19, tonumber(qmdk.start_minute_clock or 0) or 0, tostring(qmdk.duration_min or 20))
-            cfg.desc = string.format("进入【%s】争夺矿区，重点是占点、守点和阻止对手持续得分。", tostring(qmdk.map or "全民夺矿"))
+            cfg.desc = "地图刷新许多矿石，采集，携带，运送，获得积分！\n注意：矿石很重，携带时会走的非常慢哦！"
             cfg.reward = "参与奖励：" .. makeRewardText(qmdk.join_reward)
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 appendRewardList(out, seen, qmdk.join_reward)
@@ -7168,7 +7324,7 @@ npc[507] = function(p2, p3, Data)
             local remain = tonumber(qmdtState.limit_sec or 0) or 0
             cfg.title = "全民答题"
             cfg.time = string.format("开服第%s分钟开启，持续%s分钟；共%s题，每题%s秒", tostring(qmdt.start_minute or 33), tostring(qmdt.duration_min or 5), tostring(qmdt.question_count or 5), tostring(qmdt.per_question_sec or 60))
-            cfg.desc = "活动开启后参与答题，按题目顺序作答，考验反应和判断。"
+            cfg.desc = "选择你心目中正确的答案，移动至对应选项光圈中，倒计时结束后自动判断对错！"
             cfg.reward = "参与奖励：" .. makeRewardText(qmdt.join_reward)
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 appendRewardList(out, seen, qmdt.join_reward)
@@ -7182,7 +7338,7 @@ npc[507] = function(p2, p3, Data)
         elseif i == 5 then
             cfg.title = "土城跑酷"
             cfg.time = "活动入口直达土城地图，具体开启时段以游戏公告为准"
-            cfg.desc = "进入跑酷地图后按路线前进，主要比走位、反应和路线熟悉度。"
+            cfg.desc = "活动开始后，请前往土城参与跑酷活动，获得奖励！"
             cfg.reward = "奖励丰厚"
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 appendNamedRewards(out, seen, {
@@ -7208,7 +7364,7 @@ npc[507] = function(p2, p3, Data)
             if open == 1 then
                 cfg.time = cfg.time .. "\n当前活动进行中，可直接点击参与"
             end
-            cfg.desc = string.format("进入【%s】击杀并收集肉类，利用收集与兑换推进活动进度。", tostring(mskh.map or "美食狂欢"))
+            cfg.desc = "地图中刷新鸡、羊、鹿，击杀他们然后割肉卖给屠夫可以兑换奖励！"
             cfg.reward = "鸡肉=1积分，羊肉=5积分，鹿肉=10积分；可在屠夫处兑换美食家、时光之杖、时光鉴定石"
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 local shop = mskh.shop or {}
@@ -7232,7 +7388,7 @@ npc[507] = function(p2, p3, Data)
             if txzrOpen == 1 or (txzrRound < 4 and txzrMinute > 0 and txzrMinute < 30) then
                 cfg.time = cfg.time .. "\n当前活动进行中，可直接点击参与"
             end
-            cfg.desc = "活动按轮次进行幸运比拼，参与玩家随机点数排名，每轮点数最高者获得奖励。"
+            cfg.desc = "领取首充后，可参与天选之人活动，每人每轮随机获得1个点数，根据点数排名，获得丰厚奖励！"
             cfg.reward = "查看具体页面可以预览奖励"
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 for rewardIdx = 1, 10 do
@@ -7251,7 +7407,7 @@ npc[507] = function(p2, p3, Data)
             if open == 1 then
                 cfg.time = cfg.time .. "\n当前活动进行中，可直接点击参与"
             end
-            cfg.desc = "进入地图后自动分阵营，围绕对抗、击杀和阵营胜负展开。"
+            cfg.desc = "进入活动后随机分成正邪两个阵营，你要做的就是杀光敌对阵营！"
             cfg.reward = "个人前三：跨服积分30/20/15；胜利方：跨服积分50；失败方：跨服积分20"
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 appendRewardItem(out, seen, "跨服积分", 30)
@@ -7259,7 +7415,7 @@ npc[507] = function(p2, p3, Data)
         elseif i == 9 then
             cfg.title = "武林盟主"
             cfg.time = "开服第25分钟开启，持续5分钟"
-            cfg.desc = "进入【比武大会】自由混战，尽量击败对手并活到最后。"
+            cfg.desc = "进入地图，非我者必诛之！你要做的就是杀光其他人！"
             cfg.reward = "胜者可获得盟主荣誉与活动结算奖励"
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 appendRewardItem(out, seen, "绑定元宝", 380000)
@@ -7273,7 +7429,7 @@ npc[507] = function(p2, p3, Data)
             if open == 1 then
                 cfg.time = cfg.time .. "\n当前活动进行中，可进入跨服报名匹配"
             end
-            cfg.desc = "跨服1V1匹配玩法，报名后进行单挑对决，拼操作和对局节奏。"
+            cfg.desc = "天下第一武道大会，进入活动1v1匹配对手，战胜对方！获得积分！\n排行榜奖励每周日24点结算，届时清空排行榜。"
             cfg.reward = "周排行奖励：第1名100跨服积分，第2名80，第3名70，第4名60，第5名50，第6名40，第7名30，第8名25，第9名20，第10名15，10名后10"
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 appendRewardItem(out, seen, "跨服积分", 100)
@@ -7281,7 +7437,7 @@ npc[507] = function(p2, p3, Data)
         elseif i == 11 then
             cfg.title = "沙巴克"
             cfg.time = "请通过沙巴克专属入口参与攻城"
-            cfg.desc = "大型行会攻城玩法，围绕皇宫和据点展开攻防对抗。"
+            cfg.desc = "是兄弟，就来沙巴克陪我征战至死！无兄弟，不沙城！"
             cfg.reward = "行会奖励"
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 local rewardItemName = tostring(sbk.money or "绑定灵符")
@@ -7295,12 +7451,12 @@ npc[507] = function(p2, p3, Data)
         elseif i == 12 then
             cfg.title = "讨伐BOSS"
             cfg.time = "当前暂未开放，开放后可通过本页直接参与"
-            cfg.desc = "活动开启后投放特殊首领，重点是集火输出和争夺归属。"
+            cfg.desc = "活地图中刷新一只跨服BOSS，和数只小怪，击杀BOSS获得丰厚奖励！\n参与击杀跨服积分+10，最后一击跨服积分+20！\nBOSS必掉：杀伐神石 *10、辉耀水晶*10、1元真实充值*5、千年玄铁*188、圣星核*1\n大修为丹*3、 金币*1000W"
             cfg.reward = "开放后公布活动奖励"
         elseif i == 13 then
             cfg.title = "随机夺宝"
             cfg.time = string.format("开服第15分钟开启，在【%s】地图持续%s秒投放宝物", tostring(sjdb.map or "天降财宝"), tostring(sjdb.keep_sec or 300))
-            cfg.desc = string.format("活动会在【%s】持续投放宝物，核心是寻找、争抢和走位。", tostring(sjdb.map or "天降财宝"))
+            cfg.desc = "进入地图，使用随机传送石拾取地图中散落的宝物！"
             cfg.reward = "随机夺宝"
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 appendSjdbRewards(out, seen, sjdb.circles)
@@ -7308,7 +7464,7 @@ npc[507] = function(p2, p3, Data)
         elseif i == 14 then
             cfg.title = "黑暗禁地"
             cfg.time = string.format("每日%02d:%02d开启，持续%s分钟", tonumber(hdjd.start_hour or 19) or 19, tonumber(hdjd.start_minute_clock or 30) or 30, tostring(hdjd.duration_min or 20))
-            cfg.desc = string.format("进入【%s】寻找随机刷新目标并完成采集，考验找图和路线判断。", tostring(hdjd.map or "黑暗禁地"))
+            cfg.desc = "地图中刷新许多宝箱，采集宝箱，获得奖励！\n注意：在该地图时，视野会受到限制，谨慎行事！"
             cfg.reward = "金币*38W、元宝*2000-8000、1元真实充值*1、五行石/杀伐神石[小]/千年玄铁随机其一"
             cfg.rewardItems = buildRewardItems(function(out, seen)
                 appendHdjdRewards(out, seen, hdjd.rewards)
@@ -7343,6 +7499,23 @@ npc[507] = function(p2, p3, Data)
         end
         return nil
     end
+    local function getServerOpenDay()
+        local kqfz = tonumber((npc.data_507 or {}).kqfz)
+        if not kqfz or kqfz < 0 then
+            return 1
+        end
+        return math.floor(kqfz / (24 * 60)) + 1
+    end
+    local function getActivityMinOpenDay(i)
+        local cfgById = {
+            [1] = activity_cfg.bwcz,
+            [2] = activity_cfg.qmdk,
+            [6] = activity_cfg.mskh,
+            [14] = activity_cfg.hdjd,
+        }
+        local cfg = cfgById[tonumber(i) or 0]
+        return math.max(1, tonumber(cfg and cfg.min_open_day or 1) or 1)
+    end
     local function statusByDayTime(startHour, startMinute, durationMin)
         local nowMinute = getServerMinute()
         if not nowMinute then
@@ -7372,6 +7545,9 @@ npc[507] = function(p2, p3, Data)
     end
     local function getActivityStatus(i)
         i = tonumber(i) or 0
+        if getServerOpenDay() < getActivityMinOpenDay(i) then
+            return ACTIVITY_STATUS_WAIT
+        end
         if activityIsOpen(i) then
             return ACTIVITY_STATUS_OPEN
         end
