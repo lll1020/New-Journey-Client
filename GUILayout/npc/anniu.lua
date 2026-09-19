@@ -616,6 +616,15 @@ local function _refresh_txzr_top_countdown(button)
     local seconds = tonumber(data.seconds or 0) or 0
     local receivedAt = tonumber(data.received_at or os.time()) or os.time()
     local left = math.max(0, seconds - math.max(0, os.time() - receivedAt))
+    if left <= 0 and tonumber(data.finished or 0) ~= 1 and tonumber(data.round or 4) < 4 then
+        local nextRoundSeconds = tonumber(data.next_round_seconds or data.round_seconds or 1800) or 1800
+        if nextRoundSeconds > 0 then
+            data.seconds = nextRoundSeconds
+            data.received_at = os.time()
+            npc._txzr_top_countdown = data
+            left = nextRoundSeconds
+        end
+    end
     GUI:setVisible(label, true)
     GUI:Text_setString(label, "开奖 " .. _format_txzr_top_countdown(left))
     local token = tonumber(npc._txzr_top_countdown_token or 0) or 0
