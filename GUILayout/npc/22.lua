@@ -2194,6 +2194,134 @@ local function getSkillPreviewCfg(node)
     return nil
 end
 
+local ELEMENT_LABEL = {
+    metal = "金",
+    wood = "木",
+    water = "水",
+    fire = "火",
+    earth = "土",
+}
+
+local function nodeFlowName(node)
+    if not node or tostring(node.lane or "") ~= "flow" then
+        return nil
+    end
+    local lane = tonumber(node.branch_lane) or 0
+    if lane <= 0 then
+        return nil
+    end
+    local key = tostring(node.element or "") .. "_flow_" .. tostring(lane)
+    local cfg = SKILL_PREVIEW_BY_KEY[key]
+    return cfg and cfg.name or nil
+end
+
+local function isFlowEntranceNode(node)
+    if not node or not nodeFlowName(node) then
+        return false
+    end
+    local rootId = tostring(node.element or "") .. "_M18"
+    for _, requiredId in ipairs(node.requires or {}) do
+        if tostring(requiredId) == rootId then
+            return true
+        end
+    end
+    return false
+end
+
+local function appendNodeLabelText(parts, value)
+    value = tostring(value or "")
+    if value ~= "" then
+        parts[#parts + 1] = value
+    end
+end
+
+local function nodeAttributeCategory(node)
+    local parts = {}
+    appendNodeLabelText(parts, node and node.effect)
+    appendNodeLabelText(parts, node and node.desc)
+    appendNodeLabelText(parts, node and node.name)
+    for _, attr in ipairs((node and node.attrs) or {}) do
+        appendNodeLabelText(parts, attr and attr.text)
+    end
+
+    local content = table.concat(parts, "\n")
+    if content == "" then
+        return "特殊效果"
+    end
+
+    local function has(keyword)
+        return string.find(content, keyword, 1, true) ~= nil
+    end
+
+    if has("全属性") then
+        return "全属性"
+    end
+    if has("吸血") or has("生命偷取") then
+        return "吸血"
+    end
+    if has("攻击速度") or has("攻速") then
+        return "攻速"
+    end
+    if has("移动速度") or has("移速") then
+        return "移速"
+    end
+    if has("生命恢复") or has("回复") or has("回血") or has("恢复") then
+        return "回复"
+    end
+    if has("目标") and (has("生命值") or has("当前生命")) then
+        return "攻击"
+    end
+    if has("防御") or has("物防") or has("魔防") or has("双防")
+        or has("伤害吸收") or has("减伤") or has("护盾") or has("韧性")
+        or has("生命") or has("血量") then
+        return "防御"
+    end
+    if has("攻击") or has("增伤") or has("伤害") or has("切割")
+        or has("神圣一击") or has("暴击") or has("PK增伤") then
+        return "攻击"
+    end
+    return "特殊效果"
+end
+
+local function isSkillNameLabelNode(node)
+    if not node then
+        return false
+    end
+    local slotType = tostring(node.slot_type or "")
+    local special = node.special or {}
+    local skillKey = tostring(special.key or "")
+    return slotType == "skill" or slotType == "J-终极" or SKILL_PREVIEW_BY_KEY[skillKey] ~= nil
+end
+
+local function nodeMapLabel(node)
+    if not node then
+        return "节点"
+    end
+    if node.kind == "root" then
+        return node.name or "灵根核心"
+    end
+    if isSocketNode(node) then
+        return "宝石槽位"
+    end
+    if isFlowEntranceNode(node) then
+        local elementName = ELEMENT_LABEL[node.element] or ((TreeCfg.element_map and TreeCfg.element_map[node.element] or {}).short) or ""
+        local flowName = nodeFlowName(node) or "分支"
+        return elementName ~= "" and (elementName .. "·" .. flowName) or flowName
+    end
+
+    local slotType = tostring(node.slot_type or "")
+    local special = node.special or {}
+    local skillKey = tostring(special.key or "")
+    if isSkillNameLabelNode(node) then
+        local cfg = SKILL_PREVIEW_BY_KEY[skillKey]
+        return (cfg and cfg.name) or special.name or node.name or "技能名"
+    end
+    if string.sub(slotType, 1, 1) == "J" or skillKey ~= "" then
+        return "技能强化"
+    end
+    return nodeAttributeCategory(node)
+end
+
 local function configuredDescLines(node)
     local result = {}
     local seen = {}
@@ -3212,9 +3340,14 @@ local function createNodeView(parent, node)
     -- The viewport owns drag gestures. Keeping a second drag listener on each
     -- node causes short taps to compete with the button click callback.
     GUI:setSwallowTouches(btn, false)
-    local label = text(holder, "label", 0, -size / 2 - 15, 18, nodeColor(node), node.name, 0.5, 1)
+    local labelValue = nodeMapLabel(node)
+    local skillName = isSkillNameLabelNode(node)
+    local label = text(holder, "label", 0, -size / 2 - 15, skillName and 22 or 20, skillName and "#FFFFFF" or nodeColor(node), labelValue, 0.5, 1)
+    if skillName then
+        GUI:Text_enableOutline(label, nodeColor(node), 1)
+    end
     GUI:setLocalZOrder(label, 6)
-    local dot = text(btn, "state", size / 2, -6, 18, COLORS.green, "", 0.5, 0.5)
+    local dot = text(btn, "state", size / 2, -6, 20, COLORS.green, "", 0.5, 0.5)
     GUI:setLocalZOrder(dot, 5)
     npc.nodeViews[node.id] = {
         holder = holder,
@@ -3506,9 +3639,9 @@ local function createHeader(sw, sh)
     -- text(root, "brand_title", brandTextX, layout.topY, 30, GOLD, "万象图鉴", 0, 0.5)
 
     local leftX = 10
-    text(npc.header, "title", leftX, -30, 25, "#F1D176", "灵根天赋树", 0, 0.5)
-    text(npc.header, "subtitle", leftX, -60, 20, "#8FA6C0",
-        "五行共振 · 主干成长 · 流派分支 · 宝石镶嵌", 0, 0.5)
+    -- text(npc.header, "title", leftX, -30, 25, "#F1D176", "灵根天赋树", 0, 0.5)
+    -- text(npc.header, "subtitle", leftX, -60, 20, "#8FA6C0",
+    --     "五行共振 · 主干成长 · 流派分支 · 宝石镶嵌", 0, 0.5)
 
     local pointsX = headerW / 2 + 150 + 50
     local pointsBg = imageFrame(npc.header, "points_bg", pointsX + 115, -46, 286, 58, RES .. "tj_19.png", 3)
@@ -3532,9 +3665,9 @@ local function createHeader(sw, sh)
     GUI:setLocalZOrder(usedLabel, 5)
     GUI:setLocalZOrder(usedValue, 5)
     refreshTalentPointsText()
-    local upgrade = button(npc.header, "upgrade", 75, -100 - 10, "  升级核心", openUpgrade, 150, 50,"res/custom/linggen/new/main/itme3.png")
-    local rules = button(npc.header, "rules",75, -150 - 10, "  查看规则", openRules, 150, 50,"res/custom/linggen/new/main/itme3.png")
-    local reset = button(npc.header, "reset", 75, -200 - 10, "  重置灵根", function()
+    local upgrade = button(npc.header, "upgrade", 75, -43, "  升级核心", openUpgrade, 150, 50,"res/custom/linggen/new/main/itme3.png")
+    local rules = button(npc.header, "rules",75 + 160, -43, "  查看规则", openRules, 150, 50,"res/custom/linggen/new/main/itme3.png")
+    local reset = button(npc.header, "reset", 75 + 320, -43, "  重置灵根", function()
         openResetConfirm("all")
     end, 150, 50,"res/custom/linggen/new/main/itme3.png")
 
