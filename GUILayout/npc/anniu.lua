@@ -6703,7 +6703,7 @@ npc[502] = function(p2, p3, Data)
         GUI:setAnchorPoint(num, 0.5, 0.5)
         num = GUI:TextAtlas_Create(npc.bg, "num1", 690, 30, SL:GetThousandSepString(SL:GetMetaValue("TMONEY", "真充积分")), "res/custom/public/text1.png", 14, 30, ".")
         GUI:setAnchorPoint(num, 0, 0.5)
-        local cz_an = GUI:Button_Create(node, "cz_an", 300 + 274, 38 + 350, "res/custom/chongzhi/btn.png")
+        local cz_an = GUI:Button_Create(node, "cz_an", 300 + 274 + 30, 38 + 350 + 23, "res/custom/chongzhi/csq_an.png")
         GUI:addOnClickEvent(cz_an, function()
             local msg = tonumber(GUI:TextInput_getString(Input))
             if msg then
