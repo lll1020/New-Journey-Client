@@ -42,20 +42,41 @@ local function _atlas_menu_button()
     return bg and GUI:getChildByName(bg, "atlas518") or nil
 end
 
+local function _atlas_sync_redpoint(node, opts)
+    local ok, delegate = pcall(function()
+        return GUI:ui_delegate(node)
+    end)
+    local redpoint = ok and delegate and delegate.redpoint or nil
+    if not redpoint or tolua.isnull(redpoint) then
+        return false
+    end
+    if opts and opts.x ~= nil and opts.y ~= nil then
+        GUI:setPosition(redpoint, opts.x, opts.y)
+    end
+    if opts and opts.autoScale then
+        GUI:setScale(redpoint, opts.autoScale)
+    end
+    return true
+end
+
 local function _atlas_refresh_redpoints(show)
     npc._atlas518_redpoint = show == true
+    local smallOpts = {x = 20 + 48, y = 20 + 25}
+    local cblOpts = {x = 245, y = 88 - 35}
+    local menuButton = _atlas_menu_button()
     local targets = {
-        npc.an_cbl,
-        npc.db_anniu and npc.db_anniu["23"],
-        npc.atlas_mobile_button,
-        rawget(_G, "ATLAS518_MOBILE_BUTTON"),
-        _atlas_menu_button(),
+        {node = npc.an_cbl, opts = smallOpts},
+        {node = npc.db_anniu and npc.db_anniu["23"], opts = smallOpts},
+        {node = npc.atlas_mobile_button, opts = cblOpts},
+        {node = rawget(_G, "ATLAS518_MOBILE_BUTTON"), opts = rawget(_G, "ATLAS518_MOBILE_BUTTON") == menuButton and cblOpts or smallOpts},
+        {node = menuButton, opts = cblOpts},
     }
-    for _, target in ipairs(targets) do
+    for _, data in ipairs(targets) do
+        local target = data.node
         if target and not tolua.isnull(target) then
             if show == true then
-                if not _atlas_has_redpoint(target) then
-                    NPC_UI_HELPER.redpoint_create_eff(target,{x=20 + 48,y=20 + 25})
+                if not _atlas_sync_redpoint(target, data.opts) then
+                    NPC_UI_HELPER.redpoint_create_eff(target, data.opts)
                 end
             else
                 _atlas_remove_redpoint(target)

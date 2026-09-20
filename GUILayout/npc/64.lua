@@ -372,7 +372,7 @@ function npc.main(npcid, p2, p3, msgData)
                 npc._config.config.ls[npc.titles_sign].s_skill or "", 360, 16, "#FFFFFF", 1, nil, nil)
             GUI:setAnchorPoint(s_skill,0, 1)
             local s_skill_req = GUI:RichText_Create(localNode, "s_skill_req",500 + 10,400,
-                "技能释放前置：" .. (npc._config.config.ls[npc.titles_sign].s_skill_req or "出战灵兽亲密度达到Lv.10；"),
+                "生效条件：" .. (npc._config.config.ls[npc.titles_sign].s_skill_req or "出战灵兽亲密度达到Lv.10；"),
                 360, 17, "#FFD36B", 1, nil, nil)
             GUI:setAnchorPoint(s_skill_req,0, 1)
 
@@ -788,7 +788,7 @@ function npc.main(npcid, p2, p3, msgData)
             " · 灵兽可<font color='#E24A3B'>升级星级</font>，星级越高，灵兽越强！",
             " · 灵兽可佩戴专属<font color='#E24A3B'>神兽遗物</font>，后续大陆可掉！",
             " · 灵兽可与本命灵激活<font color='#E24A3B'>专属协同被动</font>！",
-            " · 每只灵兽都有<font color='#E24A3B'>主动技能和被动技能</font>！",
+            " · 每只灵兽都有<font color='#E24A3B'>专属被动效果</font>！",
             " · 要想灵兽成长变强，请提高你们的<font color='#E24A3B'>好感度</font>！",
             " · 详细玩法前瞻往<font color='#E24A3B'>四大陆</font>后自行查看！",
         }

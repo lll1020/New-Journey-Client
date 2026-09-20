@@ -1466,12 +1466,12 @@ end
 
 local function resetCostFor(resetType, selectedId)
     if resetType == "switch_m1" then
-        return TreeCfg.m1_reset_cost or {{"灵石", 100}}
+        return TreeCfg.m1_reset_cost or {{"灵石", 1000}}
     end
     if resetType == "single" then
         local node = TreeCfg.node_map and TreeCfg.node_map[tostring(selectedId or "")]
         if isM1Node(node) then
-            return TreeCfg.m1_reset_cost or {{"灵石", 100}}
+            return TreeCfg.m1_reset_cost or {{"灵石", 1000}}
         end
         return TreeCfg.single_reset_cost or {{"灵石", 20}}
     end

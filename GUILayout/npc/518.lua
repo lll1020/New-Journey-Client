@@ -491,6 +491,8 @@ local function mapHasPending(kind, map)
         and tonumber((state.chapter_claimed or {})[mapKey(kind, map)] or 0) ~= 1
 end
 
+local getVisibleContinents
+
 local function continentHasPending(kind, continent)
     for _, map in ipairs(getVisibleMaps(continent, kind)) do
         if mapHasPending(kind, map) then
@@ -498,6 +500,28 @@ local function continentHasPending(kind, continent)
         end
     end
     return false
+end
+
+local function kindHasPending(kind)
+    for _, continent in ipairs(getVisibleContinents(kind)) do
+        if continentHasPending(kind, continent) then
+            return true
+        end
+    end
+    return false
+end
+
+local function refreshOverviewRedpoints()
+    local nodes = Atlas.overviewNodes
+    if type(nodes) ~= "table" then
+        return
+    end
+    for _, kind in ipairs({"monster", "equip"}) do
+        refreshNodeRedPoint(nodes[kind], kindHasPending(kind), {
+            x = 360,
+            y = 462,
+        })
+    end
 end
 
 local function refreshSidebarRedpoints()
@@ -523,7 +547,7 @@ local function refreshSidebarRedpoints()
     end
 end
 
-local function getVisibleContinents(kind)
+getVisibleContinents = function(kind)
     local result = {}
     for _, continent in ipairs(AtlasCfg.continents or {}) do
         if isContinentUnlocked(continent) and #getVisibleMaps(continent, kind) > 0 then
@@ -717,10 +741,12 @@ local function renderOverview(root)
         {kind = "monster", skin = RES .. "tj_3.png", x = -225, title = "怪物图鉴"},
         {kind = "equip", skin = RES .. "tj_2.png", x = 225, title = "装备图鉴"},
     }
+    Atlas.overviewNodes = {}
     for _, info in ipairs(cards) do
         local card = GUI:Image_Create(root, info.kind .. "_overview", info.x, -35, info.skin)
         GUI:setAnchorPoint(card, 0.5, 0.5)
         -- GUI:setContentSize(card, 250, 316)
+        Atlas.overviewNodes[info.kind] = card
         GUI:setTouchEnabled(card, true)
         GUI:addOnClickEvent(card, function()
             Atlas.view = info.kind
@@ -741,6 +767,7 @@ local function renderOverview(root)
         text(root, info.kind .. "_overview_progress", info.x + 59 + 38, -255 + 66, 30, active > 0 and GREEN or MUTED,
             string.format("%d/%d", active, total), 1, 0.5,"fonts/503.ttf")
     end
+    refreshOverviewRedpoints()
 end
 
 local function renderSideBar(root)
@@ -1020,6 +1047,7 @@ local function refreshOverviewProgress()
             GUI:Text_setTextColor(progress, active > 0 and GREEN or MUTED)
         end
     end
+    refreshOverviewRedpoints()
 end
 
 local function refreshDetailState(previousState)
@@ -1095,6 +1123,7 @@ end
 
 local function renderDetail(root)
     GUI:removeAllChildren(root)
+    Atlas.overviewNodes = nil
     local kind = Atlas.view == "equip" and "equip" or "monster"
     renderTopNav(root, kind)
     Atlas.layout = getLayout()

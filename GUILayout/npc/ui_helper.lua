@@ -1031,9 +1031,10 @@ local function _linggen_join_limited(lines, limit, prefix)
     lines = type(lines) == "table" and lines or {}
     limit = tonumber(limit or 6) or 6
     prefix = tostring(prefix or "　　")
+    local showAll = limit <= 0
     local result = {}
     for index, line in ipairs(lines) do
-        if index > limit then
+        if not showAll and index > limit then
             result[#result + 1] = prefix .. "还有" .. tostring(#lines - limit) .. "条..."
             break
         end
@@ -1125,8 +1126,8 @@ local function _linggen_slot_tip(data, useTalentM1)
         rootName = rootName .. "灵根"
     end
     local coreLevel = _linggen_slot_toint(talentState.core_level, 0)
-    local attrSummary = _linggen_join_limited(_linggen_talent_attr_summary(talentState), 8, "　　")
-    local socketSummary = _linggen_join_limited(_linggen_socket_summary(talentState), 6, "　　")
+    local attrSummary = _linggen_join_limited(_linggen_talent_attr_summary(talentState), 0, "　　")
+    local socketSummary = _linggen_join_limited(_linggen_socket_summary(talentState), 0, "　　")
     local lines = {
         "<font color='#E8C879'>【灵根总览】</font>",
         string.format("<font color='%s'>%s</font> <font color='#CFC6B4'>Lv.%d</font>", rootColor, rootName, level),
