@@ -98,6 +98,344 @@ local SKILL_NODE_SKINS = {
     RES .. "4.png",
     RES .. "5.png",
 }
+local SKILL_PREVIEW_PLAYER_MODEL = 1312
+local SKILL_PREVIEW_DUMMY_MODEL = 0
+local SKILL_PREVIEW_BY_KEY = {
+    metal_skill = {
+        name = "金刃破",
+        skill_id = 1017,
+        cd = "4秒",
+        preview_effect = 30037,
+        preview_effects = {30037},
+        preview_scale = 0.62,
+        effect_labels = {"施法剑气 30037"},
+        lines = {
+            "主公式：攻击上限×30%物理伤害；目标生命低于20%时，最终伤害额外+20%。",
+            "锐斩道：金刃破改为目标落剑，主公式改为攻击上限×120%；斩杀阈值提升至30%，落剑表现30026。",
+            "锋域道：释放后生成剑气领域30025，基础3格范围持续5秒，每秒攻击上限×15%，并降低目标物防8%。",
+            "强化节点：F2-6后领域每秒伤害提升到攻击上限×30%；F2-9后范围提升到4格、持续6秒、破防上限提高。",
+        },
+    },
+    metal_ultimate = {
+        name = "《万剑归宗诀》",
+        skill_id = 1018,
+        cd = "60秒",
+        preview_effect = 30027,
+        preview_effects = {30027},
+        preview_scale = 0.70,
+        effect_labels = {"万剑命中特效 30027"},
+        lines = {
+            "主公式：总倍率攻击上限×800%，默认分6段结算；F1-6后改为7段。",
+            "范围：目标周围5格内最多20个怪物同步受击；命中目标降低15%双防，持续5秒。",
+            "锐斩道联动：每段伤害再×150%；目标生命低于30%时再×130%，最终段落走金系爆发路线。",
+            "锋域道联动：继续吃剑气领域的破防、范围、持续时间和暴击收益。",
+        },
+    },
+    wood_skill = {
+        name = "蔓生种",
+        skill_id = 1019,
+        cd = "5秒",
+        preview_effect = 4,
+        preview_effects = {5, 4, 14},
+        preview_scale = 0.72,
+        effect_labels = {"种子飞行 5", "命中 4", "枯萎周期 14"},
+        lines = {
+            "命中附加Buff[20179 枯萎]1层，最多3层，持续5秒；每次命中只增加1层。",
+            "周期公式：每秒攻击上限×层数×10%物理伤害，播放枯萎特效14，并附带减速表现。",
+            "生息道：周期伤害每层额外+5%；攻击枯萎目标追加攻击上限×3%伤害，并回复最大生命0.5%。",
+            "缚魂道：种子落点生成3格毒水/藤蔓30028，持续3秒；区域内目标继续叠枯萎，满层可触发禁锢和减速。",
+        },
+    },
+    wood_ultimate = {
+        name = "《万木枯荣阵》",
+        skill_id = 1020,
+        cd = "60秒",
+        preview_effect = 11740,
+        preview_effects = {11740, 30028, 14},
+        preview_scale = 0.68,
+        effect_labels = {"万木命中 11740", "木域/藤蔓区域 30028", "枯萎周期 14"},
+        lines = {
+            "展开木域30028，5格范围持续6秒。",
+            "领域每秒对怪物造成攻击上限×100%物理伤害，并给目标附加Buff[20179 枯萎]。",
+            "缚魂道联动：领域内友方单位每秒回复最大生命2%；敌人会受到减速和枯萎强化。",
+            "生息道联动：攻击枯萎目标回血；枯萎目标死亡时触发回复，后续节点可转化护盾或禁锢收益。",
+        },
+    },
+    water_skill = {
+        name = "冰棱弹",
+        skill_id = 1023,
+        cd = "3秒",
+        preview_effect = 69,
+        preview_effects = {68, 69},
+        preview_scale = 0.78,
+        effect_labels = {"冰棱飞行 68", "命中 69"},
+        lines = {
+            "命中附加Buff[20180 水蚀]1层，自身获得Buff[20181 潮汐]1层；每次命中只增加1层。",
+            "主公式：攻击上限×(30%+潮汐层数×2%)，再按水蚀层数放大。",
+            "水蚀：基础上限5层、持续3秒，每层水系增伤4%；溃蚀道后上限8层，每层增伤5%。",
+            "潮汐：基础上限8层、持续5秒；潮汐道后上限12层、持续8秒，并按层数提高移动速度。",
+            "满层水蚀引爆：播放30031，爆发=攻击上限×层数×每秒系数×剩余秒数；F1-9后引爆伤害+15%并保留3层。",
+            "潮汐护盾：潮汐到8层时生成水盾30040，护盾=最大生命10%，持续5秒；终极或强化节点可提高护盾。",
+        },
+    },
+    water_ultimate = {
+        name = "《冰渊寒劫》",
+        skill_id = 1024,
+        cd = "60秒",
+        preview_effect = 11745,
+        preview_effects = {11745, 60459, 30031, 30030, 30040},
+        preview_scale = 0.58,
+        effect_labels = {"冰渊命中 11745", "水系领域 60459", "水蚀引爆 30031", "潮汐满层 30030", "水盾 30040"},
+        lines = {
+            "主公式：目标周围5格瞬间造成攻击上限×160%水系伤害，并对范围目标追加/刷新水蚀。",
+            "自身获得4层潮汐；随后生成水系领域60459，持续3秒，每秒攻击上限×30%。",
+            "溃蚀道联动：范围内满层水蚀会播放30031并引爆，F1-9后引爆伤害+15%且保留3层。",
+            "潮汐道联动：释放后立刻获得水盾；潮汐达到满层时播放30030，护盾持续和回复随强化节点提升。",
+        },
+    },
+    fire_skill = {
+        name = "星火术",
+        skill_id = 1025,
+        cd = "2秒",
+        preview_effect = 10,
+        preview_effects = {1, 9, 10, 36},
+        preview_scale = 0.76,
+        effect_labels = {"火球释放 1", "火球飞行 9", "命中 10", "灼烧周期 36"},
+        lines = {
+            "命中附加Buff[20182 灼烧]1层，持续3秒；基础最多3层，焚爆道后最多5层。",
+            "主公式：攻击上限×35%火焰伤害；灼烧周期每秒攻击上限×层数×10%，播放36。",
+            "焚爆道：满层目标再次被星火术命中会引爆，爆发=攻击上限×层数×10%×剩余秒数；F1-9后爆发×120%。",
+            "引爆命中修正：未强化为攻击上限×50%，F1-6后改为攻击上限×100%。",
+            "燎原道：目标已有3层灼烧时火焰伤害再×110%；灼烧目标死亡时向周围目标传染，传染/死亡爆发播放11741。",
+        },
+    },
+    fire_ultimate = {
+        name = "《焚天燎原诀》",
+        skill_id = 1026,
+        cd = "60秒",
+        preview_effect = 30024,
+        preview_effects = {30024, 30023, 36, 11741},
+        preview_scale = 0.58,
+        effect_labels = {"天火命中 30024", "火海领域 30023", "灼烧周期 36", "爆发/传染 11741"},
+        lines = {
+            "主公式：目标周围5格瞬间造成攻击上限×180%火焰伤害，并给范围敌人施加灼烧。",
+            "火海领域：地图特效30023持续5秒；每秒给范围敌人附加1层灼烧，并造成攻击上限×25%火焰伤害。",
+            "焚爆道联动：目标满层灼烧时，瞬间伤害×120%，并按攻击上限×层数×15%×剩余秒数引爆。",
+            "燎原道联动：灼烧目标死亡后传染周围目标；F2-9后范围扩大、传染目标数提升，爆发/传染播放11741。",
+        },
+    },
+    earth_skill = {
+        name = "土岩落",
+        skill_id = 1027,
+        cd = "6秒",
+        preview_effect = 30033,
+        preview_effects = {30033, 30039},
+        preview_scale = 0.70,
+        effect_labels = {"土岩落命中 30033", "岩盾 30039"},
+        lines = {
+            "基础形态：目标3格范围落石，主目标攻击上限×40%物理伤害；范围目标同步受击并降低物防5%，持续2秒。",
+            "命中后获得岩盾30039：基础护盾=最大生命8%，持续3秒，内置冷却20秒。",
+            "岩铠道：护盾提升为最大生命15%；护盾破碎/结束时对周围怪物造成最大生命8%反伤，F1-9后提高到13%。",
+            "岩崩道：土岩落改为单体岩崩30035，攻击上限×100%，额外破防10%、减速25%。",
+            "岩崩强化：F2-9后50%概率双倍伤害；已激活终极时幸运一击稳定生效。",
+        },
+    },
+    earth_ultimate = {
+        name = "《玄岩镇岳诀》",
+        skill_id = 1028,
+        cd = "60秒",
+        preview_effect = 30036,
+        preview_effects = {30036, 60452, 30039},
+        preview_scale = 0.70,
+        effect_labels = {"玄岩命中 30036", "土系范围 60452", "岩盾 30039"},
+        lines = {
+            "主公式：目标周围5格瞬间造成攻击上限×170%物理伤害，并降低范围敌人护甲。",
+            "玄岩领域：持续3秒，每秒攻击上限×35%物理伤害，并继续叠加破甲效果。",
+            "岩铠道联动：释放瞬间获得岩盾30039，护盾=最大生命30%，持续8秒；F1-9后持续9秒。",
+            "护盾期间：受到伤害降低20%；被怪物或玩家攻击时按最大生命比例反伤，护盾破碎时也会触发周围反伤。",
+            "岩崩道联动：终极激活后岩崩幸运一击更稳定，护盾存在时岩崩可追加护盾值转化伤害。",
+        },
+    },
+    metal_flow_1 = {
+        name = "锐斩道",
+        skill_id = "1017 / 1018",
+        cd = "随金系技能",
+        preview_effect = 30026,
+        preview_effects = {30026},
+        preview_scale = 0.68,
+        effect_labels = {"锐斩落剑 30026"},
+        lines = {
+            "金刃破转为目标落剑，造成约120%攻击力物理伤害。",
+            "低血斩杀阈值提升至30%，并继续享受低血额外伤害。",
+            "终极技能联动：万剑落剑段数、范围和低血爆发继续强化。",
+        },
+    },
+    metal_flow_2 = {
+        name = "锋域道",
+        skill_id = "1017 / 1018",
+        cd = "随金系技能",
+        preview_effect = 30025,
+        preview_effects = {30025, 13400},
+        preview_scale = 0.60,
+        effect_labels = {"剑气领域 30025", "金系领域 13400"},
+        lines = {
+            "释放金刃破后，以自身为中心生成剑气领域。",
+            "领域内每秒造成攻击力百分比伤害，并降低敌人物防。",
+            "强化后领域伤害、范围、持续时间和自身暴击收益继续提升。",
+        },
+    },
+    wood_flow_1 = {
+        name = "生息道",
+        skill_id = "1019 / 1020",
+        cd = "随木系技能",
+        preview_effect = 14,
+        preview_effects = {14},
+        preview_scale = 0.82,
+        effect_labels = {"枯萎周期 14"},
+        lines = {
+            "围绕枯萎持续伤害与回血构筑。",
+            "攻击枯萎目标会追加物理伤害，并按生命或伤害量触发回复。",
+            "击杀枯萎目标、释放技能或终极领域时，可继续触发回血/护盾联动。",
+        },
+    },
+    wood_flow_2 = {
+        name = "缚魂道",
+        skill_id = "1019 / 1020",
+        cd = "随木系技能",
+        preview_effect = 30028,
+        preview_effects = {30028},
+        preview_scale = 0.65,
+        effect_labels = {"毒水/藤蔓 30028"},
+        lines = {
+            "蔓生种落点生成3x3毒水/藤蔓区域，持续压制敌人。",
+            "区域内目标持续叠加枯萎，枯萎满层后可触发禁锢与减速。",
+            "强化后禁锢时间、枯萎承伤和控制期间额外伤害继续提高。",
+        },
+    },
+    water_flow_1 = {
+        name = "溃蚀道",
+        skill_id = "1023 / 1024",
+        cd = "随水系技能",
+        preview_effect = 30031,
+        preview_effects = {30031},
+        preview_scale = 0.70,
+        effect_labels = {"水蚀引爆 30031"},
+        lines = {
+            "水蚀上限提升至8层，每层水系增伤提升至5%。",
+            "满层目标再次被水系技能命中会触发水蚀引爆。",
+            "强化后引爆伤害提升，引爆后可保留3层水蚀，并附加减速/忽防效果。",
+        },
+    },
+    water_flow_2 = {
+        name = "潮汐道",
+        skill_id = "1023 / 1024",
+        cd = "随水系技能",
+        preview_effect = 30040,
+        preview_effects = {30040, 30030},
+        preview_scale = 0.58,
+        effect_labels = {"水盾 30040", "潮汐满层 30030"},
+        lines = {
+            "潮汐上限提升至12层，持续8秒。",
+            "潮汐层数提供水系伤害和移动速度收益。",
+            "达到护盾阈值生成水幕护盾；强化后护盾持续时间和护盾期间回复提升。",
+        },
+    },
+    fire_flow_1 = {
+        name = "焚爆道",
+        skill_id = "1025 / 1026",
+        cd = "随火系技能",
+        preview_effect = 11741,
+        preview_effects = {11741},
+        preview_scale = 0.70,
+        effect_labels = {"灼烧爆发 11741"},
+        lines = {
+            "灼烧上限提升至5层。",
+            "满层灼烧目标再次被星火术命中会直接引爆剩余灼烧伤害。",
+            "强化后引爆火球倍率提升，终极技能命中满层目标会追加更高爆发。",
+        },
+    },
+    fire_flow_2 = {
+        name = "燎原道",
+        skill_id = "1025 / 1026",
+        cd = "随火系技能",
+        preview_effect = 11741,
+        preview_effects = {11741},
+        preview_scale = 0.70,
+        effect_labels = {"灼烧传染 11741"},
+        lines = {
+            "灼烧目标死亡后，将剩余灼烧传染给周围敌人。",
+            "基础传染2个目标；强化后可扩大范围并传染更多目标。",
+            "携带3层灼烧的目标受到火焰伤害额外提升，攻击灼烧目标还可触发回血。",
+        },
+    },
+    earth_flow_1 = {
+        name = "岩铠道",
+        skill_id = "1027 / 1028",
+        cd = "随土系技能",
+        preview_effect = 30039,
+        preview_effects = {30039},
+        preview_scale = 0.58,
+        effect_labels = {"岩盾 30039"},
+        lines = {
+            "强化岩盾体系，护盾吸收量提升至15%最大生命。",
+            "护盾破碎或自然结束时，对周围敌人造成最大生命比例反伤。",
+            "终极技能会立刻获得更高岩盾，并在护盾期间提供减伤与反伤。",
+        },
+    },
+    earth_flow_2 = {
+        name = "岩崩道",
+        skill_id = "1027 / 1028",
+        cd = "随土系技能",
+        preview_effect = 30035,
+        preview_effects = {30035},
+        preview_scale = 0.70,
+        effect_labels = {"岩崩命中 30035"},
+        lines = {
+            "土岩落改为单体岩崩，造成100%攻击力物理伤害。",
+            "命中目标降低移动速度和物理防御，并叠加更高破防。",
+            "强化后获得幸运一击，岩崩可造成双倍伤害；终极激活后幸运一击更稳定。",
+        },
+    },
+}
+local SKILL_PREVIEW_EFFECT_POS = {
+    [1] = "fly",
+    [5] = "fly",
+    [9] = "fly",
+    [68] = "fly",
+    [30037] = "player",
+
+    [30030] = "player",
+    [30039] = "player",
+    [30040] = "player",
+
+    [4] = "target",
+    [10] = "target",
+    [14] = "target",
+    [36] = "target",
+    [69] = "target",
+    [30023] = "target",
+    [30025] = "target",
+    [30028] = "target",
+    [60452] = "target",
+    [60459] = "target",
+    [13400] = "target",
+    [11740] = "target",
+    [11741] = "target",
+    [11745] = "target",
+    [30024] = "target",
+    [30026] = "target",
+    [30027] = "target",
+    [30031] = "target",
+    [30033] = "target",
+    [30035] = "target",
+    [30036] = "target",
+}
+local SKILL_PREVIEW_EFFECT_DIR = {
+    [30037] = 2,
+}
+local SKILL_PREVIEW_EFFECT_TYPE = {
+    [30037] = 3,
+}
 local TREE_DRAG_THRESHOLD = 8
 local TREE_EDGE_PADDING = 72
 local TREE_EXTRA_PADDING = 1000
@@ -303,6 +641,22 @@ local function isSkillNode(node)
         or string.find(content, "强化", 1, true) ~= nil
         or string.find(content, "本命", 1, true) ~= nil
         or string.find(content, "终式", 1, true) ~= nil
+end
+
+local function isSkillPreviewNode(node)
+    if not node then
+        return false
+    end
+    local special = node.special or {}
+    local key = tostring(special.key or "")
+    if SKILL_PREVIEW_BY_KEY[key] then
+        return true
+    end
+    local slotType = tostring(node.slot_type or "")
+    return node.kind == "skill"
+        or slotType == "skill"
+        or slotType == "J"
+        or slotType == "J-终极"
 end
 
 local function nodeButtonSkin(node)
@@ -1796,6 +2150,50 @@ local function displayNodeText(value)
     return value
 end
 
+local function getSkillPreviewCfg(node)
+    if not node or not isSkillPreviewNode(node) then
+        return nil
+    end
+
+    local special = node.special or {}
+    local key = tostring(special.key or "")
+    if SKILL_PREVIEW_BY_KEY[key] then
+        return SKILL_PREVIEW_BY_KEY[key]
+    end
+
+    local element = tostring(node.element or "")
+    if node.slot_type == "J-终极" or key == element .. "_ultimate" then
+        return SKILL_PREVIEW_BY_KEY[element .. "_ultimate"]
+    end
+    if node.slot_type == "skill" or key == element .. "_skill" then
+        return SKILL_PREVIEW_BY_KEY[element .. "_skill"]
+    end
+
+    local flowElement, flowLane = string.match(key, "^([%a]+)_flow_(%d)_")
+    if flowElement and flowLane then
+        return SKILL_PREVIEW_BY_KEY[flowElement .. "_flow_" .. flowLane]
+    end
+
+    local fallback = SKILL_PREVIEW_BY_KEY[element .. "_skill"]
+        or SKILL_PREVIEW_BY_KEY[element .. "_ultimate"]
+    if fallback then
+        return {
+            name = special.name or node.name or fallback.name,
+            skill_id = special.key or "强化效果",
+            cd = "被动/强化",
+            preview_effect = fallback.preview_effect,
+            preview_effects = fallback.preview_effects,
+            preview_scale = fallback.preview_scale,
+            effect_labels = fallback.effect_labels,
+            lines = {
+                node.effect or "",
+                special.desc or node.desc or "",
+            },
+        }
+    end
+    return nil
+end
+
 local function configuredDescLines(node)
     local result = {}
     local seen = {}
@@ -1820,13 +2218,7 @@ local function configuredDescLines(node)
     end
 
     local special = node.special
-    local element = TreeCfg.element_map and TreeCfg.element_map[node.element]
-    if node.slot_type == "J-终极" and element and element.ultimate then
-        local skill = element.ultimate
-        add("技能设计：" .. tostring(skill.name or node.name)
-            .. "（冷却 " .. tostring(skill.cd or "") .. "）")
-        add(skill.desc)
-    elseif special and (node.slot_type == "skill"
+    if special and (node.slot_type == "skill"
         or special.key == tostring(node.element) .. "_ultimate") then
         if not isInternalNodeDesc(node.desc) then
             add(node.desc)
@@ -1844,6 +2236,34 @@ local function configuredDescLines(node)
         add(node.desc)
     end
     return result
+end
+
+local function buildSkillInfoHtml(node, cfg)
+    local lines = {}
+    local function add(color, value)
+        value = tostring(value or "")
+        if value == "" or isInternalNodeDesc(value) then
+            return
+        end
+        lines[#lines + 1] = "<font color='" .. tostring(color or "#D8C39A") .. "'>"
+            .. displayNodeText(value) .. "</font>"
+    end
+
+    for _, value in ipairs(configuredDescLines(node)) do
+        add("#D8C39A", value)
+    end
+
+    if node.cost and #node.cost > 0 then
+        local costs = {}
+        for _, cost in ipairs(node.cost) do
+            costs[#costs + 1] = tostring(cost[1]) .. "×" .. tostring(cost[2])
+        end
+        add("#AAB5C8", "材料消耗：" .. table.concat(costs, "、"))
+    end
+    if node.core_level and n(node.core_level) > 0 then
+        add("#FFD66B", "需要灵根核心达到 " .. tostring(node.core_level) .. " 级")
+    end
+    return table.concat(lines, "<br/>")
 end
 
 local function requirementText(node)
@@ -1896,6 +2316,11 @@ local function buildInfoHtml(node)
     if not node then
         return ""
     end
+    local skillCfg = getSkillPreviewCfg(node)
+    if skillCfg then
+        return buildSkillInfoHtml(node, skillCfg)
+    end
+
     local lines = {}
     for _, value in ipairs(configuredDescLines(node)) do
         lines[#lines + 1] = "<font color='#D8C39A'>" .. displayNodeText(value) .. "</font>"
@@ -1922,6 +2347,135 @@ local function buildInfoHtml(node)
             .. tostring(node.core_level) .. " 级</font>"
     end
     return table.concat(lines, "<br/>")
+end
+
+local function renderSkillPreview(info, node, cfg)
+    local preview = info and GUI:getChildByName(info, "skill_preview")
+    if not valid(preview) then
+        return
+    end
+    if not cfg then
+        npc.infoPreviewToken = n(npc.infoPreviewToken, 0) + 1
+        GUI:setVisible(preview, false)
+        GUI:removeAllChildren(preview)
+        npc.infoPreviewKey = nil
+        return
+    end
+
+    GUI:setVisible(preview, true)
+    local previewSize = GUI:getContentSize(preview)
+    local w = n(previewSize and previewSize.width, npc.infoDescW)
+    local h = n(previewSize and previewSize.height, 170)
+    local effectList = cfg.preview_effects
+    if not effectList or #effectList == 0 then
+        effectList = {cfg.preview_effect}
+    end
+    local key = tostring(node and node.id or "") .. ":" .. tostring(cfg.name or "")
+        .. ":" .. table.concat(effectList, ",")
+    if npc.infoPreviewKey == key then
+        return
+    end
+    npc.infoPreviewKey = key
+    npc.infoPreviewToken = n(npc.infoPreviewToken, 0) + 1
+    local token = npc.infoPreviewToken
+    GUI:removeAllChildren(preview)
+
+    local bg = GUI:Image_Create(preview, "preview_bg", w / 2, h / 2, "res/wy/public/black_t.png")
+    if valid(bg) then
+        GUI:setAnchorPoint(bg, 0.5, 0.5)
+        GUI:setContentSize(bg, w, h)
+        GUI:setOpacity(bg, 135)
+        GUI:setLocalZOrder(bg, 0)
+    end
+    local baseY = math.max(48, h * 0.42)
+    local playerX = 42
+    local targetX = w - 42
+    local effectX = w / 2
+    local player = GUI:Effect_Create(preview, "player_model", playerX, baseY - 2, 4,
+        SKILL_PREVIEW_PLAYER_MODEL, 0, 3, 3, 0.52)
+    if valid(player) then
+        GUI:setScale(player, 0.5)
+        GUI:setLocalZOrder(player, 2)
+    end
+    local target = GUI:Effect_Create(preview, "dummy_model", targetX, baseY - 2, 2,
+        SKILL_PREVIEW_DUMMY_MODEL, 0, 0, 5, 0.72)
+    if valid(target) then
+        GUI:setScale(target, 0.5)
+        GUI:setLocalZOrder(target, 2)
+    end
+
+    local effectLayer = GUI:Layout_Create(preview, "skill_effect_layer", 0, 0, w, h, false)
+    if valid(effectLayer) then
+        GUI:setAnchorPoint(effectLayer, 0, 0)
+        GUI:setLocalZOrder(effectLayer, 3)
+        GUI:setTouchEnabled(effectLayer, false)
+    end
+
+    local function getEffectPosition(effectId)
+        local position = SKILL_PREVIEW_EFFECT_POS[effectId] or "target"
+        if position == "player" then
+            return playerX, baseY
+        elseif position == "fly" then
+            return playerX + (targetX - playerX) * 0.48, baseY + 14
+        elseif position == "center" then
+            return effectX, baseY
+        end
+        return targetX, baseY
+    end
+
+    local function isFlyingEffect(effectId)
+        return SKILL_PREVIEW_EFFECT_POS[effectId] == "fly"
+    end
+
+    local function playPreviewEffect(index)
+        if npc.infoPreviewToken ~= token or not valid(preview) then
+            return
+        end
+        local layer = GUI:getChildByName(preview, "skill_effect_layer")
+        if not valid(layer) then
+            return
+        end
+        GUI:removeAllChildren(layer)
+
+        local effectId = n(effectList[index])
+        if effectId > 0 then
+            local effectPosX, effectPosY = getEffectPosition(effectId)
+            if isFlyingEffect(effectId) then
+                effectPosX, effectPosY = playerX, baseY
+            end
+            local effectDir = SKILL_PREVIEW_EFFECT_DIR[effectId] or 0
+            local skillEffect = GUI:Effect_Create(layer, "skill_effect", effectPosX, effectPosY,
+                SKILL_PREVIEW_EFFECT_TYPE[effectId] or 0, effectId, 0, 0, effectDir, 1)
+            if valid(skillEffect) then
+                GUI:setScale(skillEffect, 0.5)
+                GUI:setLocalZOrder(skillEffect, 1)
+                if SKILL_PREVIEW_EFFECT_DIR[effectId] and GUI.Effect_play then
+                    GUI:Effect_play(skillEffect, 0, effectDir, true, 1)
+                end
+                if isFlyingEffect(effectId) and GUI.runAction and GUI.ActionMoveTo then
+                    GUI:runAction(skillEffect, GUI:ActionMoveTo(0.6, targetX, baseY))
+                end
+            end
+        end
+
+        if #effectList > 1 and SL and type(SL.ScheduleOnce) == "function" then
+            local nextIndex = index + 1
+            if nextIndex > #effectList then
+                nextIndex = 1
+            end
+            local delay = n(cfg.preview_interval, 1.5)
+            if isFlyingEffect(effectId) then
+                delay = math.max(delay, 0.6)
+            end
+            SL:ScheduleOnce(function()
+                playPreviewEffect(nextIndex)
+            end, delay)
+        end
+    end
+
+    if #effectList > 0 then
+        playPreviewEffect(1)
+    end
 end
 
 local function refreshZoomText()
@@ -2253,7 +2807,7 @@ local function updateInfo()
         GUI:Text_setTextColor(infoTitle, nodeColor(node))
     end
     if effectTitle then
-        GUI:Text_setString(effectTitle, "天赋效果")
+        GUI:Text_setString(effectTitle, getSkillPreviewCfg(node) and "技能效果" or "天赋效果")
         GUI:Text_setTextColor(effectTitle, nodeColor(node))
     end
     if title then
@@ -2268,8 +2822,17 @@ local function updateInfo()
         GUI:setOpacity(icon, 255)
         GUI:setGrey(icon, false)
     end
+    local skillCfg = getSkillPreviewCfg(node)
+    renderSkillPreview(info, node, skillCfg)
+    if descScroll then
+        local descH = skillCfg and math.max(130, npc.infoH - 355) or (npc.infoH - 165)
+        GUI:setPosition(descScroll, 10, 65)
+        GUI:setContentSize(descScroll, npc.infoDescW, descH)
+    end
     local html = buildInfoHtml(node)
-    if descScroll and (npc.infoDescId ~= node.id or npc.infoDescHtml ~= html) then
+    local descLayoutKey = tostring(node.id or "") .. ":" .. tostring(skillCfg and 1 or 0)
+    if descScroll and (npc.infoDescId ~= node.id or npc.infoDescHtml ~= html
+        or npc.infoDescLayoutKey ~= descLayoutKey) then
         local desc = GUI:getChildByName(descScroll, "node_desc")
         if desc then
             GUI:removeFromParent(desc)
@@ -2285,6 +2848,7 @@ local function updateInfo()
         GUI:setPosition(newDesc, 0, innerH)
         npc.infoDescId = node.id
         npc.infoDescHtml = html
+        npc.infoDescLayoutKey = descLayoutKey
     end
     local action = GUI:getChildByName(info, "node_action")
     if action then
@@ -2992,7 +3556,7 @@ end
 local function createInfoPanel(sw, sh)
     npc.infoW = 250
     npc.infoH = math.min(570, math.max(430, sh - 126))
-    npc.infoDescW = math.max(205, npc.infoW - 48)
+    npc.infoDescW = math.max(205, npc.infoW - 10)
 
     -- The detail panel belongs to the main talent-tree window. Close any
     -- leftover window created by an older version before rebuilding it.
@@ -3040,6 +3604,13 @@ local function createInfoPanel(sw, sh)
     text(npc.infoPanel, "node_title", 10, panelTop - 40, 20, "#E8F1FF", "", 0, 1)
     text(npc.infoPanel, "info_effect_title", 10, panelTop - 90, 20, "#F1D176", "天赋效果", 0, 0.5)
 
+    local skillPreview = GUI:Layout_Create(npc.infoPanel, "skill_preview", 10, panelTop - 270,
+        npc.infoDescW, 160, false)
+    GUI:setAnchorPoint(skillPreview, 0, 0)
+    GUI:setLocalZOrder(skillPreview, 4)
+    GUI:setVisible(skillPreview, false)
+    GUI:setTouchEnabled(skillPreview, false)
+
     local descScroll = GUI:ScrollView_Create(npc.infoPanel, "node_desc_scroll", 10, 65,
         npc.infoDescW, panelTop - 165, 1)
     GUI:setAnchorPoint(descScroll, 0, 0)
@@ -3049,6 +3620,8 @@ local function createInfoPanel(sw, sh)
     GUI:setSwallowTouches(descScroll, true)
     npc.infoDescId = nil
     npc.infoDescHtml = nil
+    npc.infoDescLayoutKey = nil
+    npc.infoPreviewKey = nil
 
     -- text(npc.infoPanel, "synergy_title", 10, panelTop - 354, 30, "#F1D176", "相生相克", 0, 0.5)
     -- local synergy = GUI:RichText_Create(npc.infoPanel, "synergy_desc", 10, panelTop - 378,
