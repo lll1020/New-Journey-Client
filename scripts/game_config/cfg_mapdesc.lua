@@ -3715,5 +3715,25 @@ local config = {
 		bOutLine = 1,
 		sImgPath = "22222.png",
 	},
+	[378] = { 
+		ID = 378,
+		mapid = "兵道古藏",
+		X = 83,
+		Y = 25,
+		sShowName = "秘宝",
+		nColor = 253,
+		bOutLine = 1,
+		sImgPath = "22222.png",
+	},
+	[379] = { 
+		ID = 379,
+		mapid = "鬼道古藏",
+		X = 46,
+		Y = 53,
+		sShowName = "秘宝",
+		nColor = 253,
+		bOutLine = 1,
+		sImgPath = "22222.png",
+	},
 }
 return config
