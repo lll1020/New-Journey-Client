@@ -390,6 +390,10 @@ local function getDayCardButtonState()
 end
 
 local function isDayCardUnlocked()
+    local openDay = toNumber(npc.data and npc.data.day_card_open_day, 0)
+    if openDay > 0 and openDay < 2 then
+        return false
+    end
     local unlocked = npc.data and npc.data.day_card_unlocked
     return unlocked == true or toNumber(unlocked, 0) == 1
 end
@@ -1142,7 +1146,7 @@ function npc.renderRika(node)
             local item = GUI:ItemShow_Create(box, "item", 25, 25, {index = rewardIndex, look = true})
             GUI:setAnchorPoint(item, 0.5, 0.5)
             if toNumber(rewardCount, 1) > 1 then
-                local countText = GUI:Text_Create(box, "num", 25, 1, 12, "#ffffff", tostring(rewardCount))
+                local countText = GUI:Text_Create(box, "num", 25, 1, 16, "#ffffff", tostring(rewardCount))
                 GUI:setAnchorPoint(countText, 0.5, 0)
                 setTextStyle(countText, "#000000")
             end

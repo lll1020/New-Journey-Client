@@ -1458,7 +1458,9 @@ local function activeTalentPointCount()
     for id, value in pairs((npc.state and npc.state.nodes) or {}) do
         if tostring(id) ~= "root" and n(value) == 1 then
             local node = TreeCfg.node_map and TreeCfg.node_map[tostring(id)]
-            count = count + math.max(0, n(node and node.point_cost, 1))
+            if not isM1Node(node) then
+                count = count + math.max(0, n(node and node.point_cost, 1))
+            end
         end
     end
     return count
@@ -1485,6 +1487,9 @@ local function openResetConfirm(resetType)
     local costs = resetCostFor(resetType, selectedId)
     local title = resetType == "switch_m1" and "确认切换本命灵根"
         or (resetType == "single" and "确认退点" or "确认重置灵根")
+    if resetType == "all" then
+        title = "确认重置灵根（保留本命灵根）"
+    end
     local action = resetType == "switch_m1" and "切换"
         or (resetType == "single" and "退点" or "重置")
 

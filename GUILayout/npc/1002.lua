@@ -30,12 +30,14 @@ end
 
 local function _formatShapeName(name)
     name = tostring(name or "")
-    return (string.gsub(name, "^(足迹：)(.+)$", "%1\n%2"):gsub("^(时装：)(.+)$", "%1\n%2"))
+    return (string.gsub(name, "^(足迹：)(.+)$", "%1\n%2")
+        :gsub("^(时装：)(.+)$", "%1\n%2")
+        :gsub("^(光环：)(.+)$", "%1\n%2"))
 end
 
 local function _displayShapeName(name)
     name = tostring(name or "")
-    return string.gsub(name, "^(足迹：|时装：)", "")
+    return string.gsub(name, "^(足迹：|时装：|光环：)", "")
 end
 function npc.main(npcid, p2, p3, msgData)
 
@@ -54,9 +56,15 @@ function npc.main(npcid, p2, p3, msgData)
 
     function GUI_createLabel(Label_node,idx)
         GUI:removeAllChildren(Label_node)
-        local list = idx == 1 and npc._config.details.sz or (idx == 2 and npc._config.details.ch or npc._config.details.zj)
-        local ownedMap = idx == 1 and npc.data.T_data.yjs or (idx == 2 and {} or npc.data.T_data.yjszj)
-        local activeIndex = idx == 1 and tonumber(npc.data.T_data.dqzb or 0) or (idx == 3 and tonumber(npc.data.T_data.dqzj or 0) or 0)
+        local list = idx == 1 and npc._config.details.sz
+            or (idx == 2 and npc._config.details.ch
+            or (idx == 3 and npc._config.details.zj or npc._config.details.gh))
+        local ownedMap = idx == 1 and npc.data.T_data.yjs
+            or (idx == 2 and {}
+            or (idx == 3 and npc.data.T_data.yjszj or npc.data.T_data.gh))
+        local activeIndex = idx == 1 and tonumber(npc.data.T_data.dqzb or 0)
+            or ((idx == 3 and tonumber(npc.data.T_data.dqzj or 0))
+            or (idx == 4 and tonumber(npc.data.T_data.dqgh or 0) or 0))
         local activeTitle = idx == 2 and SL:GetMetaValue("ACTIVATE_TITLE") or nil
         npc._selectedShapeIndex = npc._selectedShapeIndex or {}
 
@@ -79,7 +87,7 @@ function npc.main(npcid, p2, p3, msgData)
         end
 
         local function getActionType()
-            return idx == 1 and "shape" or (idx == 2 and "title" or "footstep")
+            return idx == 1 and "shape" or (idx == 2 and "title" or (idx == 3 and "footstep" or "halo"))
         end
 
         local previewNode = GUI:Node_Create(Label_node, "preview", 0, 0)
@@ -103,6 +111,10 @@ function npc.main(npcid, p2, p3, msgData)
                     local pos = GUI:getWorldPosition(parent)
                     SL:OpenItemTips({typeId = SL:GetMetaValue("ITEM_INDEX_BY_NAME",entry.name.."[展示]"), pos = {x = pos.x, y = pos.y}})
                 end)
+            elseif idx == 4 then
+                GUI:Effect_Create(parent, "current_effect", x, y, 0, entry.sEffect, 0, 0, 3, 0.86)
+                GUI:Effect_Create(parent, "rw", x, y, 4, SL:GetMetaValue("EQUIP_DATA", 0) and SL:GetMetaValue("EQUIP_DATA", 0).Shape or 1300, 0, 1, 3, 0.8)
+                GUI:Effect_Create(parent, "wq", x, y, 5, SL:GetMetaValue("EQUIP_DATA", 1) and SL:GetMetaValue("EQUIP_DATA", 1).Shape or 6, 0, 1, 3, 0.8)
             else
                 GUI:Effect_Create(parent, "current_effect", x + 15, y, 0, entry.sEffect, 0, 0, 3, 0.86)
             end
@@ -143,6 +155,12 @@ function npc.main(npcid, p2, p3, msgData)
                 GUI:setAnchorPoint(currentName, 0.5, 0.5)
                 GUI:Text_setFontName(currentName, "fonts/font4.ttf")
                 GUI:Text_enableOutline(currentName, "#081800", 2)
+                if currentEntry.condition then
+                    local conditionText = GUI:Text_Create(previewNode, "current_condition", 82 + 33, 105 - 60, 13, "#D7C08A", currentEntry.condition)
+                    GUI:setAnchorPoint(conditionText, 0.5, 0.5)
+                    GUI:Text_setFontName(conditionText, "fonts/font4.ttf")
+                    GUI:Text_enableOutline(conditionText, "#18110C", 1)
+                end
                 if currentActive then
                     local currentState = GUI:Image_Create(previewNode, "current_state", 82 + 33, 73 - 40, "res/custom/three_city/xianfu/zhuangshi/new.png")
                     GUI:setAnchorPoint(currentState, 0.5, 0.5)
@@ -155,8 +173,10 @@ function npc.main(npcid, p2, p3, msgData)
                             SL:SendLuaNetMsg(100, npcid, 1, selectedIndex, "")
                         elseif actionType == "title" then
                             SL:ResquestActivateTitle(itemId(currentEntry))
-                        else
+                        elseif actionType == "footstep" then
                             SL:SendLuaNetMsg(100, npcid, 2, selectedIndex, "")
+                        else
+                            SL:SendLuaNetMsg(100, npcid, 3, selectedIndex, "")
                         end
                     end)
                 else
@@ -188,8 +208,14 @@ function npc.main(npcid, p2, p3, msgData)
             local kuang = GUI:Image_Create(dbLayout, "kuang" .. k, 0, 0, "res/custom/one_city/shape/kuang1.png")
             if idx == 1 then
                 GUI:Effect_Create(kuang, "shape", 166/2 - 28, 82 - 13, 4, v.shape, 0, 0, 3, 0.72)
+            elseif idx == 4 then
+                GUI:Effect_Create(kuang, "effect", 166/2 - 24, 82 - 20, 0, v.sEffect, 0, 0, 3, 0.72)
+            elseif idx == 2 then
+                
+                GUI:setScale(GUI:Effect_Create(kuang, "effect", 166/2, 82, 0, v.sEffect, 0, 0, 3, 0.72),0.7)
             else
-                GUI:Effect_Create(kuang, "effect", 166/2, 82, 0, v.sEffect, 0, 0, 3, 0.72)
+                GUI:Effect_Create(kuang, "effect", 166/2 - 24, 82 - 20, 0, v.sEffect, 0, 0, 3, 0.72)
+            
             end
 
             local nameColor = selected and "#FFE66B" or (owned and "#70FF6A" or "#8A8A8A")
@@ -220,10 +246,10 @@ function npc.main(npcid, p2, p3, msgData)
         npc.Label = GUI:Node_Create(node, "Label", 170, 15)
 
         npc.titles_sign = tonumber(npc.titles_sign) or 1
-        if npc.titles_sign < 1 or npc.titles_sign > 3 then
+        if npc.titles_sign < 1 or npc.titles_sign > 4 then
             npc.titles_sign = 1
         end
-        for i = 1, 3 do
+        for i = 1, 4 do
             local cbl_item = GUI:Button_Create(npc.cbl_list, "item" .. i, 0, 0, "res/custom/one_city/shape/list/"..(npc.titles_sign == i and "l" or "n").."/"..i..".png")
             GUI:Image_Create(npc.cbl_list, "fgx"..i, 0, 0, "res/custom/fulitating/list/fgx.png")
             GUI:addOnClickEvent(cbl_item, function()
@@ -243,8 +269,10 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data = SL:JsonDecode(msgData,false)
         npc.data.T_data.dqzb = npc.data.T_data.dqzb or 0
         npc.data.T_data.dqzj = npc.data.T_data.dqzj or 0
+        npc.data.T_data.dqgh = npc.data.T_data.dqgh or 0
         npc.data.T_data.yjs = npc.data.T_data.yjs or {}
         npc.data.T_data.yjszj = npc.data.T_data.yjszj or {}
+        npc.data.T_data.gh = npc.data.T_data.gh or {}
         npc.npcid = npcid
         ensureWindow(npcid)
         UI_updata(npc.node)
@@ -252,8 +280,10 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data = SL:JsonDecode(msgData,false)
         npc.data.T_data.dqzb = npc.data.T_data.dqzb or 0
         npc.data.T_data.dqzj = npc.data.T_data.dqzj or 0
+        npc.data.T_data.dqgh = npc.data.T_data.dqgh or 0
         npc.data.T_data.yjs = npc.data.T_data.yjs or {}
         npc.data.T_data.yjszj = npc.data.T_data.yjszj or {}
+        npc.data.T_data.gh = npc.data.T_data.gh or {}
         GUI_createLabel(npc.Label,npc.titles_sign)
     end
 end
