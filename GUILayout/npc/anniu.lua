@@ -8150,7 +8150,7 @@ npc[511] = function(p2, p3, Data)
                 if not canShow or todayIdx > totalDays then
                     tipText = "七日登录奖励已全部领取"
                 elseif loginDays < todayIdx then
-                    tipText = string.format("今日奖励已经领取完毕，达到第%d天可继续领取", todayIdx)
+                    tipText = "今日奖励已经领取完毕，明天别忘记签到哦！"
                 elseif onlineMinutes < fldt_online_limit then
                     tipText = string.format("今日在线满%d分钟后可领取奖励", fldt_online_limit)
                 else
