@@ -2276,12 +2276,18 @@ local function nodeAttributeCategory(node)
     if has("目标") and (has("生命值") or has("当前生命")) then
         return "攻击"
     end
-    if has("防御") or has("物防") or has("魔防") or has("双防")
-        or has("伤害吸收") or has("减伤") or has("护盾") or has("韧性")
+    if has("切割") then
+        return "切割"
+    end
+    if has("最大生命") or has("生命值") or has("人物生命")
         or has("生命") or has("血量") then
+        return "生命"
+    end
+    if has("防御") or has("物防") or has("魔防") or has("双防")
+        or has("伤害吸收") or has("减伤") or has("护盾") or has("韧性") then
         return "防御"
     end
-    if has("攻击") or has("增伤") or has("伤害") or has("切割")
+    if has("攻击") or has("增伤") or has("伤害")
         or has("神圣一击") or has("暴击") or has("PK增伤") then
         return "攻击"
     end

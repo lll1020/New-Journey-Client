@@ -344,19 +344,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 5,
                         text = "人物物防 +5",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 5,
                         text = "人物魔防 +5",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 10,
                         text = "生命恢复 +10",
                     },
@@ -373,7 +373,7 @@ local data = {
                         text = "人物攻击 +0%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 0,
                         text = "人物防御 +0%",
                     },
@@ -383,7 +383,7 @@ local data = {
                         text = "人物切割 +0%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 0,
                         text = "生命恢复 +0%",
                     },
@@ -446,19 +446,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 5,
                         text = "人物物防 +5",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 5,
                         text = "人物魔防 +5",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 10,
                         text = "生命恢复 +10",
                     },
@@ -475,7 +475,7 @@ local data = {
                         text = "人物攻击 +0%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 0,
                         text = "人物防御 +0%",
                     },
@@ -485,7 +485,7 @@ local data = {
                         text = "人物切割 +0%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 0,
                         text = "生命恢复 +0%",
                     },
@@ -548,19 +548,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 5,
                         text = "人物物防 +5",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 5,
                         text = "人物魔防 +5",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 10,
                         text = "生命恢复 +10",
                     },
@@ -577,7 +577,7 @@ local data = {
                         text = "人物攻击 +0%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 0,
                         text = "人物防御 +0%",
                     },
@@ -587,7 +587,7 @@ local data = {
                         text = "人物切割 +0%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 0,
                         text = "生命恢复 +0%",
                     },
@@ -650,19 +650,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 5,
                         text = "人物物防 +5",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 5,
                         text = "人物魔防 +5",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 10,
                         text = "生命恢复 +10",
                     },
@@ -679,7 +679,7 @@ local data = {
                         text = "人物攻击 +0%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 0,
                         text = "人物防御 +0%",
                     },
@@ -689,7 +689,7 @@ local data = {
                         text = "人物切割 +0%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 0,
                         text = "生命恢复 +0%",
                     },
@@ -752,19 +752,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 5,
                         text = "人物物防 +5",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 5,
                         text = "人物魔防 +5",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 10,
                         text = "生命恢复 +10",
                     },
@@ -781,7 +781,7 @@ local data = {
                         text = "人物攻击 +0%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 0,
                         text = "人物防御 +0%",
                     },
@@ -791,7 +791,7 @@ local data = {
                         text = "人物切割 +0%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 0,
                         text = "生命恢复 +0%",
                     },
@@ -854,19 +854,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 10,
                         text = "人物物防 +10",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 10,
                         text = "人物魔防 +10",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 20,
                         text = "生命恢复 +20",
                     },
@@ -883,7 +883,7 @@ local data = {
                         text = "人物攻击 +0%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 0,
                         text = "人物防御 +0%",
                     },
@@ -893,7 +893,7 @@ local data = {
                         text = "人物切割 +0%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 0,
                         text = "生命恢复 +0%",
                     },
@@ -956,19 +956,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 10,
                         text = "人物物防 +10",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 10,
                         text = "人物魔防 +10",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 20,
                         text = "生命恢复 +20",
                     },
@@ -985,7 +985,7 @@ local data = {
                         text = "人物攻击 +0%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 0,
                         text = "人物防御 +0%",
                     },
@@ -995,7 +995,7 @@ local data = {
                         text = "人物切割 +0%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 0,
                         text = "生命恢复 +0%",
                     },
@@ -1058,19 +1058,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 10,
                         text = "人物物防 +10",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 10,
                         text = "人物魔防 +10",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 20,
                         text = "生命恢复 +20",
                     },
@@ -1087,7 +1087,7 @@ local data = {
                         text = "人物攻击 +0%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 0,
                         text = "人物防御 +0%",
                     },
@@ -1097,7 +1097,7 @@ local data = {
                         text = "人物切割 +0%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 0,
                         text = "生命恢复 +0%",
                     },
@@ -1160,19 +1160,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 10,
                         text = "人物物防 +10",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 10,
                         text = "人物魔防 +10",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 20,
                         text = "生命恢复 +20",
                     },
@@ -1189,7 +1189,7 @@ local data = {
                         text = "人物攻击 +0%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 0,
                         text = "人物防御 +0%",
                     },
@@ -1199,7 +1199,7 @@ local data = {
                         text = "人物切割 +0%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 0,
                         text = "生命恢复 +0%",
                     },
@@ -1262,19 +1262,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 10,
                         text = "人物物防 +10",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 10,
                         text = "人物魔防 +10",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 20,
                         text = "生命恢复 +20",
                     },
@@ -1291,7 +1291,7 @@ local data = {
                         text = "人物攻击 +0%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 0,
                         text = "人物防御 +0%",
                     },
@@ -1301,7 +1301,7 @@ local data = {
                         text = "人物切割 +0%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 0,
                         text = "生命恢复 +0%",
                     },
@@ -1368,19 +1368,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 20,
                         text = "人物物防 +20",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 20,
                         text = "人物魔防 +20",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 30,
                         text = "生命恢复 +30",
                     },
@@ -1397,7 +1397,7 @@ local data = {
                         text = "人物攻击 +0%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 0,
                         text = "人物防御 +0%",
                     },
@@ -1407,7 +1407,7 @@ local data = {
                         text = "人物切割 +0%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 0,
                         text = "生命恢复 +0%",
                     },
@@ -1474,19 +1474,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 20,
                         text = "人物物防 +20",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 20,
                         text = "人物魔防 +20",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 30,
                         text = "生命恢复 +30",
                     },
@@ -1503,7 +1503,7 @@ local data = {
                         text = "人物攻击 +0%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 0,
                         text = "人物防御 +0%",
                     },
@@ -1513,7 +1513,7 @@ local data = {
                         text = "人物切割 +0%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 0,
                         text = "生命恢复 +0%",
                     },
@@ -1580,19 +1580,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 20,
                         text = "人物物防 +20",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 20,
                         text = "人物魔防 +20",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 30,
                         text = "生命恢复 +30",
                     },
@@ -1609,7 +1609,7 @@ local data = {
                         text = "人物攻击 +0%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 0,
                         text = "人物防御 +0%",
                     },
@@ -1619,7 +1619,7 @@ local data = {
                         text = "人物切割 +0%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 0,
                         text = "生命恢复 +0%",
                     },
@@ -1686,19 +1686,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 20,
                         text = "人物物防 +20",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 20,
                         text = "人物魔防 +20",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 30,
                         text = "生命恢复 +30",
                     },
@@ -1715,7 +1715,7 @@ local data = {
                         text = "人物攻击 +0%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 0,
                         text = "人物防御 +0%",
                     },
@@ -1725,7 +1725,7 @@ local data = {
                         text = "人物切割 +0%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 0,
                         text = "生命恢复 +0%",
                     },
@@ -1792,19 +1792,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 20,
                         text = "人物物防 +20",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 20,
                         text = "人物魔防 +20",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 30,
                         text = "生命恢复 +30",
                     },
@@ -1821,7 +1821,7 @@ local data = {
                         text = "人物攻击 +0%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 0,
                         text = "人物防御 +0%",
                     },
@@ -1831,7 +1831,7 @@ local data = {
                         text = "人物切割 +0%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 0,
                         text = "生命恢复 +0%",
                     },
@@ -1898,19 +1898,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 30,
                         text = "人物物防 +30",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 30,
                         text = "人物魔防 +30",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 40,
                         text = "生命恢复 +40",
                     },
@@ -1927,7 +1927,7 @@ local data = {
                         text = "人物攻击 +0%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 0,
                         text = "人物防御 +0%",
                     },
@@ -1937,7 +1937,7 @@ local data = {
                         text = "人物切割 +0%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 0,
                         text = "生命恢复 +0%",
                     },
@@ -2004,19 +2004,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 30,
                         text = "人物物防 +30",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 30,
                         text = "人物魔防 +30",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 40,
                         text = "生命恢复 +40",
                     },
@@ -2033,7 +2033,7 @@ local data = {
                         text = "人物攻击 +0%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 0,
                         text = "人物防御 +0%",
                     },
@@ -2043,7 +2043,7 @@ local data = {
                         text = "人物切割 +0%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 0,
                         text = "生命恢复 +0%",
                     },
@@ -2110,19 +2110,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 30,
                         text = "人物物防 +30",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 30,
                         text = "人物魔防 +30",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 40,
                         text = "生命恢复 +40",
                     },
@@ -2139,7 +2139,7 @@ local data = {
                         text = "人物攻击 +0%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 0,
                         text = "人物防御 +0%",
                     },
@@ -2149,7 +2149,7 @@ local data = {
                         text = "人物切割 +0%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 0,
                         text = "生命恢复 +0%",
                     },
@@ -2216,19 +2216,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 30,
                         text = "人物物防 +30",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 30,
                         text = "人物魔防 +30",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 40,
                         text = "生命恢复 +40",
                     },
@@ -2245,7 +2245,7 @@ local data = {
                         text = "人物攻击 +0%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 0,
                         text = "人物防御 +0%",
                     },
@@ -2255,7 +2255,7 @@ local data = {
                         text = "人物切割 +0%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 0,
                         text = "生命恢复 +0%",
                     },
@@ -2322,19 +2322,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 30,
                         text = "人物物防 +30",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 30,
                         text = "人物魔防 +30",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 40,
                         text = "生命恢复 +40",
                     },
@@ -2351,7 +2351,7 @@ local data = {
                         text = "人物攻击 +0%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 0,
                         text = "人物防御 +0%",
                     },
@@ -2361,7 +2361,7 @@ local data = {
                         text = "人物切割 +0%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 0,
                         text = "生命恢复 +0%",
                     },
@@ -2428,19 +2428,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 35,
                         text = "人物物防 +35",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 35,
                         text = "人物魔防 +35",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 50,
                         text = "生命恢复 +50",
                     },
@@ -2457,7 +2457,7 @@ local data = {
                         text = "人物攻击 +0%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 0,
                         text = "人物防御 +0%",
                     },
@@ -2467,7 +2467,7 @@ local data = {
                         text = "人物切割 +0%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 0,
                         text = "生命恢复 +0%",
                     },
@@ -2534,19 +2534,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 35,
                         text = "人物物防 +35",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 35,
                         text = "人物魔防 +35",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 50,
                         text = "生命恢复 +50",
                     },
@@ -2563,7 +2563,7 @@ local data = {
                         text = "人物攻击 +0%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 0,
                         text = "人物防御 +0%",
                     },
@@ -2573,7 +2573,7 @@ local data = {
                         text = "人物切割 +0%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 0,
                         text = "生命恢复 +0%",
                     },
@@ -2640,19 +2640,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 35,
                         text = "人物物防 +35",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 35,
                         text = "人物魔防 +35",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 50,
                         text = "生命恢复 +50",
                     },
@@ -2669,7 +2669,7 @@ local data = {
                         text = "人物攻击 +0%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 0,
                         text = "人物防御 +0%",
                     },
@@ -2679,7 +2679,7 @@ local data = {
                         text = "人物切割 +0%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 0,
                         text = "生命恢复 +0%",
                     },
@@ -2746,19 +2746,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 35,
                         text = "人物物防 +35",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 35,
                         text = "人物魔防 +35",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 50,
                         text = "生命恢复 +50",
                     },
@@ -2775,7 +2775,7 @@ local data = {
                         text = "人物攻击 +0%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 0,
                         text = "人物防御 +0%",
                     },
@@ -2785,7 +2785,7 @@ local data = {
                         text = "人物切割 +0%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 0,
                         text = "生命恢复 +0%",
                     },
@@ -2852,19 +2852,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 35,
                         text = "人物物防 +35",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 35,
                         text = "人物魔防 +35",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 50,
                         text = "生命恢复 +50",
                     },
@@ -2881,7 +2881,7 @@ local data = {
                         text = "人物攻击 +0%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 0,
                         text = "人物防御 +0%",
                     },
@@ -2891,7 +2891,7 @@ local data = {
                         text = "人物切割 +0%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 0,
                         text = "生命恢复 +0%",
                     },
@@ -2958,19 +2958,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 40,
                         text = "人物物防 +40",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 40,
                         text = "人物魔防 +40",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 70,
                         text = "生命恢复 +70",
                     },
@@ -2987,7 +2987,7 @@ local data = {
                         text = "人物攻击 +0%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 0,
                         text = "人物防御 +0%",
                     },
@@ -2997,7 +2997,7 @@ local data = {
                         text = "人物切割 +0%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 0,
                         text = "生命恢复 +0%",
                     },
@@ -3064,19 +3064,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 40,
                         text = "人物物防 +40",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 40,
                         text = "人物魔防 +40",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 70,
                         text = "生命恢复 +70",
                     },
@@ -3093,7 +3093,7 @@ local data = {
                         text = "人物攻击 +0%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 0,
                         text = "人物防御 +0%",
                     },
@@ -3103,7 +3103,7 @@ local data = {
                         text = "人物切割 +0%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 0,
                         text = "生命恢复 +0%",
                     },
@@ -3170,19 +3170,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 40,
                         text = "人物物防 +40",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 40,
                         text = "人物魔防 +40",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 70,
                         text = "生命恢复 +70",
                     },
@@ -3199,7 +3199,7 @@ local data = {
                         text = "人物攻击 +0%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 0,
                         text = "人物防御 +0%",
                     },
@@ -3209,7 +3209,7 @@ local data = {
                         text = "人物切割 +0%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 0,
                         text = "生命恢复 +0%",
                     },
@@ -3276,19 +3276,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 40,
                         text = "人物物防 +40",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 40,
                         text = "人物魔防 +40",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 70,
                         text = "生命恢复 +70",
                     },
@@ -3305,7 +3305,7 @@ local data = {
                         text = "人物攻击 +0%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 0,
                         text = "人物防御 +0%",
                     },
@@ -3315,7 +3315,7 @@ local data = {
                         text = "人物切割 +0%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 0,
                         text = "生命恢复 +0%",
                     },
@@ -3382,19 +3382,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 40,
                         text = "人物物防 +40",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 40,
                         text = "人物魔防 +40",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 70,
                         text = "生命恢复 +70",
                     },
@@ -3411,7 +3411,7 @@ local data = {
                         text = "人物攻击 +0%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 0,
                         text = "人物防御 +0%",
                     },
@@ -3421,7 +3421,7 @@ local data = {
                         text = "人物切割 +0%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 0,
                         text = "生命恢复 +0%",
                     },
@@ -3488,19 +3488,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 50,
                         text = "人物物防 +50",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 50,
                         text = "人物魔防 +50",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 90,
                         text = "生命恢复 +90",
                     },
@@ -3517,7 +3517,7 @@ local data = {
                         text = "人物攻击 +1%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 1,
                         text = "人物防御 +1%",
                     },
@@ -3527,7 +3527,7 @@ local data = {
                         text = "人物切割 +1%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 100,
                         text = "生命恢复 +1%",
                     },
@@ -3594,19 +3594,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 50,
                         text = "人物物防 +50",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 50,
                         text = "人物魔防 +50",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 90,
                         text = "生命恢复 +90",
                     },
@@ -3623,7 +3623,7 @@ local data = {
                         text = "人物攻击 +2%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 2,
                         text = "人物防御 +2%",
                     },
@@ -3633,7 +3633,7 @@ local data = {
                         text = "人物切割 +2%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 200,
                         text = "生命恢复 +2%",
                     },
@@ -3700,19 +3700,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 50,
                         text = "人物物防 +50",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 50,
                         text = "人物魔防 +50",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 90,
                         text = "生命恢复 +90",
                     },
@@ -3729,7 +3729,7 @@ local data = {
                         text = "人物攻击 +3%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 3,
                         text = "人物防御 +3%",
                     },
@@ -3739,7 +3739,7 @@ local data = {
                         text = "人物切割 +3%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 300,
                         text = "生命恢复 +3%",
                     },
@@ -3806,19 +3806,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 50,
                         text = "人物物防 +50",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 50,
                         text = "人物魔防 +50",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 90,
                         text = "生命恢复 +90",
                     },
@@ -3835,7 +3835,7 @@ local data = {
                         text = "人物攻击 +4%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 4,
                         text = "人物防御 +4%",
                     },
@@ -3845,7 +3845,7 @@ local data = {
                         text = "人物切割 +4%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 400,
                         text = "生命恢复 +4%",
                     },
@@ -3912,19 +3912,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 50,
                         text = "人物物防 +50",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 50,
                         text = "人物魔防 +50",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 90,
                         text = "生命恢复 +90",
                     },
@@ -3941,7 +3941,7 @@ local data = {
                         text = "人物攻击 +5%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 5,
                         text = "人物防御 +5%",
                     },
@@ -3951,7 +3951,7 @@ local data = {
                         text = "人物切割 +5%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 500,
                         text = "生命恢复 +5%",
                     },
@@ -4018,19 +4018,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 100,
                         text = "人物物防 +100",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 100,
                         text = "人物魔防 +100",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 120,
                         text = "生命恢复 +120",
                     },
@@ -4047,7 +4047,7 @@ local data = {
                         text = "人物攻击 +6%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 6,
                         text = "人物防御 +6%",
                     },
@@ -4057,7 +4057,7 @@ local data = {
                         text = "人物切割 +6%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 600,
                         text = "生命恢复 +6%",
                     },
@@ -4124,19 +4124,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 100,
                         text = "人物物防 +100",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 100,
                         text = "人物魔防 +100",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 120,
                         text = "生命恢复 +120",
                     },
@@ -4153,7 +4153,7 @@ local data = {
                         text = "人物攻击 +7%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 7,
                         text = "人物防御 +7%",
                     },
@@ -4163,7 +4163,7 @@ local data = {
                         text = "人物切割 +7%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 700,
                         text = "生命恢复 +7%",
                     },
@@ -4230,19 +4230,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 100,
                         text = "人物物防 +100",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 100,
                         text = "人物魔防 +100",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 120,
                         text = "生命恢复 +120",
                     },
@@ -4259,7 +4259,7 @@ local data = {
                         text = "人物攻击 +8%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 8,
                         text = "人物防御 +8%",
                     },
@@ -4269,7 +4269,7 @@ local data = {
                         text = "人物切割 +8%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 800,
                         text = "生命恢复 +8%",
                     },
@@ -4336,19 +4336,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 100,
                         text = "人物物防 +100",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 100,
                         text = "人物魔防 +100",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 120,
                         text = "生命恢复 +120",
                     },
@@ -4365,7 +4365,7 @@ local data = {
                         text = "人物攻击 +9%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 9,
                         text = "人物防御 +9%",
                     },
@@ -4375,7 +4375,7 @@ local data = {
                         text = "人物切割 +9%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 900,
                         text = "生命恢复 +9%",
                     },
@@ -4442,19 +4442,19 @@ local data = {
                 },
                 defense = {
                     {
-                        id = 5,
+                        id = 10,
                         value = 100,
                         text = "人物物防 +100",
                     },
                     {
-                        id = 6,
+                        id = 12,
                         value = 100,
                         text = "人物魔防 +100",
                     },
                 },
                 recovery = {
                     {
-                        id = 79,
+                        id = 71,
                         value = 120,
                         text = "生命恢复 +120",
                     },
@@ -4471,7 +4471,7 @@ local data = {
                         text = "人物攻击 +10%",
                     },
                     {
-                        id = 281,
+                        id = 285,
                         value = 10,
                         text = "人物防御 +10%",
                     },
@@ -4481,7 +4481,7 @@ local data = {
                         text = "人物切割 +10%",
                     },
                     {
-                        id = 79,
+                        id = 18,
                         value = 1000,
                         text = "生命恢复 +10%",
                     },
@@ -7079,7 +7079,7 @@ local data = {
             },
             attrs = {
                 {
-                    id = 79,
+                    id = 18,
                     value = 300,
                     text = "生命恢复 +3%",
                 },
@@ -7334,7 +7334,7 @@ local data = {
             },
             attrs = {
                 {
-                    id = 79,
+                    id = 18,
                     value = 300,
                     text = "生命恢复 +3%",
                 },
@@ -12845,12 +12845,12 @@ local data = {
             },
             attrs = {
                 {
-                    id = 5,
+                    id = 10,
                     value = 50,
                     text = "人物物防 +50",
                 },
                 {
-                    id = 6,
+                    id = 12,
                     value = 50,
                     text = "人物魔防 +50",
                 },
@@ -12933,12 +12933,12 @@ local data = {
             },
             attrs = {
                 {
-                    id = 5,
+                    id = 10,
                     value = 50,
                     text = "人物物防 +50",
                 },
                 {
-                    id = 6,
+                    id = 12,
                     value = 50,
                     text = "人物魔防 +50",
                 },
@@ -13027,12 +13027,12 @@ local data = {
             },
             attrs = {
                 {
-                    id = 5,
+                    id = 10,
                     value = 50,
                     text = "人物物防 +50",
                 },
                 {
-                    id = 6,
+                    id = 12,
                     value = 50,
                     text = "人物魔防 +50",
                 },
@@ -13115,12 +13115,12 @@ local data = {
             },
             attrs = {
                 {
-                    id = 5,
+                    id = 10,
                     value = 50,
                     text = "人物物防 +50",
                 },
                 {
-                    id = 6,
+                    id = 12,
                     value = 50,
                     text = "人物魔防 +50",
                 },
@@ -13203,12 +13203,12 @@ local data = {
             },
             attrs = {
                 {
-                    id = 5,
+                    id = 10,
                     value = 50,
                     text = "人物物防 +50",
                 },
                 {
-                    id = 6,
+                    id = 12,
                     value = 50,
                     text = "人物魔防 +50",
                 },
@@ -13297,12 +13297,12 @@ local data = {
             },
             attrs = {
                 {
-                    id = 5,
+                    id = 10,
                     value = 50,
                     text = "人物物防 +50",
                 },
                 {
-                    id = 6,
+                    id = 12,
                     value = 50,
                     text = "人物魔防 +50",
                 },
@@ -13918,12 +13918,12 @@ local data = {
             },
             attrs = {
                 {
-                    id = 5,
+                    id = 10,
                     value = 25,
                     text = "人物物防 +25",
                 },
                 {
-                    id = 6,
+                    id = 12,
                     value = 25,
                     text = "人物魔防 +25",
                 },
@@ -13983,12 +13983,12 @@ local data = {
             },
             attrs = {
                 {
-                    id = 5,
+                    id = 10,
                     value = 25,
                     text = "人物物防 +25",
                 },
                 {
-                    id = 6,
+                    id = 12,
                     value = 25,
                     text = "人物魔防 +25",
                 },
@@ -14054,12 +14054,12 @@ local data = {
             },
             attrs = {
                 {
-                    id = 5,
+                    id = 10,
                     value = 25,
                     text = "人物物防 +25",
                 },
                 {
-                    id = 6,
+                    id = 12,
                     value = 25,
                     text = "人物魔防 +25",
                 },
@@ -14092,12 +14092,12 @@ local data = {
             },
             attrs = {
                 {
-                    id = 5,
+                    id = 10,
                     value = 25,
                     text = "人物物防 +25",
                 },
                 {
-                    id = 6,
+                    id = 12,
                     value = 25,
                     text = "人物魔防 +25",
                 },
@@ -14157,12 +14157,12 @@ local data = {
             },
             attrs = {
                 {
-                    id = 5,
+                    id = 10,
                     value = 25,
                     text = "人物物防 +25",
                 },
                 {
-                    id = 6,
+                    id = 12,
                     value = 25,
                     text = "人物魔防 +25",
                 },
@@ -14228,12 +14228,12 @@ local data = {
             },
             attrs = {
                 {
-                    id = 5,
+                    id = 10,
                     value = 25,
                     text = "人物物防 +25",
                 },
                 {
-                    id = 6,
+                    id = 12,
                     value = 25,
                     text = "人物魔防 +25",
                 },

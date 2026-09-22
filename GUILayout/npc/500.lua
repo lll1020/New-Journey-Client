@@ -162,15 +162,40 @@ local function _get_level()
     return _to_num(SL:GetMetaValue("LEVEL"), 0)
 end
 
-local function _has_all_linggen()
-    local data = _get_json_var("T41")
-    local levels = type(data.level) == "table" and data.level or {}
-    for i = 1, 5 do
-        if _to_num(levels[tostring(i)] or levels[i], 0) < 1 then
-            return false
+local function _get_talent_gem_level(gemName)
+    local text = tostring(gemName or "")
+    local itemIndex = _to_num(text, 0)
+    if itemIndex <= 0 and SL and SL.GetMetaValue then
+        itemIndex = _to_num(SL:GetMetaValue("ITEM_INDEX_BY_NAME", text), 0)
+    end
+    local knownLevels = {
+        [14249] = 1,
+        [14250] = 2,
+        [14251] = 3,
+        [14252] = 3,
+        [14253] = 3,
+        [14254] = 3,
+        [14255] = 3,
+        [14256] = 4,
+    }
+    if knownLevels[itemIndex] then
+        return knownLevels[itemIndex]
+    end
+    local level = text:match("[Ll][Vv][%.%- ]*(%d+)")
+        or text:match("(%d+)[级阶]")
+    return _to_num(level, 1)
+end
+
+local function _has_linggen_socket_level(level)
+    level = _to_num(level, 1)
+    local data = _get_json_var("T74")
+    local sockets = type(data.sockets) == "table" and data.sockets or {}
+    for _, gemName in pairs(sockets) do
+        if _get_talent_gem_level(gemName) >= level then
+            return true
         end
     end
-    return true
+    return false
 end
 
 local function _has_all_destiny()
@@ -234,15 +259,16 @@ local function _build_enter_condition_data(dl)
         }
     elseif dl == 4 then
         local done, total = _get_story_progress(3)
-        local target = _get_story_target(total, 85)
+        local target = 25
         local segments = {
             {text = string.format("三大陆剧情完成度%d/%d", done, target), ok = target > 0 and done >= target},
             {text = "三大陆转生", ok = _get_rebirth_level() >= 30},
             {text = "等级150", ok = _get_level() >= 150},
+            {text = "灵根镶嵌1个宝石", ok = _has_linggen_socket_level(1)},
         }
         return {
             richText = _join_condition_segments(segments),
-            ok = segments[1].ok and segments[2].ok and segments[3].ok,
+            ok = segments[1].ok and segments[2].ok and segments[3].ok and segments[4].ok,
         }
     elseif dl == 5 then
         local done, total = _get_story_progress(4)
@@ -250,7 +276,7 @@ local function _build_enter_condition_data(dl)
         local segments = {
             {text = string.format("四大陆剧情完成度%d/%d", done, target), ok = target > 0 and done >= target},
             {text = "四大陆转生", ok = _get_rebirth_level() >= 40},
-            {text = "全部基础灵根Lv.1", ok = _has_all_linggen()},
+            {text = "灵根镶嵌1个三级宝石", ok = _has_linggen_socket_level(3)},
         }
         return {
             richText = _join_condition_segments(segments),
@@ -378,7 +404,7 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:setAnchorPoint(cond, 0, 0)
         local condSize = GUI:getContentSize(cond) or {width = 566, height = 82}
         GUI:setPosition(cond, math.floor((bgSize.width - condSize.width) / 2) + 50, 100)
-        local lockText = GUI:RichText_Create(cond, "lock", condSize.width / 2, 14 + 15, needText, condSize.width - 40, 20, "#FFFFFF", 1, nil, nil, {
+        local lockText = GUI:RichText_Create(cond, "lock", condSize.width / 2, 14 + 15, needText, 1000, 20, "#FFFFFF", 1, nil, nil, {
             outlineSize = 2,
             outlineColor = SL:ConvertColorFromHexString("#000000"),
         })

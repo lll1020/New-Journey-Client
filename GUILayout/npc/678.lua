@@ -53,6 +53,10 @@ function npc.main(npcid, p2, p3, msgData)
         local function renderActionBtn()
             GUI:removeChildByName(xjm_node, "Button")
             renderRewardDesc()
+            local cfg = npc._config.details and npc._config.details[npc.idx] or nil
+            if not cfg then
+                return
+            end
             if not npc.data.T_dljq[key.."_"..npc.idx] then
                 local Button = GUI:Button_Create(xjm_node, "Button", btn_pos[1], btn_pos[2], "res/custom/all_story_mission/4/678/btn_1.png")
                 GUI:setAnchorPoint(Button, 0.5, 0.5)

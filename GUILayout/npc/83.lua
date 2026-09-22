@@ -24,6 +24,7 @@ local DIVIDER_SKIN = "res/custom/six_city/残魂商店/分割线.png"
 local ITEM_BOX_SKIN = "res/wy/public/58_58_kuang.png"
 local TITLE_BANNER_SKIN = "res/custom/six_city/残魂商店/标题.png"
 local TIP_BTN_SKIN = "res/wy/public/an_tip.png"
+local ENTER_TIANFA_SKIN = "res/custom/mijing/进入秘境.png"
 local FONT_MAIN = "fonts/font4.ttf"
 local FONT_TITLE = "fonts/502.ttf"
 local SHOP_SCROLL_RECT = {x = 8, y = 107, width = 720, height = 224}
@@ -212,7 +213,7 @@ local function renderShopRow(parent, npcid, idx, cfg, y)
     end)
 end
 
-local function renderSummary(node)
+local function renderSummary(node, npcid)
     local data = getPanelData()
     local cfg = getConfig()
     local titleCfg = cfg.title_reward or DEFAULT_CONFIG.title_reward
@@ -233,6 +234,21 @@ local function renderSummary(node)
     local levelColor = bonusDone and "#6CFF7B" or (hasTitle and "#FFD65A" or "#A0A0A0")
     local stateText = bonusDone and "已发放" or (hasTitle and "待达到等级发放" or "未获得称号")
     createText(node, "level_desc", 44, 48, 18, levelColor, levelText .. "，" .. stateText, FONT_TITLE, 0, 0.5)
+
+    local fire = toNumber(data.fire, 0)
+    local fireMax = math.max(1, toNumber(data.fire_max, 100))
+    local fireColor = fire >= fireMax and "#FF6B6B" or "#FFCF70"
+    createText(node, "fire_desc", 44, 108, 20, fireColor,
+        string.format("业火值：%d/%d", fire, fireMax), FONT_TITLE, 0, 0.5)
+
+    if toNumber(data.can_enter_tianfa, 0) == 1 then
+        local enterBtn = GUI:Button_Create(node, "enter_tianfa_btn", 602, 68, ENTER_TIANFA_SKIN)
+        GUI:addOnClickEvent(enterBtn, function()
+            SL:SendLuaNetMsg(100, npcid, 3, 0, SL:JsonEncode({}, false))
+        end)
+    elseif toNumber(data.tianfa_active, 0) == 1 then
+        createText(node, "tianfa_active_desc", 602, 88, 18, "#6CFF7B", "天罚秘境挑战中", FONT_TITLE, 0.5, 0.5)
+    end
 
     local tipBtn = GUI:Button_Create(node, "point_tip_btn", 670, 20, TIP_BTN_SKIN)
     local tipText = "残魂值获取说明\n1. 参与六大陆残魂相关玩法时，可通过击杀指定怪物获得残魂值。\n2. 部分挑战、剧情推进、专属任务完成后，也会额外发放残魂值。\r\n3. 若当前玩法带有兑换、提交或限次结算内容，完成对应目标后同样可能增加残魂值。"
@@ -259,7 +275,7 @@ local function renderMain(node, npcid)
         return
     end
     GUI:removeAllChildren(node)
-    renderSummary(node)
+    renderSummary(node, npcid)
     renderTableHeader(node)
     renderShopList(node, npcid)
 end
