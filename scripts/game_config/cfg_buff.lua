@@ -561,5 +561,18 @@ local config = {
 		script_trigger = "1000#",
 		teshusx = 0,
 	},
+	[20183] = { 
+		ID = 20183,
+		name = "业火值",
+		dis_action = 0,
+		icon = 893,
+		tips = "业火值层数效果：\\0–30 平静\\31–60 灼烧 爆率 +10% 怪物攻击 +5%\\61–90 狂焰 爆率 +20% 怪物攻击 +10%\\91–99 炼狱 爆率 +30% 怪物攻击 +15%\\100 天罚 强制天罚猎杀 触发猎杀者",
+		time = "0#0#2",
+		group = 0,
+		Priority = 0,
+		overlap = 100,
+		uniqueType = "2#0",
+		teshusx = 0,
+	},
 }
 return config

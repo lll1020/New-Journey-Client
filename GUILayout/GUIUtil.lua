@@ -497,67 +497,6 @@ local function _dl_get_story_point_progress(continent)
     end
     return received, total
 end
-local function _dl_has_story_point_count(continent, needCount)
-    local received = _dl_get_story_point_progress(continent)
-    local need = _dl_to_num(needCount, 0)
-    return received >= need, received, need
-end
-
-local function _dl_has_story_progress(continent, needPercent)
-    local cfg = _dl_get_xyl_cfg()
-    local chapters = type(cfg) == "table" and cfg[continent] or nil
-    if type(chapters) ~= "table" then
-        return false
-    end
-    local ywl = _dl_get_json("T26")
-    local total = 0
-    local received = 0
-    for chapter_idx, chapter in ipairs(chapters) do
-        local tasks = type(chapter) == "table" and chapter.jq or nil
-        if type(tasks) == "table" then
-            local chapter_key = "jl_" .. continent .. "_" .. chapter_idx
-            local chapter_received = _dl_to_num(ywl[chapter_key], 0) == 1
-            for task_idx, task in ipairs(tasks) do
-                local point = _dl_get_story_point(task)
-                total = total + point
-                local task_received = _dl_to_num(ywl[chapter_key .. "_" .. task_idx], 0) == 1
-                local task_done = _dl_is_story_task_done(task)
-                if point > 0 and (chapter_received or task_received or task_done) then
-                    received = received + point
-                end
-            end
-        end
-    end
-    if total < 1 then
-        return false
-    end
-    return received * 100 >= total * (_dl_to_num(needPercent, 100))
-end
-
-local function _dl_get_jqd()
-    local count = _dl_to_num(Player:getServerVar("JQD"), 0)
-    if count > 0 then
-        return count
-    end
-
-    count = _dl_to_num(SL:GetMetaValue("ITEM_COUNT", 9), 0)
-    if count > 0 then
-        return count
-    end
-
-    count = _dl_to_num(SL:GetMetaValue("MONEY_ASSOCIATED", 9), 0)
-    if count > 0 then
-        return count
-    end
-
-    count = _dl_to_num(SL:GetMetaValue("TMONEY", "剧情点"), 0)
-    if count > 0 then
-        return count
-    end
-
-    return 0
-end
-
 local function _dl_get_zslv()
     local zslv = _dl_to_num(Player:getServerVar("U43"), 0)
     if zslv > 0 then
@@ -573,7 +512,14 @@ end
 
 -- 大陆门槛：读取服务端 JSON 变量，给灵根/命盘判定复用。
 _dl_get_json = function(varName)
-    return Player:JsonToTbl(Player:getServerVar(varName))
+    local raw = Player and Player.getServerVar and Player:getServerVar(varName) or ""
+    if raw == "" or not Player or not Player.JsonToTbl then
+        return {}
+    end
+    local ok, data = pcall(function()
+        return Player:JsonToTbl(raw)
+    end)
+    return ok and type(data) == "table" and data or {}
 end
 
 -- 大陆门槛：检查是否拥有指定称号。
@@ -589,99 +535,107 @@ local function _dl_has_title(titleName)
 end
 
 -- 大陆门槛：五大陆要求 5 个基础灵根均达到Lv.1。
-local function _dl_has_all_linggen()
-    local data = _dl_get_json("T41")
-    local levels = type(data.level) == "table" and data.level or {}
-    for i = 1, 5 do
-        if _dl_to_num(levels[tostring(i)] or levels[i], 0) < 1 then
-            return false
-        end
-    end
-    return true
-end
-
--- 大陆门槛：六大陆要求完成天道命盘，客户端按 npc_74 的 all 计数判定。
-local function _dl_has_all_destiny()
-    local jqData = _dl_get_json("T13")
-    local state = type(jqData["npc_74"]) == "table" and jqData["npc_74"] or {}
-    local cfgList = (type(teshudata) == "table" and teshudata)
-        or (cogin and type(cogin.teshudata) == "table" and cogin.teshudata)
-        or {}
-    local cfg = type(cfgList["npc_74"]) == "table" and cfgList["npc_74"] or {}
-    local need = _dl_to_num(cfg.all, 4)
-    return _dl_to_num(state.all, 0) >= need
-end
-
 local function _dl_is_admin_unlocked(dl)
     local syncValue = cogin and cogin.sjtb and _dl_to_num(cogin.sjtb.dl_all_unlock, 0) or 0
     if syncValue == 1 or syncValue >= dl then
-        return true
-    end
-    if _dl_get_zslv() >= 70 and _dl_get_level() >= 150 then
         return true
     end
     local serverValue = _dl_to_num(Player:getServerVar("U_全大陆解锁"), 0)
     return serverValue == 1 or serverValue >= dl
 end
 
-local function _dl_check(dl)
+local function _dl_make_condition(text, ok)
+    return {
+        text = text,
+        ok = ok == true,
+    }
+end
+
+local function _dl_gate_result(dl, tip, conditions)
+    local passed = true
+    for _, condition in ipairs(conditions or {}) do
+        if condition.ok ~= true then
+            passed = false
+            break
+        end
+    end
+    return {
+        ok = passed or _dl_is_admin_unlocked(dl),
+        tip = tip or "",
+        conditions = conditions or {},
+    }
+end
+
+local function _dl_build_gate_data(dl)
     dl = _dl_to_num(dl, 0)
     if dl == 1 then
-        return true
+        return {ok = true, tip = "", conditions = {_dl_make_condition("无", true)}}
     end
-    if _dl_is_admin_unlocked(dl) then
-        return true
+    if dl > 8 then
+        return {ok = true, tip = "", conditions = {}}
     end
 
     local zxrw = _dl_get_mainline_progress()
     local zslv = _dl_get_zslv()
-    local jqd = _dl_get_jqd()
     local level = _dl_get_level()
+    local conditions = {}
 
     if dl == 2 then
-        if zxrw >= 16 then
-            return true
-        end
-        return false, "需完成主线引导后才可进入二大陆"
+        conditions[1] = _dl_make_condition("完成主线引导", zxrw >= 16)
+        return _dl_gate_result(dl, "需完成主线引导后才可进入二大陆", conditions)
     elseif dl == 3 then
-        if zxrw >= 35 then
-            return true
-        end
-        return false, "需跟随主线引导后才可进入三大陆"
+        conditions[1] = _dl_make_condition("完成主线引导", zxrw >= 35)
+        return _dl_gate_result(dl, "需跟随主线引导后才可进入三大陆", conditions)
     elseif dl == 4 then
-        if _dl_has_story_point_count(3, 25) and zslv >= 30 and level >= 150 then
-            return true
-        end
-        return false, "需三大陆剧情点达到25点、完成三大陆转生且人物等级达到150级后才可进入四大陆"
+        local storyDone = _dl_get_story_point_progress(3)
+        conditions = {
+            _dl_make_condition(string.format("三大陆剧情点%d/25", storyDone), storyDone >= 25),
+            _dl_make_condition("三大陆转生", zslv >= 30),
+            _dl_make_condition("人物等级150级", level >= 150),
+            _dl_make_condition("灵根镶嵌1个宝石", _dl_has_linggen_socket_level(1)),
+        }
+        return _dl_gate_result(dl, "需三大陆剧情点达到25点、完成三大陆转生、人物等级达到150级且灵根镶嵌1个宝石后才可进入四大陆", conditions)
     elseif dl == 5 then
-        local storyOk, storyDone, storyNeed = _dl_has_story_point_count(4, 57)
-        local linggenOk = _dl_has_all_linggen()
-        if storyOk and zslv >= 40 and linggenOk then
-            return true
-        end
-        return false, "需四大陆剧情点达到57点、完成四大陆转生且全部基础灵根达到Lv.1后才可进入五大陆"
+        local storyDone = _dl_get_story_point_progress(4)
+        conditions = {
+            _dl_make_condition(string.format("四大陆剧情点%d/57", storyDone), storyDone >= 57),
+            _dl_make_condition("四大陆转生", zslv >= 40),
+            _dl_make_condition("灵根镶嵌1个三级宝石", _dl_has_linggen_socket_level(3)),
+        }
+        return _dl_gate_result(dl, "需四大陆剧情点达到57点、完成四大陆转生且灵根镶嵌1个三级宝石后才可进入五大陆", conditions)
     elseif dl == 6 then
-        if _dl_has_story_point_count(5, 50) and zslv >= 50 and _dl_has_all_destiny() then
-            return true
-        end
-        return false, "需五大陆剧情点达到50点、完成五大陆转生且完成天道命盘后才可进入六大陆"
+        local storyDone = _dl_get_story_point_progress(5)
+        conditions = {
+            _dl_make_condition(string.format("五大陆剧情点%d/50", storyDone), storyDone >= 50),
+            _dl_make_condition("五大陆转生", zslv >= 50),
+        }
+        return _dl_gate_result(dl, "需五大陆剧情点达到50点并完成五大陆转生后才可进入六大陆", conditions)
     elseif dl == 7 then
-        if _dl_has_story_point_count(6, 81) and zslv >= 60 and _dl_has_title("世界符文·[真我]") then
-            return true
-        end
-        return false, "需六大陆剧情点达到81点、完成六大陆转生且获得世界符文·[真我]后才可进入七大陆"
+        local storyDone = _dl_get_story_point_progress(6)
+        conditions = {
+            _dl_make_condition(string.format("六大陆剧情点%d/81", storyDone), storyDone >= 81),
+            _dl_make_condition("六大陆转生", zslv >= 60),
+            _dl_make_condition("获得世界符文·[真我]", _dl_has_title("世界符文·[真我]")),
+        }
+        return _dl_gate_result(dl, "需六大陆剧情点达到81点、完成六大陆转生且获得世界符文·[真我]后才可进入七大陆", conditions)
     elseif dl == 8 then
-        if zslv >= 70 then
-            return true
-        end
-        return false, "需完成七大陆转生后才可进入八大陆"
+        conditions[1] = _dl_make_condition("完成七大陆转生", zslv >= 70)
+        return _dl_gate_result(dl, "需完成七大陆转生后才可进入八大陆", conditions)
     end
 
-    return false
+    return {ok = false, tip = "大陆条件配置不存在", conditions = {}}
+end
+
+function getContinentGateData(dl)
+    return _dl_build_gate_data(dl)
+end
+
+local function _dl_check(dl)
+    local gate = _dl_build_gate_data(dl)
+    return gate.ok, gate.tip
 end
 function dl_sz(i)
-    local ok,opened = _dl_check(i)
-    return ok
+    return _dl_check(i) == true
 end
 function dl_unlock_check(i)
     return _dl_check(i)

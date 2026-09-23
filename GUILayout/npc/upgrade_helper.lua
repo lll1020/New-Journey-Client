@@ -17,6 +17,10 @@ local function _is_continent_open(continent)
     if need <= 1 then
         return true
     end
+    if type(getContinentGateData) == "function" then
+        local ok, gate = pcall(getContinentGateData, need)
+        return ok and type(gate) == "table" and gate.ok == true
+    end
     if type(dl_unlock_check) == "function" then
         local ok = dl_unlock_check(need)
         return ok == true

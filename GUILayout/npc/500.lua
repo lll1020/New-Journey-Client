@@ -33,202 +33,9 @@ local function _escape_rich_text(text)
     return text
 end
 
-local function _get_json_var(varName)
-    if varName == "T26" then
-        local cached = rawget(_G, "XYL_YWL_CACHE")
-        if type(cached) == "table" and next(cached) ~= nil then
-            return cached
-        end
-        if type(npc.data) == "table" and type(npc.data.ywl) == "table" and next(npc.data.ywl) ~= nil then
-            return npc.data.ywl
-        end
-    end
-    if not Player or not Player.getServerVar or not Player.JsonToTbl then
-        if varName == "T26" then
-        end
-        return {}
-    end
-    local raw = Player:getServerVar(varName)
-    if not raw or raw == "" then
-        if varName == "T26" then
-        end
-        return {}
-    end
-    local ok, data = pcall(function()
-        return Player:JsonToTbl(raw)
-    end)
-    if varName == "T26" then
-    end
-    return ok and type(data) == "table" and data or {}
-end
-
-local function _get_story_cfg()
-    if type(npc._story_cfg) == "table" and next(npc._story_cfg) ~= nil then
-        return npc._story_cfg
-    end
-    local ok, cfg = pcall(function()
-        return SL:Require("GUILayout/Data/xyl.lua", true)
-    end)
-    if ok and type(cfg) == "table" then
-        npc._story_cfg = cfg
-        return cfg
-    end
-    if type(cogin) == "table" and type(cogin.xyl) == "table" then
-        return cogin.xyl
-    end
-    return {}
-end
-
-local function _get_story_point(task)
-    local total = 0
-    local rewards = type(task) == "table" and task.jl or nil
-    if type(rewards) ~= "table" then
-        return 0
-    end
-    for _, reward in ipairs(rewards) do
-        if type(reward) == "table" and reward[1] == "剧情点" then
-            total = total + (_to_num(reward[2], 0))
-        end
-    end
-    return total
-end
-
-local function _is_story_task_done(task)
-    if type(task) ~= "table" then
-        return false
-    end
-    local checker = task.khdjy
-    if type(checker) ~= "function" then
-        return false
-    end
-    local ok, done = pcall(checker, task)
-    return ok and done == true
-end
-
-local _EXTRA_PROGRESS_CHAPTERS = {
-    ["苍云秘闻"] = true,
-    ["若水秘闻"] = true,
-    ["红尘秘闻"] = true,
-    ["灵虚秘闻"] = true,
-}
-local function _should_skip_progress_chapter(chapter)
-    if type(chapter) ~= "table" then
-        return false
-    end
-    return _EXTRA_PROGRESS_CHAPTERS[tostring(chapter.name or "")] == true
-end
-local function _get_story_progress(continent)
-    local cfg = _get_story_cfg()
-    local chapters = type(cfg) == "table" and cfg[continent] or nil
-    if type(chapters) ~= "table" then
-        return 0, 0
-    end
-    local ywl = _get_json_var("T26")
-    local done = 0
-    local total = 0
-    for chapterIdx, chapter in ipairs(chapters) do
-        local skipTotal = _should_skip_progress_chapter(chapter)
-        local tasks = type(chapter) == "table" and chapter.jq or nil
-        if type(tasks) == "table" then
-            local chapterKey = "jl_" .. continent .. "_" .. chapterIdx
-            local chapterReceived = _to_num(ywl[chapterKey], 0) == 1
-            for taskIdx, task in ipairs(tasks) do
-                local point = _get_story_point(task)
-                if not skipTotal then
-                    total = total + point
-                end
-                local taskReceived = _to_num(ywl[chapterKey .. "_" .. taskIdx], 0) == 1
-                if point > 0 and (chapterReceived or taskReceived) then
-                    done = done + point
-                end
-            end
-        end
-    end
-    return done, total
-end
-
-local function _get_rebirth_level()
-    local relevel = 0
-    if Player and Player.getServerVar then
-        relevel = _to_num(Player:getServerVar("U43"), 0)
-    end
-    if relevel < 1 then
-        relevel = _to_num(SL:GetMetaValue("RELEVEL"), 0)
-    end
-    return relevel
-end
-
-local function _get_level()
-    return _to_num(SL:GetMetaValue("LEVEL"), 0)
-end
-
-local function _get_talent_gem_level(gemName)
-    local text = tostring(gemName or "")
-    local itemIndex = _to_num(text, 0)
-    if itemIndex <= 0 and SL and SL.GetMetaValue then
-        itemIndex = _to_num(SL:GetMetaValue("ITEM_INDEX_BY_NAME", text), 0)
-    end
-    local knownLevels = {
-        [14249] = 1,
-        [14250] = 2,
-        [14251] = 3,
-        [14252] = 3,
-        [14253] = 3,
-        [14254] = 3,
-        [14255] = 3,
-        [14256] = 4,
-    }
-    if knownLevels[itemIndex] then
-        return knownLevels[itemIndex]
-    end
-    local level = text:match("[Ll][Vv][%.%- ]*(%d+)")
-        or text:match("(%d+)[级阶]")
-    return _to_num(level, 1)
-end
-
-local function _has_linggen_socket_level(level)
-    level = _to_num(level, 1)
-    local data = _get_json_var("T74")
-    local sockets = type(data.sockets) == "table" and data.sockets or {}
-    for _, gemName in pairs(sockets) do
-        if _get_talent_gem_level(gemName) >= level then
-            return true
-        end
-    end
-    return false
-end
-
-local function _has_all_destiny()
-    local jqData = _get_json_var("T13")
-    local state = type(jqData["npc_74"]) == "table" and jqData["npc_74"] or {}
-    local cfg = type(teshudata) == "table" and teshudata["npc_74"] or nil
-    local need = _to_num(cfg and cfg.all, 4)
-    return _to_num(state.all, 0) >= need
-end
-
-local function _has_title(titleName)
-    if titleName == nil or titleName == "" then
-        return false
-    end
-    local itemIdx = _to_num(SL:GetMetaValue("ITEM_INDEX_BY_NAME", titleName), 0)
-    if itemIdx < 1 then
-        return false
-    end
-    return SL:GetMetaValue("TITLE_DATA_BY_ID", itemIdx) ~= nil
-end
-
 local function _format_condition_segment(text, ok)
     local color = ok and "#00FF00" or "#FF3333"
     return string.format("<font color='%s'>%s</font>", color, _escape_rich_text(text))
-end
-
-local function _get_story_target(total, percent)
-    total = _to_num(total, 0)
-    percent = _to_num(percent, 100)
-    if total < 1 then
-        return 0
-    end
-    return math.ceil(total * percent / 100)
 end
 
 local function _join_condition_segments(segments)
@@ -246,78 +53,19 @@ local function _join_condition_segments(segments)
 end
 
 local function _build_enter_condition_data(dl)
-    dl = _to_num(dl, 1)
-    if dl <= 1 then
-        return {
-            richText = "<font color='#00FF00'>无</font>",
-            ok = true,
-        }
-    elseif dl == 2 or dl == 3 then
-        return {
-            richText = "<font color='#F5E6C6'>跟随主线引导进入</font>",
-            ok = true,
-        }
-    elseif dl == 4 then
-        local done, total = _get_story_progress(3)
-        local target = 25
-        local segments = {
-            {text = string.format("三大陆剧情完成度%d/%d", done, target), ok = target > 0 and done >= target},
-            {text = "三大陆转生", ok = _get_rebirth_level() >= 30},
-            {text = "等级150", ok = _get_level() >= 150},
-            {text = "灵根镶嵌1个宝石", ok = _has_linggen_socket_level(1)},
-        }
-        return {
-            richText = _join_condition_segments(segments),
-            ok = segments[1].ok and segments[2].ok and segments[3].ok and segments[4].ok,
-        }
-    elseif dl == 5 then
-        local done, total = _get_story_progress(4)
-        local target = 57
-        local segments = {
-            {text = string.format("四大陆剧情完成度%d/%d", done, target), ok = target > 0 and done >= target},
-            {text = "四大陆转生", ok = _get_rebirth_level() >= 40},
-            {text = "灵根镶嵌1个三级宝石", ok = _has_linggen_socket_level(3)},
-        }
-        return {
-            richText = _join_condition_segments(segments),
-            ok = segments[1].ok and segments[2].ok and segments[3].ok,
-        }
-    elseif dl == 6 then
-        local done, total = _get_story_progress(5)
-        local target = 50
-        local segments = {
-            {text = string.format("五大陆剧情完成度%d/%d", done, target), ok = target > 0 and done >= target},
-            {text = "五大陆转生", ok = _get_rebirth_level() >= 50},
-            {text = "完成天道命盘", ok = _has_all_destiny()},
-        }
-        return {
-            richText = _join_condition_segments(segments),
-            ok = segments[1].ok and segments[2].ok and segments[3].ok,
-        }
-    elseif dl == 7 then
-        local done, total = _get_story_progress(6)
-        local target = _get_story_target(total, 100)
-        local segments = {
-            {text = string.format("六大陆剧情完成度%d/%d", done, target), ok = target > 0 and done >= target},
-            {text = "六大陆转生", ok = _get_rebirth_level() >= 60},
-            {text = "世界符文·[真我]", ok = _has_title("世界符文·[真我]")},
-        }
-        return {
-            richText = _join_condition_segments(segments),
-            ok = segments[1].ok and segments[2].ok and segments[3].ok,
-        }
-    elseif dl == 8 then
-        local segments = {
-            {text = "完成七大陆转生", ok = _get_rebirth_level() >= 70},
-        }
-        return {
-            richText = _join_condition_segments(segments),
-            ok = segments[1].ok,
-        }
+    if type(getContinentGateData) == "function" then
+        local ok, gate = pcall(getContinentGateData, dl)
+        if ok and type(gate) == "table" then
+            return {
+                richText = _join_condition_segments(gate.conditions),
+                ok = gate.ok == true,
+                tip = gate.tip,
+            }
+        end
     end
     return {
-        richText = "<font color='#F5E6C6'>请按主线推进</font>",
-        ok = true,
+        richText = "<font color='#FF3333'>大陆条件数据暂不可用</font>",
+        ok = false,
     }
 end
 
@@ -326,13 +74,7 @@ local function getEnterNeedRichText(dl)
 end
 local function canEnterByCfg(cfg)
     local dl = _to_num(cfg and cfg[6], 1)
-    if dl >= 4 and dl <= 8 then
-        return (_build_enter_condition_data(dl) or {}).ok == true
-    end
-    if type(dl_sz) == "function" then
-        return dl_sz(dl) == true
-    end
-    return true
+    return (_build_enter_condition_data(dl) or {}).ok == true
 end
 local function _story_node_done(node)
     if node == nil then

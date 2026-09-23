@@ -2039,19 +2039,11 @@ npc[1] = function(p2, p3, msgData)
                     return
                 end
                 local continent5Unlocked = false
-                if type(dl_unlock_check) == "function" then
-                    local ok = dl_unlock_check(5)
-                    continent5Unlocked = ok == true
+                if type(getContinentGateData) == "function" then
+                    local ok, gate = pcall(getContinentGateData, 5)
+                    continent5Unlocked = ok and type(gate) == "table" and gate.ok == true
                 elseif type(dl_sz) == "function" then
-                    local ok = dl_sz(5)
-                    continent5Unlocked = ok == true
-                end
-                if not continent5Unlocked then
-                    local adminUnlock = cogin and cogin.sjtb and tonumber(cogin.sjtb.dl_all_unlock or 0) or 0
-                    local syncContinent = cogin and cogin.sjtb and tonumber(cogin.sjtb.U_dlxz_bc or 0) or 0
-                    if adminUnlock == 1 or adminUnlock >= 5 or syncContinent >= 5 then
-                        continent5Unlocked = true
-                    end
+                    continent5Unlocked = dl_sz(5) == true
                 end
                 if not continent5Unlocked then
                     return
@@ -2440,129 +2432,11 @@ npc[2] = function(p2, p3, msgData)
         end
         local function recycleGroupUnlockState(continent)
             continent = tonumber(continent or 0) or 0
-            if continent <= 1 then
-                return true
+            if type(getContinentGateData) == "function" then
+                local ok, gate = pcall(getContinentGateData, continent)
+                return ok and type(gate) == "table" and gate.ok == true
             end
-            local adminUnlock = cogin and cogin.sjtb and tonumber(cogin.sjtb.dl_all_unlock or 0) or 0
-            if adminUnlock == 1 or adminUnlock >= continent then
-                return true
-            end
-            if continent <= 3 then
-                if type(dl_sz) == "function" then
-                    return dl_sz(continent) == true
-                end
-                return true
-            end
-            local function recycleGetRelevel()
-                local zslv = tonumber(Player and Player.getServerVar and Player:getServerVar("U43") or 0) or 0
-                if zslv <= 0 then
-                    zslv = tonumber(SL:GetMetaValue("RELEVEL") or 0) or 0
-                end
-                return zslv
-            end
-            local function recycleGetLevel()
-                return tonumber(SL:GetMetaValue("LEVEL") or 0) or 0
-            end
-            local function recycleHasAllLinggen()
-                local data = Player and Player.JsonToTbl and Player:getServerVar("T41") and Player:JsonToTbl(Player:getServerVar("T41")) or {}
-                local levels = type(data) == "table" and type(data.level) == "table" and data.level or {}
-                for idx = 1, 5 do
-                    if (tonumber(levels[tostring(idx)] or levels[idx]) or 0) < 1 then
-                        return false
-                    end
-                end
-                return true
-            end
-            local function recycleHasAllDestiny()
-                local data = Player and Player.JsonToTbl and Player:getServerVar("T13") and Player:JsonToTbl(Player:getServerVar("T13")) or {}
-                local state = type(data) == "table" and type(data["npc_74"]) == "table" and data["npc_74"] or {}
-                local cfg74 = type(teshudata) == "table" and teshudata["npc_74"] or {}
-                local need = tonumber(cfg74 and cfg74.all) or 4
-                return (tonumber(state.all) or 0) >= need
-            end
-            local function recycleHasTitle(titleName)
-                local itemIdx = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", titleName) or 0) or 0
-                if itemIdx <= 0 then
-                    return false
-                end
-                return SL:GetMetaValue("TITLE_DATA_BY_ID", itemIdx) ~= nil
-            end
-            local function recycleGetTaskStoryPoint(task)
-                local total = 0
-                local rewards = type(task) == "table" and task.jl or nil
-                if type(rewards) ~= "table" then
-                    return 0
-                end
-                for _, reward in ipairs(rewards) do
-                    if type(reward) == "table" and reward[1] == "剧情点" then
-                        total = total + (tonumber(reward[2]) or 0)
-                    end
-                end
-                return total
-            end
-            local recycleExtraProgressChapters = {
-                -- ["苍云秘闻"] = true,
-                -- ["若水秘闻"] = true,
-                -- ["红尘秘闻"] = true,
-                -- ["灵虚秘闻"] = true,
-            }
-            local function recycleShouldSkipProgressChapter(chapter)
-                if type(chapter) ~= "table" then
-                    return false
-                end
-                return recycleExtraProgressChapters[tostring(chapter.name or "")] == true
-            end
-            local function recycleGetStoryProgress(targetContinent)
-                local chapters = npc.xyl and npc.xyl[targetContinent] or nil
-                local ywl = rawget(_G, "XYL_YWL_CACHE") or {}
-                local done = 0
-                local total = 0
-                if type(chapters) ~= "table" or type(ywl) ~= "table" then
-                    return nil, nil
-                end
-                for chapterIdx, chapter in ipairs(chapters) do
-                    local skipTotal = recycleShouldSkipProgressChapter(chapter)
-                    local tasks = type(chapter) == "table" and chapter.jq or nil
-                    if type(tasks) == "table" then
-                        local chapterKey = "jl_" .. targetContinent .. "_" .. chapterIdx
-                        local chapterReceived = tonumber(ywl[chapterKey] or 0) == 1
-                        for taskIdx, task in ipairs(tasks) do
-                            local point = recycleGetTaskStoryPoint(task)
-                            if not skipTotal then
-                                total = total + point
-                            end
-                            local taskReceived = tonumber(ywl[chapterKey .. "_" .. taskIdx] or 0) == 1
-                            if point > 0 and (chapterReceived or taskReceived) then
-                                done = done + point
-                            end
-                        end
-                    end
-                end
-                return done, total
-            end
-            local function recycleStoryTarget(total, percent)
-                total = tonumber(total) or 0
-                if total <= 0 then
-                    return 0
-                end
-                return math.ceil(total * (tonumber(percent) or 100) / 100)
-            end
-            if continent == 4 then
-                local done, total = recycleGetStoryProgress(3)
-                return total and total > 0 and done >= 25 and recycleGetRelevel() >= 30 and recycleGetLevel() >= 150
-            elseif continent == 5 then
-                local done, total = recycleGetStoryProgress(4)
-                return total and total > 0 and done >= 57 and recycleGetRelevel() >= 40 and recycleHasAllLinggen()
-            elseif continent == 6 then
-                local done, total = recycleGetStoryProgress(5)
-                return total and total > 0 and done >= 50 and recycleGetRelevel() >= 50 and recycleHasAllDestiny()
-            elseif continent == 7 then
-                local done, total = recycleGetStoryProgress(6)
-                return total and total > 0 and done >= 81 and recycleGetRelevel() >= 60 and recycleHasTitle("世界符文·[真我]")
-            elseif continent == 8 then
-                return recycleGetRelevel() >= 70
-            end
-            return true
+            return continent <= 1 or (type(dl_sz) == "function" and dl_sz(continent) == true)
         end
         local function recycleGroupVisible(categoryKey, groupName)
             groupName = tostring(groupName or "")
@@ -3901,111 +3775,13 @@ npc[11] = function(p2, p3, Data)
         local function isChapterDone(i, j)
             return npc.data and npc.data.ywl and npc.data.ywl["jl_" .. i .. "_" .. j] == 1
         end
-        local function ywlGetRelevel()
-            local zslv = tonumber(Player and Player.getServerVar and Player:getServerVar("U43") or 0) or 0
-            if zslv <= 0 then
-                zslv = tonumber(SL:GetMetaValue("RELEVEL") or 0) or 0
-            end
-            return zslv
-        end
-        local function ywlGetLevel()
-            return tonumber(SL:GetMetaValue("LEVEL") or 0) or 0
-        end
-        local function ywlHasAllLinggen()
-            local data = Player and Player.JsonToTbl and Player:getServerVar("T41") and Player:JsonToTbl(Player:getServerVar("T41")) or {}
-            local levels = type(data) == "table" and type(data.level) == "table" and data.level or {}
-            for idx = 1, 5 do
-                if (tonumber(levels[tostring(idx)] or levels[idx]) or 0) < 1 then
-                    return false
-                end
-            end
-            return true
-        end
-        local function ywlHasAllDestiny()
-            local data = Player and Player.JsonToTbl and Player:getServerVar("T13") and Player:JsonToTbl(Player:getServerVar("T13")) or {}
-            local state = type(data) == "table" and type(data["npc_74"]) == "table" and data["npc_74"] or {}
-            local cfg74 = type(teshudata) == "table" and teshudata["npc_74"] or {}
-            local need = tonumber(cfg74 and cfg74.all) or 4
-            return (tonumber(state.all) or 0) >= need
-        end
-        local function ywlHasTitle(titleName)
-            local itemIdx = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", titleName) or 0) or 0
-            if itemIdx <= 0 then
-                return false
-            end
-            return SL:GetMetaValue("TITLE_DATA_BY_ID", itemIdx) ~= nil
-        end
-        local _YWL_EXTRA_PROGRESS_CHAPTERS = {
-            -- ["苍云秘闻"] = true,
-            -- ["若水秘闻"] = true,
-            -- ["红尘秘闻"] = true,
-            -- ["灵虚秘闻"] = true,
-        }
-        local function ywlShouldSkipProgressChapter(chapter)
-            if type(chapter) ~= "table" then
-                return false
-            end
-            return _YWL_EXTRA_PROGRESS_CHAPTERS[tostring(chapter.name or "")] == true
-        end
-        local function ywlGetStoryProgress(continent)
-            local chapters = npc.xyl and npc.xyl[continent] or nil
-            local ywl = npc.data and npc.data.ywl or {}
-            local done = 0
-            local total = 0
-            if type(chapters) ~= "table" then
-                return 0, 0
-            end
-            for chapterIdx, chapter in ipairs(chapters) do
-                local skipTotal = ywlShouldSkipProgressChapter(chapter)
-                local tasks = type(chapter) == "table" and chapter.jq or nil
-                if type(tasks) == "table" then
-                    local chapterKey = "jl_" .. continent .. "_" .. chapterIdx
-                    local chapterReceived = tonumber(ywl[chapterKey] or 0) == 1
-                    for taskIdx, task in ipairs(tasks) do
-                        local point = _ywl_get_task_story_point(task)
-                        if not skipTotal then
-                            total = total + point
-                        end
-                        local taskReceived = tonumber(ywl[chapterKey .. "_" .. taskIdx] or 0) == 1
-                        if point > 0 and (chapterReceived or taskReceived) then
-                            done = done + point
-                        end
-                    end
-                end
-            end
-            return done, total
-        end
-        local function ywlStoryTarget(total, percent)
-            total = tonumber(total) or 0
-            if total <= 0 then
-                return 0
-            end
-            return math.ceil(total * (tonumber(percent) or 100) / 100)
-        end
         local function isYwlContinentUnlocked(continent)
             continent = tonumber(continent) or 0
-            local adminUnlock = cogin and cogin.sjtb and tonumber(cogin.sjtb.dl_all_unlock or 0) or 0
-            if adminUnlock == 1 or adminUnlock >= continent then
-                return true
+            if type(getContinentGateData) == "function" and continent >= 1 and continent <= 8 then
+                local ok, gate = pcall(getContinentGateData, continent)
+                return ok and type(gate) == "table" and gate.ok == true
             end
-            if continent <= 3 then
-                return type(dl_sz) ~= "function" or dl_sz(continent) == true
-            elseif continent == 4 then
-                local done, total = ywlGetStoryProgress(3)
-                return done >= 25 and ywlGetRelevel() >= 30 and ywlGetLevel() >= 150
-            elseif continent == 5 then
-                local done, total = ywlGetStoryProgress(4)
-                return done >= 57 and ywlGetRelevel() >= 40 and ywlHasAllLinggen()
-            elseif continent == 6 then
-                local done, total = ywlGetStoryProgress(5)
-                return done >= 50 and ywlGetRelevel() >= 50 and ywlHasAllDestiny()
-            elseif continent == 7 then
-                local done, total = ywlGetStoryProgress(6)
-                return done >= 81 and ywlGetRelevel() >= 60 and ywlHasTitle("世界符文·[真我]")
-            elseif continent == 8 then
-                return ywlGetRelevel() >= 70
-            end
-            return true
+            return type(dl_sz) == "function" and dl_sz(continent) == true
         end
         local function findNearestUnfinished()
             for i = 2, #npc.xyl do
@@ -8942,36 +8718,6 @@ npc[514] = function(p2, p3, Data)
         end
         return false
     end
-    local function hasLinggenSocketLevel(needLevel)
-        needLevel = tonumber(needLevel) or 1
-        local raw = Player and Player.getServerVar and Player:getServerVar("T74") or ""
-        if not raw or raw == "" then
-            return false
-        end
-        local ok, talentData = pcall(function()
-            return Player:JsonToTbl(raw)
-        end)
-        if not ok or type(talentData) ~= "table" or type(talentData.sockets) ~= "table" then
-            return false
-        end
-        local gemLevelByIdx = {
-            [14249] = 1,
-            [14250] = 2,
-            [14251] = 3,
-            [14252] = 3,
-            [14253] = 3,
-            [14254] = 3,
-            [14255] = 3,
-            [14256] = 4,
-        }
-        for _, gemName in pairs(talentData.sockets) do
-            local idx = tonumber(gemName) or tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", tostring(gemName or "")) or 0) or 0
-            if (gemLevelByIdx[idx] or 0) >= needLevel then
-                return true
-            end
-        end
-        return false
-    end
     local pos = {
         {
             100 + 123 - 58,
@@ -9006,171 +8752,16 @@ npc[514] = function(p2, p3, Data)
             100 + 91,
         },
     }
-    local function worldMapGetRelevel()
-        local zslv = tonumber(Player and Player.getServerVar and Player:getServerVar("U43") or 0) or 0
-        if zslv <= 0 then
-            zslv = tonumber(SL:GetMetaValue("RELEVEL") or 0) or 0
-        end
-        return zslv
-    end
-    local function worldMapGetLevel()
-        return tonumber(SL:GetMetaValue("LEVEL") or 0) or 0
-    end
-    local function worldMapGetTaskStoryPoint(task)
-        local total = 0
-        local rewards = type(task) == "table" and task.jl or nil
-        if type(rewards) ~= "table" then
-            return 0
-        end
-        for _, reward in ipairs(rewards) do
-            if type(reward) == "table" and reward[1] == "剧情点" then
-                total = total + (tonumber(reward[2]) or 0)
-            end
-        end
-        return total
-    end
-    local _WORLD_MAP_EXTRA_PROGRESS_CHAPTERS = {
-        -- ["苍云秘闻"] = true,
-        -- ["若水秘闻"] = true,
-        -- ["红尘秘闻"] = true,
-        -- ["灵虚秘闻"] = true,
-    }
-    local function worldMapShouldSkipProgressChapter(chapter)
-        if type(chapter) ~= "table" then
-            return false
-        end
-        return _WORLD_MAP_EXTRA_PROGRESS_CHAPTERS[tostring(chapter.name or "")] == true
-    end
-    local function worldMapGetStoryProgress(continent)
-        local xylCfg = nil
-        local ok, cfg = pcall(function()
-            return SL:Require("GUILayout/Data/xyl.lua", true)
-        end)
-        if ok and type(cfg) == "table" then
-            xylCfg = cfg
-        end
-        local chapters = type(xylCfg) == "table" and xylCfg[continent] or nil
-        local ywl = {}
-        local cached = rawget(_G, "XYL_YWL_CACHE")
-        if type(cached) == "table" and next(cached) ~= nil then
-            ywl = cached
-        else
-            local raw = Player and Player.getServerVar and Player:getServerVar("T26") or ""
-            if raw ~= "" and Player and Player.JsonToTbl then
-                local okJson, data = pcall(function()
-                    return Player:JsonToTbl(raw)
-                end)
-                if okJson and type(data) == "table" then
-                    ywl = data
-                end
-            end
-        end
-        local done = 0
-        local total = 0
-        if type(chapters) ~= "table" then
-            return 0, 0
-        end
-        for chapterIdx, chapter in ipairs(chapters) do
-            local skipTotal = worldMapShouldSkipProgressChapter(chapter)
-            local tasks = type(chapter) == "table" and chapter.jq or nil
-            if type(tasks) == "table" then
-                local chapterKey = "jl_" .. continent .. "_" .. chapterIdx
-                local chapterReceived = tonumber(ywl[chapterKey] or 0) == 1
-                for taskIdx, task in ipairs(tasks) do
-                    local point = worldMapGetTaskStoryPoint(task)
-                    if not skipTotal then
-                        total = total + point
-                    end
-                    local taskReceived = tonumber(ywl[chapterKey .. "_" .. taskIdx] or 0) == 1
-                    if point > 0 and (chapterReceived or taskReceived) then
-                        done = done + point
-                    end
-                end
-            end
-        end
-        return done, total
-    end
-    local function worldMapStoryTarget(total, percent)
-        total = tonumber(total) or 0
-        if total <= 0 then
-            return 0
-        end
-        return math.ceil(total * (tonumber(percent) or 100) / 100)
-    end
-    local function worldMapHasAllLinggen()
-        local raw = Player and Player.getServerVar and Player:getServerVar("T41") or ""
-        local data = {}
-        if raw ~= "" and Player and Player.JsonToTbl then
-            local ok, decoded = pcall(function()
-                return Player:JsonToTbl(raw)
-            end)
-            if ok and type(decoded) == "table" then
-                data = decoded
-            end
-        end
-        local levels = type(data.level) == "table" and data.level or {}
-        for idx = 1, 5 do
-            if (tonumber(levels[tostring(idx)] or levels[idx]) or 0) < 1 then
-                return false
-            end
-        end
-        return true
-    end
-    local function worldMapHasAllDestiny()
-        local raw = Player and Player.getServerVar and Player:getServerVar("T13") or ""
-        local data = {}
-        if raw ~= "" and Player and Player.JsonToTbl then
-            local ok, decoded = pcall(function()
-                return Player:JsonToTbl(raw)
-            end)
-            if ok and type(decoded) == "table" then
-                data = decoded
-            end
-        end
-        local state = type(data["npc_74"]) == "table" and data["npc_74"] or {}
-        local cfg74 = type(teshudata) == "table" and teshudata["npc_74"] or {}
-        local need = tonumber(cfg74 and cfg74.all) or 4
-        return (tonumber(state.all) or 0) >= need
-    end
-    local function worldMapHasTitle(titleName)
-        local itemIdx = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", titleName) or 0) or 0
-        if itemIdx <= 0 then
-            return false
-        end
-        return SL:GetMetaValue("TITLE_DATA_BY_ID", itemIdx) ~= nil
-    end
-    -- 世界地图大陆按钮：按客户端当前大陆解锁状态切换亮/灰两套贴图。
     local function isWorldMapContinentUnlocked(idx)
         local continent = tonumber(idx or 0) or 0
         if continent <= 1 then
             return true
         end
-        local adminUnlock = cogin and cogin.sjtb and tonumber(cogin.sjtb.dl_all_unlock or 0) or 0
-        if adminUnlock == 1 or adminUnlock >= continent then
-            return true
+        if type(getContinentGateData) == "function" and continent <= 8 then
+            local ok, gate = pcall(getContinentGateData, continent)
+            return ok and type(gate) == "table" and gate.ok == true
         end
-        if (tonumber(SL:GetMetaValue("RELEVEL") or 0) or 0) >= 70 and (tonumber(SL:GetMetaValue("LEVEL") or 0) or 0) >= 150 then
-            return true
-        end
-        if continent == 4 then
-            local done, total = worldMapGetStoryProgress(3)
-            return done >= 25 and worldMapGetRelevel() >= 30 and worldMapGetLevel() >= 150 and hasLinggenSocketLevel(3)
-        elseif continent == 5 then
-            local done, total = worldMapGetStoryProgress(4)
-            return done >= 57 and worldMapGetRelevel() >= 40 and worldMapHasAllLinggen()
-        elseif continent == 6 then
-            local done, total = worldMapGetStoryProgress(5)
-            return done >= 50 and worldMapGetRelevel() >= 50 and worldMapHasAllDestiny()
-        elseif continent == 7 then
-            local done, total = worldMapGetStoryProgress(6)
-            return done >= 81 and worldMapGetRelevel() >= 60 and worldMapHasTitle("世界符文·[真我]")
-        elseif continent == 8 then
-            return worldMapGetRelevel() >= 70
-        end
-        if type(dl_sz) == "function" then
-            return dl_sz(continent) == true
-        end
-        return true
+        return type(dl_sz) == "function" and dl_sz(continent) == true
     end
     local function renderWorldMap(node)
         GUI:removeAllChildren(node)
@@ -9192,12 +8783,13 @@ npc[514] = function(p2, p3, Data)
             local skinState = isUnlocked and "l" or "n"
             local btn = GUI:Button_Create(bg, 'btn' .. i, pos[i][1], pos[i][2], 'res/custom/sjdt/dl/' .. skinState .. '/' .. i .. '.png')
             GUI:addOnClickEvent(btn, function()
-                if i == 4 and not hasLinggenSocketLevel(3) then
-                    SL:ShowSystemTips("<font color='#FF0000'>需要先在灵根天赋树镶嵌一颗三级宝石</font>")
-                    return
-                end
                 if not isUnlocked then
-                    SL:ShowSystemTips("<font color='#FF0000'>还未达到进入条件，不能传送</font>")
+                    local ok, gate = false, nil
+                    if type(getContinentGateData) == "function" then
+                        ok, gate = pcall(getContinentGateData, i)
+                    end
+                    local tip = type(gate) == "table" and gate.tip or "还未达到进入条件，不能传送"
+                    SL:ShowSystemTips("<font color='#FF0000'>" .. tip .. "</font>")
                     return
                 end
                 if i == 7 then
