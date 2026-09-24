@@ -534,6 +534,53 @@ local function _dl_has_title(titleName)
     return SL:GetMetaValue("TITLE_DATA_BY_ID", idx) ~= nil
 end
 
+-- 大陆门槛：检查灵根天赋树中是否镶嵌达到指定等级的宝石。
+function _dl_has_linggen_socket_level(needLevel)
+    needLevel = _dl_to_num(needLevel, 1)
+    local raw = Player and Player:getServerVar("T74") or ""
+    local state = {}
+    if type(raw) == "table" then
+        state = raw
+    elseif raw ~= "" and Player and Player.JsonToTbl then
+        local ok, data = pcall(function()
+            return Player:JsonToTbl(raw)
+        end)
+        if ok and type(data) == "table" then
+            state = data
+        end
+    end
+
+    local gemLevelByIndex = {
+        [14249] = 1,
+        [14250] = 2,
+        [14251] = 3,
+        [14252] = 3,
+        [14253] = 3,
+        [14254] = 3,
+        [14255] = 3,
+        [14256] = 4,
+    }
+    for _, gemName in pairs(type(state.sockets) == "table" and state.sockets or {}) do
+        local itemIndex = tonumber(gemName) or 0
+        if itemIndex <= 0 and SL and SL.GetMetaValue then
+            itemIndex = _dl_to_num(SL:GetMetaValue("ITEM_INDEX_BY_NAME", tostring(gemName or "")), 0)
+        end
+        if (gemLevelByIndex[itemIndex] or 0) >= needLevel then
+            return true
+        end
+    end
+    return false
+end
+
+-- 大陆门槛：检查天道命盘是否全部激活。
+local function _dl_has_all_destiny()
+    local taskData = _dl_get_json("T26")
+    local state = type(taskData.npc_74) == "table" and taskData.npc_74 or {}
+    local cfg = teshudata and teshudata["npc_74"] or {}
+    local need = _dl_to_num(cfg.all, 4)
+    return _dl_to_num(state.all, 0) >= need
+end
+
 -- 大陆门槛：五大陆要求 5 个基础灵根均达到Lv.1。
 local function _dl_is_admin_unlocked(dl)
     local syncValue = cogin and cogin.sjtb and _dl_to_num(cogin.sjtb.dl_all_unlock, 0) or 0
@@ -608,8 +655,9 @@ local function _dl_build_gate_data(dl)
         conditions = {
             _dl_make_condition(string.format("五大陆剧情点%d/50", storyDone), storyDone >= 50),
             _dl_make_condition("五大陆转生", zslv >= 50),
+            _dl_make_condition("完成天道命盘", _dl_has_all_destiny()),
         }
-        return _dl_gate_result(dl, "需五大陆剧情点达到50点并完成五大陆转生后才可进入六大陆", conditions)
+        return _dl_gate_result(dl, "需五大陆剧情点达到50点、完成五大陆转生并完成天道命盘后才可进入六大陆", conditions)
     elseif dl == 7 then
         local storyDone = _dl_get_story_point_progress(6)
         conditions = {

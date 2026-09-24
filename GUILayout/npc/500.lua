@@ -1,5 +1,13 @@
 local npc = {}
 npc._config = teshudata["sjdt"]
+
+-- 世界地图可能在 GUIUtil 之前单独加载，显式确保大陆门槛函数已注册。
+if type(getContinentGateData) ~= "function" and SL and SL.Require then
+    pcall(function()
+        SL:Require("GUILayout/GUIUtil", true)
+    end)
+end
+
 local function _to_num(v, defaultValue)
     local n = tonumber(v)
     if n == nil then
@@ -53,15 +61,16 @@ local function _join_condition_segments(segments)
 end
 
 local function _build_enter_condition_data(dl)
+    local ok, gate = false, nil
     if type(getContinentGateData) == "function" then
-        local ok, gate = pcall(getContinentGateData, dl)
-        if ok and type(gate) == "table" then
-            return {
-                richText = _join_condition_segments(gate.conditions),
-                ok = gate.ok == true,
-                tip = gate.tip,
-            }
-        end
+        ok, gate = pcall(getContinentGateData, dl)
+    end
+    if ok and type(gate) == "table" then
+        return {
+            richText = _join_condition_segments(gate.conditions),
+            ok = gate.ok == true,
+            tip = gate.tip,
+        }
     end
     return {
         richText = "<font color='#FF3333'>大陆条件数据暂不可用</font>",
