@@ -5,19 +5,19 @@ npc._config = teshudata["npc_85"] or {}
 local UIHelper = NPC_UI_HELPER
 
 local WINDOW_OPTS = {
-    background = {skin = "res/custom/six_city/星象圣图/星象圣图.png", eff = false},
+    background = {skin = "res/custom/six_city/star_chart/astrology_sacred_chart.png", eff = false},
     closeButton = {x = 848, y = 470 - 60, skin = "res/wy/public/close_red_big.png"},
 }
 
 local DETAIL_WINDOW_OPTS = {
     windowName = "npc_85_detail",
-    background = {skin = "res/custom/six_city/星象圣图/次级页面/星象圣图次级页面.png", eff = false},
+    background = {skin = "res/custom/six_city/star_chart/subpage/astrology_sacred_chart_sub_page.png", eff = false},
     closeButton = {x = 560 - 50, y = 594 - 70, skin = "res/wy/public/close_red_big.png"},
 }
 
 local STAGE_WINDOW_OPTS = {
     windowName = "npc_85_stage_upgrade",
-    overlay = {skin = "res/custom/treasureBasin/x.png"},
+    overlay = {skin = "res/wy/public/x.png"},
     background = {skin = "res/custom/treasureBasin/xjm_bg.png", eff = false},
     closeButton = {x = 555, y = 338, skin = "res/wy/public/close_red_big.png"},
     zOrder = 200,
@@ -26,16 +26,47 @@ local STAGE_WINDOW_OPTS = {
 local FONT_MAIN = "fonts/font4.ttf"
 local FONT_TITLE = "fonts/502.ttf"
 
-local BTN_UNLOCK = "res/custom/six_city/星象圣图/解锁圣图.png"
-local BTN_LIGHT = "res/custom/six_city/星象圣图/次级页面/点亮星宿.png"
-local COST_LABEL = "res/custom/six_city/星象圣图/所需消耗：.png"
-local SELECT_SKIN = "res/custom/six_city/星象圣图/选中框.png"
-local ITEM_BOX_SKIN = "res/custom/six_city/星象圣图/装备框-.png"
-local DETAIL_ITEM_BOX_SKIN = "res/custom/six_city/星象圣图/次级页面/装备框-.png"
-local STAGE_ITEM_BOX_SKIN = "res/custom/six_city/星象圣图/装备框-.png"
-local FULL_REWARD_TITLE_SKIN = "res/custom/six_city/星象圣图/点亮全部星宿获得.png"
+local BTN_UNLOCK = "res/custom/six_city/star_chart/unlock_sacred_chart.png"
+local BTN_LIGHT = "res/custom/six_city/star_chart/subpage/activate_constellation.png"
+local COST_LABEL = "res/custom/six_city/star_chart/required_cost.png"
+local SELECT_SKIN = "res/custom/six_city/star_chart/selected_frame.png"
+local ITEM_BOX_SKIN = "res/custom/six_city/star_chart/item_frame.png"
+local DETAIL_ITEM_BOX_SKIN = "res/custom/six_city/star_chart/subpage/item_frame.png"
+local STAGE_ITEM_BOX_SKIN = "res/custom/six_city/star_chart/item_frame.png"
+local FULL_REWARD_TITLE_SKIN = "res/custom/six_city/star_chart/activate_all_constellations_reward.png"
 local FULL_REWARD_BOX_SKIN = "res/wy/public/58_58_kuang.png"
 local FULL_REWARD_PANEL_POS = {x = 705 - 70, y = 257 - 50, width = 205, height = 198}
+
+local STAGE_ICON_DIR = {
+    ["初星"] = "first_star_icon",
+    ["双星"] = "double_star_icon",
+    ["三星"] = "three_star_icon",
+    ["四星"] = "four_star_icon",
+    ["五星"] = "five_star_icon",
+    ["圣星"] = "sacred_star_icon",
+    ["帝星"] = "emperor_star_icon",
+    ["耀星"] = "radiant_star_icon",
+}
+local STAGE_BADGE_ASSET = {
+    ["初星"] = "first_star.png",
+    ["双星"] = "double_star.png",
+    ["三星"] = "three_star.png",
+    ["四星"] = "four_star.png",
+    ["五星"] = "five_star.png",
+    ["圣星"] = "sacred_star.png",
+    ["帝星"] = "emperor_star.png",
+    ["耀星"] = "radiant_star.png",
+}
+local NODE_ASSET = {
+    [1] = {"constellation_1_dawn_star.png", "constellation_2_venus.png", "constellation_3_yuheng.png", "constellation_4_tianquan.png", "constellation_5_tianji.png"},
+    [2] = {"constellation_1_sun_star.png", "constellation_2_moon_star.png", "constellation_3_fire_star.png", "constellation_4_water_star.png", "constellation_5_wood_star.png"},
+    [3] = {"constellation_1_metal_star.png", "constellation_2_earth_star.png", "constellation_3_wind_star.png", "constellation_4_thunder_star.png", "constellation_5_electric_star.png"},
+    [4] = {"constellation_1_azure_dragon.png", "constellation_2_white_tiger.png", "constellation_3_vermilion_bird.png", "constellation_4_black_tortoise.png", "constellation_5_qilin.png"},
+    [5] = {"constellation_1_jupiter.png", "constellation_2_mars.png", "constellation_3_saturn.png", "constellation_4_venus.png", "constellation_5_mercury.png"},
+    [6] = {"constellation_1_heavenly_pivot.png", "constellation_2_tianxuan.png", "constellation_3_tianji.png", "constellation_4_tianquan.png", "constellation_5_yuheng.png"},
+    [7] = {"constellation_1_purple_star.png", "constellation_2_tianji_star.png", "constellation_3_sun.png", "constellation_4_moon.png", "constellation_5_martial_star.png"},
+    [8] = {"constellation_1_emperor_star_core.png", "constellation_2_heavenly_might.png", "constellation_3_longevity_star.png", "constellation_4_tianyong.png", "constellation_5_tianfu.png"},
+}
 
 local MAIN_NODE_POS = {
     {x = 169, y = 265},
@@ -332,15 +363,16 @@ end
 
 local function getStageBadgeSkin(stageIdx)
     local stageName = tostring(getStageCfg(stageIdx).name or "初星")
-    return string.format("res/custom/six_city/星象圣图/星宿阶段/%s.png", stageName)
+    return "res/custom/six_city/star_chart/constellation_phase/" .. (STAGE_BADGE_ASSET[stageName] or "first_star.png")
 end
 
 local function getNodeIconSkin(stageIdx, nodeIdx)
     local stageCfg = getStageCfg(stageIdx)
     local nodeCfg = (stageCfg.nodes or {})[nodeIdx] or {}
     local stageName = tostring(stageCfg.name or "初星")
-    local nodeName = tostring(nodeCfg.name or ("初星" .. tostring(nodeIdx)))
-    return string.format("res/custom/six_city/星象圣图/%sicon/星宿%d·%s.png", stageName, nodeIdx, nodeName)
+    local asset = (NODE_ASSET[stageIdx] or {})[nodeIdx]
+    local stageDir = STAGE_ICON_DIR[stageName] or "first_star_icon"
+    return string.format("res/custom/six_city/star_chart/%s/%s", stageDir, asset or "constellation_1_dawn_star.png")
 end
 
 local function renderEntryCostBoxes(parent, entryList, positions, boxSkin)
@@ -539,7 +571,7 @@ renderStageUpgrade = function(npcid, stageIdx)
     local stateText = full and "当前阶段已全部点亮" or (unlocked and string.format("当前进度：%d/%d", math.max(0, nextNodeIdx - 1), nodeCount) or "当前阶段尚未解锁")
     local actionText = full and "已完成" or (unlocked and "点亮星宿" or "解锁圣图")
 
-    local bg_img = GUI:Image_Create(node, "bg_img", 15, 15, "res/custom/six_city/星象圣图/2.png")
+    local bg_img = GUI:Image_Create(node, "bg_img", 15, 15, "res/custom/six_city/star_chart/2.png")
     GUI:setContentSize(bg_img, 570, 350)
 
 

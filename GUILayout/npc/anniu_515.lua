@@ -447,10 +447,7 @@ local function getAchievementIcon(detailOrName, detailId)
 
     local iconId = detail and toNumber(detail.id, 0) or 0
     if iconId > 0 then
-        local path = string.format("res/custom/fairyFate/icons/%s.png", tostring(iconId))
-        if SL and SL.IsFileExist and SL:IsFileExist(path) then
-            return path
-        end
+        return string.format("res/custom/fairyFate/icons/%s.png", tostring(iconId))
     end
     return DEFAULT_ICON
 end

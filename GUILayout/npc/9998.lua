@@ -1,7 +1,7 @@
 local npc = {}
 
 local WINDOW_OPTS = {
-    background = {skin = "res/custom/gaiming/改头换面.png", width = 800, height = 440},
+    background = {skin = "res/custom/gaiming/rename.png", width = 800, height = 440},
     closeButton = {
         x = 720,
         y = 380,
@@ -66,7 +66,7 @@ local function _render(node, npcid, data)
         GUI:TextInput_setPlaceholderFontColor(input, "#9b8c78")
     end
 
-    local submitBtn = GUI:Image_Create(content, "submit", 461, 91, "res/custom/gaiming/立即改名.png")
+    local submitBtn = GUI:Image_Create(content, "submit", 461, 91, "res/custom/gaiming/immediate_rename.png")
     GUI:setAnchorPoint(submitBtn, 0.5, 0.5)
     GUI:setLocalZOrder(submitBtn, 20)
     GUI:setTouchEnabled(submitBtn, true)

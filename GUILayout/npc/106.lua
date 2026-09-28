@@ -133,7 +133,7 @@
 
 --     npc.basinLevelPopup = NPC_UI_HELPER.ensureWindow(nil, 106, {
 --         windowName = "treasure_basin_task_level_popup",
---         overlay = {skin = "res/custom/treasureBasin/x.png"},
+--         overlay = {skin = "res/wy/public/x.png"},
 --         background = {skin = RES .. "xjm_bg.png"},
 --         closeButton = {x = 555, y = 338, skin = "res/wy/public/close_red_big.png", onClick = closeBasinLevelPopup},
 --         zOrder = 200,
@@ -396,8 +396,8 @@
 
 --         -- text(node, "task_desc", 0, 115, 22, "#FFFFFF", "主线目标：收集" .. fmt(need) .. "个" .. fragmentName .. "，完成聚宝盆修复。", 0.5, 0.5)
 
---         image(node, "task_need_title", -458, 30, RES .. "任务要求.png", 0, 0.5)
---         image(node, "task_reward_title", -458, -46 - 30, RES .. "任务奖励.png", 0, 0.5)
+--         image(node, "task_need_title", -458, 30, RES .. "task_requirement.png", 0, 0.5)
+--         image(node, "task_reward_title", -458, -46 - 30, RES .. "task_reward.png", 0, 0.5)
 
 
 --         -- 9.8-1 原聚宝盆碎片数量显示已停用，保留任务区域占位文字。
@@ -444,7 +444,7 @@
 --         return
 --     end
 
---     image(node, "task_reward_title", -458, -46 - 30, RES .. "任务奖励.png", 0, 0.5)
+--     image(node, "task_reward_title", -458, -46 - 30, RES .. "task_reward.png", 0, 0.5)
 
 --     ItemNumByTable_img_new({{artifactName, 1}}, nil, GUI:Node_Create(node, "task_reward_show_done", 334 + 134 - 853, -94 + 41 - 146))
 

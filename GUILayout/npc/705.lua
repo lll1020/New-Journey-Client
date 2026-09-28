@@ -5,7 +5,7 @@
 npc._config = teshudata["npc_705"]
 
 local WINDOW_OPTS = {
-    background = {skin = "res/custom/all_story_mission/5/705/0.png"},
+    background = {skin = "res/custom/all_story_mission/5/705/1.png"},
     closeButton = {x = 340, y = 120},
 }
 
@@ -145,7 +145,7 @@ local function renderChoiceButton(node, name, x, y, choice, done)
         GUI:setLocalZOrder(doneNode, 20)
         return
     end
-    local skin = (SL and SL.IsFileExist and SL:IsFileExist(BTN_SUBMIT)) and BTN_SUBMIT or BTN_SUBMIT_FALLBACK
+    local skin = BTN_SUBMIT
     local btn = GUI:Button_Create(node, "btn_choice_" .. choice, x + 35, y - 90, skin)
     GUI:setAnchorPoint(btn, 0.5, 0.5)
     GUI:setLocalZOrder(btn, 20)

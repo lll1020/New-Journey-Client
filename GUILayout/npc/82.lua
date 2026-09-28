@@ -10,20 +10,20 @@ local DEFAULT_CONFIG = {
 npc._config = teshudata["npc_82"] or teshudata["npc_79"] or DEFAULT_CONFIG
 
 local WINDOW_OPTS = {
-    background = {skin = "res/custom/six_city/武器性格/武器性格.png", eff = false},
+    background = {skin = "res/custom/six_city/weapon_personality/weapon_personality.png", eff = false},
     closeButton = {x = 742, y = 500, skin = "res/wy/public/close_red_big.png"},
-    title = {x = 56, y = 464, skin = "res/custom/six_city/武器性格/标题.png"},
+    title = {x = 56, y = 464, skin = "res/custom/six_city/weapon_personality/title.png"},
 }
 
-local BTN_OK = "res/custom/six_city/武器性格/我知道了.png"
-local SLOGAN_SKIN = "res/custom/six_city/武器性格/标语.png"
+local BTN_OK = "res/custom/six_city/weapon_personality/got_it.png"
+local SLOGAN_SKIN = "res/custom/six_city/weapon_personality/slogan.png"
 
 local PERSONALITY_SKIN = {
-    baonu = "res/custom/six_city/武器性格/暴怒.png",
-    lianmin = "res/custom/six_city/武器性格/怜悯.png",
-    shixue = "res/custom/six_city/武器性格/嗜血.png",
-    tanlan = "res/custom/six_city/武器性格/贪婪.png",
-    lumang = "res/custom/six_city/武器性格/鲁莽.png",
+    baonu = "res/custom/six_city/weapon_personality/rage.png",
+    lianmin = "res/custom/six_city/weapon_personality/mercy.png",
+    shixue = "res/custom/six_city/weapon_personality/bloodlust.png",
+    tanlan = "res/custom/six_city/weapon_personality/greed.png",
+    lumang = "res/custom/six_city/weapon_personality/reckless.png",
 }
 
 local function createText(parent, name, x, y, size, color, value, font, ax, ay)

@@ -341,7 +341,7 @@ local function openBasinLevelPopup()
 
     npc.basinLevelPopup = NPC_UI_HELPER.ensureWindow(nil, 517, {
         windowName = "treasure_basin_level_popup",
-        overlay = {skin = "res/custom/treasureBasin/x.png"},
+        overlay = {skin = "res/wy/public/x.png"},
         background = {skin = RES .. "xjm_bg.png"},
         closeButton = {x = 555, y = 338 + 24, skin = "res/wy/public/close_red_big.png", onClick = closeBasinLevelPopup},
         zOrder = 200,
@@ -411,7 +411,7 @@ local function openForbiddenUpgradePopup(npcid, id, lv)
     end
     npc.forbiddenUpgradePopup = NPC_UI_HELPER.ensureWindow(nil, npcid or 517, {
         windowName = "treasure_basin_forbidden_upgrade_popup",
-        overlay = {skin = "res/custom/treasureBasin/x.png"},
+        overlay = {skin = "res/wy/public/x.png"},
         background = {skin = RES .. "xjm_bg.png"},
         closeButton = {x = 555, y = 362, skin = "res/wy/public/close_red_big.png", onClick = closeForbiddenUpgradePopup},
         zOrder = 201,

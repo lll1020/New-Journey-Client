@@ -526,18 +526,13 @@ local WINDOW_STYLE = {
             skin = "res/public/1900000651_1.png",
         },
         background = {
-            skin = "res/custom/fairyFate/bg.png",
+            skin = "res/custom/fairyFate/main_bg.png",
             eff = true,
         },
         closeButton = {
             x = 740,
             y = 460,
             skin = "res/wy/public/close_red_big.png",
-        },
-        title = {
-            x = 56,
-            y = 464,
-            skin = "res/custom/fairyFate/title.png",
         },
     },
     freeSponsor = {
@@ -5094,9 +5089,15 @@ npc[30] = function(p2, p3, Data)
             red = '红',
             hidden = '隐藏',
         }
-        local group = tostring(cfg.asset_group or 1)
-        local quality = qualityMap[cfg.quality or 'normal'] or '普通'
-        return string.format('res/custom/three_city/xianfu/仙府部分/收藏柜/娃娃/娃娃%s/%s.png', group, quality)
+        local group = math.max(1, math.min(5, tonumber(cfg.asset_group or 1) or 1))
+        local qualityAsset = {
+            normal = "normal.png",
+            red = "red.png",
+            hidden = "hidden.png",
+        }
+        local quality = qualityAsset[cfg.quality or "normal"] or qualityAsset.normal
+        local dollDir = "doll_" .. group
+        return string.format("res/custom/three_city/xianfu/immortal_estate_panel/collection_cabinet/doll/%s/%s", dollDir, quality)
     end
 
     local function request_open_doll_machine()
@@ -5126,12 +5127,12 @@ npc[30] = function(p2, p3, Data)
 
     local function get_doll_tab_skin(tabId)
         local folderMap = {
-            doll_machine = '娃娃机',
-            doll_cabinet = '收藏柜',
+            doll_machine = 'doll_machine',
+            doll_cabinet = 'collection_cabinet',
         }
-        local folder = folderMap[tabId] or '娃娃机'
-        local state = npc.woodcut_doll.tab == tabId and '亮' or '暗'
-        return string.format('res/custom/three_city/xianfu/仙府部分/左侧按钮/%s/%s.png', folder, state)
+        local folder = folderMap[tabId] or 'doll_machine'
+        local state = npc.woodcut_doll.tab == tabId and 'state_bright' or 'state_dark'
+        return string.format('res/custom/three_city/xianfu/immortal_estate_panel/left_buttons/%s/%s.png', folder, state)
     end
 
     local function build_doll_owned_list(doll)
@@ -5372,7 +5373,7 @@ npc[30] = function(p2, p3, Data)
                 ))
             end
         end
-        local bg = GUI:Frames_Create(parent, 'bg', cogin.w / 2, cogin.h / 2 + 100, 'res/custom/three_city/xianfu/仙府部分/娃娃机/bg/eff_', '.png', startFrame, endFrame,
+        local bg = GUI:Frames_Create(parent, 'bg', cogin.w / 2, cogin.h / 2 + 100, 'res/custom/three_city/xianfu/immortal_estate_panel/doll_machine/bg/eff_', '.png', startFrame, endFrame,
             { speed = 50, count = 150, loop = 1, callback = function(self)
                 if not is_popup_alive() then
                     return
@@ -5411,7 +5412,7 @@ npc[30] = function(p2, p3, Data)
         GUI:setOpacity(mask, 225)
         GUI:setTouchEnabled(mask, true)
         if reveal.phase == 'opening' then
-            local eff = GUI:Frames_Create(overlay, 'overlay_eff', 0, 0, 'res/custom/three_city/xianfu/仙府部分/娃娃机/bg/eff_', '.png', 1, 150, {
+            local eff = GUI:Frames_Create(overlay, 'overlay_eff', 0, 0, 'res/custom/three_city/xianfu/immortal_estate_panel/doll_machine/bg/eff_', '.png', 1, 150, {
                 speed = 75,
                 count = 150,
                 loop = 1
@@ -5433,7 +5434,7 @@ npc[30] = function(p2, p3, Data)
             end
             return
         end
-        local effStatic = GUI:Image_Create(overlay, 'overlay_eff_static', 0, 0, 'res/custom/three_city/xianfu/仙府部分/娃娃机/bg/eff_150.png')
+        local effStatic = GUI:Image_Create(overlay, 'overlay_eff_static', 0, 0, 'res/custom/three_city/xianfu/immortal_estate_panel/doll_machine/bg/eff_150.png')
         GUI:setLocalZOrder(effStatic, 2)
         local title = GUI:Text_Create(overlay, 'overlay_title', cogin.w / 2 - 40, 446, 26, '#ffe9c2', reveal.phase == 'summary' and (#results >= 10 and '十连结果' or '抽取结果') or '娃娃抓取中')
         GUI:Text_enableOutline(title, '#100808', 2)
@@ -5474,7 +5475,7 @@ npc[30] = function(p2, p3, Data)
             if asset then
                 GUI:Image_Create(card, 'overlay_card_asset_' .. idx, 0, 0, asset)
             end
-            local labelBg = GUI:Image_Create(card, 'overlay_card_labelbg_' .. idx, -8, cardH - 56, 'res/custom/three_city/xianfu/仙府部分/娃娃机/下方透明底.png')
+            local labelBg = GUI:Image_Create(card, 'overlay_card_labelbg_' .. idx, -8, cardH - 56, 'res/custom/three_city/xianfu/immortal_estate_panel/doll_machine/bottom_transparent.png')
             GUI:setScaleX(labelBg, 0.28)
             GUI:setScaleY(labelBg, 0.42)
             GUI:setOpacity(labelBg, 180)
@@ -5541,11 +5542,11 @@ npc[30] = function(p2, p3, Data)
         local payload = npc.woodcut_doll.payload or {}
         local doll = payload.doll or {}
         local cfg = get_doll_cfg()
-        local bg = GUI:Frames_Create(parent, "eff", 0 - 40, 0, "res/custom/three_city/xianfu/仙府部分/娃娃机/bg/eff_", ".png", 1, 150,
+        local bg = GUI:Frames_Create(parent, "eff", 0 - 40, 0, "res/custom/three_city/xianfu/immortal_estate_panel/doll_machine/bg/eff_", ".png", 1, 150,
         { speed = 75, count = 150, loop = -1})
-        GUI:Image_Create(parent, 'machine_rule_img', 498 - 40, 273, 'res/custom/three_city/xianfu/仙府部分/娃娃机/游戏规则.png')
-        GUI:Image_Create(parent, 'machine_material_title', 58 - 20, 132, 'res/custom/three_city/xianfu/仙府部分/娃娃机/所需材料.png')
-        local panel = GUI:Image_Create(parent, 'machine_info_bg', 42 - 20, 8, 'res/custom/three_city/xianfu/仙府部分/娃娃机/下方透明底.png')
+        GUI:Image_Create(parent, 'machine_rule_img', 498 - 40, 273, 'res/custom/three_city/xianfu/immortal_estate_panel/doll_machine/game_rules.png')
+        GUI:Image_Create(parent, 'machine_material_title', 58 - 20, 132, 'res/custom/three_city/xianfu/immortal_estate_panel/doll_machine/required_materials.png')
+        local panel = GUI:Image_Create(parent, 'machine_info_bg', 42 - 20, 8, 'res/custom/three_city/xianfu/immortal_estate_panel/doll_machine/bottom_transparent.png')
         local tip = GUI:Image_Create(parent, 'machine_tip', 650 - 40 -553, 402 - 389, 'res/custom/msfc/page1/wenhao.png')
 
         GUI:setAnchorPoint(panel, 0, 0)
@@ -5613,14 +5614,14 @@ npc[30] = function(p2, p3, Data)
         GUI:CheckBox_addOnEvent(skipBtn, function(self)
             npc.woodcut_doll.skipAnim = GUI:CheckBox_isSelected(self)
         end)
-        local skipLabel = GUI:Image_Create(skipWrap, 'doll_skip_label', 30, -2, 'res/custom/three_city/xianfu/仙府部分/娃娃机/跳过动画.png')
+        local skipLabel = GUI:Image_Create(skipWrap, 'doll_skip_label', 30, -2, 'res/custom/three_city/xianfu/immortal_estate_panel/doll_machine/skip_animation.png')
         GUI:setTouchEnabled(skipLabel, false)
-        local drawBtn = GUI:Button_Create(parent, 'doll_draw_btn', 630, 40, 'res/custom/three_city/xianfu/仙府部分/娃娃机/抓一次.png')
+        local drawBtn = GUI:Button_Create(parent, 'doll_draw_btn', 630, 40, 'res/custom/three_city/xianfu/immortal_estate_panel/doll_machine/draw_one.png')
         GUI:setAnchorPoint(drawBtn, 0.5, 0.5)
         GUI:addOnClickEvent(drawBtn, function()
             request_draw_doll_machine(1)
         end)
-        local drawTenBtn = GUI:Button_Create(parent, 'doll_draw_ten_btn', 400, 40, 'res/custom/three_city/xianfu/仙府部分/娃娃机/抓十次.png')
+        local drawTenBtn = GUI:Button_Create(parent, 'doll_draw_ten_btn', 400, 40, 'res/custom/three_city/xianfu/immortal_estate_panel/doll_machine/draw_ten.png')
         GUI:setAnchorPoint(drawTenBtn, 0.5, 0.5)
         GUI:addOnClickEvent(drawTenBtn, function()
             request_draw_doll_machine(10)
@@ -5637,7 +5638,7 @@ npc[30] = function(p2, p3, Data)
         local payload = npc.woodcut_doll.payload or {}
         local doll = payload.doll or {}
         local ownedList = build_doll_owned_list(doll)
-        GUI:Image_Create(parent, 'cabinet_room_bg', 0 - 40, 0, 'res/custom/three_city/xianfu/仙府部分/收藏柜/收藏柜背景.png')
+        GUI:Image_Create(parent, 'cabinet_room_bg', 0 - 40, 0, 'res/custom/three_city/xianfu/immortal_estate_panel/collection_cabinet/collection_cabinet_background.png')
         local viewX = 66
         local viewY = 66 - 50
         local viewW = 644
@@ -5697,7 +5698,7 @@ npc[30] = function(p2, p3, Data)
                 skin = skin,
             },
             closeButton = {x = 782, y = 470},
-            title = {x = 50, y = 464, skin = "res/custom/three_city/xianfu/仙府部分/标题.png"},
+            title = {x = 50, y = 464, skin = "res/custom/three_city/xianfu/immortal_estate_panel/title.png"},
         })
         local node = npc.doll_window and npc.doll_window.node
         if not node then
@@ -5792,7 +5793,7 @@ npc[30] = function(p2, p3, Data)
         -- local btn_buy = GUI:Button_Create(re_wz, "btn_buy", 278 / 2, 300 - 70, "res/custom/three_city/xianfu/kanshu/btn_buy.png")
         local btn_tip = GUI:Button_Create(re_wz, "btn_tip", 278 / 2, 300, "res/custom/three_city/xianfu/kanshu/btn_tip.png")
         local btn_updata_1 = GUI:Button_Create(re_wz, "btn_updata_", 278 / 2, 300 - 140, "res/custom/three_city/xianfu/kanshu/btn_updata_1.png")
-        local btn_doll = GUI:Button_Create(re_wz, "btn_doll", 278 / 2, 300 - 70, "res/custom/three_city/xianfu/仙府部分/抓娃娃机.png")
+        local btn_doll = GUI:Button_Create(re_wz, "btn_doll", 278 / 2, 300 - 70, "res/custom/three_city/xianfu/immortal_estate_panel/doll_machine.png")
         GUI:setAnchorPoint(btn_updata_2, 0.5, 0.5)
         -- GUI:setAnchorPoint(btn_buy, 0.5, 0.5)
         GUI:setAnchorPoint(btn_tip, 0.5, 0.5)
@@ -6413,7 +6414,7 @@ npc[501] = function(p2, p3, Data)
 end
 npc[502] = function(p2, p3, Data)
     local function create_502_item(parent, itemName, itemCount, itemKey)
-        local itemNode = GUI:Image_Create(parent, "itme" .. tostring(itemKey or itemName), 0, 0, "dev/res/wy/public/40-42.png")
+        local itemNode = GUI:Image_Create(parent, "itme" .. tostring(itemKey or itemName), 0, 0, "res/wy/public/40-42.png")
         
         if tostring(itemName or "") == "极品仙法卷轴" then
             _add_reward_item_effect(itemNode, "reward_eff", 20, 21, 0.6, 13054)
@@ -7129,7 +7130,7 @@ npc[507] = function(p2, p3, Data)
             local currentIdx = tonumber(qmdtState.current_idx or 0) or 0
             local remain = tonumber(qmdtState.limit_sec or 0) or 0
             cfg.title = "全民答题"
-            cfg.time = string.format("开服第%s分钟开启，持续%s分钟；共%s题，每题%s秒", tostring(qmdt.start_minute or 33), tostring(qmdt.duration_min or 5), tostring(qmdt.question_count or 5), tostring(qmdt.per_question_sec or 60))
+            cfg.time = string.format("开服第%s分钟开启，持续%s分钟；共%s题，每题%s秒", tostring(qmdt.start_minute or 30), tostring(qmdt.duration_min or 4.5), tostring(qmdt.question_count or 12), tostring(qmdt.per_question_sec or 20))
             cfg.desc = "选择你心目中正确的答案，移动至对应选项光圈中，倒计时结束后自动判断对错！"
             cfg.reward = "参与奖励：" .. makeRewardText(qmdt.join_reward)
             cfg.rewardItems = buildRewardItems(function(out, seen)
@@ -7220,7 +7221,7 @@ npc[507] = function(p2, p3, Data)
             end)
         elseif i == 9 then
             cfg.title = "武林盟主"
-            cfg.time = "开服第25分钟开启，持续5分钟"
+            cfg.time = "开服第20分钟开启，持续5分钟"
             cfg.desc = "进入地图，非我者必诛之！你要做的就是杀光其他人！"
             cfg.reward = "胜者可获得盟主荣誉与活动结算奖励"
             cfg.rewardItems = buildRewardItems(function(out, seen)
@@ -7261,7 +7262,7 @@ npc[507] = function(p2, p3, Data)
             cfg.reward = "开放后公布活动奖励"
         elseif i == 13 then
             cfg.title = "随机夺宝"
-            cfg.time = string.format("开服第15分钟开启，在【%s】地图持续%s秒投放宝物", tostring(sjdb.map or "天降财宝"), tostring(sjdb.keep_sec or 300))
+            cfg.time = string.format("开服第12分钟开启，在【%s】地图持续%s秒投放宝物", tostring(sjdb.map or "天降财宝"), tostring(sjdb.keep_sec or 300))
             cfg.desc = "进入地图，使用随机传送石拾取地图中散落的宝物！"
             cfg.reward = "随机夺宝"
             cfg.rewardItems = buildRewardItems(function(out, seen)
@@ -7368,21 +7369,21 @@ npc[507] = function(p2, p3, Data)
         elseif i == 2 then
             return statusByDayTime(qmdk.start_hour or 19, qmdk.start_minute_clock or 0, qmdk.duration_min or 20)
         elseif i == 3 then
-            return statusByOpenMinute(qmdt.start_minute or 35, qmdt.duration_min or 4)
+            return statusByOpenMinute(qmdt.start_minute or 30, qmdt.duration_min or 4.5)
         elseif i == 5 then
             return statusByOpenMinute(5, 3)
         elseif i == 6 then
             return statusByDayTime(mskh.start_hour or 16, mskh.start_minute_clock or 0, mskh.duration_min or 30)
         elseif i == 7 then
-            return statusByOpenMinute(30, 120)
+            return statusByOpenMinute(1, 120)
         elseif i == 8 then
             return statusByDayTime(22, 0, 10)
         elseif i == 9 then
-            return statusByOpenMinute(25, 5)
+            return statusByOpenMinute(20, 5)
         elseif i == 10 then
             return statusByDayTime(20, 0, 120)
         elseif i == 13 then
-            return statusByOpenMinute(15, math.max(1, math.ceil((tonumber(sjdb.keep_sec) or 300) / 60)))
+            return statusByOpenMinute(12, math.max(1, math.ceil((tonumber(sjdb.keep_sec) or 300) / 60)))
         elseif i == 14 then
             return statusByDayTime(hdjd.start_hour or 19, hdjd.start_minute_clock or 30, hdjd.duration_min or 20)
         end
@@ -7840,7 +7841,7 @@ npc[511] = function(p2, p3, Data)
         local gap = 55
         for i, reward in ipairs(rewards) do
             if levelrush_to_int(reward.idx) > 0 then
-                local frame = GUI:Image_Create(parent, "cj_frame_" .. tostring(row.idx) .. "_" .. i, startX + (i - 1) * gap, posY, "res/custom/xinquchongji/装备框-.png")
+                local frame = GUI:Image_Create(parent, "cj_frame_" .. tostring(row.idx) .. "_" .. i, startX + (i - 1) * gap, posY, "res/custom/xinquchongji/item_frame.png")
                 GUI:setAnchorPoint(frame, 0.5, 0.5)
                 local item = GUI:ItemShow_Create(frame, "item", 25, 25, {index = reward.idx, look = true, bgVisible = false})
                 GUI:setAnchorPoint(item, 0.5, 0.5)
@@ -8256,7 +8257,7 @@ npc[511] = function(p2, p3, Data)
                 row = levelrush_merge_row(row)
                 local posY = 311 - (index - 1) * 58
                 
-                GUI:setContentSize(GUI:Image_Create(Label_node, "cj_line_" .. index, 32, posY - 30, "res/custom/xinquchongji/分割线-.png"), 580, 12)
+                GUI:setContentSize(GUI:Image_Create(Label_node, "cj_line_" .. index, 32, posY - 30, "res/custom/xinquchongji/divider.png"), 580, 12)
                 local levelText = GUI:Text_Create(Label_node, "cj_level_" .. index, 110 - 18, posY, 21, "#EAF6FF", tostring(row.level or 0) .. "级")
                 GUI:setAnchorPoint(levelText, 0.5, 0.5)
                 GUI:Text_enableOutline(levelText, "#05080C", 2)
@@ -8376,43 +8377,48 @@ npc[512] = function(p2, p3, Data)
         {
             key = "intro",
             main = "本服简介",
+            resourceKey = "server_intro",
             subs = {
-                {name = "游戏简介", img = "res/custom/strategy/本服简介-游戏简介/本服简介-游戏简介.png"},
-                {name = "等级相关", img = "res/custom/strategy/本服简介-等级相关.png"},
+                {name = "游戏简介", resourceKey = "game_intro", img = "res/custom/strategy/server_intro_game/server_intro_game.png"},
+                {name = "等级相关", resourceKey = "level_related", img = "res/custom/strategy/server_intro_level_related.png"},
             },
         },
         {
             key = "start",
             main = "起号抗米",
+            resourceKey = "new_account",
             subs = {
-                {name = "白嫖玩家", img = "res/custom/strategy/起号抗米-白嫖玩家.png"},
-                {name = "小资玩家", img = "res/custom/strategy/起号抗米-小资玩家-.png"},
-                {name = "土豪玩家", img = "res/custom/strategy/起号抗米-土豪玩家--.png"},
+                {name = "白嫖玩家", resourceKey = "free_player", img = "res/custom/strategy/new_account_free_player.png"},
+                {name = "小资玩家", resourceKey = "modest_spender", img = "res/custom/strategy/new_account_modest_player.png"},
+                {name = "土豪玩家", resourceKey = "whale", img = "res/custom/strategy/new_account_whale_player.png"},
             },
         },
         {
             key = "equip",
             main = "装备预览",
+            resourceKey = "equipment_preview",
             subs = {
-                {name = "装备分类", img = "res/custom/strategy/装备预览-装备分类-.png"},
-                {name = "顶级装备", img = "res/custom/strategy/顶级装备背景.png"},
-                {name = "全服孤品", img = "res/custom/strategy/全服孤品背景.png"},
+                {name = "装备分类", resourceKey = "equipment_category", img = "res/custom/strategy/equipment_preview_equipment_category.png"},
+                {name = "顶级装备", resourceKey = "ultimate_equipment", img = "res/custom/strategy/ultimate_equipment_background.png"},
+                {name = "全服孤品", resourceKey = "serverwide_unique", img = "res/custom/strategy/serverwide_unique_background.png"},
             },
         },
         {
             key = "play",
             main = "玩法攻略",
+            resourceKey = "gameplay_guide",
             subs = {
-                {name = "玩法攻略", img = "res/custom/strategy/玩法攻略/玩法攻略.png"},
-                -- {name = "灵根部分", img = "res/custom/strategy/玩法攻略/灵根部分.png", w = 1392, h = 162},
+                {name = "玩法攻略", resourceKey = "gameplay_guide", img = "res/custom/strategy/gameplay_guide/gameplay_guide.png"},
+                -- {name = "灵根部分", img = "res/custom/strategy/gameplay_guide/spirit_root.png", w = 1392, h = 162},
             },
         },
         {
             key = "map",
             main = "地图走法",
+            resourceKey = "map_route",
             map = true,
             subs = {
-                {name = "地图走法", img = "res/custom/strategy/地图走法/地图走法.png", w = 1944, h = 1286},
+                {name = "地图走法", resourceKey = "map_route", img = "res/custom/strategy/map_route/map_route.png", w = 1944, h = 1286},
             },
         },
     }
@@ -8423,26 +8429,23 @@ npc[512] = function(p2, p3, Data)
         page = page or strategyPages[1]
         return page.subs[tonumber(idx or 1) or 1] or page.subs[1]
     end
-    local function strategyFileExists(path)
-        return SL and SL.IsFileExist and SL:IsFileExist(path)
-    end
-    local function getSideButtonSkin(name, selected, fallback)
-        local path = "res/custom/strategy/左侧按钮/" .. (selected and "亮" or "暗") .. "/" .. name .. ".png"
-        if strategyFileExists(path) then
-            return path
+    local function getSideButtonSkin(resourceKey, selected, fallback)
+        if resourceKey and resourceKey ~= "" then
+            return "res/custom/strategy/left_buttons/" ..
+                (selected and "state_bright" or "state_dark") .. "/" .. resourceKey .. ".png"
         end
         return fallback or "res/custom/strategy/list/" .. (selected and "l" or "n") .. "/1.png"
     end
-    local function setButtonSkin(btn, name, selected)
+    local function setButtonSkin(btn, resourceKey, selected)
         if not btn then
             return
         end
-        GUI:Button_loadTextureNormal(btn, getSideButtonSkin(name, selected))
+        GUI:Button_loadTextureNormal(btn, getSideButtonSkin(resourceKey, selected))
     end
-    local function createSideButton(parent, id, name, selected, fallback, onClick)
-        local btn = GUI:Button_Create(parent, id, 0, 0, getSideButtonSkin(name, selected, fallback))
-        if not strategyFileExists("res/custom/strategy/左侧按钮/暗/" .. name .. ".png") then
-            local txt = GUI:Text_Create(btn, "txt", 85, 21, 20, selected and "#fff3c0" or "#79808b", name)
+    local function createSideButton(parent, id, name, resourceKey, selected, fallback, onClick)
+        local btn = GUI:Button_Create(parent, id, 0, 0, getSideButtonSkin(resourceKey, selected, fallback))
+        if not resourceKey or resourceKey == "" then
+            local txt = GUI:Text_Create(btn, "txt", 92/2, 28/2, 20, selected and "#fff3c0" or "#79808b", name)
             GUI:setAnchorPoint(txt, 0.5, 0.5)
             GUI:Text_enableOutline(txt, "#100808", 2)
         end
@@ -8568,7 +8571,7 @@ npc[512] = function(p2, p3, Data)
     end
     local function renderMapPage(Label_node, page)
         local viewW, viewH = 584, 444
-        GUI:Image_Create(Label_node, "map_bg", 0, 0, "res/custom/strategy/地图走法/地图走法背景.png")
+        GUI:Image_Create(Label_node, "map_bg", 0, 0, "res/custom/strategy/map_route/map_route_background.png")
         local mapInfo = getSub(page, (npc.strategy_sub_sign and npc.strategy_sub_sign[page.key]) or 1)
         npc.strategy_map_scale = npc.strategy_map_scale or 0.72
         npc.strategy_map_pos = npc.strategy_map_pos or {}
@@ -8650,7 +8653,7 @@ npc[512] = function(p2, p3, Data)
         npc.strategy_sub_sign = npc.strategy_sub_sign or {}
         for i, page in ipairs(strategyPages) do
             local selectedMain = npc.titles_sign == i
-            local cbl_item = createSideButton(npc.cbl_list, "main_" .. i, page.main, selectedMain, nil, function()
+            local cbl_item = createSideButton(npc.cbl_list, "main_" .. i, page.main, page.resourceKey, selectedMain, nil, function()
                 npc.titles_sign = i
                 npc.strategy_sub_sign[page.key] = npc.strategy_sub_sign[page.key] or 1
                 UI_updata(node)
@@ -8658,12 +8661,12 @@ npc[512] = function(p2, p3, Data)
             end)
             GUI:Image_Create(npc.cbl_list, "fgx" .. i, 0, 0, "res/custom/strategy/list/fgx.png")
             if selectedMain then
-                -- GUI:Image_Create(cbl_item, "selected", -1, -2, "res/custom/strategy/左侧按钮/选中框.png")
+                -- GUI:Image_Create(cbl_item, "selected", -1, -2, "res/custom/strategy/left_buttons/selected_frame.png")
             end
             if selectedMain and #(page.subs or {}) > 1 then
                 for subIdx, sub in ipairs(page.subs) do
                     local selectedSub = (npc.strategy_sub_sign[page.key] or 1) == subIdx
-                    local subBtn = createSideButton(npc.cbl_list, "sub_" .. i .. "_" .. subIdx, sub.name, selectedSub, "res/custom/strategy/左侧按钮/" .. (selectedSub and "亮" or "暗") .. "/游戏简介.png", function()
+                    local subBtn = createSideButton(npc.cbl_list, "sub_" .. i .. "_" .. subIdx, sub.name, sub.resourceKey, selectedSub, nil, function()
                         npc.strategy_sub_sign[page.key] = subIdx
                         UI_updata(node)
                         GUI_createLabel(npc.Label, i)
@@ -9005,7 +9008,7 @@ npc[516] = function(p2, p3, Data)
         })
     end
     local function mfzz_render_item(parent, itemName, itemCount, posX, posY, key)
-        local slot = GUI:Image_Create(parent, "slot_" .. tostring(key), posX, posY, "dev/res/wy/public/40-42.png")
+        local slot = GUI:Image_Create(parent, "slot_" .. tostring(key), posX, posY, "res/wy/public/40-42.png")
         _add_reward_item_effect(slot, "reward_eff", 20, 21, 0.85, REWARD_ITEM_EFFECT_14193)
         GUI:setAnchorPoint(slot, 0.5, 0.5)
         local itemIndex = tonumber(SL:GetMetaValue("ITEM_INDEX_BY_NAME", itemName)) or 0

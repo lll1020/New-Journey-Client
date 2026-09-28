@@ -3682,7 +3682,7 @@ local function createHeader(sw, sh)
         openResetConfirm("all")
     end, 150, 50,"res/custom/linggen/new/main/itme3.png")
 
-    -- dev/res/custom/tj/redo.png dev/res/custom/tj/align-right.png dev/res/custom/tj/angle-double-up.png
+    -- res/custom/tj/redo.png res/custom/tj/align-right.png res/custom/tj/angle-double-up.png
     GUI:setContentSize(GUI:Image_Create(upgrade, "upgrade_icon", 13, 15, RES .. "angle-double-up.png"), 20, 20)
     GUI:setContentSize(GUI:Image_Create(rules, "rules_icon", 13, 15, RES .. "align-right.png"), 20, 20)
     GUI:setContentSize(GUI:Image_Create(reset, "reset_icon", 13, 15, RES .. "redo.png"), 20, 20)

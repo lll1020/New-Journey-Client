@@ -282,11 +282,7 @@ local function findMilestoneByIdx(targetIdx)
 end
 
 local function getMilestoneImage(draw)
-    local skin = string.format("res/custom/msfc/page1/numbers/%s.png", tostring(draw))
-    if SL and SL.IsFileExist and SL:IsFileExist(skin) then
-        return skin
-    end
-    return nil
+    return string.format("res/custom/msfc/page1/numbers/%s.png", tostring(draw))
 end
 
 local function getRewardEntries(rewardPack)

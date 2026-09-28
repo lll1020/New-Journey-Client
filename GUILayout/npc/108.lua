@@ -2,9 +2,9 @@ local npc = {}
 
 npc._config = teshudata["npc_108"] or {}
 
-local SELL_BG = "res/custom/activity/屠夫/卖肉.png"
-local SHOP_BG = "res/custom/activity/屠夫/收肉.png"
-local TITLE_BG = "res/custom/activity/屠夫/标题.png"
+local SELL_BG = "res/custom/activity/butcher/sell_meat.png"
+local SHOP_BG = "res/custom/activity/butcher/collect_meat.png"
+local TITLE_BG = "res/custom/activity/butcher/title.png"
 
 local WINDOW_OPTS = {
     background = {skin = "res/wy/public/*.png"},
@@ -83,10 +83,10 @@ end
 
 local function renderTabButtons(node, npcid)
     local tab = currentTab(npcid)
-    local leftSell = tab == "sell" and "亮" or "暗"
-    local leftShop = tab == "shop" and "亮" or "暗"
-    local sellBtn = GUI:Button_Create(node, "tab_sell", 10, 350, string.format("res/custom/activity/屠夫/左侧按钮/%s/卖肉.png", leftSell))
-    local shopBtn = GUI:Button_Create(node, "tab_shop", 10, 228, string.format("res/custom/activity/屠夫/左侧按钮/%s/商店.png", leftShop))
+    local leftSell = tab == "sell" and "state_bright" or "state_dark"
+    local leftShop = tab == "shop" and "state_bright" or "state_dark"
+    local sellBtn = GUI:Button_Create(node, "tab_sell", 10, 350, string.format("res/custom/activity/butcher/left_buttons/%s/sell_meat.png", leftSell))
+    local shopBtn = GUI:Button_Create(node, "tab_shop", 10, 228, string.format("res/custom/activity/butcher/left_buttons/%s/shop.png", leftShop))
     GUI:addOnClickEvent(sellBtn, function()
         npc.tab = "sell"
         renderMain(npc.node, npcid)
@@ -125,7 +125,7 @@ local function renderSellPage(node, npcid)
         end
         -- createText(node, "point_desc_" .. i, 682, y + 15, 18, "#FFFFFF", string.format("美食积分*%s", tostring(toNum(one.point, 0))), 0.5, 0.5)
         createText(node, "count_desc_" .. i, 504 - 38, y, 15, "#79E3FF", string.format("%s x%s", tostring(one.name or ""), tostring(toNum(one.count, 0))), 0, 0.5)
-        local btn = GUI:Button_Create(node, "sell_btn_" .. i, 818 - 160, y  + 14, "res/custom/activity/屠夫/卖.png")
+        local btn = GUI:Button_Create(node, "sell_btn_" .. i, 818 - 160, y  + 14, "res/custom/activity/butcher/sell.png")
         GUI:addOnClickEvent(btn, function()
             if toNum(one.count, 0) <= 0 then
                 SL:ShowSystemTips("该肉类数量不足")
@@ -167,7 +167,7 @@ local function renderShopPage(node, npcid)
         local limitText = limit > 0 and string.format("%s %s/%s", tostring(one.name or ""), tostring(buyNum), tostring(limit)) or tostring(one.name or "")
         -- createText(node, "shop_limit_" .. i, 504 - 38, y, 15, "#79E3FF", limitText, 0, 0.5)
         -- createText(node, "shop_cost_" .. i, 650, y + 14, 16, "#FFE7A6", string.format("消耗:%s积分", tostring(cost)), 0.5, 0.5)
-        local btn = GUI:Button_Create(node, "buy_btn_" .. i, 818 - 160, y  + 14, "res/custom/activity/屠夫/购买.png")
+        local btn = GUI:Button_Create(node, "buy_btn_" .. i, 818 - 160, y  + 14, "res/custom/activity/butcher/purchase.png")
         GUI:addOnClickEvent(btn, function()
             if limit > 0 and buyNum >= limit then
                 SL:ShowSystemTips("该奖励已达到兑换上限")

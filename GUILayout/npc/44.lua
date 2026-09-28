@@ -688,9 +688,15 @@ local function getDollAsset(resultId)
         red = '红',
         hidden = '隐藏',
     }
-    local group = tostring(cfg.asset_group or 1)
-    local quality = qualityMap[cfg.quality or 'normal'] or '普通'
-    return string.format('res/custom/three_city/xianfu/仙府部分/收藏柜/娃娃/娃娃%s/%s.png', group, quality)
+    local group = math.max(1, math.min(5, tonumber(cfg.asset_group or 1) or 1))
+    local qualityAsset = {
+        normal = "normal.png",
+        red = "red.png",
+        hidden = "hidden.png",
+    }
+    local quality = qualityAsset[cfg.quality or "normal"] or qualityAsset.normal
+    local dollDir = "doll_" .. group
+    return string.format("res/custom/three_city/xianfu/immortal_estate_panel/collection_cabinet/doll/%s/%s", dollDir, quality)
 end
 
 local function switchDollTab(tabId)
@@ -703,8 +709,8 @@ local function drawDollSideTabs(parent, currentTab)
     local baseX = -cogin.w / 2 + 24
     local baseY = cogin.h / 2 - 120
     local tabs = {
-        {id = 'doll_machine', normal = "res/custom/three_city/xianfu/仙府部分/左侧按钮/娃娃机/暗.png", active = "res/custom/three_city/xianfu/仙府部分/左侧按钮/娃娃机/亮.png"},
-        {id = 'doll_cabinet', normal = "res/custom/three_city/xianfu/仙府部分/左侧按钮/收藏柜/暗.png", active = "res/custom/three_city/xianfu/仙府部分/左侧按钮/收藏柜/亮.png"},
+        {id = 'doll_machine', normal = "res/custom/three_city/xianfu/immortal_estate_panel/left_buttons/doll_machine/dark.png", active = "res/custom/three_city/xianfu/immortal_estate_panel/left_buttons/doll_machine/bright.png"},
+        {id = 'doll_cabinet', normal = "res/custom/three_city/xianfu/immortal_estate_panel/left_buttons/collection_cabinet/dark.png", active = "res/custom/three_city/xianfu/immortal_estate_panel/left_buttons/collection_cabinet/bright.png"},
     }
     for idx, tab in ipairs(tabs) do
         local skin = currentTab == tab.id and tab.active or tab.normal
@@ -1660,7 +1666,7 @@ local function drawVisitorLog(node, snapshot, npcid)
             local btn = NPC_UI_HELPER.createPrimaryButton(Label_node, 'btn_rank', 550, 80, "", function()
                 npc.xxjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
                     windowName = "npc_anniu_44_xxjm",
-                    overlay = {skin = "res/custom/treasureBasin/x.png"},
+                    overlay = {skin = "res/wy/public/x.png"},
                     background = {skin = "res/custom/three_city/xianfu/baifang/rank/bg.png"},
                     closeButton = {x = 300 + 504, y = 180 + 140 + 119, skin = "res/wy/public/close_red_big.png"},
                 })
@@ -1701,7 +1707,7 @@ local function drawVisitorLog(node, snapshot, npcid)
 
     npc.xjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
         windowName = "npc_anniu_44_xjm",
-        overlay = {skin = "res/custom/treasureBasin/x.png"},
+        overlay = {skin = "res/wy/public/x.png"},
         background = {skin = "res/custom/three_city/xianfu/baifang/Visitor/bg.png"},
         closeButton = {x = 330 + 220 + 170, y = 180 + 180 + 50, skin = "res/wy/public/close_red_big.png"},
     })
@@ -1917,7 +1923,7 @@ local function drawShop(node, snapshot, npcid)
 
     npc.xjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
         windowName = "npc_anniu_44_xjm",
-        overlay = {skin = "res/custom/treasureBasin/x.png"},
+        overlay = {skin = "res/wy/public/x.png"},
         background = {skin = "res/custom/three_city/xianfu/shop/bg.png"},
         title = {x = 56, y = 464, skin = "res/custom/three_city/xianfu/shop/title.png"},
         closeButton = {x = 330 + 220 + 185, y = 180 + 180 + 103, skin = "res/wy/public/close_red_big.png"},
@@ -2144,7 +2150,7 @@ local function drawshape(node, snapshot, npcid)
 
     npc.xjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
         windowName = "npc_anniu_44_xjm",
-        overlay = {skin = "res/custom/treasureBasin/x.png"},
+        overlay = {skin = "res/wy/public/x.png"},
         background = {skin = "res/custom/three_city/xianfu/zhuangshi/bg.png"},
         title = {x = 56, y = 464, skin = "res/custom/three_city/xianfu/zhuangshi/title.png"},
         closeButton = {x = 330 + 220 + 185, y = 180 + 180 + 103, skin = "res/wy/public/close_red_big.png"},
@@ -2290,18 +2296,18 @@ local function drawDollMachine(node, snapshot, npcid)
     local root = GUI:Node_Create(node, 'doll_machine_panel', 0, 0)
     drawDollSideTabs(root, 'doll_machine')
 
-    local title = GUI:Image_Create(root, 'doll_machine_title', -300, cogin.h / 2 - 78, "res/custom/three_city/xianfu/仙府部分/标题.png")
+    local title = GUI:Image_Create(root, 'doll_machine_title', -300, cogin.h / 2 - 78, "res/custom/three_city/xianfu/immortal_estate_panel/title.png")
     GUI:setAnchorPoint(title, 0, 1)
 
     local machineWrap = GUI:Node_Create(root, 'machine_wrap', -360, -182)
     GUI:setAnchorPoint(machineWrap, 0, 0)
-    local anim = GUI:Frames_Create(machineWrap, "machine_anim", 0, 0, "res/custom/three_city/xianfu/仙府部分/娃娃机/仙府娃娃机序列/仙府娃娃机_", ".png", 0, 150, {speed = 60, count = 150, loop = -1})
+    local anim = GUI:Frames_Create(machineWrap, "machine_anim", 0, 0, "res/custom/three_city/xianfu/immortal_estate_panel/doll_machine/bg/eff_", ".png", 1, 150, {speed = 60, count = 150, loop = -1})
     GUI:setAnchorPoint(anim, 0, 0)
     GUI:setScale(anim, 0.86)
 
-    GUI:Image_Create(root, 'rule_title', 210, 118, "res/custom/three_city/xianfu/仙府部分/娃娃机/游戏规则.png")
-    GUI:Image_Create(root, 'cost_title', 210, 2, "res/custom/three_city/xianfu/仙府部分/娃娃机/所需材料.png")
-    local infoBg = GUI:Image_Create(root, 'info_bg', 135, -220, "res/custom/three_city/xianfu/仙府部分/娃娃机/下方透明底.png")
+    GUI:Image_Create(root, 'rule_title', 210, 118, "res/custom/three_city/xianfu/immortal_estate_panel/doll_machine/game_rules.png")
+    GUI:Image_Create(root, 'cost_title', 210, 2, "res/custom/three_city/xianfu/immortal_estate_panel/doll_machine/required_materials.png")
+    local infoBg = GUI:Image_Create(root, 'info_bg', 135, -220, "res/custom/three_city/xianfu/immortal_estate_panel/doll_machine/bottom_transparent.png")
     GUI:setContentSize(infoBg, 352, 170)
 
     local costText = formatCost(doll.current_cost or cfg.normal_draw_cost or {})
@@ -2328,7 +2334,7 @@ local function drawDollMachine(node, snapshot, npcid)
 
     local drawBtn = NPC_UI_HELPER.createPrimaryButton(root, 'doll_draw_btn', 245, -240, "", function()
         sendAction(npcid, 'dollDraw', {})
-    end, {skin = "res/custom/three_city/xianfu/仙府部分/娃娃机/抓一次.png"})
+    end, {skin = "res/custom/three_city/xianfu/immortal_estate_panel/doll_machine/draw_one.png"})
     GUI:setAnchorPoint(drawBtn, 0.5, 0.5)
 end
 
@@ -2344,10 +2350,10 @@ local function drawDollCabinet(node, snapshot, npcid)
     local root = GUI:Node_Create(node, 'doll_cabinet_panel', 0, 0)
     drawDollSideTabs(root, 'doll_cabinet')
 
-    local title = GUI:Image_Create(root, 'doll_cabinet_title', -300, cogin.h / 2 - 78, "res/custom/three_city/xianfu/仙府部分/标题.png")
+    local title = GUI:Image_Create(root, 'doll_cabinet_title', -300, cogin.h / 2 - 78, "res/custom/three_city/xianfu/immortal_estate_panel/title.png")
     GUI:setAnchorPoint(title, 0, 1)
 
-    local bg = GUI:Image_Create(root, 'cabinet_bg', -370, -215, "res/custom/three_city/xianfu/仙府部分/收藏柜/收藏柜背景.png")
+    local bg = GUI:Image_Create(root, 'cabinet_bg', -370, -215, "res/custom/three_city/xianfu/immortal_estate_panel/collection_cabinet/collection_cabinet_background.png")
     GUI:setAnchorPoint(bg, 0, 0)
 
 
@@ -2372,15 +2378,15 @@ local function drawDollCabinet(node, snapshot, npcid)
             local img = GUI:Image_Create(itemNode, 'cabinet_img_' .. idx, 0, -190, asset)
             GUI:setScale(img, 0.9)
         else
-            GUI:Image_Create(itemNode, 'cabinet_empty_' .. idx, 47, -150, "res/custom/three_city/xianfu/仙府部分/娃娃机/空.png")
+            GUI:Image_Create(itemNode, 'cabinet_empty_' .. idx, 47, -150, "res/custom/three_city/xianfu/immortal_estate_panel/doll_machine/empty.png")
         end
         local ownedCount = tonumber((doll.owned or {})[resultId]) or 0
         if ownedCount > 0 then
-            GUI:Image_Create(itemNode, 'cabinet_has_' .. idx, 47, -34, "res/custom/three_city/xianfu/仙府部分/娃娃机/对号.png")
+            GUI:Image_Create(itemNode, 'cabinet_has_' .. idx, 47, -34, "res/custom/three_city/xianfu/immortal_estate_panel/doll_machine/check_symbol.png")
         end
     end
 
-    GUI:Image_Create(root, 'cabinet_hint', 372, -12, "res/custom/three_city/xianfu/仙府部分/收藏柜/上下滑动查看全部.png")
+    GUI:Image_Create(root, 'cabinet_hint', 372, -12, "res/custom/three_city/xianfu/immortal_estate_panel/collection_cabinet/swipe_to_view_all.png")
 end
 
 -- 炼丹模块，展示配方/冷却。
@@ -2457,7 +2463,7 @@ local function drawRefine(node, snapshot, npcid)
         -- btn = NPC_UI_HELPER.createPrimaryButton(Label_node, 'btn_tj', 750/2 - 230, 80, "", function()
         --     npc.xxjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
         --         windowName = "npc_anniu_44_xxjm",
-        --         overlay = {skin = "res/custom/treasureBasin/x.png"},
+        --         overlay = {skin = "res/wy/public/x.png"},
         --         background = {skin = "res/custom/three_city/xianfu/ldl/tj/bg.png"},
         --         title = {x = 56, y = 464, skin = "res/custom/three_city/xianfu/ldl/tj/title.png"},
         --         closeButton = {x = 330 + 220 + 185, y = 180 + 180 + 103, skin = "res/wy/public/close_red_big.png"},
@@ -2506,7 +2512,7 @@ local function drawRefine(node, snapshot, npcid)
         btn = NPC_UI_HELPER.createPrimaryButton(Label_node, 'btn_xz', 750/2 + 230, 80, "", function()
             npc.xxjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
                 windowName = "npc_anniu_44_xxjm",
-                overlay = {skin = "res/custom/treasureBasin/x.png"},
+                overlay = {skin = "res/wy/public/x.png"},
                 background = {skin = "res/custom/three_city/xianfu/ldl/xz_bg.png"},
                 closeButton = {x = 300, y = 180 + 140, skin = "res/wy/public/close_red_big.png"},
             })
@@ -2571,7 +2577,7 @@ local function drawRefine(node, snapshot, npcid)
 
     npc.xjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
         windowName = "npc_anniu_44_xjm",
-        overlay = {skin = "res/custom/treasureBasin/x.png"},
+        overlay = {skin = "res/wy/public/x.png"},
         background = {skin = "res/custom/three_city/xianfu/ldl/bg/eff_1.png"},
         title = {x = 56 + 222, y = 464 - 105, skin = "res/custom/three_city/xianfu/ldl/title.png"},
         closeButton = {x = 330 + 220 + 130, y = 180 + 180, skin = "res/wy/public/close_red_big.png"},
@@ -2678,7 +2684,7 @@ local function drawPet(node, snapshot, npcid)
     local nextLevel = currentLevel + 1
     local nextCfg = (cfg.level_cfg or {})[nextLevel]
 
-    local bg = GUI:Image_Create(panel, 'upgrade_bg', 0, 0, 'res/custom/three_city/xianfu/仙府新增/仙府升级/仙府升级.png')
+    local bg = GUI:Image_Create(panel, 'upgrade_bg', 0, 0, 'res/custom/three_city/xianfu/immortal_estate_new/immortal_estate_upgrade/immortal_estate_upgrade.png')
     GUI:setAnchorPoint(bg, 0.5, 0.5)
     local closeBtn = GUI:Button_Create(bg, 'upgrade_close_btn', 760 - 58, 444 - 64, 'res/wy/public/close_red_big.png')
     GUI:setAnchorPoint(closeBtn, 0.5, 0.5)
@@ -2707,17 +2713,17 @@ local function drawPet(node, snapshot, npcid)
         GUI:setAnchorPoint(label, 0, 1)
         GUI:Text_enableOutline(label, '#f3e8d1', 1)
 
-        local barBg = GUI:Image_Create(rowNode, 'bar_bg', 30, -58, 'res/custom/three_city/xianfu/仙府新增/仙府升级/浅条.png')
+        local barBg = GUI:Image_Create(rowNode, 'bar_bg', 30, -58, 'res/custom/three_city/xianfu/immortal_estate_new/immortal_estate_upgrade/light.png')
         GUI:setAnchorPoint(barBg, 0, 1)
 
-        -- local bar = GUI:Image_Create(rowNode, 'bar_bg', 0, -58, 'res/custom/three_city/xianfu/仙府新增/仙府升级/深条.png')
+        -- local bar = GUI:Image_Create(rowNode, 'bar_bg', 0, -58, 'res/custom/three_city/xianfu/immortal_estate_new/immortal_estate_upgrade/deep.png')
         -- GUI:setAnchorPoint(bar, 0, 1)
 
         local value = GUI:Text_Create(rowNode, 'value', 300 - 50, -8 - 20 - 43, 18, done and '#2fbf71' or '#7b4f35', string.format('%s/%s', formatNumber(now), formatNumber(need)))
         GUI:setAnchorPoint(value, 1, 1)
         GUI:Text_enableOutline(value, '#f3e8d1', 1)
 
-        local markSkin = done and 'res/custom/three_city/xianfu/仙府新增/仙府升级/对号.png' or 'res/custom/three_city/xianfu/仙府新增/仙府升级/空.png'
+        local markSkin = done and 'res/custom/three_city/xianfu/immortal_estate_new/immortal_estate_upgrade/check_symbol.png' or 'res/custom/three_city/xianfu/immortal_estate_new/immortal_estate_upgrade/empty.png'
         local mark = GUI:Image_Create(rowNode, 'mark', 354 - 50, -22 - 20 - 38, markSkin)
         GUI:setAnchorPoint(mark, 0.5, 0.5)
     end
@@ -2789,7 +2795,7 @@ local function drawPet(node, snapshot, npcid)
         color = '#00FFFF',
     })
 
-    local upgradeBtn = GUI:Button_Create(bg, 'upgrade_btn', 169 + 50, 54, 'res/custom/three_city/xianfu/仙府新增/仙府升级/立即升级.png')
+    local upgradeBtn = GUI:Button_Create(bg, 'upgrade_btn', 169 + 50, 54, 'res/custom/three_city/xianfu/immortal_estate_new/immortal_estate_upgrade/immediate_upgrade.png')
     GUI:setAnchorPoint(upgradeBtn, 0.5, 0.5)
     GUI:setTouchEnabled(upgradeBtn, true)
     GUI:addOnClickEvent(upgradeBtn, function()

@@ -1,15 +1,15 @@
 local npc = {}
 
-local RES = "res/custom/kuafu/跨服商店/"
-local LEFT_RES = RES .. "左侧按钮/"
+local RES = "res/custom/kuafu/cross_server_shop/"
+local LEFT_RES = RES .. "left_buttons/"
 local FONT_TITLE = "fonts/502.ttf"
 local FONT_MAIN = "fonts/font4.ttf"
 
-local PANEL_SKIN = RES .. "面板底.png"
-local TITLE_SKIN = RES .. "标题.png"
-local SPLIT_SKIN = RES .. "分割线-.png"
-local SCROLL_TIP_SKIN = RES .. "上下滑动查看全部.png"
-local ITEM_BOX_SKIN = RES .. "装备框-.png"
+local PANEL_SKIN = RES .. "panel_bottom.png"
+local TITLE_SKIN = RES .. "title.png"
+local SPLIT_SKIN = RES .. "divider.png"
+local SCROLL_TIP_SKIN = RES .. "swipe_to_view_all.png"
+local ITEM_BOX_SKIN = RES .. "item_frame.png"
 
 local TAB_POS = {
     point = {x = -355, y = 36},
@@ -101,7 +101,7 @@ local function getRowReward(row)
 end
 
 local function createTabButton(parent, name, x, y, group, selected, callback)
-    local skin = LEFT_RES .. group .. "/" .. (selected and "亮" or "暗") .. ".png"
+    local skin = LEFT_RES .. group .. "/" .. (selected and "state_bright" or "state_dark") .. ".png"
     local btn = GUI:Button_Create(parent, name, x, y, skin)
     GUI:setAnchorPoint(btn, 0.5, 0.5)
     GUI:addOnClickEvent(btn, callback)
@@ -192,7 +192,7 @@ local function renderRows(list, npcid, tab, rows)
             text(rowNode, "limit_" .. i, 96, -22, 15, "#8DF0B0", limitText, 0.5, 0.5, FONT_MAIN)
         end
 
-        local btnSkin = tab == 1 and (RES .. "积分部分/领取.png") or (RES .. "勋章部分/兑换.png")
+        local btnSkin = tab == 1 and (RES .. "points_panel/claim.png") or (RES .. "medal_panel/exchange.png")
         local btn = GUI:Button_Create(rowNode, "btn_" .. i, 206 - 48 + 10, 0, btnSkin)
         GUI:setAnchorPoint(btn, 0.5, 0.5)
         GUI:addOnClickEvent(btn, function()
@@ -205,7 +205,7 @@ end
 local function renderPage(panel, npcid)
     local info = npc.data or {}
     local tab = npc.tab or 1
-    local bgSkin = tab == 1 and (RES .. "积分部分/积分背景.png") or (RES .. "勋章部分/勋章背景.png")
+    local bgSkin = tab == 1 and (RES .. "points_panel/points_background.png") or (RES .. "medal_panel/medal_background.png")
     local bg = GUI:Image_Create(panel, "page_bg", BG_POS.x, BG_POS.y, bgSkin)
     GUI:setAnchorPoint(bg, 0, 0)
 

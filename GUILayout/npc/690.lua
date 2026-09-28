@@ -228,7 +228,7 @@ function npc.main(npcid, p2, p3, msgData)
         local list = GUI:ListView_Create(node, "task_list", 120, 145, 600, 240, 1)
         GUI:ListView_setItemsMargin(list, 54)
         GUI:ListView_setBounceEnabled(list, true)
-        GUI:Image_Create(node, "fgx", 120, 145, "res/custom/all_story_mission/5/时空守护者/分割线-.png")
+        GUI:Image_Create(node, "fgx", 120, 145, "res/custom/six_city/soul_shop/divider.png")
 
         GUI:Node_Create(list, "task_item_0", 0, 0)
         for i, info in ipairs(REQUIRED_TASKS) do

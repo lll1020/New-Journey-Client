@@ -19,12 +19,12 @@ local DEFAULT_CONFIG = {
 
 npc._config = teshudata["npc_83"] or teshudata["npc_77"] or DEFAULT_CONFIG
 
-local BUY_BTN_SKIN = "res/custom/six_city/残魂商店/购买.png"
-local DIVIDER_SKIN = "res/custom/six_city/残魂商店/分割线.png"
+local BUY_BTN_SKIN = "res/custom/six_city/soul_shop/purchase.png"
+local DIVIDER_SKIN = "res/custom/six_city/soul_shop/divider.png"
 local ITEM_BOX_SKIN = "res/wy/public/58_58_kuang.png"
-local TITLE_BANNER_SKIN = "res/custom/six_city/残魂商店/标题.png"
+local TITLE_BANNER_SKIN = "res/custom/six_city/soul_shop/title.png"
 local TIP_BTN_SKIN = "res/wy/public/an_tip.png"
-local ENTER_TIANFA_SKIN = "res/custom/mijing/进入秘境.png"
+local ENTER_TIANFA_SKIN = "res/custom/mijing/enter_realm.png"
 local FONT_MAIN = "fonts/font4.ttf"
 local FONT_TITLE = "fonts/502.ttf"
 local SHOP_SCROLL_RECT = {x = 8, y = 107, width = 720, height = 224}

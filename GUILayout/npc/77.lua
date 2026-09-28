@@ -3,38 +3,38 @@
 local UIHelper = NPC_UI_HELPER
 local FONT_MAIN = "fonts/font4.ttf"
 local FONT_TITLE = "fonts/502.ttf"
-local RES = "res/custom/six_city/登神之路/"
-local BG = RES .. "登神之路底.png"
-local TITLE = RES .. "标题.png"
-local BACK = RES .. "返回按钮.png"
-local HOME_BG = RES .. "首页/登神之路1.png"
-local HOME_BTN_RED = RES .. "首页/查看详情（红）.png"
-local HOME_BTN_YELLOW = RES .. "首页/查看详情（黄）.png"
+local RES = "res/custom/six_city/ascension_path/"
+local BG = RES .. "ascension_path_bottom.png"
+local TITLE = RES .. "title.png"
+local BACK = RES .. "return.png"
+local HOME_BG = RES .. "home/ascension_path_1.png"
+local HOME_BTN_RED = RES .. "home/view_details_red.png"
+local HOME_BTN_YELLOW = RES .. "home/view_details_yellow.png"
 local PATH_BG = {
-    [1] = RES .. "选择路径/兵神道.png",
-    [2] = RES .. "选择路径/鬼神道.png",
+    [1] = RES .. "path_selection/war_god_path.png",
+    [2] = RES .. "path_selection/ghost_god_path.png",
 }
 local PATH_BTN = {
-    [1] = {[1] = "路径·止戈.png", [2] = "路径·杀伐.png"},
-    [2] = {[1] = "路径·无常.png", [2] = "路径·阎罗.png"},
+    [1] = {[1] = "path_cease_war.png", [2] = "path_slaughter.png"},
+    [2] = {[1] = "path_impermanence.png", [2] = "path_yama.png"},
 }
-local PATH_CONFIRM = RES .. "选择路径/选择此路径.png"
+local PATH_CONFIRM = RES .. "path_selection/select_this_path.png"
 local UPGRADE_BG = {
-    [1] = RES .. "神道进阶/兵神道进阶.png",
-    [2] = RES .. "神道进阶/鬼神道进阶.png",
+    [1] = RES .. "divine_path_upgrade/war_god_path_advanced.png",
+    [2] = RES .. "divine_path_upgrade/ghost_god_path_advanced.png",
 }
-local UPGRADE_BTN = RES .. "神道进阶/神道进阶.png"
+local UPGRADE_BTN = RES .. "divine_path_upgrade/divine_path_advanced.png"
 local CERT_BG = {
-    [1] = RES .. "神道自证/兵神道进阶.png",
-    [2] = RES .. "神道自证/鬼神道进阶.png",
+    [1] = RES .. "divine_path_proof/war_god_path_advanced.png",
+    [2] = RES .. "divine_path_proof/ghost_god_path_advanced.png",
 }
-local CERT_BTN = RES .. "神道自证/开始自证.png"
-local PATH_TIP_ICON = RES .. "选择路径/问号.png"
-local UPGRADE_TIP_ICON = RES .. "神道进阶/问号.png"
-local UPGRADE_PAGE_ON = RES .. "神道自证/按钮/亮/神道进阶.png"
-local UPGRADE_PAGE_OFF = RES .. "神道自证/按钮/暗/神道进阶.png"
-local CERT_PAGE_ON = RES .. "神道进阶/按钮/亮/神道自证.png"
-local CERT_PAGE_OFF = RES .. "神道进阶/按钮/暗/神道自证.png"
+local CERT_BTN = RES .. "divine_path_proof/start_proof.png"
+local PATH_TIP_ICON = RES .. "path_selection/question.png"
+local UPGRADE_TIP_ICON = RES .. "divine_path_upgrade/question.png"
+local UPGRADE_PAGE_ON = RES .. "divine_path_proof/ui_buttons/state_bright/divine_path_advanced.png"
+local UPGRADE_PAGE_OFF = RES .. "divine_path_proof/ui_buttons/state_dark/divine_path_advanced.png"
+local CERT_PAGE_ON = RES .. "divine_path_upgrade/ui_buttons/state_bright/divine_path_proof.png"
+local CERT_PAGE_OFF = RES .. "divine_path_upgrade/ui_buttons/state_dark/divine_path_proof.png"
 
 npc._config = teshudata["npc_77"] or {}
 npc._view = "home"
@@ -157,7 +157,7 @@ local function getPathBtnSkin(god, path, state)
     if not skinName then
         return nil
     end
-    local base = RES .. "选择路径/按钮/" .. tostring(state or "亮") .. "/"
+    local base = RES .. "path_selection/ui_buttons/" .. tostring(state or "state_bright") .. "/"
     return base .. skinName
 end
 
@@ -266,7 +266,7 @@ local function renderPath(node, npcid, god)
 
         local positions = {[1] = {485, 342}, [2] = {690, 342}}
         for idx = 1, 2 do
-            local skin = getPathBtnSkin(god, idx, idx == path and "亮" or "暗")
+            local skin = getPathBtnSkin(god, idx, idx == path and "state_bright" or "state_dark")
             if skin then
                 button(content, "path_tab_" .. idx, positions[idx][1], positions[idx][2], skin, function()
                     renderPathContent(idx)

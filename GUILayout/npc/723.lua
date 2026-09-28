@@ -7,12 +7,12 @@ local COMPLETE_SKIN = "res/wy/public/7_1.png"
 local DIALOG_BUTTON_POS = {x = 540, y = 150, w = 294, h = 50}
 local _render
 local SPEC = {
-    folder = "凌雪",
+        folder = "lingxue",
     dialogs = {
-        [1] = {talk = "对话1/1-.png", btn = "对话1/11.png", talkPos = {x = 535, y = 360}, btnPos = DIALOG_BUTTON_POS, submit = {{"星儿的玉佩碎片", 1}}, submitTitle = "对话1/提交道具.png", submitTitlePos = {x = 430, y = 238}, submitPos = {x = 500, y = 220, scale = 0.85}},
-        [2] = {talk = "对话2/2.png", btn = "对话2/22.png", talkPos = {x = 535, y = 336}, btnPos = DIALOG_BUTTON_POS},
-        [3] = {talk = "对话3/3.png", btn = "对话3/33.png", talkPos = {x = 535, y = 360}, btnPos = DIALOG_BUTTON_POS, submit = {{"星力冰晶", 10}}, submitTitle = "对话3/任务要求.png", submitTitlePos = {x = 420, y = 260}, submitPos = {x = 500 - 22, y = 242, scale = 0.85}, give = {{"星晶碎片", 20}}, rewardTitle = "对话3/任务奖励.png", rewardTitlePos = {x = 420, y = 206}, rewardPos = {x = 500, y = 184, scale = 0.85}},
-        [4] = {talk = "对话4/4.png", btn = "对话4/44.png", talkPos = {x = 535, y = 336}, btnPos = DIALOG_BUTTON_POS},
+        [1] = {talk = "dialogue_1/1-.png", btn = "dialogue_1/11.png", talkPos = {x = 535, y = 360}, btnPos = DIALOG_BUTTON_POS, submit = {{"星儿的玉佩碎片", 1}}, submitTitle = "dialogue_1/submit_item.png", submitTitlePos = {x = 430, y = 238}, submitPos = {x = 500, y = 220, scale = 0.85}},
+        [2] = {talk = "dialogue_2/2.png", btn = "dialogue_2/22.png", talkPos = {x = 535, y = 336}, btnPos = DIALOG_BUTTON_POS},
+        [3] = {talk = "dialogue_3/3.png", btn = "dialogue_3/33.png", talkPos = {x = 535, y = 360}, btnPos = DIALOG_BUTTON_POS, submit = {{"星力冰晶", 10}}, submitTitle = "dialogue_3/task_requirement.png", submitTitlePos = {x = 420, y = 260}, submitPos = {x = 500 - 22, y = 242, scale = 0.85}, give = {{"星晶碎片", 20}}, rewardTitle = "dialogue_3/task_reward.png", rewardTitlePos = {x = 420, y = 206}, rewardPos = {x = 500, y = 184, scale = 0.85}},
+        [4] = {talk = "dialogue_4/4.png", btn = "dialogue_4/44.png", talkPos = {x = 535, y = 336}, btnPos = DIALOG_BUTTON_POS},
     },
 }
 
@@ -31,10 +31,7 @@ local function _valid(node)
 end
 
 local function _skin(path)
-    if path and path ~= "" and (not SL or not SL.IsFileExist or SL:IsFileExist(path)) then
-        return path
-    end
-    return nil
+    return path and path ~= "" and path or nil
 end
 
 local function _asset(fileName)
@@ -132,7 +129,7 @@ local function _render_dialogs(node, key, data)
 
     local btnPos = _copy_pos(dialog.btnPos, DIALOG_BUTTON_POS)
     if state >= 2 then
-        local completeSkin = _asset("已提交.png") or COMPLETE_SKIN
+        local completeSkin = _asset("submitted.png") or COMPLETE_SKIN
         local done = GUI:Image_Create(node, "dialog_done", btnPos.x, btnPos.y, completeSkin)
         GUI:setAnchorPoint(done, 0.5, 0.5)
         return true
@@ -169,7 +166,7 @@ local function _cfg()
 end
 
 local function _ensure_window()
-    local bgSkin = _asset((SPEC.folder or "") .. ".png") or _asset("示意图.png") or ""
+    local bgSkin = _asset((SPEC.folder or "") .. ".png") or _asset("demo.png") or ""
     npc._window = NPC_UI_HELPER.ensureWindow(npc._window, NPC_ID, {
         background = {skin = bgSkin},
         closeButton = SPEC.close or {x = 747, y = 380},

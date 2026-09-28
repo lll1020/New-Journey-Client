@@ -1363,8 +1363,8 @@ teshudata = {
     ["npc_79"] = {
         id = 79,
         name = "秘宝·破龙吟【兵】",
-        bg = "res/custom/six_city/兵 鬼道秘宝/兵道秘宝.png",
-        title_img = "res/custom/six_city/兵 鬼道秘宝/标题.png",
+        bg = "res/custom/six_city/war_ghost_treasure/war_path_treasure.png",
+        title_img = "res/custom/six_city/war_ghost_treasure/title.png",
         item_name = "秘宝·破龙吟【兵】",
         need_cert_god = 1,
         cost = {{"元宝",5000000},{"道基碎片[兵]",1},{"业火结晶",100},{"天下太平",1},{"封刃护生",1},{"破军弑神",1},{"碎星戮仙",1}},
@@ -1373,8 +1373,8 @@ teshudata = {
     ["npc_80"] = {
         id = 80,
         name = "秘宝·万鬼啸【鬼】",
-        bg = "res/custom/six_city/兵 鬼道秘宝/鬼道秘宝.png",
-        title_img = "res/custom/six_city/兵 鬼道秘宝/标题1.png",
+        bg = "res/custom/six_city/war_ghost_treasure/ghost_path_treasure.png",
+        title_img = "res/custom/six_city/war_ghost_treasure/title_1.png",
         item_name = "秘宝·万鬼啸【鬼】",
         need_cert_god = 2,
         cost = {{"元宝",5000000},{"道基碎片[鬼]",1},{"业火结晶",100},{"世事无常",1},{"但求无悔",1},{"无间阎罗",1},{"虐杀四方",1}},
@@ -1394,13 +1394,13 @@ teshudata = {
         rune_order = {1,2,3,4,5,6,7},
         -- 面板展示的符文列表及其条件说明。
         runes = {
-            [1] = {key = "spirit", name = "灵力符文", short = "灵力", desc = "基础灵根五项达到Lv.10、完成全部高阶试炼并激活全部灵兽", check_desc = "激活全部灵根、灵兽"},
-            [2] = {key = "realm", name = "修为符文", short = "修为", desc = "修为达到圆满", check_desc = "修为达到圆满"},
-            [3] = {key = "wine", name = "酒仙符文", short = "酒仙", desc = "75槽位穿戴酒仙剑", check_desc = "75槽位穿戴酒仙剑"},
-            [4] = {key = "shendao", name = "神道符文", short = "神道", desc = "完成双神道自证", check_desc = "完成双神道自证"},
-            [5] = {key = "destiny", name = "天命符文", short = "天命", desc = "激活全部天道命盘", check_desc = "激活全部天道命盘"},
-            [6] = {key = "yehuo", name = "业火符文", short = "业火", desc = "参加业火清算", check_desc = "参加业火清算"},
-            [7] = {key = "star", name = "星象符文", short = "星象", desc = "星象达到：帝星", check_desc = "星象达到：帝星"},
+            [1] = {key = "spirit", name = "灵力符文", short = "灵力", resource_key = "spirit_power", desc = "基础灵根五项达到Lv.10、完成全部高阶试炼并激活全部灵兽", check_desc = "激活全部灵根、灵兽", condition_resource_key = "activate_all_spirit_roots_beasts"},
+            [2] = {key = "realm", name = "修为符文", short = "修为", resource_key = "cultivation", desc = "修为达到圆满", check_desc = "修为达到圆满", condition_resource_key = "cultivation_reach_complete"},
+            [3] = {key = "wine", name = "酒仙符文", short = "酒仙", resource_key = "drunken_immortal", desc = "75槽位穿戴酒仙剑", check_desc = "75槽位穿戴酒仙剑", condition_resource_key = "slot75_equip_drunken_sword"},
+            [4] = {key = "shendao", name = "神道符文", short = "神道", resource_key = "divine_path", desc = "完成双神道自证", check_desc = "完成双神道自证", condition_resource_key = "double_divine_path_proof_complete"},
+            [5] = {key = "destiny", name = "天命符文", short = "天命", resource_key = "destiny", desc = "激活全部天道命盘", check_desc = "激活全部天道命盘", condition_resource_key = "activate_all_heavenly_fate_charts"},
+            [6] = {key = "yehuo", name = "业火符文", short = "业火", resource_key = "karma_fire", desc = "参加业火清算", check_desc = "参加业火清算", condition_resource_key = "join_karma_fire_trial"},
+            [7] = {key = "star", name = "星象符文", short = "星象", resource_key = "astrology", desc = "星象达到：帝星", check_desc = "星象达到：帝星", condition_resource_key = "astrology_reach_emperor_star"},
         },
         -- 符文校验依赖的旧系统兼容取值配置。
         compat = {
@@ -2846,11 +2846,11 @@ teshudata = {
         },
         -- 全民答题（答题提交走 npc[507]）
         qmdt = {
-            start_minute = 35,           -- 活动开启分钟（开服后第几分钟）
-            duration_min = 4,            -- 活动总时长（分钟）
-            question_count = 4,          -- 题目数量，当前共 4 轮
-            per_question_sec = 52,       -- 每题答题时长（秒）
-            final_question_sec = 60,     -- 最后一题倒计时（秒）
+            start_minute = 30,           -- 活动开启分钟（开服后第几分钟）
+            duration_min = 4.5,            -- 活动总时长（分钟）
+            question_count = 12,          -- 题目数量，共 12 题
+            per_question_sec = 20,       -- 每题答题时长（秒）
+            final_question_sec = 20,     -- 最后一题倒计时（秒）
             settle_before_sec = 5,       -- 下一题开始前多少秒结算上一题
             base_score = 100,            -- 每题答对基础积分
             time_bonus_per_sec = 1,      -- 时间奖励系数（每剩余 1 秒额外奖励多少积分）

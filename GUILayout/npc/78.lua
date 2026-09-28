@@ -3,7 +3,7 @@ local npc = {}
 local UIHelper = NPC_UI_HELPER
 local FONT_MAIN = "fonts/font4.ttf"
 local FONT_TITLE = "fonts/502.ttf"
-local BG = "res/custom/six_city/残魂商店/示意图.png"
+local BG = "res/custom/six_city/soul_shop/demo.png"
 
 npc._config = teshudata["npc_78"] or {}
 

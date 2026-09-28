@@ -17,7 +17,7 @@ local function _valid(node)
 end
 
 local function _skin(path)
-    if path and path ~= "" and (not SL or not SL.IsFileExist or SL:IsFileExist(path)) then
+    if path and path ~= "" then
         return path
     end
     return nil
@@ -140,7 +140,7 @@ local function _resolve_bg(spec)
     if main then
         return main, false
     end
-    local demo = _asset(spec.folder, "示意图.png")
+    local demo = _asset(spec.folder, "demo.png")
     if demo then
         return demo, true
     end
@@ -230,10 +230,6 @@ local function _button_skin(spec, actionSpec, label)
     if actionSpec and actionSpec.skin then
         return _asset(spec.folder, actionSpec.skin) or _skin(actionSpec.skin)
     end
-    local byLabel = _asset(spec.folder, tostring(label or "") .. ".png")
-    if byLabel then
-        return byLabel
-    end
     return DEFAULT_BUTTON
 end
 
@@ -255,7 +251,7 @@ local function _render_buttons(node, npcid, key, data, cfg, spec, useDemo)
                 SL:SendLuaNetMsg(100, npcid, action.ew, 0, "")
             end
             if state >= 2 and action.ew == 1 then
-                local completeSkin = _asset(spec.folder, "已提交.png") or COMPLETE_SKIN
+                local completeSkin = _asset(spec.folder, "submitted.png") or COMPLETE_SKIN
                 local done = GUI:Image_Create(node, "done_" .. action.ew, pos.x, pos.y, completeSkin)
                 GUI:setAnchorPoint(done, 0.5, 0.5)
                 _make_touch(node, "btn_done_" .. action.ew, pos, send)

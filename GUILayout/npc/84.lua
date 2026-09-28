@@ -5,19 +5,19 @@ npc._config = teshudata["npc_84"] or {}
 local UIHelper = NPC_UI_HELPER
 
 local WINDOW_OPTS = {
-    background = {skin = "res/custom/six_city/世界符文/世界符文.png", eff = false},
+    background = {skin = "res/custom/six_city/world_runes/world_rune.png", eff = false},
     closeButton = {x = 742, y = 500, skin = "res/wy/public/close_red_big.png"},
-    title = {x = 56, y = 464, skin = "res/custom/six_city/世界符文/标题.png"},
+    title = {x = 56, y = 464, skin = "res/custom/six_city/world_runes/title.png"},
 }
 
 local FONT_MAIN = "fonts/font4.ttf"
 local FONT_TITLE = "fonts/502.ttf"
-local BTN_ACTIVE = "res/custom/six_city/世界符文/激活符文.png"
-local BTN_REWARD = "res/custom/six_city/世界符文/领取奖励.png"
-local SELECT_SKIN = "res/custom/six_city/世界符文/选中框.png"
-local ACTIVE_STAMP = "res/custom/six_city/世界符文/已激活.png"
-local COND_BOX_SKIN = "res/custom/six_city/世界符文/延伸框（激活条件）.png"
-local REWARD_BOX_SKIN = "res/custom/six_city/世界符文/装备框-.png"
+local BTN_ACTIVE = "res/custom/six_city/world_runes/activate_rune.png"
+local BTN_REWARD = "res/custom/six_city/world_runes/claim_reward_button.png"
+local SELECT_SKIN = "res/custom/six_city/world_runes/selected_frame.png"
+local ACTIVE_STAMP = "res/custom/six_city/world_runes/activated.png"
+local COND_BOX_SKIN = "res/custom/six_city/world_runes/extended_frame_activation.png"
+local REWARD_BOX_SKIN = "res/custom/six_city/world_runes/item_frame.png"
 
 local RUNE_POS = {
     [1] = {x = 82 - 15, y = 226 + 50, nameX = 42 - 10, nameY = 270 + 50},
@@ -126,21 +126,21 @@ end
 -- 说明：构建按钮素材路径。
 local function getRuneButtonSkin(idx)
     local runeCfg = getRuneCfg(idx)
-    local shortName = tostring(runeCfg.short or "")
-    local folder = (isRuneActive(idx) or canRuneActivate(idx)) and "亮" or "暗"
-    return string.format("res/custom/six_city/世界符文/按钮/%s/%s.png", folder, shortName)
+    local shortName = tostring(runeCfg.resource_key or runeCfg.key or "")
+    local folder = (isRuneActive(idx) or canRuneActivate(idx)) and "state_bright" or "state_dark"
+    return string.format("res/custom/six_city/world_runes/ui_buttons/%s/%s.png", folder, shortName)
 end
 
 -- 说明：构建名字素材路径。
 local function getRuneNameSkin(idx)
     local runeCfg = getRuneCfg(idx)
-    return string.format("res/custom/six_city/世界符文/名字/%s.png", tostring(runeCfg.short or ""))
+    return string.format("res/custom/six_city/world_runes/name/%s.png", tostring(runeCfg.resource_key or runeCfg.key or ""))
 end
 
 -- 说明：构建条件图片路径。
 local function getConditionSkin(idx)
     local runeCfg = getRuneCfg(idx)
-    return string.format("res/custom/six_city/世界符文/激活条件/%s.png", tostring(runeCfg.check_desc or runeCfg.desc or ""))
+    return string.format("res/custom/six_city/world_runes/activation_conditions/%s.png", tostring(runeCfg.condition_resource_key or runeCfg.key or ""))
 end
 
 -- 说明：渲染左侧 7 个世界符文按钮。
@@ -240,4 +240,3 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
-

@@ -3,10 +3,10 @@
 local UIHelper = NPC_UI_HELPER
 local FONT_MAIN = "fonts/font4.ttf"
 local FONT_TITLE = "fonts/502.ttf"
-local LOCAL_BG = "res/custom/six_city/兵 鬼道秘宝/鬼道秘宝.png"
-local LOCAL_TITLE = "res/custom/six_city/兵 鬼道秘宝/标题1.png"
-local ITEM_BOX = "res/custom/six_city/兵 鬼道秘宝/装备框-.png"
-local COMPOSE_BTN = "res/custom/six_city/兵 鬼道秘宝/立即合成.png"
+local LOCAL_BG = "res/custom/six_city/war_ghost_treasure/ghost_path_treasure.png"
+local LOCAL_TITLE = "res/custom/six_city/war_ghost_treasure/title_1.png"
+local ITEM_BOX = "res/custom/six_city/war_ghost_treasure/item_frame.png"
+local COMPOSE_BTN = "res/custom/six_city/war_ghost_treasure/immediate_compose.png"
 
 npc._config = teshudata["npc_80"] or {}
 

@@ -1,14 +1,14 @@
 local npc = {}
 
-local RES = "res/custom/kuafu/跨服商店/"
+local RES = "res/custom/kuafu/cross_server_shop/"
 local FONT_TITLE = "fonts/502.ttf"
 local FONT_MAIN = "fonts/font4.ttf"
 
-local PANEL_SKIN = RES .. "面板底.png"
-local TITLE_SKIN = RES .. "标题.png"
-local SPLIT_SKIN = RES .. "分割线-.png"
-local SCROLL_TIP_SKIN = RES .. "上下滑动查看全部.png"
-local ITEM_BOX_SKIN = RES .. "装备框-.png"
+local PANEL_SKIN = RES .. "panel_bottom.png"
+local TITLE_SKIN = RES .. "title.png"
+local SPLIT_SKIN = RES .. "divider.png"
+local SCROLL_TIP_SKIN = RES .. "swipe_to_view_all.png"
+local ITEM_BOX_SKIN = RES .. "item_frame.png"
 
 local BG_POS = {
     x = 69,
@@ -153,7 +153,7 @@ local function renderRows(list, npcid, rows)
         -- text(rowNode, "limit_" .. i, 2, -18, 15, "#8DF0B0", limitText, 0.5, 0.5, FONT_MAIN)
         text(rowNode, "limit_" .. i, 2 + 35, 0, 20, "#8DF0B0", limitText, 0.5, 0.5, FONT_MAIN)
 
-        local btn = GUI:Button_Create(rowNode, "btn_" .. i, 176 - 15, 0, RES .. "勋章部分/兑换.png")
+        local btn = GUI:Button_Create(rowNode, "btn_" .. i, 176 - 15, 0, RES .. "medal_panel/exchange.png")
         GUI:setAnchorPoint(btn, 0.5, 0.5)
         GUI:addOnClickEvent(btn, function()
             SL:SendLuaNetMsg(100, npcid, 1, i, SL:JsonEncode({idx = i}, false))
@@ -163,7 +163,7 @@ end
 
 local function renderPage(panel, npcid)
     local info = npc.data or {}
-    local bg = GUI:Image_Create(panel, "page_bg", BG_POS.x, BG_POS.y, RES .. "勋章部分/勋章背景.png")
+    local bg = GUI:Image_Create(panel, "page_bg", BG_POS.x, BG_POS.y, RES .. "medal_panel/medal_background.png")
     GUI:setAnchorPoint(bg, 0, 0)
 
     createHeader(bg, n(info.medal), info.medal_name)

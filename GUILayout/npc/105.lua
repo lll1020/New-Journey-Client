@@ -1,12 +1,12 @@
 ﻿local npc = {}
 npc._config = teshudata["anniu_501"] or {}
 local WINDOW_OPTS = {
-    background = {skin = "res/custom/xianshifuli/限时福利.png"},
+    background = {skin = "res/custom/xianshifuli/timed_benefit.png"},
     closeButton = {x = 810 - 40, y = 454 - 79, skin = "res/wy/public/close_red_big.png"},
 }
-local CARD_SKIN = "res/custom/xianshifuli/框.png"
+local CARD_SKIN = "res/custom/xianshifuli/frame.png"
 local CHOOSE_BTN_SKIN = "res/wy/public/an15.png"
-local CLAIM_ALL_BTN_SKIN = "res/custom/xianshifuli/我全都要.png"
+local CLAIM_ALL_BTN_SKIN = "res/custom/xianshifuli/claim_all.png"
 local REWARD_ITEM_EFFECT_ID = 13048
 local CARD_POS_LIST = {
     {x = 242, y = 178},

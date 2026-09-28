@@ -2,12 +2,12 @@ local UI_HELPER = SL:Require("GUILayout/npc/ui_helper", true)
 
 local renderer = {}
 
-local RES = "res/custom/kuafu/幽邃洞窟等/"
+local RES = "res/custom/kuafu/deep_cavern/"
 local BG_MASK = "res/public/1900000651_1.png"
-local TITLE_IMG = RES .. "信息底.png"
-local ENTER_BTN = RES .. "进入地图.png"
+local TITLE_IMG = RES .. "info_bottom.png"
+local ENTER_BTN = RES .. "enter_map.png"
 local CLOSE_BTN = "res/wy/public/close_red_big.png"
-local BG_FRAMES_PATH = RES .. "幽邃第窟序列/eff_"
+local BG_FRAMES_PATH = RES .. "deep_cavern_intro_frames/eff_"
 local BG_FRAMES_EXT = ".png"
 local BG_FRAMES_COUNT = 150
 local PANEL_X = 88 + 400 - 100
@@ -24,11 +24,11 @@ local CLOSE_X = 310 + 300 + 200 - 50 - 100
 local CLOSE_Y = 178 + 300 - 50 - 70
 
 local IMAGE_BY_NPC = {
-    [1013] = RES .. "幽邃地窟.png",
-    [1014] = RES .. "摄魂红尘.png",
-    [1015] = RES .. "逆灵离心.png",
-    [1016] = RES .. "生死之门.png",
-    [1017] = RES .. "跨服秘境.png",
+    [1013] = RES .. "deep_cavern.png",
+    [1014] = RES .. "soul_capture_red_dust.png",
+    [1015] = RES .. "reverse_spirit.png",
+    [1016] = RES .. "life_death_gate.png",
+    [1017] = RES .. "cross_server_realm.png",
 }
 
 local ITEM_BY_NPC = {

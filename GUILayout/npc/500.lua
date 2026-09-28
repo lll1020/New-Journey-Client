@@ -20,18 +20,11 @@ end
 local function getBgSkinByNpcid(npcid)
     local idx = _to_num(npcid, 0) - 500
     local skin = string.format("res/custom/dlcs/%s/eff_1.png", tostring(idx))
-    if SL and SL.IsFileExist and SL:IsFileExist(skin) then
-        return skin
-    end
-    return "res/custom/dlcs/2/bg.png"
+    return skin
 end
 local function getBgFramePathByNpcid(npcid)
     local idx = _to_num(npcid, 0) - 500
-    local firstFrame = string.format("res/custom/dlcs/%s/eff_1.png", tostring(idx))
-    if SL and SL.IsFileExist and SL:IsFileExist(firstFrame) then
-        return string.format("res/custom/dlcs/%s/eff_", tostring(idx))
-    end
-    return "res/custom/dlcs/2/eff_"
+    return string.format("res/custom/dlcs/%s/eff_", tostring(idx))
 end
 local function _escape_rich_text(text)
     text = tostring(text or "")

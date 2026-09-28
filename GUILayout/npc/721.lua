@@ -7,15 +7,15 @@ local COMPLETE_SKIN = "res/wy/public/7_1.png"
 local DIALOG_BUTTON_POS = {x = 540, y = 150, w = 294, h = 50}
 local _render
 local SPEC = {
-    folder = "天机道长",
+        folder = "heavenly_master",
     reward = {x = 182, y = 82, scale = 0.85},
     buttons = {
         [1] = {x = 540, y = 150, w = 270, h = 62, text = "我该怎么做？", forceText = true},
     },
     dialogs = {
-        [1] = {talk = "对话1/1-.png", btn = "对话1/11.png", talkPos = {x = 535, y = 360}, btnPos = DIALOG_BUTTON_POS},
-        [2] = {talk = "对话2/2.png", btn = "对话2/22.png", talkPos = {x = 535, y = 336}, btnPos = DIALOG_BUTTON_POS, give = {{"星儿的玉佩碎片", 1}}, rewardTitle = "对话2/获得道具.png", rewardTitlePos = {x = 435, y = 236}, rewardPos = {x = 585 - 108, y = 236 - 20, scale = 0.85}},
-        [3] = {talk = "对话3/3.png", btn = "对话3/33.png", talkPos = {x = 535, y = 360}, btnPos = DIALOG_BUTTON_POS, submit = {{"被盗走的帝星本源", 1}}, submitTitle = "对话3/提交道具.png", submitTitlePos = {x = 420, y = 260}, submitPos = {x = 585 - 108, y = 236 - 20 + 26, scale = 0.85}, give = {{"帝星归位[称号]", 1}}, rewardTitle = "对话3/任务奖励.png", rewardTitlePos = {x = 420, y = 206}, rewardPos = {x = 585 - 108 + 22, y = 236 - 50, scale = 0.85}},
+        [1] = {talk = "dialogue_1/1-.png", btn = "dialogue_1/11.png", talkPos = {x = 535, y = 360}, btnPos = DIALOG_BUTTON_POS},
+        [2] = {talk = "dialogue_2/2.png", btn = "dialogue_2/22.png", talkPos = {x = 535, y = 336}, btnPos = DIALOG_BUTTON_POS, give = {{"星儿的玉佩碎片", 1}}, rewardTitle = "dialogue_2/reward_item.png", rewardTitlePos = {x = 435, y = 236}, rewardPos = {x = 585 - 108, y = 236 - 20, scale = 0.85}},
+        [3] = {talk = "dialogue_3/3.png", btn = "dialogue_3/33.png", talkPos = {x = 535, y = 360}, btnPos = DIALOG_BUTTON_POS, submit = {{"被盗走的帝星本源", 1}}, submitTitle = "dialogue_3/submit_item.png", submitTitlePos = {x = 420, y = 260}, submitPos = {x = 585 - 108, y = 236 - 20 + 26, scale = 0.85}, give = {{"帝星归位[称号]", 1}}, rewardTitle = "dialogue_3/task_reward.png", rewardTitlePos = {x = 420, y = 206}, rewardPos = {x = 585 - 108 + 22, y = 236 - 50, scale = 0.85}},
     },
 }
 
@@ -34,10 +34,7 @@ local function _valid(node)
 end
 
 local function _skin(path)
-    if path and path ~= "" and (not SL or not SL.IsFileExist or SL:IsFileExist(path)) then
-        return path
-    end
-    return nil
+    return path and path ~= "" and path or nil
 end
 
 local function _asset(fileName)
@@ -156,7 +153,7 @@ local function _resolve_bg()
     if main then
         return main, false
     end
-    local demo = _asset("示意图.png")
+    local demo = _asset("demo.png")
     if demo then
         return demo, true
     end
@@ -241,10 +238,6 @@ local function _button_skin(actionSpec, label)
     if actionSpec and actionSpec.skin then
         return _asset(actionSpec.skin) or _skin(actionSpec.skin)
     end
-    local byLabel = _asset(tostring(label or "") .. ".png")
-    if byLabel then
-        return byLabel
-    end
     return DEFAULT_BUTTON
 end
 
@@ -318,7 +311,7 @@ local function _render_dialogs(node, key, data, cfg)
 
     local btnPos = _copy_pos(dialog.btnPos, DIALOG_BUTTON_POS)
     if state >= 2 then
-        local completeSkin = _asset("已提交.png") or COMPLETE_SKIN
+        local completeSkin = _asset("submitted.png") or COMPLETE_SKIN
         local done = GUI:Image_Create(node, "dialog_done", btnPos.x, btnPos.y, completeSkin)
         GUI:setAnchorPoint(done, 0.5, 0.5)
         return true
@@ -357,7 +350,7 @@ local function _render_buttons(node, key, data, cfg, useDemo)
                 SL:SendLuaNetMsg(100, NPC_ID, action.ew, 0, "")
             end
             if state >= 2 and action.ew == 1 then
-                local completeSkin = _asset("已提交.png") or COMPLETE_SKIN
+                local completeSkin = _asset("submitted.png") or COMPLETE_SKIN
                 local done = GUI:Image_Create(node, "done_" .. action.ew, pos.x, pos.y, completeSkin)
                 GUI:setAnchorPoint(done, 0.5, 0.5)
                 _make_touch(node, "btn_done_" .. action.ew, pos, send)

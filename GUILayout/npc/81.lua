@@ -10,15 +10,15 @@ local DEFAULT_CONFIG = {
 npc._config = teshudata["npc_81"] or teshudata["npc_78"] or DEFAULT_CONFIG
 
 local WINDOW_OPTS = {
-    background = {skin = "res/custom/six_city/血契之门/血契之门.png", eff = false},
+    background = {skin = "res/custom/six_city/blood_pact_gate/blood_pact_gate.png", eff = false},
     closeButton = {x = 780, y = 470, skin = "res/wy/public/close_red_big.png"},
 }
 
-local CONTRACT_BTN_SKIN = "res/custom/six_city/血契之门/签到契约.png"
-local ENTER_BTN_SKIN = "res/custom/six_city/血契之门/进入秘境.png"
-local CHECK_BG_SKIN = "res/custom/six_city/血契之门/对勾底.png"
-local CHECK_OK_SKIN = "res/custom/six_city/血契之门/对勾.png"
-local ITEM_BOX_SKIN = "res/custom/six_city/血契之门/装备框-.png"
+local CONTRACT_BTN_SKIN = "res/custom/six_city/blood_pact_gate/checkin_contract.png"
+local ENTER_BTN_SKIN = "res/custom/six_city/blood_pact_gate/enter_realm.png"
+local CHECK_BG_SKIN = "res/custom/six_city/blood_pact_gate/check_bottom.png"
+local CHECK_OK_SKIN = "res/custom/six_city/blood_pact_gate/check_mark.png"
+local ITEM_BOX_SKIN = "res/custom/six_city/blood_pact_gate/item_frame.png"
 local FONT_MAIN = "fonts/font4.ttf"
 local FONT_TITLE = "fonts/502.ttf"
 

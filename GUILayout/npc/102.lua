@@ -2,10 +2,10 @@ local npc = {}
 npc._config = teshudata["npc_102"] or {}
 
 local RES_DIR = "res/custom/xinquchongji/"
-local BG = RES_DIR .. "新区冲级.png"
-local TITLE = RES_DIR .. "标题.png"
-local LINE = RES_DIR .. "分割线-.png"
-local FRAME = RES_DIR .. "装备框-.png"
+local BG = RES_DIR .. "new_server_level_rush.png"
+local TITLE = RES_DIR .. "title.png"
+local LINE = RES_DIR .. "divider.png"
+local FRAME = RES_DIR .. "item_frame.png"
 local CLAIMED_TAG = "res/wy/public/4.png"
 local UNCLAIMED_TAG = "res/wy/public/4_1.png"
 local FONT_TITLE = "fonts/502.ttf"

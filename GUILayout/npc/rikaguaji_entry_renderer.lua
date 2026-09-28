@@ -2,16 +2,16 @@ local renderer = {}
 
 local RES = "res/custom/rikaguaji/"
 local BG_MASK = "res/public/1900000651_1.png"
-local PANEL_BG = RES .. "安全挂机.png"
-local TITLE_IMG = RES .. "标题.png"
-local ENTER_BTN = RES .. "立即进入.png"
+local PANEL_BG = RES .. "safe_afk.png"
+local TITLE_IMG = RES .. "title.png"
+local ENTER_BTN = RES .. "immediate_enter.png"
 local CLOSE_BTN = "res/wy/public/close_red_big.png"
 
 local IMAGE_BY_NAME = {
-    ["苍云"] = RES .. "苍云.png",
-    ["若水"] = RES .. "若水.png",
-    ["红尘"] = RES .. "红尘.png",
-    ["灵虚"] = RES .. "灵虚.png",
+    ["苍云"] = RES .. "cangyun.png",
+    ["若水"] = RES .. "ruo_water.png",
+    ["红尘"] = RES .. "red_dust.png",
+    ["灵虚"] = RES .. "spirit_void.png",
 }
 
 local function text(parent, name, x, y, size, color, value, ax, ay, font)

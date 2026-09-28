@@ -5,7 +5,7 @@ local BASE = "res/custom/all_story_mission/6/"
 local DEFAULT_BUTTON = "res/public/1900000660.png"
 local COMPLETE_SKIN = "res/wy/public/7_1.png"
 local SPEC = {
-    folder = "上古寒冰剑",
+        folder = "ancient_ice_sword",
     itemGroups = {
         {name = "weapon", source = "craft_reward", kind = "reward", x = 590 - 5, y = 268 + 38},
     },
@@ -18,7 +18,7 @@ local SPEC = {
     completeAction = 2,
     buttons = {
         [1] = {hidden = true},
-        [2] = {x = 410, y = 82, skin = "立即合成.png"},
+        [2] = {x = 410, y = 82, skin = "immediate_compose.png"},
     },
 }
 
@@ -37,10 +37,7 @@ local function _valid(node)
 end
 
 local function _skin(path)
-    if path and path ~= "" and (not SL or not SL.IsFileExist or SL:IsFileExist(path)) then
-        return path
-    end
-    return nil
+    return path and path ~= "" and path or nil
 end
 
 local function _asset(fileName)
@@ -159,7 +156,7 @@ local function _resolve_bg()
     if main then
         return main, false
     end
-    local demo = _asset("示意图.png")
+    local demo = _asset("demo.png")
     if demo then
         return demo, true
     end
@@ -264,10 +261,6 @@ local function _button_skin(actionSpec, label)
     if actionSpec and actionSpec.skin then
         return _asset(actionSpec.skin) or _skin(actionSpec.skin)
     end
-    local byLabel = _asset(tostring(label or "") .. ".png")
-    if byLabel then
-        return byLabel
-    end
     return DEFAULT_BUTTON
 end
 
@@ -289,7 +282,7 @@ local function _render_buttons(node, key, data, cfg, useDemo)
                 SL:SendLuaNetMsg(100, NPC_ID, action.ew, 0, "")
             end
             if state >= 2 and action.ew == (SPEC.completeAction or 1) then
-                local completeSkin = _asset("已提交.png") or COMPLETE_SKIN
+                local completeSkin = _asset("submitted.png") or COMPLETE_SKIN
                 local done = GUI:Image_Create(node, "done_" .. action.ew, pos.x, pos.y, completeSkin)
                 GUI:setAnchorPoint(done, 0.5, 0.5)
             elseif (useDemo and actionSpec.visible ~= true) or actionSpec.transparent then

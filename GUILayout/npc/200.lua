@@ -284,7 +284,7 @@ local function getMiniMapTexture(minMapId)
         end
     end
     for _, path in ipairs(candidates) do
-        if path and SL and SL.IsFileExist and SL:IsFileExist(path) then
+        if path and path ~= "" then
             return path
         end
     end

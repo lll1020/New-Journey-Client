@@ -52,7 +52,7 @@ GUILayout/npc/608.lua
 GUILayout/npc/631.lua
 GUILayout/npc/634.lua
 GUILayout/npc/635.lua
-GUILayout/npc/64 copy.lua
+GUILayout/npc/64_backup.lua
 GUILayout/npc/64.lua
 GUILayout/npc/642.lua
 GUILayout/npc/65.lua

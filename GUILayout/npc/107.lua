@@ -1,9 +1,9 @@
 local npc = {}
 npc._config = teshudata["npc_107"] or {}
 
-local PANEL_BG = "res/custom/activity/功勋称号/功勋称号.png"
-local TITLE_BG = "res/custom/activity/功勋称号/标题.png"
-local ARROW_BG = "res/custom/activity/功勋称号/称号晋升.png"
+local PANEL_BG = "res/custom/activity/merit_titles/merit_title.png"
+local TITLE_BG = "res/custom/activity/merit_titles/title.png"
+local ARROW_BG = "res/custom/activity/merit_titles/title_promotion.png"
 
 local WINDOW_OPTS = {
     background = {skin = "res/wy/public/*.png"},
@@ -136,7 +136,7 @@ local function _build_rank_tips(rankData)
     for line = 1, 5 do
         local rank = 6 - line
         local row = rankData[rank] or {}
-        local text = string.format("%d.%s %s分", rank, tostring(row.name or "未上榜"), tostring(tonumber(row.score or 0) or 0))
+        local text = string.format("%d.%s %s分", rank, tostring(row.name or "无人上榜"), tostring(tonumber(row.score or 0) or 0))
         table.insert(lines, string.format("<font color='#F4D4A8' size='20'>%s</font>", text))
     end
     return table.concat(lines, "<br>") .. "<br><font color='#F5F1E7' size='24'>排行预览</font>"
@@ -156,13 +156,13 @@ local function _draw_rank_list(node, rankData)
     local rankText = _outline_text(node, "rank_title", 870 - 180, 347 - 240, 24, "#F5F1E7", "排行榜", 0.5, 0.5)
     GUI:Text_enableUnderline(rankText)
     GUI:setTouchEnabled(rankText, true)
-    for i = 1, 5 do
-        local row = rankData[i] or {}
-        local name = tostring(row.name or "未上榜")
-        local score = tonumber(row.score or 0) or 0
-        local text = string.format("%d. %s  %s功勋", i, name, score)
-        _outline_text(node, "rank_row_" .. i, 610, 92 - (i - 1) * 18, 15, "#F4D4A8", text, 0, 0.5)
-    end
+    -- for i = 1, 5 do
+    --     local row = rankData[i] or {}
+    --     local name = tostring(row.name or "未上榜")
+    --     local score = tonumber(row.score or 0) or 0
+    --     local text = string.format("%d. %s  %s功勋", i, name, score)
+    --     _outline_text(node, "rank_row_" .. i, 610, 92 - (i - 1) * 18, 15, "#F4D4A8", text, 0, 0.5)
+    -- end
     if SL:GetMetaValue("WINPLAYMODE") then
         GUI:addMouseMoveEvent(rankText, {onEnterFunc = function()
             _open_rank_tips(rankText, rankData)

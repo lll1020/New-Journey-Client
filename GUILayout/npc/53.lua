@@ -4,18 +4,18 @@ npc._config = teshudata["npc_53"] or {}
 
 local WINDOW_NAME = "npc_53"
 local WINDOW_SIZE = {width = 856, height = 536}
-local PAGE_KEY = {
-    embed = "镶嵌",
-    compose = "合成",
-    box = "宝箱",
-    atlas = "图鉴",
+local PAGE_ICON_FILE = {
+    embed = "socket",
+    compose = "compose",
+    box = "chest",
+    atlas = "atlas",
 }
 local PAGE_ORDER = {"embed", "compose", "box", "atlas"}
 local PAGE_BG = {
-    embed = "res/custom/three_city/sshc/new/镶嵌/镶嵌部件.png",
-    compose = "res/custom/three_city/sshc/new/合成/合成部件.png",
-    box = "res/custom/three_city/sshc/new/宝箱/宝箱部件.png",
-    atlas = "res/custom/three_city/sshc/new/图鉴/空.png",
+    embed = "res/custom/three_city/sshc/new/socket/socket_parts.png",
+    compose = "res/custom/three_city/sshc/new/compose/compose_parts.png",
+    box = "res/custom/three_city/sshc/new/chest/chest_parts.png",
+    atlas = "res/custom/three_city/sshc/new/atlas/empty.png",
 }
 local LEFT_TAB_POS = {
     embed = {x = 18, y = 341},
@@ -25,7 +25,17 @@ local LEFT_TAB_POS = {
 }
 local BOX_NAME_ORDER = {"神石宝箱", "神石宝箱[史诗级]", "神石宝箱[传说级]"}
 local SLOT_BASE_NAMES = {"山川", "海洋", "天空", "清风", "火焰", "满月", "大地", "雷电"}
-local EMPTY_STONE_SKIN = "res/custom/three_city/sshc/new/神石纯底.png"
+local SLOT_ICON_FILE = {
+    "mountain",
+    "ocean",
+    "sky",
+    "breeze",
+    "fire",
+    "full_moon",
+    "earth",
+    "lightning",
+}
+local EMPTY_STONE_SKIN = "res/custom/three_city/sshc/new/stone_plain_background.png"
 local SLOT_POS = {
     {x = 250 - 10, y = 338 + 25 + 5},
     {x = 372 - 10, y = 338 + 25 + 5},
@@ -61,10 +71,10 @@ local QUALITY_NAME = {
     [4] = "神话",
 }
 local QUALITY_FRAME_SKIN = {
-    [1] = "res/custom/three_city/sshc/new/宝箱下级面板/开宝箱/稀有.png",
-    [2] = "res/custom/three_city/sshc/new/宝箱下级面板/开宝箱/史诗.png",
-    [3] = "res/custom/three_city/sshc/new/宝箱下级面板/开宝箱/传说.png",
-    [4] = "res/custom/three_city/sshc/new/宝箱下级面板/开宝箱/神话.png",
+    [1] = "res/custom/three_city/sshc/new/chest_subpanel/chest_opening/rare.png",
+    [2] = "res/custom/three_city/sshc/new/chest_subpanel/chest_opening/epic.png",
+    [3] = "res/custom/three_city/sshc/new/chest_subpanel/chest_opening/legendary.png",
+    [4] = "res/custom/three_city/sshc/new/chest_subpanel/chest_opening/mythic.png",
 }
 local DOUBLE_CLICK_INTERVAL = 0.35
 local BOX_SKIP_ANIM_KEY = "npc_53_box_skip_anim"
@@ -192,8 +202,8 @@ local function _get_current_box_name()
 end
 
 local function _get_slot_icon_path(slotIndex, isBright)
-    local folder = isBright and "亮" or "暗"
-    return string.format("res/custom/three_city/sshc/new/神石icon/%s/%s.png", folder, _get_slot_base_name(slotIndex))
+    local folder = isBright and "state_bright" or "state_dark"
+    return string.format("res/custom/three_city/sshc/new/stone_icon/%s/%s.png", folder, SLOT_ICON_FILE[slotIndex])
 end
 
 local function _get_slot_quality(itemName)
@@ -1109,7 +1119,7 @@ local function _ensure_window(npcid)
     npc._window = NPC_UI_HELPER.ensureWindow(npc._window, npcid, {
         windowName = WINDOW_NAME,
         background = {
-            skin = "res/custom/three_city/sshc/new/底板.png",
+            skin = "res/custom/three_city/sshc/new/bottom.png",
         },
         closeButton = {
             x = 808 + 15,
@@ -1126,7 +1136,7 @@ end
 
 local function _render_left_tabs(node, npcid)
     for _, page in ipairs(PAGE_ORDER) do
-        local skin = string.format("res/custom/three_city/sshc/new/左侧按钮/%s/%s.png", npc._page == page and "亮" or "暗", PAGE_KEY[page])
+        local skin = string.format("res/custom/three_city/sshc/new/left_buttons/%s/%s.png", npc._page == page and "state_bright" or "state_dark", PAGE_ICON_FILE[page])
         local pos = LEFT_TAB_POS[page]
         local btn = GUI:Button_Create(node, "page_" .. page, pos.x, pos.y, skin)
         GUI:setTouchEnabled(btn, true)
@@ -1227,7 +1237,7 @@ local function _render_embed(node, npcid)
             GUI:setAnchorPoint(icon, 0.5, 0.5)
         end
         if not isOpen then
-            GUI:Image_Create(baseNode, "slot_lock_" .. slotIndex, 5, 15, "res/custom/three_city/sshc/new/神石icon/锁.png")
+            GUI:Image_Create(baseNode, "slot_lock_" .. slotIndex, 5, 15, "res/custom/three_city/sshc/new/stone_icon/lock.png")
             -- _create_stroke_text(baseNode, "slot_lock_text_" .. slotIndex, 54, 8, 14, "#B8B8B8", string.format("第%d槽", slotIndex), 0.5, 0.5)
         elseif not hasEquip then
             local btn = GUI:Layout_Create(baseNode, "slot_touch_" .. slotIndex, 0, 0, 108, 120, false)
@@ -1350,7 +1360,7 @@ local function _render_compose(node, npcid)
     -- _create_stroke_text(node, "compose_cost_rule", 428, 402, 15, "#FFD891", _build_compose_cost_text(), 0.5, 0.5)
     -- _create_stroke_text(node, "compose_tip", 214, 100, 16, "#E6D2A5", "提示：自动补充会优先选择同类型神石", 0, 0.5)
 
-    local takeoffBtn = GUI:Button_Create(node, "compose_takeoff_btn", 236, 145 - 18, "res/custom/three_city/sshc/new/合成/一键卸下.png")
+    local takeoffBtn = GUI:Button_Create(node, "compose_takeoff_btn", 236, 145 - 18, "res/custom/three_city/sshc/new/compose/takeoff_all.png")
     GUI:addOnClickEvent(takeoffBtn, function()
         _reset_compose_selection()
         if npc._render_current_page and node and not (tolua and tolua.isnull and tolua.isnull(node)) then
@@ -1358,7 +1368,7 @@ local function _render_compose(node, npcid)
         end
     end)
 
-    local autoFillBtn = GUI:Button_Create(node, "compose_auto_fill_btn", 445, 145 - 18, "res/custom/three_city/sshc/new/合成/自动补充.png")
+    local autoFillBtn = GUI:Button_Create(node, "compose_auto_fill_btn", 445, 145 - 18, "res/custom/three_city/sshc/new/compose/auto_fill.png")
     GUI:addOnClickEvent(autoFillBtn, function()
         _auto_fill_compose()
         if npc._render_current_page and node and not (tolua and tolua.isnull and tolua.isnull(node)) then
@@ -1366,12 +1376,12 @@ local function _render_compose(node, npcid)
         end
     end)
 
-    local composeBtn = GUI:Button_Create(node, "compose_btn", 348, 20, "res/custom/three_city/sshc/new/合成/立即合成.png")
+    local composeBtn = GUI:Button_Create(node, "compose_btn", 348, 20, "res/custom/three_city/sshc/new/compose/immediate_compose.png")
     GUI:addOnClickEvent(composeBtn, function()
         _send_compose_request(npcid)
     end)
 
-    local tipBtn = GUI:Button_Create(node, "compose_rule_btn", 561 - 365, 33, "res/custom/three_city/sshc/new/合成/本次可能会出...png")
+    local tipBtn = GUI:Button_Create(node, "compose_rule_btn", 561 - 365, 33, "res/custom/three_city/sshc/new/compose/possible_reward.png")
     local state = _ensure_compose_state()
 
 
@@ -1490,7 +1500,7 @@ local function _show_box_result_popup(resultData)
     GUI:setAnchorPoint(overlay, 0.5, 0.5)
     GUI:setContentSize(overlay, cogin.w + 100, cogin.h + 100)
     GUI:setTouchEnabled(overlay, true)
-    local panel = GUI:Image_Create(parent, "panel", cogin.w / 2, cogin.h / 2, "res/custom/three_city/sshc/new/宝箱下级面板/恭喜获得/恭喜获得.png")
+    local panel = GUI:Image_Create(parent, "panel", cogin.w / 2, cogin.h / 2, "res/custom/three_city/sshc/new/chest_subpanel/reward_popup/congratulations_reward.png")
     GUI:setAnchorPoint(panel, 0.5, 0.5)
     local topCloseBtn = GUI:Button_Create(panel, "popup_top_close_btn", 492, 424, "res/wy/public/close_red_big.png")
     GUI:setVisible(topCloseBtn, false)
@@ -1500,7 +1510,7 @@ local function _show_box_result_popup(resultData)
     local stripMask = GUI:Layout_Create(panel, "strip_mask", 74, 138, 392, 120, false)
     GUI:Layout_setClippingEnabled(stripMask, true)
     local strip = GUI:Node_Create(stripMask, "strip", 0, 0)
-    local highlight = GUI:Image_Create(panel, "highlight", 268, 138 - 175, "res/custom/three_city/sshc/new/宝箱下级面板/开宝箱/边框.png")
+    local highlight = GUI:Image_Create(panel, "highlight", 268, 138 - 175, "res/custom/three_city/sshc/new/chest_subpanel/chest_opening/border.png")
     GUI:setAnchorPoint(highlight, 0.5, 0)
     local previewPool = _build_anim_box_pool(tostring(resultData.box_name or BOX_NAME_ORDER[1]), tostring(resultData.reward_name or ""))
     if #previewPool <= 0 then
@@ -1537,11 +1547,11 @@ local function _show_box_result_popup(resultData)
             _send_claim_box_reward(npc._npcid or 53, claimToken)
         end
         GUI:setVisible(topCloseBtn, true)
-        local closeBtn = GUI:Button_Create(panel, "result_close_btn", 78, 90 - 10, "res/custom/three_city/sshc/new/宝箱下级面板/恭喜获得/我知道了.png")
+        local closeBtn = GUI:Button_Create(panel, "result_close_btn", 78, 90 - 10, "res/custom/three_city/sshc/new/chest_subpanel/reward_popup/got_it.png")
         GUI:addOnClickEvent(closeBtn, function()
             _close_box_popup()
         end)
-        local reopenBtn = GUI:Button_Create(panel, "result_reopen_btn", 297, 90 - 10, "res/custom/three_city/sshc/new/宝箱下级面板/恭喜获得/再次开启.png")
+        local reopenBtn = GUI:Button_Create(panel, "result_reopen_btn", 297, 90 - 10, "res/custom/three_city/sshc/new/chest_subpanel/reward_popup/again.png")
         GUI:addOnClickEvent(reopenBtn, function()
             -- _close_box_popup()
             _send_open_box(npc._npcid or 53, tostring(resultData.box_name or _get_current_box_name()))
@@ -1570,18 +1580,18 @@ local function _render_box(node, npcid)
     _render_box_cost(node)
 
     -- local skipLabel = _create_stroke_text(node, "box_skip_label", 232, 78, 22, "#F3E3A8", "跳过动画", 0, 0.5)
-    local skipCheck = GUI:CheckBox_Create(node, "box_skip_check", 250, 52, "res/custom/three_city/sshc/new/宝箱/跳过动画空对号.png", "res/custom/three_city/sshc/new/宝箱/跳过动画有对号.png")
+    local skipCheck = GUI:CheckBox_Create(node, "box_skip_check", 250, 52, "res/custom/three_city/sshc/new/chest/skip_animation_empty_check.png", "res/custom/three_city/sshc/new/chest/skip_animation_check.png")
     GUI:CheckBox_setSelected(skipCheck, _load_skip_box_anim())
     GUI:CheckBox_addOnEvent(skipCheck, function(sender)
         _save_skip_box_anim(GUI:CheckBox_isSelected(sender))
     end)
 
-    local openBtn = GUI:Button_Create(node, "box_open_btn", 412, 35, "res/custom/three_city/sshc/new/宝箱/立即开启.png")
+    local openBtn = GUI:Button_Create(node, "box_open_btn", 412, 35, "res/custom/three_city/sshc/new/chest/open_immediately.png")
     GUI:addOnClickEvent(openBtn, function()
         _send_open_box(npcid, _get_current_box_name())
     end)
 
-    local bagBtn = GUI:Button_Create(node, "box_bag_btn", 642, 35, "res/custom/three_city/sshc/new/宝箱/箱子不够了？点我！.png")
+    local bagBtn = GUI:Button_Create(node, "box_bag_btn", 642, 35, "res/custom/three_city/sshc/new/chest/chest_empty_click_me.png")
     GUI:addOnClickEvent(bagBtn, function()
         SL:OpenBagUI()
     end)
@@ -1593,8 +1603,14 @@ local function _render_atlas(node, npcid)
     local progressMap = _get_progress_map()
     local ownedMap = _get_owned_map()
     for quality = 1, 4 do
-        local folder = atlasQuality == quality and "亮" or "暗"
-        local btn = GUI:Button_Create(node, "atlas_top_" .. quality, ATLAS_TOP_TAB_POS[quality].x, ATLAS_TOP_TAB_POS[quality].y - 35, string.format("res/custom/three_city/sshc/new/图鉴/上方按钮/%s/%s级图鉴.png", folder, ATLAS_TAB_NAME[quality]))
+        local folder = atlasQuality == quality and "state_bright" or "state_dark"
+        local atlasTabAsset = {
+            [1] = "rare_tier_atlas.png",
+            [2] = "epic_tier_atlas.png",
+            [3] = "mythic_tier_atlas.png",
+            [4] = "legendary_tier_atlas.png",
+        }
+        local btn = GUI:Button_Create(node, "atlas_top_" .. quality, ATLAS_TOP_TAB_POS[quality].x, ATLAS_TOP_TAB_POS[quality].y - 35, string.format("res/custom/three_city/sshc/new/atlas/top_buttons/%s/%s", folder, atlasTabAsset[quality]))
         GUI:addOnClickEvent(btn, function()
             if npc._atlasQuality == quality then
                 return
@@ -1614,7 +1630,7 @@ local function _render_atlas(node, npcid)
         local quality = atlasQuality
         _create_quality_stone_icon(baseNode, "atlas_" .. slotIndex, 54, 62, slotIndex, quality, owned)
         if not owned then
-            -- GUI:Image_Create(baseNode, "atlas_lock_" .. slotIndex, 10, 15, "res/custom/three_city/sshc/new/神石icon/锁.png")
+            -- GUI:Image_Create(baseNode, "atlas_lock_" .. slotIndex, 10, 15, "res/custom/three_city/sshc/new/stone_icon/lock.png")
         end
         -- _create_stroke_text(baseNode, "atlas_name_" .. slotIndex, 54, 10, 17, owned and (QUALITY_COLOR[quality] or "#F3F3F3") or "#A0A0A0", _get_short_stone_name(itemName, slotIndex), 0.5, 0.5)
         local touch = GUI:Layout_Create(baseNode, "atlas_touch_" .. slotIndex, 0, 0, 108, 120, false)
@@ -1629,7 +1645,7 @@ local function _render_atlas(node, npcid)
     local hit = _toint(progress.hit, 0)
     local total = _toint(progress.total, 0)
     local rewardLevel = _toint(progress.reward, 0)
-    local line = GUI:Image_Create(node, "atlas_line", 428 + 83, 136, "res/custom/three_city/sshc/new/图鉴/分割线-.png")
+    local line = GUI:Image_Create(node, "atlas_line", 428 + 83, 136, "res/custom/three_city/sshc/new/atlas/divider.png")
     GUI:setAnchorPoint(line, 0.5, 0.5)
     _create_center_rich_text(node, "atlas_progress", 695, 106, string.format(
         "<font color='#F4E6C8' size='21' face='fonts/502.ttf'>已收集：</font><font color='#62F7FF' size='21' face='fonts/502.ttf'>%d/%d</font>",

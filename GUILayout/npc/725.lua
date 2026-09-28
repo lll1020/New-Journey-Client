@@ -5,19 +5,19 @@ local BASE = "res/custom/all_story_mission/6/"
 local DEFAULT_BUTTON = "res/public/1900000660.png"
 local COMPLETE_SKIN = "res/wy/public/7_1.png"
 local SPEC = {
-    folder = "赤焰",
-    background = "面板-.png",
+        folder = "scarlet_flame",
+    background = "panel.png",
     reward = {x = 274, y = 205 - 3, scale = 0.9},
     cost = false,
     progressHidden = true,
     images = {
-        {name = "dialog", skin = "对话框.png", x = 337, y = 366},
-        {name = "req_title", skin = "任务要求.png", x = 158 + 50, y = 282},
-        {name = "req_content", skin = "要求内容.png", x = 374 + 50, y = 282},
-        {name = "reward_title", skin = "任务奖励.png", x = 158 + 50, y = 222},
+        {name = "dialog", skin = "dialogue_frame.png", x = 337, y = 366},
+        {name = "req_title", skin = "task_requirement.png", x = 158 + 50, y = 282},
+        {name = "req_content", skin = "requirement_content.png", x = 374 + 50, y = 282},
+        {name = "reward_title", skin = "task_reward.png", x = 158 + 50, y = 222},
     },
     buttons = {
-        [1] = {x = 337, y = 150, w = 294, h = 50, skin = "“定不辜负！”.png", rewardSkin = "res/custom/all_story_mission/2/btn_give.png"},
+        [1] = {x = 337, y = 150, w = 294, h = 50, skin = "never_disappoint.png", rewardSkin = "res/custom/all_story_mission/2/btn_give.png"},
     },
 }
 npc._config = teshudata["npc_" .. tostring(NPC_ID)] or {}
@@ -35,10 +35,7 @@ local function _valid(node)
 end
 
 local function _skin(path)
-    if path and path ~= "" and (not SL or not SL.IsFileExist or SL:IsFileExist(path)) then
-        return path
-    end
-    return nil
+    return path and path ~= "" and path or nil
 end
 
 local function _asset(fileName)
@@ -248,10 +245,6 @@ local function _button_skin(actionSpec, label, state)
     if actionSpec and actionSpec.skin then
         return _asset(actionSpec.skin) or _skin(actionSpec.skin)
     end
-    local byLabel = _asset(tostring(label or "") .. ".png")
-    if byLabel then
-        return byLabel
-    end
     return DEFAULT_BUTTON
 end
 
@@ -273,7 +266,7 @@ local function _render_buttons(node, key, data, cfg, useDemo)
                 SL:SendLuaNetMsg(100, NPC_ID, action.ew, 0, "")
             end
             if state == 2 and action.ew == 1 then
-                local completeSkin = _asset("已提交.png") or COMPLETE_SKIN
+                local completeSkin = _asset("submitted.png") or COMPLETE_SKIN
                 local done = GUI:Image_Create(node, "done_" .. action.ew, pos.x, pos.y, completeSkin)
                 GUI:setAnchorPoint(done, 0.5, 0.5)
                 _make_touch(node, "btn_done_" .. action.ew, pos, send)

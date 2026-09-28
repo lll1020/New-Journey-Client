@@ -1,29 +1,21 @@
 local npc = {}
 
 local MIJING_CFG = {
-    [86] = {name = "极光秘境", img = "极光秘境.png", need = "高级玩家赞助可进", artifact = "极光石", titleItem = "极光使者[可使用]"},
-    [87] = {name = "苍云秘境", img = "苍云秘境.png", need = "至尊玩家赞助可进", artifact = "苍云镜", titleItem = "白云苍狗[可使用]"},
-    [88] = {name = "若水秘境", img = "若水秘境.png", need = "激活1条红色仙法", artifact = "若水灵珠", titleItem = "上善若水[可使用]"},
-    [89] = {name = "红尘秘境", img = "红尘秘境.png", need = "激活3条红色仙法", artifact = "斩红尘", titleItem = "看破红尘[可使用]"},
-    [90] = {name = "灵虚秘境", img = "灵虚秘境.png", need = "激活5条红色仙法", artifact = "灵虚剑", titleItem = "归入灵虚[可使用]"},
+    [86] = {name = "极光秘境", img = "aurora_realm.png", need = "高级玩家赞助可进", artifact = "极光石", titleItem = "极光使者[可使用]"},
+    [87] = {name = "苍云秘境", img = "cangyun_realm.png", need = "至尊玩家赞助可进", artifact = "苍云镜", titleItem = "白云苍狗[可使用]"},
+    [88] = {name = "若水秘境", img = "ruo_water_realm.png", need = "激活1条红色仙法", artifact = "若水灵珠", titleItem = "上善若水[可使用]"},
+    [89] = {name = "红尘秘境", img = "red_dust_realm.png", need = "激活3条红色仙法", artifact = "斩红尘", titleItem = "看破红尘[可使用]"},
+    [90] = {name = "灵虚秘境", img = "spirit_void_realm.png", need = "激活5条红色仙法", artifact = "灵虚剑", titleItem = "归入灵虚[可使用]"},
 }
 
 local WINDOW_OPTS = {
-    background = {skin = "res/custom/mijing/示意图.png"},
+    background = {skin = "res/custom/mijing/demo.png"},
     closeButton = {x = 720 - 120, y = 420 - 120},
     node = {x = 500, y = 300},
 }
 
-local function fileExists(path)
-    return SL and SL.IsFileExist and SL:IsFileExist(path)
-end
-
 local function getBgPath(cfg)
-    local path = "res/custom/mijing/" .. tostring((cfg and cfg.img) or "示意图.png")
-    if fileExists(path) then
-        return path
-    end
-    return "res/custom/mijing/示意图.png"
+    return "res/custom/mijing/" .. tostring((cfg and cfg.img) or "demo.png")
 end
 
 local function createOutlineText(parent, name, x, y, size, color, text)
@@ -78,10 +70,10 @@ local function render(node, npcid, cfg)
     createOutlineText(node, "status", 128 - 135, -190, 20, tonumber(data.can_enter or 0) == 1 and "#63ff8f" or "#ff7777", tonumber(data.can_enter or 0) == 1 and "已满足" or "未满足")
 
     -- createOutlineText(node, "reward_title", 0, 92, 24, "#ffdf87", "秘境掉落展示")
-    createRewardCard(node, "artifact_card", -105 - 160, 20 - 145, "res/custom/mijing/背包神器.png", artifact)
-    createRewardCard(node, "title_card", 105 - 160, 20 - 145, "res/custom/mijing/顶级称号.png", titleItem)
+    createRewardCard(node, "artifact_card", -105 - 160, 20 - 145, "res/custom/mijing/bag_artifact.png", artifact)
+    createRewardCard(node, "title_card", 105 - 160, 20 - 145, "res/custom/mijing/ultimate_title.png", titleItem)
 
-    local btn = GUI:Button_Create(node, "enter_btn", -166, -243, "res/custom/mijing/进入秘境.png")
+    local btn = GUI:Button_Create(node, "enter_btn", -166, -243, "res/custom/mijing/enter_realm.png")
     GUI:setAnchorPoint(btn, 0.5, 0.5)
     GUI:addOnClickEvent(btn, function()
         SL:SendLuaNetMsg(100, npcid, 1, 0, "")

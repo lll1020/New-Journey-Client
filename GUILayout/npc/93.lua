@@ -1,7 +1,7 @@
 ﻿--功能:通天塔
 local npc = {}
 
-local RES = "res/custom/three_city/通天塔系列/"
+local RES = "res/custom/three_city/tongtian_tower_series/"
 
 local function _num(v, d)
     return tonumber(v or d or 0) or (d or 0)
@@ -156,16 +156,16 @@ local function _open_popup(npcid, idx)
 
     local bj = nil
     if idx == 1 then
-        bj = GUI:Image_Create(parent, "bj", 0, 0, RES .. "通天塔准则/通天塔准则.png")
+        bj = GUI:Image_Create(parent, "bj", 0, 0, RES .. "tongtian_tower_rules/tongtian_tower_rules.png")
         _create_outline_text(bj, "rule1", 430, 310, 22, "#F7E6B5", "每次挑战都从第1层开始，直到战败或通关为止")
         _create_outline_text(bj, "rule2", 430, 270, 22, "#F7E6B5", "每日免费爬塔2次，之后可花费500灵石额外挑战1次")
         _create_outline_text(bj, "rule3", 430, 230, 22, "#F7E6B5", "每次按本次爬到的层数结算通天积分，并记录历史最高层")
-        local close = GUI:Button_Create(bj, "close", 430, 95, RES .. "通天塔准则/收下奖励.png")
+        local close = GUI:Button_Create(bj, "close", 430, 95, RES .. "tongtian_tower_rules/accept_reward.png")
         GUI:addOnClickEvent(close, function()
             GUI:Win_Close(parent)
         end)
     elseif idx == 2 then
-        bj = GUI:Image_Create(parent, "bj", 0, 0, RES .. "爬塔奖励/爬塔奖励.png")
+        bj = GUI:Image_Create(parent, "bj", 0, 0, RES .. "tower_rewards/tongtian_tower_reward.png")
         local cfg = _cfg()
         -- _create_outline_text(bj, "desc1", 450, 412, 22, "#3B1C0B", "通天塔每爬一层，奖励都会越来越丰富，同时怪物也会越强！")
         -- _create_outline_text(bj, "left_floor", 112, 342, 24, "#5B260B", "层数")
@@ -182,13 +182,13 @@ local function _open_popup(npcid, idx)
         -- _create_outline_text(bj, "tip_d", 646, 156, 20, "#FF0000", "500灵石")
         -- _create_outline_text(bj, "tip_e", 742, 156, 20, "#3B1C0B", "额外挑战一次！")
         -- _create_outline_text(bj, "tip_f", 450, 118, 20, "#3B1C0B", "每次爬塔按你所爬到的层数给你奖励")
-        local close = GUI:Button_Create(bj, "close", 450, 42, RES .. "爬塔奖励/我知道了.png")
+        local close = GUI:Button_Create(bj, "close", 450, 42, RES .. "tower_rewards/got_it.png")
         GUI:addOnClickEvent(close, function()
             GUI:Win_Close(parent)
         end)
     elseif idx == 3 then
-        bj = GUI:Image_Create(parent, "bj", 0, 0, RES .. "奖励兑换/奖励兑换.png")
-        local close = GUI:Button_Create(bj, "close", 800, 470, RES .. "关闭按钮.png")
+        bj = GUI:Image_Create(parent, "bj", 0, 0, RES .. "reward_exchange/reward_exchange.png")
+        local close = GUI:Button_Create(bj, "close", 800, 470, RES .. "close.png")
         GUI:addOnClickEvent(close, function()
             GUI:Win_Close(parent)
         end)
@@ -210,7 +210,7 @@ local function _open_popup(npcid, idx)
                 -- if e.desc and e.desc ~= "" then
                 --     _create_outline_text(row, "desc" .. i, 350, 25, 16, "#FFFFFF", e.desc)
                 -- end
-                local btn = GUI:Button_Create(row, "buy" .. i, 620 - 50, 2, RES .. "奖励兑换/兑换.png")
+                local btn = GUI:Button_Create(row, "buy" .. i, 620 - 50, 2, RES .. "reward_exchange/exchange.png")
                 GUI:addOnClickEvent(btn, function()
                     SL:SendLuaNetMsg(100, npcid, 2, i, "")
                     GUI:Win_Close(parent)
@@ -241,16 +241,16 @@ function npc.main(npcid, link, msg, data)
             GUI:Win_Close(parent)
         end)
 
-        npc.bj = GUI:Frames_Create(parent, "bg", 0, 0, RES .. "面板序列/通天塔序列/eff_", ".png", 1, 30, {count = 30, speed = 60, loop = 1})
+        npc.bj = GUI:Frames_Create(parent, "bg", 0, 0, RES .. "panel_frames/tongtian_tower_frames/eff_", ".png", 1, 30, {count = 30, speed = 60, loop = 1})
         GUI:setAnchorPoint(npc.bj, 0.5, 0.5)
         GUI:setTouchEnabled(npc.bj, true)
-        -- GUI:Frames_Create(npc.bj, "start_eff", 0, 0, RES .. "面板序列/通天塔开头序列/eff_", ".png", 1, 75, {count = 75, speed = 45, loop = 0})
+        -- GUI:Frames_Create(npc.bj, "start_eff", 0, 0, RES .. "panel_frames/tongtian_tower_intro_frames/eff_", ".png", 1, 75, {count = 75, speed = 45, loop = 0})
 
-        local close = GUI:Button_Create(npc.bj, "close", 770, 443, RES .. "关闭按钮.png")
+        local close = GUI:Button_Create(npc.bj, "close", 770, 443, RES .. "close.png")
         GUI:addOnClickEvent(close, function()
             GUI:Win_Close(parent)
         end)
-        local kstz = GUI:Button_Create(npc.bj, "kstz", 276, 5, RES .. "开始挑战.png")
+        local kstz = GUI:Button_Create(npc.bj, "kstz", 276, 5, RES .. "start_challenge.png")
         GUI:addOnClickEvent(kstz, function()
             _start_challenge_with_confirm(npcid)
         end)
@@ -258,7 +258,7 @@ function npc.main(npcid, link, msg, data)
 
         local dq = GUI:Image_Create(npc.bj, "dq", 297, 215 + 60, "res/wy/public/npc_19_dq_wz.png")
         local jl = GUI:Image_Create(npc.bj, "jl", 297, 165 + 60, "res/wy/public/npc_19_jl_wz.png")
-        local timesBg = GUI:Image_Create(npc.bj, "times", 297, 120, RES .. "挑战次数.png")
+        local timesBg = GUI:Image_Create(npc.bj, "times", 297, 120, RES .. "challenge_count.png")
         
         GUI:setOpacity(dq, 0)
         GUI:setOpacity(jl, 0)
@@ -280,8 +280,8 @@ function npc.main(npcid, link, msg, data)
         -- _create_outline_text(npc.bj, "points", 430, 85, 20, "#00FF66", "通天积分：" .. _points_text())
 
         local btns = {
-            {img = RES .. "通天塔奖励.png", idx = 2},
-            {img = RES .. "奖励兑换.png", idx = 3},
+            {img = RES .. "tongtian_tower_reward.png", idx = 2},
+            {img = RES .. "reward_exchange.png", idx = 3},
         }
         for i, v in ipairs(btns) do
             local btn = GUI:Button_Create(npc.bj, "btn_" .. i, 628, 300 - (i - 1) * 80, v.img)

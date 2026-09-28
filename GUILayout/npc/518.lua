@@ -83,6 +83,27 @@ local function ensureStateTable(key)
     return state[key]
 end
 
+local function ensureCards()
+    if type(Atlas.cards) ~= "table" then
+        Atlas.cards = {}
+    end
+    if type(Atlas.cards.monster) ~= "table" then
+        Atlas.cards.monster = {}
+    end
+    if type(Atlas.cards.equip) ~= "table" then
+        Atlas.cards.equip = {}
+    end
+    return Atlas.cards
+end
+
+local function getCards(kind)
+    local cards = ensureCards()
+    if type(cards[kind]) ~= "table" then
+        cards[kind] = {}
+    end
+    return cards[kind]
+end
+
 local function replaceState(data)
     data = type(data) == "table" and data or {}
     for _, key in ipairs({"monster", "equip", "monster_claimed", "equip_claimed", "chapter_claimed", "monster_attr"}) do
@@ -1076,7 +1097,7 @@ local function refreshDetailState(previousState)
             activeChanged = true
         end
         if oldActive ~= newActive or oldClaimed ~= newClaimed or oldAttr ~= newAttr then
-            local data = (Atlas.cards[kind] or {})[id]
+            local data = getCards(kind)[id]
             if data and valid(data.node) then
                 renderEntryCard(data.node, kind, data.entry)
             end
@@ -1213,7 +1234,7 @@ local function renderDetail(root)
     local innerW = math.max(viewW, gridW + 20)
     local innerH = math.max(viewH, rows * CARD_H + (rows + 1) * CARD_GAP)
     GUI:ScrollView_setInnerContainerSize(scroll, innerW, innerH)
-    Atlas.cards[kind] = {}
+    ensureCards()[kind] = {}
     Atlas.entryLayout = {
         kind = kind,
         mapId = tostring(map.id or ""),
@@ -1248,7 +1269,7 @@ local function renderDetail(root)
             entry.card_skin or (kind == "monster" and RES .. "tj_25.png" or RES .. "tj_26.png"))
         GUI:setAnchorPoint(card, 0, 0.5)
         GUI:setContentSize(card, CARD_W, CARD_H)
-        Atlas.cards[kind][id] = {
+        getCards(kind)[id] = {
             node = card,
             entry = entry,
             order = i,
@@ -1290,7 +1311,7 @@ refreshEntryPositions = function(kind, map)
     local gridLeft = math.max(CARD_GAP, (layout.innerW - layout.gridW) / 2)
     for index, entry in ipairs(entries) do
         local id = getEntryId(entry, index)
-        local data = (Atlas.cards[kind] or {})[id]
+        local data = getCards(kind)[id]
         if data and valid(data.node) then
             local col = (index - 1) % layout.columns
             local row = math.floor((index - 1) / layout.columns)
@@ -1360,7 +1381,7 @@ function Atlas.renderDetail()
 end
 
 function Atlas.refreshEntry(kind, id)
-    local data = (Atlas.cards[kind] or {})[tostring(id or "")]
+    local data = getCards(kind)[tostring(id or "")]
     if data and valid(data.node) then
         renderEntryCard(data.node, kind, data.entry)
     end
@@ -1429,7 +1450,7 @@ end
 
 function Atlas.open(skipRequest)
     Atlas.expanded = {}
-    Atlas.cards = Atlas.cards or {monster = {}, equip = {}}
+    ensureCards()
     Atlas.view = nil
     Atlas.mapId = nil
     Atlas.root = createRoot()
