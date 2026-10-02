@@ -2273,7 +2273,6 @@ function MainAssistXylHelper.bind(MainAssist)
         end
         _safe_set_visible(widget.title, true)
         _safe_set_visible(widget.nameText, true)
-        _safe_set_visible(widget.rewardTitle, true)
         _safe_set_visible(widget.detailBtn, true)
         _safe_set_visible(widget.goBtn, true)
 
@@ -2317,6 +2316,7 @@ function MainAssistXylHelper.bind(MainAssist)
         end
 
         local rewardData = _xyl_collect_task_reward_data(info.task, info)
+        _safe_set_visible(widget.rewardTitle, #rewardData > 0)
         if #rewardData > 0 then
             local okReward, rewardNode = pcall(function()
                 return ItemNumByTable_img_new(rewardData, nil, widget.rewardRoot)
@@ -2329,8 +2329,13 @@ function MainAssistXylHelper.bind(MainAssist)
         end
 
         if MainAssist.ListView_mission then
-            GUI:setContentSize(MainAssist.ListView_mission, 200, 145)
-            GUI:setPosition(MainAssist.ListView_mission, 101, 114)
+            if #rewardData > 0 then
+                GUI:setContentSize(MainAssist.ListView_mission, 200, 145)
+                GUI:setPosition(MainAssist.ListView_mission, 101, 114)
+            else
+                GUI:setContentSize(MainAssist.ListView_mission, 200, 185)
+                GUI:setPosition(MainAssist.ListView_mission, 101, 94)
+            end
         end
 
         if MainAssist._xylDetailPopupOpened then

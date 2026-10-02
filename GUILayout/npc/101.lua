@@ -536,7 +536,7 @@ local function createRewardCell(parent, name, x, y, rewardPack, stateText, state
     end
 
     if stateText and stateText ~= "" then
-        local state = GUI:Text_Create(node, "state", 25, 0, 12, stateColor or "#ffe07a", stateText)
+        local state = GUI:Text_Create(node, "state", 25, -5, 15, stateColor or "#ffe07a", stateText)
         GUI:setAnchorPoint(state, 0.5, 0)
         setTextStyle(state)
     end
@@ -887,15 +887,15 @@ local function createMilestoneList(parent)
     -- 
     for order, cfg in ipairs(getMilestones()) do
         local row = GUI:Node_Create(list, "row_" .. tostring(cfg.idx), 0, 0)
-        GUI:setContentSize(row, 244, 70)
+        GUI:setContentSize(row, 244, 90)
 
-        GUI:setContentSize(GUI:Image_Create(row, "draw1", 0, -8, "res/wy/public/pick.png"), 90, 70 + 8)
-        GUI:setContentSize(GUI:Image_Create(row, "draw2", 90, -8, "res/wy/public/pick.png"), 90, 70 + 8)
-        GUI:setContentSize(GUI:Image_Create(row, "draw3", 90 + 90, -8, "res/wy/public/pick.png"), 90, 70 + 8)
+        GUI:setContentSize(GUI:Image_Create(row, "draw1", 0, -8, "res/wy/public/pick.png"), 90, 90 + 8)
+        GUI:setContentSize(GUI:Image_Create(row, "draw2", 90, -8, "res/wy/public/pick.png"), 90, 90 + 8)
+        GUI:setContentSize(GUI:Image_Create(row, "draw3", 90 + 90, -8, "res/wy/public/pick.png"), 90, 90 + 8)
 
         local drawSkin = getMilestoneImage(cfg.draw)
         if drawSkin then
-            local numImg = GUI:Image_Create(row, "draw", -20, -8, drawSkin)
+            local numImg = GUI:Image_Create(row, "draw", -20, 0, drawSkin)
             GUI:setAnchorPoint(numImg, 0, 0)
             GUI:setTouchEnabled(numImg, true)
             GUI:addOnClickEvent(numImg, function()
@@ -929,17 +929,17 @@ local function createMilestoneList(parent)
             crownStateColor = "#ffe07a"
         elseif not getHasCrown() then
             crownStateText = "未冠名"
-            crownStateColor = "#808080"
+            crownStateColor = "#FF0000"
         end
 
-        createRewardCell(row, "normal_" .. tostring(cfg.idx), 118 + 15, 25, cfg.normal, normalStateText, normalStateColor, function()
+        createRewardCell(row, "normal_" .. tostring(cfg.idx), 118 + 15, 40, cfg.normal, normalStateText, normalStateColor, function()
             npc.selectedMilestoneIdx = cfg.idx
             if npc.node and UI_updata then
                 UI_updata(npc.node)
             end
         end)
 
-        createRewardCell(row, "crown_" .. tostring(cfg.idx), 188 + 37, 25, cfg.crown, crownStateText, crownStateColor, function()
+        createRewardCell(row, "crown_" .. tostring(cfg.idx), 188 + 37, 40, cfg.crown, crownStateText, crownStateColor, function()
             npc.selectedMilestoneIdx = cfg.idx
             if npc.node and UI_updata then
                 UI_updata(npc.node)
@@ -1199,13 +1199,20 @@ UI_updata = function(node)
 
     closeBoxPopup()
     closeBuyPopup()
-    GUI:removeAllChildren(node)
-    createTabs(node)
+    if not npc.tabsNode then
+        npc.tabsNode = GUI:Node_Create(node, "tabs_node", 0, 0)
+        createTabs(npc.tabsNode)
+    end
+    if not npc.pageNode then
+        npc.pageNode = GUI:Node_Create(node, "page_node", 0, 0)
+    else
+        GUI:removeAllChildren(npc.pageNode)
+    end
 
     if npc.currentTab == 1 then
-        npc.renderFucai(node)
+        npc.renderFucai(npc.pageNode)
     else
-        npc.renderRika(node)
+        npc.renderRika(npc.pageNode)
     end
 end
 
@@ -1214,6 +1221,8 @@ function npc.main(npcid, p2, p3, msgData)
         npc.currentTab = 1
         npc.selectedMilestoneIdx = nil
         npc.data = ensureData(safeDecode(msgData))
+        npc.tabsNode = nil
+        npc.pageNode = nil
         ensureWindow(npcid)
         UI_updata(npc.node)
         return

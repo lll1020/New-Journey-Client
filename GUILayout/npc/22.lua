@@ -1271,10 +1271,16 @@ local function buildUpgradeAttrRows(currentLevel, nextLevel)
             for _, attr in ipairs(((levelCfg or {}).attrs or {})[group] or {}) do
                 local row = ensureRow(attr, group)
                 local value = n(attr.value)
-                if level <= currentLevel then
-                    row.current = row.current + value
+                if level == currentLevel then
+                    row.current = value
                 end
-                row.next = row.next + value
+                if level == nextLevel then
+                    row.next = value
+                elseif level > nextLevel then
+                    break
+                else
+                    -- Core-level attributes are complete values for that level.
+                end
             end
         end
     end
@@ -1375,14 +1381,42 @@ local function renderUpgradeAttrScroll(box, state, nextCfg)
             innerH - 48 - index * rowH, scrollW - 12, rowH - 2, false)
         GUI:setAnchorPoint(row, 0, 0)
         GUI:setTouchEnabled(row, false)
-        local dot = GUI:Image_Create(row, "dot", 8, (rowH - 2) / 2, "res/custom/tianshu/qh/tip.png")
+        local dot = GUI:Image_Create(row, "dot", 12, (rowH - 2) / 2, "res/custom/tianshu/qh/tip.png")
         -- local dot = GUI:Text_Create(row, "dot", 8, (rowH - 2) / 2, 22, item.top and "#10FF00" or "#3C9A70", "◆")
         GUI:setAnchorPoint(dot, 0.5, 0.5)
         -- GUI:Text_setFontName(dot, "fonts/502.ttf")
-        local value = GUI:Text_Create(row, "value", 24, (rowH - 2) / 2, item.top and 22 or 20,
-            item.top and "#B48A42" or "#00FFFF", item.text)
-        GUI:setAnchorPoint(value, 0, 0.5)
-        GUI:Text_setFontName(value, "fonts/502.ttf")
+        local label, current, nextValue = item.text:match("^(.-)%s+(.-)%s+%-%>%s+(.*)$")
+        if label and current and nextValue then
+            local size = item.top and 22 or 20
+            local labelText = GUI:Text_Create(row, "label", 30, (rowH - 2) / 2, size,
+                item.top and "#B48A42" or "#00FFFF", label)
+            GUI:setAnchorPoint(labelText, 0, 0.5)
+            GUI:Text_setFontName(labelText, "fonts/502.ttf")
+
+            local labelSize = GUI:getContentSize(labelText)
+            local valueX = 36 + (labelSize and labelSize.width or 100)
+            local currentText = GUI:Text_Create(row, "current", valueX, (rowH - 2) / 2, size,
+                "#00FFFF", current)
+            GUI:setAnchorPoint(currentText, 0, 0.5)
+            GUI:Text_setFontName(currentText, "fonts/502.ttf")
+
+            local currentSize = GUI:getContentSize(currentText)
+            local arrowX = valueX + (currentSize and currentSize.width or 42) + 8
+            local arrow = GUI:Image_Create(row, "arrow", arrowX + 10, (rowH - 2) / 2,
+                "res/custom/tianshu/qh/jt.png")
+            GUI:setAnchorPoint(arrow, 0, 0.5)
+
+            local arrowSize = GUI:getContentSize(arrow)
+            local nextText = GUI:Text_Create(row, "next", arrowX + (arrowSize and arrowSize.width or 22) + 16,
+                (rowH - 2) / 2, size, "#2E9B45", nextValue)
+            GUI:setAnchorPoint(nextText, 0, 0.5)
+            GUI:Text_setFontName(nextText, "fonts/502.ttf")
+        else
+            local value = GUI:Text_Create(row, "value", 24, (rowH - 2) / 2, item.top and 22 or 20,
+                item.top and "#B48A42" or "#00FFFF", item.text)
+            GUI:setAnchorPoint(value, 0, 0.5)
+            GUI:Text_setFontName(value, "fonts/502.ttf")
+        end
     end
 end
 

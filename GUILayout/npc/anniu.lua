@@ -3558,7 +3558,7 @@ npc[11] = function(p2, p3, Data)
             if type(entry) == "table" and entry[1] ~= nil and entry[2] ~= nil then
                 local key = tostring(entry[1])
                 local count = tonumber(entry[2]) or 0
-                if key ~= "" and count > 0 then
+                if key ~= "剧情点" and key ~= "" and count > 0 then
                     local pos = seenMap[key]
                     if pos then
                         outList[pos][2] = (tonumber(outList[pos][2]) or 0) + count
@@ -4134,15 +4134,17 @@ npc[11] = function(p2, p3, Data)
                         local title = GUI:Text_Create(cover, "title_wz", 10, 310, 20, taskTitleColor, taskTitle)
                         GUI:Text_setFontName(title, "fonts/502.ttf")
                         GUI:Text_enableOutline(title, taskTitleOutline, 2)
-                        local jl = GUI:Text_Create(cover, "jl_wz", 10, 280, 20, "#10FF00", "完成奖励")
-                        GUI:Text_enableUnderline(jl)
-                        GUI:Text_setFontName(jl, "fonts/502.ttf")
-                        GUI:Text_enableOutline(jl, "#000000", 2)
-                        local okReward, rewardNode = pcall(function()
-                            return ItemNumByTable_img_new(rewardData, nil, jl)
-                        end)
-                        if okReward and rewardNode then
-                            GUI:setPosition(rewardNode, 0, -60)
+                        if type(rewardData) == "table" and #rewardData > 0 then
+                            local jl = GUI:Text_Create(cover, "jl_wz", 10, 280, 20, "#10FF00", "完成奖励")
+                            GUI:Text_enableUnderline(jl)
+                            GUI:Text_setFontName(jl, "fonts/502.ttf")
+                            GUI:Text_enableOutline(jl, "#000000", 2)
+                            local okReward, rewardNode = pcall(function()
+                                return ItemNumByTable_img_new(rewardData, nil, jl)
+                            end)
+                            if okReward and rewardNode then
+                                GUI:setPosition(rewardNode, 0, -60)
+                            end
                         end
                         local desc = GUI:Text_Create(cover, "desc_wz", 10, 172, 20, "#FFFFFF", "任务简介")
                         GUI:Text_enableUnderline(desc)

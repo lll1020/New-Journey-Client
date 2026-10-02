@@ -642,28 +642,28 @@ local function _dl_build_gate_data(dl)
     elseif dl == 4 then
         local storyDone = _dl_get_story_point_progress(3)
         conditions = {
-            _dl_make_condition(string.format("三大陆剧情点%d/25", storyDone), storyDone >= 25),
+            _dl_make_condition(string.format("三大陆剧情点%d/16", storyDone), storyDone >= 16),
             _dl_make_condition("三大陆转生", zslv >= 30),
             _dl_make_condition("人物等级150级", level >= 150),
             _dl_make_condition("灵根镶嵌1个宝石", _dl_has_linggen_socket_level(1)),
         }
-        return _dl_gate_result(dl, "需三大陆剧情点达到25点、完成三大陆转生、人物等级达到150级且灵根镶嵌1个宝石后才可进入四大陆", conditions)
+        return _dl_gate_result(dl, "需三大陆剧情点达到16点、完成三大陆转生、人物等级达到150级且灵根镶嵌1个宝石后才可进入四大陆", conditions)
     elseif dl == 5 then
         local storyDone = _dl_get_story_point_progress(4)
         conditions = {
-            _dl_make_condition(string.format("四大陆剧情点%d/57", storyDone), storyDone >= 57),
+            _dl_make_condition(string.format("四大陆剧情点%d/36", storyDone), storyDone >= 36),
             _dl_make_condition("四大陆转生", zslv >= 40),
             _dl_make_condition("灵根镶嵌1个三级宝石", _dl_has_linggen_socket_level(3)),
         }
-        return _dl_gate_result(dl, "需四大陆剧情点达到57点、完成四大陆转生且灵根镶嵌1个三级宝石后才可进入五大陆", conditions)
+        return _dl_gate_result(dl, "需四大陆剧情点达到36点、完成四大陆转生且灵根镶嵌1个三级宝石后才可进入五大陆", conditions)
     elseif dl == 6 then
         local storyDone = _dl_get_story_point_progress(5)
         conditions = {
-            _dl_make_condition(string.format("五大陆剧情点%d/50", storyDone), storyDone >= 50),
+            _dl_make_condition(string.format("五大陆剧情点%d/25", storyDone), storyDone >= 25),
             _dl_make_condition("五大陆转生", zslv >= 50),
             _dl_make_condition("完成天道命盘", _dl_has_all_destiny()),
         }
-        return _dl_gate_result(dl, "需五大陆剧情点达到50点、完成五大陆转生并完成天道命盘后才可进入六大陆", conditions)
+        return _dl_gate_result(dl, "需五大陆剧情点达到25点、完成五大陆转生并完成天道命盘后才可进入六大陆", conditions)
     elseif dl == 7 then
         local storyDone = _dl_get_story_point_progress(6)
         conditions = {
