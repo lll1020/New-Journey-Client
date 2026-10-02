@@ -1,4 +1,4 @@
-teshudata = {
+﻿teshudata = {
     ["npc_1"] = {
         id = 1,
         name = "灵根鉴定",
@@ -1978,6 +1978,7 @@ teshudata = {
                 {name = "光环：五行至尊", sEffect = 11502, condition = "灵根核心达到Lv.39"},
                 {name = "光环：诸邪退散", sEffect = 11503, condition = "获得诸邪退散称号"},
                 {name = "光环：神豪降临", sEffect = 11504, condition = "获得第一神壕称号"},
+                {name = "光环：跨服霸主", sEffect = 11505, need_cross_point = 10000, attr = {{200,1000},{79,1000},{80,1000}},},
             }
         },
     },

@@ -610,7 +610,7 @@ local function openBuyPopup()
     local tokenName = getTokenName()
     local costName = getBuyCostItemName()
     local costEach = toNumber(getBuyCostText(), 0)
-    local currencyCount = toNumber(SL:GetMetaValue("TMONEY", costName), 0)
+    local currencyCount = toNumber(SL:GetMetaValue("TMONEY", "灵石") + SL:GetMetaValue("TMONEY", "绑定灵石"), 0)
     -- local current = GUI:RichText_Create(panel, "current_token", 409, 382,
     --     string.format("当前%s：<font color='#ffe45e'>%s</font>", tostring(tokenName), tostring(tokenCount)),
     --     600, 24, "#f3e8ce", 1, nil, nil,

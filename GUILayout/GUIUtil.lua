@@ -283,20 +283,26 @@ function checkItemNumByTable_img_kuang(t, multiple,parent)
         local idx,num = SL:GetMetaValue("ITEM_INDEX_BY_NAME",item[1]),item[2]
         if multiple then num=num*multiple end
         GUI:Layout_Create(cllist, "itemkk"..i, 0, 0, 5, 50, 1)
-        local kuang = GUI:Image_Create(cllist, "item_kuang_"..idx, 0.00, 0.00, "res/wy/public/58-60.png")
+        local kuang = GUI:Image_Create(cllist, "item_kuang_"..(idx or i), 0.00, 0.00, "res/wy/public/58-60.png")
         GUI:setLocalZOrder(kuang, 1)
         local itemLayer = GUI:Node_Create(kuang, "item_layer", 0, 0)
         GUI:setLocalZOrder(itemLayer, 20)
-        local itemShow = GUI:ItemShow_Create(itemLayer, "item"..i, 58/2, 60/2, {index=idx,look= true})
-        GUI:setAnchorPoint(itemShow, 0.5, 0.5)
-        GUI:setLocalZOrder(itemShow, 20)
+        if idx then
+            local itemShow = GUI:ItemShow_Create(itemLayer, "item"..i, 58/2, 60/2, {index=idx,look= true})
+            GUI:setAnchorPoint(itemShow, 0.5, 0.5)
+            GUI:setLocalZOrder(itemShow, 20)
+        else
+            local itemName = GUI:Text_Create(itemLayer, "item_name"..i, 29, 30, 14, "#F8E8C7", tostring(item[1] or ""), 0.5, 0.5)
+            GUI:setLocalZOrder(itemName, 20)
+        end
         local currentText
         if bind_money[item[1]] then
             currentText = GUI:Text_Create(itemLayer, "sl"..i, 40, 0, 14,
                     (SL:GetMetaValue("ITEM_COUNT", bind_money[item[1]][1]) + SL:GetMetaValue("ITEM_COUNT", bind_money[item[1]][2])) >= num and "#4AE74A" or "#FB0000"
             , SL:GetSimpleNumber((SL:GetMetaValue("ITEM_COUNT", bind_money[item[1]][1]) + SL:GetMetaValue("ITEM_COUNT", bind_money[item[1]][2])),0))
         else
-            currentText = GUI:Text_Create(itemLayer, "sl"..i, 40, 0, 14, SL:GetMetaValue("ITEM_COUNT", idx) >= num and "#4AE74A" or "#FB0000", SL:GetSimpleNumber(SL:GetMetaValue("ITEM_COUNT",idx),2))
+            local current = idx and SL:GetMetaValue("ITEM_COUNT", idx) or 0
+            currentText = GUI:Text_Create(itemLayer, "sl"..i, 40, 0, 14, current >= num and "#4AE74A" or "#FB0000", SL:GetSimpleNumber(current,2))
         end
         GUI:setAnchorPoint(currentText, 1, 0)
         GUI:setLocalZOrder(currentText, 30)

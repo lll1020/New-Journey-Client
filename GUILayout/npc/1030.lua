@@ -86,6 +86,17 @@ local function renderFormula(node, done)
     --     SL:SendLuaNetMsg(100, npc.currentNpcid or npc._config.id, 1, 0, "")
     -- end)
 
+    local show_eff = GUI:Image_Create(node, "show_eff", 150 + 36 + 10, 30 + 99 + 100 - 18, "res/wy/public/itembg.png")
+    GUI:setAnchorPoint(show_eff, 0.5, 0.5)
+    GUI:setContentSize(show_eff, 250, 100)
+    local reward_item_eff1 = GUI:Effect_Create(node, "reward_item_eff1", 150 - 21 + 36, 30 + 10 + 99 + 100, 0, 11503, 0, 1, 3, 1)
+    local reward_item_eff = GUI:Effect_Create(node, "reward_item_eff", 150 - 21 + 36, 30 + 10 + 99 + 100, 4, 1312, 0, 1, 3, 1)
+    GUI:setScale(reward_item_eff1,1.5)
+    GUI:setScale(reward_item_eff,1.5)
+    local label = GUI:Text_Create(node, "wz", 100 + 30, 100 + 263, 20, "#FFFFFF", "光环：诛邪退散")
+    GUI:Text_setFontName(label, "fonts/502.ttf")
+    GUI:Text_enableOutline(label, "#000000", 2)
+
     local cost = checkItemNumByTable_img_kuang(npc._config.cost, nil,GUI:Node_Create(node, "cost", 0, 0))
     GUI:setPosition(cost, 410, 225)
 

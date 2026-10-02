@@ -547,6 +547,8 @@ local function closeModalWindow(name)
         npc.gemWindow = nil
         npc.gemBox = nil
         npc.gemList = nil
+        npc.gemBoxW = nil
+        npc.gemBoxH = nil
     end
 end
 
@@ -1986,50 +1988,56 @@ local function refreshNodeSocketGem(nodeId)
     view.gemShow = gemShow
 end
 
-local function gemAttrText(gem)
-    local attrs = {}
-    for _, attr in ipairs(gem and gem.attrs or {}) do
-        attrs[#attrs + 1] = tostring(attr.text or ("属性 " .. tostring(attr.id or attr[1] or "")
-            .. " +" .. tostring(attr.value or attr[2] or 0)))
-    end
-    return #attrs > 0 and table.concat(attrs, "、") or "属性由服务端配置"
-end
-
 local openGemWindow
 
-local function buildGemWindowRow(parent, index, gem, nodeId)
-    local rowH = 78
-    local row = GUI:Layout_Create(parent, "gem_row_" .. tostring(index), 6, 0, 648, rowH, false)
-    GUI:setAnchorPoint(row, 0, 0)
-    GUI:setTouchEnabled(row, true)
-    GUI:setSwallowTouches(row, true)
-    local rowBg = GUI:Image_Create(row, "row_bg", 324, rowH / 2, PANEL_FRAME)
-    GUI:setAnchorPoint(rowBg, 0.5, 0.5)
-    GUI:setContentSize(rowBg, 644, rowH - 4)
-    GUI:setOpacity(rowBg, 185)
-    local frame = imageFrame(row, "item_frame", 42, rowH / 2, 66, 66, NODE_FRAME, 2)
-    local item = GUI:ItemShow_Create(row, "item", 42, rowH / 2, {
+local function buildGemWindowCard(parent, index, gem, nodeId, cardW, cardH)
+    local card = GUI:Layout_Create(parent, "gem_card_" .. tostring(index), 0, 0, cardW, cardH, false)
+    GUI:setAnchorPoint(card, 0, 0)
+    local cardBg = imageFrame(card, "card_bg", cardW / 2, cardH / 2,
+        cardW, cardH, NODE_FRAME, 0)
+    if valid(cardBg) then
+        GUI:setOpacity(cardBg, 230)
+    end
+    -- local border = imageFrame(card, "card_border", cardW / 2, cardH / 2, cardW, cardH, NODE_FRAME, 1)
+    -- -- if valid(border) then
+    -- --     GUI:setOpacity(border, 175)
+    -- -- end
+    local name = text(card, "gem_name", cardW / 2, cardH - 19, 17, "#FFE8AE", gem.name, 0.5, 0.5)
+    GUI:Text_setTextAreaSize(name, {width = cardW - 12, height = 25})
+    GUI:Text_setTextHorizontalAlignment(name, 1)
+    text(card, "gem_level", 13, cardH - 45 + 10, 16, "#9FE2FF",
+        "Lv." .. tostring(gem.level or 1), 0, 0.5)
+    imageFrame(card, "item_frame", cardW / 2, cardH - 80 + 10, 62, 62, NODE_FRAME, 2)
+    local item = GUI:ItemShow_Create(card, "item", cardW / 2, cardH - 80 + 10, {
         index = n(gem.idx),
         count = 1,
         look = true,
         movable = false,
         bgVisible = false,
     })
-    GUI:setAnchorPoint(item, 0.5, 0.5)
-    GUI:setLocalZOrder(item, 3)
-    text(row, "gem_name", 88, 50, 18, "#F4E6C0", gem.name, 0, 0.5)
-    text(row, "gem_level", 88, 25, 15, "#9FE2FF",
-        "等级 " .. tostring(gem.level or 1) .. "    拥有 " .. tostring(gem.count or 0), 0, 0.5)
-    -- text(row, "gem_attrs", 280, 38, 15, "#B9F6C5", gemAttrText(gem), 0, 0.5)
-    local choose = button(row, "choose", 585, rowH / 2, "镶嵌", function()
+    if valid(item) then
+        GUI:setAnchorPoint(item, 0.5, 0.5)
+        GUI:setScale(item, 0.85)
+        GUI:setLocalZOrder(item, 3)
+    end
+    text(card, "gem_count", cardW / 2, 53 + 10, 17, "#D9D0BB",
+        "拥有 " .. tostring(gem.count or 0), 0.5, 0.5)
+    local equipped = currentSocketGem(nodeId) == tostring(gem.name or "")
+    local choose = button(card, "choose", cardW / 2, 19 + 10, equipped and "已镶嵌" or "镶嵌", function()
+        if equipped then
+            return
+        end
         SL:SendLuaNetMsg(100, 22, 4, 0, SL:JsonEncode({
             id = nodeId,
             gem = gem.name,
         }, false))
         requestTalentTreeSync(0.25)
-    end, 92, 36)
-    GUI:setLocalZOrder(choose, 4)
-    return row
+    end, math.min(116, cardW - 24), 34)
+    GUI:Button_setTitleFontSize(choose, 17)
+    if equipped then
+        GUI:setOpacity(choose, 150)
+    end
+    return card
 end
 
 local function renderGemList(gemList, nodeId)
@@ -2042,18 +2050,29 @@ local function renderGemList(gemList, nodeId)
     end
     gemList = type(gemList) == "table" and gemList or {}
     npc.gemList = gemList
-    local scroll = GUI:ScrollView_Create(npc.gemBox, "gem_scroll", 40, 0, 660, 360, 1)
+    local scrollW = n(npc.gemBoxW, 760) - 80
+    local scrollH = n(npc.gemBoxH, 540) - 172
+    local columns = 4
+    local gap = 10
+    local padding = 6
+    local cardW = math.floor((scrollW - padding * 2 - gap * (columns - 1)) / columns)
+    local cardH = 174
+    local rows = math.ceil(#gemList / columns)
+    local scroll = GUI:ScrollView_Create(npc.gemBox, "gem_scroll", 40, 24, scrollW, scrollH, 1)
     GUI:ScrollView_setClippingEnabled(scroll, true)
     GUI:ScrollView_setBounceEnabled(scroll, true)
-    local innerH = math.max(360, #gemList * 82 + 10)
-    GUI:ScrollView_setInnerContainerSize(scroll, 660, innerH)
-    local listRoot = GUI:Layout_Create(scroll, "gem_list_root", 0, 0, 660, innerH, false)
+    local innerH = math.max(scrollH, rows * cardH + math.max(0, rows - 1) * gap + padding * 2)
+    GUI:ScrollView_setInnerContainerSize(scroll, scrollW, innerH)
+    local listRoot = GUI:Layout_Create(scroll, "gem_list_root", 0, 0, scrollW, innerH, false)
     for index, gem in ipairs(gemList) do
-        local row = buildGemWindowRow(listRoot, index, gem, nodeId)
-        GUI:setPosition(row, 6, innerH - index * 82 - 4)
+        local column = (index - 1) % columns
+        local row = math.floor((index - 1) / columns)
+        local card = buildGemWindowCard(listRoot, index, gem, nodeId, cardW, cardH)
+        GUI:setPosition(card, padding + column * (cardW + gap),
+            innerH - padding - cardH - row * (cardH + gap))
     end
     if #gemList == 0 then
-        text(listRoot, "empty", 330, innerH / 2, 18, "#FFB85A",
+        text(listRoot, "empty", scrollW / 2, innerH / 2, 18, "#FFB85A",
             "当前没有符合该槽位要求的宝石", 0.5, 0.5)
     end
 end
@@ -2085,6 +2104,8 @@ openGemWindow = function()
 
 
     npc.gemBox = box
+    npc.gemBoxW = boxW
+    npc.gemBoxH = boxH
     text(box, "gem_title", boxW/2, boxH - 20, 25, "#F1D176", "选择镶嵌宝石", 0.5, 0.5)
     text(box, "gem_hint", boxW/2, boxH - 40, 15, "#AAB5C8",
         "仅显示背包中拥有且符合当前槽位等级要求的宝石", 0.5, 0.5)
@@ -2092,7 +2113,7 @@ openGemWindow = function()
         closeModalWindow(GEM_WINDOW_NAME)
     end, 60, 54,"res/wy/public/gjyj_x.png")
     local current = currentSocketGem(nodeId)
-    text(box, "gem_current",  boxW/2, boxH/2 + 150, 25, "#FFD66B",
+    text(box, "gem_current", boxW / 2, boxH - 104, 20, "#FFD66B",
         current ~= "" and ("当前镶嵌：" .. current) or "当前未镶嵌宝石", 0.5, 0.5)
     renderGemList({}, nodeId)
     SL:SendLuaNetMsg(100, 22, 4, 0, SL:JsonEncode({id = nodeId}, false))
@@ -2323,11 +2344,14 @@ local function nodeMapLabel(node)
     local slotType = tostring(node.slot_type or "")
     local special = node.special or {}
     local skillKey = tostring(special.key or "")
+    if #(node.attrs or {}) > 0 then
+        return nodeAttributeCategory(node)
+    end
     if isSkillNameLabelNode(node) then
         local cfg = SKILL_PREVIEW_BY_KEY[skillKey]
         return (cfg and cfg.name) or special.name or node.name or "技能名"
     end
-    if string.sub(slotType, 1, 1) == "J" or skillKey ~= "" then
+    if string.sub(slotType, 1, 1) == "J" then
         return "技能强化"
     end
     return nodeAttributeCategory(node)

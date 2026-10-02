@@ -2242,18 +2242,18 @@ function MainAssistXylHelper.bind(MainAssist)
                     GUI:setContentSize(MainAssist.ListView_mission, 200, 145)
                     GUI:setPosition(MainAssist.ListView_mission, 101, 114)
                 end
-                if _get_current_mainline_rwid() == 23 then
-                    local quickClaimText = GUI:Text_Create(rewardNode, "quick_claim_text", 142 - 40, 42 - 15, 20, "#00FF00", "快速\n获得")
-                    GUI:setAnchorPoint(quickClaimText, 0, 0.5)
-                    GUI:Text_setFontName(quickClaimText, "fonts/502.ttf")
-                    GUI:Text_enableOutline(quickClaimText, "#000000", 2)
-                    GUI:Text_enableUnderline(quickClaimText)
-                    GUI:setLocalZOrder(quickClaimText, 1002)
-                    GUI:setTouchEnabled(quickClaimText, true)
-                    GUI:addOnClickEvent(quickClaimText, function()
-                        SL:SendLuaNetMsg(100, 106, 10, 0, "")
-                    end)
-                end
+                -- if _get_current_mainline_rwid() == 23 then
+                --     local quickClaimText = GUI:Text_Create(rewardNode, "quick_claim_text", 142 - 40, 42 - 15, 20, "#00FF00", "快速\n获得")
+                --     GUI:setAnchorPoint(quickClaimText, 0, 0.5)
+                --     GUI:Text_setFontName(quickClaimText, "fonts/502.ttf")
+                --     GUI:Text_enableOutline(quickClaimText, "#000000", 2)
+                --     GUI:Text_enableUnderline(quickClaimText)
+                --     GUI:setLocalZOrder(quickClaimText, 1002)
+                --     GUI:setTouchEnabled(quickClaimText, true)
+                --     GUI:addOnClickEvent(quickClaimText, function()
+                --         SL:SendLuaNetMsg(100, 106, 10, 0, "")
+                --     end)
+                -- end
                 return
             end
             if MainAssist._xylCurrentWidget and MainAssist._xylCurrentWidget.panel then
