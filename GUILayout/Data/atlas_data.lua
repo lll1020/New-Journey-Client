@@ -2,7 +2,7 @@
 -- 服务端同步玩家激活状态、领取状态和局部变化。
 -- 怪物来自 cfg_mongen.xls + guaiwutype.lua + cfg_monster.xls。
 -- 装备来自地图专属装备池.txt；第一大陆装备来自高级神器1（世界）。
-return {
+local AtlasData = {
     version = 1,
     default_continent = "6",
     default_map = "6_1",
@@ -952,5 +952,16 @@ return {
         },
     },
 }
+
+-- 图鉴怪物模型统一使用默认缩放，单个条目可通过 scale 覆盖。
+for _, continent in ipairs(AtlasData.continents or {}) do
+    for _, map in ipairs(continent.maps or {}) do
+        for _, monster in ipairs(map.monster or {}) do
+            monster.scale = tonumber(monster.scale) or 0.6
+        end
+    end
+end
+
+return AtlasData
 
 

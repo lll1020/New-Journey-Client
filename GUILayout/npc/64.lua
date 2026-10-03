@@ -489,7 +489,7 @@ function npc.main(npcid, p2, p3, msgData)
         
         npc.Label = GUI:Node_Create(npc.xjm_node, "Label", 0, 0)
  
-        npc.xjm_titles_sign = 2
+        npc.xjm_titles_sign = 1
         for i = 1, 2 do
             local cbl_item = GUI:Button_Create(npc.xjm_node, "item" .. i, 570 + (i-1)*150, 455, "res/custom/four_city/lingshou/xjm/list/"..(npc.xjm_titles_sign == i and "l" or "n").."/"..i..".png")
             GUI:addOnClickEvent(cbl_item, function()

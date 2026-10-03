@@ -220,6 +220,7 @@ function npc.main(npcid, p2, p3, msgData)
             -- GUI:Text_enableOutline(line, "#100808", 2)
             return line
         end
+        
         if item then
             createPreviewLine("preview_cur_title", previewTopY, 18, "#EFAD21", string.format("当前属性  Lv.%d", math.max(1, equipLevel)))
             createPreviewLine("preview_cur_attr", previewTopY - 26, 17, "#F7F7DE", string.format("人物攻击 + %d%%", equipLevel))
@@ -229,6 +230,7 @@ function npc.main(npcid, p2, p3, msgData)
                 createPreviewLine("preview_next_desc", previewTopY - 124 - 30, 17, "#00FFFF", other_wz[cfgIdx][equipLevel] or "")
             else
                 createPreviewLine("preview_max", previewTopY - 72, 18, "#EFAD21", "已达最高等级")
+                GUI:Image_Create(node, "addRedPointmax", 610, 85, "res/wy/public/3.png")
             end
         else
             createPreviewLine("preview_empty_title", previewTopY, 18, "#FF6666", "请先穿戴对应特戒")

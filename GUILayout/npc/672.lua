@@ -71,6 +71,36 @@ local function _buildDetailProgress(detail)
     return ""
 end
 
+local function _renderNodePreview(button, detail, index)
+    if type(detail) ~= "table" then
+        return
+    end
+
+    -- 有道具需求的入口展示三个模型；纯击杀入口只展示一个居中的模型。
+    local hasItemCost = type(detail.cost) == "table" and type(detail.cost[1]) == "table" and detail.cost[1][1]
+    local modelScale = hasItemCost and 0.22 or 0.35
+    local model = {{16131,0.3},{},{},{},{12063,0.5},{160,1}}
+
+    if not hasItemCost then
+        local eff = GUI:Effect_Create(button, "eff", 50, 94 - 22, 2, model[index][1], 0, 0, 3, 1)
+        GUI:setScale(eff, model[index][2])
+    end
+
+    local cost = hasItemCost and detail.cost[1]
+    if type(cost) == "table" and cost[1] then
+        local itemName = tostring(cost[1])
+        local need = _toint(cost[2])
+        local count = _getItemCountByName(itemName)
+        local itemIndex = SL:GetMetaValue("ITEM_INDEX_BY_NAME", itemName)
+        if itemIndex and itemIndex > 0 then
+            local itemNode = GUI:Node_Create(button, "item", 64, 94 - 22)
+            GUI:setAnchorPoint(itemNode, 0.5, 0.5)
+            GUI:setContentSize(itemNode, 70, 70)
+            UiTools.showItemData(itemNode, SL:GetMetaValue("ITEM_DATA", itemIndex))
+        end
+    end
+end
+
 function npc.main(npcid, p2, p3, msgData)
 
 
@@ -144,6 +174,7 @@ function npc.main(npcid, p2, p3, msgData)
                 GUI:setAnchorPoint(GUI:Image_Create(Btn, "kuang", 129/2, 122/2, "res/custom/all_story_mission/4/672_1/kuang.png"), 0.5, 0.5)
             end
             GUI:setAnchorPoint(Btn, 0.5, 0.5)
+            _renderNodePreview(Btn, npc._config.details and npc._config.details[i],i)
             GUI:addOnClickEvent(Btn, function()
                 GUI:removeChildByName(GUI:ui_delegate(node)["node"..npc.idx],"kuang")
                 npc.idx = i
@@ -198,5 +229,3 @@ function npc.main(npcid, p2, p3, msgData)
 end
 
 return npc
-
-

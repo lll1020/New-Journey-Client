@@ -909,7 +909,8 @@ end
 local function renderMonsterModel(card, entry)
     local model = tonumber(entry.model or entry.mob_shape or entry.shape or 0) or 0
     if model > 0 then
-        local node = GUI:Effect_Create(card, "model", CARD_W / 2 - 20, 142, 2, model, 0, 0, 5, 0.65)
+        local node = GUI:Effect_Create(card, "model", CARD_W / 2 - 20, 142, 2, model, 0, 0, 5)
+        GUI:setScale(node, tonumber(entry.scale) or 0.6)
     else
 
         local preview = GUI:Image_Create(card, "model_preview", CARD_W / 2, 150 + 28, "res/wy/public/kb_5.png")
