@@ -580,7 +580,7 @@ end
 
 -- 大陆门槛：检查天道命盘是否全部激活。
 local function _dl_has_all_destiny()
-    local taskData = _dl_get_json("T26")
+    local taskData = _dl_get_json("T13")
     local state = type(taskData.npc_74) == "table" and taskData.npc_74 or {}
     local cfg = teshudata and teshudata["npc_74"] or {}
     local need = _dl_to_num(cfg.all, 4)

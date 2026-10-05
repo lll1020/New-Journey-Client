@@ -2072,6 +2072,11 @@ npc[1] = function(p2, p3, msgData)
                     GUI:addOnClickEvent(Button, function()
                         SL:SendLuaNetMsg(100, 70, 2, 0, "")
                     end)
+                    local close = GUI:Button_Create(npc.bg, "close", 154 + 20, 201, "res/wy/public/x.png")
+                    GUI:setContentSize(close, 40, 40)
+                    GUI:addOnClickEvent(close, function()
+                        GUI:removeChildByName(zjkmw, "img_bj")
+                    end)
                     SL:RegisterLUAEvent(LUA_EVENT_MAINBUFFUPDATE, "主玩家buff刷新", function(data)
                         if data.buffID == 20103 then
                             local buff = SL:GetMetaValue("ACTOR_BUFF_DATA_BY_ID", SL:GetMetaValue("MAIN_ACTOR_ID"), 20103)
@@ -6558,7 +6563,9 @@ npc[502] = function(p2, p3, Data)
                 y = 0,
             },
         })
-        GUI:Image_Create(ScrollView, "k_1", 0, 0, "res/custom/chongzhi/k_1.png")
+        local k_1 = GUI:Image_Create(ScrollView, "k_1", 0, 0, "res/custom/chongzhi/k_1.png")
+        GUI:Effect_Create(k_1, "eff", 50 + 154, 50 - 28, 0, 30141, 0)
+        
         if guideButton then
             npc._onlineRechargeGuideAmount = nil
             SL:ScheduleOnce(function()

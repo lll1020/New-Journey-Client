@@ -42,7 +42,7 @@ local function render(node)
     GUI:removeAllChildren(node)
 
     -- GUI:Image_Create(node, "bg", 0, 0, BG_MAIN)
-    if getChoice() == 2 then
+    if getChoice() == 1 then
         GUI:Image_Create(node, "bg", 0, 0, BG_MAIN)
     end
 
@@ -55,7 +55,7 @@ local function render(node)
     if getState() >= 2 then
         GUI:Image_Create(node, "btn_done", 541, 47, "res/wy/public/7_1.png")
     else
-        local btn = GUI:Button_Create(node, "btn_submit", 541, 47, getChoice() == 2 and BTN_DONE or BTN_DO)
+        local btn = GUI:Button_Create(node, "btn_submit", 541, 47, getChoice() == 1 and BTN_DONE or BTN_DO)
         GUI:addOnClickEvent(btn, function()
             SL:SendLuaNetMsg(100, npc.npcid, 1, 0, "")
         end)

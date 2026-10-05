@@ -17,7 +17,7 @@ local DETAIL_WINDOW_OPTS = {
 
 local STAGE_WINDOW_OPTS = {
     windowName = "npc_85_stage_upgrade",
-    overlay = {skin = "res/wy/public/x.png"},
+    overlay = {skin = "res/public/1900000651_1.png"},
     background = {skin = "res/custom/treasureBasin/xjm_bg.png", eff = false},
     closeButton = {x = 555, y = 338, skin = "res/wy/public/close_red_big.png"},
     zOrder = 200,

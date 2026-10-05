@@ -179,8 +179,8 @@ local function renderChoiceStage(node, state)
             renderChoiceButton(node, "left", -145, -118, 2, true)
         end
     else
-        renderChoiceButton(node, "left", -145, -118, 2, false)
-        renderChoiceButton(node, "right", 155, -118, 1, false)
+        renderChoiceButton(node, "left", -145, -118, 1, false)
+        renderChoiceButton(node, "right", 155, -118, 2, false)
     end
 
     -- local tip = GUI:Image_Create(node, "question", 676, 166, QUESTION_SKIN)

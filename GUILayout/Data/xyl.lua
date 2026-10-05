@@ -421,10 +421,21 @@ local function _xyl_has_tang_antique()
     end
     return _xyl_has_any_item(list)
 end
--- 备注：生肖守护是否全激活
+-- 备注：生肖守护是否全部完成，与服务端 T53 的领奖校验保持一致
 local function _xyl_has_shengxiao_guard()
+    if _xyl_has_title("生肖守护神") then
+        return true
+    end
     local data = _xyl_get_json("T53")
-    return (tonumber(data.level) or 0) >= 1
+    if tonumber(data.jl_all or 0) >= 1 then
+        return true
+    end
+    for i = 1, 12 do
+        if (tonumber(data[tostring(i)] or data[i] or 0) or 0) < 1 then
+            return false
+        end
+    end
+    return true
 end
 -- 备注：是否已激活全部圣遗物（灵兽圣遗物）
 local function _xyl_has_all_syw()

@@ -1666,7 +1666,7 @@ local function drawVisitorLog(node, snapshot, npcid)
             local btn = NPC_UI_HELPER.createPrimaryButton(Label_node, 'btn_rank', 550, 80, "", function()
                 npc.xxjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
                     windowName = "npc_anniu_44_xxjm",
-                    overlay = {skin = "res/wy/public/x.png"},
+                    overlay = {skin = "res/public/1900000651_1.png"},
                     background = {skin = "res/custom/three_city/xianfu/baifang/rank/bg.png"},
                     closeButton = {x = 300 + 504, y = 180 + 140 + 119, skin = "res/wy/public/close_red_big.png"},
                 })
@@ -1707,7 +1707,7 @@ local function drawVisitorLog(node, snapshot, npcid)
 
     npc.xjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
         windowName = "npc_anniu_44_xjm",
-        overlay = {skin = "res/wy/public/x.png"},
+        overlay = {skin = "res/public/1900000651_1.png"},
         background = {skin = "res/custom/three_city/xianfu/baifang/Visitor/bg.png"},
         closeButton = {x = 330 + 220 + 170, y = 180 + 180 + 50, skin = "res/wy/public/close_red_big.png"},
     })
@@ -1923,7 +1923,7 @@ local function drawShop(node, snapshot, npcid)
 
     npc.xjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
         windowName = "npc_anniu_44_xjm",
-        overlay = {skin = "res/wy/public/x.png"},
+        overlay = {skin = "res/public/1900000651_1.png"},
         background = {skin = "res/custom/three_city/xianfu/shop/bg.png"},
         title = {x = 56, y = 464, skin = "res/custom/three_city/xianfu/shop/title.png"},
         closeButton = {x = 330 + 220 + 185, y = 180 + 180 + 103, skin = "res/wy/public/close_red_big.png"},
@@ -2150,7 +2150,7 @@ local function drawshape(node, snapshot, npcid)
 
     npc.xjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
         windowName = "npc_anniu_44_xjm",
-        overlay = {skin = "res/wy/public/x.png"},
+        overlay = {skin = "res/public/1900000651_1.png"},
         background = {skin = "res/custom/three_city/xianfu/zhuangshi/bg.png"},
         title = {x = 56, y = 464, skin = "res/custom/three_city/xianfu/zhuangshi/title.png"},
         closeButton = {x = 330 + 220 + 185, y = 180 + 180 + 103, skin = "res/wy/public/close_red_big.png"},
@@ -2463,7 +2463,7 @@ local function drawRefine(node, snapshot, npcid)
         -- btn = NPC_UI_HELPER.createPrimaryButton(Label_node, 'btn_tj', 750/2 - 230, 80, "", function()
         --     npc.xxjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
         --         windowName = "npc_anniu_44_xxjm",
-        --         overlay = {skin = "res/wy/public/x.png"},
+        --         overlay = {skin = "res/public/1900000651_1.png"},
         --         background = {skin = "res/custom/three_city/xianfu/ldl/tj/bg.png"},
         --         title = {x = 56, y = 464, skin = "res/custom/three_city/xianfu/ldl/tj/title.png"},
         --         closeButton = {x = 330 + 220 + 185, y = 180 + 180 + 103, skin = "res/wy/public/close_red_big.png"},
@@ -2512,7 +2512,7 @@ local function drawRefine(node, snapshot, npcid)
         btn = NPC_UI_HELPER.createPrimaryButton(Label_node, 'btn_xz', 750/2 + 230, 80, "", function()
             npc.xxjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
                 windowName = "npc_anniu_44_xxjm",
-                overlay = {skin = "res/wy/public/x.png"},
+                overlay = {skin = "res/public/1900000651_1.png"},
                 background = {skin = "res/custom/three_city/xianfu/ldl/xz_bg.png"},
                 closeButton = {x = 300, y = 180 + 140, skin = "res/wy/public/close_red_big.png"},
             })
@@ -2577,7 +2577,7 @@ local function drawRefine(node, snapshot, npcid)
 
     npc.xjm_window = NPC_UI_HELPER.ensureWindow(nil, npcid, {
         windowName = "npc_anniu_44_xjm",
-        overlay = {skin = "res/wy/public/x.png"},
+        overlay = {skin = "res/public/1900000651_1.png"},
         background = {skin = "res/custom/three_city/xianfu/ldl/bg/eff_1.png"},
         title = {x = 56 + 222, y = 464 - 105, skin = "res/custom/three_city/xianfu/ldl/title.png"},
         closeButton = {x = 330 + 220 + 130, y = 180 + 180, skin = "res/wy/public/close_red_big.png"},

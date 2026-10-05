@@ -138,13 +138,13 @@ function renderMain(node, npcid)
         node,
         "full_tip",
         391,
-        486,
-        18,
+        486 - 10,
+        20,
         canDrink() and "#DDEBFF" or "#FF7B7B",
         canDrink() and "醉酒值满100，即可开启“醉酒狂魔斩”" or "醉酒值已满，无法继续饮酒",
         0.5,
         0.5,
-        "fonts/500.ttf"
+        "fonts/502.ttf"
     )
 
     GUI:TextAtlas_Create(node, "drunk_value", 190, 32, tostring(npc.data.num), "res/custom/public/text1.png", 14, 30, ".")

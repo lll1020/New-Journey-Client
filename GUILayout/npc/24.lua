@@ -493,7 +493,7 @@ function npc.main(npcid, p2, p3, msgData)
                     if slot_data then
                         return true, "已解锁"
                     end
-                    if xianfa_all_unlock then
+                    if xianfa_all_unlock or has_title("八荒六合我为尊") then
                         return true, "已解锁"
                     end
                     local cond = unlock_cond[slot]
