@@ -143,7 +143,7 @@ local function _default_button_pos(index, total)
 end
 
 local function _resolve_bg()
-    local main = _asset((SPEC.folder or "") .. ".png")
+    local main = _asset("secret_order_spirit_banner.png")
     if main then
         return main, false
     end

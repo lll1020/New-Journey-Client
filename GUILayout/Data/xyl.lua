@@ -1232,7 +1232,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 0 },
-                    desc = "先击败黑风大王，再交回师傅的袈裟，是典型的击杀+提交双线任务。\n<font color='#F4D179'>目标：</font>\n<font color='#F0B42A'>击杀黑风大王</font>   %s\n<font color='#F0B42A'>提交师傅的袈裟</font>   %s",
+                    desc = "先击败黑熊精·大王，再交回师傅的袈裟，是典型的击杀+提交双线任务。\n<font color='#F4D179'>目标：</font>\n<font color='#F0B42A'>击杀黑熊精·大王</font>   %s\n<font color='#F0B42A'>提交师傅的袈裟</font>   %s",
                 },
                 {
                     "黄风大圣",
@@ -1276,7 +1276,7 @@ local npc_xyl = {
                     khdjy = _xyl_khdjy,
                     need_receive = true,
                     yd = { 0 },
-                    desc = "狮驼岭三王需要分别击败，每一只都单独统计。\n<font color='#F4D179'>目标：</font>\n<font color='#F0B42A'>★青狮★</font>   %s\n<font color='#F0B42A'>★白象★</font>   %s\n<font color='#F0B42A'>★大鹏★</font>   %s",
+                    desc = "狮驼岭三圣需要分别击败，每一只都单独统计。\n<font color='#F4D179'>目标：</font>\n<font color='#F0B42A'>★狮驼三圣·青狮★</font>   %s\n<font color='#F0B42A'>★狮驼三圣·白象★</font>   %s\n<font color='#F0B42A'>★狮驼三圣·大鹏★</font>   %s",
                 },
                 {
                     "真假经书",

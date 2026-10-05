@@ -2407,6 +2407,19 @@ npc[2] = function(p2, p3, msgData)
             local countA = tonumber(cfg[4] or 0) or 0
             local countB = tonumber(cfg[5] or 0) or 0
             local countC = tonumber(cfg[6] or 0) or 0
+            if groupType == 6 then
+                return countA > 0 and "绑定灵石*" .. tostring(countA) or "无"
+            end
+            if groupType == 5 then
+                local parts = {}
+                if countA > 0 then
+                    parts[#parts + 1] = "金币*" .. tostring(countA)
+                end
+                if countB > 0 then
+                    parts[#parts + 1] = "辉耀水晶*" .. tostring(countB)
+                end
+                return #parts > 0 and table.concat(parts, " ") or "无"
+            end
             if groupType == 2 then
                 if countB == 1 then
                     return "辉耀水晶*" .. tostring(countA)

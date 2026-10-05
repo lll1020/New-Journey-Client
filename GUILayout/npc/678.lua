@@ -36,9 +36,14 @@ function npc.main(npcid, p2, p3, msgData)
         local function renderRewardDesc()
             GUI:removeChildByName(xjm_node, "reward_title")
             GUI:removeChildByName(xjm_node, "reward_desc")
+            GUI:removeChildByName(xjm_node, "submit_items")
             local cfg = npc._config.details and npc._config.details[npc.idx] or nil
             if not cfg then
                 return
+            end
+            if type(cfg.cost) == "table" and #cfg.cost > 0 then
+                local submitItems = ItemNumByTable_img_new(cfg.cost, nil, GUI:Node_Create(xjm_node, "submit_items", 0, 0))
+                GUI:setPosition(submitItems, 598 + 33, 174)
             end
             local title = GUI:Text_Create(xjm_node, "reward_title", 598, 78 + 238, 25, "#F6D08A", "任务奖励")
             GUI:setAnchorPoint(title, 0.5, 0.5)
@@ -140,7 +145,7 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data.T_dljq[key] = p3
         UI_updata(npc.node)
     elseif p2 == 2 then
-        npc.data.T_dljq[key.."_"..p3] = 1
+        npc.data.T_dljq[key.."_"..p3] = 2
         UI_updata(npc.node)
         if npc._refreshXjm then npc._refreshXjm() end
     end

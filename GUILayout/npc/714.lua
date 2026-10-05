@@ -128,8 +128,8 @@ function npc.main(npcid, p2, p3, msgData)
             end)
         end
 
-        -- 任务完成后不再显示按钮，只保留完成标记。
         if state >= 2 then
+            createButton("btn_upgrade", btn_pos[1], btn_pos[2], 2, UPGRADE_BTN_SKIN, BTN_TEXT_UPGRADE)
             return
         end
 

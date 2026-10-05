@@ -14,7 +14,7 @@ local SPEC = {
         {name = "city_linan", skin = "linan.png", x = 646, y = 235 - 20},
     },
     itemGroups = {
-        {name = "reward", source = "jl", kind = "reward", x = 286, y = 48, scale = 0.82},
+        {name = "reward", source = "jl", kind = "reward", x = 286, y = 34, scale = 0.82},
     },
     submitSlots = {
         {x = 148, y = 126, itemX = 95, itemY = 166},

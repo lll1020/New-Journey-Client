@@ -142,7 +142,7 @@ local function _default_button_pos(index, total)
 end
 
 local function _resolve_bg()
-    local main = _asset((SPEC.folder or "") .. ".png")
+    local main = _asset("defend_city_soldier.png")
     if main then
         return main, false
     end

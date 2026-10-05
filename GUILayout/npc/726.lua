@@ -155,7 +155,7 @@ local function _resolve_bg()
     if customBg then
         return customBg, false
     end
-    local main = _asset((SPEC.folder or "") .. ".png")
+    local main = _asset("panel.png")
     if main then
         return main, false
     end
