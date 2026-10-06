@@ -48,6 +48,8 @@ local MAX_ZOOM = 1.00
 local DEFAULT_ZOOM = 1.00
 local ELEMENT_ORDER = {"metal", "water", "wood", "fire", "earth"}
 local NODE_SIZE = {small = 30, medium = 40, large = 52, skill = 50, socket = 44, bridge = 34, root = 72}
+local EXTRA_SOCKET_LINK_LENGTH = 100
+local EXTRA_SOCKET_MIN_DISTANCE = 80
 local ATTR_NODE_ORIGINAL_SIZE = 80
 local SKILL_NODE_ORIGINAL_SIZE = 68
 local SKILL_NODE_SKIN_BY_ELEMENT = {
@@ -1002,7 +1004,8 @@ local function swapElementTreePositions(resultMap, firstElement, secondElement)
     end
 end
 
-local function buildTreeLayout()
+local buildTreeLayout
+buildTreeLayout = function()
     local sourceNodes = TreeCfg.nodes or {}
     local sourceRoot = TreeCfg.node_map and TreeCfg.node_map.root
     local rootX = n(sourceRoot and sourceRoot.x, CANVAS_W / 2)
@@ -1076,6 +1079,82 @@ local function buildTreeLayout()
     enforceTrunkRadialSpacing(resultMap)
     swapElementTreePositions(resultMap, "wood", "water")
     applyOuterFlowerLayout(resultMap)
+    -- 四级宝石母节点的两个外延槽位独立计算，不占用普通节点配置。
+    local extraParents = {}
+    for _, element in ipairs(ELEMENT_ORDER) do
+        extraParents[#extraParents + 1] = element .. "_M12"
+        extraParents[#extraParents + 1] = element .. "_F1_8"
+        extraParents[#extraParents + 1] = element .. "_F2_8"
+    end
+    local function positionIsClear(x, y, nodes)
+        for _, other in ipairs(nodes) do
+            local dx = x - n(other.x)
+            local dy = y - n(other.y)
+            local otherSize = NODE_SIZE.small
+            if other.kind == "root" then
+                otherSize = NODE_SIZE.root
+            elseif other.kind == "socket" or other.slot_type == "X" then
+                otherSize = NODE_SIZE.socket
+            elseif other.kind == "skill" then
+                otherSize = NODE_SIZE.skill
+            elseif other.kind == "large" then
+                otherSize = NODE_SIZE.large
+            elseif other.kind == "medium" then
+                otherSize = NODE_SIZE.medium
+            end
+            local minDistance = math.max(EXTRA_SOCKET_MIN_DISTANCE,
+                (otherSize + NODE_SIZE.socket) / 2)
+            if dx * dx + dy * dy < minDistance * minDistance then
+                return false
+            end
+        end
+        return true
+    end
+
+    for _, parentId in ipairs(extraParents) do
+        local parent = resultMap[parentId]
+        local parentGem = tostring((npc.state and npc.state.sockets or {})[parentId] or "")
+        local parentHasLevel4 = parentGem:match("[Ll][Vv][%.%- ]*4") ~= nil
+            or parentGem:find("四级", 1, true) ~= nil
+        if parent and parentHasLevel4 then
+            local parentAngle = math.atan2(n(parent.y) - rootY, n(parent.x) - rootX)
+            local candidateAngles = {
+                parentAngle - math.rad(35), parentAngle + math.rad(35),
+                parentAngle - math.rad(65), parentAngle + math.rad(65),
+                parentAngle - math.rad(90), parentAngle + math.rad(90),
+                parentAngle - math.rad(120), parentAngle + math.rad(120),
+                parentAngle - math.rad(150), parentAngle + math.rad(150),
+                parentAngle + math.pi,
+            }
+            for step = 0, 35 do
+                candidateAngles[#candidateAngles + 1] = parentAngle + math.rad(step * 10)
+            end
+            for index = 1, 2 do
+                local id = parentId .. "_extra_" .. tostring(index)
+                local chosenAngle = candidateAngles[index]
+                for _, angle in ipairs(candidateAngles) do
+                    local candidateX = parent.x + math.cos(angle) * EXTRA_SOCKET_LINK_LENGTH
+                    local candidateY = parent.y + math.sin(angle) * EXTRA_SOCKET_LINK_LENGTH
+                    if positionIsClear(candidateX, candidateY, result) then
+                        chosenAngle = angle
+                        break
+                    end
+                end
+                local extra = {
+                    id = id, kind = "socket", slot_type = "extra_socket",
+                    name = "额外宝石槽位", element = parent.element,
+                    parent_socket = parentId, point_cost = 0,
+                    x = parent.x + math.cos(chosenAngle) * EXTRA_SOCKET_LINK_LENGTH,
+                    y = parent.y + math.sin(chosenAngle) * EXTRA_SOCKET_LINK_LENGTH,
+                    requires = {parentId}, requires_any = {},
+                }
+                result[#result + 1] = extra
+                resultMap[id] = extra
+                TreeCfg.node_map = TreeCfg.node_map or {}
+                TreeCfg.node_map[id] = extra
+            end
+        end
+    end
     npc.layoutNodes = result
     npc.layoutNodeMap = resultMap
     return result, resultMap
@@ -1468,7 +1547,20 @@ local function closeResetConfirm()
 end
 
 local function stateActive(id)
-    return n((npc.state.nodes or {})[tostring(id)] or 0) == 1
+    local extra = TreeCfg.node_map and TreeCfg.node_map[tostring(id)]
+    if extra and extra.slot_type == "extra_socket" then
+        local parentGem = tostring((npc.state.sockets or {})[extra.parent_socket] or "")
+        return parentGem:match("[Ll][Vv][%.%- ]*4") ~= nil or parentGem:find("四级", 1, true) ~= nil
+    end
+    if n((npc.state.nodes or {})[tostring(id)] or 0) == 1 then
+        return true
+    end
+    local element, branch = tostring(id or ""):match("^([^_]+)_(F[12]_8)$")
+    if element and branch then
+        local gem = tostring((npc.state.sockets or {})[element .. "_M12"] or "")
+        return gem:match("[Ll][Vv][%.%- ]*4") ~= nil or gem:find("四级", 1, true) ~= nil
+    end
+    return false
 end
 
 local function isM1Node(node)
@@ -3186,6 +3278,59 @@ local function refreshTalentPointsText()
     end
 end
 
+local rebuildTree
+local drawLine
+local createNodeView
+
+local function refreshExtraSockets()
+    if not valid(npc.treeCanvas) then
+        return
+    end
+    local parents = {}
+    for _, element in ipairs(ELEMENT_ORDER) do
+        parents[#parents + 1] = element .. "_M12"
+        parents[#parents + 1] = element .. "_F1_8"
+        parents[#parents + 1] = element .. "_F2_8"
+    end
+    for _, parentId in ipairs(parents) do
+        for index = 1, 2 do
+            local id = parentId .. "_extra_" .. tostring(index)
+            local view = npc.nodeViews and npc.nodeViews[id]
+            if view and valid(view.holder) then
+                GUI:removeFromParent(view.holder)
+            end
+            if npc.lineViews then
+                for _, line in ipairs(npc.lineViews[id] or {}) do
+                    if valid(line) then
+                        GUI:removeFromParent(line)
+                    end
+                end
+                npc.lineViews[id] = nil
+            end
+            if npc.nodeViews then
+                npc.nodeViews[id] = nil
+            end
+        end
+    end
+
+    local layoutNodes, layoutNodeMap = buildTreeLayout()
+    npc.layoutNodes = layoutNodes
+    npc.layoutNodeMap = layoutNodeMap
+    for _, node in ipairs(layoutNodes or {}) do
+        if tostring(node.slot_type or "") == "extra_socket" then
+            local parent = layoutNodeMap[node.requires and node.requires[1] or ""]
+            if parent then
+                drawLine(npc.treeCanvas, "line_" .. node.id .. "_" .. parent.id,
+                    parent, node)
+                local line = GUI:getChildByName(npc.treeCanvas,
+                    "line_" .. node.id .. "_" .. parent.id)
+                npc.lineViews[node.id] = {line}
+            end
+            createNodeView(npc.treeCanvas, node)
+        end
+    end
+end
+
 local function refreshCoreDependentViews()
     refreshTalentPointsText()
     refreshUpgradeInfo()
@@ -3297,6 +3442,9 @@ local function refreshPayload(payload, forceCoreRefresh)
     refreshTalentPointsText()
     updateAllNodeVisuals()
     refreshUpgradeInfo()
+    if socketChanged then
+        refreshExtraSockets()
+    end
     if n(payload.socket_result, 0) == 1 then
         closeModalWindow(GEM_WINDOW_NAME)
     end
@@ -3326,7 +3474,7 @@ local function refreshPayload(payload, forceCoreRefresh)
     end
 end
 
-local function drawLine(parent, name, fromNode, toNode)
+drawLine = function(parent, name, fromNode, toNode)
     local isTrunk = fromNode.id == "root"
         or fromNode.lane == "main"
         or toNode.lane == "main"
@@ -3369,7 +3517,7 @@ local function selectNode(id)
     end
 end
 
-local function createNodeView(parent, node)
+createNodeView = function(parent, node)
     local size = nodeDisplaySize(node)
     local holder = GUI:Node_Create(parent, "holder_" .. node.id, node.x, node.y)
     local halo = GUI:Node_Create(holder, "halo", 0, 0)
@@ -3494,6 +3642,21 @@ local function createTree()
     npc.zoom = DEFAULT_ZOOM
     centerTreeCanvas()
     setZoom(DEFAULT_ZOOM)
+end
+
+rebuildTree = function()
+    if valid(npc.treeFrame) then
+        GUI:removeFromParent(npc.treeFrame)
+    end
+    if valid(npc.treeScroll) then
+        GUI:removeFromParent(npc.treeScroll)
+    end
+    npc.treeFrame = nil
+    npc.treeScroll = nil
+    npc.treeCanvas = nil
+    npc.nodeViews = nil
+    npc.lineViews = nil
+    createTree()
 end
 
 local function openRules()
