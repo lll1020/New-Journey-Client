@@ -82,6 +82,10 @@ local function renderReward(node, reward)
     createOutlineText(node, "tip2", 330 + 110 + 150 - 300, 120 + 30 - 50, "关\n键\n物\n品", "#FFE46C", 14)
     local rewardNode2 = ItemNumByTable_img_new({{npc._config.prep_task.name, 1}}, nil, GUI:Node_Create(node, "jl1", 0, 0))
     GUI:setPosition(rewardNode2, 330 + 135 + 150 - 300, 120 + 40 - 50)
+    
+    local rewardNode = checkItemNumByTable_img_kuang({{"净化之泪",10}}, nil, GUI:Node_Create(node, "rewardNode", 0, 0))
+    GUI:setPosition(rewardNode, 330 + 135 + 65 - 280, 120 + 40 - 30 + 110 - 25)
+
 end
 
 local function getPrepLines(cfg)
@@ -124,8 +128,6 @@ local function renderChallengeSection(node, npcid, data, key, prepDone)
         GUI:setAnchorPoint(GUI:Image_Create(node, "main_finish", CHALLENGE_POS[1], CHALLENGE_POS[2], COMPLETE_SKIN), 0.5, 0.5)
         return
     end
-    local rewardNode = checkItemNumByTable_img_kuang({{"净化之泪",10}}, nil, GUI:Node_Create(node, "rewardNode", 0, 0))
-    GUI:setPosition(rewardNode, 330 + 135 + 65 - 280, 120 + 40 - 30 + 110 - 25)
 
     local challengeBtn = createActionButton(node, "challenge_btn", CHALLENGE_POS[1], CHALLENGE_POS[2], CHALLENGE_SKIN, function()
         SL:SendLuaNetMsg(100, npcid, 1, 0, "")
@@ -149,7 +151,7 @@ local function updateUI(npcid, node)
 
     renderReward(node, npc._config.jl)
     local prepDone = renderPrepSection(node, npcid, npc._config, npc.data, KEY)
-    renderChallengeSection(node, npcid, npc.data, KEY, prepDone)
+    -- 旧任务界面不再显示挑战入口，挑战统一在新 NPC 界面中进行。
 end
 
 function npc.main(npcid, p2, p3, msgData)

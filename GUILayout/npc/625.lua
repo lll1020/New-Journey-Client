@@ -133,7 +133,7 @@ local function updateUI(npcid, node)
 
     renderReward(node, npc._config.jl)
     local prepDone = renderPrepSection(node, npcid, npc._config, npc.data, KEY)
-    renderChallengeSection(node, npcid, npc.data, KEY, prepDone)
+    -- 旧任务界面不再显示挑战入口，挑战统一在新 NPC 界面中进行。
 end
 
 function npc.main(npcid, p2, p3, msgData)
