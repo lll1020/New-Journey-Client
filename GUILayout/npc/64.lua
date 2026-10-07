@@ -367,19 +367,26 @@ function npc.main(npcid, p2, p3, msgData)
     local function GUI_createLabel(localNode,idx) --小界面渲染
         GUI:removeAllChildren(localNode)
         if idx == 1 then
-            GUI:Image_Create(localNode, "wz2", 490, 380 + 40, "res/custom/four_city/lingshou/xjm/tip_5.png")
-            local s_skill = GUI:RichText_Create(localNode, "s_skill",500 + 10,350,
-                npc._config.config.ls[npc.titles_sign].s_skill or "", 360, 16, "#FFFFFF", 1, nil, nil)
+            GUI:Image_Create(localNode, "wz2", 490, 380, "res/custom/four_city/lingshou/xjm/tip_5.png")
+
+            local s_skill = GUI:RichText_Create(localNode, "s_skill",500 + 10 + 200,350 - 40,
+                npc._config.config.ls[npc.titles_sign].s_skill or "", 230, 16, "#FFFFFF", 1, nil, nil)
             GUI:setAnchorPoint(s_skill,0, 1)
-            local s_skill_req = GUI:RichText_Create(localNode, "s_skill_req",500 + 10,400,
-                "生效条件：" .. (npc._config.config.ls[npc.titles_sign].s_skill_req or "出战灵兽亲密度达到Lv.10；"),
-                360, 17, "#FFD36B", 1, nil, nil)
+            local s_skill_req = GUI:RichText_Create(localNode, "s_skill_req",500 + 10 + 200,400 - 20,
+                "生效条件：" .. (npc._config.config.ls[npc.titles_sign].s_skill_req or "出战灵兽亲密度达到100%"),
+                230, 17, "#FFD36B", 1, nil, nil)
             GUI:setAnchorPoint(s_skill_req,0, 1)
+
+            local playBox = GUI:Image_Create(localNode, "preview_box", 790 + 71 - 280, 294 + 10, "res/wy/public/tycccc.png")
+            GUI:setAnchorPoint(playBox, 0.5, 0.5)
+            GUI:setContentSize(playBox, 210,140)
+
+            GUI:Effect_Create(localNode, "model1", 790 - 280 + 70, 388 - 150 + 60, 2,model[npc.titles_sign][1], 0, 1, 2, 0.8)
+            -- GUI:Effect_Create(localNode, "model2", 790 + 159, 388 - 150 + 20, 0,model[idx][2], 0, 0, 2, 0.8)
 
 
             if npc.ls_data.T_data.ls[""..npc.titles_sign] >= npc._config.config.wy.max_level then
-                GUI:Text_setFontName(GUI:Text_Create(localNode, "tip_max",490, 170, 30, "#FF0000", "已达最高等级亲密度")
-                , "fonts/font4.ttf")
+                GUI:Image_Create(localNode, "ymj", 570 + 80, 90, "res/wy/public/3.png")
                 return
             end
             GUI:Image_Create(localNode, "cost_img", 490, 170 + 10, "res/custom/four_city/lingshou/xjm/cost.png")
@@ -411,11 +418,13 @@ function npc.main(npcid, p2, p3, msgData)
                 "",
                 string.format("<font color='#FFD36B'>当前亲密度 Lv.%d</font>", currentLevel),
                 "当前提供：" .. _get_lingshou_cut_text(currentCfg),
+                "当前召唤时间：" .. tostring((currentCfg and currentCfg.time) or 0) .. "秒",
             }
             if nextCfg then
                 lines[#lines + 1] = ""
-                lines[#lines + 1] = string.format("<font color='#FFD36B'>下一亲密度 Lv.%d</font>", currentLevel + 1)
+                lines[#lines + 1] = string.format("<font color='#FFD36B'>下一级亲密度 Lv.%d</font>", currentLevel + 1)
                 lines[#lines + 1] = "升级后提供：" .. _get_lingshou_cut_text(nextCfg)
+                lines[#lines + 1] = "升级后召唤时间：" .. tostring(nextCfg.time or 0) .. "秒"
             else
                 lines[#lines + 1] = ""
                 lines[#lines + 1] = "<font color='#FF7070'>已达最高亲密度</font>"

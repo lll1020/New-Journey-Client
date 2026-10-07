@@ -1,4 +1,4 @@
-﻿-- 异闻录：剧情完成判定辅助
+-- 异闻录：剧情完成判定辅助
 local _xyl_name_map
 local function _xyl_norm_name(name)
     if not name then
@@ -2150,14 +2150,14 @@ local npc_xyl = {
         
         {
             jq = {
-                {"天机道长", tk = "npc_721", id = 999, jl = { { "剧情点", 1 } }, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "六大陆主城", 721, 25, 149}, desc = "星图已见三光，前往冰川雪域寻回帝星遗失的线索。\n<font color='#F4D179'>目标：</font>星象达三星并领取星儿的玉佩碎片\n<font color='#F4D179'>进度：</font>%s"},
-                {"星儿", tk = "npc_722", side_task = 1, prev_task = "npc_721", prev_need = 1, prev_name = "天机道长", id = 999, jl = { { "剧情点", 1 } }, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "六大陆主城", 722, 108, 44}, desc = "玉佩重铸，六大陆可爆玉佩碎片。\n<font color='#F4D179'>目标：</font>收集66个星儿的玉佩碎片与100万元宝\n<font color='#F4D179'>进度：</font>%s"},
+                {"天机道长", tk = "npc_721", id = 999, jl = { { "剧情点", 1 } }, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "六大陆主城", 721, 81, 84}, desc = "星图已见三光，前往冰川雪域寻回帝星遗失的线索。\n<font color='#F4D179'>目标：</font>星象达三星并领取星儿的玉佩碎片\n<font color='#F4D179'>进度：</font>%s"},
+                {"星儿", tk = "npc_722", side_task = 1, prev_task = "npc_721", prev_need = 1, prev_name = "天机道长", id = 999, jl = { { "剧情点", 1 } }, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "六大陆主城", 722, 52, 72}, desc = "玉佩重铸，六大陆可爆玉佩碎片。\n<font color='#F4D179'>目标：</font>收集66个星儿的玉佩碎片与100万元宝\n<font color='#F4D179'>进度：</font>%s"},
                 {"凌雪", tk = "npc_723", prev_task = "npc_721", prev_need = 1, prev_name = "天机道长", id = 999, jl = { { "剧情点", 1 } }, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "冰川雪域", 723, 58, 50}, desc = "冰川下的寒意并未散去。\n<font color='#F4D179'>目标：</font>提交星力冰晶压制诅咒，解锁星陨冰窟\n<font color='#F4D179'>进度：</font>%s"},
                 {"守城士兵甲", tk = "npc_724", prev_task = "npc_723", prev_name = "凌雪", id = 999, jl = { { "剧情点", 1 } }, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "边关烽城", 724, 152, 155}, desc = "边关告急，先守住城，再去见赤焰。\n<font color='#F4D179'>目标：</font>完成守城任务\n<font color='#F4D179'>进度：</font>%s"},
                 {"赤焰", tk = "npc_725", prev_task = "npc_724", prev_name = "守城士兵甲", id = 999, jl = { { "剧情点", 1 } }, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "边关烽城", 725, 39, 91}, desc = "护送赤焰，途中有刺客潜伏。\n<font color='#F4D179'>目标：</font>护送并击杀刺客，获取密信\n<font color='#F4D179'>进度：</font>%s"},
                 {"幽影", tk = "npc_726", prev_task = "npc_725", prev_name = "赤焰", id = 999, jl = { { "剧情点", 1 } }, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "森罗魔域", 726, 108, 91}, desc = "幽影盗走帝星本源，森罗魔气尚未平息。\n<font color='#F4D179'>目标：</font>击杀888只怪并提交森罗魔气\n<font color='#F4D179'>进度：</font>%s"},
                 {"幽影的分身", tk = "npc_739", prev_task = "npc_726", prev_need = 1, prev_name = "幽影", id = 999, jl = { { "剧情点", 1 } }, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "魔焰祭坛", 739, 138, 30}, desc = "先揭弱点，再入副本。\n<font color='#F4D179'>目标：</font>提交残页后进入副本击杀分身\n<font color='#F4D179'>进度：</font>%s"},
-                {"天玑道长", tk = "npc_727", prev_task = "npc_739", prev_name = "幽影的分身", id = 999, jl = { { "剧情点", 1 } }, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "六大陆主城", 727, 17, 74}, desc = "帝星本源归位，解除星象圣图封印。\n<font color='#F4D179'>目标：</font>完成星图之谜最终任务\n<font color='#F4D179'>进度：</font>%s"},
+                {"天玑道长", tk = "npc_727", prev_task = "npc_739", prev_name = "幽影的分身", id = 999, jl = { { "剧情点", 1 } }, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "六大陆主城", 727, 52, 77}, desc = "帝星本源归位，解除星象圣图封印。\n<font color='#F4D179'>目标：</font>完成星图之谜最终任务\n<font color='#F4D179'>进度：</font>%s"},
             },
             name = "星图之谜",
             jqd = 66,
@@ -2170,7 +2170,7 @@ local npc_xyl = {
         },
         {
             jq = {
-                {"盛世重游", tk = "npc_733", id = 999, jl = { { "剧情点", 1 } }, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "六大陆主城", 733, 82, 113}, desc = "重游古城，集齐四地信物再来交付。\n<font color='#F4D179'>目标：</font>提交四件城市任务道具\n<font color='#F4D179'>进度：</font>%s"},
+                {"盛世重游", tk = "npc_733", id = 999, jl = { { "剧情点", 1 } }, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "六大陆主城", 733, 51, 37}, desc = "重游古城，集齐四地信物再来交付。\n<font color='#F4D179'>目标：</font>提交四件城市任务道具\n<font color='#F4D179'>进度：</font>%s"},
                 {"万国之首", tk = "npc_734", id = 999, jl = { { "剧情点", 1 } }, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "长安西市", 734, 209, 126}, desc = "商契残页散落西市。\n<font color='#F4D179'>目标：</font>收集88张商契残页\n<font color='#F4D179'>进度：</font>%s"},
                 {"洛水杜康", tk = "npc_735", id = 999, jl = { { "剧情点", 1 } }, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "洛阳天街", 735, 85, 68}, desc = "酒意与泉眼相合，方得杜康。\n<font color='#F4D179'>目标：</font>备齐材料酿杜康酒\n<font color='#F4D179'>进度：</font>%s"},
                 {"大宋的菜肴", tk = "npc_736", id = 999, jl = { { "剧情点", 1 } }, fwdjy = nil, khdjy = _xyl_khdjy, need_receive = false, yd = {1, "汴京御街", 736, 91, 53}, desc = "食盒空置，菜肴才是答案。\n<font color='#F4D179'>目标：</font>提交食盒与菜肴\n<font color='#F4D179'>进度：</font>%s"},
