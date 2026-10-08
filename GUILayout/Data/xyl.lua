@@ -512,7 +512,10 @@ local function _xyl_check_task(name)
         ["天书强化"] = _xyl_has_tianshu_level,
         ["初识仙法"] = _xyl_has_any_xianfa,
         ["天书仙法"] = _xyl_has_any_xianfa,
-        ["刷新天书仙法"] = _xyl_has_any_xianfa,
+        ["刷新2次仙法"] = function()
+            local data = _xyl_get_json("T42")
+            return (tonumber(data.xianfa_refresh_count or 0) or 0) >= 2
+        end,
         ["装备强化"] = _xyl_has_equip_strength,
         ["装备强化1次"] = _xyl_has_equip_strength,
         ["江湖称号"] = _xyl_has_jianghu_title,

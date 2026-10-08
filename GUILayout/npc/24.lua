@@ -117,7 +117,7 @@ function npc.main(npcid, p2, p3, msgData)
                 _send_normal_xianfa_refresh(slot)
                 return
             end
-            SL:OpenCommonTipsPop({str="仙法卷轴不足，无法刷新仙法！",btnType=1})
+            SL:OpenCommonTipsPop({str="仙法卷轴不足，无法刷新仙法！\n仙法卷轴：①首充礼包②仙法卷轴残页合成③马上发财\n仙法卷轴残页：①在线奖励②杀怪奖励③马上发财",btnType=1})
         end
         if checkItemNum({{"极品仙法卷轴",1}}) then
             SL:OpenCommonTipsPop({str="是否要使用极品仙法卷轴，必可得到极品仙法！",btnType=2,callback=function(atype,param)
@@ -329,7 +329,7 @@ function npc.main(npcid, p2, p3, msgData)
         local taskName = tostring(rawget(_G, "XYL_CURRENT_TASK_NAME") or "")
         SL:release_print("当前任务", taskName)
         local rwid = tonumber(cogin and cogin.sjtb and (cogin.sjtb.zxrwid or cogin.sjtb.rwid) or 0) or 0
-        if rwid == 18 or taskName == "初识仙法" or taskName == "查看仙法" or taskName == "天书仙法" or taskName == "进行天书仙法抽取" then
+        if rwid == 18 or rwid == 20 or taskName == "初识仙法" or taskName == "查看仙法" or taskName == "天书仙法" or taskName == "刷新2次仙法" or taskName == "进行天书仙法抽取" then
             return 2
         end
         local tianshuLevel = tonumber(npc.data and npc.data.T_data and npc.data.T_data.level or 0) or 0
@@ -636,7 +636,7 @@ function npc.main(npcid, p2, p3, msgData)
                         NPC_UI_HELPER.tryStartXylGuide(npc, Button, npc.xf_node, "tianshu_xianfa_" .. tostring(slot), {
                             idx = 1,
                             once = true,
-                            taskNames = {"初识仙法", "天书仙法", "刷新天书仙法", "进行天书仙法抽取"},
+                            taskNames = {"初识仙法", "天书仙法", "刷新2次仙法", "进行天书仙法抽取"},
                             dir = 5,
                             desc = "点击刷新仙法",
                         })
@@ -649,7 +649,19 @@ function npc.main(npcid, p2, p3, msgData)
                         })
                     end
                 end
+                local slot_order = {}
                 for i = 1, 10 do
+                    table.insert(slot_order, i)
+                end
+                table.sort(slot_order, function(a, b)
+                    local a_unlocked = is_slot_unlocked(a, caowei[tostring(a)])
+                    local b_unlocked = is_slot_unlocked(b, caowei[tostring(b)])
+                    if a_unlocked ~= b_unlocked then
+                        return a_unlocked
+                    end
+                    return a < b
+                end)
+                for display_index, i in ipairs(slot_order) do
                     local kuang = GUI:Image_Create(dbLayout, "kuang"..i, 0, 0, "res/custom/tianshu/xf/k_0.png")
                     GUI:setTouchEnabled(kuang, true)
                     GUI:addOnClickEvent(kuang, function()
@@ -775,7 +787,7 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data = _ts_normalize_payload(SL:JsonDecode(msgData,false))
         npc.isLookPlayer = tonumber(npc.data and npc.data.lookPlayer or 0) == 1 or npc.data.lookPlayer == true
         UI_updata(npc.node)
-        local isXianfaMainline = NPC_UI_HELPER.isCurrentXylTask({"初识仙法", "查看仙法", "天书仙法", "刷新天书仙法", "进行天书仙法抽取"})
+        local isXianfaMainline = NPC_UI_HELPER.isCurrentXylTask({"初识仙法", "查看仙法", "天书仙法", "刷新2次仙法", "进行天书仙法抽取"})
         if (not _ts_is_look_player()) and (not isXianfaMainline)
             and NPC_UI_HELPER.isCurrentXylTask({"天书强化", "进行天书强化1次"})
             and (tonumber(npc.data and npc.data.T_data and npc.data.T_data.level or 0) or 0) >= 1 then

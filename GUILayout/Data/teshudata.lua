@@ -1,4 +1,4 @@
-﻿teshudata = {
+teshudata = {
     ["npc_1"] = {
         id = 1,
         name = "灵根鉴定",
@@ -459,7 +459,7 @@
                     [4] = {kind = "level", level = 120, desc = "玩家等级Lv120"},
                     [5] = {kind = "level", level = 140, desc = "玩家等级Lv140"},
                     [6] = {kind = "level", level = 150, desc = "玩家等级Lv150"},
-                    [7] = {kind = "story", tk = "npc_46", title = "灾厄杀手", desc = "完成【灾厄入侵】"},
+                    [7] = {kind = "free", desc = "免费解锁"},
                     [8] = {kind = "tianshu", level = 25, desc = "天书等级25级"},
                     [9] = {kind = "tianshu", level = 40, desc = "天书等级40级"},
                     [10] = {kind = "tianshu", level = 50, desc = "天书等级50级"},
@@ -513,7 +513,7 @@
                         -- 特殊逻辑：攻击低血怪物额外真实伤害（npc_24.lua/xianfa_attack_trigger）
                         {name = "欺负弱小",icon = "res/buff_icon/447.PNG",attr = {},wz = "攻击时对生命值低于30%的怪物额外造成75%的真实伤害"},
                         -- 特殊逻辑：按LV5+灵根数量叠加（npc_24.lua/xianfa_refresh）
-                        {name = "灵根之主",icon = "res/buff_icon/448.PNG",attr = {},spa_attr = {{1,500},{3,50},{4,50}},wz = "每拥有一个LV.5以上的灵根：攻击+50，生命+500"},
+                        {name = "灵根之主",icon = "res/buff_icon/448.PNG",attr = {},spa_attr = {},wz = "灵根中每镶嵌1颗宝石：对怪暴击+10%，对怪伤害+2%"},
                         -- 特殊逻辑：受伤+8%由代码叠加（npc_24.lua/xianfa_struck_adjust）
                         {name = "双刃剑",icon = "res/buff_icon/449.PNG",attr = {{35,800}},wz = "所有攻击伤害+8%，且受到伤害+8%"},
                         -- 特殊逻辑：按2星+灵兽数量叠加（npc_24.lua/xianfa_refresh）
@@ -2044,8 +2044,8 @@
         },
         ["zxjl"] = {
             {time = 10,jl = { { "1元真实充值", 1 }},},
-            {time = 30,jl = { { "1元真实充值", 1 }},},
-            {time = 60,jl = { { "1元真实充值", 2 }},},
+            {time = 30,jl = { { "1元真实充值", 2 }},},
+            {time = 60,jl = { { "仙法卷轴残页", 5 }},},
             {time = 120,jl = { { "仙法卷轴残页", 5 }},},
             {time = 360,jl = { { "仙法卷轴残页", 5 }},},
         },
@@ -2054,7 +2054,7 @@
             {num = 500,jl = { { "绑定金币", 200000}},},
             {num = 1000,jl = { { "绑定金币",300000}},},
             {num = 3000,jl = { { "绑定金币", 500000}},},
-            {num = 5000,jl = { { "仙法卷轴残页", 5 }},},
+            {num = 5000,jl = { { "金币", 1000000}},},
         },
         ["grss"] = {
             [1018] = { name = '枯灯客', give = { {'绑定金币',10000} } },
@@ -2678,9 +2678,9 @@
             },
             welfare = {
                 [1] = {wait_sec = 20 * 60, reward = {{"绑定金币",880000}}, label = "绑定金币*88W"},
-                [2] = {wait_sec = 30 * 60, reward = {{"辉耀水晶",10}}, label = "辉耀水晶*10"},
+                [2] = {wait_sec = 30 * 60, reward = {{"仙法卷轴残页",5}}, label = "仙法卷轴残页*5"},
                 [3] = {wait_sec = 45 * 60, reward = {{"称号卷轴",10}}, label = "称号卷轴*10"},
-                [4] = {wait_sec = 60 * 60, reward = {{"绑定灵石",100}}, label = "绑定灵石*100"},
+                [4] = {wait_sec = 60 * 60, reward = {{"绑定灵石",60}}, label = "绑定灵石*60"},
             },
         },
         endtime = 3,
