@@ -2033,18 +2033,20 @@ npc[1] = function(p2, p3, msgData)
                 if GUI:getChildByName(npc.RightBottom, "zjkmw") then
                     return
                 end
-                local continent5Unlocked = false
-                if type(getContinentGateData) == "function" then
-                    local ok, gate = pcall(getContinentGateData, 5)
-                    continent5Unlocked = ok and type(gate) == "table" and gate.ok == true
-                elseif type(dl_sz) == "function" then
-                    continent5Unlocked = dl_sz(5) == true
-                end
-                if not continent5Unlocked then
-                    return
-                end
+
                 local zjkmw = GUI:Button_Create(npc.RightBottom, "zjkmw", cogin.isWin32 and npc.zjkmw_opt[1][1] or npc.zjkmw_opt[2][1], cogin.isWin32 and npc.zjkmw_opt[1][2] or npc.zjkmw_opt[2][2], "res/custom/five_city/zjkmw/img.png")
                 GUI:addOnClickEvent(zjkmw, function()
+                    local continent5Unlocked = false
+                    if type(getContinentGateData) == "function" then
+                        local ok, gate = pcall(getContinentGateData, 5)
+                        continent5Unlocked = ok and type(gate) == "table" and gate.ok == true
+                    elseif type(dl_sz) == "function" then
+                        continent5Unlocked = dl_sz(5) == true
+                    end
+                    if not continent5Unlocked then
+                        SL:ShowSystemTips("<font color='#FF0000'>请前往五大陆后再试试吧</font>")
+                        return
+                    end
                     local item = SL:GetMetaValue("EQUIP_DATA", 16)
                     -- if item then
                     --     local equipLevel = Player:getEquipFieldByIndex(item.Index, 1)
