@@ -10,12 +10,16 @@ local key = "npc_702"
 local btn_pos = {620, 80}
 local reward_pos = {360 + 50, 120}
 local cost_pos = {500, 268}
-local MAIN_BTN_SKIN = "res/custom/all_story_mission/5/702_btn.png"
-local MAIN_BTN_SKIN_TAKE = "res/custom/all_story_mission/5/702/1.png"
+local MAIN_BTN_SKIN = "res/custom/all_story_mission/5/702/2.png"
+local MAIN_BTN_SKIN_TAKE = "res/custom/all_story_mission/5/702/2.png"
 local MAIN_BTN_SKIN_DOING = "res/custom/all_story_mission/5/702/2.png"
-local EXTRA_BTN_SKIN = {}
-local ACTIONS = {1}
-local ACTION_LABEL = { [1] = "进入"}
+local COMPLETE_BTN_SKIN = "res/wy/public/7_1.png"
+local EXTRA_BTN_SKIN = {
+    [2] = "res/custom/all_story_mission/5/702_btn_3.png",
+    [3] = "res/custom/all_story_mission/5/702_btn_2.png",
+}
+local ACTIONS = {1, 2, 3}
+local ACTION_LABEL = { [1] = "提交", [2] = "诛杀小青", [3] = "探寻真相"}
 
 -- 合并任务奖励与称号奖励，确保称号在奖励区可见。
 local function buildRewardWithTitle(cfg)
@@ -103,10 +107,10 @@ function npc.main(npcid, p2, p3, msgData)
             local skin = EXTRA_BTN_SKIN[ew] or "res/public/1900000660.png"
             local btn = GUI:Button_Create(node, nodeName, x, y, skin)
             GUI:setAnchorPoint(btn, 0.5, 0.5)
-            if skin == "res/public/1900000660.png" then
-                GUI:Button_setTitleText(btn, ACTION_LABEL[ew] or ("操作" .. tostring(ew)))
-                GUI:Button_setTitleFontSize(btn, 16)
-            end
+            -- if skin == "res/public/1900000660.png" then
+            --     GUI:Button_setTitleText(btn, ACTION_LABEL[ew] or ("操作" .. tostring(ew)))
+            --     GUI:Button_setTitleFontSize(btn, 16)
+            -- end
             GUI:addOnClickEvent(btn, function()
                 SL:SendLuaNetMsg(100, npcid, ew, 0, "")
             end)
@@ -114,9 +118,9 @@ function npc.main(npcid, p2, p3, msgData)
 
         local ew1 = ACTIONS[1]
         if ew1 then
-            if state >= 2 then
-                GUI:Image_Create(node, "done", btn_pos[1], btn_pos[2], "res/wy/public/7_1.png")
-            else
+            if state >= 3 then
+                GUI:Image_Create(node, "done", btn_pos[1], btn_pos[2], COMPLETE_BTN_SKIN)
+            elseif state < 2 then
                 local skin = resolveMainSkin()
                 local b1 = GUI:Button_Create(node, "btn_action_1", btn_pos[1], btn_pos[2], skin)
                 GUI:setAnchorPoint(b1, 0.5, 0.5)
@@ -130,27 +134,27 @@ function npc.main(npcid, p2, p3, msgData)
             end
         end
 
-        local extraStartX = 260
-        local extraY = 40
-        local extraStep = 120
+        local extraStartX = 400
+        local extraY = 80
+        local extraStep = 150 + 90
 
         local ew2 = ACTIONS[2]
-        if ew2 then
+        if ew2 and state == 2 then
             createExtraButton("btn_action_2", extraStartX, extraY, ew2)
         end
 
         local ew3 = ACTIONS[3]
-        if ew3 then
+        if ew3 and state == 2 then
             createExtraButton("btn_action_3", extraStartX + extraStep, extraY, ew3)
         end
 
         local ew4 = ACTIONS[4]
-        if ew4 then
+        if ew4 and state == 99 then
             createExtraButton("btn_action_4", extraStartX + extraStep * 2, extraY, ew4)
         end
 
         local ew5 = ACTIONS[5]
-        if ew5 then
+        if ew5 and state == 99 then
             createExtraButton("btn_action_5", extraStartX + extraStep * 3, extraY, ew5)
         end
     end
@@ -169,7 +173,9 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data.T_dljq[key .. "_a"] = (npc.data.T_dljq and npc.data.T_dljq[key .. "_a"]) and npc.data.T_dljq[key .. "_a"] or 0
 
         local task_cfg = npc._config and npc._config.task_cfg or {}
-        local max_num = tonumber(task_cfg.max_submit_times or task_cfg.max_reward_round or npc._config.max_num or 1) or 1
+        local submit_cfg = task_cfg.submit
+        local submit_need = type(submit_cfg) == "table" and submit_cfg[1]
+        local max_num = tonumber(task_cfg.max_submit_times or task_cfg.max_reward_round or npc._config.max_num or (type(submit_need) == "table" and submit_need[2]) or 1) or 1
         local state = tonumber(npc.data.T_dljq[key] or 0) or 0
         local progress = tonumber(npc.data.T_dljq[key .. "_a"] or 0) or 0
         local reward_cfg = buildRewardWithTitle(npc._config)
@@ -208,19 +214,9 @@ function npc.main(npcid, p2, p3, msgData)
         UI_updata(npc.node)
     elseif p2 == 1 then
         npc._config = teshudata[key]
-        npc.data = npc.data or {}
+        npc.data = SL:JsonDecode(msgData or "", false) or npc.data or {}
         npc.data.T_dljq = npc.data.T_dljq or {}
         npc.data.sg_data = npc.data.sg_data or {}
-        npc.data.T_dljq[key .. "_a"] = tonumber(p3 or 0) or 0
-
-        local task_cfg = npc._config and npc._config.task_cfg or {}
-        local max_num = tonumber(task_cfg.max_submit_times or task_cfg.max_reward_round or npc._config.max_num or 1) or 1
-        if npc.data.T_dljq[key .. "_a"] >= max_num then
-            npc.data.T_dljq[key] = 2
-        elseif (tonumber(npc.data.T_dljq[key] or 0) or 0) < 1 then
-            npc.data.T_dljq[key] = 1
-        end
-
         UI_updata(npc.node)
     end
 end

@@ -67,6 +67,9 @@ local function _xyl_check_story(name)
     if key == "npc_633" then
         return (tonumber(node) or 0) >= 2
     end
+    if key == "npc_702" then
+        return (tonumber(node) or 0) >= 3
+    end
     -- SL:release_print("check story", name, key, node, max_num)
     if type(node) == "number" then
         if max_num and max_num > 0 then

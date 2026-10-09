@@ -728,7 +728,14 @@ local TXZR_ACTIVITY_CFG = {
     "天选之人",
     506,
     7,
-    "res/wy/icon/9.png",
+    "res/wy/icon/top_23.png",
+}
+local KHFL_ACTIVITY_CFG = {
+    23,
+    "狂欢福利",
+    520,
+    23,
+    "res/wy/icon/top_23.png",
 }
 _refresh_txzr_activity_button = function()
     local button = npc.txzr_activity_button
@@ -770,6 +777,7 @@ local function createTxzrActivityButton()
     GUI:setLocalZOrder(npc.txzr_activity_button, 10000)
     _refresh_txzr_activity_button()
 end
+local createKhflActivityButton
 local function _shortcut_has_title(titleName)
     if not titleName or titleName == "" then
         return false
@@ -2150,6 +2158,7 @@ npc[1] = function(p2, p3, msgData)
                 _refresh_shortcut_collapsed_state(true)
             end)
             createTxzrActivityButton()
+            -- createKhflActivityButton()
             rebuildShortcutButtons("")
             refreshLingshouMainEntrySoon()
             startLingshouMainEntryLoginRefresh()
@@ -2159,6 +2168,7 @@ npc[1] = function(p2, p3, msgData)
             UPGRADE_HELPER.startAutoRefresh(20 * 1)
         elseif p3 == 1 then
             createTxzrActivityButton()
+            -- createKhflActivityButton()
             rebuildShortcutButtons(msgData or "")
             refreshLingshouMainEntrySoon()
             startLingshouMainEntryLoginRefresh()
@@ -9714,6 +9724,129 @@ npc[9999] = function(p2, p3, msgData)
         GUI:Win_Close(parent)
     end
 end
+-- 狂欢福利（npc_520）：顶部活动界面。
+npc[520] = function(p2, p3, Data)
+    local payload = type(Data) == "table" and Data or SL:JsonDecode(Data or "", false) or {}
+    npc.data_520 = payload
+    local bg = npc.khfl520_bg
+    if not bg or tolua.isnull(bg) then
+        local win = ensureWindow("carnivalWelfare", 520, {
+            titleText = "狂欢福利",
+            background = {
+                skin = "res/wy/public/anniu_520_bj.png",
+            },
+        })
+        bg = win.node
+        npc.khfl520_bg = bg
+
+        local function label(parent, name, x, y, size, color, value)
+            local text = GUI:Text_Create(parent, name, x, y, size, color, value)
+            GUI:Text_enableOutline(text, "#190B05", 1)
+            return text
+        end
+
+        npc.khfl520_title = label(bg, "khfl520_title", 360, 42, 32, "#FFE79B", "狂欢福利")
+        npc.khfl520_slogan = label(bg, "khfl520_slogan", 270, 82, 20, "#FFF1C3", "福利狂欢送送送！累充奖励拿不停！")
+        npc.khfl520_charge = label(bg, "khfl520_charge", 80, 126, 20, "#FFFFFF", "")
+        npc.khfl520_open = label(bg, "khfl520_open", 560, 126, 18, "#FF7777", "")
+        -- 参考活动界面的三列布局：档位、奖励预览、领取状态。
+        npc.khfl520_head_need = label(bg, "khfl520_head_need", 105, 158, 19, "#D8E7F0", "累计充值")
+        npc.khfl520_head_reward = label(bg, "khfl520_head_reward", 390, 158, 19, "#D8E7F0", "奖励预览")
+        npc.khfl520_head_state = label(bg, "khfl520_head_state", 690, 158, 19, "#D8E7F0", "领取状态")
+        npc.khfl520_list = GUI:ListView_Create(bg, "khfl520_list", 52, 180, 760, 305, 1, false)
+        GUI:ListView_setGravity(npc.khfl520_list, 2)
+        GUI:ListView_setItemsMargin(npc.khfl520_list, 6)
+        local close = GUI:Button_Create(bg, "khfl520_close", 820, 35, "res/wy/public/close_red_big.png")
+        GUI:addOnClickEvent(close, function()
+            NPC_UI_HELPER.closeWindow(windowCache.carnivalWelfare)
+            windowCache.carnivalWelfare = nil
+            npc.khfl520_bg = nil
+            npc.khfl520_list = nil
+        end)
+    end
+
+    local function updateLabel(node, value, color)
+        if node and not tolua.isnull(node) then
+            GUI:Text_setString(node, value)
+            if color then
+                GUI:Text_setTextColor(node, color)
+            end
+        end
+    end
+
+    updateLabel(npc.khfl520_title, payload.title or "狂欢福利")
+    updateLabel(npc.khfl520_slogan, payload.slogan or "福利狂欢送送送！累充奖励拿不停！")
+    updateLabel(npc.khfl520_charge, "当前累计充值：" .. tostring(payload.charge or 0) .. "元")
+    updateLabel(npc.khfl520_open, tonumber(payload.open or 0) == 1 and "" or "第一次合区后开启")
+
+    local list = npc.khfl520_list
+    if not list or tolua.isnull(list) then
+        return
+    end
+    GUI:removeAllChildren(list)
+    for i, row in ipairs(payload.rows or {}) do
+        if tonumber(row.visible or 0) == 1 then
+            local claimed = tonumber(row.claimed or 0) == 1
+            local cell = GUI:Layout_Create(-1, "khfl520_row_" .. i, 0, 0, 750, 88, false)
+            GUI:Layout_setBackGroundColorType(cell, 1)
+            GUI:Layout_setBackGroundColor(cell, i % 2 == 0 and "#18222B" or "#101820")
+            GUI:Layout_setBackGroundColorOpacity(cell, 145)
+            GUI:ListView_pushBackCustomItem(list, cell)
+            local text = GUI:Text_Create(cell, "need_" .. i, 100, 44, 22, claimed and "#8FFF8F" or "#FFFFFF", tostring(row.need or 0) .. "元")
+            GUI:Text_enableOutline(text, "#190B05", 1)
+            local rewards = row.rewards or {}
+            if #rewards <= 0 then
+                local localCfg = teshudata and teshudata["npc_520"]
+                local localReward = localCfg and localCfg.rewards and localCfg.rewards[i]
+                rewards = {}
+                for rewardIndex, reward in ipairs((localReward and localReward.items) or {}) do
+                    rewards[rewardIndex] = {
+                        name = tostring(reward[1] or ""),
+                        count = tonumber(reward[2] or 0) or 0,
+                    }
+                end
+            end
+            for rewardIndex = 1, 3 do
+                local reward = rewards[rewardIndex]
+                if reward and tostring(reward.name or "") ~= "" then
+                    local itemIndex = SL:GetMetaValue("ITEM_INDEX_BY_NAME", tostring(reward.name))
+                    if tonumber(itemIndex or 0) and tonumber(itemIndex or 0) > 0 then
+                        local itemX = 300 + (rewardIndex - 1) * 86
+                        GUI:ItemShow_Create(cell, "reward_item_" .. i .. "_" .. rewardIndex, itemX, 44, {
+                            index = itemIndex,
+                            count = tonumber(reward.count or 1) or 1,
+                            look = true,
+                            bgVisible = true,
+                        })
+                    end
+                end
+            end
+            local button = GUI:Button_Create(cell, "claim_" .. i, 650, 44, "res/wy/public/npc_520_l_1_an.png")
+            GUI:addOnClickEvent(button, function()
+                SL:SendLuaNetMsg(101, 520, 1, i, "")
+            end)
+            local stateText = GUI:Text_Create(cell, "state_" .. i, 690, 16, 16, claimed and "#8FFF8F" or "#FFD46B", claimed and "已领取" or "待领取")
+            GUI:Text_enableOutline(stateText, "#190B05", 1)
+        end
+    end
+end
+createKhflActivityButton = function()
+    local panel = MainAssist and MainAssist._ui and MainAssist._ui["Panel_hide"]
+    if not panel or tolua.isnull(panel) then
+        return
+    end
+    if npc.khfl_activity_button and not tolua.isnull(npc.khfl_activity_button) then
+        return
+    end
+    npc.khfl_activity_button = createShortcutButton(panel, KHFL_ACTIVITY_CFG, 1, "khfl_activity", {
+        x = 100 - 60,
+        y = 100 - 60,
+        cacheMap = {},
+    })
+    GUI:setLocalZOrder(npc.khfl_activity_button, 9999)
+end
+
+
 return npc
 
 
