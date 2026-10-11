@@ -117,7 +117,7 @@ function npc.main(npcid, p2, p3, msgData)
                 _send_normal_xianfa_refresh(slot)
                 return
             end
-            SL:OpenCommonTipsPop({str="仙法卷轴不足，无法刷新仙法！\n仙法卷轴：①首充礼包②仙法卷轴残页合成③马上发财\n仙法卷轴残页：①在线奖励②杀怪奖励③马上发财",btnType=1})
+            SL:OpenCommonTipsPop({str="仙法卷轴不足，无法刷新仙法！\n\n仙法卷轴：①首充礼包②仙法卷轴残页合成③马上发财\n仙法卷轴残页：①在线奖励②冲级奖励③马上发财",btnType=1})
         end
         if checkItemNum({{"极品仙法卷轴",1}}) then
             SL:OpenCommonTipsPop({str="是否要使用极品仙法卷轴，必可得到极品仙法！",btnType=2,callback=function(atype,param)

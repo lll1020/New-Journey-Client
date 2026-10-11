@@ -454,12 +454,12 @@ teshudata = {
                 -- attr 的ID/数值类型来源于 AAAA.txt；部分触发/条件/副作用在 npc_24.lua 中实现
                 unlock_cond = {
                     [1] = {kind = "free", desc = "免费解锁"},
-                    [2] = {kind = "level", level = 80, desc = "玩家等级Lv80"},
-                    [3] = {kind = "level", level = 100, desc = "玩家等级Lv100"},
-                    [4] = {kind = "level", level = 120, desc = "玩家等级Lv120"},
-                    [5] = {kind = "level", level = 140, desc = "玩家等级Lv140"},
-                    [6] = {kind = "level", level = 150, desc = "玩家等级Lv150"},
-                    [7] = {kind = "free", desc = "免费解锁"},
+                    [2] = {kind = "free", desc = "免费解锁"},
+                    [3] = {kind = "level", level = 80, desc = "玩家等级Lv80"},
+                    [4] = {kind = "level", level = 100, desc = "玩家等级Lv100"},
+                    [5] = {kind = "level", level = 120, desc = "玩家等级Lv120"},
+                    [6] = {kind = "level", level = 140, desc = "玩家等级Lv140"},
+                    [7] = {kind = "level", level = 150, desc = "玩家等级Lv150"},
                     [8] = {kind = "tianshu", level = 25, desc = "天书等级25级"},
                     [9] = {kind = "tianshu", level = 40, desc = "天书等级40级"},
                     [10] = {kind = "tianshu", level = 50, desc = "天书等级50级"},

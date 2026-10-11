@@ -8444,7 +8444,6 @@ npc[512] = function(p2, p3, Data)
             resourceKey = "gameplay_guide",
             subs = {
                 {name = "玩法攻略", resourceKey = "gameplay_guide", img = "res/custom/strategy/gameplay_guide/gameplay_guide.png"},
-                -- {name = "灵根部分", img = "res/custom/strategy/gameplay_guide/spirit_root.png", w = 1392, h = 162},
             },
         },
         {
@@ -8512,6 +8511,73 @@ npc[512] = function(p2, p3, Data)
         GUI:ScrollView_setInnerContainerSize(scroll, innerW, innerH)
         local img = GUI:Image_Create(scroll, "content", 0, math.max(0, innerH - imgH), sub.img)
         GUI:setAnchorPoint(img, 0, 0)
+    end
+    local gameplayGuideData = {
+        {name = "灵根系统", content = "系统简介\n灵根是角色核心养成体系，分为金、木、水、火、土五大灵根。每位修士拥有唯一本命灵根，决定自身本命技能、流派玩法与终极技能。\n所有灵根基础成长完全公平，玩法差异来自分支流派、天赋机制与宝石搭配。\n\n玩法简介\n天赋点：升级灵根核心可获得天赋点，每级获得1点；点亮天赋或镶嵌宝石通常消耗1点，跨区域链接通路宝石槽点亮无需消耗。\n天赋槽分为属性槽、技能槽和宝石槽。"},
+        {name = "宝石系统", content = "宝石可镶嵌于天赋树宝石槽，提升属性与专属能力。\n1. 一级、二级通用宝石：全区域通用，仅提供基础属性。\n2. 三级专属宝石：分为金、木、水、火、土五种，基础属性全槽生效，专属效果仅对应本命灵根区域生效。\n3. M18专属宝石槽：仅可镶嵌对应系三级宝石，是跨区玩法的核心属性来源。\n4. 四级宝石：顶级毕业宝石，附带专属集群共鸣效果。\n5. 跨区镶嵌：点亮其他区域的M18槽位后，才可在对应链接宝石槽镶嵌宝石。"},
+        {name = "多灵根玩法", content = "跨区无法点亮技能强化类天赋，无法解锁终极技能，也无法复刻其他灵根核心玩法。\n仅M18枢纽专属槽位可让跨区玩家获取少量对应灵根机制效果。\n点亮双灵根M18节点，可解锁五行相克共振效果。\n\n正面：攻击伤害额外忽视怪物30%的防御，忽视玩家5%的防御。\n负面：受到的所有伤害提高20%。"},
+        {name = "水灵根机制", content = "潮汐buff：水灵根专属叠层增益，技能命中目标可叠加潮汐层数，每层持续5秒并有叠层上限。\n潮汐真空机制：潮汐叠满后触发真空期，真空期内无法新增潮汐层数，已有层数正常衰减。"},
+        {name = "新手养成", content = "1. 前期优先点亮主干节点，快速提升基础战力。\n2. 点亮M18枢纽后，根据自身喜好选择流派，深耕单流派。\n3. 优先镶嵌本命三级宝石，最大化专属战力。\n4. 前期不建议盲目跨灵根铺路，跨区和共振属于后期养成内容。"},
+        {name = "相生相克", content = "金打木伤害+25%；木攻击金时，金受到伤害+15%。\n木打土伤害+25%；土攻击木时，木受到伤害+15%。\n土打水伤害+25%；水攻击土时，土受到伤害+15%。\n水打火伤害+25%；火攻击水时，水受到伤害+15%。\n火打金伤害+25%；金攻击火时，火受到伤害+15%。"},
+        {name = "洗点规则", content = "单点洗点：可对单独天赋点进行洗点，消耗卸灵咒*1。每日免费发放1个卸灵咒，商城售价20灵石，打怪也有几率掉落。\n一键重置：重置除本命技能之外的所有已点亮天赋，消耗已点亮天赋数量*20灵石，每周最多3次。\n战斗状态下不可使用洗点功能。\n本命灵根重置需消耗1000灵石。"},
+        {name = "天书系统", content = "天书仙法：仙法没有强弱之分，只有适合你自己的搭配！\n部分仙法预览：\n极  沙老板          攻杀期间：PK增伤+50%，PK减伤+50%\n极  修罗血衣        击杀一名玩家，恢复20%最大生命值\n极  跺下            攻击有2%的几率使得对方玩家禁锢原地，持续2秒\n极  神力灌体        神力倍功+8%，人物攻击+10%，攻击力+1888\n极  名字长就牛比    对名字比自己短的玩家造成额外20%的伤害\n极  名字短就牛比    对名字比自己长的玩家造成额外20%的伤害"},
+        {name = "仙府系统", content = "人在江湖打打杀杀，偶尔也要回家看看。\n仙府可以种植仙草，产出炼丹材料、神石碎片等。\n仙府可以炼丹，也可以拜访点赞其他人的仙府。\n仙府等级越高，可镶嵌的神石越多。\n仙府可以砍树，掉落的仙府币可用来抓娃娃抽盲盒，不同盲盒属性不同，还有超级隐藏款。"},
+        {name = "其他系统", content = "灵兽：提高角色属性，召唤外显时还会增加本命灵根伤害。\n藏宝图：制作藏宝图，挖掘世界各地的宝藏。\n图鉴系统：击杀红名怪、获得专属装备后会收录进图鉴，可领取奖励。\n成就系统：丰富的成就等待逐一达成。\n其他玩法：更多玩法功能等待探索。"},
+    }
+    local function renderGameplayGuide(Label_node)
+        local viewW, viewH = 584, 444
+        local function colorGuideText(text)
+            text = tostring(text or "")
+            local function color(term, hex)
+                local pattern = term:gsub("([%(%)%.%%%+%-%*%?%[%]%^%$])", "%%%1")
+                text = text:gsub(pattern, function()
+                    return "<font color='" .. hex .. "'>" .. term .. "</font>"
+                end)
+            end
+            for _, term in ipairs({"本命灵根", "本命技能", "流派玩法", "终极技能", "无先天强弱差距", "天赋点总量固定", "两个专属流派分支", "共用一个终极技能", "专属技能联动效果", "专属BUFF", "五行相克共振", "潮汐层数", "真空期", "每周上限重置3次", "战斗状态下不可使用洗点功能"}) do color(term, "#FF3B3B") end
+            for _, term in ipairs({"完全公平", "公平成长", "基础属性全槽生效", "基础属性", "正面效果"}) do color(term, "#20D060") end
+            for _, term in ipairs({"天赋点", "宝石槽", "跨区域链接通路宝石槽", "跨区玩法", "M18专属宝石槽", "天赋槽", "属性槽", "技能槽", "潮汐buff", "潮汐真空机制"}) do color(term, "#3478FF") end
+            for _, term in ipairs({"卸灵咒", "灵石", "20灵石", "1000灵石"}) do color(term, "#A83CFF") end
+            return text
+        end
+        local tabBar = GUI:Layout_Create(Label_node, "gameplay_tabs", 8, 348, 568, 82, false)
+        local body = GUI:Node_Create(Label_node, "gameplay_body", 0, 0)
+        local function setGameplayTabSkin(tab, selected)
+            GUI:Button_loadTextureNormal(tab, selected and "res/wy/public/liang_guang.png" or "res/wy/public/box.png")
+            GUI:Button_setTitleFontName(tab, "fonts/502.ttf")
+            GUI:Button_setTitleColor(tab, selected and "#FFE45E" or "#FFFFFF")
+        end
+        local function refreshGuide(idx)
+            idx = math.max(1, math.min(#gameplayGuideData, idx or 1))
+            GUI:removeAllChildren(body)
+            for i, item in ipairs(gameplayGuideData) do
+                local tab = GUI:getChildByName(tabBar, "tab_" .. i)
+                if tab then setGameplayTabSkin(tab, i == idx) end
+            end
+            local item = gameplayGuideData[idx]
+            if item.image then
+                GUI:Image_Create(body, "guide_image", 0, 0, item.image)
+                return
+            end
+            local scroll = GUI:ScrollView_Create(body, "guide_scroll", 8, 8, viewW - 16, 334, 1)
+            GUI:ScrollView_setBounceEnabled(scroll, true)
+            local rich = GUI:RichText_Create(scroll, "guide_text", 8, 0, colorGuideText(item.content or ""), viewW - 32, 20, "#FFFFFF", 1, nil, "fonts/502.ttf")
+            GUI:setAnchorPoint(rich, 0, 1)
+            local innerH = math.max(334, GUI:getContentSize(rich).height + 20)
+            GUI:ScrollView_setInnerContainerSize(scroll, viewW - 16, innerH)
+            GUI:setPosition(rich, 8, innerH - 8)
+        end
+        for i, item in ipairs(gameplayGuideData) do
+            local col = (i - 1) % 5
+            local row = math.floor((i - 1) / 5)
+            local tab = GUI:Button_Create(tabBar, "tab_" .. i, col * 112 + 56, 62 - row * 38, "res/wy/public/box.png")
+            GUI:setAnchorPoint(tab, 0.5, 0.5)
+            GUI:Button_setTitleText(tab, item.name)
+            GUI:Button_setTitleFontSize(tab, 16)
+            setGameplayTabSkin(tab, i == 1)
+            GUI:addOnClickEvent(tab, function() refreshGuide(i) end)
+        end
+        refreshGuide(1)
     end
     local equipPreviewData = {
         ["顶级装备"] = {
@@ -8674,6 +8740,8 @@ npc[512] = function(p2, p3, Data)
             renderMapPage(Label_node, page)
         elseif page.key == "equip" then
             renderEquipPreviewPage(Label_node, page)
+        elseif page.key == "play" then
+            renderGameplayGuide(Label_node)
         else
             renderNormalPage(Label_node, page)
         end

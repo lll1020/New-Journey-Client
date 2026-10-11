@@ -127,7 +127,7 @@ local AtlasData = {
                 },
                 {
                     id = "2_3",
-                    name = "兵道古藏",
+                    name = "杀伐道场",
                     aliases = {
                         "杀伐道场",
                         "乱葬岗",

@@ -1188,7 +1188,7 @@ local function ensureWindow(npcid)
     return npc.node
 end
 
-UI_updata = function(node)
+UI_updata = function(node, keepPopups)
     if not node then
         return
     end
@@ -1197,8 +1197,10 @@ UI_updata = function(node)
         npc.currentTab = 1
     end
 
-    closeBoxPopup()
-    closeBuyPopup()
+    if not keepPopups then
+        closeBoxPopup()
+        closeBuyPopup()
+    end
     if not npc.tabsNode then
         npc.tabsNode = GUI:Node_Create(node, "tabs_node", 0, 0)
         createTabs(npc.tabsNode)
@@ -1246,7 +1248,7 @@ function npc.main(npcid, p2, p3, msgData)
     if refreshBuyPopup then
         closeBuyPopup()
     end
-    UI_updata(npc.node)
+    UI_updata(npc.node, refreshExchangePopup or refreshBuyPopup)
     if refreshExchangePopup and npc.currentTab == 1 then
         openExchangePopup()
     end
