@@ -8552,7 +8552,7 @@ npc[512] = function(p2, p3, Data)
         local tabBar = GUI:Layout_Create(Label_node, "gameplay_tabs", 8, 348, 568, 82, false)
         local body = GUI:Node_Create(Label_node, "gameplay_body", 0, 0)
         local function setGameplayTabSkin(tab, selected)
-            GUI:Button_loadTextureNormal(tab, selected and "res/wy/public/liang_guang.png" or "res/wy/public/box.png")
+            GUI:Button_loadTextureNormal(tab, selected and "res/wy/public/liang_guang.png" or "res/wy/public/jdtk_1.png")
             GUI:Button_setTitleFontName(tab, "fonts/502.ttf")
             GUI:Button_setTitleColor(tab, selected and "#FFE45E" or "#FFFFFF")
         end
@@ -8579,7 +8579,8 @@ npc[512] = function(p2, p3, Data)
         for i, item in ipairs(gameplayGuideData) do
             local col = (i - 1) % 5
             local row = math.floor((i - 1) / 5)
-            local tab = GUI:Button_Create(tabBar, "tab_" .. i, col * 112 + 56, 62 - row * 38, "res/wy/public/box.png")
+            local tab = GUI:Button_Create(tabBar, "tab_" .. i, col * 112 + 56, 62 - row * 38, "res/wy/public/jdtk_1.png")
+            GUI:setContentSize(tab, 110, 35)
             GUI:setAnchorPoint(tab, 0.5, 0.5)
             GUI:Button_setTitleText(tab, item.name)
             GUI:Button_setTitleFontSize(tab, 16)

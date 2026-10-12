@@ -165,7 +165,7 @@ local function _open_popup(npcid, idx)
             GUI:Win_Close(parent)
         end)
     elseif idx == 2 then
-        bj = GUI:Image_Create(parent, "bj", 0, 0, RES .. "tower_rewards/tongtian_tower_reward.png")
+        bj = GUI:Image_Create(parent, "bj", 0, 0, RES .. "tower_rewards/tower_climb_reward.png")
         local cfg = _cfg()
         -- _create_outline_text(bj, "desc1", 450, 412, 22, "#3B1C0B", "通天塔每爬一层，奖励都会越来越丰富，同时怪物也会越强！")
         -- _create_outline_text(bj, "left_floor", 112, 342, 24, "#5B260B", "层数")
