@@ -337,6 +337,23 @@ local function pushDiffEquipHeader(contentPanel, itemData, richWidth)
         local countB = tonumber(recycleCfg[5] or 0) or 0
         local countC = tonumber(recycleCfg[6] or 0) or 0
 
+        -- 神石回收：第 5 类统一返还绑定灵石。
+        if groupType == 5 then
+            return countA > 0 and "绑定灵石*" .. tostring(countA) or nil
+        end
+
+        -- 古玩回收：金币 + 辉耀水晶。
+        if groupType == 4 then
+            local rewards = {}
+            if countA > 0 then
+                table.insert(rewards, "金币*" .. tostring(countA))
+            end
+            if countB > 0 then
+                table.insert(rewards, "辉耀水晶*" .. tostring(countB))
+            end
+            return #rewards > 0 and table.concat(rewards, " ") or nil
+        end
+
         if groupType == 2 then
             if countB == 1 and countA > 0 then
                 return "辉耀水晶*" .. tostring(countA)

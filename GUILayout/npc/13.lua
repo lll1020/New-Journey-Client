@@ -82,7 +82,7 @@ end
             local config = npc._config.config[npc.data.dj_num + 1]
             GUI:Text_setFontName(GUI:Text_Create(node, "desc1",500,351, 25, "#00FF00", _get_percent_text(npc.data.dj_num))
             , "fonts/502.ttf")
-            local desc2 = GUI:Text_Create(node, "desc2",490,305, 25, "#9DB9C8", "人物切割 + "..(npc._config.config[npc.data.dj_num + 1].ratio - npc._config.config[npc.data.dj_num].ratio))
+            local desc2 = GUI:Text_Create(node, "desc2",490,305, 25, "#9DB9C8", "下次获得：人物切割 + "..npc._config.config[npc.data.dj_num + 1].ratio)
             GUI:Text_setFontName(desc2, "fonts/501.ttf")
             GUI:Text_enableOutline(desc2, "#000000", 2)
             local cost_show = checkItemNumByTable_img_kuang(config.cost, nil,GUI:Node_Create(node, "cost_show", 0, 0))

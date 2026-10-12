@@ -141,7 +141,7 @@ function renderMain(node, npcid)
         486 - 10,
         20,
         canDrink() and "#DDEBFF" or "#FF7B7B",
-        canDrink() and "醉酒值满100，即可开启“醉酒狂魔斩”" or "醉酒值已满，无法继续饮酒",
+        canDrink() and "醉酒值满100，即可开启“醉酒狂魔舞”" or "醉酒值已满，无法继续饮酒",
         0.5,
         0.5,
         "fonts/502.ttf"

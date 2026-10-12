@@ -728,7 +728,7 @@ local TXZR_ACTIVITY_CFG = {
     "天选之人",
     506,
     7,
-    "res/wy/icon/top_23.png",
+    "res/wy/icon/9.png",
 }
 local KHFL_ACTIVITY_CFG = {
     23,
@@ -770,14 +770,23 @@ local function createTxzrActivityButton()
         return
     end
     npc.txzr_activity_button = createShortcutButton(panel, TXZR_ACTIVITY_CFG, 1, "txzr_activity", {
-        x = 100 - 60,
-        y = 100 - 60,
+        x = 40,
+        y = 40,
         cacheMap = {},
     })
     GUI:setLocalZOrder(npc.txzr_activity_button, 10000)
     _refresh_txzr_activity_button()
 end
 local createKhflActivityButton
+local function _refresh_khfl_activity_button(open)
+    local button = npc.khfl_activity_button
+    if not button or tolua.isnull(button) then
+        return
+    end
+    local visible = tonumber(open or 0) == 1
+    GUI:setVisible(button, visible)
+    GUI:setTouchEnabled(button, visible)
+end
 local function _shortcut_has_title(titleName)
     if not titleName or titleName == "" then
         return false
@@ -2158,7 +2167,7 @@ npc[1] = function(p2, p3, msgData)
                 _refresh_shortcut_collapsed_state(true)
             end)
             createTxzrActivityButton()
-            -- createKhflActivityButton()
+            createKhflActivityButton()
             rebuildShortcutButtons("")
             refreshLingshouMainEntrySoon()
             startLingshouMainEntryLoginRefresh()
@@ -2168,7 +2177,7 @@ npc[1] = function(p2, p3, msgData)
             UPGRADE_HELPER.startAutoRefresh(20 * 1)
         elseif p3 == 1 then
             createTxzrActivityButton()
-            -- createKhflActivityButton()
+            createKhflActivityButton()
             rebuildShortcutButtons(msgData or "")
             refreshLingshouMainEntrySoon()
             startLingshouMainEntryLoginRefresh()
@@ -9795,6 +9804,11 @@ end
 -- 狂欢福利（npc_520）：顶部活动界面。
 npc[520] = function(p2, p3, Data)
     local payload = type(Data) == "table" and Data or SL:JsonDecode(Data or "", false) or {}
+    if tonumber(p2 or 0) == 9 then
+        npc._khfl_top_open = tonumber(payload.open or 0) == 1
+        _refresh_khfl_activity_button(npc._khfl_top_open and 1 or 0)
+        return
+    end
     npc.data_520 = payload
     local bg = npc.khfl520_bg
     if not bg or tolua.isnull(bg) then
@@ -9907,11 +9921,13 @@ createKhflActivityButton = function()
         return
     end
     npc.khfl_activity_button = createShortcutButton(panel, KHFL_ACTIVITY_CFG, 1, "khfl_activity", {
-        x = 100 - 60,
-        y = 100 - 60,
+        x = 110,
+        y = 40,
         cacheMap = {},
     })
     GUI:setLocalZOrder(npc.khfl_activity_button, 9999)
+    _refresh_khfl_activity_button(npc._khfl_top_open and 1 or 0)
+    SL:SendLuaNetMsg(101, 520, 9, 0, "")
 end
 
 
