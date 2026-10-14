@@ -484,23 +484,14 @@ local function createTopStatBar(parent, name, x, y, width, title, valueText, val
     local bar = GUI:Layout_Create(parent, name, x, y, width, 30, false)
     GUI:setTouchEnabled(bar, false)
 
-    local rich = GUI:RichText_Create(
-        bar,
-        "rich",
-        9,
-        15,
-        string.format("<font color='#F3E8CE'>%s:</font><font color='%s'>%s</font>", tostring(title), valueColor or "#45ff93", tostring(valueText)),
-        width - 18,
-        16,
-        "#F3E8CE",
-        0,
-        nil,
-        nil,
-        {outlineSize = 1, outlineColor = "#100808"}
-    )
-    GUI:setAnchorPoint(rich, 0, 0.5)
-    -- GUI:RichText_setFontName(rich, "fonts/font4.ttf")
-    return bar
+    local titleText = GUI:Text_Create(bar, "title", 9, 15, 16, "#F3E8CE", tostring(title) .. ":")
+    GUI:setAnchorPoint(titleText, 0, 0.5)
+    setTextStyle(titleText, "#100808")
+    local titleWidth = GUI:getContentSize(titleText).width
+    local value = GUI:Text_Create(bar, "value", 9 + titleWidth + 3, 15, 16, valueColor or "#45ff93", tostring(valueText))
+    GUI:setAnchorPoint(value, 0, 0.5)
+    setTextStyle(value, "#100808")
+    return value
 end
 
 local function createRewardCell(parent, name, x, y, rewardPack, stateText, stateColor, onClick)
@@ -535,13 +526,49 @@ local function createRewardCell(parent, name, x, y, rewardPack, stateText, state
         end
     end
 
-    if stateText and stateText ~= "" then
-        local state = GUI:Text_Create(node, "state", 25, -5, 15, stateColor or "#ffe07a", stateText)
-        GUI:setAnchorPoint(state, 0.5, 0)
-        setTextStyle(state)
-    end
+    local state = GUI:Text_Create(node, "state", 25, -5, 15, stateColor or "#ffe07a", stateText or "")
+    GUI:setAnchorPoint(state, 0.5, 0)
+    setTextStyle(state)
+    GUI:setVisible(state, stateText ~= nil and stateText ~= "")
 
-    return node
+    return {node = node, state = state}
+end
+
+local function setRedPoint(button, visible, opts)
+    if not button then
+        return
+    end
+    npc.redPointStates = npc.redPointStates or {}
+    if npc.redPointStates[button] == visible then
+        return
+    end
+    npc.redPointStates[button] = visible
+    GUI:removeChildByName(button, "redpoint")
+    if visible then
+        NPC_UI_HELPER.redpoint_create(button, opts)
+    end
+end
+
+local function getMilestoneState(cfg, crown)
+    if isMilestoneClaimed(cfg.idx, crown) then
+        return "已领", "#45ff93"
+    end
+    if canClaimMilestone(cfg, crown) then
+        return "可领", "#ffe07a"
+    end
+    if crown and not getHasCrown() then
+        return "未冠名", "#FF0000"
+    end
+    return "", "#ffe07a"
+end
+
+local function updateStateText(widget, text, color)
+    if not widget then
+        return
+    end
+    GUI:Text_setString(widget, text or "")
+    GUI:Text_setTextColor(widget, color or "#ffe07a")
+    GUI:setVisible(widget, text ~= nil and text ~= "")
 end
 
 local function closeBoxPopup()
@@ -558,6 +585,7 @@ local function closeBuyPopup()
     local popup = npc.buyPopup
     npc.buyPopup = nil
     npc.buyPopupInput = nil
+    npc.buyPopupWidgets = nil
     if popup then
         pcall(function()
             GUI:removeFromParent(popup)
@@ -568,6 +596,7 @@ end
 local function closeExchangePopup()
     local popup = npc.exchangePopup
     npc.exchangePopup = nil
+    npc.exchangePopupWidgets = nil
     if popup then
         pcall(function()
             GUI:removeFromParent(popup)
@@ -624,6 +653,7 @@ local function openBuyPopup()
         {outlineSize = 2, outlineColor = "#120b08"})
     GUI:setAnchorPoint(rule, 0.5, 0.5)
 
+    npc.buyPopupWidgets = {costs = {}}
     local function createBuyOption(name, x, count)
         local option = GUI:Button_Create(panel, name, x, 80, "res/custom/msfc/page1/action_1.png")
         GUI:setAnchorPoint(option, 0.5, 0.5)
@@ -635,12 +665,11 @@ local function openBuyPopup()
         end)
         local needCost = costEach * count
         local costColor = currencyCount >= needCost and "#45ff93" or "#ff6666"
-        local cost = GUI:RichText_Create(panel, name .. "_cost", x, 153,
-            string.format("<font color='%s'>%s</font><font color='#f3e8ce'> %s%s</font>",
-                costColor, tostring(needCost), tostring(costName), ""),
-            170, 17, "#f3e8ce", 1, nil, nil,
-            {outlineSize = 2, outlineColor = "#120b08"})
+        local cost = GUI:Text_Create(panel, name .. "_cost", x, 153, 17, costColor,
+            string.format("%s %s", tostring(needCost), tostring(costName)))
         GUI:setAnchorPoint(cost, 0.5, 0.5)
+        setTextStyle(cost, "#120b08")
+        npc.buyPopupWidgets.costs[count] = {text = cost, need = needCost}
         return option
     end
 
@@ -713,48 +742,19 @@ local function openExchangePopup()
     )
     GUI:setAnchorPoint(progress, 0.5, 0.5)
 
-    local progressText = GUI:RichText_Create(
-        panel,
-        "progress_value",
-        325,
-        198,
-        string.format("当前进度：<font color='%s'>%s/%s</font>  可兑换：<font color='%s'>%s</font> 个",
-            progressColor,
-            getDailyKillCount() - exchangeNeed * exchangeUsed,
-            tostring(exchangeNeed),
-            progressColor,
-            tostring(exchangeAvailable)
-        ),
-        580,
-        20,
-        "#f3e8ce",
-        0,
-        nil,
-        nil,
-        {outlineSize = 1, outlineColor = "#100808"}
-    )
+    local progressText = GUI:Text_Create(panel, "progress_value", 325, 198, 20, progressColor,
+        string.format("当前进度：%s/%s  可兑换：%s 个", getDailyKillCount() - exchangeNeed * exchangeUsed,
+            tostring(exchangeNeed), tostring(exchangeAvailable)))
     GUI:setAnchorPoint(progressText, 0.5, 0.5)
+    setTextStyle(progressText, "#100808")
 
-    local dailyText = GUI:RichText_Create(
-        panel,
-        "daily",
-        325,
-        160,
-        string.format("今日兑换：<font color='%s'>%s</font> / <font color='#ffffff'>%s</font> 次",
-            exchangeUsed < exchangeLimit and "#45ff93" or "#ff6666",
-            tostring(exchangeUsed),
-            tostring(exchangeLimit)
-        ),
-        580,
-        20,
-        "#f3e8ce",
-        0,
-        nil,
-        nil,
-        {outlineSize = 1, outlineColor = "#100808"}
-    )
+    local dailyText = GUI:Text_Create(panel, "daily", 325, 160, 20,
+        exchangeUsed < exchangeLimit and "#45ff93" or "#ff6666",
+        string.format("今日兑换：%s/%s 次", tostring(exchangeUsed), tostring(exchangeLimit)))
     GUI:setAnchorPoint(dailyText, 0.5, 0.5)
+    setTextStyle(dailyText, "#100808")
 
+    npc.exchangePopupWidgets = {current = current, progress = progressText, daily = dailyText, buttons = {}, labels = {}}
     local function createExchangeOption(name, x, count)
         local button = GUI:Button_Create(panel, name, x, 74, "res/custom/msfc/page1/action_1.png")
         GUI:setAnchorPoint(button, 0.5, 0.5)
@@ -764,7 +764,7 @@ local function openExchangePopup()
         GUI:setAnchorPoint(label, 0.5, 0.5)
         setTextStyle(label)
         GUI:addOnClickEvent(button, function()
-            if exchangeAvailable < count then
+            if toNumber(npc.data and npc.data.exchange_available, 0) < count then
                 SL:ShowSystemTips("当前剩余可兑换次数不足")
                 return
             end
@@ -773,6 +773,8 @@ local function openExchangePopup()
         if available then
             NPC_UI_HELPER.redpoint_create(button,{x=28 + 60,y=25})
         end
+        npc.exchangePopupWidgets.buttons[count] = button
+        npc.exchangePopupWidgets.labels[count] = label
         return button
     end
 
@@ -881,6 +883,7 @@ local function createTabs(node)
 end
 
 local function createMilestoneList(parent)
+    npc.dynamicWidgets.milestones = {}
     local list = GUI:ListView_Create(parent, "milestone_list", 524, 65, 270, 346, 1)
     GUI:ListView_setItemsMargin(list, 8)
     GUI:ListView_setBounceEnabled(list, true)
@@ -900,62 +903,36 @@ local function createMilestoneList(parent)
             GUI:setTouchEnabled(numImg, true)
             GUI:addOnClickEvent(numImg, function()
                 npc.selectedMilestoneIdx = cfg.idx
-                if npc.node and UI_updata then
-                    UI_updata(npc.node)
-                end
             end)
         else
             local drawText = GUI:Text_Create(row, "draw_text", 10, 18, 28, "#ffe07a", tostring(cfg.draw))
             setTextStyle(drawText)
         end
 
-        local normalStateText = nil
-        local normalStateColor = nil
-        if isMilestoneClaimed(cfg.idx, false) then
-            normalStateText = "已领"
-            normalStateColor = "#45ff93"
-        elseif canClaimMilestone(cfg, false) then
-            normalStateText = "可领"
-            normalStateColor = "#ffe07a"
-        end
+        local normalStateText, normalStateColor = getMilestoneState(cfg, false)
+        local crownStateText, crownStateColor = getMilestoneState(cfg, true)
 
-        local crownStateText = nil
-        local crownStateColor = nil
-        if isMilestoneClaimed(cfg.idx, true) then
-            crownStateText = "已领"
-            crownStateColor = "#45ff93"
-        elseif canClaimMilestone(cfg, true) then
-            crownStateText = "可领"
-            crownStateColor = "#ffe07a"
-        elseif not getHasCrown() then
-            crownStateText = "未冠名"
-            crownStateColor = "#FF0000"
-        end
-
-        createRewardCell(row, "normal_" .. tostring(cfg.idx), 118 + 15, 40, cfg.normal, normalStateText, normalStateColor, function()
+        local normalCell = createRewardCell(row, "normal_" .. tostring(cfg.idx), 118 + 15, 40, cfg.normal, normalStateText, normalStateColor, function()
             npc.selectedMilestoneIdx = cfg.idx
-            if npc.node and UI_updata then
-                UI_updata(npc.node)
-            end
         end)
 
-        createRewardCell(row, "crown_" .. tostring(cfg.idx), 188 + 37, 40, cfg.crown, crownStateText, crownStateColor, function()
+        local crownCell = createRewardCell(row, "crown_" .. tostring(cfg.idx), 188 + 37, 40, cfg.crown, crownStateText, crownStateColor, function()
             npc.selectedMilestoneIdx = cfg.idx
-            if npc.node and UI_updata then
-                UI_updata(npc.node)
-            end
         end)
+        npc.dynamicWidgets.milestones[cfg.idx] = {normal = normalCell.state, crown = crownCell.state}
     end
     GUI:Node_Create(list, "row_end", 0, 0)
 end
 
 function npc.renderFucai(node)
+    npc.dynamicWidgets = {page = 1, milestones = {}}
+    npc.redPointStates = {}
     GUI:Image_Create(node, "page_bg", 64, 10, PAGE_BG_SKIN[1])
 
     pickDefaultMilestone()
-    createTopStatBar(    node,    "exchange_top_bar",    162 + 74, 458 + 5,    200,    "每日杀怪兑换",    string.format("%s/%s次", tostring(getExchangeUsedCount()), tostring(getExchangeLimit())),    "#45ff93")
-    createTopStatBar(    node,    "kill_top_bar",    162 + 264, 458 + 5,    160,    "每日杀怪数",    string.format("%s只", tostring(getDailyKillCount())),    "#45ff93")
-    createTopStatBar(    node,    "draw_top_bar",    162 + 430, 458 + 5,    160,    "已抽取次数",    string.format("%s次", tostring(toNumber(npc.data and npc.data.draw_count, 0))),    "#45ff93")
+    npc.dynamicWidgets.exchangeTop = createTopStatBar(node, "exchange_top_bar", 162 + 74, 458 + 5, 200, "每日杀怪兑换", string.format("%s/%s次", tostring(getExchangeUsedCount()), tostring(getExchangeLimit())), "#45ff93")
+    npc.dynamicWidgets.killTop = createTopStatBar(node, "kill_top_bar", 162 + 264, 458 + 5, 160, "每日杀怪数", string.format("%s只", tostring(getDailyKillCount())), "#45ff93")
+    npc.dynamicWidgets.drawTop = createTopStatBar(node, "draw_top_bar", 162 + 430, 458 + 5, 160, "已抽取次数", string.format("%s次", tostring(toNumber(npc.data and npc.data.draw_count, 0))), "#45ff93")
 
     -- local onceCost = GUI:Text_Create(node, "cost_once_value", 188, 135, 20, "#ffe07a", string.format("%sX%s", tokenName, tostring(getDrawOnceCost())))
     -- setTextStyle(onceCost)
@@ -1004,7 +981,9 @@ function npc.renderFucai(node)
     local currentTokenCount = toNumber(npc.data and npc.data.token_count, 0)
     local drawOnceCost = getDrawOnceCost()
     local currentTokenColor = currentTokenCount >= drawOnceCost and "#45ff93" or "#ff6666"
-    GUI:RichText_Create(guang, "text", 130, 5, string.format("<font color='%s'>%s</font><font color='#FFFFFF'>/%s</font>", currentTokenColor, tostring(currentTokenCount), tostring(drawOnceCost)), 150, 16, "#FFFFFF", 0, nil, nil)
+    local onceValue = GUI:Text_Create(guang, "text", 130, 5, 16, currentTokenColor, string.format("%s/%s", tostring(currentTokenCount), tostring(drawOnceCost)))
+    setTextStyle(onceValue)
+    npc.dynamicWidgets.onceValue = onceValue
 
     local guang = GUI:Image_Create(node, "cost_ten_value_img", 144 - 60 + 190, 82 - 25 + 78, "res/wy/public/guang.png")
     GUI:setContentSize(guang, 180, 30)
@@ -1013,7 +992,9 @@ function npc.renderFucai(node)
     local currentTokenCount = toNumber(npc.data and npc.data.token_count, 0)
     local drawTenCost = getDrawTenCost()
     local currentTokenColor = currentTokenCount >= drawTenCost and "#45ff93" or "#ff6666"
-    GUI:RichText_Create(guang, "text", 130, 5, string.format("<font color='%s'>%s</font><font color='#FFFFFF'>/%s</font>", currentTokenColor, tostring(currentTokenCount), tostring(drawTenCost)), 150, 16, "#FFFFFF", 0, nil, nil)
+    local tenValue = GUI:Text_Create(guang, "text", 130, 5, 16, currentTokenColor, string.format("%s/%s", tostring(currentTokenCount), tostring(drawTenCost)))
+    setTextStyle(tenValue)
+    npc.dynamicWidgets.tenValue = tenValue
 
     local drawOnceBtn = GUI:Button_Create(node, "draw_once", 144 - 60 - 16, 82 - 25, "res/custom/msfc/page1/draw_once.png")
     GUI:setAnchorPoint(drawOnceBtn, 0, 0)
@@ -1026,6 +1007,8 @@ function npc.renderFucai(node)
     GUI:addOnClickEvent(drawTenBtn, function()
         SL:SendLuaNetMsg(100, 101, 2, 0, "")
     end)
+    npc.dynamicWidgets.drawOnceBtn = drawOnceBtn
+    npc.dynamicWidgets.drawTenBtn = drawTenBtn
 
     if toNumber(npc.data and npc.data.token_count, 0) >= getDrawOnceCost() then
         NPC_UI_HELPER.redpoint_create(drawOnceBtn)
@@ -1055,6 +1038,7 @@ function npc.renderFucai(node)
     GUI:addOnClickEvent(exchangeBtn, function()
         openExchangePopup()
     end)
+    npc.dynamicWidgets.exchangeBtn = exchangeBtn
     if toNumber(npc.data and npc.data.exchange_available, 0) > 0 then
         NPC_UI_HELPER.redpoint_create(exchangeBtn, {x = 156, y = 23})
     end
@@ -1088,20 +1072,24 @@ function npc.renderFucai(node)
     local normalBtn = GUI:Button_Create(node, "claim_normal", 610, 18, "res/custom/msfc/page1/action_3.png")
     GUI:setAnchorPoint(normalBtn, 0, 0)
     GUI:addOnClickEvent(normalBtn, function()
-        if not normalTarget then
+        local target = getHighestClaimableMilestone(false) or findMilestoneByIdx(npc.selectedMilestoneIdx) or getMilestones()[1]
+        if not target then
             return
         end
-        SL:SendLuaNetMsg(100, 101, 5, normalTarget.idx, SL:JsonEncode({idx = normalTarget.idx, draw = normalTarget.draw}, false))
+        SL:SendLuaNetMsg(100, 101, 5, target.idx, SL:JsonEncode({idx = target.idx, draw = target.draw}, false))
     end)
 
     local crownBtn = GUI:Button_Create(node, "claim_crown", 706, 18, "res/custom/msfc/page1/action_3.png")
     GUI:setAnchorPoint(crownBtn, 0, 0)
     GUI:addOnClickEvent(crownBtn, function()
-        if not crownTarget then
+        local target = getHighestClaimableMilestone(true) or findMilestoneByIdx(npc.selectedMilestoneIdx) or getMilestones()[1]
+        if not target then
             return
         end
-        SL:SendLuaNetMsg(100, 101, 6, crownTarget.idx, SL:JsonEncode({idx = crownTarget.idx, draw = crownTarget.draw}, false))
+        SL:SendLuaNetMsg(100, 101, 6, target.idx, SL:JsonEncode({idx = target.idx, draw = target.draw}, false))
     end)
+    npc.dynamicWidgets.normalBtn = normalBtn
+    npc.dynamicWidgets.crownBtn = crownBtn
 
     if normalTarget and canClaimMilestone(normalTarget, false) then
         NPC_UI_HELPER.redpoint_create(normalBtn, {x = 156, y = 23})
@@ -1112,6 +1100,8 @@ function npc.renderFucai(node)
 end
 
 function npc.renderRika(node)
+    npc.dynamicWidgets = {page = 2}
+    npc.redPointStates = {}
     GUI:Image_Create(node, "page_bg", 64, 10, PAGE_BG_SKIN[2])
     local titleCharge = GUI:Image_Create(node, "title_charge", 410, 458, "res/custom/msfc/page2/today_recharge.png")
     GUI:setAnchorPoint(titleCharge, 0.5, 0)
@@ -1119,6 +1109,7 @@ function npc.renderRika(node)
     local rechargeValue = GUI:Text_Create(node, "recharge_value", 430, 465, 25, "#ff9696", tostring(getTodayRechargeValue()) .. "元")
     GUI:setAnchorPoint(rechargeValue, 0, 0)
     setTextStyle(rechargeValue)
+    npc.dynamicWidgets.rechargeValue = rechargeValue
 
     -- local rich1 = GUI:RichText_Create(node, "rika_desc_1", 454, 340, string.format("每日仅需累充<font color='#ff3030'>%s元</font>！", tostring(getDayCardNeedCharge())), 260, 28, "#fff0c8", 0, nil, nil)
     -- local rich2 = GUI:RichText_Create(node, "rika_desc_2", 438, 266, "日卡BUFF：<font color='#ff3030'>进入安全修炼地图</font>！", 300, 24, "#fff0c8", 0, nil, nil)
@@ -1157,22 +1148,108 @@ function npc.renderRika(node)
     end
 
     local canClaim, claimed = getDayCardButtonState()
-    if claimed then
-        local statusText = GUI:Text_Create(node, "rika_claimed", 621, 34, 22, "#72FF99", "今日已经激活")
-        GUI:setAnchorPoint(statusText, 0.5, 0.5)
-        setTextStyle(statusText, "#16321a")
-    else
-        local button = GUI:Button_Create(node, "rika_claim", 516, 10, "res/custom/msfc/page2/claim_now.png")
-        GUI:setAnchorPoint(button, 0, 0)
-        GUI:addOnClickEvent(button, function()
-            if canClaim then
-                SL:SendLuaNetMsg(100, 101, 8, 0, "")
-                return
-            end
-            SL:ShowSystemTips(string.format("今日累计充值达到%s元后可领取", tostring(getDayCardNeedCharge())))
-        end)
-        if canClaim then
-            NPC_UI_HELPER.redpoint_create(button)
+    local statusText = GUI:Text_Create(node, "rika_claimed", 621, 34, 22, "#72FF99", "今日已经激活")
+    GUI:setAnchorPoint(statusText, 0.5, 0.5)
+    setTextStyle(statusText, "#16321a")
+    GUI:setVisible(statusText, claimed)
+    local button = GUI:Button_Create(node, "rika_claim", 516, 10, "res/custom/msfc/page2/claim_now.png")
+    GUI:setAnchorPoint(button, 0, 0)
+    GUI:setVisible(button, not claimed)
+    GUI:addOnClickEvent(button, function()
+        local nowCanClaim = getDayCardButtonState()
+        if nowCanClaim then
+            SL:SendLuaNetMsg(100, 101, 8, 0, "")
+            return
+        end
+        SL:ShowSystemTips(string.format("今日累计充值达到%s元后可领取", tostring(getDayCardNeedCharge())))
+    end)
+    if canClaim then
+        NPC_UI_HELPER.redpoint_create(button)
+    end
+    npc.dynamicWidgets.rikaClaimed = statusText
+    npc.dynamicWidgets.rikaClaim = button
+end
+
+local function refreshFucaiDynamic()
+    local ui = npc.dynamicWidgets
+    if not ui or ui.page ~= 1 then
+        return false
+    end
+    local tokenCount = toNumber(npc.data and npc.data.token_count, 0)
+    local onceCost = getDrawOnceCost()
+    local tenCost = getDrawTenCost()
+    GUI:Text_setString(ui.exchangeTop, string.format("%s/%s次", tostring(getExchangeUsedCount()), tostring(getExchangeLimit())))
+    GUI:Text_setString(ui.killTop, string.format("%s只", tostring(getDailyKillCount())))
+    GUI:Text_setString(ui.drawTop, string.format("%s次", tostring(toNumber(npc.data and npc.data.draw_count, 0))))
+    GUI:Text_setString(ui.onceValue, string.format("%s/%s", tostring(tokenCount), tostring(onceCost)))
+    GUI:Text_setTextColor(ui.onceValue, tokenCount >= onceCost and "#45ff93" or "#ff6666")
+    GUI:Text_setString(ui.tenValue, string.format("%s/%s", tostring(tokenCount), tostring(tenCost)))
+    GUI:Text_setTextColor(ui.tenValue, tokenCount >= tenCost and "#45ff93" or "#ff6666")
+    setRedPoint(ui.drawOnceBtn, tokenCount >= onceCost)
+    setRedPoint(ui.drawTenBtn, tokenCount >= tenCost)
+    setRedPoint(ui.exchangeBtn, toNumber(npc.data and npc.data.exchange_available, 0) > 0, {x = 156, y = 23})
+
+    for _, cfg in ipairs(getMilestones()) do
+        local widgets = ui.milestones and ui.milestones[cfg.idx]
+        if widgets then
+            local text, color = getMilestoneState(cfg, false)
+            updateStateText(widgets.normal, text, color)
+            text, color = getMilestoneState(cfg, true)
+            updateStateText(widgets.crown, text, color)
+        end
+    end
+    local normalTarget = getHighestClaimableMilestone(false)
+    local crownTarget = getHighestClaimableMilestone(true)
+    setRedPoint(ui.normalBtn, normalTarget ~= nil, {x = 156, y = 23})
+    setRedPoint(ui.crownBtn, crownTarget ~= nil, {x = 156, y = 23})
+    return true
+end
+
+local function refreshRikaDynamic()
+    local ui = npc.dynamicWidgets
+    if not ui or ui.page ~= 2 then
+        return false
+    end
+    GUI:Text_setString(ui.rechargeValue, tostring(getTodayRechargeValue()) .. "元")
+    local canClaim, claimed = getDayCardButtonState()
+    GUI:setVisible(ui.rikaClaimed, claimed)
+    GUI:setVisible(ui.rikaClaim, not claimed)
+    setRedPoint(ui.rikaClaim, not claimed and canClaim)
+    return true
+end
+
+local function refreshBuyPopupDynamic()
+    local ui = npc.buyPopupWidgets
+    if not npc.buyPopup or not ui then
+        return
+    end
+    local currencyCount = toNumber(SL:GetMetaValue("TMONEY", "灵石") + SL:GetMetaValue("TMONEY", "绑定灵石"), 0)
+    for _, item in pairs(ui.costs or {}) do
+        GUI:Text_setTextColor(item.text, currencyCount >= item.need and "#45ff93" or "#ff6666")
+    end
+end
+
+local function refreshExchangePopupDynamic()
+    local ui = npc.exchangePopupWidgets
+    if not npc.exchangePopup or not ui then
+        return
+    end
+    local available = toNumber(npc.data and npc.data.exchange_available, 0)
+    local used = getExchangeUsedCount()
+    local limit = getExchangeLimit()
+    local need = getExchangeNeed()
+    local color = available > 0 and "#45ff93" or "#ff6666"
+    GUI:Text_setString(ui.current, string.format("当前鹤嘴锄：%s", tostring(toNumber(npc.data and npc.data.token_count, 0))))
+    GUI:Text_setString(ui.progress, string.format("当前进度：%s/%s  可兑换：%s 个",
+        getDailyKillCount() - need * used, tostring(need), tostring(available)))
+    GUI:Text_setTextColor(ui.progress, color)
+    GUI:Text_setString(ui.daily, string.format("今日兑换：%s/%s 次", tostring(used), tostring(limit)))
+    GUI:Text_setTextColor(ui.daily, used < limit and "#45ff93" or "#ff6666")
+    for count, button in pairs(ui.buttons or {}) do
+        local enabled = available >= count
+        setRedPoint(button, enabled, {x = 88, y = 25})
+        if ui.labels[count] then
+            GUI:Text_setTextColor(ui.labels[count], enabled and "#ffe7a2" or "#888888")
         end
     end
 end
@@ -1210,6 +1287,7 @@ UI_updata = function(node, keepPopups)
     else
         GUI:removeAllChildren(npc.pageNode)
     end
+    npc.dynamicWidgets = nil
 
     if npc.currentTab == 1 then
         npc.renderFucai(npc.pageNode)
@@ -1225,11 +1303,13 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data = ensureData(safeDecode(msgData))
         npc.tabsNode = nil
         npc.pageNode = nil
+        npc.dynamicWidgets = nil
         ensureWindow(npcid)
         UI_updata(npc.node)
         return
     end
 
+    local oldDayCardUnlocked = isDayCardUnlocked()
     local data = safeDecode(msgData)
     if data then
         npc.data = ensureData(data)
@@ -1240,20 +1320,20 @@ function npc.main(npcid, p2, p3, msgData)
     if not npc.node then
         ensureWindow(npcid)
     end
-    local refreshExchangePopup = tonumber(p2 or 0) == 3 and npc.exchangePopup ~= nil
-    local refreshBuyPopup = tonumber(p2 or 0) == 4 and npc.buyPopup ~= nil
-    if refreshExchangePopup then
-        closeExchangePopup()
+    if oldDayCardUnlocked ~= isDayCardUnlocked() then
+        if npc.tabsNode then
+            GUI:removeAllChildren(npc.tabsNode)
+            createTabs(npc.tabsNode)
+        end
     end
-    if refreshBuyPopup then
-        closeBuyPopup()
+    local refreshed = npc.currentTab == 1 and refreshFucaiDynamic() or refreshRikaDynamic()
+    if not refreshed then
+        UI_updata(npc.node, true)
     end
-    UI_updata(npc.node, refreshExchangePopup or refreshBuyPopup)
-    if refreshExchangePopup and npc.currentTab == 1 then
-        openExchangePopup()
-    end
-    if refreshBuyPopup and npc.currentTab == 1 then
-        openBuyPopup()
+    if tonumber(p2 or 0) == 3 then
+        refreshExchangePopupDynamic()
+    elseif tonumber(p2 or 0) == 4 then
+        refreshBuyPopupDynamic()
     end
 end
 

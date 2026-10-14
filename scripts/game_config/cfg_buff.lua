@@ -359,7 +359,7 @@ local config = {
 		ID = 20115,
 		name = "携带矿石",
 		dis_action = 64,
-		param = "243#-1000",
+		param = "243#-500",
 		time = "0#0#0",
 	},
 	[20116] = { 
