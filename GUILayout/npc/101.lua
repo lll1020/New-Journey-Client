@@ -486,11 +486,11 @@ local function createTopStatBar(parent, name, x, y, width, title, valueText, val
 
     local titleText = GUI:Text_Create(bar, "title", 9, 15, 16, "#F3E8CE", tostring(title) .. ":")
     GUI:setAnchorPoint(titleText, 0, 0.5)
-    setTextStyle(titleText, "#100808")
+    GUI:Text_enableOutline(titleText, "#100808", 1)
     local titleWidth = GUI:getContentSize(titleText).width
     local value = GUI:Text_Create(bar, "value", 9 + titleWidth + 3, 15, 16, valueColor or "#45ff93", tostring(valueText))
     GUI:setAnchorPoint(value, 0, 0.5)
-    setTextStyle(value, "#100808")
+    GUI:Text_enableOutline(value, "#100808", 1)
     return value
 end
 
@@ -668,7 +668,7 @@ local function openBuyPopup()
         local cost = GUI:Text_Create(panel, name .. "_cost", x, 153, 17, costColor,
             string.format("%s %s", tostring(needCost), tostring(costName)))
         GUI:setAnchorPoint(cost, 0.5, 0.5)
-        setTextStyle(cost, "#120b08")
+        GUI:Text_enableOutline(cost, "#120b08", 2)
         npc.buyPopupWidgets.costs[count] = {text = cost, need = needCost}
         return option
     end
@@ -746,13 +746,13 @@ local function openExchangePopup()
         string.format("当前进度：%s/%s  可兑换：%s 个", getDailyKillCount() - exchangeNeed * exchangeUsed,
             tostring(exchangeNeed), tostring(exchangeAvailable)))
     GUI:setAnchorPoint(progressText, 0.5, 0.5)
-    setTextStyle(progressText, "#100808")
+    GUI:Text_enableOutline(progressText, "#100808", 1)
 
     local dailyText = GUI:Text_Create(panel, "daily", 325, 160, 20,
         exchangeUsed < exchangeLimit and "#45ff93" or "#ff6666",
         string.format("今日兑换：%s/%s 次", tostring(exchangeUsed), tostring(exchangeLimit)))
     GUI:setAnchorPoint(dailyText, 0.5, 0.5)
-    setTextStyle(dailyText, "#100808")
+    GUI:Text_enableOutline(dailyText, "#100808", 1)
 
     npc.exchangePopupWidgets = {current = current, progress = progressText, daily = dailyText, buttons = {}, labels = {}}
     local function createExchangeOption(name, x, count)
@@ -982,7 +982,7 @@ function npc.renderFucai(node)
     local drawOnceCost = getDrawOnceCost()
     local currentTokenColor = currentTokenCount >= drawOnceCost and "#45ff93" or "#ff6666"
     local onceValue = GUI:Text_Create(guang, "text", 130, 5, 16, currentTokenColor, string.format("%s/%s", tostring(currentTokenCount), tostring(drawOnceCost)))
-    setTextStyle(onceValue)
+    GUI:Text_enableOutline(onceValue, "#100808", 2)
     npc.dynamicWidgets.onceValue = onceValue
 
     local guang = GUI:Image_Create(node, "cost_ten_value_img", 144 - 60 + 190, 82 - 25 + 78, "res/wy/public/guang.png")
@@ -993,7 +993,7 @@ function npc.renderFucai(node)
     local drawTenCost = getDrawTenCost()
     local currentTokenColor = currentTokenCount >= drawTenCost and "#45ff93" or "#ff6666"
     local tenValue = GUI:Text_Create(guang, "text", 130, 5, 16, currentTokenColor, string.format("%s/%s", tostring(currentTokenCount), tostring(drawTenCost)))
-    setTextStyle(tenValue)
+    GUI:Text_enableOutline(tenValue, "#100808", 2)
     npc.dynamicWidgets.tenValue = tenValue
 
     local drawOnceBtn = GUI:Button_Create(node, "draw_once", 144 - 60 - 16, 82 - 25, "res/custom/msfc/page1/draw_once.png")

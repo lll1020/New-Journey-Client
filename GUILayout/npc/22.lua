@@ -2176,6 +2176,14 @@ local function renderGemList(gemList, nodeId)
     end
     gemList = type(gemList) == "table" and gemList or {}
     npc.gemList = gemList
+    local signatureParts = {}
+    for index, gem in ipairs(gemList) do
+        signatureParts[#signatureParts + 1] = table.concat({
+            tostring(index), tostring(gem.idx or ""), tostring(gem.name or ""),
+            tostring(gem.level or ""), tostring(gem.count or "")
+        }, ":")
+    end
+    npc.gemListSignature = table.concat(signatureParts, "|")
     local scrollW = n(npc.gemBoxW, 760) - 80
     local scrollH = n(npc.gemBoxH, 540) - 172
     local columns = 4
@@ -2201,6 +2209,17 @@ local function renderGemList(gemList, nodeId)
         text(listRoot, "empty", scrollW / 2, innerH / 2, 18, "#FFB85A",
             "当前没有符合该槽位要求的宝石", 0.5, 0.5)
     end
+end
+
+function npc.gemListSignature(gemList)
+    local parts = {}
+    for index, gem in ipairs(type(gemList) == "table" and gemList or {}) do
+        parts[#parts + 1] = table.concat({
+            tostring(index), tostring(gem.idx or ""), tostring(gem.name or ""),
+            tostring(gem.level or ""), tostring(gem.count or "")
+        }, ":")
+    end
+    return table.concat(parts, "|")
 end
 
 openGemWindow = function()
@@ -3140,6 +3159,7 @@ local function updateInfo()
         npc.infoDescLayoutKey = descLayoutKey
     end
     local action = GUI:getChildByName(info, "node_action")
+    local refund = GUI:getChildByName(info, "node_refund")
     if action then
         local blockedSocket = not active and getUnfilledSocketPrerequisite(node)
         if node.kind == "root" then
@@ -3155,6 +3175,10 @@ local function updateInfo()
         else
             GUI:Button_setTitleText(action, "点亮")
         end
+    end
+    if refund then
+        GUI:setVisible(refund, isSocketNode(node) and active
+            and tostring(node.slot_type or "") ~= "extra_socket")
     end
 end
 
@@ -3278,10 +3302,6 @@ local function refreshTalentPointsText()
     end
 end
 
-local rebuildTree
-local drawLine
-local createNodeView
-
 local function refreshExtraSockets()
     if not valid(npc.treeCanvas) then
         return
@@ -3320,21 +3340,34 @@ local function refreshExtraSockets()
         if tostring(node.slot_type or "") == "extra_socket" then
             local parent = layoutNodeMap[node.requires and node.requires[1] or ""]
             if parent then
-                drawLine(npc.treeCanvas, "line_" .. node.id .. "_" .. parent.id,
+                npc.drawLine(npc.treeCanvas, "line_" .. node.id .. "_" .. parent.id,
                     parent, node)
                 local line = GUI:getChildByName(npc.treeCanvas,
                     "line_" .. node.id .. "_" .. parent.id)
                 npc.lineViews[node.id] = {line}
             end
-            createNodeView(npc.treeCanvas, node)
+            npc.createNodeView(npc.treeCanvas, node)
         end
     end
 end
 
-local function refreshCoreDependentViews()
-    refreshTalentPointsText()
-    refreshUpgradeInfo()
-    updateAllNodeVisuals()
+function npc.isLevelFourGem(gemName)
+    local gem = tostring(gemName or "")
+    return gem:match("[Ll][Vv][%.%- ]*4") ~= nil or gem:find("四级", 1, true) ~= nil
+end
+
+function npc.extraSocketTopologyChanged(oldSockets, newSockets)
+    oldSockets = type(oldSockets) == "table" and oldSockets or {}
+    newSockets = type(newSockets) == "table" and newSockets or {}
+    for _, element in ipairs(ELEMENT_ORDER) do
+        for _, suffix in ipairs({"_M12", "_F1_8", "_F2_8"}) do
+            local id = element .. suffix
+            if npc.isLevelFourGem(oldSockets[id]) ~= npc.isLevelFourGem(newSockets[id]) then
+                return true
+            end
+        end
+    end
+    return false
 end
 
 local function applyClientConfigDefaults(state)
@@ -3380,6 +3413,7 @@ local function refreshPayload(payload, forceCoreRefresh)
     local oldNormalTotal = n(npc.state.normal_total)
     local changedNodes = {}
     local socketChanged = false
+    local extraTopologyChanged = false
     if type(payload.nodes) == "table" then
         local oldNodes = npc.state.nodes or {}
         local checked = {}
@@ -3405,6 +3439,7 @@ local function refreshPayload(payload, forceCoreRefresh)
     end
     if type(payload.sockets) == "table" then
         local oldSockets = npc.state.sockets or {}
+        extraTopologyChanged = npc.extraSocketTopologyChanged(oldSockets, payload.sockets)
         local checkedSockets = {}
         for id, value in pairs(oldSockets) do
             checkedSockets[tostring(id)] = true
@@ -3424,8 +3459,12 @@ local function refreshPayload(payload, forceCoreRefresh)
     end
     if type(payload.gem_list) == "table" then
         npc.gemList = payload.gem_list
-        if valid(npc.gemBox) then
+        local newGemListSignature = npc.gemListSignature(payload.gem_list)
+        if valid(npc.gemBox) and n(payload.socket_result, 0) ~= 1
+            and newGemListSignature ~= tostring(npc.gemListSignature or "") then
             renderGemList(payload.gem_list, tostring(payload.id or npc.selectedId or ""))
+        end
+        if valid(npc.gemBox) then
             local current = GUI:getChildByName(npc.gemBox, "gem_current")
             if current then
                 local currentGem = currentSocketGem(tostring(payload.id or npc.selectedId or ""))
@@ -3439,20 +3478,27 @@ local function refreshPayload(payload, forceCoreRefresh)
     npc.state.normal_external_total = n(payload.normal_external_total, npc.state.normal_external_total)
     applyClientConfigDefaults(npc.state)
     publishTalentTreeState()
-    refreshTalentPointsText()
-    updateAllNodeVisuals()
-    refreshUpgradeInfo()
-    if socketChanged then
+    local coreChanged = oldCoreLevel ~= n(npc.state.core_level)
+    local pointsChanged = oldNormalPoints ~= n(npc.state.normal_points)
+        or oldNormalTotal ~= n(npc.state.normal_total)
+    if pointsChanged then
+        refreshTalentPointsText()
+    end
+    if extraTopologyChanged then
         refreshExtraSockets()
+    end
+    refreshChangedNodeVisuals(changedNodes)
+    if socketChanged and npc.selectedId and changedNodes[tostring(npc.selectedId)] then
+        updateInfo()
+    end
+    if coreChanged or forceCoreRefresh then
+        refreshUpgradeInfo()
     end
     if n(payload.socket_result, 0) == 1 then
         closeModalWindow(GEM_WINDOW_NAME)
     end
-    local coreChanged = oldCoreLevel ~= n(npc.state.core_level)
-    local pointsChanged = oldNormalPoints ~= n(npc.state.normal_points)
-        or oldNormalTotal ~= n(npc.state.normal_total)
     if coreChanged or forceCoreRefresh then
-        refreshCoreDependentViews()
+        updateInfo()
         if oldCoreLevel < n(npc.state.core_level) then
             npc._waitMainlineTalentAfterCore = true
             npc._mainlineGuideSyncRetry = 0
@@ -3462,9 +3508,6 @@ local function refreshPayload(payload, forceCoreRefresh)
         end
         scheduleMainlineGuideSync()
     else
-        if pointsChanged then
-            refreshTalentPointsText()
-        end
         for id in pairs(changedNodes) do
             if isMainlineTalentChoiceNode(id) and stateActive(id) then
                 scheduleMainlineGuideSync()
@@ -3474,7 +3517,7 @@ local function refreshPayload(payload, forceCoreRefresh)
     end
 end
 
-drawLine = function(parent, name, fromNode, toNode)
+function npc.drawLine(parent, name, fromNode, toNode)
     local isTrunk = fromNode.id == "root"
         or fromNode.lane == "main"
         or toNode.lane == "main"
@@ -3517,7 +3560,7 @@ local function selectNode(id)
     end
 end
 
-createNodeView = function(parent, node)
+function npc.createNodeView(parent, node)
     local size = nodeDisplaySize(node)
     local holder = GUI:Node_Create(parent, "holder_" .. node.id, node.x, node.y)
     local halo = GUI:Node_Create(holder, "halo", 0, 0)
@@ -3619,7 +3662,7 @@ local function createTree()
         for _, requiredId in ipairs(node.requires or {}) do
             local required = layoutNodeMap and layoutNodeMap[requiredId]
             if required then
-                drawLine(npc.treeCanvas, "line_" .. node.id .. "_" .. requiredId, required, node)
+                npc.drawLine(npc.treeCanvas, "line_" .. node.id .. "_" .. requiredId, required, node)
                 local line = GUI:getChildByName(npc.treeCanvas, "line_" .. node.id .. "_" .. requiredId)
                 npc.lineViews[node.id] = npc.lineViews[node.id] or {}
                 npc.lineViews[node.id][#npc.lineViews[node.id] + 1] = line
@@ -3628,7 +3671,7 @@ local function createTree()
         for _, requiredId in ipairs(node.requires_any or {}) do
             local required = layoutNodeMap and layoutNodeMap[requiredId]
             if required then
-                drawLine(npc.treeCanvas, "line_" .. node.id .. "_any_" .. requiredId, required, node)
+                npc.drawLine(npc.treeCanvas, "line_" .. node.id .. "_any_" .. requiredId, required, node)
                 local line = GUI:getChildByName(npc.treeCanvas, "line_" .. node.id .. "_any_" .. requiredId)
                 npc.lineViews[node.id] = npc.lineViews[node.id] or {}
                 npc.lineViews[node.id][#npc.lineViews[node.id] + 1] = line
@@ -3636,27 +3679,12 @@ local function createTree()
         end
     end
     for _, node in ipairs(layoutNodes or {}) do
-        createNodeView(npc.treeCanvas, node)
+        npc.createNodeView(npc.treeCanvas, node)
     end
     GUI:setScale(npc.treeCanvas, DEFAULT_ZOOM)
     npc.zoom = DEFAULT_ZOOM
     centerTreeCanvas()
     setZoom(DEFAULT_ZOOM)
-end
-
-rebuildTree = function()
-    if valid(npc.treeFrame) then
-        GUI:removeFromParent(npc.treeFrame)
-    end
-    if valid(npc.treeScroll) then
-        GUI:removeFromParent(npc.treeScroll)
-    end
-    npc.treeFrame = nil
-    npc.treeScroll = nil
-    npc.treeCanvas = nil
-    npc.nodeViews = nil
-    npc.lineViews = nil
-    createTree()
 end
 
 local function openRules()
@@ -4038,6 +4066,15 @@ local function createInfoPanel(sw, sh)
         end
     end, 90, 40)
     GUI:setLocalZOrder(action, 5)
+    local refund = button(npc.infoPanel, "node_refund", ruleX + 60, actionY, "退点", function()
+        local node = TreeCfg.node_map and TreeCfg.node_map[npc.selectedId or ""]
+        if node and isSocketNode(node) and stateActive(node.id)
+            and tostring(node.slot_type or "") ~= "extra_socket" then
+            openResetConfirm("single")
+        end
+    end, 90, 40)
+    GUI:setLocalZOrder(refund, 5)
+    GUI:setVisible(refund, false)
     -- local rule = button(npc.infoPanel, "info_rule", ruleX + 60, actionY, "查看规则", openRules,
     --      90, 40)
     -- GUI:setLocalZOrder(rule, 5)
@@ -4085,7 +4122,7 @@ function npc.main(npcid, p2, p3, msgData)
     local mode = tonumber(p2) or 0
     if mode == 8 then
         if valid(npc.window) then
-            refreshPayload(payload, true)
+            refreshPayload(payload, false)
         else
             npc.state = applyClientConfigDefaults(payload.payload or payload)
             publishTalentTreeState()

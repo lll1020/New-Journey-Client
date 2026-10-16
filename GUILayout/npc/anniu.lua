@@ -8583,7 +8583,7 @@ npc[512] = function(p2, p3, Data)
             GUI:setContentSize(tab, 110, 35)
             GUI:setAnchorPoint(tab, 0.5, 0.5)
             GUI:Button_setTitleText(tab, item.name)
-            GUI:Button_setTitleFontSize(tab, 16)
+            GUI:Button_setTitleFontSize(tab, 20)
             setGameplayTabSkin(tab, i == 1)
             GUI:addOnClickEvent(tab, function() refreshGuide(i) end)
         end
