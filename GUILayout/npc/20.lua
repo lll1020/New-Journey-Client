@@ -47,10 +47,10 @@ function npc.main(npcid, p2, p3, msgData)
         return npc.node
     end
 
-    local function createOutlinedText(parent, name, x, y, size, color, text, anchorX, anchorY)
+    local function createOutlinedText(parent, name, x, y, size, color, text, anchorX, anchorY, Font)
         local label = GUI:Text_Create(parent, name, x, y, size, color, text)
         GUI:setAnchorPoint(label, anchorX or 0.5, anchorY or 0.5)
-        GUI:Text_setFontName(label, "fonts/font4.ttf")
+        GUI:Text_setFontName(label, Font or "fonts/font4.ttf")
         -- GUI:Text_enableOutline(label, "#1b0d07", 2)
         return label
     end
@@ -69,7 +69,7 @@ function npc.main(npcid, p2, p3, msgData)
         local hasTitle = hasPanelTitle(npc.data)
 
         -- createOutlinedText(node, "title_tip", 389, 357, 24, "#FFE8A3", "首位冠名玩家", 0.5, 0.5)
-        createOutlinedText(node, "player_name", 389 + 50 - 80, 303 - 270 - 2, 26, "#FFEDBF", nameText, 0, 0.5)
+        createOutlinedText(node, "player_name", 389 + 50 - 80, 303 - 270 - 2, 26, "#00FF00", nameText, 0, 0.5)
 
         local chargeColor = charge >= cost and "#7CFF7C" or "#FF8A7A"
         createOutlinedText(node, "charge_value", 380 + 244 + 22, 212 + 30 - 107, 22, chargeColor, tostring(charge) .. "/" .. tostring(cost), 1, 0.5)
@@ -79,6 +79,11 @@ function npc.main(npcid, p2, p3, msgData)
 
         local cost_show = ItemNumByTable_img_new({{"时装：天下谁人不识君",1},{"天下谁人不识君[称号]",1}}, nil,GUI:Node_Create(node, "cost_show", 0, 0))
         GUI:setPosition(cost_show, 450 + 40 + 40, 100 + 50)
+
+        -- 冠名后记得领取马上发财中的专属冠名奖励 
+        local tip_text = createOutlinedText(node, "tip_text", 200, 80, 25, "#00FF00", "冠名后记得领取马上发财中的专属冠名奖励", 0, 0.5, "fonts/502.ttf")
+        GUI:Text_enableOutline(tip_text, "#000000", 2)
+        
 
         -- local stateText = hasTitle and "已拥有冠名称号" or "达到条件后可领取冠名称号"
         -- local stateColor = hasTitle and "#7CFF7C" or "#FFD27A"

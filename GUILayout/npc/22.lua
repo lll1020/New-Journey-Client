@@ -50,6 +50,9 @@ local ELEMENT_ORDER = {"metal", "water", "wood", "fire", "earth"}
 local NODE_SIZE = {small = 30, medium = 40, large = 52, skill = 50, socket = 44, bridge = 34, root = 72}
 local EXTRA_SOCKET_LINK_LENGTH = 100
 local EXTRA_SOCKET_MIN_DISTANCE = 80
+local function isLookPlayer()
+    return npc.isLookPlayer == true
+end
 local ATTR_NODE_ORIGINAL_SIZE = 80
 local SKILL_NODE_ORIGINAL_SIZE = 68
 local SKILL_NODE_SKIN_BY_ELEMENT = {
@@ -3160,6 +3163,19 @@ local function updateInfo()
     end
     local action = GUI:getChildByName(info, "node_action")
     local refund = GUI:getChildByName(info, "node_refund")
+    local actionLine = GUI:getChildByName(info, "info_action_line")
+    if isLookPlayer() then
+        if action then
+            GUI:setVisible(action, false)
+        end
+        if refund then
+            GUI:setVisible(refund, false)
+        end
+        if actionLine then
+            GUI:setVisible(actionLine, false)
+        end
+        return
+    end
     if action then
         local blockedSocket = not active and getUnfilledSocketPrerequisite(node)
         if node.kind == "root" then
@@ -3555,7 +3571,7 @@ local function selectNode(id)
         end
     end
     updateInfo()
-    if id == "root" then
+    if id == "root" and not isLookPlayer() then
         openUpgrade()
     end
 end
@@ -3886,6 +3902,15 @@ local function createHeader(sw, sh)
     local headerLine = GUI:Image_Create(npc.header, "header_line", 0, 0, RES .. "tj_23.png")
     GUI:setAnchorPoint(headerLine, 0, 1)
     GUI:setContentSize(headerLine, cogin.w, 80)
+    if isLookPlayer() then
+        button(npc.header, "close", headerW - 20, -50, "", function()
+            local win = GUI:GetWindow(nil, ROOT_NAME)
+            if win then
+                GUI:Win_Close(win)
+            end
+        end, 60, 54, "res/wy/public/gjyj_x.png")
+        return
+    end
 
     -- local rootIcon = panel(npc.header, "root_icon", -headerW / 2 + 48, 0, 50, 50, "#14263A")
     -- GUI:setLocalZOrder(rootIcon, 3)
@@ -4109,12 +4134,17 @@ local function createWindow()
     createInfoPanel(sw, sh)
     createZoomControl(sw, sh)
     createTree()
-    npc.selectedId = nil
+    npc.selectedId = isLookPlayer() and "root" or nil
     updateAllNodeVisuals()
-    setInfoDrawer(false, false)
-    SL:ScheduleOnce(function()
-        tryStartMainlineTalentGuides()
-    end, 0)
+    if isLookPlayer() then
+        updateInfo()
+        setInfoDrawer(true, false)
+    else
+        setInfoDrawer(false, false)
+        SL:ScheduleOnce(function()
+            tryStartMainlineTalentGuides()
+        end, 0)
+    end
 end
 
 function npc.main(npcid, p2, p3, msgData)
@@ -4130,6 +4160,7 @@ function npc.main(npcid, p2, p3, msgData)
         return
     end
     if mode == 0 then
+        npc.isLookPlayer = tonumber(payload.lookPlayer or 0) == 1 or payload.lookPlayer == true
         npc.state = applyClientConfigDefaults(payload)
         publishTalentTreeState()
         createWindow()

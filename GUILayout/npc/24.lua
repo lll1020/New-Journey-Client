@@ -468,8 +468,6 @@ function npc.main(npcid, p2, p3, msgData)
                 -- end
                 local ScrollView = GUI:ScrollView_Create(Label_node, "ScrollView", 240, 110, 312, 346, 1)
                 GUI:ScrollView_setBounceEnabled(ScrollView, true)
-                GUI:ScrollView_setInnerContainerSize(ScrollView, 312, ((36 + 10) * 10))
-                local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 0,0, 312, ((36 + 10) * 10))
                 npc.data.T_data.caowei = npc.data.T_data.caowei or {}
                 local caowei = npc.data.T_data.caowei
                 local cfg = npc._config.details[2]
@@ -478,8 +476,11 @@ function npc.main(npcid, p2, p3, msgData)
                 local cur_lv = npc.data.T_data.level or 0
                 local xianfa_all_unlock = tonumber(npc.data and npc.data.xianfa_all_unlock or 0) == 1
                 local label_delegate = GUI:ui_delegate(Label_node)
-                local layout_delegate = GUI:ui_delegate(dbLayout)
+                local layout_delegate = nil
                 local function get_actor_level()
+                    if _ts_is_look_player() then
+                        return tonumber(npc.data and npc.data.actor_level or 0) or 0
+                    end
                     return tonumber(SL:GetMetaValue("LEVEL") or SL:GetMetaValue("ACTOR_LEVEL") or SL:GetMetaValue("ACTOR_LEVEL", SL:GetMetaValue("MAIN_ACTOR_ID")) or 0) or 0
                 end
                 local function has_title(title)
@@ -651,8 +652,14 @@ function npc.main(npcid, p2, p3, msgData)
                 end
                 local slot_order = {}
                 for i = 1, 10 do
-                    table.insert(slot_order, i)
+                    if not _ts_is_look_player() or is_slot_unlocked(i, caowei[tostring(i)]) then
+                        table.insert(slot_order, i)
+                    end
                 end
+                local slotListHeight = math.max(346, (36 + 10) * #slot_order)
+                GUI:ScrollView_setInnerContainerSize(ScrollView, 312, slotListHeight)
+                local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 0,0, 312, slotListHeight)
+                layout_delegate = GUI:ui_delegate(dbLayout)
                 table.sort(slot_order, function(a, b)
                     local a_unlocked = is_slot_unlocked(a, caowei[tostring(a)])
                     local b_unlocked = is_slot_unlocked(b, caowei[tostring(b)])

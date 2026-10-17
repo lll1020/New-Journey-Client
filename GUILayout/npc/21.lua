@@ -153,11 +153,15 @@ function npc.main(npcid, p2, p3, msgData)
                 {attr_name = "对怪吸血", idx = 10},
                 {attr_name = "全 属 性", idx = 11},
         }
-        local ScrollView = GUI:ScrollView_Create(node, "ScrollView", 240 + 176, 110 + 41, 284, 119, 1)
+        local attrViewY = _jj_is_look_player() and 40 or 150
+        local attrViewH = _jj_is_look_player() and 260 or 120
+        local ScrollView = GUI:ScrollView_Create(node, "ScrollView", 240 + 176, attrViewY, 284, attrViewH, 1)
         GUI:ScrollView_setBounceEnabled(ScrollView, true)
-        GUI:ScrollView_setInnerContainerSize(ScrollView, 284, (26 * #attr))
-        GUI:ScrollView_setBackGroundImage(ScrollView, "res/wy/public/500-200.png")
-        local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 0,0, 284, (26 * #attr))
+        GUI:ScrollView_setInnerContainerSize(ScrollView, 284, math.max(attrViewH, 26 * #attr))
+        if not _jj_is_look_player() then
+            GUI:ScrollView_setBackGroundImage(ScrollView, "res/wy/public/500-200.png")
+        end 
+        local dbLayout = GUI:Layout_Create(ScrollView, "dbLayout", 0,0, 284, math.max(attrViewH, 26 * #attr))
         for v,k in pairs(attr) do
             local kuang = GUI:Image_Create(dbLayout, "kuang"..v, 0, 0, "res/custom/tianshu/qh/tip.png")
             GUI:Text_setFontName(GUI:Text_Create(kuang, "attr_name",25,-2, 20, "#00FFFF", k.attr_name.." +")
@@ -166,9 +170,12 @@ function npc.main(npcid, p2, p3, msgData)
             local new_config = npc._config.details[level + 1] or nil
             GUI:Text_setFontName(GUI:Text_Create(kuang, "new_attr_v",125,-2, 20, "#00FFFF", format_attr_value(k.idx, (old_config and old_config.attr[k.idx]) and old_config.attr[k.idx][2] or 0))
             , "fonts/502.ttf")
-            GUI:Image_Create(kuang, "jt", 170, -2, "res/custom/tianshu/qh/jt.png")
-            GUI:Text_setFontName(GUI:Text_Create(kuang, "old_attr_v",215,-2, 20, "#109C18", new_config and format_attr_value(k.idx, (new_config.attr[k.idx]) and new_config.attr[k.idx][2] or 0) or "已满级")
-            , "fonts/502.ttf")
+            if not _jj_is_look_player() then
+                GUI:Image_Create(kuang, "jt", 170, -2, "res/custom/tianshu/qh/jt.png")
+                GUI:Text_setFontName(GUI:Text_Create(kuang, "old_attr_v",215,-2, 20, "#109C18", new_config and format_attr_value(k.idx, (new_config.attr[k.idx]) and new_config.attr[k.idx][2] or 0) or "已满级")
+                , "fonts/502.ttf")
+            end 
+
             -- GUI:Image_Create(kuang, "up", 290, 3, "res/custom/tianshu/qh/up.png")
         end
         GUI:UserUILayout(dbLayout, {dir=3,addDir=1,colnum = 1,gap = {x=40, y=0}})

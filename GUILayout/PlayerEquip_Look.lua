@@ -50,7 +50,8 @@ end
 
 local function _look_open_linggen_panel()
     local data = _look_copy_table(cogin and cogin.onther_shuju and cogin.onther_shuju.linggen)
-    _look_open_panel(22, {T_data = data})
+    data.lookPlayer = 1
+    _look_open_panel(22, data)
 end
 
 local function _look_open_tianshu_panel()
@@ -119,11 +120,11 @@ function PlayerEquip_Look.main(data)
     GUI:addOnClickEvent(Button, function()
         _look_open_jingjie_panel()
     end)
-    -- Button= GUI:Button_Create(PlayerEquip_Look._ui.Panel_1, "Button3", 180, 10.00, "res/private/player_main_layer_ui/btn_3.png")
-    -- GUI:addOnClickEvent(Button, function()
-    --     _look_open_linggen_panel()
-    -- end)
-    Button= GUI:Button_Create(PlayerEquip_Look._ui.Panel_1, "Button4", 180, 10.00, "res/private/player_main_layer_ui/btn_4.png")
+    Button= GUI:Button_Create(PlayerEquip_Look._ui.Panel_1, "Button3", 180, 10.00, "res/private/player_main_layer_ui/btn_3.png")
+    GUI:addOnClickEvent(Button, function()
+        _look_open_linggen_panel()
+    end)
+    Button= GUI:Button_Create(PlayerEquip_Look._ui.Panel_1, "Button4", 250, 10.00, "res/private/player_main_layer_ui/btn_4.png")
     GUI:addOnClickEvent(Button, function()
         SL:SendLuaNetMsg(100, 44, 1, 0, SL:JsonEncode({action = "visit", param = {targetName = SL:GetMetaValue("LOOK_USER_NAME")}}, false))
     end)

@@ -720,7 +720,8 @@ local function openExchangePopup()
     local exchangeAvailable = toNumber(npc.data and npc.data.exchange_available, 0)
     local exchangeUsed = getExchangeUsedCount()
     local exchangeLimit = getExchangeLimit()
-    local progressColor = exchangeAvailable > 0 and "#45ff93" or "#ff6666"
+    local progressValue = getDailyKillCount() - exchangeNeed * exchangeUsed
+    local progressColor = progressValue >= exchangeNeed and "#45ff93" or "#ff6666"
 
     local current = GUI:Text_Create(panel, "current_token", 325, 280, 20, "#ffe7a2", string.format("当前鹤嘴锄：%s", tostring(tokenCount)))
     GUI:setAnchorPoint(current, 0.5, 0.5)
@@ -742,11 +743,16 @@ local function openExchangePopup()
     )
     GUI:setAnchorPoint(progress, 0.5, 0.5)
 
-    local progressText = GUI:Text_Create(panel, "progress_value", 325, 198, 20, progressColor,
-        string.format("当前进度：%s/%s  可兑换：%s 个", getDailyKillCount() - exchangeNeed * exchangeUsed,
-            tostring(exchangeNeed), tostring(exchangeAvailable)))
-    GUI:setAnchorPoint(progressText, 0.5, 0.5)
-    GUI:Text_enableOutline(progressText, "#100808", 1)
+    local progressPrefix = GUI:Text_Create(panel, "progress_prefix", 180, 198, 20, "#8fd6ff", "当前进度：")
+    GUI:setAnchorPoint(progressPrefix, 0, 0.5)
+    GUI:Text_enableOutline(progressPrefix, "#100808", 1)
+    local progressValueText = GUI:Text_Create(panel, "progress_value", 284, 198, 20, progressColor, tostring(progressValue))
+    GUI:setAnchorPoint(progressValueText, 0, 0.5)
+    GUI:Text_enableOutline(progressValueText, "#100808", 1)
+    local progressSuffix = GUI:Text_Create(panel, "progress_suffix", 326, 198, 20, "#8fd6ff",
+        string.format("/%s  可兑换：%s 个", tostring(exchangeNeed), tostring(exchangeAvailable)))
+    GUI:setAnchorPoint(progressSuffix, 0, 0.5)
+    GUI:Text_enableOutline(progressSuffix, "#100808", 1)
 
     local dailyText = GUI:Text_Create(panel, "daily", 325, 160, 20,
         exchangeUsed < exchangeLimit and "#45ff93" or "#ff6666",
@@ -754,7 +760,7 @@ local function openExchangePopup()
     GUI:setAnchorPoint(dailyText, 0.5, 0.5)
     GUI:Text_enableOutline(dailyText, "#100808", 1)
 
-    npc.exchangePopupWidgets = {current = current, progress = progressText, daily = dailyText, buttons = {}, labels = {}}
+    npc.exchangePopupWidgets = {current = current, progressValue = progressValueText, progressSuffix = progressSuffix, daily = dailyText, buttons = {}, labels = {}}
     local function createExchangeOption(name, x, count)
         local button = GUI:Button_Create(panel, name, x, 74, "res/custom/msfc/page1/action_1.png")
         GUI:setAnchorPoint(button, 0.5, 0.5)
@@ -781,9 +787,7 @@ local function openExchangePopup()
     createExchangeOption("exchange_1", 120 + 100, 1)
     createExchangeOption("exchange_10", 325 + 100, 10)
 
-    local tipText = hasDayCardTitle()
-        and "已拥有日卡：每日最多兑换50次"
-        or "未拥有日卡：每日最多兑换10次"
+    local tipText = "开通日卡每日最多兑换50次！"
     local tip = GUI:Text_Create(panel, "tip", 325, 28, 20, "#ff66ff", tipText)
     GUI:setAnchorPoint(tip, 0.5, 0.5)
     setTextStyle(tip, "#240024")
@@ -1238,11 +1242,12 @@ local function refreshExchangePopupDynamic()
     local used = getExchangeUsedCount()
     local limit = getExchangeLimit()
     local need = getExchangeNeed()
-    local color = available > 0 and "#45ff93" or "#ff6666"
+    local progress = getDailyKillCount() - need * used
+    local progressColor = progress >= need and "#45ff93" or "#ff6666"
     GUI:Text_setString(ui.current, string.format("当前鹤嘴锄：%s", tostring(toNumber(npc.data and npc.data.token_count, 0))))
-    GUI:Text_setString(ui.progress, string.format("当前进度：%s/%s  可兑换：%s 个",
-        getDailyKillCount() - need * used, tostring(need), tostring(available)))
-    GUI:Text_setTextColor(ui.progress, color)
+    GUI:Text_setString(ui.progressValue, tostring(progress))
+    GUI:Text_setTextColor(ui.progressValue, progressColor)
+    GUI:Text_setString(ui.progressSuffix, string.format("/%s  可兑换：%s 个", tostring(need), tostring(available)))
     GUI:Text_setString(ui.daily, string.format("今日兑换：%s/%s 次", tostring(used), tostring(limit)))
     GUI:Text_setTextColor(ui.daily, used < limit and "#45ff93" or "#ff6666")
     for count, button in pairs(ui.buttons or {}) do
