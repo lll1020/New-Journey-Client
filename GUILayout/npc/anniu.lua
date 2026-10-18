@@ -664,18 +664,40 @@ end
 -- 这两个快捷入口判定会在函数定义前被引用，先前置声明，避免运行时落到全局查找。
 local _shortcut_is_firstcharge_completed
 local _shortcut_is_unbind_completed
+local _shortcut_get_firstcharge_state
+local function _shortcut_is_reward_claimable(cfg)
+    local npcid = tonumber(cfg and cfg[3] or 0) or 0
+    if npcid == 501 then
+        local T_data = _shortcut_get_firstcharge_state and _shortcut_get_firstcharge_state() or {}
+        return tonumber(T_data.ok or 0) == 1
+            and tonumber(T_data.main_claimed or T_data.other_lb or T_data._lb or 0) < 1
+    end
+    if npcid == 504 then
+        -- 超级特权支付成功后由服务端直接发奖，没有“待领取”阶段。
+        return false
+    end
+    return false
+end
 local function _shortcut_should_show_persistent_redpoint(cfg)
     local npcid = tonumber(cfg and cfg[3] or 0) or 0
     if npcid == 516 then
         return npc._zz516_redpoint == true
     end
     if npcid == 501 then
-        return not _shortcut_is_firstcharge_completed()
+        return _shortcut_is_reward_claimable(cfg)
     end
     if npcid == 504 then
-        local totalCharge = tonumber(SL:GetMetaValue("MONEY", 23) or 0) or 0
-        local realCharge = tonumber(SL:GetMetaValue("REAL_RECHARGE") or 0) or 0
-        return math.max(totalCharge, realCharge) <= 0 and not _shortcut_is_unbind_completed()
+        return _shortcut_is_reward_claimable(cfg)
+    end
+    return false
+end
+local function _shortcut_should_show_recommend(cfg)
+    local npcid = tonumber(cfg and cfg[3] or 0) or 0
+    if npcid == 501 then
+        return not _shortcut_is_firstcharge_completed() and not _shortcut_is_reward_claimable(cfg)
+    end
+    if npcid == 504 then
+        return not _shortcut_is_unbind_completed() and not _shortcut_is_reward_claimable(cfg)
     end
     return false
 end
@@ -697,16 +719,17 @@ local function createShortcutButton(container, cfg, order, prefix, opts)
         GUI:Text_enableOutline(countdown, "#000000", 1)
     end
     local keepRedPoint = _shortcut_should_show_persistent_redpoint(cfg)
+    local keepRecommend = _shortcut_should_show_recommend(cfg)
     GUI:addOnClickEvent(button, function()
         if tonumber(cfg[3]) == 1029 then
             SL:SendLuaNetMsg(105, cfg[3], 1029, 0, "")
-            if not keepRedPoint then
+            if not keepRedPoint and not keepRecommend then
                 GUI:removeAllChildren(button)
             end
             return
         end
         SL:SendLuaNetMsg(101, cfg[3], 0, 0, "")
-        if not keepRedPoint and tonumber(cfg[3]) ~= 506 then
+        if not keepRedPoint and not keepRecommend and tonumber(cfg[3]) ~= 506 then
             GUI:removeAllChildren(button)
         end
     end)
@@ -715,6 +738,10 @@ local function createShortcutButton(container, cfg, order, prefix, opts)
             x = 80,
             y = 60,
         })
+    elseif keepRecommend then
+        local recommend = GUI:Image_Create(button, "recommend_tip", 55, 55, "res/wy/public/tuijian.png")
+        GUI:setAnchorPoint(recommend, 0.5, 0.5)
+        GUI:setLocalZOrder(recommend, 99)
     end
     local cacheMap = opts.cacheMap or npc.db_anniu
     cacheMap["" .. cfg[4]] = button
@@ -829,7 +856,7 @@ local function _shortcut_get_server_json(varName)
     return type(data) == "table" and data or {
     }
 end
-local function _shortcut_get_firstcharge_state()
+_shortcut_get_firstcharge_state = function()
     local T_data = npc.data_501 and npc.data_501.T_data
     if type(T_data) == "table" and next(T_data) ~= nil then
         return T_data
@@ -1485,6 +1512,7 @@ local function _build_shortcut_render_signature()
                      tostring(cfg[5] or ""),
                      tostring(cfg[6] or ""),
                      _shortcut_should_show_persistent_redpoint(cfg) and "1" or "0",
+                     _shortcut_should_show_recommend(cfg) and "1" or "0",
                      extraState,
                 }, ":")
             end
