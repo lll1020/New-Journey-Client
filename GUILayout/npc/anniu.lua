@@ -9425,6 +9425,30 @@ npc[998] = function(p2, p3, Data)
     local huobi_sr = GUI:TextInput_Create(ImageView_1, "huobi_sr", 0.0, 0.0, 155.0, 30.0, 16)
     GUI:TextInput_setPlaceHolder(huobi_sr, "修改数值")
     GUI:setTouchEnabled(huobi_sr, true)
+    local transferInputBg = GUI:Image_Create(npc.bg, "transfer_amount_bg", 550.0, 355.0, "res/wy/public/input.png")
+    local transferAmountInput = GUI:TextInput_Create(transferInputBg, "transfer_amount", 0.0, 0.0, 155.0, 30.0, 16)
+    GUI:TextInput_setPlaceHolder(transferAmountInput, "转区金额")
+    GUI:TextInput_setInputMode(transferAmountInput, 2)
+    GUI:TextInput_setMaxLength(transferAmountInput, 10)
+    GUI:setTouchEnabled(transferAmountInput, true)
+    local transferAddButton = GUI:Button_Create(npc.bg, "transfer_add", 724.0, 351.0, "res/public/1900000660.png")
+    GUI:Button_setTitleText(transferAddButton, "增加转区金额")
+    GUI:Button_setTitleColor(transferAddButton, "#28ef01")
+    GUI:Button_setTitleFontSize(transferAddButton, 14)
+    GUI:Button_titleEnableOutline(transferAddButton, "#000000", 1)
+    GUI:addOnClickEvent(transferAddButton, function()
+        local playerName = tostring(GUI:TextInput_getString(mingzi_sr) or "")
+        local amount = tonumber(GUI:TextInput_getString(transferAmountInput))
+        if playerName == "" then
+            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>请正确输入玩家名字</font></outline>")
+            return
+        end
+        if not amount or amount <= 0 or amount ~= math.floor(amount) then
+            SL:ShowSystemTips("<outline color='#000000' size='1'><font color='#FF0000'>请正确输入转区金额</font></outline>")
+            return
+        end
+        SL:SendLuaNetMsg(101, 9999, 1, 0, string.format('{"mz":"%s","je":%d}', playerName, amount))
+    end)
     local an_huobicha = GUI:Button_Create(npc.bg, "an_huobicha", 293.0, 440.0, "res/public/1900000660.png")
     GUI:Button_setTitleText(an_huobicha, "货币查询")
     GUI:Button_setTitleColor(an_huobicha, "#28ef01")
