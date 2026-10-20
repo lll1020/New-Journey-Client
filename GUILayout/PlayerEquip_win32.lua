@@ -53,7 +53,7 @@ local function _refresh_xyl_playerequip_guides()
     end
     if ui.Button2 then
         NPC_UI_HELPER.tryStartXylGuide(PlayerEquip, ui.Button2, ui.Panel_1, "xiuwu_panel_open", {
-            taskNames = {"筑基", "提升修为至筑基境"},
+            taskNames = {"筑基", "提升修为至筑基境", "提升修为到炼气期[九层]", "提升修为到筑基境界"},
             dir = 5,
             desc = "点击境界按钮",
         })

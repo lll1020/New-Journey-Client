@@ -84,9 +84,9 @@ function npc.main(npcid, p2, p3, msgData)
         end
 
         local expectedRoute = nil
-        if currentRwid == 37 then
+        if currentRwid == 39 then
             expectedRoute = 1
-        elseif currentRwid == 39 then
+        elseif currentRwid == 41 then
             for routeIdx = 1, 4 do
                 local route = route_info[routeIdx]
                 if route and (npc.data.T_data[route.boss] or 0) < 2 then
@@ -165,7 +165,7 @@ function npc.main(npcid, p2, p3, msgData)
         local task46Data = npc.data.T_data["npc_46"]
         local task46Done = (type(task46Data) == "table" and tonumber(task46Data.wc or 0) or tonumber(task46Data or 0) or 0) >= 1
         local hasTitleReward = SL:GetMetaValue("TITLE_DATA_BY_ID", SL:GetMetaValue("ITEM_INDEX_BY_NAME", npc._config.ch))
-        local shouldAcceptMainline = currentRwid == 36 and not npc._isTaskAccepted()
+        local shouldAcceptMainline = currentRwid == 38 and not npc._isTaskAccepted()
 
         local kuang = GUI:Image_Create(node, "kuang2", 320 + 140, 15, "res/wy/public/70_70_k.png")
         UiTools.showItemData(kuang, SL:GetMetaValue("ITEM_DATA",SL:GetMetaValue("ITEM_INDEX_BY_NAME",npc._config.ch.."[称号]")))

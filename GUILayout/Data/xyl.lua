@@ -258,9 +258,13 @@ end
 local function _xyl_has_second_continent_lucky_view()
     return _xyl_get_num("U30") > 0
 end
--- 备注：境界是否已达到筑基境（等级 10）
-local function _xyl_has_foundation_realm()
-    return _xyl_get_num("U28") >= 10
+-- 备注：境界是否达到指定等级。
+local function _xyl_has_foundation_realm(need)
+    return _xyl_get_num("U28") >= (need or 10)
+end
+local function _xyl_has_foundation_pill_crafted()
+    local data = _xyl_get_json("T39")
+    return tonumber(data.jz_dan_crafted or 0) == 1
 end
 -- 备注：转生等级是否达到指定等级
 local function _xyl_has_rebirth(level)
@@ -515,6 +519,18 @@ local function _xyl_check_task(name)
         ["天书强化"] = _xyl_has_tianshu_level,
         ["初识仙法"] = _xyl_has_any_xianfa,
         ["天书仙法"] = _xyl_has_any_xianfa,
+        ["洗练仙法3次"] = function()
+            local data = _xyl_get_json("T42")
+            return (tonumber(data.xianfa_refresh_count or 0) or 0) >= 3
+        end,
+        ["刷新3次仙法"] = function()
+            local data = _xyl_get_json("T42")
+            return (tonumber(data.xianfa_refresh_count or 0) or 0) >= 3
+        end,
+        ["再次洗练一次仙法"] = function()
+            local data = _xyl_get_json("T42")
+            return (tonumber(data.xianfa_refresh_count or 0) or 0) >= 4
+        end,
         ["刷新2次仙法"] = function()
             local data = _xyl_get_json("T42")
             return (tonumber(data.xianfa_refresh_count or 0) or 0) >= 2
@@ -534,6 +550,9 @@ local function _xyl_check_task(name)
         ["灵兽孵化"] = _xyl_has_lingshou_hatched,
         ["筑基"] = _xyl_has_foundation_realm,
         ["提升修为至筑基境"] = _xyl_has_foundation_realm,
+        ["提升修为到炼气期[九层]"] = function() return _xyl_has_foundation_realm(9) end,
+        ["合成筑基丹"] = _xyl_has_foundation_pill_crafted,
+        ["提升修为到筑基境界"] = _xyl_has_foundation_realm,
         ["转生·二"] = function() return _xyl_has_rebirth(20) end,
         ["完成转生"] = function() return _xyl_has_rebirth(20) end,
         ["完转生"] = function() return _xyl_has_rebirth(20) end,

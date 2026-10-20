@@ -50,7 +50,7 @@ local GRAY_WORLD_SINGLE_FLOW_WIDTH = 136
 local GRAY_WORLD_SINGLE_FLOW_FONT_SIZE = 13
 local GRAY_WORLD_FINAL_BTN_POS = {x = 100, y = 95}
 local GRAY_WORLD_FINAL_BTN_TEXT = ""
-local XYL_FINAL_ENTRY_RWID = 41
+local XYL_FINAL_ENTRY_RWID = 43
 local XYL_FINAL_ENTRY_BTN_TEXT = "更多剧情"
 local GRAY_WORLD_LINE_MAP_ALIASES = {
     ["虚妄山脉"] = 4,
@@ -121,8 +121,8 @@ local MAINLINE_CURRENT_TASK_REWARD_CONFIG = {
     [11] = {{"天书残卷四", 1}},
     [13] = {{"绑定金币", 100000}},
     [14] = {{"绑定金币", 100000}, {"一重转生石", 10}},
-    [17] = {},
-    [19] = {{"野火燎原[称号]", 1},{"仙法卷轴",1}},
+    [17] = {{"仙法卷轴",3}},
+    [19] = {{"野火燎原[称号]", 1}},
     [20] = {},
     [21] = {
         {"绑定金币", 100000},
@@ -138,8 +138,11 @@ local MAINLINE_CURRENT_TASK_REWARD_CONFIG = {
     [29] = {{"绑定金币", 150000}, {"摸金校尉[称号]", 1}},
     [30] = {},
     [31] = {{"绑定金币", 300000}, {"玫瑰花", 50}, {"斗笠碎片", 5}},
-    [33] = {{"金币", 1000000}, {"古刹魔瓶", 1}},
+    [32] = {},
+    [33] = {},
     [34] = {},
+    [35] = {{"金币", 1000000}, {"古刹魔瓶", 1}},
+    [36] = {},
 }
 
 local function _get_mainline_rwid_value()
@@ -199,7 +202,7 @@ end
 
 local function _is_gray_world_special_guide_task()
     local rwid = _get_mainline_rwid_value()
-    return rwid == 37 or rwid == 39
+    return rwid == 39 or rwid == 41
 end
 
 local function _resolve_reward_effect_parent(parent)
@@ -835,14 +838,14 @@ function MainAssistXylHelper.bind(MainAssist)
             return false
         end
         local rwid = _get_mainline_rwid_value()
-        if rwid == 37 then
+        if rwid == 39 then
             local task46 = jqData["npc_46"]
             if type(task46) == "table" then
                 return _gray_world_to_num(task46.start, 0) >= 1 or _gray_world_to_num(task46.wc, 0) >= 1
             end
             return _gray_world_to_num(task46, 0) >= 1
         end
-        if rwid ~= 39 then
+        if rwid ~= 41 then
             return false
         end
         -- The gray-world panel starts after the new pearl NPC (1030) is

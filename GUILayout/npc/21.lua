@@ -53,8 +53,8 @@ local function openFoundationDanPopup(npcid)
         255 - 100,
         "你若想筑基，还需服用<font color='#ff6666'>1枚筑基丹</font>。\n" ..
         "筑基丹获取方法：\n" ..
-        "1. <font color='#ffe45e'>十个筑基丹碎片</font>可合成1枚筑基丹（碎片全大陆打怪掉落）\n" ..
-        "2. 在线充值中<font color='#ffe45e'>10元礼包</font>赠送1枚筑基丹",
+        "1. 使用<font color='#ffe45e'>筑基丹碎片</font>打开合成界面，消耗碎片*10、灵气符文*5、金币*50W合成1枚筑基丹\n" ..
+        "2. 在线充值中<font color='#ffe45e'>10元礼包</font>赠送10*筑基丹碎片",
         560,
         20,
         "#f3e8ce",
@@ -234,7 +234,7 @@ function npc.main(npcid, p2, p3, msgData)
             GUI:addOnClickEvent(Button, function()
                 SL:SendLuaNetMsg(100, npcid, 1, 0, "")
             end)
-            if NPC_UI_HELPER.isCurrentXylTask({"筑基", "提升修为至筑基境"}) then
+            if NPC_UI_HELPER.isCurrentXylTask({"筑基", "提升修为至筑基境", "提升修为到炼气期[九层]", "提升修为到筑基境界"}) then
                 NPC_UI_HELPER.closeGuideByDomain("xyl")
             end
         elseif not _jj_is_look_player() then
@@ -255,7 +255,7 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data = SL:JsonDecode(msgData,false)
         npc.isLookPlayer = tonumber(npc.data and npc.data.lookPlayer or 0) == 1 or npc.data.lookPlayer == true
         UI_updata(npc.node)
-        if (not _jj_is_look_player()) and NPC_UI_HELPER.isCurrentXylTask({"筑基", "提升修为至筑基境"})
+        if (not _jj_is_look_player()) and NPC_UI_HELPER.isCurrentXylTask({"筑基", "提升修为至筑基境", "提升修为到炼气期[九层]", "提升修为到筑基境界"})
             and (tonumber(npc.data and npc.data.level or 0) or 0) >= 10 then
             NPC_UI_HELPER.closeWindow(npc._window)
         end

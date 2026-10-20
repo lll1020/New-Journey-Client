@@ -241,7 +241,7 @@ function npc.main(npcid, p2, p3, msgData)
                 end)
                 if canGuideRebirth then
                     NPC_UI_HELPER.tryStartMainlineUpgradeGuide(npc, Button, node, npcid, 1, {
-                        taskMap = {[32] = 15, [33] = 34},
+                        taskMap = {[32] = 15, [33] = 36},
                         keyPrefix = "mainline_rebirth",
                         dir = 5,
                         isForce = false,

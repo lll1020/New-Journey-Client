@@ -1801,6 +1801,10 @@ local MAINLINE_PANEL_GUIDE = {
     [23] = 22, -- 灵根天赋点亮
     [22] = 22, -- 灵根天赋点亮
     [26] = 43, -- 江湖称号升级
+    [32] = 21, -- 炼气期九层
+    [33] = 604, -- 合成筑基丹
+    [34] = 21, -- 突破筑基境
+    [36] = 33, -- 二大陆转生
 }
 local guideDispatch = {
     [1] = function(data)
@@ -1846,7 +1850,7 @@ local guideDispatch = {
             return
         end
         local rwid = tonumber(data and data.rwid) or 0
-        if rwid == 22 or rwid == 32 or rwid == 23 then
+        if rwid == 22 or rwid == 32 or rwid == 34 or rwid == 23 then
             openRoleGuide()
             return
         end
@@ -3401,6 +3405,9 @@ npc[11] = function(p2, p3, Data)
         ["修复轩辕剑"] = true,
         ["筑基"] = true,
         ["提升修为至筑基境"] = true,
+        ["提升修为到炼气期[九层]"] = true,
+        ["合成筑基丹"] = true,
+        ["提升修为到筑基境界"] = true,
         ["转生·二"] = true,
         ["完成转生"] = true,
         ["完转生"] = true,
@@ -4269,7 +4276,9 @@ npc[11] = function(p2, p3, Data)
                                 if not chapterDone and not taskDoneByReward and not khdDone and not storyStarted then
                                     if taskName == "本命灵根"
                                         or taskName == "筑基"
-                                        or taskName == "提升修为至筑基境" then
+                                        or taskName == "提升修为至筑基境"
+                                        or taskName == "提升修为到炼气期[九层]"
+                                        or taskName == "提升修为到筑基境界" then
                                         if cogin.isWin32 and MainProperty and MainProperty._ui then
                                             autoGuideWidget = MainProperty._ui.Button_role
                                         else

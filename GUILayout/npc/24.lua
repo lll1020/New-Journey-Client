@@ -108,18 +108,27 @@ function npc.main(npcid, p2, p3, msgData)
         end
         SL:SendLuaNetMsg(100, npcid, 2, 0, SL:JsonEncode({caowei = slot}))
     end
+    local function _is_mainline18_free_refresh()
+        local rwid = tonumber(cogin and cogin.sjtb and (cogin.sjtb.zxrwid or cogin.sjtb.rwid) or 0) or 0
+        local count = tonumber(npc.data and npc.data.T_data and npc.data.T_data.xianfa_refresh_count or 0) or 0
+        return rwid == 18 and count < 3, count
+    end
     local function _try_refresh_xianfa(slot)
         if _ts_is_look_player() then
             return
         end
         local function _refresh_without_best_token()
+            if _is_mainline18_free_refresh() then
+                _send_normal_xianfa_refresh(slot)
+                return
+            end
             if _get_item_count("仙法卷轴") > 0 then
                 _send_normal_xianfa_refresh(slot)
                 return
             end
             SL:OpenCommonTipsPop({str="仙法卷轴不足，无法刷新仙法！\n\n仙法卷轴：①首充礼包②仙法卷轴残页合成③马上发财\n仙法卷轴残页：①在线奖励②冲级奖励③马上发财",btnType=1})
         end
-        if checkItemNum({{"极品仙法卷轴",1}}) then
+        if not _is_mainline18_free_refresh() and checkItemNum({{"极品仙法卷轴",1}}) then
             SL:OpenCommonTipsPop({str="是否要使用极品仙法卷轴，必可得到极品仙法！",btnType=2,callback=function(atype,param)
                 if atype == 1 then
                     SL:SendLuaNetMsg(100, npcid, 2, 2, SL:JsonEncode({caowei = slot}))
@@ -329,7 +338,7 @@ function npc.main(npcid, p2, p3, msgData)
         local taskName = tostring(rawget(_G, "XYL_CURRENT_TASK_NAME") or "")
         SL:release_print("当前任务", taskName)
         local rwid = tonumber(cogin and cogin.sjtb and (cogin.sjtb.zxrwid or cogin.sjtb.rwid) or 0) or 0
-        if rwid == 18 or rwid == 20 or taskName == "初识仙法" or taskName == "查看仙法" or taskName == "天书仙法" or taskName == "刷新2次仙法" or taskName == "进行天书仙法抽取" then
+        if rwid == 18 or rwid == 20 or taskName == "初识仙法" or taskName == "查看仙法" or taskName == "天书仙法" or taskName == "洗练仙法3次" or taskName == "刷新3次仙法" or taskName == "再次洗练一次仙法" or taskName == "刷新2次仙法" or taskName == "进行天书仙法抽取" then
             return 2
         end
         local tianshuLevel = tonumber(npc.data and npc.data.T_data and npc.data.T_data.level or 0) or 0
@@ -593,12 +602,17 @@ function npc.main(npcid, p2, p3, msgData)
                         GUI:setContentSize(guang, 180, 30)
                         GUI:setContentSize(GUI:Image_Create(guang, "img1", 0, 0, "res/wy/public/input.png"), 180, 30)
                         GUI:setContentSize(GUI:Image_Create(guang, "img2", 0, 0, "res/wy/public/jdtk_1.png"), 100, 30)
-                        GUI:Text_Create(guang, "text", 5, 5, 18, "#FFFFFF", "刷新消耗：")
-                        GUI:setScale(GUI:ItemShow_Create(guang, "icon",105, 5, {index = SL:GetMetaValue("ITEM_INDEX_BY_NAME","仙法卷轴"),look = true,}), 0.6)
-                        local currentTokenCount = SL:GetMetaValue("ITEM_COUNT", SL:GetMetaValue("ITEM_INDEX_BY_NAME","仙法卷轴"))
-                        local drawOnceCost = 1
-                        local currentTokenColor = currentTokenCount >= drawOnceCost and "#45ff93" or "#ff6666"
-                        GUI:RichText_Create(guang, "num", 130, 5, string.format("<font color='%s'>%s</font><font color='#FFFFFF'>/%s</font>", currentTokenColor, tostring(currentTokenCount), tostring(drawOnceCost)), 150, 16, "#FFFFFF", 0, nil, nil)
+                        local isFreeRefresh, freeRefreshCount = _is_mainline18_free_refresh()
+                        if isFreeRefresh then
+                            GUI:Text_Create(guang, "text", 12, 5, 18, "#45ff93", string.format("免费刷新：%d/3", freeRefreshCount))
+                        else
+                            GUI:Text_Create(guang, "text", 5, 5, 18, "#FFFFFF", "刷新消耗：")
+                            GUI:setScale(GUI:ItemShow_Create(guang, "icon",105, 5, {index = SL:GetMetaValue("ITEM_INDEX_BY_NAME","仙法卷轴"),look = true,}), 0.6)
+                            local currentTokenCount = SL:GetMetaValue("ITEM_COUNT", SL:GetMetaValue("ITEM_INDEX_BY_NAME","仙法卷轴"))
+                            local drawOnceCost = 1
+                            local currentTokenColor = currentTokenCount >= drawOnceCost and "#45ff93" or "#ff6666"
+                            GUI:RichText_Create(guang, "num", 130, 5, string.format("<font color='%s'>%s</font><font color='#FFFFFF'>/%s</font>", currentTokenColor, tostring(currentTokenCount), tostring(drawOnceCost)), 150, 16, "#FFFFFF", 0, nil, nil)
+                        end
                         if npc._xf_skip_anim == nil then
                             npc._xf_skip_anim = _get_xianfa_skip_anim_default()
                         end
@@ -637,7 +651,7 @@ function npc.main(npcid, p2, p3, msgData)
                         NPC_UI_HELPER.tryStartXylGuide(npc, Button, npc.xf_node, "tianshu_xianfa_" .. tostring(slot), {
                             idx = 1,
                             once = true,
-                            taskNames = {"初识仙法", "天书仙法", "刷新2次仙法", "进行天书仙法抽取"},
+                            taskNames = {"初识仙法", "天书仙法", "洗练仙法3次", "刷新3次仙法", "再次洗练一次仙法", "刷新2次仙法", "进行天书仙法抽取"},
                             dir = 5,
                             desc = "点击刷新仙法",
                         })
@@ -794,7 +808,7 @@ function npc.main(npcid, p2, p3, msgData)
         npc.data = _ts_normalize_payload(SL:JsonDecode(msgData,false))
         npc.isLookPlayer = tonumber(npc.data and npc.data.lookPlayer or 0) == 1 or npc.data.lookPlayer == true
         UI_updata(npc.node)
-        local isXianfaMainline = NPC_UI_HELPER.isCurrentXylTask({"初识仙法", "查看仙法", "天书仙法", "刷新2次仙法", "进行天书仙法抽取"})
+        local isXianfaMainline = NPC_UI_HELPER.isCurrentXylTask({"初识仙法", "查看仙法", "天书仙法", "洗练仙法3次", "刷新3次仙法", "再次洗练一次仙法", "刷新2次仙法", "进行天书仙法抽取"})
         if (not _ts_is_look_player()) and (not isXianfaMainline)
             and NPC_UI_HELPER.isCurrentXylTask({"天书强化", "进行天书强化1次"})
             and (tonumber(npc.data and npc.data.T_data and npc.data.T_data.level or 0) or 0) >= 1 then
