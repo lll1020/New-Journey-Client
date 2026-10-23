@@ -63,6 +63,12 @@ local function _refresh_xyl_playerequip_guides()
             dir = 5,
             desc = "点击境界按钮",
         })
+        NPC_UI_HELPER.tryStartMainlineUpgradeGuide(PlayerEquip, ui.Button2, ui.Panel_1, 34, "xiuwu_panel_open", {
+            taskMap = {[34] = 34},
+            keyPrefix = "mainline_xiuwu_panel",
+            dir = 5,
+            desc = "点击境界按钮",
+        })
     end
     if ui.Button4 then
         NPC_UI_HELPER.tryStartXylGuide(PlayerEquip, ui.Button4, ui.Panel_1, "xianfu_panel_open", {
