@@ -9,7 +9,7 @@ local SPEC = {
     reward = {x = 178, y = 88 - 20 + 60},
     cost = {x = 260 - 20 + 173 - 45, y = 202 + 20},
     buttons = {
-        [1] = {x = 502, y = 82, skin = "res/custom/all_story_mission/5/717/2.png", visible = true},
+        [1] = {x = 502, y = 82, skin = "res/custom/all_story_mission/5/717/2.png", forceFullPath = true, visible = true},
     },
 }
 
@@ -230,6 +230,9 @@ end
 
 local function _button_skin(actionSpec, label)
     if actionSpec and actionSpec.skin then
+        if actionSpec.forceFullPath then
+            return _skin(actionSpec.skin)
+        end
         return _asset(actionSpec.skin) or _skin(actionSpec.skin)
     end
     return DEFAULT_BUTTON

@@ -2186,7 +2186,7 @@ local function renderGemList(gemList, nodeId)
             tostring(gem.level or ""), tostring(gem.count or "")
         }, ":")
     end
-    npc.gemListSignature = table.concat(signatureParts, "|")
+    npc.gemListSignatureCache = table.concat(signatureParts, "|")
     local scrollW = n(npc.gemBoxW, 760) - 80
     local scrollH = n(npc.gemBoxH, 540) - 172
     local columns = 4
@@ -3477,7 +3477,7 @@ local function refreshPayload(payload, forceCoreRefresh)
         npc.gemList = payload.gem_list
         local newGemListSignature = npc.gemListSignature(payload.gem_list)
         if valid(npc.gemBox) and n(payload.socket_result, 0) ~= 1
-            and newGemListSignature ~= tostring(npc.gemListSignature or "") then
+            and newGemListSignature ~= tostring(npc.gemListSignatureCache or "") then
             renderGemList(payload.gem_list, tostring(payload.id or npc.selectedId or ""))
         end
         if valid(npc.gemBox) then

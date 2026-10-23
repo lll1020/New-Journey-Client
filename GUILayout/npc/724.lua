@@ -8,7 +8,7 @@ local SPEC = {
         folder = "guard_soldier_a",
     reward = {x = 182, y = 88 + 60},
     buttons = {
-        [1] = {x = 502, y = 82 + 50, takeSkin = "res/custom/all_story_mission/2/btn_take.png", giveSkin = "res/custom/all_story_mission/2/btn_give.png"},
+        [1] = {x = 502, y = 82 + 50, takeSkin = "res/custom/all_story_mission/2/btn_take.png", giveSkin = "res/custom/all_story_mission/2/btn_give.png", directSkin = true},
     },
 }
 
@@ -236,10 +236,10 @@ local function _button_skin(actionSpec, label, state)
             stateSkin = actionSpec.giveSkin
         end
         if stateSkin then
-            return _asset(stateSkin) or _skin(stateSkin)
+            return actionSpec.directSkin and _skin(stateSkin) or (_asset(stateSkin) or _skin(stateSkin))
         end
         if actionSpec.skin then
-            return _asset(actionSpec.skin) or _skin(actionSpec.skin)
+            return actionSpec.directSkin and _skin(actionSpec.skin) or (_asset(actionSpec.skin) or _skin(actionSpec.skin))
         end
     end
     return DEFAULT_BUTTON
