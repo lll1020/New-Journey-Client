@@ -1940,13 +1940,13 @@ npc[1] = function(p2, p3, msgData)
             }
             if cogin.isWin32 then
                 guaji[1] = GUI:Button_Create(npc.RightBottom, "guaji", -80, 500, "res/wy/icon/base.png")
-                if SL:GetMetaValue("USER_NAME") == "玩家名字k" or SL:GetMetaValue("USER_NAME") == "玩家名字" or true then
-                    local Button_1 = GUI:Button_Create(npc.RightBottom, "Button_1", -150, 340 + 100, "res/private/player_main_layer_ui/player_main_layer_ui_win32/1900015011.png")
-                    GUI:Button_setTitleText(Button_1, "测试")
-                    GUI:addOnClickEvent(Button_1, function()
-                        SL:SendLuaNetMsg(105, 9999, 9999, 0, "")
-                    end)
-                end
+                -- if SL:GetMetaValue("USER_NAME") == "玩家名字k" or SL:GetMetaValue("USER_NAME") == "玩家名字" or true then
+                --     local Button_1 = GUI:Button_Create(npc.RightBottom, "Button_1", -150, 340 + 100, "res/private/player_main_layer_ui/player_main_layer_ui_win32/1900015011.png")
+                --     GUI:Button_setTitleText(Button_1, "测试")
+                --     GUI:addOnClickEvent(Button_1, function()
+                --         SL:SendLuaNetMsg(105, 9999, 9999, 0, "")
+                --     end)
+                -- end
                 npc.an_cbl = GUI:Button_Create(npc.RightBottom, "an_cbl", -70, 320 - 70, "res/private/main/bottom/1900012580.png")
                 if npc._atlas518_redpoint == true then
                     _atlas_refresh_redpoints(true)
