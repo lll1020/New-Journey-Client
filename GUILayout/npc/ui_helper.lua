@@ -1425,7 +1425,7 @@ function UIHelper.guochang_3(skipStateQuery)
                 { speed = 100, count = 30, loop = -1})
         GUI:setAnchorPoint(wz, 0.5, 0.5)
         GUI:addOnClickEvent(x_bjt, function(widget)
-            local bg = GUI:Frames_Create(x_bjt, "bg", cogin.w/2,  cogin.h/2, "res/wy/eff/3_guochang/eff_", ".jpg", 1, 1092,
+            local bg = GUI:Frames_Create(x_bjt, "bg", cogin.w/2,  cogin.h/2, "res/wy/eff/3_guochang/eff_", ".jpg", 0, 1091,
                 { speed = 1, count = 1092, loop = 1,callback = function()
                     if introClosed or animStageFinished then
                         return

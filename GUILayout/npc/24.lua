@@ -850,7 +850,7 @@ function npc.main(npcid, p2, p3, msgData)
         GUI:setAnchorPoint(overlay, 0.5, 0.5)
         GUI:setContentSize(overlay, (cogin.w + 100), (cogin.h + 100))
         GUI:setTouchEnabled(overlay, true)
-        local bg = GUI:Frames_Create(parent, "bg", cogin.w/2,  cogin.h/2, "res/custom/tianshu/xf/eff/eff_", ".png", startFrame, endFrame,
+        local bg = GUI:Frames_Create(parent, "bg", cogin.w/2,  cogin.h/2, "res/custom/tianshu/xf/eff/eff_", ".jpg", startFrame, endFrame,
                 { speed = 50, count = 158, loop = 1,callback = function(self)
                     if startFrame == 1 then
                         npc._xf_skip_anim = true

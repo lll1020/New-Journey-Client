@@ -5834,7 +5834,7 @@ npc[30] = function(p2, p3, Data)
             parent = GUI:Win_Create("anniu_30", 0, 0, 0, 0, false, false, true, true, true, nil, 1)
         end
         npc.mainWindow = parent
-        local bjt = GUI:Image_Create(parent, "bjt", cogin.w / 2, cogin.h / 2, "res/custom/three_city/xianfu/kanshu/bg_1/eff_1.png")
+        local bjt = GUI:Image_Create(parent, "bjt", cogin.w / 2, cogin.h / 2, "res/custom/three_city/xianfu/kanshu/bg_1/eff_1.jpg")
         GUI:setAnchorPoint(bjt, 0.5, 0.5)
         GUI:setContentSize(bjt, cogin.w, cogin.h)
         GUI:setTouchEnabled(bjt, true)
@@ -5845,7 +5845,7 @@ npc[30] = function(p2, p3, Data)
             x = 0,
             y = 0,
         })
-        local bg = GUI:Frames_Create(bjt, "bg", cogin.w / 2, cogin.h / 2, "res/custom/three_city/xianfu/kanshu/bg_" .. npc.data_30.T_data.axe .. "/eff_", ".png", 1, 75, {
+        local bg = GUI:Frames_Create(bjt, "bg", cogin.w / 2, cogin.h / 2, "res/custom/three_city/xianfu/kanshu/bg_" .. npc.data_30.T_data.axe .. "/eff_", ".jpg", 1, 75, {
             speed = 75,
             count = 75,
             loop = -1,
