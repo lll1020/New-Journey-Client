@@ -185,6 +185,8 @@ local function _render_reward_page(parent, npcid)
     _create_reward_desc(parent, "loser_reward", 20, 304 - 22, "", loserRewardItems, "#F4B7B7")
     _create_reward_desc(parent, "chairman_reward", 20, 146 + 18, "", chairmanRewardItems, "#7DF19D")
 
+    GUI:Effect_Create(parent, "reward_eff", 498 - 286, 243 + 156, 0, 30159)
+
     local titleItemName = _resolve_title_item()
     -- if titleItemName then
     --     local titleNode = ItemNumByTable_img_new({{titleItemName, 1}}, nil, GUI:Node_Create(parent, "title_preview", 470, 214))

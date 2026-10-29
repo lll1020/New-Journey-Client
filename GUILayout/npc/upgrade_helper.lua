@@ -523,6 +523,17 @@ local function _upgrade_is_story_done(storyKey)
     end
     return false
 end
+
+local GRAY_WORLD_MAP_KEYWORDS = {"灰界", "虚妄山脉", "山脉入口", "鬼嘲深渊", "旷野之原", "叹息旷野", "恐怖裂隙", "禁忌之海", "海峰孤岛", "讨伐嘲灾", "讨伐忌灾", "讨伐息灾", "讨伐妄灾"}
+local function _upgrade_is_gray_world_map()
+    local mapName = tostring(SL:GetMetaValue("MAP_NAME") or "")
+    for _, keyword in ipairs(GRAY_WORLD_MAP_KEYWORDS) do
+        if string.find(mapName, keyword, 1, true) then
+            return true
+        end
+    end
+    return false
+end
 local function _upgrade_check_night_pearl_1030()
     local cfg = teshudata and teshudata["npc_1030"]
     if not cfg then
@@ -534,6 +545,10 @@ local function _upgrade_check_night_pearl_1030()
         or _upgrade_has_title("诸邪退散")
         or _upgrade_has_title("诸邪退散[称号]") then
         return false
+    end
+
+    if _upgrade_is_gray_world_map() then
+        return true
     end
 
     return _upgrade_can_pay(cfg.cost)

@@ -5209,7 +5209,7 @@ npc[30] = function(p2, p3, Data)
             doll_cabinet = 'collection_cabinet',
         }
         local folder = folderMap[tabId] or 'doll_machine'
-        local state = npc.woodcut_doll.tab == tabId and 'state_bright' or 'state_dark'
+        local state = npc.woodcut_doll.tab == tabId and 'bright' or 'dark'
         return string.format('res/custom/three_city/xianfu/immortal_estate_panel/left_buttons/%s/%s.png', folder, state)
     end
 
@@ -5295,12 +5295,13 @@ npc[30] = function(p2, p3, Data)
 
     local function render_doll_side_tabs(parent)
         local tabs = {
-            {id = 'doll_machine', x = 6 - 42, y = 247 + 50 + 88},
-            {id = 'doll_cabinet', x = 6 - 42, y = 123 + 50 + 88},
+            {id = 'doll_machine', x = 6, y = 247 + 50 + 88},
+            {id = 'doll_cabinet', x = 6, y = 123 + 50 + 88},
         }
         for _, tab in ipairs(tabs) do
             local btn = GUI:Button_Create(parent, 'doll_side_tab_' .. tab.id, tab.x, tab.y, get_doll_tab_skin(tab.id))
             GUI:setAnchorPoint(btn, 0, 1)
+            GUI:setLocalZOrder(btn, 110)
             GUI:addOnClickEvent(btn, function()
                 if npc.woodcut_doll.tab ~= tab.id then
                     npc.woodcut_doll.tab = tab.id
@@ -5782,12 +5783,12 @@ npc[30] = function(p2, p3, Data)
         if not node then
             return
         end
-        render_doll_side_tabs(node)
         if npc.woodcut_doll.tab == 'doll_cabinet' then
             render_doll_cabinet_panel(node)
         else
             render_doll_machine_panel(node)
         end
+        render_doll_side_tabs(node)
     end
     -- local function btn_buy_xjm()
     --     local config = teshudata["anniu_30"]
@@ -9877,36 +9878,45 @@ npc[520] = function(p2, p3, Data)
         local win = ensureWindow("carnivalWelfare", 520, {
             titleText = "狂欢福利",
             background = {
-                skin = "res/wy/public/anniu_520_bj.png",
+                skin = "res/wy/public/tongyong_0.png",
             },
         })
         bg = win.node
         npc.khfl520_bg = bg
 
-        local function label(parent, name, x, y, size, color, value)
+        local function label(parent, name, x, y, size, color, value, fontName)
             local text = GUI:Text_Create(parent, name, x, y, size, color, value)
+            GUI:setAnchorPoint(text, 0.5, 0.5)
             GUI:Text_enableOutline(text, "#190B05", 1)
+            if fontName then
+                GUI:Text_setFontName(text, fontName)
+            end
             return text
         end
 
-        npc.khfl520_title = label(bg, "khfl520_title", 360, 42, 32, "#FFE79B", "狂欢福利")
-        npc.khfl520_slogan = label(bg, "khfl520_slogan", 270, 82, 20, "#FFF1C3", "福利狂欢送送送！累充奖励拿不停！")
-        npc.khfl520_charge = label(bg, "khfl520_charge", 80, 126, 20, "#FFFFFF", "")
-        npc.khfl520_open = label(bg, "khfl520_open", 560, 126, 18, "#FF7777", "")
-        -- 参考活动界面的三列布局：档位、奖励预览、领取状态。
-        npc.khfl520_head_need = label(bg, "khfl520_head_need", 105, 158, 19, "#D8E7F0", "累计充值")
-        npc.khfl520_head_reward = label(bg, "khfl520_head_reward", 390, 158, 19, "#D8E7F0", "奖励预览")
-        npc.khfl520_head_state = label(bg, "khfl520_head_state", 690, 158, 19, "#D8E7F0", "领取状态")
-        npc.khfl520_list = GUI:ListView_Create(bg, "khfl520_list", 52, 180, 760, 305, 1, false)
+        -- npc.khfl520_title = label(bg, "khfl520_title", 432, 480, 36, "#FFF04A", "狂欢福利", "fonts/503.ttf")
+        -- GUI:Text_enableOutline(npc.khfl520_title, "#1A0D04", 2)
+        -- npc.khfl520_slogan = label(bg, "khfl520_slogan", 432, 445, 17, "#FFF1C3", "福利狂欢送送送！累充奖励拿不停！")
+        npc.khfl520_charge = label(bg, "khfl520_charge", 190 - 80, 414 + 30, 17, "#FFFFFF", "")
+        npc.khfl520_open = label(bg, "khfl520_open", 650 - 80, 414 + 30, 16, "#FF7777", "")
+       
+        npc.khfl520_list = GUI:ListView_Create(bg, "khfl520_list", 48, 10, 680, 300 + 80, 1, false)
         GUI:ListView_setGravity(npc.khfl520_list, 2)
-        GUI:ListView_setItemsMargin(npc.khfl520_list, 6)
-        local close = GUI:Button_Create(bg, "khfl520_close", 820, 35, "res/wy/public/close_red_big.png")
-        GUI:addOnClickEvent(close, function()
-            NPC_UI_HELPER.closeWindow(windowCache.carnivalWelfare)
-            windowCache.carnivalWelfare = nil
-            npc.khfl520_bg = nil
-            npc.khfl520_list = nil
-        end)
+        GUI:ListView_setItemsMargin(npc.khfl520_list, 5)
+        npc.khfl520_head_need = label(bg, "khfl520_head_need", 140, 420, 30, "#FFF04A", "累计充值", "fonts/502.ttf")
+        npc.khfl520_head_reward = label(bg, "khfl520_head_reward", 390 - 42, 420, 30, "#FFF04A", "奖励预览", "fonts/502.ttf")
+        npc.khfl520_head_state = label(bg, "khfl520_head_state", 590 + 27, 420, 30, "#FFF04A", "领取状态", "fonts/502.ttf")
+        GUI:Text_enableOutline(npc.khfl520_head_need, "#1A0D04", 2)
+        GUI:Text_enableOutline(npc.khfl520_head_reward, "#1A0D04", 2)
+        GUI:Text_enableOutline(npc.khfl520_head_state, "#1A0D04", 2)
+    
+        -- local close = GUI:Button_Create(bg, "khfl520_close", 820, 35, "res/wy/public/close_red_big.png")
+        -- GUI:addOnClickEvent(close, function()
+        --     NPC_UI_HELPER.closeWindow(windowCache.carnivalWelfare)
+        --     windowCache.carnivalWelfare = nil
+        --     npc.khfl520_bg = nil
+        --     npc.khfl520_list = nil
+        -- end)
     end
 
     local function updateLabel(node, value, color)
@@ -9918,26 +9928,39 @@ npc[520] = function(p2, p3, Data)
         end
     end
 
-    updateLabel(npc.khfl520_title, payload.title or "狂欢福利")
-    updateLabel(npc.khfl520_slogan, payload.slogan or "福利狂欢送送送！累充奖励拿不停！")
+    -- updateLabel(npc.khfl520_title, payload.title or "狂欢福利")
+    -- updateLabel(npc.khfl520_slogan, payload.slogan or "福利狂欢送送送！累充奖励拿不停！")
     updateLabel(npc.khfl520_charge, "当前累计充值：" .. tostring(payload.charge or 0) .. "元")
-    updateLabel(npc.khfl520_open, tonumber(payload.open or 0) == 1 and "" or "第一次合区后开启")
+    updateLabel(
+        npc.khfl520_open,
+        tonumber(payload.open or 0) == 1 and "活动已开启" or "第一次合区后开启",
+        tonumber(payload.open or 0) == 1 and "#8FFF8F" or "#FF7777"
+    )
 
     local list = npc.khfl520_list
     if not list or tolua.isnull(list) then
         return
     end
+    local rewardDisplayNames = {
+        ["足迹：冰霜"] = "足迹：冰霜[展示]",
+        ["足迹：水滴"] = "足迹：水滴[展示]",
+        ["足迹：粉色"] = "足迹：粉色[展示]",
+        ["足迹：足球"] = "足迹：足球[展示]",
+        ["足迹：蝙蝠"] = "足迹：蝙蝠[展示]",
+    }
     GUI:removeAllChildren(list)
     for i, row in ipairs(payload.rows or {}) do
         if tonumber(row.visible or 0) == 1 then
             local claimed = tonumber(row.claimed or 0) == 1
-            local cell = GUI:Layout_Create(-1, "khfl520_row_" .. i, 0, 0, 750, 88, false)
+            local cell = GUI:Layout_Create(-1, "khfl520_row_" .. i, 0, 0, 670, 88, false)
             GUI:Layout_setBackGroundColorType(cell, 1)
-            GUI:Layout_setBackGroundColor(cell, i % 2 == 0 and "#18222B" or "#101820")
-            GUI:Layout_setBackGroundColorOpacity(cell, 145)
+            GUI:Layout_setBackGroundColor(cell, i % 2 == 0 and "#27313A" or "#17212A")
+            GUI:Layout_setBackGroundColorOpacity(cell, 185)
             GUI:ListView_pushBackCustomItem(list, cell)
-            local text = GUI:Text_Create(cell, "need_" .. i, 100, 44, 22, claimed and "#8FFF8F" or "#FFFFFF", tostring(row.need or 0) .. "元")
+            local text = GUI:Text_Create(cell, "need_" .. i, 82, 44, 40, claimed and "#8FFF8F" or "#FFFFFF", tostring(row.need or 0) .. "元")
+            GUI:setAnchorPoint(text, 0.5, 0.5)
             GUI:Text_enableOutline(text, "#190B05", 1)
+            GUI:Text_setFontName(text, "fonts/502.ttf")
             local rewards = row.rewards or {}
             if #rewards <= 0 then
                 local localCfg = teshudata and teshudata["npc_520"]
@@ -9950,27 +9973,40 @@ npc[520] = function(p2, p3, Data)
                     }
                 end
             end
+            local rewardCount = math.min(#rewards, 3)
+            local rewardStartX = 292 - math.max(rewardCount - 1, 0) * 42
             for rewardIndex = 1, 3 do
                 local reward = rewards[rewardIndex]
                 if reward and tostring(reward.name or "") ~= "" then
-                    local itemIndex = SL:GetMetaValue("ITEM_INDEX_BY_NAME", tostring(reward.name))
+                    local rewardName = tostring(reward.name)
+                    local displayName = rewardDisplayNames[rewardName] or rewardName
+                    local itemIndex = SL:GetMetaValue("ITEM_INDEX_BY_NAME", displayName)
                     if tonumber(itemIndex or 0) and tonumber(itemIndex or 0) > 0 then
-                        local itemX = 300 + (rewardIndex - 1) * 86
-                        GUI:ItemShow_Create(cell, "reward_item_" .. i .. "_" .. rewardIndex, itemX, 44, {
+                        local itemX = rewardStartX + (rewardIndex - 1) * 84
+                        local frame = GUI:Image_Create(cell, "reward_frame_" .. i .. "_" .. rewardIndex, itemX, 44, "res/wy/public/58_58_kuang.png")
+                        GUI:setAnchorPoint(frame, 0.5, 0.5)
+                        local frameSize = GUI:getContentSize(frame)
+                        local item = GUI:ItemShow_Create(frame, "reward_item_" .. i .. "_" .. rewardIndex, frameSize.width / 2, frameSize.height / 2, {
                             index = itemIndex,
                             count = tonumber(reward.count or 1) or 1,
                             look = true,
-                            bgVisible = true,
+                            movable = false,
+                            bgVisible = false,
                         })
+                        GUI:setAnchorPoint(item, 0.5, 0.5)
                     end
                 end
             end
-            local button = GUI:Button_Create(cell, "claim_" .. i, 650, 44, "res/wy/public/npc_520_l_1_an.png")
-            GUI:addOnClickEvent(button, function()
-                SL:SendLuaNetMsg(101, 520, 1, i, "")
-            end)
-            local stateText = GUI:Text_Create(cell, "state_" .. i, 690, 16, 16, claimed and "#8FFF8F" or "#FFD46B", claimed and "已领取" or "待领取")
-            GUI:Text_enableOutline(stateText, "#190B05", 1)
+            if claimed then
+                local claimedIcon = GUI:Image_Create(cell, "claimed_" .. i, 486, 44, "res/wy/public/7_2.png")
+                GUI:setAnchorPoint(claimedIcon, 0, 0.5)
+            else
+                local button = GUI:Button_Create(cell, "claim_" .. i, 486, 44, "res/wy/public/an_ljqw_x.png")
+                GUI:setAnchorPoint(button, 0, 0.5)
+                GUI:addOnClickEvent(button, function()
+                    SL:SendLuaNetMsg(101, 520, 1, i, "")
+                end)
+            end
         end
     end
 end
