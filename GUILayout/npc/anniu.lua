@@ -5295,8 +5295,8 @@ npc[30] = function(p2, p3, Data)
 
     local function render_doll_side_tabs(parent)
         local tabs = {
-            {id = 'doll_machine', x = 6, y = 247 + 50 + 88},
-            {id = 'doll_cabinet', x = 6, y = 123 + 50 + 88},
+            {id = 'doll_machine', x = 6 - 42, y = 247 + 50 + 88},
+            {id = 'doll_cabinet', x = 6 - 42, y = 123 + 50 + 88},
         }
         for _, tab in ipairs(tabs) do
             local btn = GUI:Button_Create(parent, 'doll_side_tab_' .. tab.id, tab.x, tab.y, get_doll_tab_skin(tab.id))
